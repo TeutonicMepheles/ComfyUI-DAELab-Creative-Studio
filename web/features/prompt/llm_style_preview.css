@@ -1,4 +1,11 @@
 .dae-ui.llm-style{box-sizing:border-box;width:100%;height:610px;padding:16px;display:flex;flex-direction:column;gap:14px;background:var(--dae-surface-low);color:var(--dae-text);border-radius:var(--dae-radius-card);font:400 var(--dae-font-body)/1.6 var(--dae-font-family);overflow:hidden}
+/* Only the formal, leased B body is owned here and has no zoom consumers.
+   Keep public Canvas headings/Slots and all other adapters outside this scope.
+   Review tests/migrated_canvas/panel_zoom_scope.test.mjs before adding consumers. */
+.dae-creative .dae-creative-card > .dae-creative-body > .dae-ui.llm-style-B[data-canvas-panel=true]{
+  --dae-canvas-zoom:initial;
+  --dae-canvas-inverse-zoom:initial;
+}
 .dae-ui.llm-style[hidden]{display:none}
 .llm-style *{box-sizing:border-box;min-width:0}
 .llm-style .llm-style-top{display:flex;align-items:center;gap:8px;padding-bottom:12px;border-bottom:1px solid var(--dae-border)}

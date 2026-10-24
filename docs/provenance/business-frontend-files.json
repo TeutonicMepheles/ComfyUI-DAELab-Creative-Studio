@@ -408,10 +408,11 @@
       "source": "web/llm_style_preview.css",
       "destination": "frontend/src/features/prompt/llm_style_preview.css",
       "sourceSha256": "91ecfb9d971e13ef211a313656fdac10bb7f430b79582058f63b27224e9112d5",
-      "destinationSha256": "e80080e95f37dd02e9e892eea9db77f1d187295b10226ba04972b7df5dd96c59",
+      "destinationSha256": "a4e46a46f973e7eb41d32ff6405fc89de613aca05223156497e41e908d33f3c3",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "PERF-01 candidate: stop unused inherited Canvas zoom variables only at the owned leased formal LLM B body; preserve public adapter/root, floating headings, Slots and all other variants. Actual browser/performance reacceptance pending."
       ]
     },
     {
