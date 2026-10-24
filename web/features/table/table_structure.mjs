@@ -192,11 +192,8 @@ export function attachTableStructure({root,shell,table,getTable,change,notify}) 
         if(state.handle.hasPointerCapture(state.pointer))state.handle.releasePointerCapture(state.pointer);
         hoverHeight(null);
     }
-    // These handles are absolutely positioned. Measure before inserting any of
-    // them so each next row does not force layout after the previous insertion.
-    const rowHeights=rows().map(row=>({row,height:row.offsetHeight}));
-    for(const {row,height} of rowHeights){
-        const handle=control('调整行高',()=>{},'table-row-resize');handle.setAttribute('role','separator');handle.setAttribute('aria-label',`调整第 ${row.rowIndex} 行高度`);handle.setAttribute('aria-orientation','horizontal');handle.setAttribute('aria-valuenow',String(height));handle.title='拖动本行下边缘调整高度；双击恢复自适应';handle.textContent='';row.querySelector('.table-choice').append(handle);
+    for(const row of rows()){
+        const handle=control('调整行高',()=>{},'table-row-resize');handle.setAttribute('role','separator');handle.setAttribute('aria-label',`调整第 ${row.rowIndex} 行高度`);handle.setAttribute('aria-orientation','horizontal');handle.setAttribute('aria-valuenow',String(row.offsetHeight));handle.title='拖动本行下边缘调整高度；双击恢复自适应';handle.textContent='';row.querySelector('.table-choice').append(handle);
         listen(handle,'pointerdown',e=>beginRowResize(e,row,handle));
         listen(handle,'lostpointercapture',()=>finishRowResize(true));
         listen(handle,'dblclick',e=>{e.preventDefault();e.stopPropagation();row.style.height='';saveRowHeight(row,0);handle.setAttribute('aria-valuenow',String(row.offsetHeight));});

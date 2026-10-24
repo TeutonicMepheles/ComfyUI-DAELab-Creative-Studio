@@ -950,12 +950,11 @@
       "source": "web/table_structure.mjs",
       "destination": "frontend/src/features/table/table_structure.mjs",
       "sourceSha256": "c33ebda46986c7f79d6a8a5740de652964205f02ea0ec2ac962c26bec421202f",
-      "destinationSha256": "55850f7d6e68ba91b952b3388aaa543733022aa818b6450c771a0b76d7a9b0e2",
+      "destinationSha256": "3b163841eb5d449e96e0e88cd328d26c69604c952eefeb2ecd333f4da5e88f5d",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "Actual-host nested keyboard follow-up: shared save propagation in nested panel/popover; keep local editor keys and IME/229 ownership.",
-        "Measure initial row heights before appending absolute resize handles; preserve live resize geometry and all render/history paths. Performance benefit awaits actual S/M comparison."
+        "Actual-host nested keyboard follow-up: shared save propagation in nested panel/popover; keep local editor keys and IME/229 ownership."
       ]
     },
     {
