@@ -31,3 +31,5 @@ def install_generation_fixture(server):
 
 from server import PromptServer
 install_generation_fixture(PromptServer.instance)
+from .asset_cache import install_test_asset_cache_policy
+install_test_asset_cache_policy(PromptServer.instance)
