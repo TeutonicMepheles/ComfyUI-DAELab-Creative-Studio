@@ -112,7 +112,12 @@ Studio 提交 SHA、已固定的旧 Canvas/业务/GGUF 提交和干净的固定 
 宿主实际解析路径。准备报告明确 `modelsRehashedAtPreparation=false`、
 `activationAllowed=false`、`samplerExecutions=0`。没有云端、下载或替代模型路径。
 
-四项真实临时 Git 仓库回归验证固定提交快照、保留未提交改动、两个数据目录、
+五项真实临时 Git 仓库回归验证固定提交快照、保留未提交改动、两个数据目录、
 禁止生产端口/外部目录/移动 ref、配置篡改、模型尺寸变化和宿主改动。
 日志为 `.local/baseline/gpu-preparation-first-tests.log` 和 `gpu-preparation-final-tests.log`。
 完整 Studio 实现提交尚未固定，因此当前还没有由此工具准备或启动实际 GPU 宿主。
+
+独立审查复现了“固定提交仍在 Git 历史中，但 live host 已切到另一干净提交”的缺口。
+准备器现要求宿主实际 HEAD 与固定 SHA 相等；回归保留两个真实提交，验证第二个
+干净 HEAD 被拒绝。首次复现位于 `.local/review-20261025/boundary-repros.json`，
+修复后五项通过记录在 `.local/baseline/gpu-preparation-host-drift-regression.log`。

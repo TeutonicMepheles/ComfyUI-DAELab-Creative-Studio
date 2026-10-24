@@ -114,6 +114,17 @@ class GPUPreparationTests(unittest.TestCase):
             self.plan()
         self.assertFalse(self.destination.exists())
 
+    def test_clean_host_at_another_commit_cannot_execute_under_the_recorded_identity(self):
+        config = self.plan()
+        host = self.root / "host"
+        (host / "main.py").write_text("different clean host commit")
+        git(host, "add", "main.py")
+        git(host, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-m", "Host drift")
+        self.assertEqual(git(host, "status", "--porcelain"), "")
+        with self.assertRaisesRegex(ValueError, "host HEAD"):
+            gpu.prepare(config)
+        self.assertFalse(self.destination.exists())
+
 
 if __name__ == "__main__":
     unittest.main()

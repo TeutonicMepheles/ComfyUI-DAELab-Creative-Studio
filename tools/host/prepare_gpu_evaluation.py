@@ -100,6 +100,8 @@ def plan(runtime_file, studio_repository, studio_commit, destination, old_port, 
     if not build.get("sourceFingerprint") or not build.get("files"):
         raise ValueError("Studio commit has no complete frontend build identity")
     _commit(host, runtime["host"]["gitHead"])
+    if _git(str(host), "rev-parse", "HEAD").decode().strip() != runtime["host"]["gitHead"]:
+        raise ValueError("Live ComfyUI host HEAD differs from the fixed evaluation commit")
     if _git(str(host), "status", "--porcelain").strip():
         raise ValueError("Fixed ComfyUI host has local changes")
     if not python.is_file() or not (host / "main.py").is_file() or (host / "extra_model_paths.yaml").exists():
