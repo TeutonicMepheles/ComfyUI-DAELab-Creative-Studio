@@ -16,6 +16,7 @@ from ..jobs.ledger import TERMINAL_STATES
 from ..providers.contracts import Observation, ProviderUnavailable, SubmissionRejected, SubmissionUncertain
 from ..providers.parameters import IMAGE_MODEL, VIDEO_MODEL, QWEN_MODEL
 from .media import freeze_reference
+from .admission import ResourceAdmission, complete_blocking
 
 MODELS = {IMAGE_MODEL: 'local-qwen-image', VIDEO_MODEL: 'local-h3', QWEN_MODEL: 'local-qwen-text', 'qwen': 'local-qwen-text'}
 _BARRIERS = {'rejected', 'fenced'}
@@ -24,10 +25,11 @@ _SCOPE_KEYS = _SCOPE_IDS | {'epoch', 'inputVersion', 'inputDigest', 'model', 'cr
 
 
 class GenerationService:
-    def __init__(self, jobs, assets, *, providers=None, admission=None, poll_interval=1.0, poll_limit=3600, barrier_namespace=None):
+    def __init__(self, jobs, assets, *, providers=None, admission=None, poll_interval=1.0, poll_limit=3600, barrier_namespace=None, resources=None):
         self.jobs, self.assets = jobs, assets
         self.providers = dict(providers or {})
         self.admission = admission
+        self.resources = resources if resources is not None else ResourceAdmission(jobs=jobs)
         self.poll_interval, self.poll_limit = poll_interval, poll_limit
         self._workers, self._locks = {}, weakref.WeakValueDictionary()
         self.barrier_namespace = identity(barrier_namespace, 'barrier namespace') if barrier_namespace is not None else None
@@ -40,7 +42,7 @@ class GenerationService:
 
     async def capabilities(self, model):
         provider = self.provider(MODELS.get(model))
-        self.check_available(provider)
+        (await complete_blocking(self.check_available, provider))
         capability = getattr(provider, 'capabilities', None)
         if not callable(capability):
             raise ProviderUnavailable('Provider capability inspection is not assembled.')
@@ -53,6 +55,7 @@ class GenerationService:
         return self._locks.setdefault(request_id, asyncio.Lock())
 
     def check_available(self, provider):
+        self.resources.check_available(provider.resource)
         if provider.execution_kind == 'local':
             if self.admission is None:
                 raise ProviderUnavailable('Shared local GPU admission is not assembled.')
@@ -129,6 +132,8 @@ class GenerationService:
                 job = self.jobs.request_cancel(request_id, expected_version=job['version'])['job']
             except (Conflict, InvalidTransition):
                 job = self._matching(request_id, provider_id, source, request_fingerprint)
+        if job['state'] in TERMINAL_STATES:
+            self.resources.release(request_id)
         return job
 
     async def fence_unsubmitted(self, payload):
@@ -140,8 +145,8 @@ class GenerationService:
         model = payload.get('model')
         if model != source['model'] or payload.get('inputDigest') != source['inputDigest']:
             raise Conflict('Sealing must match the immutable original input digest and model.')
-        await asyncio.to_thread(self._reserve_barrier, request_id, MODELS[model], source, preparation='fenced')
-        return self.public(request_id)
+        await complete_blocking(self._reserve_barrier, request_id, MODELS[model], source, preparation='fenced')
+        return await complete_blocking(self.public, request_id)
 
     async def prepare_batch(self, items):
         if not isinstance(items, list) or not items or len(items) > 500:
@@ -163,7 +168,7 @@ class GenerationService:
                 raise InvalidInput('Generation source model does not match the selected input provider.')
             request_fingerprint = digest({'provider': provider_id, 'input': data, 'source': source})
             try:
-                existing = self.jobs.get(request_id)
+                existing = (await complete_blocking(self.jobs.get, request_id))
             except MissingRecord:
                 existing = None
             if existing:
@@ -175,19 +180,19 @@ class GenerationService:
                 continue
             try:
                 provider = self.provider(provider_id)
-                self.check_available(provider)
+                (await complete_blocking(self.check_available, provider))
                 media_items = data.get('assets', [])
                 if not isinstance(media_items, list) or len(media_items) > 32:
                     raise InvalidInput('Task has too many or invalid reference assets.')
-                media = [await asyncio.to_thread(freeze_reference, self.assets, value) for value in media_items]
-                prepared = await asyncio.to_thread(provider.build, data, media, request_id)
-                snapshot = {'version': 1, 'preparation': 'ready', 'requestFingerprint': request_fingerprint,
+                media = [await complete_blocking(freeze_reference, self.assets, value) for value in media_items]
+                prepared = await complete_blocking(provider.build, data, media, request_id)
+                snapshot = {'version': 1, 'preparation': 'ready', 'requestFingerprint': request_fingerprint, 'resource': provider.resource,
                             'request_id': request_id, 'input': data, 'media': media, 'prepared': prepared}
                 clean_json(snapshot)
                 await provider.preflight(snapshot)
             except (InvalidInput, ProviderUnavailable, SubmissionRejected):
                 if self._correlation_scope(source):
-                    prior = self._reserve_barrier(request_id, provider_id, source, preparation='rejected', request_fingerprint=request_fingerprint)
+                    prior = (await complete_blocking(self._reserve_barrier, request_id, provider_id, source, preparation='rejected', request_fingerprint=request_fingerprint))
                     if not self._barrier(prior):
                         planned.append((prior, None, None))
                         continue
@@ -202,9 +207,9 @@ class GenerationService:
                 provider_id = MODELS.get(snapshot['input'].get('config', {}).get('model', snapshot['input'].get('model')))
                 provider = self.provider(provider_id)
                 try:
-                    job, _ = self.jobs.create_or_get(snapshot['request_id'], provider=provider_id, execution_kind=provider.execution_kind, snapshot=snapshot, source=source)
+                    job, _ = (await complete_blocking(self.jobs.create_or_get, snapshot['request_id'], provider=provider_id, execution_kind=provider.execution_kind, snapshot=snapshot, source=source))
                 except Conflict:
-                    job = self._matching(snapshot['request_id'], provider_id, source, snapshot['requestFingerprint'])
+                    job = await complete_blocking(self._matching, snapshot['request_id'], provider_id, source, snapshot['requestFingerprint'])
                     if not self._barrier(job):
                         raise
                 results.append(job)
@@ -217,7 +222,7 @@ class GenerationService:
                 self._schedule(job['request_id'], self.recover(job['request_id']))
             elif job['state'] == 'pending' and not self._barrier(job):
                 self._schedule(job['request_id'], self.dispatch(job['request_id']))
-        return [await asyncio.to_thread(self.public, job['request_id']) for job in jobs]
+        return [await complete_blocking(self.public, job['request_id']) for job in jobs]
 
     def _schedule(self, request_id, coroutine):
         if request_id in self._workers and not self._workers[request_id].done():
@@ -247,64 +252,92 @@ class GenerationService:
                                     provider_task_id=task_id, result=result, error_code=error_code)
 
     @asynccontextmanager
-    async def _lease(self, provider):
-        if provider.execution_kind == 'local':
-            if self.admission is None:
-                raise ProviderUnavailable('Shared local GPU admission is not assembled.')
-            async with self.admission.lease(provider.resource):
-                yield
-        else:
-            # Only explicitly injected protocol fixtures can enter nonlocal adapters.
-            if getattr(provider, 'protocol_only', False) is not True:
-                raise ProviderUnavailable('Live cloud execution is disabled for this migration.')
-            yield
+    async def _lease(self, provider, request_id):
+        async with self.resources.lease(provider.resource, request_id=request_id) as permit:
+            try:
+                if provider.execution_kind == 'local':
+                    if self.admission is None:
+                        raise ProviderUnavailable('Shared local GPU admission is not assembled.')
+                    async with self.admission.lease(provider.resource):
+                        yield
+                else:
+                    if getattr(provider, 'protocol_only', False) is not True:
+                        raise ProviderUnavailable('Live cloud execution is disabled for this migration.')
+                    yield
+            finally:
+                if provider.execution_kind != 'local':
+                    # Lost acknowledgements and failed queries do not prove the
+                    # remote execution stopped. Preserve capacity until recovery
+                    # observes a terminal fact, including across service restart.
+                    permit.retain()
+                    await complete_blocking(self._settle_permit, permit, request_id)
+
+    def _settle_permit(self, permit, request_id):
+        job = self.jobs.get(request_id)
+        if job['state'] in TERMINAL_STATES or job['attempt'] == 0:
+            permit.release()
+
+    async def _release_terminal_capacity(self, request_id):
+        # Read and release in the same non-cancellable worker callback: another
+        # caller cancellation cannot split this cleanup after the durable commit.
+        def settle():
+            job = self.jobs.get(request_id)
+            if job['state'] in TERMINAL_STATES:
+                self.resources.release(request_id)
+        await complete_blocking(settle)
 
     async def dispatch(self, request_id, *, before_submit=None):
         async with self._lock(request_id):
-            job = self.jobs.get(request_id)
+            job = (await complete_blocking(self.jobs.get, request_id))
             if job['state'] != 'pending' or self._barrier(job):
                 return job
             provider = self._owner(job)
             try:
-                async with self._lease(provider):
-                    job = self.jobs.get(request_id)
+                async with self._lease(provider, request_id):
+                    job = (await complete_blocking(self.jobs.get, request_id))
                     if job['state'] != 'pending' or job['cancel_requested']:
                         return job
                     if before_submit is not None and not before_submit():
                         return job
                     await provider.preflight(job['snapshot'])
                     for media in job['snapshot']['media']:
-                        checked = self.assets.validate_reference(media['reference_id'])
+                        checked = (await complete_blocking(self.assets.validate_reference, media['reference_id']))
                         if not checked['usable'] or checked['content_sha256'] != media['sha256']:
                             raise SubmissionRejected('Frozen input is unavailable.')
                     if before_submit is not None and not before_submit():
-                        return self.jobs.get(request_id)
-                    job = self.jobs.begin_submission(request_id, expected_version=job['version'])
+                        return (await complete_blocking(self.jobs.get, request_id))
+                    job = (await complete_blocking(self.jobs.begin_submission, request_id, expected_version=job['version']))
+                    # The durable claim may have waited on SQLite in a worker.
+                    # Recheck loop-owned permission after that await, before any
+                    # external call. A claim alone is not provider execution.
+                    job = await complete_blocking(self.jobs.get, request_id)
+                    if job['cancel_requested'] or before_submit is not None and not before_submit():
+                        return await complete_blocking(self._transition, job, 'failed', error_code='stopped_before_provider_create')
                     try:
                         observation = await provider.create(request_id, job['snapshot'])
                     except (SubmissionRejected, ProviderUnavailable):
-                        return self._transition(self.jobs.get(request_id), 'failed', error_code='definitely_rejected')
+                        return (await complete_blocking(self._transition, (await complete_blocking(self.jobs.get, request_id)), 'failed', error_code='definitely_rejected'))
                     except BaseException as error:
-                        return self._transition(self.jobs.get(request_id), 'unknown', error_code='submission_unknown', task_id=getattr(error, 'task_id', None))
-                    job = await self._observe(self.jobs.get(request_id), observation)
+                        return (await complete_blocking(self._transition, (await complete_blocking(self.jobs.get, request_id)), 'unknown', error_code='submission_unknown', task_id=getattr(error, 'task_id', None)))
+                    job = await self._observe((await complete_blocking(self.jobs.get, request_id)), observation)
                     for _ in range(self.poll_limit):
                         if job['state'] in TERMINAL_STATES or job['state'] in {'unknown', 'needs_recovery'}:
                             return job
                         if not provider.supports_query:
-                            return self._transition(job, 'needs_recovery', error_code='query_unavailable')
+                            return (await complete_blocking(self._transition, job, 'needs_recovery', error_code='query_unavailable'))
                         await asyncio.sleep(self.poll_interval)
-                        job = await self._query(self.jobs.get(request_id), provider)
-                    return self._transition(self.jobs.get(request_id), 'needs_recovery', error_code='tracking_limit')
+                        job = await self._query((await complete_blocking(self.jobs.get, request_id)), provider)
+                    return (await complete_blocking(self._transition, (await complete_blocking(self.jobs.get, request_id)), 'needs_recovery', error_code='tracking_limit'))
             except Exception:
-                current = self.jobs.get(request_id)
+                current = (await complete_blocking(self.jobs.get, request_id))
                 if current['state'] == 'pending':
-                    claimed = self.jobs.begin_submission(request_id, expected_version=current['version'])
-                    return self._transition(claimed, 'failed', error_code='preflight_unavailable')
+                    claimed = (await complete_blocking(self.jobs.begin_submission, request_id, expected_version=current['version']))
+                    return (await complete_blocking(self._transition, claimed, 'failed', error_code='preflight_unavailable'))
                 if current['state'] == 'submitting':
-                    return self._transition(current, 'unknown', error_code='submission_observation_invalid')
+                    return (await complete_blocking(self._transition, current, 'unknown', error_code='submission_observation_invalid'))
                 # Release failure quarantines admission; do not regress a validated terminal fact.
                 if current['state'] not in TERMINAL_STATES and current['state'] not in {'unknown', 'needs_recovery'}:
-                    return self._transition(current, 'needs_recovery', error_code='tracking_unavailable')
+                    return (await complete_blocking(self._transition, current, 'needs_recovery', error_code='tracking_unavailable'))
                 return current
 
     async def _observe(self, job, observation):
@@ -314,22 +347,22 @@ class GenerationService:
             raise Conflict('Observation belongs to another native/provider execution.')
         if observation.state == 'unknown':
             if job['state'] in {'submitting', 'needs_recovery'}:
-                return self._transition(job, 'unknown', task_id=observation.task_id, error_code='original_execution_unknown')
-            return self._transition(job, 'needs_recovery', error_code='original_execution_missing')
+                return (await complete_blocking(self._transition, job, 'unknown', task_id=observation.task_id, error_code='original_execution_unknown'))
+            return (await complete_blocking(self._transition, job, 'needs_recovery', error_code='original_execution_missing'))
         if job['state'] in {'submitting', 'unknown'}:
-            job = self.jobs.mark_submitted(job['request_id'], observation.task_id, expected_version=job['version'], event_id='submitted:' + uuid.uuid4().hex)
+            job = (await complete_blocking(self.jobs.mark_submitted, job['request_id'], observation.task_id, expected_version=job['version'], event_id='submitted:' + uuid.uuid4().hex))
         if observation.state == 'cancelled':
             if not job['cancel_requested']:
-                return self._transition(job, 'failed', error_code='native_execution_stopped')
-            return self.jobs.confirm_cancelled(job['request_id'], expected_version=job['version'], provider_task_id=observation.task_id, confirmation='owned_native_execution_stopped' if job['execution_kind'] == 'local' else 'provider_cancelled')
+                return (await complete_blocking(self._transition, job, 'failed', error_code='native_execution_stopped'))
+            return (await complete_blocking(self.jobs.confirm_cancelled, job['request_id'], expected_version=job['version'], provider_task_id=observation.task_id, confirmation='owned_native_execution_stopped' if job['execution_kind'] == 'local' else 'provider_cancelled'))
         if observation.state == 'failed':
-            return self._transition(job, 'failed', error_code=observation.error_code or 'provider_failed')
+            return (await complete_blocking(self._transition, job, 'failed', error_code=observation.error_code or 'provider_failed'))
         if observation.state in {'submitted', 'running'}:
             if job['state'] in {'submitted', 'needs_recovery'} and observation.state == 'running':
-                return self._transition(job, 'running')
+                return (await complete_blocking(self._transition, job, 'running'))
             return job
         if job['state'] != 'fetching':
-            job = self._transition(job, 'fetching')
+            job = (await complete_blocking(self._transition, job, 'fetching'))
         def finish():
             if observation.text is not None:
                 receipt = {'kind': 'text', 'text': observation.text, 'metadata': observation.metadata}
@@ -346,31 +379,37 @@ class GenerationService:
                 return current
             return self._transition(current, 'succeeded', result=receipt)
         try:
-            return await asyncio.to_thread(finish)
+            return await complete_blocking(finish)
         except Exception:
-            return self._transition(self.jobs.get(job['request_id']), 'needs_recovery', error_code='result_unverified')
+            return (await complete_blocking(self._transition, (await complete_blocking(self.jobs.get, job['request_id'])), 'needs_recovery', error_code='result_unverified'))
 
     async def _query(self, job, provider):
         try:
             observation = await provider.query(job['provider_task_id'], job['snapshot'])
-            return await self._observe(self.jobs.get(job['request_id']), observation)
+            return await self._observe((await complete_blocking(self.jobs.get, job['request_id'])), observation)
         except Exception:
-            current = self.jobs.get(job['request_id'])
+            current = (await complete_blocking(self.jobs.get, job['request_id']))
             if current['state'] in {'submitted', 'running', 'fetching'}:
-                return self._transition(current, 'needs_recovery', error_code='query_unavailable')
+                return (await complete_blocking(self._transition, current, 'needs_recovery', error_code='query_unavailable'))
             return current
 
     async def recover(self, request_id):
+        try:
+            return await self._recover(request_id)
+        finally:
+            await self._release_terminal_capacity(request_id)
+
+    async def _recover(self, request_id):
         async with self._lock(request_id):
-            job = self.jobs.get(request_id)
+            job = (await complete_blocking(self.jobs.get, request_id))
             if job['state'] in TERMINAL_STATES or job['state'] == 'pending':
                 return job
             provider = self._owner(job)
-            action = self.jobs.recovery_action(request_id, supports_query=provider.supports_query, supports_idempotency_lookup=provider.supports_lookup)['action']
+            action = (await complete_blocking(self.jobs.recovery_action, request_id, supports_query=provider.supports_query, supports_idempotency_lookup=provider.supports_lookup))['action']
             if action == 'manual_reconciliation':
                 return job
             if job['state'] in {'unknown', 'needs_recovery', 'fetching'}:
-                job = self.jobs.claim_recovery(request_id, expected_version=job['version'])
+                job = (await complete_blocking(self.jobs.claim_recovery, request_id, expected_version=job['version']))
             if action == 'lookup_original_request':
                 observation = await provider.lookup(request_id, job['snapshot'])
                 return await self._observe(job, observation) if observation is not None else job
@@ -378,7 +417,7 @@ class GenerationService:
 
     async def retry_local(self, request_id, new_request_id):
         """Explicit new execution after a confirmed stop; never recovery replay."""
-        original = self.jobs.get(request_id)
+        original = (await complete_blocking(self.jobs.get, request_id))
         if self._barrier(original):
             raise InvalidTransition('A sealed preparation has no executable input; explicitly submit fresh validated inputs under a new identity.')
         if original['execution_kind'] != 'local' or original['state'] not in {'failed', 'cancelled'}:
@@ -396,16 +435,22 @@ class GenerationService:
         return (await self.submit([item]))[0]
 
     async def cancel(self, request_id):
+        try:
+            return await self._cancel(request_id)
+        finally:
+            await self._release_terminal_capacity(request_id)
+
+    async def _cancel(self, request_id):
         # Does not wait for the long-running worker's lock: cancellation is intent.
         for attempt in range(3):
-            job = self.jobs.get(request_id)
+            job = (await complete_blocking(self.jobs.get, request_id))
             if job['state'] in TERMINAL_STATES:
                 return job
             if self._barrier(job):
-                return self.jobs.request_cancel(request_id, expected_version=job['version'])['job']
+                return (await complete_blocking(self.jobs.request_cancel, request_id, expected_version=job['version']))['job']
             provider = self._owner(job)
             try:
-                outcome = self.jobs.request_cancel(request_id, expected_version=job['version'], supports_remote_cancel=provider.supports_cancel)
+                outcome = (await complete_blocking(self.jobs.request_cancel, request_id, expected_version=job['version'], supports_remote_cancel=provider.supports_cancel))
                 break
             except Conflict:
                 if attempt == 2:
@@ -415,10 +460,10 @@ class GenerationService:
             return job
         confirmed = await provider.cancel(job['provider_task_id'], job['snapshot'])
         if confirmed is True:
-            current = self.jobs.get(request_id)
+            current = (await complete_blocking(self.jobs.get, request_id))
             if current['state'] not in TERMINAL_STATES:
-                return self.jobs.confirm_cancelled(request_id, expected_version=current['version'], provider_task_id=job['provider_task_id'], confirmation='owned_native_execution_stopped' if job['execution_kind'] == 'local' else 'provider_cancelled')
-        return self.jobs.get(request_id)
+                return (await complete_blocking(self.jobs.confirm_cancelled, request_id, expected_version=current['version'], provider_task_id=job['provider_task_id'], confirmation='owned_native_execution_stopped' if job['execution_kind'] == 'local' else 'provider_cancelled'))
+        return (await complete_blocking(self.jobs.get, request_id))
 
     def completed_result(self, request_id):
         job = self.jobs.get(request_id)

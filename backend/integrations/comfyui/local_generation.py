@@ -6,6 +6,7 @@ from pathlib import Path
 import re
 
 from ...generation.assembly import assemble_generation
+from ...generation.admission import complete_blocking
 from ...providers.qwen_binding import QwenModelBinding
 
 SHA = re.compile(r"^[a-f0-9]{64}$")
@@ -101,7 +102,15 @@ def assemble_host_generation(server, core, folder_paths, *, native_queue=None):
     if config is None:
         return assemble_generation(core)
     import nodes
-    from .generation_nodes.native_host import release_native_models, install_native_admission
+    from .generation_nodes.native_host import install_native_admission
+    async def release_native_models():
+        # Model disposal can synchronously wait for GPU work and collect memory.
+        # The physical lease and native-queue busy checks already exclude inference.
+        def release():
+            import comfy.model_management as model_management
+            model_management.unload_all_models()
+            model_management.soft_empty_cache()
+        await complete_blocking(release)
     queue = native_queue if native_queue is not None else create_host_queue(server)
     generation = compose_configured_generation(core, config, native_queue=queue,
                                                node_types=lambda: nodes.NODE_CLASS_MAPPINGS,

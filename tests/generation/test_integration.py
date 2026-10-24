@@ -37,6 +37,7 @@ class IntegrationTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_disabled_assembly_imports_no_models_and_health_is_unavailable(self):
         service=assemble_generation(self.core)
+        self.assertIs(service.resources, self.core.resources)
         handlers={(m,p):h for m,p,h in routes(service)}
         response=await handlers['GET','/daelab/studio/generation/capabilities'](Request(query={'model':'Qwen-Image-2.1 Turbo（本地）'}))
         self.assertEqual(response.status,503)

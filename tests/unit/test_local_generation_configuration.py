@@ -7,6 +7,7 @@ import unittest
 from unittest.mock import patch
 
 from backend.integrations.comfyui.local_generation import read_configuration, compose_configured_generation
+from backend.generation.admission import ResourceAdmission
 
 
 class LocalGenerationConfigurationTests(unittest.TestCase):
@@ -32,15 +33,16 @@ class LocalGenerationConfigurationTests(unittest.TestCase):
         self.assertIsNone(read_configuration(self.user))
         self.save({'schemaVersion': 1, 'enabled': False})
         self.assertIsNone(read_configuration(self.user))
-        core = SimpleNamespace(jobs=object(), assets=object())
+        core = SimpleNamespace(jobs=object(), assets=object(), resources=ResourceAdmission())
         service = compose_configured_generation(core, None, native_queue=None, node_types=None, resolve_model=None, release_native_models=None)
         self.assertEqual(service.providers, {})
         self.assertIs(service.jobs, core.jobs)
+        self.assertIs(service.resources, core.resources)
 
     def test_explicit_composition_uses_same_ledger_without_reading_weights_or_dispatching(self):
         self.save(self.config)
         config = read_configuration(self.user)
-        core = SimpleNamespace(jobs=object(), assets=object())
+        core = SimpleNamespace(jobs=object(), assets=object(), resources=ResourceAdmission())
         queue = SimpleNamespace(busy=lambda: False)
         with patch('backend.providers.qwen_binding.QwenModelBinding.verify', side_effect=AssertionError('early weight IO')), \
              patch('backend.providers.native.ModelInventory.verify', side_effect=AssertionError('early weight IO')):
@@ -49,6 +51,7 @@ class LocalGenerationConfigurationTests(unittest.TestCase):
         self.assertEqual(set(service.providers), {'local-qwen-text', 'local-qwen-image', 'local-h3'})
         self.assertEqual(service._workers, {})
         self.assertIs(service.jobs, core.jobs)
+        self.assertIs(service.resources, core.resources)
         self.assertIs(service.assets, core.assets)
         self.assertFalse((self.root / 'shared-gpu.lock').exists())
 
@@ -74,6 +77,29 @@ class LocalGenerationConfigurationTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 read_configuration(self.user)
 
+
+    def test_explicit_native_model_disposal_runs_outside_http_event_loop(self):
+        import asyncio
+        import sys
+        import threading
+        from backend.integrations.comfyui.local_generation import assemble_host_generation
+        owner = threading.get_ident()
+        events, captured = [], {}
+        def operation(name):
+            self.assertNotEqual(threading.get_ident(), owner)
+            events.append(name)
+        management = SimpleNamespace(unload_all_models=lambda: operation('unload'), soft_empty_cache=lambda: operation('cache'))
+        def compose(*args, **kwargs):
+            captured.update(kwargs)
+            return SimpleNamespace(admission=object())
+        with patch('backend.integrations.comfyui.local_generation.read_configuration', return_value={'explicit': True}), \
+             patch('backend.integrations.comfyui.local_generation.compose_configured_generation', side_effect=compose), \
+             patch('backend.integrations.comfyui.generation_nodes.native_host.install_native_admission'), \
+             patch.dict(sys.modules, {'nodes': SimpleNamespace(NODE_CLASS_MAPPINGS={}), 'comfy': SimpleNamespace(model_management=management), 'comfy.model_management': management}):
+            assemble_host_generation(object(), object(), SimpleNamespace(get_user_directory=lambda: self.user, get_full_path=lambda *_: None), native_queue=object())
+            self.assertEqual(events, [])  # Composition itself never releases models.
+            asyncio.run(captured['release_native_models']())
+        self.assertEqual(events, ['unload', 'cache'])
 
 if __name__ == '__main__':
     unittest.main()

@@ -12,6 +12,7 @@ from comfy.utils import ProgressBar
 
 from ....media.video_edit_media import media_info, preview
 from ....providers.contracts import ProviderUnavailable
+from ....generation.admission import complete_task, complete_blocking
 
 
 _export_service = None
@@ -67,11 +68,14 @@ class VideoEdit(io.ComfyNode):
                      io.Custom('COMFYTV_VIDEO').Output('video_ref', display_name='剪辑成片引用', tooltip='同一成片的本地视频引用')], is_output_node=True, not_idempotent=True)
 
     @classmethod
-    def execute(cls, edit_data, assets=None, videos=None, images=None, groups=None):
+    async def execute(cls, edit_data, assets=None, videos=None, images=None, groups=None):
         if _export_service is None:
             raise ProviderUnavailable('Video export requires the shared Studio job ledger and asset service.')
         bar = ProgressBar(100)
-        result = _export_service.execute(edit_data, context=native_execution_context(),
+        # The pinned host awaits async V3 methods inside CurrentNodeContext.
+        # Capture ownership there, then run the synchronous codec on a worker.
+        context = native_execution_context()
+        result = await complete_blocking(_export_service.execute, edit_data, context=context,
             connections=dict(assets=assets, videos=videos, images=images, groups=groups),
             check=model_management.throw_exception_if_processing_interrupted,
             progress=lambda done, total: bar.update_absolute(round(done/total*100), 100))
@@ -79,8 +83,6 @@ class VideoEdit(io.ComfyNode):
         return io.NodeOutput(InputImpl.VideoFromFile(result['path']), '/view?' + urlencode(ref),
             ui={'videos': [ref], 'edit_data': [edit_data], 'creative_studio_export': [result['job']]})
 
-
-preview_lock = asyncio.Lock()
 
 
 async def inspect_media(request):
@@ -98,7 +100,9 @@ async def make_preview(request):
             raise InterruptedError('预览已取消')
     try:
         data = await request.json()
-        async with preview_lock:
+        if _export_service is None:
+            raise ProviderUnavailable('Preview requires the shared Studio resource admission service.')
+        async with _export_service.resources.lease('transcode'):
             check()
             if request.transport is None or request.transport.is_closing():
                 raise InterruptedError('预览已取消')
@@ -112,7 +116,7 @@ async def make_preview(request):
             finally:
                 stopped.set()
                 if not task.done():
-                    await asyncio.shield(asyncio.gather(task, return_exceptions=True))
+                    await complete_task(asyncio.gather(task, return_exceptions=True))
     except (ValueError, KeyError, TypeError, OSError, FFmpegError) as e:
         return web.json_response({'error': str(e)}, status=400)
 

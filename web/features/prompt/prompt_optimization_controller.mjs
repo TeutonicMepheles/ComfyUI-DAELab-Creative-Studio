@@ -194,9 +194,23 @@ export function attachPromptOptimization({node,graph,editor,getTable,identity,fe
  }
  editor.openPromptOptimization=target=>{
   closeView();const field=getTable().fields.find(f=>f.id===target.fieldId);if(!field)return;
-  const anchor=target.anchor||editor.root;
-  popover=createSettingsPopover(anchor,'优化'+field.name,()=>{clearInterval(visibilityTimer);visibilityTimer=null;view?.destroy();view=null;popover=null;},{placement:'above',onEscape:()=>view?.closeNested?.()});
-  visibilityTimer=setInterval(()=>{if(dead||node.graph!==graph||!isActive()){closeView();for(const c of controllers.values())c.pause();}else if(!anchor.isConnected||!anchor.getClientRects().length)closeView();},200);
+  const ownerRoot=editor.root,ownerDocument=editor.nativeDocument,{scope,fieldId,recordId}=target;
+  let anchor=target.anchor||ownerRoot;
+  // Metadata writes rebuild cells. Resolve only inside this editor and retain
+  // the stable target; never attach to another instance with matching row IDs.
+  const resolveAnchor=()=>{
+   if(dead||node.graph!==graph||editor.root!==ownerRoot||editor.nativeDocument!==ownerDocument||!ownerRoot.isConnected||!ownerRoot.getClientRects().length)return null;
+   const table=getTable();if(!table.fields.some(f=>f.id===fieldId)||scope==='cell'&&!table.records.some(r=>r.id===recordId))return null;
+   const matches=element=>scope==='column'?element.dataset?.column===fieldId:element.dataset?.field===fieldId&&element.dataset?.record===recordId;
+   if(anchor?.isConnected&&ownerRoot.contains(anchor)&&matches(anchor))return anchor;
+   const selector=scope==='column'?'th[data-column]':'td[data-field]';
+   anchor=[...(ownerRoot.querySelectorAll?.(selector)||[])].find(element=>matches(element)&&ownerRoot.contains(element))||null;
+   if(!anchor&&!target.anchor)anchor=ownerRoot; // Preserve the explicit root-anchored programmatic API.
+   return anchor;
+  };
+  const initial=resolveAnchor();if(!initial)return;
+  popover=createSettingsPopover(initial,'优化'+field.name,()=>{clearInterval(visibilityTimer);visibilityTimer=null;view?.destroy();view=null;popover=null;},{placement:'above',onEscape:()=>view?.closeNested?.(),resolveAnchor});
+  visibilityTimer=setInterval(()=>{if(dead||node.graph!==graph||!isActive()){closeView();for(const c of controllers.values())c.pause();}else popover?.reposition();},200);
   if(field.readonly){const source=describeTableSource(node,getTable(),field.id);view=createOptimizationSourceView({container:popover.root,source,onLocate:()=>{closeView();focusTableSource(node,source);}});return;}
   const controller=obtain(target);controller.observe();view=createOptimizationComposer({controller,container:popover.root,fieldName:field.name});
   if(!controller.getState().quote&&!controller.getState().batchId)void controller.estimate();

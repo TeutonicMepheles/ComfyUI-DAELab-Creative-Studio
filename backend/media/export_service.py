@@ -17,6 +17,7 @@ from av.error import FFmpegError
 from ..contracts.errors import Conflict, InvalidInput, InvalidTransition, MissingRecord
 from ..contracts.validation import clean_json, digest, identity
 from ..jobs.ledger import TERMINAL_STATES
+from ..generation.admission import ResourceAdmission, complete_blocking
 from ..providers.contracts import ProviderUnavailable, SubmissionRejected, SubmissionUncertain
 from .video_edit_media import edit_clips, media_info, render
 
@@ -29,8 +30,9 @@ class ExportCancelled(InterruptedError):
 
 
 class ExportService:
-    def __init__(self, jobs, assets, *, native_queue=None):
+    def __init__(self, jobs, assets, *, native_queue=None, resources=None):
         self.jobs, self.assets, self.native_queue = jobs, assets, native_queue
+        self.resources = resources if resources is not None else ResourceAdmission(jobs=jobs)
 
     @staticmethod
     def _native_id(request_id):
@@ -94,7 +96,7 @@ class ExportService:
                 raise Conflict('Media changed while the export snapshot was being prepared.')
             frozen_clips.append({**clip, 'asset': info, 'frozen': frozen})
         native_info = native or {'promptId': self._native_id(request_id), 'nodeId': 'save', 'listIndex': 0}
-        snapshot = {'schemaVersion': 1, 'preparation': 'ready', 'requestFingerprint': request_fingerprint, 'edit': edit,
+        snapshot = {'schemaVersion': 1, 'preparation': 'ready', 'resource': 'transcode', 'requestFingerprint': request_fingerprint, 'edit': edit,
                     'connections': connections, 'clips': frozen_clips, 'fit': fit,
                     'native': native_info, 'dispatch': 'native' if native else 'http',
                     'output': f'DAELAB/edits/{self._native_id(request_id)}.mp4'}
@@ -146,13 +148,13 @@ class ExportService:
         if self.native_queue is None:
             raise ProviderUnavailable('The native export queue has not been injected.')
         # Validate credentials/scope/JSON BEFORE any rejected identity may be stored.
-        _edit, _connections, safe_source, request_fingerprint = self._request(request_id, edit_data, connections, source)
+        _edit, _connections, safe_source, request_fingerprint = await complete_blocking(self._request, request_id, edit_data, connections, source)
         try:
-            job = await asyncio.to_thread(self.prepare, request_id, edit_data, connections=connections, source=source)
+            job = await complete_blocking(self.prepare, request_id, edit_data, connections=connections, source=source)
         except InvalidInput:
             if not {'documentId', 'nodeId', 'inputDigest'} <= set(safe_source):
                 raise  # Older callers without verified owner/digest receive no rejection record.
-            return await asyncio.to_thread(self._reject_preparation, request_id, safe_source, request_fingerprint)
+            return await complete_blocking(self._reject_preparation, request_id, safe_source, request_fingerprint)
         if job['snapshot'].get('preparation') == 'rejected':
             return job  # Includes interrupted pending rejection: never reaches native queue.
         if job['state'] != 'pending':
@@ -167,32 +169,32 @@ class ExportService:
             # it; preflight must not cancel or replace its durable facts.
             raise SubmissionUncertain('Native validation rejected this attempt; inspect or explicitly cancel the original prepared identity.') from None
         try:
-            job = await asyncio.to_thread(self.jobs.begin_submission, request_id, expected_version=job['version'])
+            job = await complete_blocking(self.jobs.begin_submission, request_id, expected_version=job['version'])
         except (Conflict, InvalidTransition):
-            return await asyncio.to_thread(self._owned, request_id)
+            return await complete_blocking(self._owned, request_id)
         try:
             await self.native_queue.enqueue(self._native_id(request_id), graph, owner=request_id)
         except BaseException as exc:
-            current = await asyncio.to_thread(self._owned, request_id)
+            current = await complete_blocking(self._owned, request_id)
             if current['state'] == 'submitting':
                 try:
-                    await asyncio.to_thread(self._transition, current,
+                    await complete_blocking(self._transition, current,
                         'failed' if isinstance(exc, SubmissionRejected) else 'unknown',
                         provider_task_id=self._native_id(request_id),
                         error_code='native_queue_rejected' if isinstance(exc, SubmissionRejected) else 'native_submission_unknown')
                 except Conflict:
                     pass  # Native execution may already have advanced the same identity.
             if isinstance(exc, SubmissionRejected):
-                current = await asyncio.to_thread(self._owned, request_id)
+                current = await complete_blocking(self._owned, request_id)
                 if current['state'] != 'failed':
                     raise SubmissionUncertain('The original native task may already be executing; inspect its durable identity.') from None
             raise
-        current = await asyncio.to_thread(self._owned, request_id)
+        current = await complete_blocking(self._owned, request_id)
         if current['state'] == 'submitting':
             try:
-                current = await asyncio.to_thread(self._submitted, current)
+                current = await complete_blocking(self._submitted, current)
             except Conflict:
-                current = await asyncio.to_thread(self._owned, request_id)
+                current = await complete_blocking(self._owned, request_id)
         return current
 
     def execute(self, edit_data, *, context, connections=None, check=lambda: None, progress=lambda *_: None):
@@ -226,6 +228,24 @@ class ExportService:
             job = self._submitted(job)
         if job['state'] != 'submitted':
             raise InvalidTransition('This export has already executed or requires reconciliation; it cannot render again.')
+        def queued_check():
+            check()
+            current = self._owned(request_id)
+            if current['cancel_requested'] or current['state'] == 'cancelled':
+                raise ExportCancelled('The queued export was cancelled before rendering.')
+            if current['state'] != 'submitted':
+                raise InvalidTransition('Export ownership changed before rendering.')
+        try:
+            with self.resources.lease_sync('transcode', request_id=request_id, check=queued_check, resume_retained=True):
+                return self._render_owned(self._owned(request_id), check=check, progress=progress)
+        except ExportCancelled:
+            current = self._owned(request_id)
+            if current['state'] not in TERMINAL_STATES:
+                self._confirm_cancel(current)
+            raise
+
+    def _render_owned(self, job, *, check, progress):
+        request_id = job['request_id']
         job = self._transition(job, 'running')  # Single optimistic winner may enter the renderer.
         output, _ = self.assets.resolve_reference('output', job['snapshot']['output'], must_exist=False)
         staging = output.with_name('.' + uuid.uuid4().hex + '.part.mp4')
@@ -314,51 +334,68 @@ class ExportService:
         return self.jobs.confirm_cancelled(job['request_id'], expected_version=job['version'],
             provider_task_id=job['provider_task_id'], confirmation='owned_native_execution_stopped')
 
+    def _release_terminal_capacity(self, request_id):
+        job = self._owned(request_id)
+        if job['state'] in TERMINAL_STATES:
+            self.resources.release(request_id)
+
     async def cancel(self, request_id, *, expected_version):
-        job = await asyncio.to_thread(self._owned, request_id)
-        response = await asyncio.to_thread(self.jobs.request_cancel, request_id, expected_version=expected_version)
+        try:
+            return await self._cancel(request_id, expected_version=expected_version)
+        finally:
+            await complete_blocking(self._release_terminal_capacity, request_id)
+
+    async def _cancel(self, request_id, *, expected_version):
+        job = await complete_blocking(self._owned, request_id)
+        response = await complete_blocking(self.jobs.request_cancel, request_id, expected_version=expected_version)
         job = response['job']
         if (job['state'] not in TERMINAL_STATES and job['provider_task_id'] and
                 job['snapshot']['dispatch'] == 'http' and self.native_queue is not None):
             # Adapter confirms only removal from this owner's pending native queue.
             removed = await self.native_queue.cancel(job['snapshot']['native']['promptId'], owner=request_id)
             if removed:
-                current = await asyncio.to_thread(self._owned, request_id)
+                current = await complete_blocking(self._owned, request_id)
                 if current['state'] not in TERMINAL_STATES:
-                    job = await asyncio.to_thread(self._confirm_cancel, current)
-        return await asyncio.to_thread(self._owned, request_id)
+                    job = await complete_blocking(self._confirm_cancel, current)
+        return await complete_blocking(self._owned, request_id)
 
     async def recover(self, request_id):
-        job = await asyncio.to_thread(self._owned, request_id)
+        try:
+            return await self._recover(request_id)
+        finally:
+            await complete_blocking(self._release_terminal_capacity, request_id)
+
+    async def _recover(self, request_id):
+        job = await complete_blocking(self._owned, request_id)
         if job['state'] in TERMINAL_STATES or job['state'] == 'pending':
             return job
         if job['state'] in {'needs_recovery', 'unknown', 'fetching'}:
-            job = await asyncio.to_thread(self.jobs.claim_recovery, request_id, expected_version=job['version'])
+            job = await complete_blocking(self.jobs.claim_recovery, request_id, expected_version=job['version'])
         if job['state'] in {'fetching', 'needs_recovery'} and job['result']:
-            return await asyncio.to_thread(self._finish, request_id)
+            return await complete_blocking(self._finish, request_id)
         if job['snapshot']['dispatch'] != 'http' or self.native_queue is None:
             return job  # Direct native tasks require host inspection; no inferred resubmission.
         observation = await self.native_queue.query(job['snapshot']['native']['promptId'], owner=request_id, kind='video')
-        current = await asyncio.to_thread(self._owned, request_id)
+        current = await complete_blocking(self._owned, request_id)
         if current['state'] in TERMINAL_STATES:
             return current
         if observation.task_id != job['snapshot']['native']['promptId']:
             raise Conflict('Recovery returned a foreign native task identity.')
         if observation.state == 'cancelled':
             if not current['cancel_requested']:
-                current = (await asyncio.to_thread(self.jobs.request_cancel, request_id, expected_version=current['version']))['job']
-            return await asyncio.to_thread(self._confirm_cancel, current)
+                current = (await complete_blocking(self.jobs.request_cancel, request_id, expected_version=current['version']))['job']
+            return await complete_blocking(self._confirm_cancel, current)
         if observation.state == 'failed':
-            return await asyncio.to_thread(self._transition, current, 'failed', error_code='native_execution_failed')
+            return await complete_blocking(self._transition, current, 'failed', error_code='native_execution_failed')
         if observation.state in {'submitted', 'running', 'succeeded'} and current['state'] in {'submitting', 'unknown'}:
-            current = await asyncio.to_thread(self._submitted, current)
+            current = await complete_blocking(self._submitted, current)
         if observation.state == 'succeeded':
             expected = ({'root': 'output', 'path': current['snapshot']['output'], 'kind': 'video'},)
             if tuple(observation.files) != expected:
                 raise Conflict('Native history does not contain this export\'s exact owned output.')
-            return await asyncio.to_thread(self._finish, request_id)
+            return await complete_blocking(self._finish, request_id)
         if observation.state == 'unknown' and current['state'] in {'submitting', 'submitted', 'running', 'fetching'}:
-            current = await asyncio.to_thread(self._transition, current,
+            current = await complete_blocking(self._transition, current,
                 'unknown' if current['state'] == 'submitting' else 'needs_recovery',
                 provider_task_id=self._native_id(request_id), error_code='native_history_unavailable')
         return current

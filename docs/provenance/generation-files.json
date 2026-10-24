@@ -54,7 +54,7 @@
     },
     {
       "destination": "backend/generation/admission.py",
-      "destinationSha256": "dcc2f0316e4059d580ccb1b70df84371c65c631018a4c7f08bf6af68571e7793",
+      "destinationSha256": "0670875d9003a7364ef589fbe891dc2f2b899403469f1e9ec14136d746f2e141",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -66,19 +66,23 @@
         }
       ],
       "changes": [
-        "Explicit process-shared admission lock and quarantine; no startup IO or inferred healthy state; native queue stays execution authority."
+        "Explicit process-shared admission lock and quarantine; no startup IO or inferred healthy state; native queue stays execution authority.",
+        "Shared CoreServices resource admission (GPU 1/cloud 3/transcode 2), retained uncertain executions, and off-loop persistence where asynchronous; existing native queue and JobLedger remain authoritative.",
+        "Serialize terminal recovery release with restart reservation commit so stale scanned facts cannot resurrect capacity; ordered real-SQLite regression preserves the initial failure.",
+        "Cancellation-safe blocking completion holds capacity through repeated caller cancellation; async native VideoEdit captures host context before entering its synchronous renderer. Ordered regressions retain initial failure evidence."
       ]
     },
     {
       "destination": "backend/generation/assembly.py",
-      "destinationSha256": "7b0712babe72dbc6877fcb93a79cba75ecf5806358209543726d3f2825a53723",
+      "destinationSha256": "7b5e83134bce51ae7facaf8feeac9591a4ecb50d1218e8837991a6d91ca2d68e",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
       "sourceReferences": [],
       "changes": [
         "Explicit package boundary without import-time work.",
-        "Accept an explicit qwen_binding; missing binding makes Qwen unavailable without startup work."
+        "Accept an explicit qwen_binding; missing binding makes Qwen unavailable without startup work.",
+        "Shared CoreServices resource admission (GPU 1/cloud 3/transcode 2), retained uncertain executions, and off-loop persistence where asynchronous; existing native queue and JobLedger remain authoritative."
       ]
     },
     {
@@ -130,7 +134,7 @@
     },
     {
       "destination": "backend/generation/optimization.py",
-      "destinationSha256": "78ae2299b13d0f3e17ad3aac4ce1f6583edd69143cff85d01c9affddbf60a16f",
+      "destinationSha256": "a5c048a71035ce22836e15cbd87c44f70c1378882eaa3bb9e654813be19585c2",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -153,12 +157,13 @@
       ],
       "changes": [
         "Reimplement mature UI DTOs over the unique JobLedger; immutable batch source and ephemeral quotes/leases/permits; restart paused; query/recovery never create.",
-        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
+        "Shared CoreServices resource admission (GPU 1/cloud 3/transcode 2), retained uncertain executions, and off-loop persistence where asynchronous; existing native queue and JobLedger remain authoritative."
       ]
     },
     {
       "destination": "backend/generation/service.py",
-      "destinationSha256": "e05031c19980e0d6fd734facd2fd4fce6ee70216c61b93a62426d4bec28b88c0",
+      "destinationSha256": "3d430e0b10fe7a2b1726733f1fa0bd5edf8781e8d40c8486434607e0db7195e1",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -176,7 +181,9 @@
       ],
       "changes": [
         "New application orchestration over existing jobs/assets/result validator, one atomic submission claim, bounded query-only recovery, explicit owned cancellation and result receipts; no second engine/store.",
-        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
+        "Shared CoreServices resource admission (GPU 1/cloud 3/transcode 2), retained uncertain executions, and off-loop persistence where asynchronous; existing native queue and JobLedger remain authoritative.",
+        "Cancellation-safe blocking completion holds capacity through repeated caller cancellation; async native VideoEdit captures host context before entering its synchronous renderer. Ordered regressions retain initial failure evidence."
       ]
     },
     {
@@ -626,7 +633,7 @@
     },
     {
       "destination": "tests/generation/test_integration.py",
-      "destinationSha256": "37fd034f411d6650a9eeca1ad5fedba1d440abf54124c11fdb3ae08e23b85e8f",
+      "destinationSha256": "3019d11461eaa798ee7242fc57ab06f6e59e6170a122d4a6fbc3fad281245c2a",
       "kind": "offline-test-evidence",
       "source": null,
       "sourceSha256": null,
@@ -649,7 +656,7 @@
     },
     {
       "destination": "tests/generation/test_optimization.py",
-      "destinationSha256": "781669ceea23193ad2586accb745012fb0d34ac712dec8963771ed62eb311e1d",
+      "destinationSha256": "253f461f056973b502d7d62c78e71878d736a6d5cb676a0ea3d209d3d3a56460",
       "kind": "offline-test-evidence",
       "source": null,
       "sourceSha256": null,
@@ -682,7 +689,7 @@
     },
     {
       "destination": "tests/generation/test_service.py",
-      "destinationSha256": "ea9401ba106895ba264a35bc743e8b435540431655670113728714f5f573785c",
+      "destinationSha256": "b63604b9adaa879a926c78c0c2dd893a6297e2e0b1d88506d4c9e4f0f6e1544c",
       "kind": "offline-test-evidence",
       "source": null,
       "sourceSha256": null,
@@ -745,6 +752,18 @@
         "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
       ],
       "destinationSha256": "75ef2f6c35e079accb5ad25fc669b7904a3586b7b69767d55b0e5e99cd3a5369"
+    },
+    {
+      "destination": "tests/generation/test_resource_admission.py",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "kind": "offline-test-evidence",
+      "changes": [
+        "Product FIFO capacity, mixed native/async transcode ownership, cancellation, durable unknown retention/restart, and off-loop claim stop regression; no models invoked.",
+        "Serialize terminal recovery release with restart reservation commit so stale scanned facts cannot resurrect capacity; ordered real-SQLite regression preserves the initial failure."
+      ],
+      "destinationSha256": "8f36ef6481b9fc0316b882ef48f3e22caafe5f503d6727913174decab6ae8bb8"
     }
   ],
   "qwenWeightBinding": {

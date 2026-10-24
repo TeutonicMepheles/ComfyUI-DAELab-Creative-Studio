@@ -493,13 +493,14 @@
       "source": "web/prompt_optimization_controller.mjs",
       "destination": "frontend/src/features/prompt/prompt_optimization_controller.mjs",
       "sourceSha256": "cb2e642be72425bbc3a1f56fa5cb7201f528305d7308a766ad5783f2b7bf1867",
-      "destinationSha256": "8ca59bb6481721503e5a5ff5864ad55275e359e5c35f483ccf161a662aef8142",
+      "destinationSha256": "0cc25006e38ba86183c0ff650e21d4f28e1ac0ff83967a9750b7c0432f87668b",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
         "Post-snapshot hardblock review: immutable receipt digest, exact missing-task recovery, no automatic replay; tests include original-scope and storage-unavailable rejection.",
-        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
+        "Optimization popover resolves a replacement td/th only within its original editor/root and stable field/record; requirement and intent edits retain focus, while deletion, inactive mode and lifecycle release still close. Mock regressions do not replace actual ComfyUI acceptance."
       ]
     },
     {
@@ -570,11 +571,12 @@
       "source": "web/table_prompt_settings.mjs",
       "destination": "frontend/src/features/prompt/table_prompt_settings.mjs",
       "sourceSha256": "bfe4726e48470729694c7a86878e50662a3ec0fad7837a9323bbb21a022c432a",
-      "destinationSha256": "d5f231455a4ae29d5f2b3e1ef26997765dee3ea4994588b84a742bf3bf317ab1",
+      "destinationSha256": "f5f3ab37b977c7c20d6a2c8177338a5cbd31f57f61c0bfadfa5026e2dd2923eb",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "Allow host save through nested prompt/editor controls while retaining IME and text editing key ownership."
+        "Allow host save through nested prompt/editor controls while retaining IME and text editing key ownership.",
+        "Optimization popover resolves a replacement td/th only within its original editor/root and stable field/record; requirement and intent edits retain focus, while deletion, inactive mode and lifecycle release still close. Mock regressions do not replace actual ComfyUI acceptance."
       ]
     },
     {

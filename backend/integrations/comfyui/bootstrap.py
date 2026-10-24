@@ -85,7 +85,7 @@ def assemble(entry_file: str):
         from .local_generation import assemble_host_generation, create_host_queue
         from ...media.export_service import ExportService
         native_queue = create_host_queue(PromptServer.instance)
-        media_exports = ExportService(services.jobs, services.assets, native_queue=native_queue)
+        media_exports = ExportService(services.jobs, services.assets, native_queue=native_queue, resources=services.resources)
         PromptServer.instance._creative_studio_media_exports = media_exports
         # The shared ledger and HTTP surface are present independently of model readiness.
         # Local providers require a separate explicit, verified host configuration.

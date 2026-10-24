@@ -21,4 +21,4 @@ def assemble_generation(core, *, native_queue=None, model_bindings=None, node_ty
             provider = NativeProvider(kind, inventory=inventory, queue=native_queue,
                                       media_input=lambda item: stage_native_input(core.assets, item))
             providers[provider.id] = provider
-    return GenerationService(core.jobs, core.assets, providers=providers, admission=admission)
+    return GenerationService(core.jobs, core.assets, providers=providers, admission=admission, resources=core.resources)

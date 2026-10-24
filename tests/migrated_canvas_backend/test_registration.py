@@ -190,20 +190,94 @@ class RegistrationTests(unittest.TestCase):
         from backend.providers.contracts import ProviderUnavailable
         nodes, _ = self.module.register_nodes()
         with self.assertRaises(ProviderUnavailable):
-            nodes['DAELAB.VideoEdit'].execute('{"version":1,"clips":[]}')
+            asyncio.run(nodes['DAELAB.VideoEdit'].execute('{"version":1,"clips":[]}'))
         Image.new('RGB', (16, 16), 'red').save(self.roots['input'] / 'red.png')
         core = CoreServices(self.root / 'user', self.roots['input'], self.roots['output'])
         self.module.register_routes(self.server, export_service=ExportService(core.jobs, core.assets))
         raw = json.dumps({'version': 1, 'clips': [{'source': {'asset': {'filename': 'red.png'}}, 'duration': .25}]})
         context = types.SimpleNamespace(prompt_id='fixture-native', node_id='3:4', list_index=0)
-        with patch('backend.integrations.comfyui.canvas_nodes.video_edit.native_execution_context', return_value=context):
-            result = nodes['DAELAB.VideoEdit'].execute(raw)
+        import threading
+        caller = threading.get_ident()
+        def capture_context():
+            self.assertEqual(threading.get_ident(), caller)
+            return context
+        service = importlib.import_module('backend.integrations.comfyui.canvas_nodes.video_edit')._export_service
+        original = service.execute
+        def worker(*args, **kwargs):
+            self.assertNotEqual(threading.get_ident(), caller)
+            with self.assertRaises(RuntimeError): asyncio.get_running_loop()
+            self.assertIs(kwargs['context'], context)
+            return original(*args, **kwargs)
+        async def native_loop():
+            # Pinned host execution.py invokes sync methods directly on its native
+            # loop, but awaits async V3 methods inside CurrentNodeContext. The
+            # adapter must select that async branch and offload the sync renderer.
+            return await nodes['DAELAB.VideoEdit'].execute(raw)
+        with patch('backend.integrations.comfyui.canvas_nodes.video_edit.native_execution_context', side_effect=capture_context), patch.object(service, 'execute', side_effect=worker):
+            result = asyncio.run(native_loop())
         self.assertEqual(len(result.result), 2)
         self.assertTrue(Path(result.result[0]['video_path']).is_file())
         self.assertTrue(result.result[1].startswith('/view?filename='))
         self.assertEqual(result.ui['edit_data'], [raw])
         self.assertEqual(result.ui['creative_studio_export'][0]['state'], 'succeeded')
 
+
+    def test_preview_waits_on_shared_transcode_gate_and_cancelled_http_never_starts_renderer(self):
+        from backend.generation.admission import ResourceAdmission
+        module = importlib.import_module('backend.integrations.comfyui.canvas_nodes.video_edit')
+        gate = ResourceAdmission(limits={'gpu': 1, 'cloud': 3, 'transcode': 1})
+        class Request:
+            transport = types.SimpleNamespace(is_closing=lambda: False)
+            async def json(self): return {'asset': {}, 'scale': 1}
+        async def run():
+            async with gate.lease('transcode', request_id='native-export'):
+                task = asyncio.create_task(module.make_preview(Request()))
+                async with asyncio.timeout(3):
+                    while gate.snapshot()['resources']['transcode']['queued'] != 1:
+                        await asyncio.sleep(.001)
+                task.cancel()
+                with self.assertRaises(asyncio.CancelledError): await task
+                self.assertEqual(gate.snapshot()['resources']['transcode']['queued'], 0)
+        with patch.object(module, '_export_service', types.SimpleNamespace(resources=gate)), patch.object(module, 'preview') as renderer:
+            asyncio.run(run())
+            renderer.assert_not_called()
+        self.assertEqual(gate.snapshot()['resources']['transcode']['active'], 0)
+
+    def test_repeated_preview_cancellation_holds_capacity_until_actual_thread_exits(self):
+        import threading
+        from backend.generation.admission import ResourceAdmission
+        module = importlib.import_module('backend.integrations.comfyui.canvas_nodes.video_edit')
+        gate = ResourceAdmission(limits={'gpu': 1, 'cloud': 3, 'transcode': 1})
+        entered, resume, exited = threading.Event(), threading.Event(), threading.Event()
+        def renderer(*args, **kwargs):
+            entered.set()
+            try:
+                resume.wait(5)
+                args[2]()
+                return {}
+            finally: exited.set()
+        class Request:
+            transport = types.SimpleNamespace(is_closing=lambda: False)
+            async def json(self): return {'asset': {}, 'scale': 1}
+        async def run():
+            task = asyncio.create_task(module.make_preview(Request()))
+            try:
+                async with asyncio.timeout(3):
+                    while not entered.is_set(): await asyncio.sleep(.001)
+                task.cancel(); await asyncio.sleep(.02)
+                task.cancel(); await asyncio.sleep(.02)
+                self.assertFalse(exited.is_set())
+                self.assertFalse(task.done(), 'Repeated cancellation cannot release an executing renderer')
+                self.assertEqual(gate.snapshot()['resources']['transcode']['active'], 1)
+            finally:
+                resume.set()
+                try: await task
+                except asyncio.CancelledError: pass
+                async with asyncio.timeout(3):
+                    while not exited.is_set(): await asyncio.sleep(.001)
+            self.assertEqual(gate.snapshot()['resources']['transcode']['active'], 0)
+        with patch.object(module, '_export_service', types.SimpleNamespace(resources=gate)), patch.object(module, 'preview', side_effect=renderer):
+            asyncio.run(run())
 
 if __name__ == "__main__":
     unittest.main()

@@ -172,3 +172,31 @@ class OptimizationTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(response.status,400)
         response=await handler(Request({'contractVersion':1,'model':'deepseek-flash'}))
         self.assertEqual(response.status,503);self.assertEqual(self.creates(),[])
+
+    async def test_async_facade_db_reads_leave_loop_while_control_authority_stays_on_loop(self):
+        from contextlib import ExitStack
+        import threading
+        from unittest.mock import patch
+        owner = threading.get_ident()
+        def guard(fn, off_loop):
+            def invoke(*args, **kwargs):
+                self.assertEqual(threading.get_ident() != owner, off_loop)
+                return fn(*args, **kwargs)
+            return invoke
+        with ExitStack() as stack:
+            for name in ('get', 'list_jobs', 'create_or_get', 'request_cancel', 'begin_submission', 'transition', 'mark_submitted'):
+                original = getattr(self.core.jobs, name)
+                stack.enter_context(patch.object(self.core.jobs, name, guard(original, True)))
+            for name in ('_control', '_quote', '_lease'):
+                stack.enter_context(patch.object(self.facade, name, guard(getattr(self.facade, name), False)))
+            report, lease, payload = await self.prepare(2)
+            await self.facade.query({'target': self.target})
+            await self.facade.query({'batchId': 'batch-1'})
+            await self.facade.stop({'batchId': 'batch-1', 'leaseId': lease['leaseId']})
+            await self.facade.continue_batch({'batchId': 'batch-1', 'leaseId': lease['leaseId'], 'quoteId': payload['quoteId'], 'budgetCredits': 0})
+            await self.advance(report, lease)
+            await self.service.wait_idle()
+            await self.facade.skip({'batchId': 'batch-1', 'requestId': report['rows'][1]['requestId'], 'leaseId': lease['leaseId']})
+            await self.facade.recover({'batchId': 'batch-1'})
+        self.assertEqual(len(self.creates()), 1)
+        self.assertEqual([j['state'] for j in self.core.jobs.list_jobs()][::-1].count('cancelled'), 1)

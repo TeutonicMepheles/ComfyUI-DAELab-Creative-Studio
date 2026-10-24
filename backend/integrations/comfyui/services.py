@@ -4,13 +4,14 @@ from pathlib import Path
 
 from ...assets import AssetCatalog
 from ...jobs import JobLedger
+from ...generation.admission import ResourceAdmission
 from ...media.validation import MediaResultValidator
 from ...contracts.errors import ContractError, MissingRecord
 from .asset_api import AssetAPI
 
 
 class CoreServices:
-    def __init__(self, user_directory, input_directory, output_directory, *, temp_directory=None):
+    def __init__(self, user_directory, input_directory, output_directory, *, temp_directory=None, resource_limits=None):
         product_user = Path(user_directory).resolve() / "daelab" / "creative-studio"
         database = product_user / "studio.sqlite3"
         roots = {"input": input_directory, "output": output_directory}
@@ -19,6 +20,7 @@ class CoreServices:
         self.assets = AssetCatalog(database, roots=roots,
                                    frozen_root=product_user / "frozen-assets")
         self.jobs = JobLedger(database, result_validator=MediaResultValidator(self.assets))
+        self.resources = ResourceAdmission(limits=resource_limits, jobs=self.jobs)
         self.asset_api = AssetAPI(self.assets)
         # Restart reconciliation must be called by the execution lifecycle only once
         # it has proved all old workers stopped. A view/HTTP read never reconciles.

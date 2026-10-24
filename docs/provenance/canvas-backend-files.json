@@ -56,12 +56,14 @@
       "source": "nodes/video_edit.py",
       "destination": "backend/integrations/comfyui/canvas_nodes/video_edit.py",
       "sourceSha256": "80da94a8c9027d97cffc387eefbbe05288ec65e4df6c13f36d4d705bf0bbe710",
-      "destinationSha256": "2cc6477a5ef77a82d62f37266c7093b6ac6c2ab048d19f98da6e31cbf2b9898b",
+      "destinationSha256": "ed138036b96d677c9505e4f9967e58369dda73838d5073b09e0cb42822f6e292",
       "changes": [
         "relocate to owning backend module without changing node identifiers or declared slot order",
         "remove import-time route registration; expose route definitions for explicit assembly",
         "inject host media roots into the backend media service",
-        "Traceability agent: explicit shared ExportService/native task context integration; retain owned export lifecycle and original result contract."
+        "Traceability agent: explicit shared ExportService/native task context integration; retain owned export lifecycle and original result contract.",
+        "Shared CoreServices resource admission (GPU 1/cloud 3/transcode 2), retained uncertain executions, and off-loop persistence where asynchronous; existing native queue and JobLedger remain authoritative.",
+        "Cancellation-safe blocking completion holds capacity through repeated caller cancellation; async native VideoEdit captures host context before entering its synchronous renderer. Ordered regressions retain initial failure evidence."
       ],
       "kind": "migrated-production"
     },
@@ -134,7 +136,7 @@
       "source": null,
       "destination": "tests/migrated_canvas_backend/test_registration.py",
       "sourceSha256": null,
-      "destinationSha256": "957f0970f994247a87d8aec278c3b262c37fcdaf82e495681a3dada0eaf10174",
+      "destinationSha256": "46f67cb55db2c310c9b05b43cdbac62574252d7364cea56a92a40c664741bf81",
       "kind": "authored-migration",
       "changes": [
         "inert host contract and HTTP security tests; not actual host acceptance",

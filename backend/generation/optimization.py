@@ -96,10 +96,15 @@ class OptimizationFacade:
     def _snapshot(job):
         return job['snapshot'].get('optimizationMeta') or job['snapshot']['input']['optimization']
 
-    def _report(self, jobs):
+    async def _report(self, jobs):
+        # Ephemeral controls are owned by the event loop. The worker receives a
+        # value snapshot; result validation and related ledger reads run together.
+        control = dict(self._control(jobs[0]['source']['batchId']))
+        return await asyncio.to_thread(self._build_report, jobs, control)
+
+    def _build_report(self, jobs, control, related=None):
         first = jobs[0]
         source = first['source']
-        control = self._control(source['batchId'])
         rows = []
         for job in jobs:
             snapshot = self._snapshot(job)
@@ -117,13 +122,13 @@ class OptimizationFacade:
                 'range': source['range'], 'provider': 'qwen', 'currency': 'local', 'price': self._price(),
                 'budgetCredits': 0, 'paused': control['paused'], 'stopped': control['stopped'], 'rows': rows,
                 'preflightSkipped': source.get('skipped', []), 'updatedAt': max(int(datetime.fromisoformat(j['updated_at']).timestamp() * 1000) for j in jobs),
-                'unknownRequests': self._unknown([row['snapshot'] for row in rows])}
+                'unknownRequests': self._unknown([row['snapshot'] for row in rows], related)}
 
-    def _unknown(self, snapshots):
+    def _unknown(self, snapshots, related=None):
         target = {key: snapshots[0]['target'][key] for key in ('documentId', 'tableId')}
         targets = {digest(s['target']) for s in snapshots}
         return [{'requestId': j['request_id'], 'batchId': j['source']['batchId'], 'target': self._snapshot(j)['target'], 'model': QWEN_MODEL}
-                for j in self._jobs(**target) if j['state'] == 'unknown' and digest(self._snapshot(j)['target']) in targets]
+                for j in (self._jobs(**target) if related is None else related) if j['state'] == 'unknown' and digest(self._snapshot(j)['target']) in targets]
 
     @staticmethod
     def _price():
@@ -159,7 +164,7 @@ class OptimizationFacade:
                  'expectedOutputTokens': sum(min(s['maxOutputTokens'], max(32, math.ceil(len(s['input']['prompt_text'].encode()) * .65))) for s in snapshots),
                  'maxOutputTokens': sum(s['maxOutputTokens'] for s in snapshots), 'estimatedCredits': 0, 'budgetUpperCredits': 0,
                  'expiresAt': now() + 300000, 'tokenAlgorithm': 'utf8-byte-upper-bound-v1', 'processed': len(snapshots),
-                 'skipped': payload.get('skipped', []), 'unknownRequests': self._unknown(snapshots)}
+                 'skipped': payload.get('skipped', []), 'unknownRequests': (await asyncio.to_thread(self._unknown, snapshots))}
         self.quotes[quote['quoteId']] = quote
         return dict(quote)
 
@@ -172,7 +177,7 @@ class OptimizationFacade:
             if old and old['expiresAt'] > now() and old['instanceId'] != instance:
                 raise Conflict('此表格已由另一个视图控制')
             if old is None or old['expiresAt'] <= now():
-                for job in self._jobs(**target):
+                for job in (await asyncio.to_thread(self._jobs, **target)):
                     self._control(job['source']['batchId'])['paused'] = True
             value = {'contractVersion': 1, 'leaseId': old['leaseId'] if old and old['expiresAt'] > now() else str(uuid.uuid4()), 'instanceId': instance, 'expiresAt': now() + 15000}
             self.leases[key] = value
@@ -258,15 +263,19 @@ class OptimizationFacade:
         return result
 
     async def fence(self, payload):
+        skipped = list((self.quotes.get(payload.get('quoteId')) or {}).get('skipped', []))
+        jobs = await asyncio.to_thread(self._fence_jobs, payload, skipped)
+        return await self._report(jobs)
+
+    def _fence_jobs(self, payload, skipped):
         # Cancellation must be able to race a prepare currently awaiting provider
         # preflight under the facade lock. Each row competes atomically in SQLite.
         if 'references' in payload:
             references = self._fence_references(payload)
-            results = [await asyncio.to_thread(self.service._reserve_barrier, request_id, 'local-qwen-text', source,
+            results = [self.service._reserve_barrier(request_id, 'local-qwen-text', source,
                        preparation='fenced', optimization_meta=metadata) for request_id, source, metadata in references]
-            return self._report(results)
-        quote = self.quotes.get(payload.get('quoteId')) or {}
-        items = self._submission_items(payload, quote.get('skipped', []))
+            return results
+        items = self._submission_items(payload, skipped)
         results = []
         for item in items:
             # New UI callers retain the exact source ticket in their submit intent.
@@ -285,8 +294,8 @@ class OptimizationFacade:
             fingerprint = request_digest({'provider': 'local-qwen-text', 'input': item['input'], 'source': item['source']})
             snapshot = item['input']['optimization']
             metadata = {key: snapshot[key] for key in ('target', 'model', 'snapshotDigest', 'revision', 'requestSeq')}
-            results.append(await asyncio.to_thread(self.service._reserve_barrier, item['requestId'], 'local-qwen-text', item['source'], preparation='fenced', request_fingerprint=fingerprint, optimization_meta=metadata))
-        return self._report(results)
+            results.append(self.service._reserve_barrier(item['requestId'], 'local-qwen-text', item['source'], preparation='fenced', request_fingerprint=fingerprint, optimization_meta=metadata))
+        return results
 
     async def submit(self, payload):
         async with self.lock:
@@ -295,11 +304,11 @@ class OptimizationFacade:
             if not isinstance(rows, list) or not 1 <= len(rows) <= 500:
                 raise InvalidInput('Select between 1 and 500 optimization rows.')
             submission_digest = digest({k: payload[k] for k in ('quoteId', 'batchId', 'rows', 'budgetCredits', 'range')})
-            existing = self._jobs(batchId=batch_id)
+            existing = (await asyncio.to_thread(self._jobs, batchId=batch_id))
             if existing:
                 if any(j['source'].get('submissionDigest') != submission_digest for j in existing) or len(existing) != len(rows):
                     raise Conflict('相同批次 ID 的内容冲突')
-                return self._report(sorted(existing, key=lambda j: j['source']['position']))
+                return (await self._report(sorted(existing, key=lambda j: j['source']['position'])))
             snapshots = [row['snapshot'] for row in rows]
             quote = self._quote(payload['quoteId'], snapshots, payload['budgetCredits'])
             scope = payload['range']
@@ -308,27 +317,31 @@ class OptimizationFacade:
                 raise InvalidInput('范围字段与冻结行不一致')
             target = {k: snapshots[0]['target'][k] for k in ('documentId', 'tableId')}
             self._lease(target, payload['leaseId'])
-            previous = self._jobs(**target)
+            previous = (await asyncio.to_thread(self._jobs, **target))
             selected = {digest(s['target']) for s in snapshots}
             if self._overlap(previous, batch_id, selected):
                 raise Conflict('请求范围与已有活动任务重叠；请先查看原任务，未创建新任务。')
-            unknown = {r['requestId'] for r in self._unknown(snapshots)}
+            unknown = {r['requestId'] for r in (await asyncio.to_thread(self._unknown, snapshots))}
             if not unknown <= {r['requestId'] for r in quote['unknownRequests']} or not unknown <= set(payload.get('acknowledgeUnknownRequestIds', [])):
                 raise Conflict('历史未知请求已变化或尚未确认；不会自动重新提交。')
-            jobs = await self.service.prepare_batch(self._submission_items(payload, quote['skipped']))
+            jobs = await self.service.prepare_batch((await asyncio.to_thread(self._submission_items, payload, quote['skipped'])))
             self.controls[batch_id] = {'paused': False, 'stopped': False, 'quoteId': quote['quoteId']}
-            return self._report(jobs)
+            return (await self._report(jobs))
 
     async def query(self, payload):
         if payload.get('batchId'):
-            return self._report(self._batch(payload['batchId']))
-        jobs = self._jobs(**table_target(payload['target']))
+            return (await self._report((await asyncio.to_thread(self._batch, payload['batchId']))))
+        jobs = (await asyncio.to_thread(self._jobs, **table_target(payload['target'])))
         groups = {}
         for job in jobs:
             groups.setdefault(job['source']['batchId'], []).append(job)
+        controls = {key: dict(self._control(key)) for key in groups}
+        return await asyncio.to_thread(self._batch_summaries, groups, controls, jobs)
+
+    def _batch_summaries(self, groups, controls, related):
         summaries = []
-        for values in groups.values():
-            report = self._report(values)
+        for batch_id, values in groups.items():
+            report = self._build_report(values, controls[batch_id], related)
             counts = {}
             for row in report['rows']:
                 counts[row['status']] = counts.get(row['status'], 0) + 1
@@ -336,15 +349,15 @@ class OptimizationFacade:
         return {'contractVersion': 1, 'batches': sorted(summaries, key=lambda s: s['updatedAt'], reverse=True)}
 
     async def recover(self, payload):
-        jobs = self._batch(payload['batchId'])
+        jobs = (await asyncio.to_thread(self._batch, payload['batchId']))
         for job in jobs:
             if job['state'] in ACTIVE | {'unknown'}:
                 self.service._schedule(job['request_id'], self.service.recover(job['request_id']))
-        return self._report(self._batch(payload['batchId']))
+        return (await self._report((await asyncio.to_thread(self._batch, payload['batchId']))))
 
     async def permit(self, payload):
         async with self.lock:
-            jobs = self._batch(payload['batchId'])
+            jobs = (await asyncio.to_thread(self._batch, payload['batchId']))
             self._lease(self._target(jobs[0]), payload['leaseId'])
             control = self._control(payload['batchId'])
             job = next((j for j in jobs if j['request_id'] == payload['requestId']), None)
@@ -359,7 +372,7 @@ class OptimizationFacade:
 
     async def advance(self, payload):
         async with self.lock:
-            jobs = self._batch(payload['batchId'])
+            jobs = (await asyncio.to_thread(self._batch, payload['batchId']))
             self._lease(self._target(jobs[0]), payload['leaseId'])
             control = self._control(payload['batchId'])
             permit = self.permits.pop(payload['permitId'], None)
@@ -384,7 +397,7 @@ class OptimizationFacade:
             self.service._schedule(job['request_id'], self.service.dispatch(job['request_id'], before_submit=authorized))
             # Worker ownership starts now; the ledger's atomic claim remains the
             # sole durable external-submission boundary.
-            report = self._report(jobs)
+            report = (await self._report(jobs))
             for row in report['rows']:
                 if row['requestId'] == job['request_id']:
                     row['status'] = 'preparing'
@@ -392,14 +405,14 @@ class OptimizationFacade:
 
     async def stop(self, payload):
         async with self.lock:
-            jobs = self._batch(payload['batchId'])
+            jobs = (await asyncio.to_thread(self._batch, payload['batchId']))
             self._lease(self._target(jobs[0]), payload['leaseId'])
             self._control(payload['batchId']).update(paused=True, stopped=True)
-            return self._report(jobs)
+            return (await self._report(jobs))
 
     async def continue_batch(self, payload):
         async with self.lock:
-            jobs = self._batch(payload['batchId'])
+            jobs = (await asyncio.to_thread(self._batch, payload['batchId']))
             if any(self.service._barrier(job) for job in jobs):
                 raise Conflict('Sealed preparations cannot continue; explicitly estimate a new request.')
             self._lease(self._target(jobs[0]), payload['leaseId'])
@@ -407,17 +420,17 @@ class OptimizationFacade:
             if any(j['state'] in ACTIVE for j in jobs):
                 raise Conflict('仍有原请求在途，请继续查询')
             selected = {digest(j['snapshot']['input']['optimization']['target']) for j in jobs if j['state'] == 'pending'}
-            if self._overlap(self._jobs(**self._target(jobs[0])), payload['batchId'], selected):
+            if self._overlap((await asyncio.to_thread(self._jobs, **self._target(jobs[0]))), payload['batchId'], selected):
                 raise Conflict('范围已有其他活动批次；未继续旧任务。')
             self._control(payload['batchId']).update(paused=False, stopped=False, quoteId=payload['quoteId'])
-            return self._report(jobs)
+            return (await self._report(jobs))
 
     async def skip(self, payload):
         async with self.lock:
-            jobs = self._batch(payload['batchId'])
+            jobs = (await asyncio.to_thread(self._batch, payload['batchId']))
             self._lease(self._target(jobs[0]), payload['leaseId'])
             job = next((j for j in jobs if j['request_id'] == payload['requestId']), None)
             if not job or job['state'] != 'pending' or job['request_id'] in self.service._workers:
                 raise Conflict('只能跳过尚未发送的行')
             await self.service.cancel(job['request_id'])
-            return self._report(self._batch(payload['batchId']))
+            return (await self._report((await asyncio.to_thread(self._batch, payload['batchId']))))

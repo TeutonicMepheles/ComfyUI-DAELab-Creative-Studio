@@ -173,8 +173,13 @@ class GenerationTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_pending_cancel_during_serial_queue_never_dispatches_and_other_task_finishes(self):
         self.fake.gate = asyncio.Event()
-        await self.service.submit([self.item('first'), self.item('second')])
+        await self.service.submit([self.item('first')])
         while not self.fake.creates:
+            await asyncio.sleep(0)
+        # The DB read runs off-loop and concurrent completion order is not an
+        # admission order. Hold a proven first owner before testing its queue.
+        await self.service.submit([self.item('second')])
+        while self.service.resources.snapshot()['resources']['gpu']['queued'] != 1:
             await asyncio.sleep(0)
         await self.service.cancel('second')
         self.fake.gate.set(); await self.service.wait_idle()

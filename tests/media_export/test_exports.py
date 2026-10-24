@@ -420,6 +420,73 @@ ExportService(core.jobs, core.assets).execute(sys.argv[2], context=types.SimpleN
         self.assertEqual(self.queue.calls, [])
         self.assertEqual(asyncio.run(self.service.cancel('interrupted-rejection', expected_version=original['version']))['state'], 'cancelled')
 
+    def test_native_export_waits_for_same_transcode_permit_as_http_preview_and_cancels_without_render(self):
+        from backend.generation.admission import ResourceAdmission
+        self.core.resources = ResourceAdmission(jobs=self.core.jobs, limits={'gpu': 1, 'cloud': 3, 'transcode': 1})
+        self.service.resources = self.core.resources
+        self.submit()
+        self.queue.remove = False  # It is already on the native execution thread.
+        async def run():
+            async with self.core.resources.lease('transcode', request_id='preview'):
+                task = asyncio.create_task(asyncio.to_thread(self.execute))
+                async with asyncio.timeout(5):
+                    while self.core.resources.snapshot()['resources']['transcode']['queued'] != 1:
+                        await asyncio.sleep(.001)
+                job = await asyncio.to_thread(self.core.jobs.get, 'export-1')
+                await self.service.cancel('export-1', expected_version=job['version'])
+                with self.assertRaises(ExportCancelled): await task
+                self.assertEqual(self.core.resources.snapshot()['resources']['transcode']['queued'], 0)
+        with patch('backend.media.export_service.render', side_effect=AssertionError('Cancelled before render')):
+            asyncio.run(run())
+        self.assertEqual(self.core.jobs.get('export-1')['state'], 'cancelled')
+        self.assertEqual(self.core.resources.snapshot()['resources']['transcode']['active'], 0)
+
+    def test_original_native_execution_adopts_its_conservative_restart_reservation(self):
+        self.queue.error = RuntimeError('accepted but acknowledgement lost')
+        with self.assertRaises(RuntimeError): self.submit()
+        asyncio.run(self.service.resources._ready())
+        self.assertEqual(self.service.resources.snapshot()['resources']['transcode']['retained'], 1)
+        # Exact native context/fingerprint validation still happens before adoption.
+        result = self.execute()
+        self.assertEqual(result['job']['state'], 'succeeded')
+        self.assertEqual(self.service.resources.snapshot()['resources']['transcode']['active'], 0)
+        self.assertEqual(len(self.queue.calls), 1)
+
+    def test_cancelled_export_recovery_waits_for_durable_finish_before_releasing_restart_capacity(self):
+        self.submit()
+        transition = self.core.jobs.transition
+        def fail_success(request, state, **kwargs):
+            if state == 'succeeded': raise OSError('interrupted first commit')
+            return transition(request, state, **kwargs)
+        with patch.object(self.core.jobs, 'transition', side_effect=fail_success), self.assertRaises(OSError):
+            self.execute()
+        from backend.generation.admission import ResourceAdmission
+        self.service.resources = ResourceAdmission(jobs=self.core.jobs)
+        entered, resume = threading.Event(), threading.Event()
+        finish = self.service._finish
+        def held(*args):
+            entered.set(); resume.wait(5)
+            return finish(*args)
+        async def run():
+            await self.service.resources._ready()
+            self.assertEqual(self.service.resources.snapshot()['resources']['transcode']['retained'], 1)
+            task = asyncio.create_task(self.service.recover('export-1'))
+            try:
+                async with asyncio.timeout(5):
+                    while not entered.is_set(): await asyncio.sleep(.001)
+                task.cancel(); await asyncio.sleep(.01)
+                task.cancel(); await asyncio.sleep(.01)
+                self.assertFalse(task.done())
+                self.assertEqual(self.service.resources.snapshot()['resources']['transcode']['retained'], 1)
+            finally:
+                resume.set()
+                try: await task
+                except asyncio.CancelledError: pass
+            self.assertEqual(self.service.resources.snapshot()['resources']['transcode']['active'], 0)
+        with patch.object(self.service, '_finish', side_effect=held), patch('backend.media.export_service.render', side_effect=AssertionError('Recovery cannot render')):
+            asyncio.run(run())
+        self.assertEqual(self.core.jobs.get('export-1')['state'], 'succeeded')
+
 
 if __name__ == '__main__':
     unittest.main()

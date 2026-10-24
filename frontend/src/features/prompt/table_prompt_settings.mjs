@@ -299,16 +299,18 @@ export function createGenerationSetting(spec,config,onChange,unrestricted=false)
  input.onchange=()=>{if(!input.reportValidity())return;if(unrestricted&&input.type!=='checkbox'&&input.value==='')delete config.settings[spec.name];else config.settings[spec.name]=input.type==='checkbox'?input.checked:select?values[Number(input.value)]:input.type==='number'?Number(input.value):input.value;onChange();};
  return wrapper;
 }
-export function createSettingsPopover(anchor,title,onClose,{placement='below',onEscape=()=>false}={}){
+export function createSettingsPopover(anchor,title,onClose,{placement='below',onEscape=()=>false,resolveAnchor=null}={}){
  const root=document.createElement('div');root.className='dae-ui generation-settings-popover generation-form';root.id='generation-setting-'+crypto.randomUUID();root.setAttribute('role','dialog');root.setAttribute('aria-label',title);
  const heading=document.createElement('strong');heading.textContent=title;root.append(heading);document.body.append(root);anchor.setAttribute('aria-expanded','true');anchor.setAttribute('aria-controls',root.id);
  let closed=false;
- const place=()=>{if(!anchor.isConnected||!anchor.getClientRects().length){close();return;}const r=anchor.getBoundingClientRect();root.style.left=Math.max(8,Math.min(r.left,innerWidth-root.offsetWidth-8))+'px';root.style.top=Math.max(8,Math.min(placement==='above'?r.top-root.offsetHeight-8:r.bottom+8,innerHeight-root.offsetHeight-8))+'px';};
- const outside=e=>{if(!root.contains(e.target)&&!anchor.contains(e.target))close();};
- const keys=e=>{if(e.key==='Escape'&&!e.isComposing&&e.keyCode!==229){e.preventDefault();e.stopPropagation();if(onEscape())return;close();anchor.focus({preventScroll:true});}};
- function close(){if(closed)return;closed=true;observer.disconnect();document.removeEventListener('pointerdown',outside,true);document.removeEventListener('keydown',keys,true);document.removeEventListener('scroll',place,true);window.removeEventListener('resize',place);globalThis.removeEventListener('dae-canvas-layout',place);root.remove();anchor.removeAttribute('aria-controls');anchor.setAttribute('aria-expanded','false');onClose();}
+ const releaseAnchor=()=>{if(anchor.getAttribute('aria-controls')===root.id){anchor.removeAttribute('aria-controls');anchor.setAttribute('aria-expanded','false');}};
+ const currentAnchor=()=>{if(closed)return null;const next=resolveAnchor?resolveAnchor():anchor;if(!next?.isConnected||!next.getClientRects().length){close();return null;}if(next!==anchor){releaseAnchor();anchor=next;anchor.setAttribute('aria-expanded','true');anchor.setAttribute('aria-controls',root.id);}return anchor;};
+ const place=()=>{const current=currentAnchor();if(!current)return;const r=current.getBoundingClientRect();root.style.left=Math.max(8,Math.min(r.left,innerWidth-root.offsetWidth-8))+'px';root.style.top=Math.max(8,Math.min(placement==='above'?r.top-root.offsetHeight-8:r.bottom+8,innerHeight-root.offsetHeight-8))+'px';};
+ const outside=e=>{const current=currentAnchor();if(current&&!root.contains(e.target)&&!current.contains(e.target))close();};
+ const keys=e=>{if(e.key==='Escape'&&!e.isComposing&&e.keyCode!==229){e.preventDefault();e.stopPropagation();if(onEscape())return;const current=currentAnchor();close();current?.focus({preventScroll:true});}};
+ function close(){if(closed)return;closed=true;observer.disconnect();document.removeEventListener('pointerdown',outside,true);document.removeEventListener('keydown',keys,true);document.removeEventListener('scroll',place,true);window.removeEventListener('resize',place);globalThis.removeEventListener('dae-canvas-layout',place);root.remove();releaseAnchor();onClose();}
  for(const name of ['pointerdown','mousedown','click','dblclick','keydown'])root.addEventListener(name,stopCanvasPropagation);
  root.addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)e.stopPropagation();},{passive:true});
  const observer=new ResizeObserver(place);observer.observe(root);document.addEventListener('pointerdown',outside,true);document.addEventListener('keydown',keys,true);document.addEventListener('scroll',place,{capture:true,passive:true});window.addEventListener('resize',place);globalThis.addEventListener('dae-canvas-layout',place);place();
- return {root,anchor,close};
+ return {root,get anchor(){return anchor;},close,reposition:place};
 }
