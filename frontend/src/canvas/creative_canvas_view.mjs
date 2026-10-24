@@ -73,8 +73,14 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
     const reducedMotion=matchMedia('(prefers-reduced-motion:reduce)');let wireFrame=0,hoverPoint=null;
     function animateWires(){if(!wireFrame&&visible)wireFrame=requestAnimationFrame(()=>{
         wireFrame=0;
-        if(hoverPoint&&!drag){const {x,y}=hoverPoint;setMagnet(nearestPort(x,y),hoverPoint);setIncomingWire(selectedLink??nearestIncoming(graphLinks(graph),x,y)?.id??null);}
-        hoverPoint=null;drawWires();
+        let paintHover=null,portShifts=null;
+        if(hoverPoint&&!drag){
+            const {x,y}=hoverPoint,magnet=measureMagnet(nearestPort(x,y),hoverPoint);
+            const incoming=selectedLink??nearestIncoming(graphLinks(graph),x,y)?.id??null;
+            portShifts=magnet.shifts;paintHover=()=>{paintMagnet(magnet);setIncomingWire(incoming);};
+        }
+        // Read every port/path/card before magnetic and wire styles invalidate layout.
+        hoverPoint=null;drawWires(paintHover,portShifts);
     });}
     const cards=new Map(),layers=new WeakMap();let topLayer=1,selectedLink=null,addPoint=null,pickerConnection=null,workspace=null;
     const dirty=()=>{host.changed(graph);};
@@ -462,13 +468,15 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         }
         return distance<90?best:null;
     }
-    function wireAnchor(rect,port,side){
+    function wireAnchor(rect,port,side,portShifts=null){
         // Floating unified Slots are interaction handles, not persistent wire anchors.
         if(port.closest('.dae-creative-card')?.dataset.unified==='true')return {x:side==='output'?rect.right:rect.left,y:rect.top+rect.height/2};
-        const target=port.getBoundingClientRect();
-        return {x:target.left+target.width/2,y:target.top+target.height/2};
+        const target=port.getBoundingClientRect(),shift=portShifts?.get(port);
+        // Ordinary ports follow their actual center in this same paint, including
+        // the previous magnetic port returning home. No post-write DOM read is needed.
+        return {x:target.left+target.width/2+(shift?.x||0),y:target.top+target.height/2+(shift?.y||0)};
     }
-    function drawWires(){
+    function drawWires(beforePaint=null,portShifts=null){
         const segments=[],rw=world.getBoundingClientRect(),z=state.viewport.zoom;
         const bounds=new Map(),anchors=new Map();
         for(const link of graphLinks(graph)){
@@ -477,7 +485,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
             if(!bounds.has(a))bounds.set(a,a.element.getBoundingClientRect());if(!bounds.has(b))bounds.set(b,b.element.getBoundingClientRect());
             const ra=bounds.get(a),rb=bounds.get(b);
             if(!ra.width||!ra.height||!rb.width||!rb.height)continue;
-            if(!anchors.has(source))anchors.set(source,wireAnchor(ra,source,'output'));if(!anchors.has(target))anchors.set(target,wireAnchor(rb,target,'input'));
+            if(!anchors.has(source))anchors.set(source,wireAnchor(ra,source,'output',portShifts));if(!anchors.has(target))anchors.set(target,wireAnchor(rb,target,'input',portShifts));
             const start=anchors.get(source),end=anchors.get(target);
             const x1=(start.x-rw.left)/z,y1=(start.y-rw.top)/z;
             let x2=(end.x-rw.left)/z,y2=(end.y-rw.top)/z;
@@ -485,6 +493,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
             const d=Math.max(60,Math.abs(x2-x1)*.45);
             segments.push([link.id,`M${x1},${y1} C${x1+d},${y1} ${x2-d},${y2} ${x2},${y2}`,x2,y2]);
         }
+        beforePaint?.();
         const selection=String(selectedLink!=null);if(root.dataset.wireSelected!==selection)root.dataset.wireSelected=selection;
         let changed=false;
         const active=new Set(segments.map(([id])=>id));
@@ -623,18 +632,31 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         const r=port.getBoundingClientRect(),offset=portOffsets.get(port)||{x:0,y:0};
         return {x:r.left+r.width/2-offset.x*state.viewport.zoom,y:r.top+r.height/2-offset.y*state.viewport.zoom};
     }
-    function setMagnet(port,point=null){
+    function measureMagnet(port,point=null){
+        const shifts=new Map(),zoom=state.viewport.zoom;
+        if(magneticPort&&magneticPort!==port){const old=portOffsets.get(magneticPort);if(old)shifts.set(magneticPort,{x:-old.x*zoom,y:-old.y*zoom});}
+        let offset=null;
+        if(port?.matches('button[data-slot],button[data-material-column-slot]')){
+            const center=portCenter(port),dx=point&&!reducedMotion.matches?point.x-center.x:0,dy=point&&!reducedMotion.matches?point.y-center.y:0;
+            const factor=Math.min(.22,6/(Math.hypot(dx,dy)||1))/zoom,previous=portOffsets.get(port)||{x:0,y:0};
+            offset={x:dx*factor,y:dy*factor};shifts.set(port,{x:(offset.x-previous.x)*zoom,y:(offset.y-previous.y)*zoom});
+        }
+        return {port,offset,shifts};
+    }
+    function paintMagnet({port,offset}){
         if(magneticPort&&magneticPort!==port){delete magneticPort.dataset.magnetic;magneticPort.style.removeProperty('translate');portOffsets.delete(magneticPort);}
         magneticPort=port;
         if(port){
-            port.dataset.magnetic='true';
-            if(port.matches('button[data-slot],button[data-material-column-slot]')){
-                const center=portCenter(port),dx=point&&!reducedMotion.matches?point.x-center.x:0,dy=point&&!reducedMotion.matches?point.y-center.y:0;
-                const factor=Math.min(.22,6/(Math.hypot(dx,dy)||1))/state.viewport.zoom,offset={x:dx*factor,y:dy*factor};
-                portOffsets.set(port,offset);port.style.translate=`${offset.x}px ${offset.y}px`;
+            if(port.dataset.magnetic!=='true')port.dataset.magnetic='true';
+            if(offset){
+                portOffsets.set(port,offset);const translate=`${offset.x}px ${offset.y}px`;
+                if(port.style.translate!==translate)port.style.translate=translate;
             }
         }
-        root.classList.toggle('dae-port-magnet',!!port);
+        if(root.classList.contains('dae-port-magnet')!==!!port)root.classList.toggle('dae-port-magnet',!!port);
+    }
+    function setMagnet(port,point=null){
+        paintMagnet(measureMagnet(port,point));
     }
     function materialTargetAt(x,y,source=null){
         const snapshot=source?materialDropSnapshot(source):null;
