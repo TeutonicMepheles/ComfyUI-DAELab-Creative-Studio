@@ -170,6 +170,40 @@ test('changed linked acceptance requirements and usecase steps invalidate otherw
   }
 });
 
+test('normative contract fingerprints survive CRLF checkout changes but retain content changes',()=>{
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'studio-eval-test-'));
+  const files=['docs/migration-blueprint/TEST_STRATEGY.md','docs/validation/catalog/evidence.schema.json',
+    'docs/validation/catalog/local-eval-plan.json','docs/validation/catalog/local-batch.schema.json'];
+  const sources=new Map(files.map(file=>[file,fs.readFileSync(file,'utf8').replaceAll('\r\n','\n')]));
+  const fingerprints=()=>createTrace(catalog,dir).tests.map(t=>({id:t.id,hash:t.specificationHash}));
+  try {
+    for(const [file,text] of sources){const dest=path.join(dir,file);fs.mkdirSync(path.dirname(dest),{recursive:true});fs.writeFileSync(dest,text);}
+    const baseline=fingerprints();
+    for(const [file,text] of sources){
+      fs.writeFileSync(path.join(dir,file),text.replaceAll('\n','\r\n'));
+      assert.deepEqual(fingerprints(),baseline,`${file}: Git LF and Windows CRLF must identify the same normative contract`);
+      const changed=file.endsWith('.json')?JSON.stringify({...JSON.parse(text),description:'Additional mandatory acceptance requirement.'}):text+'\nAdditional mandatory acceptance requirement.\n';
+      fs.writeFileSync(path.join(dir,file),changed);
+      assert.notDeepEqual(fingerprints(),baseline,`${file}: a changed contract must invalidate its dependent specifications`);
+      fs.writeFileSync(path.join(dir,file),text);
+      assert.deepEqual(fingerprints(),baseline);
+    }
+  } finally {assert.ok(path.resolve(dir).startsWith(path.resolve(os.tmpdir())+path.sep));assert.ok(path.basename(dir).startsWith('studio-eval-test-'));fs.rmSync(dir,{recursive:true,force:true});}
+});
+
+test('raw evidence hashes remain byte-exact when line endings change',()=>{
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'studio-eval-test-'));
+  try {
+    const file=path.join(dir,'observed.trace'),text='Observed raw evidence.\nSecond line.\n';
+    fs.writeFileSync(file,text);
+    const e=evidence(),a={path:file,sha256:hash(text),kind:'trace'};
+    e.artifacts=[a];e.trace=[a];e.assertions.forEach(item=>{item.artifactPaths=[file];});e.network.auditArtifact=file;
+    assert.equal(verifyEvidenceFiles(e),true);
+    fs.writeFileSync(file,text.replaceAll('\n','\r\n'));
+    assert.throws(()=>verifyEvidenceFiles(e),/evidence file changed/);
+  } finally {assert.ok(path.resolve(dir).startsWith(path.resolve(os.tmpdir())+path.sep));assert.ok(path.basename(dir).startsWith('studio-eval-test-'));fs.rmSync(dir,{recursive:true,force:true});}
+});
+
 test('a later failure blocks a pass when timestamps use different UTC offsets',()=>{
   const passed=evidence();passed.runId='earlier-pass';passed.startedAt='2026-10-24T00:00:00Z';passed.finishedAt='2026-10-24T09:00:00+08:00';
   const failed=clone(passed);failed.runId='later-failure';failed.status='failed';failed.finishedAt='2026-10-24T02:00:00Z';failed.assertions[0].status='failed';

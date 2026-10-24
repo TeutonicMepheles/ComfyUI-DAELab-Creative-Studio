@@ -61,7 +61,9 @@ export function specificationHash(catalog, test, root = ROOT) {
     acceptance:catalog.features.filter(f=>test.features.includes(f.id)).map(f=>({id:f.id,
       requirements:f.acceptance.map((text,i)=>({id:f.acceptance_ids[i],text})).sort((a,b)=>a.id.localeCompare(b.id))})).sort((a,b)=>a.id.localeCompare(b.id)),
     usecases:catalog.usecases.filter(u=>test.usecases.includes(u.id)).sort((a,b)=>a.id.localeCompare(b.id)),
-    contracts:contracts.map(file=>({file,sha256:hash(fs.readFileSync(path.join(root,file),'utf8'))}))});
+    // Normative text follows Git's LF checkout contract. Only CRLF is
+    // equivalent here; raw evidence/trace artifacts remain byte-exact below.
+    contracts:contracts.map(file=>({file,sha256:hash(fs.readFileSync(path.join(root,file),'utf8').replaceAll('\r\n','\n'))}))});
 }
 
 export function createTrace(catalog, root = ROOT) {
