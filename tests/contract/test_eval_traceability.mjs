@@ -85,6 +85,44 @@ test('phase gate remains cumulative and unknown paths conservatively trigger reg
   assert.equal(evaluateGate(catalog,'M1',[],fp).status,'blocked');
 });
 
+test('missing telemetry stays unknown in retained failures and never passes a gate',()=>{
+  const e=evidence();e.status='blocked';e.assertions.forEach(a=>a.status='blocked');
+  e.network={cloudSubmissions:null,externalModelCalls:null,auditArtifact:''};
+  e.inference={sampleExecutions:null,cacheHit:null,ledgerReuse:null,executionTrace:''};
+  e.deviations=['Historical run did not collect network/inference audit.'];
+  assert.equal(validateEvidence(e,catalog),true);
+  assert.equal(evaluateGate(catalog,'M1',[e],fp).status,'blocked');
+  e.status='failed';assert.equal(validateEvidence(e,catalog),true);
+  e.status='not-executed';assert.equal(validateEvidence(e,catalog),true);
+  e.status='passed';assert.throws(()=>validateEvidence(e,catalog),/unmeasured/);
+  e.network.cloudSubmissions=0;e.network.externalModelCalls=0;
+  assert.throws(()=>validateEvidence(e,catalog),/known inference accounting/);
+});
+
+test('a detected forbidden call can be recorded honestly only as a hard failure',()=>{
+  const e=evidence();e.network.cloudSubmissions=1;e.network.externalModelCalls=1;
+  assert.throws(()=>validateEvidence(e,catalog),/forbidden/);
+  e.status='blocked';assert.throws(()=>validateEvidence(e,catalog),/failed evidence/);
+  e.status='failed';assert.throws(()=>validateEvidence(e,catalog),/open defect/);
+  e.defects=[{id:'synthetic-network-violation',summary:'Synthetic tool case only.',status:'open'}];
+  assert.equal(validateEvidence(e,catalog),true);
+  assert.equal(evaluateGate(catalog,'M1',[e],fp).status,'blocked');
+});
+
+test('unknown telemetry needs an explanation and N/A cannot bypass evidence or unresolved defects',()=>{
+  const unknown=evidence();unknown.status='blocked';unknown.network.cloudSubmissions=null;unknown.notes='';
+  assert.throws(()=>validateEvidence(unknown,catalog),/missing-telemetry explanation/);
+  const e=evidence();e.status='not-applicable';e.applicability={reason:'Excluded legacy node type only',approvedBy:'synthetic scope reviewer'};
+  e.defects=[{id:'open',summary:'Unresolved synthetic defect',status:'open'}];
+  assert.throws(()=>validateEvidence(e,catalog),/unresolved defects block N\/A/);
+  e.defects=[];e.artifacts=[];e.trace=[];
+  assert.throws(()=>validateEvidence(e,catalog),/scope evidence and trace/);
+  e.artifacts=[artifact];e.trace=[artifact];e.network.auditArtifact='';
+  assert.equal(validateEvidence(e,catalog),true);
+  assert.throws(()=>verifyEvidenceFiles(e),/hashed network\/scope audit/);
+  e.network.auditArtifact=fixture;assert.equal(verifyEvidenceFiles(e),true);
+});
+
 test('strict schema rejects extra fields, unrelated links, duplicate or omitted assertions',()=>{
   assert.equal(validateEvidence(evidence(),catalog),true);
   let e=evidence();e.extra=true;assert.throws(()=>validateEvidence(e,catalog),/unknown property/);

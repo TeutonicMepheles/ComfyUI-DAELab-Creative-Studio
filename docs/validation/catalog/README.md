@@ -17,6 +17,8 @@ node --test tests/contract/test_eval_traceability.mjs
 
 证据使用 `evidence.schema.json` 的严格字段。每次运行记录一个 TC，带 F/AC/UC/EV、版本与提交、完整环境、实际夹具和权重哈希、完整参数、任务身份、逐项断言、评分、输出、trace、偏差和缺陷。原始参数必须脱敏；禁止凭据字段。真实宿主通过还要求公共 UI 矩阵，真实模型通过要求本地白名单、采样执行证明、非缓存/非账本复用和盲评记录。具体 44 次排程与比较条件见 `local-eval-plan.json`，一次推理不能替代整批验收。
 
+失败、阻塞或未执行记录中的未采集网络/推理计数与缓存状态使用 `null`，并说明缺测原因，不能填造零值。通过记录仍要求已知推理记账及网络零调用审计。若实际发现禁止的云端调用，必须原值保留为 `failed` 并关联未解决缺陷；工具不能因禁止条件而拒绝记录真实失败，也不会允许该记录通过门禁。
+
 ```powershell
 # 原始文件在忽略目录；这些命令不会提交模型或修改宿主。
 node tools/evals/traceability.mjs --record .local/prepared-run.json --evidence-dir .local/evidence

@@ -556,11 +556,17 @@
       ],
       "properties": {
         "cloudSubmissions": {
-          "type": "integer",
+          "type": [
+            "integer",
+            "null"
+          ],
           "minimum": 0
         },
         "externalModelCalls": {
-          "type": "integer",
+          "type": [
+            "integer",
+            "null"
+          ],
           "minimum": 0
         },
         "auditArtifact": {
@@ -623,14 +629,23 @@
       ],
       "properties": {
         "sampleExecutions": {
-          "type": "integer",
+          "type": [
+            "integer",
+            "null"
+          ],
           "minimum": 0
         },
         "cacheHit": {
-          "type": "boolean"
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "ledgerReuse": {
-          "type": "boolean"
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "executionTrace": {
           "type": "string"

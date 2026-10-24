@@ -170,11 +170,24 @@ export function validateEvidence(evidence,catalog,root=ROOT,allowStaleSpecificat
   const assertionIds=new Set(t.assertions.map(a=>a.id));
   const seen=new Set();
   for (const a of evidence.assertions) { if (sameSpecification) must(assertionIds.has(a.id),`unrelated assertion ${a.id}`); must(!seen.has(a.id),`duplicate assertion ${a.id}`); seen.add(a.id); }
-  must(evidence.network.cloudSubmissions===0,'cloud submissions are forbidden in this eval scope');
-  must(evidence.network.externalModelCalls===0,'external model calls are forbidden');
+  const incomplete=['failed','blocked','not-executed'].includes(evidence.status);
+  // Missing telemetry must stay unknown in retained failures, never fabricated as
+  // zero. A detected forbidden call is itself a hard failure that must be kept.
+  if (!incomplete) {
+    must(evidence.network.cloudSubmissions===0,'cloud submissions are forbidden in this eval scope or unmeasured');
+    must(evidence.network.externalModelCalls===0,'external model calls are forbidden or unmeasured');
+    must(evidence.inference.sampleExecutions!==null && evidence.inference.cacheHit!==null && evidence.inference.ledgerReuse!==null,'completed evidence needs known inference accounting');
+  } else if (evidence.network.cloudSubmissions>0 || evidence.network.externalModelCalls>0) {
+    must(evidence.status==='failed' && evidence.defects.some(d=>d.status==='open'),'detected forbidden calls require failed evidence with an open defect');
+  }
+  if (incomplete && [evidence.network.cloudSubmissions,evidence.network.externalModelCalls,evidence.inference.sampleExecutions,evidence.inference.cacheHit,evidence.inference.ledgerReuse].includes(null)) {
+    must(evidence.deviations.length>0 || evidence.notes.trim().length>0,'unknown accounting needs a recorded missing-telemetry explanation');
+  }
   if (evidence.status==='not-applicable') {
     must(evidence.applicability.reason.length>0 && evidence.applicability.approvedBy.length>0,'N/A needs recorded scope reason and reviewer');
     must(!/missing|unimplemented|unavailable|budget|no model|缺|未实现|无环境|无预算/i.test(evidence.applicability.reason),'missing prerequisites cannot be N/A');
+    must(evidence.defects.every(d=>d.status==='resolved'),'unresolved defects block N/A');
+    must(evidence.artifacts.length>0 && evidence.trace.length>0,'N/A needs scope evidence and trace');
   }
   if (evidence.status==='passed' && sameSpecification) {
     must((!sameSpecification||seen.size===assertionIds.size) && evidence.assertions.every(a=>a.status==='passed'),'pass needs every expected assertion');
@@ -218,6 +231,10 @@ export function verifyEvidenceFiles(evidence,base=ROOT,requireReferences=true) {
     const actual=crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
     must(actual===artifact.sha256,`evidence file changed ${artifact.path}`);
     verified.add(file);
+  }
+  if (evidence.status==='not-applicable' && requireReferences) {
+    const ref=evidence.network.auditArtifact;
+    must(typeof ref==='string' && ref.length>0 && verified.has(path.resolve(base,ref)),'N/A needs a hashed network/scope audit');
   }
   if (evidence.status==='passed' && requireReferences) {
     const refs=evidence.assertions.flatMap(a=>a.artifactPaths);
