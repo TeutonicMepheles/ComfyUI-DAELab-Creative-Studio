@@ -63,7 +63,7 @@
   JSON保存边界修复已构建并通过343项业务测试，实际导入/保存复测待执行。
   [完整原始观察与限制](PERFORMANCE_OBSERVATIONS_20261025.md)均保留。
 - 候选ZIP打包器已完成固定提交、哈希、可重复构建与清洁安装元数据回归；
-  尚未生成正式候选归档，也未发布。GPU执行器仍在离线假宿主测试和审查阶段。
+  后续已生成明确提交的未验收候选归档（见下文），没有发布。GPU执行器仍在离线假宿主测试和审查阶段。
 
 后续实测补充（覆盖上述历史构建的“待复验”措辞）：
 
@@ -94,5 +94,60 @@
   保存重开后A使用新成片、B使用原只读成片；13项原任务及其尝试/事件和原工作流精确不变。
   图形/应用/创作画布往返与嵌套按钮Ctrl+S已操作，完整缩放/视口和联合安装矩阵仍未完成。
   本地证据`.local/baseline/saveas-2d6ced/`，真实模型推理仍为0。
-- M6 profile工具已通过93项自动测试与针对WAL、Windows路径、E5目录重叠的独立复核；发行包探针身份校验正在修补。
+- `1baeb81` / 前端`7b6e5c`行号栏候选实际五段活动帧p95为66.7 / 79.9 / 53.4 / 79.9 / 66.7ms，
+  未达20ms且未证实收益，已在`92e12f7`回退。后续`8369c20` / 前端`891c76`五段为
+  40.1 / 40.0 / 40.1 / 40.1 / 40.1ms，全部仍为FAIL，不宣布PERF-01通过。
+- `body-zoom-891-actual/viewport-focus-matrix.json`的36条记录经逐条复核，实际viewport全部为1920×1080。
+  不能据此宣布1280/680响应式通过；窄屏布局、溢出与焦点仍待根代理真实补测，原件保留。
+- `853c857` / 前端`cd21ec`的SVG候选五段活动帧p95为40.1 / 53.3 / 40.1 / 40.0 / 40.0ms，
+  仍FAIL20且未证实明确收益；`c3d79ae`已回退该候选，保留`891c76`正文修复。
+  采样期间有0.846秒定向测试并行负载，完整保留样本，不删段、不据差值声称确定回归。
+- `467d4f9`后端首次五轮500任务复测中，驱动从pending快照选中的一项在取消时已running，
+  `fixedOutcomes`因排队/执行中取消分类不符而失败；原任务create=1、attempt=1。
+  首次FAILED原件保留，不回填PASS。驱动`ebae021`修正实际边界判定后，第二次五轮500任务每轮21/21通过：
+  430成功、25预设失败、45排队取消、455次create；资源峰1/3/2且结束归零。
+  健康查询2528次全部200，p95 2.0701ms、最大226.6007ms。本轮执行中取消样本为0，不能算该边界实测覆盖。
+  报告保留`requires_review/productAcceptance=false`；确定性替身不代表真实模型或阶段通过。
+- M6 profile工具已通过97项自动测试；WAL、Windows扩展路径、E5目录重叠、发行包独立探针身份
+  和实际包清单排序问题已修复并留存首失败。固定`2c7429e`候选已在
+  `.local/m6-e5-ff079df-20261025/next-2c7429e/`完成离线准备；预检无阻断，migrate与prepare-profiles
+  各重复执行成功，离线记录当时两profile READY但未激活。随后已选择round1-old并在8244运行旧版保存演练；
+  实际fence成功后probe仍因自身堆栈误归因报告busy，observe真实拒绝已留证，未clear、未seal。
+  后续严格私有console核验后一次CTRL_C已中止失败试验：两PID退出、8244无listener、无SQLite sidecar；
+  未seal、未switch。8245新版切换与回滚尚未执行；保全原试验数据后须固定修复候选重演，abort不是迁移通过。
   这些不构成实际进程切换、回滚或最终清洁安装验收。
+  原始数据、完整指纹与本地证据SHA见[实际性能与M6准备记录](PERFORMANCE_OBSERVATIONS_20261025.md)。
+
+- 失败2c试验的旧profile已完整冷保全：8文件/12目录/307121字节，含实际编辑、上传和DB；
+  原数据前后与副本哈希相同，进程绑定、listener及SQLite sidecar检查为空，原失败证据和安装不改。
+  固定`77be887` / 前端`891c76` / probe bundle`9950e6c8`已建全新旧/新安装，候选发行树的公开
+  init/preflight/migrate×2/prepare-profiles×2成功，所有文件映射、DB非路径metadata不变。
+  交接时active=null、启动/激活/fence均0；没有用abort替代seal或绕过capture守卫。
+  新证据根`.local/m6-e5-77be887-20261025/`；这是离线准备完成，实际M6切换/回滚仍待演练。
+
+- 修复探针后，77be887试验的round1-old已在8244真实重新编辑`RETRY-OLD-77`、保存磁盘重开，
+  320×180上传图片可读。实际fence clear后取得observe `c247bec6250f4d2d88e4ceba75e28f31`，
+  正常一次Ctrl+C；第一次seal在进程退出前过早调用而拒绝，原失败保留。
+  确认154076/24624真实退出且无SQLite sidecar后，二次seal成功`ce579d4c…`。
+  随后正式capture到`captured-round2`，preflight/migrate×2/prepare-profiles×2成功，两个round2 profile READY。
+  8个源文件及unknown原始夹具不变，实际旧编辑保留；DB仅路径映射、非路径metadata不变。
+  round2离线交接时active仍round1-old/sequence1，当时尚未运行新版switch/rollback；后续实际结果见下。
+  详细原件路径和SHA见[实际性能与M6准备记录](PERFORMANCE_OBSERVATIONS_20261025.md)。
+
+- 77be887隔离实际链条已跑完：sequence2切到round2-new，重开旧编辑/图片，保存并重开NEW-UI-77；
+  新版正常停止seal后，rollback-new-to-old先保全10文件，再发布sequence3；重复调用结果完全相同。
+  回滚旧版实际重开RETRY-OLD-77及320×180图片，正常停机后最终seal974fa57，旧数据清单与启动前相同。
+  独立核对new profile/seal/preservation10文件逐字节一致，原round1及capture源未变；原unknown夹具不改，
+  新保存的root/extensions与两个节点future metadata保持。
+  收藏导入已持久化（4 assets/4 favorites/3 origins，任务数0），但混合媒体列表GET实际500缺byte_size，
+  首失败保留。3782d23源码修复仍待真实UI复验；**该缺陷阻断，全产品和M6验收未完成**。
+  只读SQLite采集产生的空WAL/SHM已按精确路径原样移存留证，主DB未变，再核新profile10文件与seal exact。
+  详细证据及副作用修复说明见[实际性能与M6记录](PERFORMANCE_OBSERVATIONS_20261025.md)。
+
+- `891c76`正文补测已重新建立独立页面，逐用例核对真实DOM viewport：1280×720和680×720各12项，
+  两实例的文本/LLM正文在50%/100%/150%均取得正确焦点，144个字段值保持；96个body和144个字段
+  未记录内部横向溢出。实际保存原件与14任务/12尝试/73事件完整行不变。
+  150% LLM宽1050、高782，聚焦后的标题位于视口外，工具覆盖正文附近；680/100%宽700也超过视口，
+  尚需实际平移检查，不能据内部overflow为0宣称全部窄屏可用。原36条错误尺寸记录仍保留。
+  新证据`.local/validation/body-zoom-891-actual/responsive-verified-matrix.json`与独立
+  `body-zoom-891-responsive-audit.json`；截图扩展名为png，实际编码为JPEG，解码尺寸已核对。
