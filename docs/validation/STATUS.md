@@ -12,7 +12,7 @@
   启动证据保留后已核对身份并停止该空闲测试进程。它只证明启动隔离。
 - TypeScript 端口/文档控制器、共享 Canvas 分层抽取和测试专用面板已实施，
   正在独立 8226 宿主进行 M1 两实例验收。
-- 尚未执行本次真实模型、迁移或回滚验收；性能已有部分实际观察，完整门禁仍未通过。
+- 本次真实模型推理仍为0；迁移与回滚已有下述隔离实测子项，性能及完整阶段门禁仍未通过。
 - 固定旧提交的 8225 已实际创建并保存默认表格：素材/提示词/生成三列与三行。
   公开的空内容合成工作流在 tests/fixtures/workflows/old-default-table.json。
 - 任务账本与资产服务已有 SQLite 实现；独立审查发现的数据库识别、凭据过滤、
@@ -140,7 +140,7 @@
   独立核对new profile/seal/preservation10文件逐字节一致，原round1及capture源未变；原unknown夹具不改，
   新保存的root/extensions与两个节点future metadata保持。
   收藏导入已持久化（4 assets/4 favorites/3 origins，任务数0），但混合媒体列表GET实际500缺byte_size，
-  首失败保留。3782d23源码修复仍待真实UI复验；**该缺陷阻断，全产品和M6验收未完成**。
+  首失败保留。3782d23修复在当时仍待真实UI复验，后续固定候选结果见下文；全产品和M6验收未完成。
   只读SQLite采集产生的空WAL/SHM已按精确路径原样移存留证，主DB未变，再核新profile10文件与seal exact。
   详细证据及副作用修复说明见[实际性能与M6记录](PERFORMANCE_OBSERVATIONS_20261025.md)。
 
@@ -151,3 +151,16 @@
   尚需实际平移检查，不能据内部overflow为0宣称全部窄屏可用。原36条错误尺寸记录仍保留。
   新证据`.local/validation/body-zoom-891-actual/responsive-verified-matrix.json`与独立
   `body-zoom-891-responsive-audit.json`；截图扩展名为png，实际编码为JPEG，解码尺寸已核对。
+
+- 固定`3782d230b7022779a086c0d75f596ab75f33f83a`的新隔离试验已完成旧→新→旧的实际子项：
+  旧版磁盘重开后正常停止，首次seal与prepared数据相同；新版真实导入3条旧收藏，混合列表3项可见，
+  重复导入仍为3条来源。图像/视频/文本复用到画布、另存并重开；新增文本收藏后列表4项可见。
+  磁盘核查为4 assets/4 favorites/3 origins、6 provenance、2 file references，任务/尝试/事件均0；
+  所采新宿主日志无500或异常栈，旧`byte_size`失败原件不回填为通过。
+  新版正常停止并seal `1f189cbb…`，sequence3回滚先保全11文件；重复调用的JSON记录相同。
+  旧版再次从磁盘重开RETRY-OLD-77与320×180图像，正常停止后最终seal `182a233f…`；
+  旧8文件与prepared/首次seal/最终seal逐字节相同，新11文件与seal/保全manifest逐字节相同。
+  两份原工作流及77试验原source保持不变；新副本保留unknown root/extensions与节点future metadata。
+  独立核查仅用文件字节及内存SQLite，原DB连接/源写入/新增sidecar均0。
+  证据根`.local/m6-e5-3782d23-20261025/actual/`；这是M6迁移链子项，**不代表全部TC或阶段通过**。
+  正式前端仍为`891c76`，缩放五段40.1/40.0/40.1/40.1/40.1ms仍FAIL20；真实GPU推理仍为0，未发布。

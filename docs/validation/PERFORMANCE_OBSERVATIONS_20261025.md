@@ -144,7 +144,7 @@ SHA-256 `6bc1efa95667736c0808a4a4eba7bf3a16df68c80fdb9e3e4cbe7a49147a275c`。
 `.local/validation/body-zoom-891-actual/viewport-focus-matrix.json`共有36条记录，
 逐条核对`viewport`后，**36条全部为1920×1080**，没有1280或680宽度样本。
 不同分组或文件名不能替代实际视口尺寸；这些记录只能支持其已记录的1920×1080焦点/面板状态，
-不能算1280/680响应式矩阵通过。窄屏实际布局、溢出与焦点仍等待根代理补测，原36条不改写。
+不能算1280/680响应式矩阵通过。此处记录时窄屏仍待补测；后续真实24条补测与限制见STATUS，原36条不改写。
 该矩阵SHA-256为`6ca7483cadc667b8dd0c8290685cc88abf3c30d9b60ddce3db8015e083d69f58`。
 
 ## SVG候选复测与回退
@@ -338,3 +338,57 @@ raw inventory `004f42da1a89db4ef3d6b852e55ae2fefcc75ddfec615e7c544303be7743e946`
 `actual/new-ui-disk-sidecar-repair.json`，SHA-256
 `2fbbecc110b44a087424df4a8f60c3b4e1e53cfe5f279dfe4af6d0d8ca192ef6`。
 此后数据库审查只使用独立副本或内存快照，避免给被观察原件再建立SQLite连接。
+
+## 3782d23固定候选的实际迁移链复验
+
+本次独立试验根为`.local/m6-e5-3782d23-20261025/`，固定候选
+`3782d230b7022779a086c0d75f596ab75f33f83a`，归档SHA-256
+`d363bd5968c416ef673b00cca494c199694e0a4134e0d0afbc4ebb0ec6cc274c`。
+前端仍为`891c76378b8d130639bf327c4bcff30dc277a4e7a671f1a4dbd990224217b2b2`。
+旧包仍为指定Canvas/业务双基线，两个新安装和数据根独立；77试验和首次失败原件保留。
+
+round1-old在8244真实从磁盘打开旧编辑及图像，本轮未编辑，正常Ctrl+C停止后取得seal
+`721097fba688a8af97069cab6d9c03073d3bdc5c83ab6bab9c2d61530f61192f`。
+旧8文件与prepared完全相同，因此复用已物化的round1-new；sequence2切换到新版8245。
+新版真实导入3条旧收藏后，图像、视频、文本均在混合列表可见；重复导入未增加来源条数。
+视频预览记录到readyState=4、320×180、3秒、error=null；此记录不等于全帧解码或生成质量验收。
+三类素材通过UI复用到画布，另存`M6-new-reuse-378.json`并从磁盘重开，
+资产ID、文件引用ID和内容SHA与原目录记录一致。另从原合成工作流编辑NEW-UI-378，
+收藏、另存`M6-new-unknown-378.json`并重开后，混合收藏列表正常显示4项。
+
+独立内存数据库核对为assets=4、favorites=4、favorite_origins=3、asset_provenance=6、
+asset_references=2；jobs/job_attempts/job_events均为0。两份原工作流字节未变，
+新编辑副本保留unknownWorkflow、extensions及两节点futureNodeMetadata；输入/输出3文件与capture相同。
+所采新版stdout/stderr未记录HTTP 500、Error handling request、Traceback或KeyError，
+结合实际混合列表和重开记录，闭合本次旧收藏列表`byte_size`缺项复验；日志无错误不扩大为所有接口通过。
+
+新版fence/observe后正常停止，取得seal
+`1f189cbb814209a2762a865e197d233d51ad797ce781ec4ff9edd273c8ee397b`，
+raw inventory为`d2b7c3e849a5d7059b577305e8df49ac6d0ef38f7728caa1d1a5aeaa4a3e6302`。
+`rollback-new-to-old`使用目标旧seal，先保全新版user/input/output，再发布sequence3。
+重复调用的JSON记录、operation及sequence完全相同；原始stdout排版不同，不声称响应字符串逐字节一致。
+保全manifest的canonical SHA为`abb7c59608b008c62cc72bdaa23c797fd0dce518898ec2574701cb88094ad7eb`，
+manifest文件字节SHA为`259decc579e5d02a8e21ffde31ed7aff8a5f8c4ff7b204a0bcb1b54c8833c304`。
+独立核对保全data、新profile、新seal和manifest的11文件路径、大小与SHA完全一致。
+
+回滚后8244实际从磁盘重开RETRY-OLD-77及320×180图像；再次正常停止，
+退出记录确认182504/56556两PID不存在、无listener/SQLite sidecar，最终旧seal为
+`182a233fa9dd7d184e720230a24cc650729b33ba07d2431e2793ebb6ecf9d803`。
+其raw inventory `39973c75a88495c34e32541fc897a5d25ff05f683ab0862511759e0b9825cc1c`
+与首次seal及prepared完全相同；独立复核旧8文件、capture源8文件与原77试验旧profile均未变。
+两份原工作流SHA分别为：M6-synthetic.json的
+`bf10cf4b6d5fd7751ffc4f2f1ba557ce17be2759feb074a5f9870d7c9d308b6f`，
+M6-old-ui-edit.json的`65f87ef783570b9bee487e2ccfe6a76c5055f1d47567ab0db6a69999ceae1f24`。
+
+本次独立采集只普通读取字节，数据库解析在私有内存连接中完成；原DB连接、源写入、新增sidecar均0，
+前后全文件哈希一致。首条采集断言曾误要求两次CLI stdout字符串完全相同，
+`actual/rollback-review-first-diagnostic.json`保留失败诊断；实际解析后的JSON记录完全相同，未修改产品。
+UI与退出证据由根代理实际采集，独立审查负责磁盘/数据库副本/保全比对，范围分别记录。
+
+- `actual/new-ui-independent-review.json`，SHA-256 `1dd4071a0c69bfb1547e7ddcd054103953b7dd32b75158888b3d9a9f8d9a2e71`。
+- `actual/rollback-independent-review.json`，SHA-256 `9f818ac3af398244089dfc1b1dda83cdf347ea5904e0ff1595f6d94fd8d78347`。
+- `actual/new-reuse-reopened-dom.json`，SHA-256 `8f99a3fc653c5b3dd2c8dfdf8688b63b19ca6032aa7185a1f714fa0893fd3338`。
+
+**此结果仅支持本次合成数据的M6迁移链子项，不代表所有TC、M6阶段或完整产品验收通过。**
+正式前端891c76的五段缩放p95仍为40.1/40.0/40.1/40.1/40.1ms，仍FAIL20；
+本轮真实GPU/模型推理为0，生成质量、完整性能门禁和发布未完成。
