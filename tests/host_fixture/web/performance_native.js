@@ -62,6 +62,7 @@ const plainClone=value=>JSON.parse(JSON.stringify(value));
 export function createNativeBoundaryObserver({app,api,now=()=>performance.now(),onUpdate=()=>{},maxRecords=20000}={}){
     const histories=[],workflowIds=new WeakMap(),graphIds=new WeakMap();
     let current=null,active=false,epoch=0,nextWorkflow=0,nextGraph=0,nextOperation=0,release=[],saveOperations=new Set();
+    const latest=new Map();
     const id=(map,value,prefix,next)=>{
         if(!value||(typeof value!=='object'&&typeof value!=='function'))return null;
         if(!map.has(value))map.set(value,prefix+next());return map.get(value);
@@ -70,7 +71,10 @@ export function createNativeBoundaryObserver({app,api,now=()=>performance.now(),
     const graphId=value=>id(graphIds,value,'graph-',()=>++nextGraph);
     const workflow=()=>app?.extensionManager?.workflow?.activeWorkflow;
     const time=()=>{const t=now();return Number.isFinite(t)?t:null;};
-    const emit=()=>{try{onUpdate({active,status:current?.status??'idle',records:current?.records.length??0});}catch{/* A view failure cannot change host behavior. */}};
+    const emit=()=>{try{onUpdate({active,status:current?.status??'idle',records:current?.records.length??0,
+        latest:[...latest.values()].map(record=>({id:record.id,kind:record.kind,status:record.status,
+            workflowId:record.workflowId,durationMs:record.durationMs,successful:record.successful??null,
+            storageAcknowledged:record.storageAcknowledged??null}))});}catch{/* A view failure cannot change host behavior. */}};
     function finish(record,outcome,detail={}){
         if(!active||record.epoch!==epoch||record.status!=='pending')return;
         record.endedAt=time();record.durationMs=record.startedAt==null||record.endedAt==null?null:record.endedAt-record.startedAt;
@@ -80,7 +84,9 @@ export function createNativeBoundaryObserver({app,api,now=()=>performance.now(),
         if(!active)return null;
         if(current.records.length>=maxRecords){stop('capacity-stop');return null;}
         const record={id:++nextOperation,epoch,kind,workflowId:workflowId(owner),startedAt:time(),endedAt:null,durationMs:null,status:'pending',...detail};
-        current.records.push(record);return record;
+        current.records.push(record);latest.set(kind,record);
+        if(kind!=='native-serialization')emit();
+        return record;
     }
     function installGraph(){
         if(app.isGraphReady!==true)throw new Error('native-graph-not-ready');
@@ -96,7 +102,7 @@ export function createNativeBoundaryObserver({app,api,now=()=>performance.now(),
         if(app?.isGraphReady!==true)throw new Error('native-graph-not-ready');
         const store=app.extensionManager?.workflow;
         if(typeof app.loadGraphData!=='function'||typeof store?.saveWorkflow!=='function'||typeof api?.storeUserData!=='function')throw new Error('native-boundary-capability-unavailable');
-        active=true;++epoch;
+        active=true;++epoch;latest.clear();
         current={schemaVersion:1,kind:'passive-native-performance-observation',hostContract:HOST_BOUNDARIES,
             startedAt:time(),endedAt:null,status:'observing',records:[],productAcceptance:false,
             limitations:['Source hashes identify the inspected 1.53.10 source, not a runtime hash attestation.',
@@ -172,7 +178,10 @@ export function mountNativePerformanceObserver(document,window,{app,api}={}){
     const button=(label,callback)=>{const element=make('button',label,controls);element.type='button';element.onclick=callback;return element;};
     let disposed=false;
     const observer=createNativeBoundaryObserver({app,api,now:()=>window.performance.now(),onUpdate:summary=>{
-        status.textContent=`${summary.active?'正在观察':'已停止'} · ${summary.records} 个原始调用；产品验收未判定`;
+        status.textContent=`${summary.active?'正在观察':'已停止'} · ${summary.records} 个原始调用；产品验收未判定`+
+            summary.latest.map(record=>`\n#${record.id} ${record.kind}: ${record.status}`+
+                (record.durationMs==null?'':` · ${record.durationMs.toFixed(1)} ms`)+
+                (record.storageAcknowledged===true?' · 存储已确认':'')).join('');
     }});
     const start=button('开始本页观测',event=>{
         if(disposed||!event?.isTrusted)return;

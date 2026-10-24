@@ -53,6 +53,29 @@ test('load false is not completion and no mutation or frame proxy fills editable
     assert.deepEqual(report.unmeasured,{reopenToEditableMs:null,semanticTableInputToDisplayMs:null,semanticAssetSearchCompletionMs:null});assert.equal(report.productAcceptance,false);
 });
 
+test('visible summaries distinguish pending, failed and completed calls without sharing mutable facts',async()=>{
+    const h=host(),d=deferred(),updates=[];
+    h.app.loadGraphData=()=>d.promise;
+    const observer=createNativeBoundaryObserver({...h,onUpdate:value=>updates.push(value)});
+    observer.start({explicit:true});
+    const result=h.app.loadGraphData({private:'never exported'});
+    assert.equal(result,d.promise);
+    const pending=updates.at(-1).latest[0];
+    assert.equal(pending.kind,'native-workflow-load');assert.equal(pending.status,'pending');
+    pending.status='fake-complete';
+    assert.equal(records(observer)[0].status,'pending');
+    d.resolve(false);await result;await flush();
+    assert.equal(updates.at(-1).latest[0].status,'not-loaded');
+    assert.equal(updates.at(-1).latest[0].successful,false);
+    await h.store.saveWorkflow(h.workflow);await flush();
+    const saved=updates.at(-1).latest.find(row=>row.kind==='native-workflow-save');
+    assert.equal(saved.status,'complete');assert.equal(saved.storageAcknowledged,true);
+    assert(!JSON.stringify(updates).includes('private-workflow'));
+    assert(!JSON.stringify(updates).includes('never exported'));
+    observer.stop();observer.start({explicit:true});
+    assert.deepEqual(updates.at(-1).latest,[]);observer.destroy();
+});
+
 test('an exotic Promise or observer rendering error cannot change the native return',()=>{
     class ExoticPromise extends Promise{static get [Symbol.species](){throw new Error('observer must not surface this');}}
     const h=host(),result=new ExoticPromise(resolve=>resolve(true));h.app.loadGraphData=()=>result;
