@@ -5,6 +5,7 @@ state is read. Source/body/credential/request/result content is never exported.
 Memory observations are point-in-time; an explicitly activated fence closes HTTP
 admission until restart. Stopping the process and preserving data are external.
 """
+import ast
 import asyncio
 import hashlib
 import ipaddress
@@ -35,7 +36,7 @@ SOURCES = (
     ("canvas", "__init__.py", "6ec74e57c1ce24606a7a6234136a6f253575931a2de5c8c8c0387bae8414fab4", ()),
     ("business", "__init__.py", "ce10f353a8767916e3128dfcc7fea5326a58fa341305e364d5fb50b16749b656", ()),
     ("business", "nodes/prompt_optimization/canvas.py", "dab18cc14060d8b3df3956a22fa04f188ac653e99951fdf5f3c302d3b34dec9d", ("polish",)),
-    ("business", "nodes/prompt_optimization/local_qwen.py", "8f764358a3a1e2a88c1514bd3f1ee5919fb3249b7a9f5512ee22ba3c02d3a343", ("lock_path", "_generate", "generate")),
+    ("business", "nodes/prompt_optimization/local_qwen.py", "8f764358a3a1e2a88c1514bd3f1ee5919fb3249b7a9f5512ee22ba3c02d3a343", ("lock_path", "_generate", "generate", "gpu_middleware")),
     ("business", "nodes/prompt_optimization/api.py", "b986b63a971eebd5f029db1a207bc8a376079c19ab150d5ac88aee22ee03dfd3", ("handle",)),
     ("business", "nodes/prompt_optimization/service.py", "71f434b4f883eaa6224b6345141d252959b5414800899c6dfdbe34c08de5aec9", ("Service.__init__", "Service._create", "Service._poll")),
     ("business", "nodes/libtv_bridge/table_generation_api.py", "08b43dd69762c2e86063bfa33968013555d3888715f58a6cc4def334b39351af", ("submit", "run_batch", "handle")),
@@ -148,11 +149,19 @@ def stat_marker(path):
     return {"exists": True, "bytes": stat.st_size, "mtimeNs": stat.st_mtime_ns}
 
 
-def owned_stack_counts(roots):
+def owned_stack_counts(roots, passthrough=None):
     def owned(filename):
         if not isinstance(filename, str) or not Path(filename).is_absolute():
             return False
         return any(Path(filename).is_relative_to(root) for root in roots.values())
+    def owned_frame(frame, task):
+        if frame is None or not owned(frame.f_code.co_filename):
+            return False
+        # Only one pinned return-await frame is transparent for a request whose
+        # exact method/path/handler was recorded by our outer ingress guard.
+        # Never read frame locals, drop a whole task/thread, or exempt workers.
+        return not (passthrough is not None and task in passthrough[2] and
+                    frame.f_code is passthrough[0] and frame.f_lineno == passthrough[1])
     async_count = 0
     for task in asyncio.all_tasks():
         current, seen, found = task.get_coro(), set(), False
@@ -164,13 +173,14 @@ def owned_stack_counts(roots):
                 frame, current = current.gi_frame, current.gi_yieldfrom
             else:
                 break  # Future iterators have no Python source frame; their Task is separately enumerated.
-            found = found or frame is not None and owned(frame.f_code.co_filename)
+            found = found or owned_frame(frame, task)
         async_count += found
     thread_count = 0
-    for frame in sys._current_frames().values():
+    current_thread, current_task = threading.get_ident(), asyncio.current_task()
+    for thread_id, frame in sys._current_frames().items():
         found = False
         while frame is not None:
-            found = found or owned(frame.f_code.co_filename)
+            found = found or owned_frame(frame, current_task if thread_id == current_thread else None)
             frame = frame.f_back
         thread_count += found
     # Thread.start may acknowledge before its target reaches a Python frame.
@@ -189,7 +199,7 @@ def native_queue_counts(server):
     return {"running": len(queue[0]), "pending": len(queue[1])}
 
 
-def observe_memory(base, modules, roots, server):
+def observe_memory(base, modules, roots, server, fence=None):
     module = lambda name: modules[("business", "nodes/" + name + ".py")]
     canvas, qwen = module("prompt_optimization/canvas"), module("prompt_optimization/local_qwen")
     api, service, table = module("prompt_optimization/api"), module("prompt_optimization/service"), module("libtv_bridge/table_generation_api")
@@ -225,7 +235,8 @@ def observe_memory(base, modules, roots, server):
     table_state = {**task_counts(t.get("_tasks")), "submissionBusy": lock_state(t.get("_submissions")),
                    "localControls": len(t["_local_runs"]), "executionGroups": len(executions),
                    "executionReferences": sum(v[1] for v in executions), "executionLocksBusy": sum(lock_state(v[0]) for v in executions)}
-    stacks, native = owned_stack_counts(roots), native_queue_counts(server)
+    passthrough = fence.stack_passthrough(modules) if fence is not None else None
+    stacks, native = owned_stack_counts(roots, passthrough), native_queue_counts(server)
     require(markers == (stat_marker(path), stat_marker(quarantine)), "qwen-marker-changed-during-observation")
     busy = (polish["busy"] or qwen_state["active"] or workers["active"] or workers["lockBusy"] or table_state["active"] or
             table_state["submissionBusy"] or table_state["localControls"] or table_state["executionReferences"] or table_state["executionLocksBusy"] or any(stacks.values()) or any(native.values()))
@@ -256,7 +267,7 @@ def collect(nonce, folder_paths, server, fence=None):
             result["runtime"] = {"pid": os.getpid(), "processCreated": birth, "installationRoot": str(base),
                                  "canvasRoot": str(roots["canvas"]), "businessRoot": str(roots["business"])}
             result["sources"]["files"] = files
-            result["observations"], busy, unknown = observe_memory(base, modules, roots, server)
+            result["observations"], busy, unknown = observe_memory(base, modules, roots, server, fence)
             for module, name, original in identities:
                 actual = vars(module)[name.split(".")[0]]
                 actual = vars(actual)[name.split(".")[1]] if "." in name else actual
@@ -501,6 +512,7 @@ class IngressFence:
         self.server, self.folder_paths, self.port = server, folder_paths, port
         self.audit, self.handlers, self.host_module = audit_host(server)
         self.pending = set()
+        self.stack_requests = {}
         self.mutation_admissions = 0
         self.record = None
         self.initial_completed_polish = None
@@ -509,19 +521,39 @@ class IngressFence:
         self.probe_handler = self.fence_handler = self.middleware = None
 
     def classified(self, request):
-        actual = request.match_info.handler
-        if (request.method == "GET" and request.path == ENDPOINT and actual is self.probe_handler or
-                request.method == "POST" and request.path == ENDPOINT + "/fence" and actual is self.fence_handler):
+        return self.classify(request.method, request.path, request.match_info.handler)
+
+    def classify(self, method, path, actual):
+        if (method == "GET" and path == ENDPOINT and actual is self.probe_handler or
+                method == "POST" and path == ENDPOINT + "/fence" and actual is self.fence_handler):
             return "control"
-        if request.method == "GET" and type(actual) is types.FunctionType and actual.__globals__ is vars(self.host_module) and actual.__code__ == self.handlers.get(request.path):
-            return "existing-native-ws" if request.path in {"/ws", "/api/ws"} else "readonly"
-        if self.studio_health is not None and request.method == "GET" and request.path == "/daelab/studio/health":
+        if method == "GET" and type(actual) is types.FunctionType and actual.__globals__ is vars(self.host_module) and actual.__code__ == self.handlers.get(path):
+            return "existing-native-ws" if path in {"/ws", "/api/ws"} else "readonly"
+        if self.studio_health is not None and method == "GET" and path == "/daelab/studio/health":
             try:
                 if actual == self.studio_health == studio_health_handler(self.folder_paths, self.server):
                     return "readonly"
             except Exception:
                 pass  # An unproven handler is denied after the fence, never invoked.
         return "mutation-or-unknown"
+
+    def stack_passthrough(self, modules):
+        if not self.stack_requests:
+            return None
+        require(self.server.app.middlewares and self.server.app.middlewares[0] is self.middleware, "ingress-middleware-changed")
+        audit, handlers, module = audit_host(self.server)
+        require(audit == self.audit and handlers == self.handlers and module is self.host_module, "ingress-coverage-changed")
+        qwen = modules[("business", "nodes/prompt_optimization/local_qwen.py")]
+        middleware = vars(qwen)["gpu_middleware"]  # loaded_sources verified the pinned CodeType and globals.
+        require(sum(item is middleware for item in self.server.app.middlewares) == 1, "legacy-gpu-middleware-unbound")
+        tree = ast.parse(source_bytes(ordinary(vars(qwen)["__file__"])))
+        definition = next(node for node in tree.body if isinstance(node, ast.AsyncFunctionDef) and node.name == "gpu_middleware")
+        statement = definition.body[0].body[0]
+        expected = ast.parse("return await handler(req)").body[0]
+        require(ast.dump(statement) == ast.dump(expected), "legacy-passthrough-shape-unproven")
+        allowed = frozenset(task for task, (kind, method, path, actual) in tuple(self.stack_requests.items())
+                            if kind in {"control", "readonly", "existing-native-ws"} and self.classify(method, path, actual) == kind)
+        return middleware.__code__, statement.lineno, allowed
 
     async def guard(self, request, handler):
         from aiohttp import web
@@ -534,11 +566,23 @@ class IngressFence:
             token = object()
             self.pending.add(token)
             self.mutation_admissions += 1
+        task, context, previous = asyncio.current_task(), None, None
+        if kind in {"control", "readonly", "existing-native-ws"} and task is not None:
+            # No request object/body/headers are retained. Finally removes the
+            # per-request entry, including cancellation and long-lived WS exit.
+            context = (kind, request.method, request.path, request.match_info.handler)
+            previous = self.stack_requests.get(task)
+            self.stack_requests[task] = context
         try:
             return await handler(request)
         finally:
             if token is not None:
                 self.pending.discard(token)
+            if context is not None and self.stack_requests.get(task) is context:
+                if previous is None:
+                    self.stack_requests.pop(task, None)
+                else:
+                    self.stack_requests[task] = previous
 
     def activate(self, nonce, profile_sha):
         require(re.fullmatch(r"[0-9a-f]{32}", nonce), "invalid-fence-nonce")

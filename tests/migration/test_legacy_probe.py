@@ -14,6 +14,17 @@ from unittest.mock import patch
 from tools.migration.legacy_probe import probe
 
 NONCE = "a" * 32
+GPU_MIDDLEWARE = """
+@web.middleware
+async def gpu_middleware(req, handler):
+    if req.method != 'POST' or req.path not in ('/prompt', '/api/prompt'):
+        return await handler(req)
+    try:
+        async with native_admission():
+            return await handler(req)
+    except ValueError as error:
+        return web.json_response({'error': {'type': 'local_llm_busy', 'message': str(error)}, 'node_errors': {}}, status=409)
+"""
 
 
 class LegacyProbeTests(unittest.IsolatedAsyncioTestCase):
@@ -29,7 +40,7 @@ class LegacyProbeTests(unittest.IsolatedAsyncioTestCase):
         bodies = {
             "__init__.py": "NODE_CLASS_MAPPINGS = {}\n",
             "nodes/prompt_optimization/canvas.py": "import asyncio\n_busy=asyncio.Lock()\n_results={}\nasync def polish(event):\n    await event.wait()\ndef synthetic_thread(event):\n    event.wait()\n",
-            "nodes/prompt_optimization/local_qwen.py": "from pathlib import Path\nimport folder_paths\n_active=False\n_quarantined=False\n_server=None\ndef lock_path():\n    return Path(folder_paths.base_path)/'user/local-qwen35-9b/gpu-admission.lock'\nasync def _generate():\n    pass\nasync def generate():\n    pass\n",
+            "nodes/prompt_optimization/local_qwen.py": "from pathlib import Path\nfrom aiohttp import web\nimport folder_paths\n_active=False\n_quarantined=False\n_server=None\ndef lock_path():\n    return Path(folder_paths.base_path)/'user/local-qwen35-9b/gpu-admission.lock'\nasync def _generate():\n    pass\nasync def generate():\n    pass\n" + GPU_MIDDLEWARE,
             "nodes/prompt_optimization/api.py": "_service=None\nasync def handle():\n    pass\n",
             "nodes/prompt_optimization/service.py": "class Service:\n    def __init__(self):\n        pass\n    async def _create(self):\n        pass\n    async def _poll(self):\n        pass\n",
             "nodes/libtv_bridge/table_generation_api.py": "import asyncio\n_tasks={}\n_local_runs={}\n_executions={}\n_submissions=asyncio.Lock()\nasync def submit():\n    pass\nasync def run_batch():\n    pass\nasync def handle():\n    pass\n",
