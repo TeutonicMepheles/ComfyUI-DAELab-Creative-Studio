@@ -727,9 +727,10 @@
       "sourceReferences": [],
       "kind": "offline-test-evidence",
       "changes": [
-        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
+        "Explicit fake cloud resource shares core.resources. Test-only read-only restoration projection maps owned legacy fixture-no-gpu snapshots without mutating ledger facts or adding a production alias; foreign aliases remain rejected."
       ],
-      "destinationSha256": "9b3448cc17a1fb24abc522b9be980687f8aea1a8b06812a7c9792eff97beeb49"
+      "destinationSha256": "ad6337ae44c2e6b65c8a0f7cab0b793e744f560e51d2e4ed0bdd57e62c754d79"
     },
     {
       "destination": "tests/host_fixture_tests/test_generation_fixture.py",
@@ -738,9 +739,10 @@
       "sourceReferences": [],
       "kind": "offline-test-evidence",
       "changes": [
-        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
+        "Explicit fake cloud resource shares core.resources. Test-only read-only restoration projection maps owned legacy fixture-no-gpu snapshots without mutating ledger facts or adding a production alias; foreign aliases remain rejected."
       ],
-      "destinationSha256": "67c987c2c5cf05c076dac62b4717db8fa0d22201f96dfe86945f52f8420904b3"
+      "destinationSha256": "92e8ff8a6dc3d84e1d486672bf55730841acbfab0a3ee0f706510fdd8a666df5"
     },
     {
       "destination": "docs/validation/DETERMINISTIC_GENERATION_FIXTURE.md",

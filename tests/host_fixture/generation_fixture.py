@@ -29,7 +29,7 @@ def load_product(core):
         raise ValueError('Pass the installed product CoreServices instance explicitly.')
     package = module[:-len(suffix)]
     names = {'service': 'generation.service', 'http': 'generation.http', 'errors': 'contracts.errors',
-             'contracts': 'providers.contracts', 'parameters': 'providers.parameters', 'qwen': 'providers.qwen', 'media': 'generation.media'}
+             'contracts': 'providers.contracts', 'parameters': 'providers.parameters', 'qwen': 'providers.qwen', 'media': 'generation.media', 'admission': 'generation.admission'}
     modules = {name: importlib.import_module(package + '.' + path) for name, path in names.items()}
     modules['fingerprint'] = hashlib.sha256(b''.join(Path(modules[name].__file__).read_bytes() for name in sorted(modules))).hexdigest()
     return SimpleNamespace(**modules)
@@ -46,7 +46,7 @@ def synthetic_png(request_id):
 class FixtureProvider:
     execution_kind = 'remote'
     protocol_only = True
-    resource = 'fixture-no-gpu'
+    resource = 'cloud'  # Protocol-only fake; no network/model transport is present.
     supports_query = supports_lookup = supports_cancel = True
 
     def __init__(self, controller, kind):
@@ -155,11 +155,42 @@ class FixtureProvider:
         return True
 
 
+class FixtureResourceLedger:
+    """Read-only restoration view for this fixture's retired resource label.
+
+    The shared gate and the original JobLedger stay in place. No persisted
+    snapshot/fingerprint is edited, and foreign records never receive the alias.
+    This class exists only in the explicitly installed test package.
+    """
+    _studio_fixture_resource_projection = VERSION
+
+    def __init__(self, ledger):
+        self.ledger = ledger
+
+    def __getattr__(self, name):
+        return getattr(self.ledger, name)
+
+    def list_jobs(self, *args, **kwargs):
+        result = []
+        for job in self.ledger.list_jobs(*args, **kwargs):
+            snapshot = job['snapshot']
+            if (job['execution_kind'] == 'remote' and job['provider'] in {'local-qwen-image', 'local-qwen-text'}
+                    and snapshot.get('prepared', {}).get('fixture') == VERSION
+                    and snapshot.get('resource') == 'fixture-no-gpu'):
+                job = {**job, 'snapshot': {**snapshot, 'resource': 'cloud'}}
+            result.append(job)
+        return result
+
+
 class GenerationFixture:
     def __init__(self, core, *, enabled=False, poll_interval=.05):
         if enabled is not True:
             raise ValueError('Deterministic providers require explicit isolated-test enablement.')
         self.core, self.product = core, load_product(core)
+        # Keep the exact production gate; only its read-only restoration input
+        # adapts the private fixture's old label. Never install a product alias.
+        if getattr(core.resources.jobs, '_studio_fixture_resource_projection', None) != VERSION:
+            core.resources.jobs = FixtureResourceLedger(core.resources.jobs)
         self.poll_interval = poll_interval
         self.plan = None
         self.released, self.cancelled = set(), set()
@@ -170,7 +201,7 @@ class GenerationFixture:
 
     def _compose(self):
         providers = [FixtureProvider(self, kind) for kind in ('image', 'text')]
-        self.service = self.product.service.GenerationService(self.core.jobs, self.core.assets, providers={p.id: p for p in providers}, poll_interval=self.poll_interval, poll_limit=864000, barrier_namespace=VERSION)
+        self.service = self.product.service.GenerationService(self.core.jobs, self.core.assets, providers={p.id: p for p in providers}, poll_interval=self.poll_interval, poll_limit=864000, barrier_namespace=VERSION, resources=self.core.resources)
         self.handlers = {(method, path): handler for method, path, handler in self.product.http.routes(self.service)}
 
     def record(self, action, request_id):

@@ -220,4 +220,56 @@ class StaticTests(unittest.TestCase):
         result=subprocess.run([sys.executable,'-c',code],capture_output=True,text=True)
         self.assertEqual(result.returncode,0,result.stderr)
 
+
+class ResourceCompatibilityTests(unittest.IsolatedAsyncioTestCase):
+    setUp = FixtureTests.setUp
+    asyncTearDown = FixtureTests.asyncTearDown
+    until = FixtureTests.until
+    arm = FixtureTests.arm
+    async def test_fixture_reuses_core_gate_and_never_adds_a_product_resource_alias(self):
+        from contextlib import AsyncExitStack
+        self.assertIs(self.fixture.service.resources, self.core.resources)
+        with self.assertRaises(self.fixture.product.contracts.ProviderUnavailable):
+            self.core.resources.check_available('fixture-no-gpu')
+        self.arm()
+        async with AsyncExitStack() as stack:
+            for index in range(3):
+                await stack.enter_async_context(self.core.resources.lease('cloud', request_id='shared-' + str(index)))
+            await self.fixture.service.submit([image_job('waiting')])
+            await self.until(lambda: self.core.resources.snapshot()['resources']['cloud']['queued'] == 1)
+            self.assertEqual(self.fixture.counts['create'], 0)
+        await self.fixture.service.wait_idle()
+        self.assertEqual(self.core.jobs.get('waiting')['state'], 'succeeded')
+        self.assertEqual(self.core.jobs.get('waiting')['snapshot']['resource'], 'cloud')
+
+    async def test_legacy_fixture_unknown_restores_shared_capacity_without_mutating_facts_or_recreating(self):
+        import copy
+        self.arm()
+        seed = (await self.fixture.service.prepare_batch([image_job('seed')]))[0]
+        snapshot = copy.deepcopy(seed['snapshot'])
+        snapshot.update(request_id='legacy', resource='fixture-no-gpu')
+        snapshot['prepared']['originalRequestId'] = 'legacy'
+        job, _ = self.core.jobs.create_or_get('legacy', provider=seed['provider'], execution_kind='remote', snapshot=snapshot, source=seed['source'])
+        job = self.core.jobs.begin_submission('legacy', expected_version=job['version'])
+        provider = self.fixture.service.providers[seed['provider']]
+        self.core.jobs.transition('legacy', 'unknown', expected_version=job['version'], event_id='legacy-accepted', provider_task_id=provider._task('legacy'))
+        original = self.core.jobs.get('legacy')
+        await self.core.resources._ready()
+        self.assertEqual(self.core.resources.snapshot()['resources']['cloud']['retained'], 1)
+        await self.fixture.service.recover('legacy')
+        recovered = self.core.jobs.get('legacy')
+        self.assertEqual(recovered['snapshot'], original['snapshot'])
+        self.assertEqual(recovered['fingerprint'], original['fingerprint'])
+        self.assertEqual(recovered['provider_task_id'], original['provider_task_id'])
+        self.assertEqual((recovered['request_id'], recovered['attempt'], recovered['state']), ('legacy', 1, 'succeeded'))
+        self.assertEqual(self.fixture.counts['create'], 0)
+        self.assertEqual(self.core.resources.snapshot()['resources']['cloud']['active'], 0)
+
+    async def test_foreign_legacy_label_is_not_silently_adapted(self):
+        job, _ = self.core.jobs.create_or_get('foreign-alias', provider='foreign', execution_kind='remote', snapshot={'resource': 'fixture-no-gpu', 'prepared': {'fixture': fixture.VERSION}})
+        job = self.core.jobs.begin_submission('foreign-alias', expected_version=job['version'])
+        self.core.jobs.transition('foreign-alias', 'unknown', expected_version=job['version'], event_id='foreign')
+        with self.assertRaises(self.fixture.product.contracts.ProviderUnavailable): await self.core.resources._ready()
+        self.assertEqual(self.core.jobs.get('foreign-alias')['snapshot']['resource'], 'fixture-no-gpu')
+
 if __name__=='__main__':unittest.main()
