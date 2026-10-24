@@ -1,0 +1,16 @@
+.local/
+.env
+.env.*
+!.env.example
+node_modules/
+__pycache__/
+*.py[cod]
+*.sqlite*
+*.db*
+.pytest_cache/
+.venv/
+*.egg-info/
+dist/
+coverage/
+tests/fixtures/private/
+
