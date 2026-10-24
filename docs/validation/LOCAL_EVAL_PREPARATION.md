@@ -98,3 +98,21 @@ python tools/evals/request_contract.py .local/baseline-request.json .local/studi
 这是固定图像预处理的准备证据，不是实际模型输入或采样验收。
 真实执行仍需在相同边界再次捕获，并与本报告以及对应旧/新版请求关联。
 新增三项夹具校验回归拒绝图片或参数改变后冒用原清单；Eval 工具测试目前共 16 项通过。
+
+## 固定提交的 GPU 环境准备器
+
+`python -m tools.host.prepare_gpu_evaluation` 仅准备、不启动服务。它要求完整的
+Studio 提交 SHA、已固定的旧 Canvas/业务/GGUF 提交和干净的固定 ComfyUI 宿主；
+输出必须在新库忽略目录 `.local/` 内且尚不存在。旧新版各自有 user/input/output/temp、
+端口和 Git archive 快照，模型以明确路径表只读引用。来源未提交改动不会被复制或修改。
+
+准备出的命令包含 `--cache-none`，使独立推理具备禁用节点缓存的运行条件；
+实际采样节点是否执行仍须以 websocket/执行 trace 核验，不能凭参数直接计数。
+模型文件在此仅核对存在、尺寸和已记录的哈希格式；推理准入必须重新验证字节与
+宿主实际解析路径。准备报告明确 `modelsRehashedAtPreparation=false`、
+`activationAllowed=false`、`samplerExecutions=0`。没有云端、下载或替代模型路径。
+
+四项真实临时 Git 仓库回归验证固定提交快照、保留未提交改动、两个数据目录、
+禁止生产端口/外部目录/移动 ref、配置篡改、模型尺寸变化和宿主改动。
+日志为 `.local/baseline/gpu-preparation-first-tests.log` 和 `gpu-preparation-final-tests.log`。
+完整 Studio 实现提交尚未固定，因此当前还没有由此工具准备或启动实际 GPU 宿主。
