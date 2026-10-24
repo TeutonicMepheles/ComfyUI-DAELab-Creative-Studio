@@ -21,6 +21,11 @@ PINNED_SOURCES = {
     "business": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
     "ggufPlugin": "373048b8403a7820620065210a691263d4da0a61",
 }
+INSTRUMENTATION_FILES = (
+    'tools/evals/local_runtime_hooks.py', 'tools/evals/run_local_evaluation.py',
+    'tools/evals/request_contract.py', 'tools/host/prepare_baseline.py',
+    'tools/host/prepare_gpu_evaluation.py', 'tests/host_fixture/local_eval_trace.py',
+)
 
 
 def _read(path):
@@ -68,7 +73,7 @@ def model_bindings(runtime):
     return bindings
 
 
-def plan(runtime_file, studio_repository, studio_commit, destination, old_port, new_port):
+def plan(runtime_file, studio_repository, studio_commit, destination, old_port, new_port, instrumentation=False):
     runtime_file, studio_repository, destination = map(lambda p: Path(p).resolve(),
                                                        (runtime_file, studio_repository, destination))
     _plain_ancestors(destination)
@@ -109,12 +114,19 @@ def plan(runtime_file, studio_repository, studio_commit, destination, old_port, 
     bindings = model_bindings(runtime)
     sources.append({"key": "studio", "name": "ComfyUI-DAELab-Creative-Studio",
                     "repository": str(studio_repository), "commit": studio_commit})
+    instrument_files = []
+    if instrumentation:
+        import hashlib
+        for relative in INSTRUMENTATION_FILES:
+            content = _git(str(studio_repository), 'show', studio_commit + ':' + relative)
+            instrument_files.append({'path': relative, 'bytes': len(content), 'sha256': hashlib.sha256(content).hexdigest()})
     return {"schemaVersion": 1, "owner": OWNER, "destination": str(destination),
             "runtimeFile": str(runtime_file), "runtimeFileSha256": _sha(runtime_file), "host": str(host), "python": str(python),
             "hostCommit": runtime["host"]["gitHead"], "sources": sources,
             "ports": {"baseline": old_port, "studio": new_port}, "bindings": bindings,
             "modelRoot": str(Path(runtime["weightRoot"]).resolve()), "ollama": runtime["ollama"],
             "activationAllowed": False, "modelsRehashedAtPreparation": False,
+            "instrumentation": {"enabled": bool(instrumentation), "files": instrument_files, "automaticInstallation": False},
             "requirementsBeforeStart": ["Review the exact Studio commit and dependency closure",
                 "Establish an exclusive local GPU test window without mutating production",
                 "Reverify all actual model hashes and Ollama identity at inference admission",
@@ -125,7 +137,8 @@ def plan(runtime_file, studio_repository, studio_commit, destination, old_port, 
 def prepare(configuration):
     studio = next(item for item in configuration["sources"] if item["key"] == "studio")
     checked = plan(configuration["runtimeFile"], studio["repository"], studio["commit"],
-                   configuration["destination"], configuration["ports"]["baseline"], configuration["ports"]["studio"])
+                   configuration["destination"], configuration["ports"]["baseline"], configuration["ports"]["studio"],
+                   configuration.get('instrumentation', {}).get('enabled', False))
     if checked != configuration:
         raise ValueError("Preparation configuration changed after validation")
     root = Path(configuration["destination"])
@@ -146,6 +159,19 @@ def prepare(configuration):
         if result.returncode:
             raise ValueError("Git archive failed; partial preparation remains for inspection")
         archived[key] = {"archive": str(archive), "sha256": _sha(archive), "files": archive_members(archive)}
+    instrumentation = configuration['instrumentation']
+    if instrumentation['enabled']:
+        import zipfile
+        target = root / 'instrumentation'
+        target.mkdir()
+        with zipfile.ZipFile(archived['studio']['archive']) as zipped:
+            for record in instrumentation['files']:
+                destination = target / record['path']
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                with destination.open('xb') as stream:
+                    stream.write(zipped.read(record['path']))
+                if _sha(destination) != record['sha256']:
+                    raise ValueError('Instrumentation source changed while extracting the reviewed commit')
     environments = {}
     for variant, keys in (("baseline", ("canvas", "business", "ggufPlugin")), ("studio", ("studio", "ggufPlugin"))):
         environment = root / variant
@@ -160,7 +186,7 @@ def prepare(configuration):
         paths = environment / "fixed-model-paths.yaml"
         _write_new(paths, {"fixed_eval": {"base_path": configuration["modelRoot"],
                                         "diffusion_models": "diffusion_models", "text_encoders": "text_encoders", "vae": "vae"}})
-        command = [configuration["python"], "-s", str(Path(configuration["host"]) / "main.py"),
+        command = [configuration["python"], "-B", "-s", str(Path(configuration["host"]) / "main.py"),
                    "--base-directory", str(environment), "--user-directory", str(environment / "user"),
                    "--input-directory", str(environment / "input"), "--output-directory", str(environment / "output"),
                    "--temp-directory", str(environment / "temp"), "--database-url", "sqlite:///" + (environment / "user/comfyui.db").as_posix(),
@@ -170,6 +196,10 @@ def prepare(configuration):
                    "--feature-flag", "enable_telemetry=false"]
         environments[variant] = {"root": str(environment), "command": command, "snapshots": {key: archived[key] for key in keys},
                                  "generationRequests": 0, "samplerExecutions": 0, "cachePolicy": "none", "activationAllowed": False}
+        if instrumentation['enabled']:
+            environments[variant]['instrumentedLaunchTemplate'] = [configuration['python'], '-B', '-s',
+                str(root / 'instrumentation/tools/evals/local_runtime_hooks.py'), 'launch',
+                '--manifest', '<explicit-reviewed-launch-manifest>', '--approval', '<explicit-reviewed-approval>']
         _write_new(environment / "evaluation-host.json", environments[variant])
     _write_new(root / "prepared.json", {"configuration": configuration, "environments": environments,
                                       "status": "prepared-not-started", "modelDownloads": 0})
@@ -184,8 +214,9 @@ def main():
     parser.add_argument("--destination", required=True)
     parser.add_argument("--old-port", type=int, required=True)
     parser.add_argument("--new-port", type=int, required=True)
+    parser.add_argument('--instrumentation', action='store_true', help='Archive reviewed optional hooks outside custom_nodes; never install or launch')
     args = parser.parse_args()
-    config = plan(args.runtime, args.studio_repository, args.studio_commit, args.destination, args.old_port, args.new_port)
+    config = plan(args.runtime, args.studio_repository, args.studio_commit, args.destination, args.old_port, args.new_port, args.instrumentation)
     result = prepare(config)
     print(json.dumps({"status": "prepared-not-started", "roots": {key: value["root"] for key, value in result.items()}, "activationAllowed": False}))
 

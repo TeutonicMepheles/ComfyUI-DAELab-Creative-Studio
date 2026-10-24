@@ -81,6 +81,7 @@ class GPUPreparationTests(unittest.TestCase):
             self.assertFalse(output["activationAllowed"])
             self.assertEqual(output["samplerExecutions"], 0)
             self.assertIn("--cache-none", output["command"])
+            self.assertEqual(output['command'][1:3], ['-B', '-s'])
             self.assertNotIn("--cpu", output["command"])
             self.assertEqual(output["command"][output["command"].index("--port")+1], str(config["ports"][variant]))
             self.assertTrue((Path(output["root"]) / "fixed-model-paths.yaml").is_file())
@@ -88,6 +89,29 @@ class GPUPreparationTests(unittest.TestCase):
         self.assertIn("Preparation must never import", copied.read_text())
         with self.assertRaises(ValueError):
             gpu.prepare(config)
+
+    def test_optional_instrumentation_comes_only_from_reviewed_commit_outside_custom_nodes(self):
+        for relative in gpu.INSTRUMENTATION_FILES:
+            file = self.studio / relative
+            file.parent.mkdir(parents=True, exist_ok=True)
+            file.write_text('# synthetic reviewed instrumentation: ' + relative)
+        git(self.studio, 'add', '.')
+        git(self.studio, '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-m', 'Fixture instrumentation')
+        commit = git(self.studio, 'rev-parse', 'HEAD')
+        (self.studio / gpu.INSTRUMENTATION_FILES[0]).write_text('unreviewed working-tree change')
+        config = self.plan(studio_commit=commit, instrumentation=True)
+        outputs = gpu.prepare(config)
+        instrument = self.destination / 'instrumentation'
+        self.assertEqual({p.relative_to(instrument).as_posix() for p in instrument.rglob('*') if p.is_file()}, set(gpu.INSTRUMENTATION_FILES))
+        self.assertTrue((instrument / gpu.INSTRUMENTATION_FILES[0]).read_text().startswith('# synthetic reviewed'))
+        self.assertEqual({p.name for p in (Path(outputs['studio']['root']) / 'custom_nodes').iterdir()}, {'ComfyUI-DAELab-Creative-Studio', 'ggufPlugin'})
+        self.assertFalse(config['instrumentation']['automaticInstallation'])
+        self.assertIn('-B', outputs['studio']['instrumentedLaunchTemplate'])
+
+    def test_missing_reviewed_instrumentation_refuses_before_creating_environment(self):
+        with self.assertRaises(ValueError):
+            self.plan(instrumentation=True)
+        self.assertFalse(self.destination.exists())
 
     def test_rejects_production_ports_foreign_paths_and_moving_commit_aliases(self):
         for changes in ({"old_port": 8000}, {"new_port": 8260}, {"destination": self.root / "outside"}, {"studio_commit": "HEAD"}):
