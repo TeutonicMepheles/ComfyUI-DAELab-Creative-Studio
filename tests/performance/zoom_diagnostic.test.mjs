@@ -249,3 +249,63 @@ test('a browser that does not apply a frozen pseudo-property is refused and rest
   const run=c.report().runs[0];assert.equal(run.appliedChromeValuesMatch,false);assert(run.setupFailed&&run.chromeScopesRestored&&run.overrideRemoved);
   assert.equal(run.original.chromeTargets[1].computed['::after'].width,'4px');assert.equal(run.applied.chromeTargets[1].computed['::after'].width,'999px');assert.equal(run.restored.chromeTargets[1].computed['::after'].width,'4px');
 });
+
+function chromeDeviation(d,changes){
+  const computed=(element,pseudo)=>{
+    const actual=d.getComputedStyle(element,pseudo);
+    return {...actual,getPropertyValue:property=>{
+      const values=changes[`${element.kind}/${pseudo||'element'}/${property}`];
+      return values?values[d.head.children.length?1:0]:actual.getPropertyValue(property);
+    }};
+  };
+  return createZoomDiagnostic({document:d.document,getComputedStyle:computed,MutationObserver:d.window.MutationObserver});
+}
+
+test('chrome accepts bounded px quantization but records exact mismatch and every raw signed delta',()=>{
+  const d=dom(),c=chromeDeviation(d,{
+    'heading/element/width':['174.333px','174.323px'],
+    'width-handle/element/right':['-24px','-23.99px'],
+    'width-handle/::before/top':['-18px','-17.98px'],
+  });
+  assert(c.start(d.root,'chrome-consumers',{explicit:true}));
+  const run=c.report().runs[0],comparison=run.appliedChromeComparison;
+  assert.equal(run.appliedChromeValuesMatch,false);assert.equal(run.appliedChromeValuesWithinTolerance,true);
+  assert.equal(comparison.exactMatch,false);assert.equal(comparison.withinTolerance,true);assert.equal(comparison.toleranceCssPx,1/32);
+  assert.equal(comparison.properties.length,15);assert.equal(comparison.properties.filter(p=>!p.exactMatch).length,3);
+  const width=comparison.properties.find(p=>p.kind==='heading'&&p.property==='width');
+  assert.equal(width.original,'174.333px');assert.equal(width.applied,'174.323px');assert.equal(width.exactMatch,false);assert.equal(width.withinTolerance,true);
+  assert(Math.abs(width.pxDelta+.01)<1e-10);assert(Math.abs(comparison.maxPxDelta-.02)<1e-10);
+  const transform=comparison.properties.find(p=>p.property==='transform');assert.equal(transform.pxDelta,null);assert(transform.exactMatch&&transform.withinTolerance);
+  assert.equal(run.original.chromeTargets[0].computed.element.width,'174.333px');assert.equal(run.applied.chromeTargets[0].computed.element.width,'174.323px');
+  c.stop();const restored=c.report().runs[0];assert.equal(restored.restored.chromeTargets[0].computed.element.width,'174.333px');
+  assert(restored.chromeScopesRestored&&restored.chromeInlineUntouchedDuringRestore&&restored.overrideRemoved);
+  assert.equal(restored.productAcceptance,false);assert.match(c.report().limitations.join(' '),/1\/32 CSS px.*not a product/i);
+});
+
+test('chrome px tolerance includes exactly 1/32 and refuses larger deltas without leaving an override',()=>{
+  for(const [delta,accepted] of [[1/32,true],[-1/32,true],[1/32+.000001,false],[-1/32-.000001,false]]){
+    const d=dom(),c=chromeDeviation(d,{'width-handle/::after/width':['4px',`${4+delta}px`]});
+    assert.equal(c.start(d.root,'chrome-consumers',{explicit:true}),accepted);
+    const comparison=c.report().runs[0].appliedChromeComparison;
+    assert.equal(comparison.exactMatch,false);assert.equal(comparison.withinTolerance,accepted);assert(Math.abs(comparison.maxPxDelta-Math.abs(delta))<1e-10);
+    if(accepted)c.stop();else assert(c.report().runs[0].setupFailed);
+    const run=c.report().runs[0];assert(run.chromeScopesRestored&&run.overrideRemoved);assert.equal(d.head.children.length,0);assert.equal(c.active,false);
+  }
+});
+
+test('chrome never tolerates non-px, transform or zoom differences, even numerically equivalent values',()=>{
+  for(const [key,values] of [
+    ['heading/element/zoom',['1','1.000']],
+    ['heading/element/zoom',['1','1.000000001']],
+    ['heading/element/transform',['matrix(1, 0, 0, 1, 0, 0)','matrix(1,0,0,1,0,0)']],
+    ['heading/element/transform',['matrix(1, 0, 0, 1, 0, 0)','matrix(1, 0, 0, 1, 0.00001, 0)']],
+    ['heading/element/left',['auto','0px']],
+    ['heading/element/width',['350px','350em']],
+    ['heading/element/width',['350px','NaNpx']],
+  ]){
+    const d=dom(),c=chromeDeviation(d,{[key]:values});assert.equal(c.start(d.root,'chrome-consumers',{explicit:true}),false);
+    const run=c.report().runs[0],comparison=run.appliedChromeComparison,mismatch=comparison.properties.find(p=>!p.exactMatch);
+    assert.equal(comparison.withinTolerance,false);assert.equal(mismatch.withinTolerance,false);assert.equal(mismatch.pxDelta,null);
+    assert(run.setupFailed&&run.chromeScopesRestored&&run.overrideRemoved);assert.equal(c.active,false);
+  }
+});

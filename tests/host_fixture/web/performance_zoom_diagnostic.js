@@ -6,6 +6,10 @@ const ROOT_ATTRIBUTE='data-studio-zoom-diagnostic';
 const ROW_ATTRIBUTE='data-studio-zoom-diagnostic-row';
 const CHROME_ATTRIBUTE='data-studio-zoom-diagnostic-chrome';
 const VARIABLES=['--dae-canvas-zoom','--dae-canvas-inverse-zoom'];
+// Diagnostic-only absolute bound for observed ~0.010 CSS px computed-length
+// quantization. This is neither a browser precision guarantee nor a product
+// geometry allowance; raw differences and exact-match failure remain evidence.
+const CHROME_PX_TOLERANCE=1/32;
 const ROW_SELECTOR='.dae-table[data-structure] button.table-row-resize';
 const CHROME_SPECS=[
     {kind:'heading',selector:':scope > .dae-creative-world > .dae-creative-card > .dae-creative-heading',properties:{element:['width','margin-bottom','transform','zoom','left','top','bottom']}},
@@ -37,6 +41,19 @@ function chromeValue(property,value){
     if(['left','top','bottom','right'].includes(property)&&text==='auto')return text;
     if(!new RegExp('^'+number+'px$','i').test(text)||!Number.isFinite(Number(text.slice(0,-2))))throw new Error('unsupported-chrome-length');
     return text;
+}
+function compareChromeValues(original,applied){
+    const px=value=>typeof value==='string'&&/^[+-]?(?:[0-9]+(?:[.][0-9]*)?|[.][0-9]+)(?:e[+-]?[0-9]+)?px$/i.test(value)&&Number.isFinite(Number(value.slice(0,-2)))?Number(value.slice(0,-2)):null;
+    const properties=original.chromeTargets.flatMap((target,index)=>Object.entries(target.computed).flatMap(([pseudo,values])=>Object.entries(values).map(([property,value])=>{
+        const actual=applied.chromeTargets[index]?.computed?.[pseudo]?.[property]??null,exactMatch=value===actual;
+        const before=px(value),after=px(actual),difference=before!==null&&after!==null?after-before:null;
+        const comparable=!['transform','zoom'].includes(property)&&difference!==null&&Number.isFinite(difference);
+        const pxDelta=comparable?difference:null,absPxDelta=comparable?Math.abs(difference):null;
+        return {index,kind:target.kind,pseudo,property,original:value,applied:actual,exactMatch,pxDelta,absPxDelta,
+            withinTolerance:exactMatch||comparable&&absPxDelta<=CHROME_PX_TOLERANCE};
+    })));
+    return {toleranceCssPx:CHROME_PX_TOLERANCE,exactMatch:properties.every(value=>value.exactMatch),
+        withinTolerance:properties.every(value=>value.withinTolerance),maxPxDelta:properties.reduce((maximum,value)=>Math.max(maximum,value.absPxDelta??0),0),properties};
 }
 
 export function createZoomDiagnostic({document,getComputedStyle,MutationObserver,now=()=>performance.now(),onUpdate=()=>{},maxRuns=20,maxRows=2000,maxChromeTargets=2000}={}){
@@ -141,8 +158,10 @@ export function createZoomDiagnostic({document,getComputedStyle,MutationObserver
             observer.observe(document.body,{childList:true});
             record.applied=snapshot(root,rows,chrome);
             if(chrome.length){
-                record.appliedChromeValuesMatch=JSON.stringify(record.original.chromeTargets.map(target=>target.computed))===JSON.stringify(record.applied.chromeTargets.map(target=>target.computed));
-                if(!record.appliedChromeValuesMatch)throw new Error('chrome-override-mismatch');
+                record.appliedChromeComparison=compareChromeValues(record.original,record.applied);
+                record.appliedChromeValuesMatch=record.appliedChromeComparison.exactMatch;
+                record.appliedChromeValuesWithinTolerance=record.appliedChromeComparison.withinTolerance;
+                if(!record.appliedChromeValuesWithinTolerance)throw new Error('chrome-override-mismatch');
             }
             notify();return true;
         }catch{record.setupFailed=true;stop('setup-failed');return false;}
@@ -154,6 +173,7 @@ export function createZoomDiagnostic({document,getComputedStyle,MutationObserver
                 'Frozen row heights intentionally change handle screen-size compensation while root variables still follow the native viewport.',
                 'Chrome mode freezes only the resolved owned heading/width-handle CSS properties, including pseudo-elements. Root variables, row handles, group number badges and compact summaries remain live; inspect the recorded excluded-consumer counts.',
                 'Chrome mode deliberately changes title/handle visuals during zoom. It separates dynamic consumer-property work from root-variable freezing, but cannot independently quantify Style, Layout or Paint.',
+                'Chrome setup allows at most 1/32 CSS px absolute difference for same-px lengths only: a diagnostic quantization tolerance, not a product geometry specification or browser precision guarantee. exactMatch remains false for any difference; every original/applied value and signed px delta is retained. Non-px values, transforms and zoom compare strictly.',
                 'No performance is measured here. Pair each interval with a separate LoAF diagnostic, never a formal budget run.',
                 'Use one fixed source/build/workflow/viewport and ten identical plus/minus pairs. Restore baseline between modes.',
                 'If rows or chrome targets change, the root detaches, restoration conflicts, or starting inline values differ at the end, retain the record and label the comparison uncontrolled.']})};
