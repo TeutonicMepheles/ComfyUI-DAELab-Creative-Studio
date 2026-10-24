@@ -1,0 +1,9 @@
+{
+  "frontendVersion": "1.53.10",
+  "bundle": "settingStore-CbkuaYBI.js",
+  "bundleSha256": "084a2689320adc7bd0b4bfc0881b744deb46dd34697e23e0fadb1b72f0be67fa",
+  "configureMethodSha256": "c8b71b56f3e46f84eca3ba9f21953efaba133760aa16459e2dfa6ec663b8c00e",
+  "source": "https://github.com/Comfy-Org/ComfyUI_frontend/tree/v1.53.10",
+  "contract": "registerNodeDef ComfyNode.configure: constructor inputs first, override name/type/shape/localized_name/widget, then append unmatched historical inputs; outputs match by index. LGraphNode.configure hydrates serialized slots without that schema migration.",
+  "subgraphSerializationMethodSha256": "95f2669abdb61cc9e2df0e0aa476bf71b7d251e7721d5cd549f595993a165b6f"
+}

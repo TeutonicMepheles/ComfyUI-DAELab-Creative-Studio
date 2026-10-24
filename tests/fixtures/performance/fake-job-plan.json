@@ -1,0 +1,707 @@
+{
+  "schemaVersion": 1,
+  "status": "workload-only-not-executed",
+  "requires": "Inject deterministic adapters into the actual scheduler; collect admission, queue wait, release and observed health latency separately",
+  "jobs": [
+    {
+      "request_id": "perf-fake-000",
+      "kind": "fake-local",
+      "duration_ms": 100,
+      "outcome": "failed",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-001",
+      "kind": "fake-cloud",
+      "duration_ms": 137,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-002",
+      "kind": "fake-transcode",
+      "duration_ms": 174,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-003",
+      "kind": "fake-local",
+      "duration_ms": 211,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-004",
+      "kind": "fake-cloud",
+      "duration_ms": 248,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-005",
+      "kind": "fake-transcode",
+      "duration_ms": 285,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-006",
+      "kind": "fake-local",
+      "duration_ms": 322,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-007",
+      "kind": "fake-cloud",
+      "duration_ms": 359,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-008",
+      "kind": "fake-transcode",
+      "duration_ms": 396,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-009",
+      "kind": "fake-local",
+      "duration_ms": 433,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-010",
+      "kind": "fake-cloud",
+      "duration_ms": 470,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-011",
+      "kind": "fake-transcode",
+      "duration_ms": 100,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-012",
+      "kind": "fake-local",
+      "duration_ms": 137,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-013",
+      "kind": "fake-cloud",
+      "duration_ms": 174,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-014",
+      "kind": "fake-transcode",
+      "duration_ms": 211,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-015",
+      "kind": "fake-local",
+      "duration_ms": 248,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-016",
+      "kind": "fake-cloud",
+      "duration_ms": 285,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-017",
+      "kind": "fake-transcode",
+      "duration_ms": 322,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-018",
+      "kind": "fake-local",
+      "duration_ms": 359,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-019",
+      "kind": "fake-cloud",
+      "duration_ms": 396,
+      "outcome": "failed",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-020",
+      "kind": "fake-transcode",
+      "duration_ms": 433,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-021",
+      "kind": "fake-local",
+      "duration_ms": 470,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-022",
+      "kind": "fake-cloud",
+      "duration_ms": 100,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-023",
+      "kind": "fake-transcode",
+      "duration_ms": 137,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-024",
+      "kind": "fake-local",
+      "duration_ms": 174,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-025",
+      "kind": "fake-cloud",
+      "duration_ms": 211,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-026",
+      "kind": "fake-transcode",
+      "duration_ms": 248,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-027",
+      "kind": "fake-local",
+      "duration_ms": 285,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-028",
+      "kind": "fake-cloud",
+      "duration_ms": 322,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-029",
+      "kind": "fake-transcode",
+      "duration_ms": 359,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-030",
+      "kind": "fake-local",
+      "duration_ms": 396,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-031",
+      "kind": "fake-cloud",
+      "duration_ms": 433,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-032",
+      "kind": "fake-transcode",
+      "duration_ms": 470,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-033",
+      "kind": "fake-local",
+      "duration_ms": 100,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-034",
+      "kind": "fake-cloud",
+      "duration_ms": 137,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-035",
+      "kind": "fake-transcode",
+      "duration_ms": 174,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-036",
+      "kind": "fake-local",
+      "duration_ms": 211,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-037",
+      "kind": "fake-cloud",
+      "duration_ms": 248,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-038",
+      "kind": "fake-transcode",
+      "duration_ms": 285,
+      "outcome": "failed",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-039",
+      "kind": "fake-local",
+      "duration_ms": 322,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-040",
+      "kind": "fake-cloud",
+      "duration_ms": 359,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-041",
+      "kind": "fake-transcode",
+      "duration_ms": 396,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-042",
+      "kind": "fake-local",
+      "duration_ms": 433,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-043",
+      "kind": "fake-cloud",
+      "duration_ms": 470,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-044",
+      "kind": "fake-transcode",
+      "duration_ms": 100,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-045",
+      "kind": "fake-local",
+      "duration_ms": 137,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-046",
+      "kind": "fake-cloud",
+      "duration_ms": 174,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-047",
+      "kind": "fake-transcode",
+      "duration_ms": 211,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-048",
+      "kind": "fake-local",
+      "duration_ms": 248,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-049",
+      "kind": "fake-cloud",
+      "duration_ms": 285,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-050",
+      "kind": "fake-transcode",
+      "duration_ms": 322,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-051",
+      "kind": "fake-local",
+      "duration_ms": 359,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-052",
+      "kind": "fake-cloud",
+      "duration_ms": 396,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-053",
+      "kind": "fake-transcode",
+      "duration_ms": 433,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-054",
+      "kind": "fake-local",
+      "duration_ms": 470,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-055",
+      "kind": "fake-cloud",
+      "duration_ms": 100,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-056",
+      "kind": "fake-transcode",
+      "duration_ms": 137,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-057",
+      "kind": "fake-local",
+      "duration_ms": 174,
+      "outcome": "failed",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-058",
+      "kind": "fake-cloud",
+      "duration_ms": 211,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-059",
+      "kind": "fake-transcode",
+      "duration_ms": 248,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-060",
+      "kind": "fake-local",
+      "duration_ms": 285,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-061",
+      "kind": "fake-cloud",
+      "duration_ms": 322,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-062",
+      "kind": "fake-transcode",
+      "duration_ms": 359,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-063",
+      "kind": "fake-local",
+      "duration_ms": 396,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-064",
+      "kind": "fake-cloud",
+      "duration_ms": 433,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-065",
+      "kind": "fake-transcode",
+      "duration_ms": 470,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-066",
+      "kind": "fake-local",
+      "duration_ms": 100,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-067",
+      "kind": "fake-cloud",
+      "duration_ms": 137,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-068",
+      "kind": "fake-transcode",
+      "duration_ms": 174,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-069",
+      "kind": "fake-local",
+      "duration_ms": 211,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-070",
+      "kind": "fake-cloud",
+      "duration_ms": 248,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-071",
+      "kind": "fake-transcode",
+      "duration_ms": 285,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-072",
+      "kind": "fake-local",
+      "duration_ms": 322,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-073",
+      "kind": "fake-cloud",
+      "duration_ms": 359,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-074",
+      "kind": "fake-transcode",
+      "duration_ms": 396,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-075",
+      "kind": "fake-local",
+      "duration_ms": 433,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-076",
+      "kind": "fake-cloud",
+      "duration_ms": 470,
+      "outcome": "failed",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-077",
+      "kind": "fake-transcode",
+      "duration_ms": 100,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-078",
+      "kind": "fake-local",
+      "duration_ms": 137,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-079",
+      "kind": "fake-cloud",
+      "duration_ms": 174,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-080",
+      "kind": "fake-transcode",
+      "duration_ms": 211,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-081",
+      "kind": "fake-local",
+      "duration_ms": 248,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-082",
+      "kind": "fake-cloud",
+      "duration_ms": 285,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-083",
+      "kind": "fake-transcode",
+      "duration_ms": 322,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-084",
+      "kind": "fake-local",
+      "duration_ms": 359,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-085",
+      "kind": "fake-cloud",
+      "duration_ms": 396,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-086",
+      "kind": "fake-transcode",
+      "duration_ms": 433,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-087",
+      "kind": "fake-local",
+      "duration_ms": 470,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-088",
+      "kind": "fake-cloud",
+      "duration_ms": 100,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-089",
+      "kind": "fake-transcode",
+      "duration_ms": 137,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-090",
+      "kind": "fake-local",
+      "duration_ms": 174,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-091",
+      "kind": "fake-cloud",
+      "duration_ms": 211,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-092",
+      "kind": "fake-transcode",
+      "duration_ms": 248,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-093",
+      "kind": "fake-local",
+      "duration_ms": 285,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-094",
+      "kind": "fake-cloud",
+      "duration_ms": 322,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-095",
+      "kind": "fake-transcode",
+      "duration_ms": 359,
+      "outcome": "failed",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-096",
+      "kind": "fake-local",
+      "duration_ms": 396,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-097",
+      "kind": "fake-cloud",
+      "duration_ms": 433,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-098",
+      "kind": "fake-transcode",
+      "duration_ms": 470,
+      "outcome": "succeeded",
+      "real_network": false
+    },
+    {
+      "request_id": "perf-fake-099",
+      "kind": "fake-local",
+      "duration_ms": 100,
+      "outcome": "succeeded",
+      "real_network": false
+    }
+  ]
+}

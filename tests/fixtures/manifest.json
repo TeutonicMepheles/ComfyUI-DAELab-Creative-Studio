@@ -14,6 +14,22 @@
       "columns": 3,
       "originalRawSha256": "67a9fa0080ce55b525d1ec1da005629dcb71a28569880437afb84fe1043b2ea2",
       "public": true
+    },
+    {
+      "id": "FX-LIBRARY-50",
+      "path": "asset-library/two-pages.json",
+      "source": "Deterministic synthetic text favorites with preserved unknown metadata; no user data",
+      "sha256": "e611ed9cc35a0df49a14d0ca7ee54f0f78c64ea202d26144d58b4bc2da5114d2",
+      "entries": 50,
+      "public": true
+    },
+    {
+      "id": "FX-LIBRARY-2000",
+      "path": "asset-library/search-2000.json",
+      "source": "Deterministic synthetic text favorites with preserved unknown metadata; no user data",
+      "sha256": "5854d91c89f51b78fb23704b349f611516b8f9584b0365e8b20e5209fae611bc",
+      "entries": 2000,
+      "public": true
     }
   ]
 }

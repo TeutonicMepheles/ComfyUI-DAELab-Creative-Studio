@@ -1,0 +1,338 @@
+{
+  "version": 1,
+  "sourceRepository": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library",
+  "sourceCommit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+  "license": "Preserve source ownership; source commit has no repository code LICENSE. No new code license inferred.",
+  "status": "Implementation extracted and local pure/contract tests performed; product UI/TC/phase acceptance remains pending.",
+  "files": [
+    {
+      "source": null,
+      "sourceUrl": null,
+      "destination": "backend/storyboard/__init__.py",
+      "sourceSha256": null,
+      "destinationSha256": "33b6f2cc148815d9590d5b4778c6040b2516a9bd46739dc512f84cba8a34e2ca",
+      "changes": [
+        "new explicit package assembly; importing registers nothing"
+      ],
+      "kind": "new-integration"
+    },
+    {
+      "source": null,
+      "sourceUrl": null,
+      "destination": "backend/storyboard/archive.py",
+      "sourceSha256": null,
+      "destinationSha256": "a5c567c52aaa9529a6f966cf35fb1659488381aacb41751555f365c594008a2e",
+      "changes": [
+        "new shared in-memory Office ZIP safety validation"
+      ],
+      "kind": "new-integration"
+    },
+    {
+      "source": "nodes/daelab_comfytv_storyboard/script_ai.py",
+      "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/script_ai.py",
+      "destination": "backend/storyboard/classification.py",
+      "sourceSha256": "f22823ef195540d85e26968ac6f0b16107393fda8334ea20f322ddc60e9dd8a4",
+      "destinationSha256": "ed17577ae7785f775151ec0fc48546c36f386cda7ccad795a8fd4bca1313d612",
+      "changes": [
+        "extract classification_input/validate_classification only; exclude read_config and all HTTP transport",
+        "preserve strict no-rewrite/no-invented-source validation; initialize optional row overrides"
+      ],
+      "kind": "migrated-production"
+    },
+    {
+      "source": "nodes/daelab_comfytv_storyboard/document_import.py",
+      "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/document_import.py",
+      "destination": "backend/storyboard/document_api.py",
+      "sourceSha256": "a71700116693b30a90a18a58fddf5cc7dd038959edebc614e800685b551cc0ca",
+      "destinationSha256": "71dc523d2058c755088fbc23c86f05040aaf7e14c677836e87588e3ef406deac",
+      "changes": [
+        "explicit injected register(server, services)",
+        "preserve preview/upload DTO and move bounded parsing to a worker thread"
+      ],
+      "kind": "migrated-production"
+    },
+    {
+      "source": "nodes/daelab_comfytv_storyboard/document_import.py",
+      "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/document_import.py",
+      "destination": "backend/storyboard/document_import.py",
+      "sourceSha256": "a71700116693b30a90a18a58fddf5cc7dd038959edebc614e800685b551cc0ca",
+      "destinationSha256": "649dda7150ff31cd75e37c022009a838bf96e5c2cae5e070106d14fe9185089e",
+      "changes": [
+        "remove global PromptServer and import-time route decorators",
+        "reject oversize tables and PDF documents instead of silently truncating",
+        "validate Office archive path, duplicate and encrypted entries before optional reader"
+      ],
+      "kind": "migrated-production"
+    },
+    {
+      "source": null,
+      "sourceUrl": null,
+      "destination": "backend/storyboard/http.py",
+      "sourceSha256": null,
+      "destinationSha256": "b59d0719f85a5d38ffbb70d5519af536af19a670de26976b245e869eadcc33fd",
+      "changes": [
+        "new bounded body readers and preflight route ownership check"
+      ],
+      "kind": "new-integration"
+    },
+    {
+      "source": "nodes/daelab_comfytv_storyboard/script_api.py",
+      "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/script_api.py",
+      "destination": "backend/storyboard/script_api.py",
+      "sourceSha256": "add38252ddd137c3358b5352e2fa055c87e0d4d41600bf720bab9b534ce85f00",
+      "destinationSha256": "e649e96cdaeecfe8adf72a19e7fe469a1479077bffbc1078a4fa71d0d2d36977",
+      "changes": [
+        "explicit injected register(server, services) without host singleton",
+        "preserve document/normalize/classify/ai-status routes and DTO",
+        "missing classifier HTTP503; invalid provider response cannot become success; provider failures sanitized"
+      ],
+      "kind": "migrated-production"
+    },
+    {
+      "source": "nodes/daelab_comfytv_storyboard/script_contract.py",
+      "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/script_contract.py",
+      "destination": "backend/storyboard/script_contract.py",
+      "sourceSha256": "e3e6b72af36acc3bcce5275c256104010da61303857845e6174bd04ca08f235e",
+      "destinationSha256": "e3e6b72af36acc3bcce5275c256104010da61303857845e6174bd04ca08f235e",
+      "changes": [
+        "relocate pure implementation without semantic changes"
+      ],
+      "kind": "migrated-production"
+    },
+    {
+      "source": "nodes/daelab_comfytv_storyboard/script_document.py",
+      "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/script_document.py",
+      "destination": "backend/storyboard/script_document.py",
+      "sourceSha256": "f26f711e69eed675186640b68d011f376eea8f6df76bbc0314bd18b1fbe04188",
+      "destinationSha256": "f81d47f63c12df922f2a7280ed120497dc6a6c1c720d65a795d01faf1d96be4b",
+      "changes": [
+        "retain physical XML cell/row/occurrence identity and merged anchors",
+        "validate Office archive paths before parsing; preserve all confirmed task rows or reject limit"
+      ],
+      "kind": "migrated-production"
+    },
+    {
+      "source": "nodes/daelab_comfytv_storyboard/script_api.py",
+      "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/script_api.py",
+      "destination": "backend/storyboard/services.py",
+      "sourceSha256": "add38252ddd137c3358b5352e2fa055c87e0d4d41600bf720bab9b534ce85f00",
+      "destinationSha256": "22d27d574265c9375fa7d72a8be4db725c747155124de02e829dee6f1b6df27c",
+      "changes": [
+        "extract directory and image preparation logic into injected service",
+        "save original DOCX bytes by content hash alongside JSON inventory; no client-controlled filesystem path",
+        "optional asset catalog registers embedded images with document provenance and deduplicates identity",
+        "classify port only: selected text and physical source IDs; no provider transport, endpoints or credentials"
+      ],
+      "kind": "migrated-production"
+    },
+    {
+      "source": "nodes/daelab_comfytv_storyboard/table_adapter.py",
+      "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/table_adapter.py",
+      "destination": "backend/storyboard/table_adapter.py",
+      "sourceSha256": "267df453dbf50cfcafb926deadce64feaa4e2c5961eb7162030ece99e9bc8697",
+      "destinationSha256": "90d83ab55e841a68cb8b44fa8791baf6d7c5d6544efa12084e6956437a86df76",
+      "changes": [
+        "enforce confirmed 500-row/64-column limits in shared validator without truncation"
+      ],
+      "kind": "migrated-production"
+    },
+    {
+      "source": "nodes/daelab_comfytv_storyboard/table_source.py",
+      "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/table_source.py",
+      "destination": "backend/storyboard/table_source.py",
+      "sourceSha256": "e1ec5a76f2577babb41d4108d37a050eab56077a560ed2765f11e7de0d3f1bcd",
+      "destinationSha256": "e1ec5a76f2577babb41d4108d37a050eab56077a560ed2765f11e7de0d3f1bcd",
+      "changes": [
+        "relocate pure implementation without semantic changes"
+      ],
+      "kind": "migrated-production"
+    },
+    {
+      "source": "nodes/daelab_comfytv_storyboard/video_references.py",
+      "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/video_references.py",
+      "destination": "backend/storyboard/video_references.py",
+      "sourceSha256": "7729485f07667a9b63387a1f568e38526eeb92c064a2c0292dcb6bdc3935d8b4",
+      "destinationSha256": "7729485f07667a9b63387a1f568e38526eeb92c064a2c0292dcb6bdc3935d8b4",
+      "changes": [
+        "relocate pure implementation without semantic changes"
+      ],
+      "kind": "migrated-production"
+    },
+    {
+      "source": null,
+      "sourceUrl": null,
+      "destination": "backend/prompt/__init__.py",
+      "sourceSha256": null,
+      "destinationSha256": "33b6f2cc148815d9590d5b4778c6040b2516a9bd46739dc512f84cba8a34e2ca",
+      "changes": [
+        "new explicit package assembly; importing registers nothing"
+      ],
+      "kind": "new-integration"
+    },
+    {
+      "source": null,
+      "sourceUrl": null,
+      "destination": "backend/prompt/local_media.py",
+      "sourceSha256": null,
+      "destinationSha256": "8e48f1593c05440e2b50556b936085a8f1f4f40cd2593f607cd2b58f9443116a",
+      "changes": [
+        "new bounded local-view path resolver with injected roots or asset catalog; no HTTP or retired runtime"
+      ],
+      "kind": "new-integration"
+    },
+    {
+      "source": "nodes/daelab_comfytv_storyboard/prompt_api.py",
+      "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/prompt_api.py",
+      "destination": "backend/prompt/prompt_api.py",
+      "sourceSha256": "9f0b65335ed33f64d8339abf13499c9eda33af6e2614ef3f006accbc04695ad0",
+      "destinationSha256": "5733e4700e0f292d9ff7b7e9faab227426adcf11e3ac7b6d59c26904cbf95479",
+      "changes": [
+        "explicit injected registration; preserve parse/validate/review DTO; missing media port HTTP503",
+        "remove retired LibTV node import"
+      ],
+      "kind": "migrated-production"
+    },
+    {
+      "source": "nodes/daelab_comfytv_storyboard/prompt_compiler.py",
+      "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/prompt_compiler.py",
+      "destination": "backend/prompt/prompt_compiler.py",
+      "sourceSha256": "1983d41a34c89266322f3bf20ecb5f1c4fa99445c27e840c7957e39d43639a57",
+      "destinationSha256": "d66e8b6d17ac5601a4a87111ad9a81229f621709e16bbac00323775ae5e004a2",
+      "changes": [
+        "relocate pure implementation; point reference selection to owning storyboard module"
+      ],
+      "kind": "migrated-production"
+    },
+    {
+      "source": "nodes/daelab_comfytv_storyboard/prompt_service.py",
+      "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/prompt_service.py",
+      "destination": "backend/prompt/prompt_service.py",
+      "sourceSha256": "56de5a6ba9c65c228062ab973a1f187b91f8dc7dd45992a95c74ed2d61071e94",
+      "destinationSha256": "d8a0676eb97066659c81dc532ab0cdf5f079a68f4903f77010d9f404f63724dc",
+      "changes": [
+        "replace retired LibTV digest dependency with local hashlib helper",
+        "consume explicitly injected local media resolver"
+      ],
+      "kind": "migrated-production"
+    },
+    {
+      "source": "nodes/daelab_comfytv_storyboard/prompt_templates.py",
+      "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/prompt_templates.py",
+      "destination": "backend/prompt/prompt_templates.py",
+      "sourceSha256": "7ff44e3855e1c9cc055c90116d237c28e8f83d83e61c106b81654531dd7c9611",
+      "destinationSha256": "7ff44e3855e1c9cc055c90116d237c28e8f83d83e61c106b81654531dd7c9611",
+      "changes": [
+        "relocate pure implementation without semantic changes"
+      ],
+      "kind": "migrated-production"
+    },
+    {
+      "source": null,
+      "sourceUrl": null,
+      "destination": "backend/integrations/comfyui/business_nodes/__init__.py",
+      "sourceSha256": null,
+      "destinationSha256": "a92a528b03ec0141f787976c98aa87376a943e65e2b6f4ea222095d4761d6b69",
+      "changes": [
+        "new explicit package assembly; importing registers nothing"
+      ],
+      "kind": "new-integration"
+    },
+    {
+      "source": "nodes/prompt_optimization/approved_result.py",
+      "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/prompt_optimization/approved_result.py",
+      "destination": "backend/integrations/comfyui/business_nodes/approved_result.py",
+      "sourceSha256": "763551bedea63b10873ec5be7e8e2a8ffdea2cb5a9fe6a9c5adfcc078db6f3b0",
+      "destinationSha256": "763551bedea63b10873ec5be7e8e2a8ffdea2cb5a9fe6a9c5adfcc078db6f3b0",
+      "changes": [
+        "retain explicitly applied text output; no LLM execution"
+      ],
+      "kind": "migrated-production"
+    },
+    {
+      "source": "nodes/daelab_comfytv_storyboard/import_node.py",
+      "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/import_node.py",
+      "destination": "backend/integrations/comfyui/business_nodes/import_node.py",
+      "sourceSha256": "391ab9d03c15868d47fca6bae6727ebaf41740a1273ebf6d6728a223654c2f0b",
+      "destinationSha256": "db9eb0b2c7af978ddf258a80c51e63083d84bb395d90fa2eb4230bd049cb761a",
+      "changes": [
+        "repoint pure imports; retain stable node identity and native slot ordering"
+      ],
+      "kind": "migrated-production"
+    },
+    {
+      "source": "nodes/daelab_comfytv_storyboard/script_node.py",
+      "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/script_node.py",
+      "destination": "backend/integrations/comfyui/business_nodes/script_node.py",
+      "sourceSha256": "23b2d9672bbed2b39df37c67ca3fa1ef5297fe1de7218cd7921295d97309bca1",
+      "destinationSha256": "8c2da0134de8aa29d64a765f13f41a69b1a739922c5f5143e73bd59c9983e3ba",
+      "changes": [
+        "repoint pure imports; retain stable node identity and native slot ordering"
+      ],
+      "kind": "migrated-production"
+    },
+    {
+      "source": "nodes/daelab_comfytv_storyboard/table_node.py",
+      "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/table_node.py",
+      "destination": "backend/integrations/comfyui/business_nodes/table_node.py",
+      "sourceSha256": "216131d85d246c94452997962bd600313b7ab0a58c164b04f51f61e39ef9164c",
+      "destinationSha256": "4874b22d29dddac307ca45180c547b665993e5f5fb82e4df578f879b971ead4a",
+      "changes": [
+        "repoint pure imports to storyboard module",
+        "validate selected-source projection limits"
+      ],
+      "kind": "migrated-production"
+    }
+  ],
+  "publicRoutes": [
+    "POST /daelab/storyboard/import_document",
+    "POST /daelab/storyboard/parse-prompts",
+    "POST /daelab/script-parser/document",
+    "POST /daelab/script-parser/normalize",
+    "GET /daelab/script-parser/ai-status",
+    "POST /daelab/script-parser/classify"
+  ],
+  "integration": {
+    "nodes": "backend.integrations.comfyui.business_nodes.register_nodes() -> (mappings, names); exactly four business types",
+    "routes": "backend.integrations.comfyui.business_nodes.register_routes(server, services)",
+    "service": "backend.storyboard.services.StoryboardServices(cache_directory=explicit_product_document_cache, input_directory=isolated_input, local_media=LocalMediaResolver(catalog=assets), asset_catalog=assets, classifier=None)",
+    "policy": "No host singleton or provider import. No default classifier or optimization provider. Not wired into bootstrap by this extraction. Caller must inject owned storage roots; no source-workspace paths.",
+    "retainedIdentifiers": [
+      "DAELAB.Table",
+      "DAELAB.ScriptParser",
+      "DAELAB.StoryboardImport",
+      "DAELAB.LLMStylePreviewB"
+    ]
+  },
+  "validation": {
+    "command": "python -m unittest discover -s tests/migrated_business_backend -v",
+    "python": "3.12.11",
+    "dependenciesObserved": {
+      "python-docx": "1.2.0",
+      "Pillow": "12.2.0",
+      "aiohttp": "3.14.1"
+    },
+    "firstRun": {
+      "cases": 16,
+      "failed": 1,
+      "detail": "Test incorrectly treated favorite search as a complete asset index. Also mocking socket.socket disturbed Windows ProactorEventLoop internal sockets; corrected to assert asset identity/reference/provenance and mock connection methods."
+    },
+    "latestRun": {
+      "status": "passed",
+      "cases": 21,
+      "scope": "Pure parsing, actual synthetic DOCX fixture, direct handler DTOs, node contract stub, asset catalog integration, dependency/provenance checks. No host/server started."
+    },
+    "notExecuted": [
+      "actual ComfyUI registration and frontend route integration",
+      "two-instance/mode/save/reload UI acceptance",
+      "any local or cloud model inference",
+      "TC/EV acceptance gate completion"
+    ]
+  },
+  "exclusions": [
+    "old storyboard node.py/runtime.py GPT execution",
+    "script_ai provider transport/config/secrets",
+    "LibTV runtime, Bridge, CLI, connection or login",
+    "ComfyTV implementation",
+    "optimization and generation provider implementations"
+  ]
+}

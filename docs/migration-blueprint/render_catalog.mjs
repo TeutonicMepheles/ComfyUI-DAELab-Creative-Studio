@@ -106,7 +106,7 @@ let tc = `# 创作画布迁移测试用例\n\n${generated}\n\n共 ${tests.length
 tc += table(['编号', '测试', '阶段', '优先级', '层级', '方式', '执行策略'], tests.map(t => [link(t.id), t.title, t.phase, t.priority, t.level, t.automation, t.execution_policy])) + '\n';
 for (const t of tests) tc += `\n<a id="${t.id.toLowerCase()}"></a>\n\n## ${t.id} ${t.title}\n\n**阶段：** ${t.phase}；**优先级：** ${t.priority}；**层级：** ${t.level}；**方式：** ${t.automation}；**执行策略：** ${t.execution_policy}。\n\n**功能：** ${links(t.features)}\n\n**用例：** ${links(t.usecases)}\n\n**真实模型白名单：** ${t.live_models?.join("、") || "无；本用例使用无模型调用的测试方法。"}\n\n**夹具：** ${t.fixture}\n\n**准备**\n\n${bullets(t.setup)}\n\n**步骤**\n\n${steps(t.steps)}\n\n**可判断的期望**\n\n${bullets(t.expected)}\n\n**旧测试复用候选：** ${t.existing_coverage.length ? t.existing_coverage.map(sourceLink).join('；') : '无；迁移实施时建立。'}\n`;
 
-const csv = rows => '\uFEFF' + rows.map(row => row.map(x => '"' + String(x ?? '').replaceAll('"', '""') + '"').join(',')).join('\r\n') + '\r\n';
+const csv = rows => '\uFEFF' + rows.map(row => row.map(x => '"' + String(x ?? '').replaceAll('"', '""') + '"').join(',')).join('\n') + '\n';
 const out = new Map([
   ['FEATURE_MATRIX.md', fm], ['USE_CASES.md', uc], ['TEST_CASES.md', tc],
   ['features.csv', csv([['id','title','decision','current','source','target','phase','rationale','acceptance','usecases','tests'], ...features.map(f => [f.id,f.title,f.decision,f.current,f.source.join('\n'),f.target,f.phase,f.rationale,f.acceptance.join('\n'),fUses(f.id).join(' '),fTests(f.id).join(' ')])])],

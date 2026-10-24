@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "kind": "synthetic-performance-preparation-not-acceptance",
+  "nativeWorkflowVersion": 0.4,
+  "sourceContracts": "sources.json",
+  "executionForbidden": true,
+  "protocol": {
+    "warmupMs": 10000,
+    "sampleMs": 30000,
+    "repetitions": 5,
+    "allRawSamples": true
+  },
+  "workflows": [
+    {
+      "file": "FX-PERF-S-no-video.json",
+      "sha256": "9769d85de31a6e861f6fbd2130702c57902ecd45b2d2b5f7d43ec4310e43dfb1",
+      "bytes": 168552,
+      "nodes": 100,
+      "links": 100,
+      "tables": 1,
+      "rows": 100,
+      "columns": 10,
+      "videos": 2,
+      "mediaVariant": "no-video",
+      "videoFileAvailable": null,
+      "status": "prepared-not-opened"
+    },
+    {
+      "file": "FX-PERF-S-video.json",
+      "sha256": "40ab4fddb3f6b209a58fcaccbeb80becbfcca8f293d98ffc0d030cc3cb8c1386",
+      "bytes": 168543,
+      "nodes": 100,
+      "links": 100,
+      "tables": 1,
+      "rows": 100,
+      "columns": 10,
+      "videos": 2,
+      "mediaVariant": "video",
+      "videoFileAvailable": true,
+      "status": "prepared-not-opened"
+    },
+    {
+      "file": "FX-PERF-M-no-video.json",
+      "sha256": "79ecd59cf5bbd3022abda73c2368e3e45e3b9fed824494f813cd6109e381cc79",
+      "bytes": 1277808,
+      "nodes": 300,
+      "links": 400,
+      "tables": 2,
+      "rows": 500,
+      "columns": 10,
+      "videos": 4,
+      "mediaVariant": "no-video",
+      "videoFileAvailable": null,
+      "status": "prepared-not-opened"
+    },
+    {
+      "file": "FX-PERF-M-video.json",
+      "sha256": "1cffbe4755b2e4b65c79c8b2256ab2c59effa3d5b61cc89c6d0038a0a14fed8d",
+      "bytes": 1277793,
+      "nodes": 300,
+      "links": 400,
+      "tables": 2,
+      "rows": 500,
+      "columns": 10,
+      "videos": 4,
+      "mediaVariant": "video",
+      "videoFileAvailable": true,
+      "status": "prepared-not-opened"
+    },
+    {
+      "file": "FX-PERF-L-no-video.json",
+      "sha256": "ad2a7c7bb2b092393990ccf38f9908b7ed92c9b27c28f9dc96689f624dfb421a",
+      "bytes": 6094183,
+      "nodes": 1000,
+      "links": 1500,
+      "tables": 10,
+      "rows": 500,
+      "columns": 10,
+      "videos": 4,
+      "mediaVariant": "no-video",
+      "videoFileAvailable": null,
+      "status": "prepared-not-opened"
+    },
+    {
+      "file": "FX-PERF-L-video.json",
+      "sha256": "3f09483493c46740d457e6f35139cb36194d9cea6fd1e8c1a030addb5ee5df39",
+      "bytes": 6094168,
+      "nodes": 1000,
+      "links": 1500,
+      "tables": 10,
+      "rows": 500,
+      "columns": 10,
+      "videos": 4,
+      "mediaVariant": "video",
+      "videoFileAvailable": true,
+      "status": "prepared-not-opened"
+    }
+  ],
+  "media": [
+    {
+      "file": "media/loop.mp4",
+      "sha256": "7bbf6f50a76b4e07695f209b4adbefb940abb82c47016509473f70993fce9344",
+      "bytes": 8677
+    },
+    {
+      "file": "media/pattern.png",
+      "sha256": "45653ea4171b9edf5e03a3bb1c15c1d47a740339c7adb11e110b3adfcda4f70c",
+      "bytes": 103709
+    }
+  ],
+  "videoRecipe": {
+    "encoder": "libx264",
+    "pyav": "17.1.0",
+    "size": [
+      320,
+      180
+    ],
+    "fps": 24,
+    "frames": 72,
+    "durationSeconds": 3,
+    "audio": false
+  },
+  "mediaInstallSubfolder": "DAELAB/performance-synthetic-v1",
+  "limitations": [
+    "Both old/new actual open/save validation remains required",
+    "No inference, API provider credentials, historical receipts or user media",
+    "Visible video counts must be observed, not inferred from fixture counts",
+    "PERF-05 resource ownership and controlled GC, PERF-06 actual scheduler, PERF-07 one hour require separate evidence"
+  ]
+}

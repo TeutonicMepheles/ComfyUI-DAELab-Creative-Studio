@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "sourcePurpose": "Pinned public source contracts only; no historical prompts, outputs or credentials copied",
+  "sources": [
+    {
+      "repository": "ComfyUI-DAELab-Creative-Canvas",
+      "commit": "3176b5a67dbcd0b66f795976e5a81bcdfe346093",
+      "file": "nodes/text_input.py",
+      "sha256": "ceb2e947ad3caaecbe76ac68fb6f7c7f592883afba43aaa28eb62f769c1424ad"
+    },
+    {
+      "repository": "ComfyUI-DAELab-Creative-Canvas",
+      "commit": "3176b5a67dbcd0b66f795976e5a81bcdfe346093",
+      "file": "nodes/media_upload.py",
+      "sha256": "958cdebf5c07cd9aebef35ba3242985ca4f2aee62db12792fcbd2e9e312885c3"
+    },
+    {
+      "repository": "ComfyUI-DAELab-Creative-Canvas",
+      "commit": "3176b5a67dbcd0b66f795976e5a81bcdfe346093",
+      "file": "web/text_input.js",
+      "sha256": "635fdff2f9c16011f0797bc947222b0ea7ba127e31cf82b7bc9c50fa57567bfa"
+    },
+    {
+      "repository": "ComfyUI-DAELab-Creative-Canvas",
+      "commit": "3176b5a67dbcd0b66f795976e5a81bcdfe346093",
+      "file": "web/creative_canvas_model.mjs",
+      "sha256": "c530f4b6e14c9b4ef2e08dd7cf130ce8bcdb46fc5ca17792f0a01bbee98089de"
+    },
+    {
+      "repository": "ComfyUI-DAELab-Custom-Nodes-Library",
+      "commit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+      "file": "web/llm_style_preview.js",
+      "sha256": "129748850824e58beac56b81431a838d3591acf958606fcb62a097ea9398abdd"
+    },
+    {
+      "repository": "ComfyUI-DAELab-Custom-Nodes-Library",
+      "commit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+      "file": "web/data_table_model.mjs",
+      "sha256": "ba6709c6b3494aa7da6a372c9744cb111e9a263a3ac26341f0e0d58ce0d7c59a"
+    },
+    {
+      "repository": "ComfyUI-DAELab-Custom-Nodes-Library",
+      "commit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+      "file": "web/data_table_nodes.mjs",
+      "sha256": "6febb9bb7cf7a2530fa4fcd4b483fc93d56e3dd6f09cb1274a12145210f7f3fd"
+    }
+  ]
+}

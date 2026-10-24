@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+const path=new URL('../host_fixture/web/generation_fixture.js',import.meta.url);
+let source=await readFile(path,'utf8');
+source=source.replace(/^import .*;$/gm,'');
+source=`const app={registerExtension(){}};const api={fetchApi(){throw Error('no request on import')}};const bindGenerationHttp=()=>{throw Error('no binding on import')};const bindCreativeField=()=>{};const bindCreativeButton=()=>{};const bindPanelAvailability=()=>{};
+`+source;
+globalThis.addEventListener=()=>{};
+const module=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+assert.equal(module.fixtureServiceRoute('generation','submit','POST'),module.PREFIX+'/api/daelab/studio/generation/submit');
+assert.equal(module.fixtureServiceRoute('optimization','query','POST'),module.PREFIX+'/api/daelab/prompt-optimization/query');
+assert.match(module.fixtureServiceRoute('generation','capabilities?model=qwen&kind=image','GET'),/capabilities\?model=qwen&kind=image$/);
+for(const args of [['generation','submit','GET'],['optimization','../query','POST'],['generation','capabilities?url=https://example.test','GET'],['generation','submit?escape=1','POST']])assert.throws(()=>module.fixtureServiceRoute(...args));
+console.log('Fixture route and inert-import contracts passed. No DOM/browser acceptance claimed.');

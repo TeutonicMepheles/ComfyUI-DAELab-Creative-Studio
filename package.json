@@ -1,0 +1,15 @@
+{
+  "name": "daelab-creative-studio",
+  "version": "0.1.0-dev.0",
+  "private": true,
+  "type": "module",
+  "engines": {"node": ">=22"},
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "node tools/build.mjs",
+    "test": "node --test tests/generation_frontend/*.mjs tests/unit/*.test.mjs tests/application/*.mjs tests/migrated_canvas/*.test.mjs tests/migrated_assets/*.test.mjs tests/migration/readonly_nodes.test.mjs tests/contract/*.mjs",
+    "test:business": "node --import ./tests/migrated_business/register.mjs --test tests/migrated_business/*.test.mjs",
+    "check": "npm run typecheck && npm run build && node tools/check_architecture.mjs && node tools/verify_assets.mjs && npm test && npm run test:business"
+  },
+  "devDependencies": {"typescript": "5.9.3"}
+}

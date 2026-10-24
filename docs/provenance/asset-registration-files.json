@@ -1,0 +1,192 @@
+{
+  "schemaVersion": 1,
+  "scope": "Public input-asset registration and immutable snapshot/reference integration; current authored integration provenance supplements original Canvas manifests.",
+  "status": "contract verification; host acceptance pending",
+  "files": [
+    {
+      "destination": "backend/integrations/comfyui/asset_api.py",
+      "destinationSha256": "cfe06955d6fdad1ed0c4ca6b24810acd33caf1944afc8f4280b00271b800ecf0",
+      "changes": [
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+      ]
+    },
+    {
+      "destination": "backend/integrations/comfyui/canvas_nodes/__init__.py",
+      "destinationSha256": "a872e7f36a7510ec8672b3598b58a0b9f80158c35697465cd463e71d29fd9799",
+      "changes": [
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+      ]
+    },
+    {
+      "destination": "backend/integrations/comfyui/canvas_nodes/asset_binding.py",
+      "destinationSha256": "2774ffa7f7810d1ee9a65aeeb19bd961df59abc26cc34c550d03bb14cc12f851",
+      "changes": [
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+      ]
+    },
+    {
+      "destination": "backend/integrations/comfyui/canvas_nodes/material_group.py",
+      "destinationSha256": "4c247b047564de393574a000153e97e362a2642e2cc3b7224f1753b9c0ad26eb",
+      "changes": [
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+      ]
+    },
+    {
+      "destination": "backend/integrations/comfyui/canvas_nodes/material_output_api.py",
+      "destinationSha256": "cb47e2fb94d1c4555e4670f72183e4edd2d8a0db66a547ff868d0c728de125ac",
+      "changes": [
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+      ]
+    },
+    {
+      "destination": "backend/integrations/comfyui/canvas_nodes/media_upload.py",
+      "destinationSha256": "2a90aa0cdf4e4c66ed53d0de4c9a1475146d852ee43a71c13c6d896be447857b",
+      "changes": [
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+      ]
+    },
+    {
+      "destination": "backend/integrations/comfyui/canvas_nodes/text_input.py",
+      "destinationSha256": "c726592f4f340e848ae1d6011d7509018038157fc132e638c8663de2a7dcc968",
+      "changes": [
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+      ]
+    },
+    {
+      "destination": "backend/media/material_output_files.py",
+      "destinationSha256": "762a7ccd3dd263e6d8e359cf7910b3443875eca3c24fcc26a08eb1c1b3a182ad",
+      "changes": [
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+      ]
+    },
+    {
+      "destination": "frontend/src/application/asset_library_service.ts",
+      "destinationSha256": "e00a4237fefb7f06c6b0485d4d7632487157cbf4e25f3e7fa2aa1e5ce67ac06b",
+      "changes": [
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+      ]
+    },
+    {
+      "destination": "frontend/src/application/asset_registration.ts",
+      "destinationSha256": "56ab0ca4568947bfc6bbb5458bef3c7f3172f1b6ec3a876a239209f7fa16359a",
+      "changes": [
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+      ]
+    },
+    {
+      "destination": "frontend/src/canvas/creative_canvas_view.mjs",
+      "destinationSha256": "e41c0438a045bd75d9a567f14fe7bef0dff99bf7a70695428b5b30a3fd233d82",
+      "changes": [
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+      ]
+    },
+    {
+      "destination": "frontend/src/contracts/assets.ts",
+      "destinationSha256": "a0b39bc9a51446fec2aac45e3ebe668308337ce68e5f97355ea3e753beab38b5",
+      "changes": [
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+      ]
+    },
+    {
+      "destination": "frontend/src/features/assets/asset_library_model.mjs",
+      "destinationSha256": "aaebe0a5298a586a711b9350a3e3d609cdaae8c9ff8dd03741462b8d55f2286a",
+      "changes": [
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+      ]
+    },
+    {
+      "destination": "frontend/src/integrations/comfyui/asset_services.js",
+      "destinationSha256": "d2eb433991d1f0241fca2afc2c5861d578c24501d49c0ddf3f6f4f01701db198",
+      "changes": [
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+      ]
+    },
+    {
+      "destination": "frontend/src/integrations/comfyui/canvas/material_group.js",
+      "destinationSha256": "02902c36a873515da5500d6d0c48373cfe3ade91c6f63f961fe83f616789bab6",
+      "changes": [
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+      ]
+    },
+    {
+      "destination": "frontend/src/integrations/comfyui/canvas/media_upload.js",
+      "destinationSha256": "93c63be487e472f4d9b80835a7b5adf9b833e93345bbbcb89cb2e4171d360091",
+      "changes": [
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+      ]
+    },
+    {
+      "destination": "frontend/src/integrations/comfyui/canvas/text_input.js",
+      "destinationSha256": "99bc0a3b7b4db969500a2c43b02857c905050b75901909710217de25391971d1",
+      "changes": [
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+      ]
+    },
+    {
+      "destination": "tests/backend/test_asset_registration.py",
+      "destinationSha256": "efd9bc06ebba13829e2858524923012be95939375ae69802d549d5dcee3f77c1",
+      "changes": [
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+      ]
+    },
+    {
+      "destination": "tests/migrated_assets/asset_registration.test.mjs",
+      "destinationSha256": "196b080dddb16c593e8880f04498f082664829318a0fafadd1e3358081cbe14f",
+      "changes": [
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+      ]
+    },
+    {
+      "destination": "tests/migrated_assets/upload_registration.test.mjs",
+      "destinationSha256": "22c3dca548308c87e08585adc905fa3bf4854d43c8c326b05bffd3218c5f90a3",
+      "changes": [
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+      ]
+    },
+    {
+      "destination": "tests/migrated_canvas_backend/test_media.py",
+      "destinationSha256": "d34a5bf81efca04c889e06e024fdd41e1a1895ca299665d80cc027d9105ccf8b",
+      "changes": [
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+      ]
+    },
+    {
+      "destination": "tests/migrated_canvas_backend/test_registration.py",
+      "destinationSha256": "957f0970f994247a87d8aec278c3b262c37fcdaf82e495681a3dada0eaf10174",
+      "changes": [
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+      ]
+    },
+    {
+      "destination": "backend/assets/catalog.py",
+      "destinationSha256": "3767a2c10e20af000d518660af09a65f77031d3557de9a38fd85125e8ffbc533",
+      "changes": [
+        "Normalize only resolved Win32 drive/UNC namespace aliases for boundary comparison; preserve original resolved paths for IO and existing atomic hard-link publication. True escapes and other device namespaces remain rejected."
+      ],
+      "previousDestinationSha256": "aa5be0d294072a8cc302fba6c583060ea97e106edb6b2d6df79d732203c98d91"
+    },
+    {
+      "destination": "tests/backend/test_asset_freeze_concurrency.py",
+      "destinationSha256": "02f3e0b757a4ab8c2af0d828998beba405fc42cf42a7e958d8a8d1e8eca5d7e2",
+      "changes": [
+        "Deterministic extended-prefix first failure, true-escape/device rejection, identical 8-thread/two-catalog frozen references, and conflicting immutable content protection."
+      ]
+    }
+  ],
+  "freezeConcurrencyValidation": {
+    "cause": "Windows Path.resolve sometimes retains the extended namespace prefix during concurrent publication, falsely failing the previous lexical root comparison. Captured actual input and first returned path, not a second resolve.",
+    "firstFailure": ".local/baseline/freeze-concurrency-first-diagnostic.json",
+    "deterministicFirstFailure": ".local/baseline/freeze-concurrency-deterministic-first.log",
+    "backendTests": {
+      "passed": 51,
+      "log": ".local/baseline/freeze-concurrency-backend-final.log"
+    },
+    "exportConcurrentReplay": {
+      "rounds": 40,
+      "sameRequestConcurrency": 8,
+      "passed": 40,
+      "evidence": ".local/baseline/freeze-concurrency-export-repeat.json"
+    },
+    "hostOrGpuExecuted": false
+  }
+}

@@ -1,0 +1,341 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+  "sources": [
+    {
+      "path": "nodes/daelab_comfytv_storyboard/node.py",
+      "sha256": "2428ebb7a8a038e69a504b211976ddb9b1db2ed19e72df0a4526d5e27608220e",
+      "url": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/node.py"
+    },
+    {
+      "path": "nodes/libtv_bridge/node.py",
+      "sha256": "3d83aa64c9766bd0e8c515bd5aeb1c507cf7f5e183d2a9e96bf09f0d8570f921",
+      "url": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/libtv_bridge/node.py"
+    },
+    {
+      "path": "nodes/libtv_bridge/batch_node.py",
+      "sha256": "711d02d3ba08c7c99dd1f769a12465672480bb76eaac7ce8ee5f686be22ed76a",
+      "url": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/libtv_bridge/batch_node.py"
+    },
+    {
+      "path": "nodes/libtv_bridge/runtime.py",
+      "sha256": "549941f7a2388e19df02e1e63c31872be352b4c9d8e4a7dffe9cbc5b472c20eb",
+      "url": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/libtv_bridge/runtime.py"
+    },
+    {
+      "path": "web/llm_style_preview.js",
+      "sha256": "129748850824e58beac56b81431a838d3591acf958606fcb62a097ea9398abdd",
+      "url": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/llm_style_preview.js"
+    },
+    {
+      "path": "web/llm_style_preview_panel.mjs",
+      "sha256": "4746ca264162db7c6316a229813d6c83d5a349ea46bb313d6072b9dc278df5cd",
+      "url": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/llm_style_preview_panel.mjs"
+    },
+    {
+      "path": "web/storyboard_legacy_widgets.mjs",
+      "sha256": "881b125400312d8d19122364026a68131ea3e65322dec3228b58d9d9ae31c939",
+      "url": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/storyboard_legacy_widgets.mjs"
+    },
+    {
+      "path": "user/default/workflows/ComfyTV-StoryBoard-GPT-Image2-完整工作流.json",
+      "sha256": "6a529f6f73edcfb287f7b8f811ea008e1405056d7c0aa17f1d4dbd39783f4b93",
+      "url": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/user/default/workflows/ComfyTV-StoryBoard-GPT-Image2-完整工作流.json"
+    }
+  ],
+  "nativeInputs": {
+    "DAELAB.ComfyTV.GPTImageStoryboardStage": [
+      {
+        "name": "force_run_token",
+        "type": "INT",
+        "options": {
+          "default": 0,
+          "min": 0,
+          "max": 2147483647,
+          "step": 1,
+          "socketless": true
+        }
+      },
+      {
+        "name": "project_id",
+        "type": "STRING",
+        "options": {
+          "default": "",
+          "socketless": true
+        }
+      },
+      {
+        "name": "parent_output_id",
+        "type": "INT",
+        "options": {
+          "default": 0,
+          "min": 0,
+          "max": 2147483647,
+          "socketless": true
+        }
+      },
+      {
+        "name": "workflow",
+        "type": "COMBO",
+        "options": {
+          "options": [
+            "OpenAI GPT Image 2 (Comfy Credits)"
+          ],
+          "default": "OpenAI GPT Image 2 (Comfy Credits)"
+        }
+      },
+      {
+        "name": "size",
+        "type": "COMBO",
+        "options": {
+          "options": [
+            "auto",
+            "1024x1024",
+            "1024x1536",
+            "1536x1024",
+            "2048x2048",
+            "2048x1152",
+            "1152x2048",
+            "3840x2160",
+            "2160x3840",
+            "Custom"
+          ],
+          "default": "auto"
+        }
+      },
+      {
+        "name": "custom_width",
+        "type": "INT",
+        "options": {
+          "default": 1024,
+          "min": 1024,
+          "max": 3840,
+          "step": 16
+        }
+      },
+      {
+        "name": "custom_height",
+        "type": "INT",
+        "options": {
+          "default": 1024,
+          "min": 1024,
+          "max": 3840,
+          "step": 16
+        }
+      },
+      {
+        "name": "background",
+        "type": "COMBO",
+        "options": {
+          "options": [
+            "auto",
+            "opaque"
+          ],
+          "default": "auto"
+        }
+      },
+      {
+        "name": "quality",
+        "type": "COMBO",
+        "options": {
+          "options": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "default": "low"
+        }
+      },
+      {
+        "name": "seed",
+        "type": "INT",
+        "options": {
+          "default": 0,
+          "min": 0,
+          "max": 2147483647,
+          "step": 1
+        }
+      },
+      {
+        "name": "main_prompt",
+        "type": "STRING",
+        "options": {
+          "default": "",
+          "multiline": true,
+          "socketless": true
+        }
+      },
+      {
+        "name": "storyboard_data",
+        "type": "STRING",
+        "options": {
+          "default": "",
+          "socketless": true
+        }
+      },
+      {
+        "name": "selected_index",
+        "type": "INT",
+        "options": {
+          "default": 1,
+          "min": 1,
+          "max": 999,
+          "step": 1,
+          "socketless": true
+        }
+      },
+      {
+        "name": "custom_params",
+        "type": "STRING",
+        "options": {
+          "default": "{}",
+          "socketless": true
+        }
+      },
+      {
+        "name": "imported_storyboard",
+        "type": "STRING",
+        "options": {
+          "optional": true,
+          "force_input": true
+        }
+      }
+    ],
+    "DAELAB.LibTV.StoryboardBatch": [
+      {
+        "name": "storyboard_json",
+        "type": "STRING",
+        "options": {
+          "force_input": true
+        }
+      },
+      {
+        "name": "project_uuid",
+        "type": "STRING",
+        "options": {
+          "default": ""
+        }
+      },
+      {
+        "name": "request_id",
+        "type": "STRING",
+        "options": {
+          "default": "video-001"
+        }
+      },
+      {
+        "name": "model",
+        "type": "COMBO",
+        "options": {
+          "options": [
+            "Seedance 2.5",
+            "Seedance 2.0",
+            "Seedance 2.0 Mini",
+            "Seedance 2.0 Fast",
+            "Minimax H3"
+          ],
+          "default": "Seedance 2.0"
+        }
+      },
+      {
+        "name": "mode",
+        "type": "COMBO",
+        "options": {
+          "options": [
+            "text2video",
+            "singleImage2video",
+            "frames2video",
+            "image2video",
+            "mixed2video"
+          ],
+          "default": "mixed2video"
+        }
+      },
+      {
+        "name": "duration",
+        "type": "INT",
+        "options": {
+          "default": 5,
+          "min": 4,
+          "max": 30
+        }
+      },
+      {
+        "name": "resolution",
+        "type": "COMBO",
+        "options": {
+          "options": [
+            "480p",
+            "720p",
+            "1080p",
+            "4k",
+            "768P",
+            "2K"
+          ],
+          "default": "720p"
+        }
+      },
+      {
+        "name": "ratio",
+        "type": "COMBO",
+        "options": {
+          "options": [
+            "16:9",
+            "9:16",
+            "1:1",
+            "4:3",
+            "3:4",
+            "21:9",
+            "adaptive"
+          ]
+        }
+      },
+      {
+        "name": "sound",
+        "type": "BOOLEAN",
+        "options": {
+          "default": false
+        }
+      }
+    ]
+  },
+  "prototypeSlots": {
+    "inputs": [
+      {
+        "name": "原文",
+        "type": "STRING"
+      },
+      {
+        "name": "参考图片",
+        "type": "IMAGE"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "结果",
+        "type": "STRING"
+      }
+    ]
+  },
+  "prototypeSizes": {
+    "DAELAB.LLMStylePreviewA": [
+      420,
+      690
+    ],
+    "DAELAB.LLMStylePreviewC": [
+      460,
+      690
+    ],
+    "DAELAB.LLMStylePreviewD": [
+      460,
+      690
+    ],
+    "DAELAB.LLMStylePreviewE": [
+      700,
+      690
+    ]
+  },
+  "sourceSerializedGPTInputCount": 14,
+  "sourceSerializedGPTWidgetCount": 15,
+  "fixturePolicy": "All values synthetic; GPT slot shape copied from pinned serialized workflow; other shapes from pinned constructors."
+}

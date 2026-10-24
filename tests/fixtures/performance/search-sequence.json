@@ -1,0 +1,13 @@
+{
+  "fixture": "../asset-library/search-2000.json",
+  "queries": [
+    "合成收藏 0001",
+    "分组 3",
+    "黄色圆柱",
+    "1999",
+    "不存在的合成词",
+    ""
+  ],
+  "repeatSequence": 5,
+  "input": "Type through actual UI; wait for visible results; never dispatch synthetic input events"
+}

@@ -1,0 +1,458 @@
+{
+  "origin": "http://127.0.0.1:8225",
+  "document": {
+    "version": 1,
+    "entries": [
+      {
+        "id": "synthetic-0001",
+        "kind": "text",
+        "name": "合成收藏 0001",
+        "text": "第 0001 条合成素材。\n红球、蓝块、黄色圆柱；分组 1。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0002",
+        "kind": "text",
+        "name": "合成收藏 0002",
+        "text": "第 0002 条合成素材。\n红球、蓝块、黄色圆柱；分组 2。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0003",
+        "kind": "text",
+        "name": "合成收藏 0003",
+        "text": "第 0003 条合成素材。\n红球、蓝块、黄色圆柱；分组 3。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0004",
+        "kind": "text",
+        "name": "合成收藏 0004",
+        "text": "第 0004 条合成素材。\n红球、蓝块、黄色圆柱；分组 4。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0005",
+        "kind": "text",
+        "name": "合成收藏 0005",
+        "text": "第 0005 条合成素材。\n红球、蓝块、黄色圆柱；分组 5。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0006",
+        "kind": "text",
+        "name": "合成收藏 0006",
+        "text": "第 0006 条合成素材。\n红球、蓝块、黄色圆柱；分组 6。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0007",
+        "kind": "text",
+        "name": "合成收藏 0007",
+        "text": "第 0007 条合成素材。\n红球、蓝块、黄色圆柱；分组 7。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0008",
+        "kind": "text",
+        "name": "合成收藏 0008",
+        "text": "第 0008 条合成素材。\n红球、蓝块、黄色圆柱；分组 8。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0009",
+        "kind": "text",
+        "name": "合成收藏 0009",
+        "text": "第 0009 条合成素材。\n红球、蓝块、黄色圆柱；分组 9。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0010",
+        "kind": "text",
+        "name": "合成收藏 0010",
+        "text": "第 0010 条合成素材。\n红球、蓝块、黄色圆柱；分组 0。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0011",
+        "kind": "text",
+        "name": "合成收藏 0011",
+        "text": "第 0011 条合成素材。\n红球、蓝块、黄色圆柱；分组 1。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0012",
+        "kind": "text",
+        "name": "合成收藏 0012",
+        "text": "第 0012 条合成素材。\n红球、蓝块、黄色圆柱；分组 2。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0013",
+        "kind": "text",
+        "name": "合成收藏 0013",
+        "text": "第 0013 条合成素材。\n红球、蓝块、黄色圆柱；分组 3。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0014",
+        "kind": "text",
+        "name": "合成收藏 0014",
+        "text": "第 0014 条合成素材。\n红球、蓝块、黄色圆柱；分组 4。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0015",
+        "kind": "text",
+        "name": "合成收藏 0015",
+        "text": "第 0015 条合成素材。\n红球、蓝块、黄色圆柱；分组 5。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0016",
+        "kind": "text",
+        "name": "合成收藏 0016",
+        "text": "第 0016 条合成素材。\n红球、蓝块、黄色圆柱；分组 6。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0017",
+        "kind": "text",
+        "name": "合成收藏 0017",
+        "text": "第 0017 条合成素材。\n红球、蓝块、黄色圆柱；分组 7。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0018",
+        "kind": "text",
+        "name": "合成收藏 0018",
+        "text": "第 0018 条合成素材。\n红球、蓝块、黄色圆柱；分组 8。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0019",
+        "kind": "text",
+        "name": "合成收藏 0019",
+        "text": "第 0019 条合成素材。\n红球、蓝块、黄色圆柱；分组 9。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0020",
+        "kind": "text",
+        "name": "合成收藏 0020",
+        "text": "第 0020 条合成素材。\n红球、蓝块、黄色圆柱；分组 0。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0021",
+        "kind": "text",
+        "name": "合成收藏 0021",
+        "text": "第 0021 条合成素材。\n红球、蓝块、黄色圆柱；分组 1。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0022",
+        "kind": "text",
+        "name": "合成收藏 0022",
+        "text": "第 0022 条合成素材。\n红球、蓝块、黄色圆柱；分组 2。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0023",
+        "kind": "text",
+        "name": "合成收藏 0023",
+        "text": "第 0023 条合成素材。\n红球、蓝块、黄色圆柱；分组 3。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0024",
+        "kind": "text",
+        "name": "合成收藏 0024",
+        "text": "第 0024 条合成素材。\n红球、蓝块、黄色圆柱；分组 4。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0025",
+        "kind": "text",
+        "name": "合成收藏 0025",
+        "text": "第 0025 条合成素材。\n红球、蓝块、黄色圆柱；分组 5。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0026",
+        "kind": "text",
+        "name": "合成收藏 0026",
+        "text": "第 0026 条合成素材。\n红球、蓝块、黄色圆柱；分组 6。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0027",
+        "kind": "text",
+        "name": "合成收藏 0027",
+        "text": "第 0027 条合成素材。\n红球、蓝块、黄色圆柱；分组 7。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0028",
+        "kind": "text",
+        "name": "合成收藏 0028",
+        "text": "第 0028 条合成素材。\n红球、蓝块、黄色圆柱；分组 8。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0029",
+        "kind": "text",
+        "name": "合成收藏 0029",
+        "text": "第 0029 条合成素材。\n红球、蓝块、黄色圆柱；分组 9。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0030",
+        "kind": "text",
+        "name": "合成收藏 0030",
+        "text": "第 0030 条合成素材。\n红球、蓝块、黄色圆柱；分组 0。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0031",
+        "kind": "text",
+        "name": "合成收藏 0031",
+        "text": "第 0031 条合成素材。\n红球、蓝块、黄色圆柱；分组 1。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0032",
+        "kind": "text",
+        "name": "合成收藏 0032",
+        "text": "第 0032 条合成素材。\n红球、蓝块、黄色圆柱；分组 2。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0033",
+        "kind": "text",
+        "name": "合成收藏 0033",
+        "text": "第 0033 条合成素材。\n红球、蓝块、黄色圆柱；分组 3。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0034",
+        "kind": "text",
+        "name": "合成收藏 0034",
+        "text": "第 0034 条合成素材。\n红球、蓝块、黄色圆柱；分组 4。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0035",
+        "kind": "text",
+        "name": "合成收藏 0035",
+        "text": "第 0035 条合成素材。\n红球、蓝块、黄色圆柱；分组 5。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0036",
+        "kind": "text",
+        "name": "合成收藏 0036",
+        "text": "第 0036 条合成素材。\n红球、蓝块、黄色圆柱；分组 6。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0037",
+        "kind": "text",
+        "name": "合成收藏 0037",
+        "text": "第 0037 条合成素材。\n红球、蓝块、黄色圆柱；分组 7。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0038",
+        "kind": "text",
+        "name": "合成收藏 0038",
+        "text": "第 0038 条合成素材。\n红球、蓝块、黄色圆柱；分组 8。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0039",
+        "kind": "text",
+        "name": "合成收藏 0039",
+        "text": "第 0039 条合成素材。\n红球、蓝块、黄色圆柱；分组 9。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0040",
+        "kind": "text",
+        "name": "合成收藏 0040",
+        "text": "第 0040 条合成素材。\n红球、蓝块、黄色圆柱；分组 0。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0041",
+        "kind": "text",
+        "name": "合成收藏 0041",
+        "text": "第 0041 条合成素材。\n红球、蓝块、黄色圆柱；分组 1。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0042",
+        "kind": "text",
+        "name": "合成收藏 0042",
+        "text": "第 0042 条合成素材。\n红球、蓝块、黄色圆柱；分组 2。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0043",
+        "kind": "text",
+        "name": "合成收藏 0043",
+        "text": "第 0043 条合成素材。\n红球、蓝块、黄色圆柱；分组 3。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0044",
+        "kind": "text",
+        "name": "合成收藏 0044",
+        "text": "第 0044 条合成素材。\n红球、蓝块、黄色圆柱；分组 4。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0045",
+        "kind": "text",
+        "name": "合成收藏 0045",
+        "text": "第 0045 条合成素材。\n红球、蓝块、黄色圆柱；分组 5。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0046",
+        "kind": "text",
+        "name": "合成收藏 0046",
+        "text": "第 0046 条合成素材。\n红球、蓝块、黄色圆柱；分组 6。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0047",
+        "kind": "text",
+        "name": "合成收藏 0047",
+        "text": "第 0047 条合成素材。\n红球、蓝块、黄色圆柱；分组 7。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0048",
+        "kind": "text",
+        "name": "合成收藏 0048",
+        "text": "第 0048 条合成素材。\n红球、蓝块、黄色圆柱；分组 8。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0049",
+        "kind": "text",
+        "name": "合成收藏 0049",
+        "text": "第 0049 条合成素材。\n红球、蓝块、黄色圆柱；分组 9。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      },
+      {
+        "id": "synthetic-0050",
+        "kind": "text",
+        "name": "合成收藏 0050",
+        "text": "第 0050 条合成素材。\n红球、蓝块、黄色圆柱；分组 0。",
+        "futureMetadata": {
+          "preserve": true
+        }
+      }
+    ]
+  }
+}
