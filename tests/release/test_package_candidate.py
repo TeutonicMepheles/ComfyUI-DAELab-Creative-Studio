@@ -78,6 +78,8 @@ class CandidateContractTests(unittest.TestCase):
         files = synthetic_tree()
         extras = {'frontend/src/secret.js', 'node_modules/package/index.js', 'tests/fixture.py',
                   '.local/session.json', 'backend/.local/session.py', 'backend/tests/fixture.py',
+                  'tools/migration/legacy_probe/__init__.py', 'tools/migration/legacy_probe/probe.py',
+                  'tools/migration/prepare_e5.py',
                   'docs/credentials.json', 'docs/secrets.json', 'docs/.env', 'backend/weight.safetensors'}
         files.update({name: b'SYNTHETIC-EXCLUDED-DATA' for name in extras})
         raw, manifest = candidate_bytes(files, REVISION)

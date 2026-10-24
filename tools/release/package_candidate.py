@@ -58,6 +58,8 @@ def excluded(name):
 
 def possible(name):
     p = PurePosixPath(name)
+    if name.startswith('tools/migration/legacy_probe/') or name == 'tools/migration/prepare_e5.py':
+        return False  # Explicit isolated acceptance helpers, never installed with the product.
     return (name in FIXED or name.startswith('web/')
             or len(p.parts) == 1 and p.name.startswith(('LICENSE', 'NOTICE'))
             or p.parts[0] in {'backend', 'compat'} and p.suffix == '.py'
