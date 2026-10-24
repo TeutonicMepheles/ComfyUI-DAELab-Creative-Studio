@@ -981,10 +981,11 @@
       "source": "web/table_ui.css",
       "destination": "frontend/src/features/table/table_ui.css",
       "sourceSha256": "bc0453f9322d52be6e7a6d8c718d64c0819293acdf6c6f29ea148b8fdede6555",
-      "destinationSha256": "79f5f0bc26e9e3cc8708df2b95ad42d2e5704d3a5b09b8d3e92fa6899803945f",
+      "destinationSha256": "6654069124652ea54bfeb53505d7bf00a96cf75426d6d41c2a46c1f91111efcd",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Limit unused canvas zoom custom-property inheritance to owned content data cells; retain public root values and live screen-size chrome/row-gutter consumers. Performance benefit requires real-host measurement."
       ]
     },
     {

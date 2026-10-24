@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "513c6ebd416784711df4727ffc3189be05089c75de0f557a1604af6a575691db",
+  "sourceFingerprint": "7fd2630c1e2abed00e7f5eae287ef1e41a5c7007d6153842935dacd59418a678",
   "files": [
     {
       "path": "application/asset_library_service.js",
@@ -668,7 +668,7 @@
     },
     {
       "path": "features/table/table_ui.css",
-      "sha256": "79f5f0bc26e9e3cc8708df2b95ad42d2e5704d3a5b09b8d3e92fa6899803945f"
+      "sha256": "6654069124652ea54bfeb53505d7bf00a96cf75426d6d41c2a46c1f91111efcd"
     },
     {
       "path": "features/table/table_video_references.mjs",
@@ -808,7 +808,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "80eb55b547fd34056e564c04760958f8cfeef598c1a12003d7c31f1d4f670659"
+      "sha256": "71b533d780753a79c595ad5574615d5611bc35d61da3e259d742ba3490b4b35d"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

@@ -112,6 +112,16 @@
 [data-canvas-panel=true] [data-content-presentation=true] .dae-table-scroll{flex:none;max-height:none;border-radius:12px;overflow:auto;background:var(--dae-surface-low);scrollbar-width:thin}
 [data-canvas-panel=true] [data-content-presentation=true] .dae-table th{height:56px!important;padding:10px 14px!important;background:var(--dae-surface)}
 [data-canvas-panel=true] [data-content-presentation=true] .dae-table td{height:auto;min-height:120px;padding:6px!important}
+/* These owned data cells scale with the world transform and have no screen-size
+   zoom consumers. Stop the two changing inherited values at this leaf boundary;
+   `initial` preserves the normal var(..., 1) fallback semantics.
+   Keep the public panel/root values, headings, column Slots and row gutter live.
+   A new zoom consumer inside a data cell requires reviewing this boundary and
+   tests/migrated_business/table_zoom_scope.test.mjs before using the variable. */
+.dae-creative [data-canvas-panel=true] [data-content-presentation=true] .dae-table[data-structure] > .dae-table-scroll > table > tbody > tr > td[data-field][data-record]{
+  --dae-canvas-zoom:initial;
+  --dae-canvas-inverse-zoom:initial;
+}
 [data-canvas-panel=true] [data-content-presentation=true] .dae-table :is(.field-settings,.video-reference-toggle,.cell-grip,.row-grip,.asset-add,.asset-remove){display:none!important}
 [data-canvas-panel=true] [data-content-presentation=true] .table-choice{width:32px!important;min-width:32px}
 [data-canvas-panel=true] [data-content-presentation=true] .table-choice input{display:none}
