@@ -122,6 +122,13 @@
   --dae-canvas-zoom:initial;
   --dae-canvas-inverse-zoom:initial;
 }
+/* Only this owned sticky gutter has entirely positioned controls. Isolate its
+   live row-handle layout without changing cell sizing, overflow or zoom values.
+   No size/paint containment: row height, visible focus and drag hit areas retain
+   their native table/positioning contracts. Real-host benefit is unverified. */
+.dae-creative [data-canvas-panel=true] [data-content-presentation=true] .dae-table[data-structure] > .dae-table-scroll > table > tbody > tr > td.table-choice{
+  contain:layout;
+}
 [data-canvas-panel=true] [data-content-presentation=true] .dae-table :is(.field-settings,.video-reference-toggle,.cell-grip,.row-grip,.asset-add,.asset-remove){display:none!important}
 [data-canvas-panel=true] [data-content-presentation=true] .table-choice{width:32px!important;min-width:32px}
 [data-canvas-panel=true] [data-content-presentation=true] .table-choice input{display:none}

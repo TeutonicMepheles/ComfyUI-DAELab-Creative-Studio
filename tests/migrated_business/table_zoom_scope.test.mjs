@@ -15,6 +15,27 @@ const normalize=value=>value.replace(/\s+/g,' ').trim();
 function files(directory=root){return readdirSync(directory,{withFileTypes:true}).flatMap(entry=>entry.isDirectory()?files(path.join(directory,entry.name)):[path.join(directory,entry.name)]);}
 function rules(source){return [...source.replace(/\/\*[\s\S]*?\*\//g,'').matchAll(/([^{}]+)\{([^{}]*)\}/g)].map(([,selector,body])=>({selector:normalize(selector),body}));}
 const scope='.dae-creative [data-canvas-panel=true] [data-content-presentation=true] .dae-table[data-structure] > .dae-table-scroll > table > tbody > tr > td[data-field][data-record]';
+const gutterScope='.dae-creative [data-canvas-panel=true] [data-content-presentation=true] .dae-table[data-structure] > .dae-table-scroll > table > tbody > tr > td.table-choice';
+
+test('layout isolation is limited to the owned sticky row gutter, without size/paint or zoom changes',()=>{
+ const source=read('features/table/table_ui.css'),all=rules(source),isolated=all.filter(rule=>/\bcontain\s*:/.test(rule.body));
+ assert.equal(isolated.length,1,'new containment boundaries require their own compatibility review');
+ assert.equal(isolated[0].selector,gutterScope);
+ assert.deepEqual(isolated[0].body.split(';').map(value=>value.trim()).filter(Boolean),['contain:layout']);
+ const structure=read('features/table/table_structure.mjs'),editor=read('features/table/data_table_editor.mjs');
+ assert.match(editor,/\.dae-table \.table-choice\{[^}]*position:sticky;left:0;z-index:2/);
+ assert.match(editor,/\.dae-table th,\.dae-table td\{[^}]*vertical-align:top/);
+ // All existing gutter children are absolute; no new size, clipping, public
+ // inherited-variable or hit-target contract is introduced by this candidate.
+ for(const suffix of ['.table-choice input','.table-choice .content-row-number','.table-choice>.table-move-handle']){
+  assert.ok(all.some(rule=>rule.selector.endsWith(suffix)&&/position:absolute/.test(rule.body)),suffix);
+ }
+ const handle=all.find(rule=>rule.selector==='.dae-ui .dae-table[data-structure] button.table-row-resize');
+ assert.match(handle.body,/position:absolute/);assert.match(handle.body,/height:calc\(8px \/ var\(--dae-canvas-zoom,1\)\)/);
+ assert.doesNotMatch(handle.body,/transform:|contain:|outline:/);
+ assert.match(structure,/row\.getBoundingClientRect\(\)\.height\/row\.offsetHeight/);
+ assert.match(structure,/handle\.setPointerCapture\(e\.pointerId\);handle\.focus/);
+});
 
 test('zoom inheritance boundary is confined to owned content data cells and resets only unused values',()=>{
  const declarations=rules(read('features/table/table_ui.css')).filter(rule=>/--dae-canvas-(?:inverse-)?zoom\s*:/.test(rule.body));

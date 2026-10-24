@@ -981,11 +981,12 @@
       "source": "web/table_ui.css",
       "destination": "frontend/src/features/table/table_ui.css",
       "sourceSha256": "bc0453f9322d52be6e7a6d8c718d64c0819293acdf6c6f29ea148b8fdede6555",
-      "destinationSha256": "6654069124652ea54bfeb53505d7bf00a96cf75426d6d41c2a46c1f91111efcd",
+      "destinationSha256": "a438db46deceb6af3c75c5e10f7939a9b65e8e7e3c4cffcfd251da4e3b55c195",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "Limit unused canvas zoom custom-property inheritance to owned content data cells; retain public root values and live screen-size chrome/row-gutter consumers. Performance benefit requires real-host measurement."
+        "Limit unused canvas zoom custom-property inheritance to owned content data cells; retain public root values and live screen-size chrome/row-gutter consumers. Performance benefit requires real-host measurement.",
+        "Candidate: contain layout only within owned sticky body-row gutters whose controls are absolutely positioned; retain live zoom variables, 8 screen-pixel row handle, sizing and overflow. No size/paint containment. Benefit and real-host compatibility remain unverified; revert if measurements show no gain."
       ]
     },
     {
