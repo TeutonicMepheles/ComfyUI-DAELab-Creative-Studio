@@ -1,4 +1,5 @@
 import { DocumentController } from './document_controller.js';
+import { snapshotJson } from '../contracts/json_snapshot.js';
 /** Only native read/write closures own data. Stored state is session/revision bookkeeping. */
 export function createBusinessDocument(options) {
     let disposed = false, epoch = 0, group = null, lastHistoryStamp;
@@ -35,8 +36,9 @@ export function createBusinessDocument(options) {
         transact(_label, edit, settings = {}) {
             assertCurrent();
             observe();
-            const before = structuredClone(options.read()), next = structuredClone(before);
-            edit(next); // Validation/mutation happens before opening host history.
+            const before = snapshotJson(options.read()), draft = snapshotJson(before);
+            edit(draft); // Validation/mutation happens before opening host history.
+            const next = snapshotJson(draft);
             if (JSON.stringify(before) === JSON.stringify(next) && !settings.afterWrite)
                 return;
             const continuing = !!settings.group && settings.group === group && options.historyStamp?.() === lastHistoryStamp;
@@ -73,7 +75,8 @@ export function createBusinessDocument(options) {
     const replacement = (value) => (draft) => {
         for (const key of Object.keys(draft))
             delete draft[key];
-        Object.assign(draft, structuredClone(value));
+        // Own data descriptors preserve JSON keys such as __proto__ without invoking setters.
+        Object.defineProperties(draft, Object.getOwnPropertyDescriptors(snapshotJson(value)));
     };
     return {
         controller, read: options.read, observe,

@@ -93,21 +93,14 @@ class ResourceAdmission:
             if self._loaded:
                 return
             reservations = []
-            for state in ('submitting', 'submitted', 'running', 'fetching', 'unknown', 'needs_recovery'):
-                offset = 0
-                while True:
-                    page = self.jobs.list_jobs(state=state, limit=500, offset=offset)
-                    for job in page:
-                        # Native GPU ownership is checked against the host queue
-                        # and physical lock. A queued native export is not a render.
-                        kind = job['execution_kind']
-                        if kind not in {'remote', 'media'} or job['provider'] == 'native-video-edit' and state in {'submitting', 'submitted'}:
-                            continue
-                        resource = self._resource(job['snapshot'].get('resource', 'cloud' if kind == 'remote' else 'transcode'))
-                        reservations.append((resource, job['request_id']))
-                    if len(page) < 500:
-                        break
-                    offset += len(page)
+            for job in self.jobs.list_resource_reservations():
+                # Native GPU ownership is checked against the host queue and
+                # physical lock. A queued native export is not yet a render.
+                kind = job['execution_kind']
+                if job['provider'] == 'native-video-edit' and job['state'] in {'submitting', 'submitted'}:
+                    continue
+                resource = self._resource(job['snapshot'].get('resource', 'cloud' if kind == 'remote' else 'transcode'))
+                reservations.append((resource, job['request_id']))
             with self._mutex:
                 for resource, request_id in reservations:
                     if request_id in self._released_while_loading:

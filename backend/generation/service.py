@@ -354,7 +354,7 @@ class GenerationService:
         if observation.state == 'cancelled':
             if not job['cancel_requested']:
                 return (await complete_blocking(self._transition, job, 'failed', error_code='native_execution_stopped'))
-            return (await complete_blocking(self.jobs.confirm_cancelled, job['request_id'], expected_version=job['version'], provider_task_id=observation.task_id, confirmation='owned_native_execution_stopped' if job['execution_kind'] == 'local' else 'provider_cancelled'))
+            return await complete_blocking(self._confirm_cancelled, job['request_id'], provider_id=job['provider'], task_id=observation.task_id, confirmation='owned_native_execution_stopped' if job['execution_kind'] == 'local' else 'provider_cancelled')
         if observation.state == 'failed':
             return (await complete_blocking(self._transition, job, 'failed', error_code=observation.error_code or 'provider_failed'))
         if observation.state in {'submitted', 'running'}:
@@ -460,10 +460,36 @@ class GenerationService:
             return job
         confirmed = await provider.cancel(job['provider_task_id'], job['snapshot'])
         if confirmed is True:
-            current = (await complete_blocking(self.jobs.get, request_id))
-            if current['state'] not in TERMINAL_STATES:
-                return (await complete_blocking(self.jobs.confirm_cancelled, request_id, expected_version=current['version'], provider_task_id=job['provider_task_id'], confirmation='owned_native_execution_stopped' if job['execution_kind'] == 'local' else 'provider_cancelled'))
+            return await complete_blocking(self._confirm_cancelled, request_id, provider_id=job['provider'],
+                task_id=job['provider_task_id'], confirmation='owned_native_execution_stopped' if job['execution_kind'] == 'local' else 'provider_cancelled')
         return (await complete_blocking(self.jobs.get, request_id))
+
+    def _confirm_cancelled(self, request_id, *, provider_id, task_id, confirmation):
+        """CAS against fresh facts without repeating the external cancellation.
+
+        The normal observer can advance the same job while cancellation is in
+        flight. Only its original provider/task may use this confirmation; an
+        already-committed terminal result wins and must never be regressed.
+        """
+        def current_identity():
+            current = self.jobs.get(request_id)
+            if current['provider'] != provider_id or current['provider_task_id'] != task_id:
+                raise Conflict('Cancellation confirmation belongs to a different provider task.')
+            return current
+        for _ in range(8):
+            current = current_identity()
+            if current['state'] in TERMINAL_STATES:
+                return current
+            if not current['cancel_requested']:
+                raise InvalidTransition('The original task has no cancellation intent.')
+            try:
+                return self.jobs.confirm_cancelled(request_id, expected_version=current['version'],
+                    provider_task_id=task_id, confirmation=confirmation)
+            except Conflict:
+                continue
+        # Do not turn unbounded contention into a false cancellation or release.
+        # Return the durable original fact; its observer/recovery can reconcile it.
+        return current_identity()
 
     def completed_result(self, request_id):
         job = self.jobs.get(request_id)

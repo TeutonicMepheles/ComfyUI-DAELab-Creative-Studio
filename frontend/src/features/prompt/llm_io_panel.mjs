@@ -1,6 +1,7 @@
 import {generationInputDigest} from '../generation/generation_session.js';
 import {ensureIdentity} from './prompt_optimization_model.mjs';
 import {assertBusinessService,businessJson} from '../../contracts/business.js';
+import {snapshotJson} from '../../contracts/json_snapshot.js';
 import {createTableButton,tableIcon,tableHistory} from '../table/table_controls.mjs';
 
 import {availableModes,applyIOResult,undoIOResult} from './llm_io_model.mjs';
@@ -20,7 +21,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
     const apply=createTableButton('',()=>{
         if(disposed||busy||node.mode||apply.disabled)return;
         try{
-            const confirm=()=>{if(!nativeDocument)return applyIOResult(saved(),signature());if(!proposalTicket&&restoredProposal===saved().ioResult?.requestId)proposalTicket=nativeDocument.beginRequest(restoredProposal);if(!proposalTicket||!nativeDocument.canApply(proposalTicket))throw new Error('输入或工作流已变化，请重新生成');let applied=false;nativeDocument.controller.applyResult(proposalTicket,'应用 LLM 审阅结果',draft=>{const historical=draft.ioResult;if(proposalState)draft.ioResult=structuredClone(proposalState);applied=applyIOResult(draft,signature());if(historical===undefined)delete draft.ioResult;else draft.ioResult=historical;});return applied;};
+            const confirm=()=>{if(!nativeDocument)return applyIOResult(saved(),signature());if(!proposalTicket&&restoredProposal===saved().ioResult?.requestId)proposalTicket=nativeDocument.beginRequest(restoredProposal);if(!proposalTicket||!nativeDocument.canApply(proposalTicket))throw new Error('输入或工作流已变化，请重新生成');let applied=false;nativeDocument.controller.applyResult(proposalTicket,'应用 LLM 审阅结果',draft=>{const historical=draft.ioResult;if(proposalState)draft.ioResult=snapshotJson(proposalState);applied=applyIOResult(draft,signature());if(historical===undefined)delete draft.ioResult;else draft.ioResult=historical;});return applied;};
             const context=globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root);
             if(node.outputs?.[1]?.links?.length){
                 const history=nativeDocument?null:tableHistory();history?.begin();
@@ -41,14 +42,14 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
     const generationTask=createLLMTask();
     let busy=false,disposed=false,message='',task=[],lastInput='',proposalTicket=null,proposalState=null;
     const restoredProposal=saved().ioResult?.complete?saved().ioResult.requestId:null;
-    const project=proposal=>{proposalState=structuredClone(proposal);};
+    const project=proposal=>{proposalState=snapshotJson(proposal);};
     function signature(){try{return slotSignature(node);}catch{return '';}}
     function render(){
         if(disposed)return;
         let rows=[],error='',waiting=false;try{rows=slotRows(node);}catch(e){error=e.message;waiting=!!e.waiting;}
         const inputKey=JSON.stringify(rows),modes=availableModes(rows);
         if(inputKey!==lastInput){
-            const next=structuredClone(saved());
+            const next=snapshotJson(saved());
             const linkedInstructions=[...new Set(rows.map(r=>r.instruction).filter(Boolean))].join('\n\n');
             if(linkedInstructions){
                 if(next.slotInstruction===undefined)next.manualInstruction=next.instruction;

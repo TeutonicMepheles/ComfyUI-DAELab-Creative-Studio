@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "17b2511c00cd5ee2065d6adae3d9c334f5db555d7b2f696d490413245291f30e",
+  "sourceFingerprint": "c7a5aaac2d541a4a52c321b78f7855f34015203828c69e5e35c6d8d790fcfe3c",
   "files": [
     {
       "path": "application/asset_library_service.js",
@@ -12,7 +12,7 @@
     },
     {
       "path": "application/business_document.js",
-      "sha256": "ee7a7d80eefc67144e0a3060aeaa82fad0282e3671efc9e82dca2453af659db3"
+      "sha256": "5ea9a18910af90c8bca8c15874177910af324a3ce59fffdc9c9e40c2ba64d256"
     },
     {
       "path": "application/document_controller.js",
@@ -77,6 +77,10 @@
     {
       "path": "contracts/canvas_host.js",
       "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "path": "contracts/json_snapshot.js",
+      "sha256": "a5263fb5a194b671cc10aab6d14dae7b3384458603a14ba821003bbce850b926"
     },
     {
       "path": "contracts/media_exports.js",
@@ -436,7 +440,7 @@
     },
     {
       "path": "features/prompt/llm_io_panel.mjs",
-      "sha256": "8531c1d8c3d4a89ffbc7eb41ecaaca0319c168c242808765b0f90dfb08024d2e"
+      "sha256": "2c19c5f6a65935533674c2d1f6e8ae7cc89e7b038e0a3179c2ab2bcf58455d7a"
     },
     {
       "path": "features/prompt/llm_local_provider.mjs",
@@ -804,7 +808,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "d31656bef4afa88066eba974ad30078f729e14d0efbbfceacdecbb9919adba55"
+      "sha256": "46138f8887a6ae67bb5daad37fef9de095db7f96cf01037d2134427598d45292"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

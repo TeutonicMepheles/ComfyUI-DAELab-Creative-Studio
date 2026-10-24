@@ -54,7 +54,7 @@
     },
     {
       "destination": "backend/generation/admission.py",
-      "destinationSha256": "0670875d9003a7364ef589fbe891dc2f2b899403469f1e9ec14136d746f2e141",
+      "destinationSha256": "e00e9c3866243c457f7e4b9faf1c58273c0967efea30d2d4c130bfe9b2f6f24d",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -69,7 +69,8 @@
         "Explicit process-shared admission lock and quarantine; no startup IO or inferred healthy state; native queue stays execution authority.",
         "Shared CoreServices resource admission (GPU 1/cloud 3/transcode 2), retained uncertain executions, and off-loop persistence where asynchronous; existing native queue and JobLedger remain authoritative.",
         "Serialize terminal recovery release with restart reservation commit so stale scanned facts cannot resurrect capacity; ordered real-SQLite regression preserves the initial failure.",
-        "Cancellation-safe blocking completion holds capacity through repeated caller cancellation; async native VideoEdit captures host context before entering its synchronous renderer. Ordered regressions retain initial failure evidence."
+        "Cancellation-safe blocking completion holds capacity through repeated caller cancellation; async native VideoEdit captures host context before entering its synchronous renderer. Ordered regressions retain initial failure evidence.",
+        "Fresh same-provider/task CAS cancellation confirmation preserves winning terminal facts; resource restoration consumes one consistent SQLite snapshot and preserves terminal-release ordering. Fixture restoration adapts only owned historical labels."
       ]
     },
     {
@@ -163,7 +164,7 @@
     },
     {
       "destination": "backend/generation/service.py",
-      "destinationSha256": "3d430e0b10fe7a2b1726733f1fa0bd5edf8781e8d40c8486434607e0db7195e1",
+      "destinationSha256": "cfb319d3ac57be2fb9c3462b02c431d1c400a5c1c65a7e73202e16c8370e7e7e",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -183,7 +184,8 @@
         "New application orchestration over existing jobs/assets/result validator, one atomic submission claim, bounded query-only recovery, explicit owned cancellation and result receipts; no second engine/store.",
         "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
         "Shared CoreServices resource admission (GPU 1/cloud 3/transcode 2), retained uncertain executions, and off-loop persistence where asynchronous; existing native queue and JobLedger remain authoritative.",
-        "Cancellation-safe blocking completion holds capacity through repeated caller cancellation; async native VideoEdit captures host context before entering its synchronous renderer. Ordered regressions retain initial failure evidence."
+        "Cancellation-safe blocking completion holds capacity through repeated caller cancellation; async native VideoEdit captures host context before entering its synchronous renderer. Ordered regressions retain initial failure evidence.",
+        "Fresh same-provider/task CAS cancellation confirmation preserves winning terminal facts; resource restoration consumes one consistent SQLite snapshot and preserves terminal-release ordering. Fixture restoration adapts only owned historical labels."
       ]
     },
     {
@@ -728,9 +730,10 @@
       "kind": "offline-test-evidence",
       "changes": [
         "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
-        "Explicit fake cloud resource shares core.resources. Test-only read-only restoration projection maps owned legacy fixture-no-gpu snapshots without mutating ledger facts or adding a production alias; foreign aliases remain rejected."
+        "Explicit fake cloud resource shares core.resources. Test-only read-only restoration projection maps owned legacy fixture-no-gpu snapshots without mutating ledger facts or adding a production alias; foreign aliases remain rejected.",
+        "Fresh same-provider/task CAS cancellation confirmation preserves winning terminal facts; resource restoration consumes one consistent SQLite snapshot and preserves terminal-release ordering. Fixture restoration adapts only owned historical labels."
       ],
-      "destinationSha256": "ad6337ae44c2e6b65c8a0f7cab0b793e744f560e51d2e4ed0bdd57e62c754d79"
+      "destinationSha256": "9e0591b7b388d880b7697cd1f46c0c36e9721f8ea38af1a847dd05ee4868e9c6"
     },
     {
       "destination": "tests/host_fixture_tests/test_generation_fixture.py",
@@ -763,9 +766,10 @@
       "kind": "offline-test-evidence",
       "changes": [
         "Product FIFO capacity, mixed native/async transcode ownership, cancellation, durable unknown retention/restart, and off-loop claim stop regression; no models invoked.",
-        "Serialize terminal recovery release with restart reservation commit so stale scanned facts cannot resurrect capacity; ordered real-SQLite regression preserves the initial failure."
+        "Serialize terminal recovery release with restart reservation commit so stale scanned facts cannot resurrect capacity; ordered real-SQLite regression preserves the initial failure.",
+        "Fresh same-provider/task CAS cancellation confirmation preserves winning terminal facts; resource restoration consumes one consistent SQLite snapshot and preserves terminal-release ordering. Fixture restoration adapts only owned historical labels."
       ],
-      "destinationSha256": "8f36ef6481b9fc0316b882ef48f3e22caafe5f503d6727913174decab6ae8bb8"
+      "destinationSha256": "46ddcfcd14e72b900d15444316c326c55ab3f89e7b319f188bc377b7fb911c5d"
     }
   ],
   "qwenWeightBinding": {

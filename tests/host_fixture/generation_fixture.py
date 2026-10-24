@@ -171,8 +171,15 @@ class FixtureResourceLedger:
         return getattr(self.ledger, name)
 
     def list_jobs(self, *args, **kwargs):
+        return self._project(self.ledger.list_jobs(*args, **kwargs))
+
+    def list_resource_reservations(self):
+        return self._project(self.ledger.list_resource_reservations())
+
+    @staticmethod
+    def _project(jobs):
         result = []
-        for job in self.ledger.list_jobs(*args, **kwargs):
+        for job in jobs:
             snapshot = job['snapshot']
             if (job['execution_kind'] == 'remote' and job['provider'] in {'local-qwen-image', 'local-qwen-text'}
                     and snapshot.get('prepared', {}).get('fixture') == VERSION

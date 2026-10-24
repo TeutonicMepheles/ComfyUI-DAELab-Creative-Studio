@@ -15,6 +15,8 @@
 
 原始字段、未知字段、素材身份、recordId 和 fieldId 随临时文档整体保留。原有校验仍在提交前运行。初始化和 `onConfigure` 从原生 widget 恢复缓存属于加载，不另建编辑历史。旧组件无原生文档绑定的独立测试入口仍可使用 `SnapshotHistory`；正式 Table 和 ScriptParser 均注入原生绑定，不使用该栈执行产品撤销。
 
+原生 properties 及其嵌套素材可能是宿主响应式 Proxy。`contracts/json_snapshot.ts` 的 `snapshotJson` 是宿主无关的 JSON 值边界，供 `BusinessDocument` 的读取/替换事务和 LLM 面板的读取/建议投影/应用使用。它按原生保存语义生成临时快照，完整保留未知 JSON 键，不按 schema 裁剪；对象的 undefined 字段省略、数组 undefined 项变为 null。非有限数字、bigint、function、symbol 和循环引用在打开编辑事务前拒绝。替换使用自有数据属性，避免 `__proto__` 等未知键触发 setter。此 helper 不存储文档，也不依赖 feature 或 integration。
+
 ## 历史与生命周期
 
 普通用户动作使用原生 `begin/end`，一次批量审阅只开一次事务。持续输入通过显式 group 合并；如果原生序列化状态已被另一个动作改变，就停止合并，避免吞掉别的节点操作。Undo/Redo 始终调用宿主历史，不通过一次新的表格编辑模拟撤销。撤销只恢复编辑投影，不调用任务取消、重提、状态回写等后端操作。

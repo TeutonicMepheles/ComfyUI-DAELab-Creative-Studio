@@ -1,4 +1,5 @@
 import { DocumentController } from './document_controller.js';
+import { snapshotJson } from '../contracts/json_snapshot.js';
 import type { AsyncEditTicket, EditIdentity, EditTarget, EditTransactionOptions, NativeDocumentPort } from '../contracts/ports.js';
 
 export interface BusinessDocumentOptions<T> {
@@ -42,8 +43,9 @@ export function createBusinessDocument<T>(options: BusinessDocumentOptions<T>) {
     },
     transact(_label, edit, settings = {}) {
       assertCurrent(); observe();
-      const before = structuredClone(options.read()), next = structuredClone(before);
-      edit(next); // Validation/mutation happens before opening host history.
+      const before = snapshotJson(options.read()), draft = snapshotJson(before);
+      edit(draft); // Validation/mutation happens before opening host history.
+      const next = snapshotJson(draft);
       if (JSON.stringify(before) === JSON.stringify(next) && !settings.afterWrite) return;
       const continuing = !!settings.group && settings.group === group && options.historyStamp?.() === lastHistoryStamp;
       const write = () => {
@@ -61,7 +63,8 @@ export function createBusinessDocument<T>(options: BusinessDocumentOptions<T>) {
   const invalidate = () => { epoch++; group = null; controller.invalidate(); };
   const replacement = (value: T) => (draft: T) => {
     for (const key of Object.keys(draft as object)) delete (draft as Record<string, unknown>)[key];
-    Object.assign(draft as object, structuredClone(value));
+    // Own data descriptors preserve JSON keys such as __proto__ without invoking setters.
+    Object.defineProperties(draft as object, Object.getOwnPropertyDescriptors(snapshotJson(value)));
   };
   return {
     controller, read: options.read, observe,

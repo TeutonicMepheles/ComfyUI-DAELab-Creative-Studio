@@ -7,7 +7,7 @@ import threading
 import unittest
 from unittest.mock import patch
 
-from backend.contracts.errors import InvalidInput, InvalidTransition
+from backend.contracts.errors import Conflict, InvalidInput, InvalidTransition
 from backend.generation.admission import ResourceAdmission
 from backend.generation.service import GenerationService
 from backend.integrations.comfyui.services import CoreServices
@@ -188,13 +188,12 @@ class LedgerCapacityTests(unittest.IsolatedAsyncioTestCase):
         restarted = GenerationService(self.core.jobs, self.core.assets, providers={self.fake.id: self.fake},
                                       resources=gate, poll_interval=0)
         scanned, continue_scan = threading.Event(), threading.Event()
-        original = self.core.jobs.list_jobs
-        def held_page(*args, **kwargs):
-            page = original(*args, **kwargs)
-            if kwargs.get('state') == 'unknown':
-                scanned.set(); continue_scan.wait(5)
+        original = self.core.jobs.list_resource_reservations
+        def held_page():
+            page = original()
+            scanned.set(); continue_scan.wait(5)
             return page
-        with patch.object(self.core.jobs, 'list_jobs', held_page):
+        with patch.object(self.core.jobs, 'list_resource_reservations', held_page):
             loading = asyncio.create_task(gate._ready())
             try:
                 await until(scanned.is_set)
@@ -266,3 +265,120 @@ class LedgerCapacityTests(unittest.IsolatedAsyncioTestCase):
                 except asyncio.CancelledError: pass
         self.assertEqual(self.core.jobs.get('confirm')['state'], 'cancelled')
         self.assertEqual(self.core.resources.snapshot()['resources']['cloud']['active'], 0)
+
+    async def test_cancel_confirmation_retries_only_same_task_after_real_observation_cas_conflicts(self):
+        self.fake.error = SubmissionUncertain(task_id='native-race')
+        await self.service.submit([fixtures.GenerationTests.item('race')]); await self.service.wait_idle()
+        cancel_calls = []
+        async def confirmed(task_id, snapshot):
+            cancel_calls.append(task_id)
+            return True
+        self.fake.cancel = confirmed
+        original = self.core.jobs.confirm_cancelled
+        versions = []
+        def competing_observation(request_id, **kwargs):
+            current = self.core.jobs.get(request_id)
+            versions.append(kwargs['expected_version'])
+            if len(versions) == 1:
+                self.core.jobs.mark_submitted(request_id, 'native-race', expected_version=current['version'], event_id='concurrent-submitted')
+            elif len(versions) == 2:
+                self.core.jobs.transition(request_id, 'running', expected_version=current['version'], event_id='concurrent-running')
+            return original(request_id, **kwargs)  # Real strict CAS, never a mocked success.
+        with patch.object(self.core.jobs, 'confirm_cancelled', competing_observation):
+            result = await self.service.cancel('race')
+        self.assertEqual(result['state'], 'cancelled')
+        self.assertEqual(len(versions), 3)
+        self.assertEqual(versions, sorted(set(versions)))
+        self.assertEqual(cancel_calls, ['native-race'])
+        self.assertEqual(self.fake.creates, ['race'])
+        self.assertEqual(self.core.resources.snapshot()['resources']['cloud']['active'], 0)
+
+    async def test_success_winning_confirmation_race_is_preserved_without_false_cancel_fact(self):
+        self.fake.error = SubmissionUncertain(task_id='native-winner')
+        await self.service.submit([fixtures.GenerationTests.item('winner')]); await self.service.wait_idle()
+        async def confirmed(*args): return True
+        self.fake.cancel = confirmed
+        original = self.core.jobs.confirm_cancelled
+        def success_wins(request_id, **kwargs):
+            current = self.core.jobs.get(request_id)
+            current = self.core.jobs.mark_submitted(request_id, 'native-winner', expected_version=current['version'], event_id='winner-ack')
+            current = self.core.jobs.transition(request_id, 'fetching', expected_version=current['version'], event_id='winner-fetch')
+            asset = self.core.assets.register_file('output', 'result.png', kind='image')
+            receipt = self.core.assets.result_receipt([asset['references'][0]['reference_id']])
+            self.core.jobs.transition(request_id, 'succeeded', expected_version=current['version'], event_id='winner-success', result=receipt)
+            return original(request_id, **kwargs)
+        with patch.object(self.core.jobs, 'confirm_cancelled', success_wins):
+            result = await self.service.cancel('winner')
+        self.assertEqual(result['state'], 'succeeded')
+        self.assertIsNotNone(result['result'])
+        self.assertFalse(any(e['event_type'] == 'cancel_confirmed' for e in self.core.jobs.events('winner')))
+        self.assertEqual(self.core.resources.snapshot()['resources']['cloud']['active'], 0)
+
+    async def test_repeated_confirmation_contention_retains_original_fact_and_capacity(self):
+        self.fake.error = SubmissionUncertain(task_id='native-contention')
+        await self.service.submit([fixtures.GenerationTests.item('contention')]); await self.service.wait_idle()
+        async def confirmed(*args): return True
+        self.fake.cancel = confirmed
+        original = self.core.jobs.confirm_cancelled
+        calls = []
+        def concurrent_intent(request_id, **kwargs):
+            current = self.core.jobs.get(request_id)
+            self.core.jobs.request_cancel(request_id, expected_version=current['version'])
+            calls.append(request_id)
+            return original(request_id, **kwargs)
+        with patch.object(self.core.jobs, 'confirm_cancelled', concurrent_intent):
+            result = await self.service.cancel('contention')
+        self.assertEqual(len(calls), 8)
+        self.assertEqual(result['state'], 'unknown')
+        self.assertTrue(result['cancel_requested'])
+        self.assertEqual(self.core.resources.snapshot()['resources']['cloud']['retained'], 1)
+        self.assertEqual(self.fake.creates, ['contention'])
+        with self.assertRaises(Conflict):
+            await asyncio.to_thread(self.service._confirm_cancelled, 'contention', provider_id='foreign', task_id='native-contention', confirmation='provider_cancelled')
+
+    async def test_restart_snapshot_cannot_lose_nonterminal_recovery_between_state_scans(self):
+        self.fake.error = SubmissionUncertain(task_id='native-moving')
+        await self.service.submit([fixtures.GenerationTests.item('moving')]); await self.service.wait_idle()
+        gate = ResourceAdmission(limits=self.core.resources.limits, jobs=self.core.jobs)
+        restarted = GenerationService(self.core.jobs, self.core.assets, providers={self.fake.id: self.fake}, resources=gate, poll_interval=0)
+        async def still_running(task_id, snapshot): return Observation('running', task_id)
+        self.fake.query = still_running
+        passed_running, continue_scan = threading.Event(), threading.Event()
+        original = self.core.jobs.list_resource_reservations
+        def held():
+            page = original()
+            passed_running.set(); continue_scan.wait(5)
+            return page
+        with patch.object(self.core.jobs, 'list_resource_reservations', held):
+            loading = asyncio.create_task(gate._ready())
+            try:
+                await until(passed_running.is_set)
+                recovered = await restarted.recover('moving')
+                self.assertEqual(recovered['state'], 'running')
+            finally: continue_scan.set()
+            await loading
+        self.assertEqual(self.core.jobs.get('moving')['state'], 'running')
+        self.assertEqual(gate.snapshot()['resources']['cloud']['retained'], 1)
+        self.assertEqual(gate.snapshot()['resources']['cloud']['active'], 1)
+        self.assertEqual(self.fake.creates, ['moving'])
+
+    async def test_resource_reservation_read_is_single_select_and_never_reconciles_facts(self):
+        from contextlib import contextmanager
+        for request_id, kind in [('remote-active', 'remote'), ('media-active', 'media'), ('local-active', 'local'), ('remote-pending', 'remote')]:
+            job, _ = self.core.jobs.create_or_get(request_id, provider='synthetic', execution_kind=kind, snapshot={})
+            if request_id != 'remote-pending': self.core.jobs.begin_submission(request_id, expected_version=job['version'])
+        before = {j['request_id']: j for j in self.core.jobs.list_jobs()}
+        statements = []
+        original = self.core.jobs.database.read
+        @contextmanager
+        def traced():
+            with original() as connection:
+                connection.set_trace_callback(statements.append)
+                yield connection
+        with patch.object(self.core.jobs.database, 'read', traced):
+            reservations = self.core.jobs.list_resource_reservations()
+        self.assertEqual({j['request_id'] for j in reservations}, {'remote-active', 'media-active'})
+        selects = [q for q in statements if q.lstrip().upper().startswith('SELECT')]
+        self.assertEqual(len(selects), 1)
+        self.assertNotIn('LIMIT', selects[0].upper())
+        self.assertEqual({j['request_id']: j for j in self.core.jobs.list_jobs()}, before)

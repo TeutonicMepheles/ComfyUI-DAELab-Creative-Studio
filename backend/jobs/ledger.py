@@ -263,6 +263,21 @@ class JobLedger:
             self._get(connection, request_id)
             return [dict(row) for row in connection.execute("SELECT * FROM job_attempts WHERE request_id=? ORDER BY attempt", (request_id,))]
 
+    def list_resource_reservations(self):
+        """One SQLite statement snapshots unresolved external resource ownership.
+
+        State-by-state or offset scans can lose a job that changes state between
+        pages. Buffer this single cursor while its SQLite read snapshot is alive;
+        callers must still coordinate terminal releases after this read returns.
+        This is internal admission evidence, not an unbounded HTTP listing.
+        """
+        states = ('submitting', 'submitted', 'running', 'fetching', 'unknown', 'needs_recovery')
+        with self.database.read() as connection:
+            rows = connection.execute(
+                "SELECT * FROM jobs WHERE execution_kind IN ('remote','media') "
+                "AND state IN (?,?,?,?,?,?) ORDER BY created_at,request_id", states)
+            return [_decode(row) for row in rows]
+
     def list_jobs(self, *, state=None, source_filter=None, limit=100, offset=0):
         """Read a bounded page of immutable source scope, filtering before pagination.
 
