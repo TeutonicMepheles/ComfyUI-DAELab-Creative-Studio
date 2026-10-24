@@ -1,6 +1,6 @@
 # 离线迁移准备与只读兼容工具
 
-本工具提前实现 M6 的数据保全与故障检查。它只在新建、带所有权标记的目录生成隔离副本；没有启停服务、重命名安装目录、修改 8000 用户环境、调用模型、提交或恢复任务的入口。`snapshot_complete` / `rollback_copy_complete` 仅表示副本完成，`activationAllowed` 始终为 `false`，不能据此宣布 M6 或产品迁移通过。
+原 `migrate` / `rollback` 在新建、带所有权标记的目录生成离线副本，`snapshot_complete` / `rollback_copy_complete` 的 `activationAllowed` 仍为 `false`。新增[隔离数据 profile 选择与回滚合同](M6_DATA_PROFILES.md)，绑定完整三根、固定包及直接采集的关闭证据；活动描述符不等于运行宿主切换。工具没有启停服务、修改 8000、调用模型、提交或恢复任务的入口，不能仅凭工具检查宣布 M6 验收。
 
 ## 使用入口
 
@@ -41,7 +41,7 @@
 }
 ```
 
-所有源文件必须逐一分类，未列文件、新增文件、重复路径或大小写冲突均拒绝。路径使用正斜线相对路径，不接受绝对路径、`..`、反斜线、NTFS 数据流、设备名、软链接、junction 或硬链接。源目录与工作区不得相互包含。支持 `workflow`、`receipt-json`、`receipt-sqlite`、`product-sqlite`、`media`、`config`、`favorites`；媒体扩展名有白名单，配置必须是可检查 JSON。工作流内嵌的 material/widget JSON 也检查敏感键。
+所有源文件必须逐一分类，未列文件、新增文件、重复路径或大小写冲突均拒绝。路径使用正斜线相对路径，不接受绝对路径、`..`、反斜线、NTFS 数据流、设备名、软链接、junction 或硬链接。源目录与工作区不得相互包含。支持 `workflow`、`receipt-json`、`receipt-sqlite`、`product-sqlite`、`host-sqlite`、`media`、`config`、`favorites`；媒体扩展名有白名单，配置必须是可检查 JSON。工作流内嵌的 material/widget JSON 也检查敏感键。
 
 `versions` 是快照操作者声明的版本，不替代 Git/source manifest 证据；实际切换前仍需核对固定源码、宿主及资源指纹。`quiesced` 和 `unpersistedTasks` 也是离线快照前提声明，工具不探测或关闭现用进程。未提供安装扫描位置时，会报告“安装冲突尚未检查”，不会声称可切换。安装预检复用产品 `detect_conflicts()`，只读列出启用的旧包及可识别的改名重复安装。
 
@@ -62,7 +62,7 @@
 
 迁移期间没有任务或资产 SQL 写入，不把历史记录转换成新的 `pending` 任务，不猜测 provider 或补造 requestId。现有产品 SQLite 只作为完整数据库副本保全；旧优化 `objects(kind,id,body)` SQLite 读取其 batch，旧生成 JSON 保留原件和只读投影。来源 schema 未知、损坏 JSON、未检查数据库、敏感键或未 checkpoint 的 WAL/journal 会拒绝自动复制；原件留在源目录并报告。已解析但版本未知的 JSON 可保全为待审查档案，不能算导入成功。内存任务无持久记录时明确阻断，不能重建其成功事实。
 
-已有资产库读取产品 v1–v3 的文件引用，与 `input/`、`output/` 下快照文件及 SHA-256 对照；其他 root 明确列为未映射。不会改写绝对路径来猜测素材位置。收藏 JSON 只保全；实际收藏导入继续使用现有 `AssetAPI` / `AssetCatalog` 的显式导入合同，保持 origin、去重与取消收藏 tombstone 语义。工具不另造资产数据库或旧任务执行引擎。
+已有资产库读取产品 v1–v3 的文件引用，与 `input/`、`output/` 下快照文件及 SHA-256 对照；其他 root 明确列为未映射。不会改写绝对路径来猜测素材位置；新建 owned profile 的固定宿主资产 DB 可按已核对的精确源映射转换两项路径列，原库/backup 不变，详见 profile 合同。收藏 JSON 只保全；实际收藏导入继续使用现有 `AssetAPI` / `AssetCatalog` 的显式导入合同，保持 origin、去重与取消收藏 tombstone 语义。工具不另造资产数据库或旧任务执行引擎。
 
 在途任务默认阻止切换。有明确 provider 和 providerTaskId 的非退役远端记录，可在 `recoveryPlans` 中记录同一 `requestId` / `provider` / `providerTaskId` 与 `action: "query_original_only"`。这只是外部核对计划，工具不执行它。LibTV/旧 GPT、缺身份、未知 schema、本地在途及未持久内存任务仍阻断，绝不自动重投。
 
@@ -70,7 +70,7 @@
 
 同一 migrationId 必须对应同一计划、源清单和工作区身份。完整或部分已复制文件只在哈希一致时复用；现有不一致文件拒绝替换。OS 进程锁防止两个进程同时写同一迁移，进程退出自动释放锁；不把残留锁文件当成活动进程。
 
-文件和元数据先写确定身份的 `.part-<sha256>`，flush/fsync 后独占发布。已知部分文件只在内容与固定源的前缀一致时续写；发布链接后崩溃也能恢复。未知 `.part` 或无可恢复所有权清单的目录拒绝认领。新建空目录后、首个所有权字节写入前崩溃会留下无法认领的空目录，须保留并选择新的迁移 ID；工具不会删除它。完成标记出现前，副本不可用作已完成迁移。电源断电与文件系统损坏不在本轮测试证据范围。
+文件和元数据先写短 sibling `.p-<sha256前16位>`，继续核对完整 SHA/内容，flush/fsync 后独占发布；旧 `.part-<sha256>` 中断文件仍可恢复。已知部分文件只在内容与固定源的前缀一致时续写；发布链接后崩溃也能恢复。未知 `.part` 或无可恢复所有权清单的目录拒绝认领。新建空目录后、首个所有权字节写入前崩溃会留下无法认领的空目录，须保留并选择新的迁移 ID；工具不会删除它。完成标记出现前，副本不可用作已完成迁移。电源断电与文件系统损坏不在本轮测试证据范围。
 
 工作副本产生新数据后，再运行原迁移命令会拒绝不一致目标；请使用回滚保全入口。回滚流程：
 

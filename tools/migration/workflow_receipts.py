@@ -24,14 +24,14 @@ def inspect_workflow_receipts(document):
         text = str(value)
         return text if re.fullmatch(r"[A-Za-z0-9_.:@/-]{1,128}", text) else "key-sha256:" + hashlib.sha256(text.encode()).hexdigest()[:16]
 
-    def record(value, path, node):
+    def record(value, path, node, provider=None):
         if path in seen:
             return
         seen.add(path)
         if not isinstance(value, dict):
             issues.add("unknown_embedded_task_container")
             return
-        report = inspect_receipts([value])
+        report = inspect_receipts({"rows": [value], "provider": provider})
         issues.update(report["issues"])
         for item in report["records"]:
             item["provenance"] = {"kind": "workflow_embedded_receipt", "jsonPath": path,
@@ -46,7 +46,7 @@ def inspect_workflow_receipts(document):
             value[key] = child
         return value
 
-    def walk(value, path="/", node=None, force=False, depth=0):
+    def walk(value, path="/", node=None, force=False, depth=0, provider=None):
         if depth > 64:
             issues.add("embedded_task_nesting_requires_review")
             return
@@ -56,11 +56,11 @@ def inspect_workflow_receipts(document):
             except (ValueError, RecursionError):
                 issues.add("uninspectable_embedded_json")
                 return
-            walk(child, path + "#json", node, force, depth + 1)
+            walk(child, path + "#json", node, force, depth + 1, provider)
             return
         if isinstance(value, list):
             for index, child in enumerate(value):
-                walk(child, path + "/" + str(index), node, force, depth + 1)
+                walk(child, path + "/" + str(index), node, force, depth + 1, provider)
             return
         if not isinstance(value, dict):
             if force:
@@ -68,9 +68,10 @@ def inspect_workflow_receipts(document):
             return
         if isinstance(value.get("type"), str) and "id" in value:
             node = value["id"]
+        provider = value.get("provider", provider)
         is_receipt = bool(IDENTITIES & value.keys()) or ("request" in value and bool(STATES & value.keys()))
         if force or is_receipt:
-            record(value, path, node)
+            record(value, path, node, provider)
         for key, child in value.items():
             child_path = path.rstrip("/") + "/" + segment(key)
             if key == "generationColumns":
@@ -78,30 +79,30 @@ def inspect_workflow_receipts(document):
                     issues.add("unknown_embedded_task_container")
                 else:
                     for field, receipt in child.items():
-                        walk(receipt, child_path + "/" + segment(field), node, True, depth + 1)
+                        walk(receipt, child_path + "/" + segment(field), node, True, depth + 1, provider)
             elif key == "generation" and isinstance(child, dict) and (STATES | IDENTITIES | {"request"}) & child.keys():
-                walk(child, child_path, node, True, depth + 1)
+                walk(child, child_path, node, True, depth + 1, provider)
             elif key == "history" and (force or is_receipt):
                 if not isinstance(child, list):
                     issues.add("unknown_embedded_task_history")
                 else:
-                    walk(child, child_path, node, True, depth + 1)
+                    walk(child, child_path, node, True, depth + 1, provider)
             elif key in {"daelabTableReports", "daelabLibTVBatch"}:
                 if not isinstance(child, dict):
                     issues.add("unknown_embedded_task_container")
-                walk(child, child_path, node, False, depth + 1)
+                walk(child, child_path, node, False, depth + 1, provider)
             elif key == "daelabPromptOptimizationV1" and isinstance(child, dict):
                 batches = child.get("batches", [])
                 if batches:
                     # Saved references do not prove the original SQLite rows are
                     # terminal. Do not manufacture their status from UI metadata.
                     issues.add("optimization_batch_references_require_review")
-                    walk(batches, child_path + "/batches", node, True, depth + 1)
+                    walk(batches, child_path + "/batches", node, True, depth + 1, provider)
                 for other, item in child.items():
                     if other != "batches":
-                        walk(item, child_path + "/" + segment(other), node, False, depth + 1)
+                        walk(item, child_path + "/" + segment(other), node, False, depth + 1, provider)
             else:
-                walk(child, child_path, node, False, depth + 1)
+                walk(child, child_path, node, False, depth + 1, provider)
 
     walk(document)
     return {"records": records, "issues": sorted(issues), "execution": "disabled"}

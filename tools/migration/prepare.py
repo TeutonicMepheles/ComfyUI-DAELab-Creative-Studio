@@ -10,11 +10,11 @@ from compat.receipts import inspect_receipts, inspect_database
 from compat.workflows.reader import inspect_workflow, media_references
 from .workflow_receipts import inspect_workflow_receipts
 from .safety import (MigrationError, checked, contained, relative, inventory, file_hash,
-                     json_hash, load_json, write_json, copy_verified, operation_lock, recover_parts, canonical)
+                     json_hash, load_json, write_json, copy_verified, operation_lock, recover_parts, canonical, part_paths)
 
 OWNER = "daelab-creative-studio-offline-migration"
 VERSION = 1
-KINDS = frozenset({"workflow", "receipt-json", "receipt-sqlite", "product-sqlite", "media", "config", "favorites"})
+KINDS = frozenset({"workflow", "receipt-json", "receipt-sqlite", "product-sqlite", "host-sqlite", "media", "config", "favorites"})
 BASELINES = {"canvas": "3176b5a67dbcd0b66f795976e5a81bcdfe346093",
              "business": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30"}
 
@@ -48,7 +48,7 @@ def workspace_identity(path):
 
 def validate_plan(plan):
     allowed = {"schemaVersion", "migrationId", "sourceRoot", "workspaceRoot", "files", "versions",
-               "quiesced", "unpersistedTasks", "recoveryPlans", "customNodeRoots", "newPackageRoot"}
+               "quiesced", "unpersistedTasks", "recoveryPlans", "customNodeRoots", "newPackageRoot", "referenceRoots"}
     if not isinstance(plan, dict) or set(plan) - allowed or plan.get("schemaVersion") != VERSION:
         raise MigrationError("Unknown migration plan schema or fields.")
     identifier(plan.get("migrationId"))
@@ -72,6 +72,13 @@ def validate_plan(plan):
         raise MigrationError("Source versions and explicit recovery plans are required.")
     if bool(plan.get("customNodeRoots")) != bool(plan.get("newPackageRoot")):
         raise MigrationError("Conflict inspection requires both package and custom-node roots.")
+    if "referenceRoots" in plan:
+        if not isinstance(plan["referenceRoots"], dict) or set(plan["referenceRoots"]) != {"user", "input", "output"}:
+            raise MigrationError("Reference roots require an explicit complete user/input/output mapping.")
+        roots = [checked(value, exists=True) for value in plan["referenceRoots"].values()]
+        if any(first == second or first.is_relative_to(second) or second.is_relative_to(first)
+               for index, first in enumerate(roots) for second in roots[index + 1:]):
+            raise MigrationError("Reference data roots must be disjoint.")
     try:
         clean_json(plan, max_bytes=8 * 1024 * 1024)
     except InvalidInput:
@@ -111,7 +118,14 @@ def preflight(plan):
         report = {"path": name, "kind": kind, "issues": []}
         if kind == "media" and path.suffix.lower() not in {".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp", ".tiff", ".mp4", ".webm", ".mov", ".mkv", ".wav", ".mp3", ".flac", ".ogg", ".docx"}:
             safety_errors.append({"code": "unsupported_media_file", "path": name})
-        if kind in {"receipt-sqlite", "product-sqlite"}:
+        if kind == "host-sqlite":
+            from .host_database import inspect_host_database
+            try:
+                report.update(inspect_host_database(path, [source, *plan.get("referenceRoots", {}).values()]))
+            except (MigrationError, OSError):
+                report["issues"].append("host_database_requires_review")
+                safety_errors.append({"code": "host_database_requires_review", "path": name})
+        elif kind in {"receipt-sqlite", "product-sqlite"}:
             result = inspect_database(path)
             report.update(result)
             tasks.extend(result.get("records", []))
@@ -250,12 +264,12 @@ def _metadata_parts(folder, documents):
     names = set()
     for document in documents:
         payload = canonical(document) + b"\n"
-        name = ".part-" + hashlib.sha256(payload).hexdigest()
-        path = checked(folder / name)
-        if path.exists():
-            if not payload.startswith(path.read_bytes()):
-                raise MigrationError("Interrupted metadata has unexpected bytes.")
-            names.add(name)
+        for path in part_paths(folder / "metadata", hashlib.sha256(payload).hexdigest()):
+            checked(path)
+            if path.exists():
+                if not payload.startswith(path.read_bytes()):
+                    raise MigrationError("Interrupted metadata has unexpected bytes.")
+                names.add(path.name)
     return names
 
 

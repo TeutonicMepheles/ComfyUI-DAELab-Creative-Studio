@@ -102,11 +102,28 @@ def load_json(path):
         raise MigrationError("JSON could not be inspected; preserve the original for review.") from None
 
 
+def part_paths(path, digest):
+    """Short sibling names avoid consuming 70 extra characters on Windows.
+
+    The full digest/content is still checked before publication. Keep recognizing
+    the previous name so an interrupted older operation remains resumable.
+    """
+    return (path.parent / (".p-" + digest[:16]), path.parent / (".part-" + digest))
+
+
+def part_path(path, digest):
+    candidates = part_paths(path, digest)
+    existing = [item for item in candidates if item.exists()]
+    if len(existing) > 1:
+        raise MigrationError("Ambiguous interrupted publication; preserve both files for review.")
+    return checked(existing[0] if existing else candidates[0])
+
+
 def publish(path, payload):
     """Exclusive atomic publication. Interrupted parts remain inspectable, never overwritten."""
     path = checked(path)
     checked(path.parent, exists=True)
-    temporary = path.parent / (".part-" + hashlib.sha256(payload).hexdigest())
+    temporary = part_path(path, hashlib.sha256(payload).hexdigest())
     if path.exists():
         if path.read_bytes() != payload:
             raise MigrationError("Existing migration artifact does not match; refusing replacement.")
@@ -146,7 +163,7 @@ def copy_verified(source, destination, entry):
         raise MigrationError("Source changed after preflight; create a fresh offline snapshot.")
     destination.parent.mkdir(parents=True, exist_ok=True)
     checked(destination.parent, exists=True)
-    temporary = destination.parent / (".part-" + entry["sha256"])
+    temporary = part_path(destination, entry["sha256"])
     checked(temporary)
     if destination.exists():
         if temporary.exists() and os.path.samefile(temporary, destination):
@@ -187,7 +204,7 @@ def recover_parts(folder, entries):
     pending = set()
     for entry in entries:
         destination = contained(folder, entry["path"])
-        part = destination.parent / (".part-" + entry["sha256"])
+        part = part_path(destination, entry["sha256"])
         checked(part)
         if not part.exists():
             continue

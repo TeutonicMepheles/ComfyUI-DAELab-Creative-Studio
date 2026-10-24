@@ -1,0 +1,115 @@
+{
+  "scope": "schema-only synthetic fixture, no user rows",
+  "sourceCommit": "3c1b7a17fdf239d35ce98cc777756f572d089795",
+  "sourceFiles": [
+    {
+      "path": "app/database/models.py",
+      "sha256": "304e2b81e3ceb568a46930f1018582c758447f1a767060a32e0da5d0def01604"
+    },
+    {
+      "path": "alembic_db/versions/0001_assets.py",
+      "sha256": "20a28b85ebc495a5899b6c9c3684490bfd58f3ededeba1f374ba02987146746b"
+    },
+    {
+      "path": "alembic_db/versions/0002_merge_to_asset_references.py",
+      "sha256": "bbaaeebf066cd28d181f8f1711e489f2db2c8d9f9dc197f65addbdeaf39f0f0f"
+    },
+    {
+      "path": "alembic_db/versions/0003_add_metadata_job_id.py",
+      "sha256": "51a1d712a9c2f5ae48c7ad8ebdfd43920a8a44503c5923e713bfdb0379e27dc8"
+    },
+    {
+      "path": "alembic_db/versions/0004_drop_tag_type.py",
+      "sha256": "d216c454b7ab85bf6f152a7b618f03501e8265d572831fb5784d531889553bbd"
+    },
+    {
+      "path": "alembic_db/versions/0005_allow_case_sensitive_tags.py",
+      "sha256": "95286cdb6e72c222929ab2989637faccade3eef891a21654d37f34eea2ded8a1"
+    },
+    {
+      "path": "alembic_db/versions/0006_add_loader_path.py",
+      "sha256": "38e0bac5fd69fa5046c8d5e0e27b69b6c4916c3512c63fd2102e309e4c5b9e8f"
+    },
+    {
+      "path": "alembic_db/versions/0007_record_content_split.py",
+      "sha256": "4fe35e7ac97b4cc737bcf271fdac116a87069dfffb85e949b8f3df267e3e4a79"
+    },
+    {
+      "path": "alembic_db/versions/0008_drop_asset_meta.py",
+      "sha256": "ccaa1cdbdbf14561a1f262ea76851160af8e7efbba09a2a4e6232e94dcff99b4"
+    }
+  ],
+  "schema": [
+    {
+      "type": "index",
+      "name": "ix_asset_contents_hash",
+      "sql": "CREATE INDEX ix_asset_contents_hash ON asset_contents (hash)"
+    },
+    {
+      "type": "index",
+      "name": "ix_asset_tags_asset_id",
+      "sql": "CREATE INDEX ix_asset_tags_asset_id ON asset_tags (asset_id)"
+    },
+    {
+      "type": "index",
+      "name": "ix_asset_tags_tag_name",
+      "sql": "CREATE INDEX ix_asset_tags_tag_name ON asset_tags (tag_name)"
+    },
+    {
+      "type": "index",
+      "name": "ix_assets_content_id",
+      "sql": "CREATE INDEX ix_assets_content_id ON assets (content_id)"
+    },
+    {
+      "type": "index",
+      "name": "ix_assets_created_at",
+      "sql": "CREATE INDEX ix_assets_created_at ON assets (created_at)"
+    },
+    {
+      "type": "index",
+      "name": "ix_assets_name",
+      "sql": "CREATE INDEX ix_assets_name ON assets (name)"
+    },
+    {
+      "type": "index",
+      "name": "ix_assets_preview_id",
+      "sql": "CREATE INDEX ix_assets_preview_id ON assets (preview_id)"
+    },
+    {
+      "type": "index",
+      "name": "uq_asset_contents_path_live",
+      "sql": "CREATE UNIQUE INDEX uq_asset_contents_path_live ON asset_contents (path) WHERE is_missing = 0"
+    },
+    {
+      "type": "table",
+      "name": "alembic_version",
+      "sql": "CREATE TABLE alembic_version (version_num VARCHAR(32) NOT NULL PRIMARY KEY)"
+    },
+    {
+      "type": "table",
+      "name": "asset_contents",
+      "sql": "CREATE TABLE asset_contents (\n\tid VARCHAR(36) NOT NULL, \n\thash VARCHAR(256), \n\tsize_bytes BIGINT NOT NULL, \n\tpath TEXT NOT NULL, \n\tmtime_ns BIGINT, \n\tis_missing BOOLEAN DEFAULT '0' NOT NULL, \n\tcreated_at DATETIME NOT NULL, \n\tCONSTRAINT pk_asset_contents PRIMARY KEY (id), \n\tCONSTRAINT ck_asset_contents_ck_asset_contents_size_nonneg CHECK (size_bytes >= 0), \n\tCONSTRAINT ck_asset_contents_ck_asset_contents_mtime_nonneg CHECK (mtime_ns >= 0)\n)"
+    },
+    {
+      "type": "table",
+      "name": "asset_system_state",
+      "sql": "CREATE TABLE asset_system_state (\n\t\"key\" VARCHAR(256) NOT NULL, \n\tvalue TEXT NOT NULL, \n\tCONSTRAINT pk_asset_system_state PRIMARY KEY (\"key\")\n)"
+    },
+    {
+      "type": "table",
+      "name": "asset_tags",
+      "sql": "CREATE TABLE asset_tags (\n\tasset_id VARCHAR(36) NOT NULL, \n\ttag_name VARCHAR(512) NOT NULL, \n\torigin VARCHAR(32) NOT NULL, \n\tadded_at DATETIME NOT NULL, \n\tCONSTRAINT pk_asset_tags PRIMARY KEY (asset_id, tag_name), \n\tCONSTRAINT fk_asset_tags_asset_id_assets FOREIGN KEY(asset_id) REFERENCES assets (id) ON DELETE CASCADE, \n\tCONSTRAINT fk_asset_tags_tag_name_tags FOREIGN KEY(tag_name) REFERENCES tags (name) ON DELETE RESTRICT\n)"
+    },
+    {
+      "type": "table",
+      "name": "assets",
+      "sql": "CREATE TABLE assets (\n\tid VARCHAR(36) NOT NULL, \n\tcontent_id VARCHAR(36) NOT NULL, \n\tname VARCHAR(512) NOT NULL, \n\tmime_type VARCHAR(255), \n\tsystem_metadata JSON, \n\tjob_id VARCHAR(36), \n\tuser_metadata JSON, \n\tloader_path TEXT, \n\tpreview_id VARCHAR(36), \n\tcreated_at DATETIME NOT NULL, \n\tupdated_at DATETIME NOT NULL, \n\tlast_access_time DATETIME, \n\tCONSTRAINT pk_assets PRIMARY KEY (id), \n\tCONSTRAINT fk_assets_content_id_asset_contents FOREIGN KEY(content_id) REFERENCES asset_contents (id) ON DELETE RESTRICT, \n\tCONSTRAINT fk_assets_preview_id_assets FOREIGN KEY(preview_id) REFERENCES assets (id) ON DELETE SET NULL\n)"
+    },
+    {
+      "type": "table",
+      "name": "tags",
+      "sql": "CREATE TABLE \"tags\" (name VARCHAR(512) NOT NULL, CONSTRAINT pk_tags PRIMARY KEY (name))"
+    }
+  ],
+  "revision": "0008_drop_asset_meta"
+}
