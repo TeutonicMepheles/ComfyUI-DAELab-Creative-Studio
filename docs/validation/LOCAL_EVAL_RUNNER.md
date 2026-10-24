@@ -74,6 +74,21 @@ GGUF SHA、完整 Studio SHA、实际 ComfyUI HEAD/干净状态、Git archive �
 图片反推传原始公开合成图片的 data URL，最终实际 JPEG body 哈希仍在 dispatch gate 比较。
 表格 snapshot 必须从对应版本真实纯 builder 生成，不能手写最终模型 prompt 或保护 nonce。
 
+旧 H3 的真实入口会先执行固定旧 `media_snapshot.freeze_media`，按
+`sha256(project + "\n" + requestId)[:24]` 生成素材快照目录。因此 `prepare` 先固定全部
+44 个身份，再为旧版 `LOCAL-H3-002/003` 逐槽位保存 `run.json.runtimeProjections`：
+精确 project/requestId、原素材路径/字节数/SHA-256、first/last slot 和实际 LoadImage
+路径及其两侧字符串哈希。准备前须将公开合成参考图放入该隔离环境 input；该分支只接受
+明确 `type=input` 的本地 `/view` 引用，逐文件重哈希，禁止静态 case 为这些路径手填豁免。
+启动审阅还需核对这个完整 run.json（启动 manifest 绑定其哈希）。
+
+执行或原身份恢复前会重新推导并核对已保存投影；素材变化、project/身份变化、引用换序
+或连错 first/last slot 均阻塞。发给独立 gate 的 case 保留原 capture，只附该槽位的精确
+非语义路径说明。gate 仍从真实下发 graph、实际读取的素材字节和有序张量做比较；不会
+泛忽略 image 路径，也不修改旧版冻结行为。同一样例重复运行的两份身份拥有不同路径。
+源码回归夹具 `tests/evals/fixtures/pinned_media_snapshot.py` 来自固定旧 commit，仅在
+临时目录中选择执行原 `freeze_media` 函数，不导入旧包或调用模型。
+
 现有 `prepare_local_inputs.py` / `prepare_studio_inputs.py` 的十个 capture 为来源，
 执行前应针对最终审查 commit 重新准备/核对源码闭包。执行器不能把一份旧 capture 的存在
 当作新提交实现通过：业务入口后的实际最终 graph/body 还必须再次被独立 gate 检查。

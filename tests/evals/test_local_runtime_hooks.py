@@ -159,7 +159,7 @@ class HookContractTests(unittest.TestCase):
             self.assertEqual(result['peakProcessRssBytes'], 100)
 
     def test_owned_ollama_requires_exact_pid_exe_environment_and_listener(self):
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory() as tmp, patch.dict(sys.modules, {'psutil': None}):
             exe = Path(tmp) / 'fake-ollama.exe'; exe.write_bytes(b'not executable')
             config = {'url': 'http://127.0.0.1:29502', 'pid': 234, 'exe': str(exe), 'exeSha256': runner.file_hash(exe), 'createTime': 123.0, 'modelsRoot': tmp}
             env = {'OLLAMA_HOST': '127.0.0.1:29502', 'OLLAMA_NO_CLOUD': '1', 'OLLAMA_NUM_PARALLEL': '1', 'OLLAMA_MAX_LOADED_MODELS': '1', 'OLLAMA_KEEP_ALIVE': '0', 'OLLAMA_MODELS': tmp}
@@ -172,6 +172,46 @@ class HookContractTests(unittest.TestCase):
             config['url'] = 'http://127.0.0.1:11434'
             with self.assertRaisesRegex(runner.Blocked, 'independent-ollama'):
                 hooks.validate_owned_ollama(config, process_factory=lambda _: process, connections=connections)
+
+    def test_owned_ollama_loads_only_missing_inspectors_and_still_checks_ownership(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            exe = Path(tmp) / 'fake-ollama.exe'; exe.write_bytes(b'not executable')
+            config = {'url': 'http://127.0.0.1:29502', 'pid': 234, 'exe': str(exe), 'exeSha256': runner.file_hash(exe), 'createTime': 123.0, 'modelsRoot': tmp}
+            env = {'OLLAMA_HOST': '127.0.0.1:29502', 'OLLAMA_NO_CLOUD': '1', 'OLLAMA_NUM_PARALLEL': '1', 'OLLAMA_MAX_LOADED_MODELS': '1', 'OLLAMA_KEEP_ALIVE': '0', 'OLLAMA_MODELS': tmp}
+            process = SimpleNamespace(pid=234, exe=lambda: str(exe), create_time=lambda: 123.0, environ=lambda: env)
+            listeners = [SimpleNamespace(pid=234, status='LISTEN', laddr=('127.0.0.1', 29502))]
+            calls = []
+            def inspect_process(pid):
+                calls.append(('process', pid))
+                return process
+            def inspect_connections(*, kind):
+                calls.append(('connections', kind))
+                return listeners
+            fake = SimpleNamespace(Process=inspect_process, net_connections=inspect_connections)
+            for supplied, expected_calls in [
+                ({'process_factory': lambda _: process}, [('connections', 'tcp')]),
+                ({'connections': lambda: listeners}, [('process', 234)]),
+                ({}, [('process', 234), ('connections', 'tcp')]),
+            ]:
+                with self.subTest(supplied=tuple(supplied)), patch.dict(sys.modules, {'psutil': fake}):
+                    calls.clear()
+                    self.assertEqual(hooks.validate_owned_ollama(config, **supplied), 234)
+                    self.assertEqual(calls, expected_calls)
+                with self.subTest(missing_dependency=tuple(supplied)), patch.dict(sys.modules, {'psutil': None}):
+                    with self.assertRaises(ModuleNotFoundError):
+                        hooks.validate_owned_ollama(config, **supplied)
+            with patch.dict(sys.modules, {'psutil': fake}):
+                config['createTime'] = 124.0
+                with self.assertRaisesRegex(runner.Blocked, 'process-ownership-changed'):
+                    hooks.validate_owned_ollama(config)
+                config['createTime'] = 123.0
+                config['exeSha256'] = '0' * 64
+                with self.assertRaisesRegex(runner.Blocked, 'process-ownership-changed'):
+                    hooks.validate_owned_ollama(config)
+                config['exeSha256'] = runner.file_hash(exe)
+                listeners[0].pid = 235
+                with self.assertRaisesRegex(runner.Blocked, 'listener-unproven'):
+                    hooks.validate_owned_ollama(config)
 
     def test_h3_proxy_checks_real_order_before_encode_and_preserves_classmethod(self):
         calls = []

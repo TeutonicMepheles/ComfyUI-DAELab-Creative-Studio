@@ -1,5 +1,6 @@
 """Old-baseline harness boundary checks; no ComfyUI/model process is launched."""
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 import socket
@@ -10,6 +11,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 import zipfile
+from tools.performance.prepare_observer import prepare_package as prepare_observer
 
 SPEC = importlib.util.spec_from_file_location("prepare_baseline", Path(__file__).resolve().parents[2] / "tools/host/prepare_baseline.py")
 BASELINE = importlib.util.module_from_spec(SPEC)
@@ -51,9 +53,14 @@ class BaselineIsolationTests(unittest.TestCase):
         self.runtime.write_text(json.dumps({"host": {"root": str(self.host), "python": sys.executable, "gitHead": self.host_commit}, "sourceBaselines": self.sources}))
         self.environment = self.root / "isolated-old"
         self.archive = self.root / "baseline-archives"
-        with socket.socket() as listener:
-            listener.bind(("127.0.0.1", 0))
-            self.port = listener.getsockname()[1]
+        # Windows can allocate a low ephemeral port; never select a protected
+        # application port as the otherwise-valid synthetic fixture default.
+        while True:
+            with socket.socket() as listener:
+                listener.bind(("127.0.0.1", 0))
+                self.port = listener.getsockname()[1]
+            if 1024 <= self.port <= 65535 and self.port not in BASELINE.PROTECTED_PORTS:
+                break
         self.patch_pinned = patch.object(BASELINE, "PINNED", self.pinned)
         self.patch_host = patch.object(BASELINE, "HOST_COMMIT", self.host_commit)
         self.patch_pinned.start();self.patch_host.start()
@@ -66,6 +73,80 @@ class BaselineIsolationTests(unittest.TestCase):
         arguments = dict(runtime_file=self.runtime, environment_root=self.environment, archive_root=self.archive, port=self.port)
         arguments.update(overrides)
         return BASELINE.resolve_configuration(**arguments)
+
+    def observer(self):
+        package = self.root / "passive-observer"
+        prepare_observer(package)
+        return package
+
+    def test_explicit_observer_adds_only_passive_web_to_new_baseline(self):
+        package = self.observer()
+        with patch.object(BASELINE.subprocess, "Popen", wraps=subprocess.Popen) as processes:
+            manifest = BASELINE.prepare(self.config(), package)
+            # Git archive/read processes are expected; no ComfyUI process may start.
+            self.assertTrue(all(call.args[0][0] == "git" for call in processes.call_args_list))
+        self.assertEqual(manifest["observer"]["nodeRegistrations"], 0)
+        self.assertEqual(len(manifest["snapshots"]), 2)
+        copied = self.environment / "custom_nodes" / BASELINE.OBSERVER_NAME
+        self.assertEqual((copied / "__init__.py").read_bytes(), BASELINE.OBSERVER_ENTRY)
+        self.assertEqual((copied / "web/performance.js").read_bytes(), (package / "web/performance.js").read_bytes())
+        self.assertIn(BASELINE.OBSERVER_NAME, manifest["command"])
+        self.assertNotIn("observer", json.loads((self.environment / "prepared.json").read_text()))
+        self.assertEqual(BASELINE.prepare(self.config()), manifest)
+
+    def test_add_observer_to_stopped_existing_baseline_preserves_archives_and_user_data(self):
+        first = BASELINE.prepare(self.config())
+        prepared = (self.environment / "prepared.json").read_bytes()
+        ownership = (self.environment / BASELINE.MARKER).read_bytes()
+        archives = {entry["archive"]: Path(entry["archive"]).read_bytes() for entry in first["snapshots"]}
+        for name in ("user", "input", "output", "temp"):
+            (self.environment / name / "sentinel.txt").write_text("original " + name)
+        second = BASELINE.prepare(self.config(), self.observer())
+        self.assertEqual((self.environment / "prepared.json").read_bytes(), prepared)
+        self.assertEqual((self.environment / BASELINE.MARKER).read_bytes(), ownership)
+        self.assertEqual(first["snapshots"], second["snapshots"])
+        for name in ("user", "input", "output", "temp"):
+            self.assertEqual((self.environment / name / "sentinel.txt").read_text(), "original " + name)
+        for name, content in archives.items(): self.assertEqual(Path(name).read_bytes(), content)
+        self.assertEqual(BASELINE.prepare(self.config(), self.root / "passive-observer"), second)
+        copied = self.environment / "custom_nodes" / BASELINE.OBSERVER_NAME / "web/performance.js"
+        copied.write_text("tampered")
+        with self.assertRaises(BASELINE.BaselineError): BASELINE.prepare(self.config())
+        self.assertEqual(copied.read_text(), "tampered")
+
+    def test_observer_rejects_active_python_extra_files_and_unreviewed_javascript(self):
+        package = self.observer()
+        original = (package / "__init__.py").read_bytes()
+        (package / "__init__.py").write_bytes(original + b"import os\n")
+        with self.assertRaises(BASELINE.BaselineError): BASELINE.prepare(self.config(), package)
+        self.assertFalse(self.environment.exists())
+        (package / "__init__.py").write_bytes(original)
+        extra = package / "provider.py"; extra.write_text("# forbidden fixture execution closure")
+        with self.assertRaises(BASELINE.BaselineError): BASELINE.prepare(self.config(), package)
+        extra.unlink()
+        extra_directory = package / "unexpected"; extra_directory.mkdir()
+        with self.assertRaises(BASELINE.BaselineError): BASELINE.prepare(self.config(), package)
+        extra_directory.rmdir()
+        script = package / "web/performance.js"; script.write_text("export const unexpected = true;")
+        marker = json.loads((package / "observer-package.json").read_text())
+        marker["sourceSha256"] = hashlib.sha256(script.read_bytes()).hexdigest()
+        (package / "observer-package.json").write_text(json.dumps(marker))
+        with self.assertRaises(BASELINE.BaselineError): BASELINE.prepare(self.config(), package)
+        self.assertFalse(self.environment.exists())
+
+    def test_observer_refuses_busy_host_and_unowned_destination_without_changes(self):
+        BASELINE.prepare(self.config())
+        package = self.observer()
+        config = self.config()
+        with socket.socket() as listener:
+            listener.bind(("127.0.0.1", self.port)); listener.listen()
+            with self.assertRaises(BASELINE.BaselineError): BASELINE.prepare(config, package)
+        destination = self.environment / "custom_nodes" / BASELINE.OBSERVER_NAME
+        self.assertFalse(destination.exists())
+        destination.mkdir(); (destination / "keep.txt").write_text("untouched")
+        with self.assertRaises(BASELINE.BaselineError): BASELINE.prepare(self.config(), package)
+        self.assertEqual((destination / "keep.txt").read_text(), "untouched")
+        self.assertFalse((self.environment / BASELINE.OBSERVER_RECORD).exists())
 
     def test_protected_ports_overlap_unowned_data_and_busy_port_are_rejected(self):
         for port in [8000, 8224, 8226]:

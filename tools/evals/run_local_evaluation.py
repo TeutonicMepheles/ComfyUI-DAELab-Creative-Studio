@@ -16,7 +16,7 @@ import math
 from pathlib import Path
 import re
 import time
-from urllib.parse import quote, urlsplit
+from urllib.parse import parse_qs, quote, urlsplit
 import uuid
 
 from tools.evals.request_contract import canonical, compare_requests, sha256, validate_payload
@@ -106,6 +106,69 @@ def schedule(plan):
                                  'clientId': str(uuid.uuid4()), 'attemptId': str(uuid.uuid4())})
     require(len(rows) == 44 and sum(r['smoke'] for r in rows) == 20, 'invalid-slot-multiplicity')
     return rows
+
+
+def runtime_case(case, slot, environment, reviewer):
+    """Derive only the pinned old H3 freeze paths after request IDs are fixed.
+
+    Source: business 7ff56cb... media_snapshot.freeze_media, followed by
+    LocalVideo.build_prompt. The original capture remains immutable. The gate
+    still compares actual paths and actual ordered source-byte hashes exactly.
+    """
+    result = deepcopy(case)
+    if slot['variant'] != 'baseline' or slot['sampleId'] not in ('LOCAL-H3-002', 'LOCAL-H3-003'):
+        return result, None
+    require(case['driver'] == 'native-video' and case['expected']['sampleId'] == slot['sampleId'], 'legacy-h3-case-identity-differs')
+    payload, effective = case['payload'], case['expected']['effective']
+    project = payload.get('project')
+    require(isinstance(project, str) and 0 < len(project) <= 256 and not any(ord(c) < 32 for c in project)
+            and re.fullmatch('[a-f0-9-]{36}', slot['requestId']) and isinstance(reviewer, str) and reviewer.strip(),
+            'legacy-h3-reviewed-project-and-identity-required')
+    count = 1 if slot['sampleId'] == 'LOCAL-H3-002' else 2
+    assets, hashes = payload.get('assets'), effective.get('sourceImageSha256')
+    require(isinstance(assets, list) and isinstance(hashes, list) and len(assets) == len(hashes) == count
+            and len(effective.get('referenceOrder', [])) == count, 'legacy-h3-reference-count-differs')
+    input_root = Path(environment['root']) / 'input'
+    key = hashlib.sha256((project + '\n' + slot['requestId']).encode()).hexdigest()[:24]
+    records, explanations = [], list(result.get('runtimeDifferences', []))
+    for index, (asset, expected_hash) in enumerate(zip(assets, hashes)):
+        require(isinstance(asset, dict) and isinstance(asset.get('url'), str), 'legacy-h3-local-view-reference-required')
+        url = urlsplit(asset['url'])
+        query = parse_qs(url.query, keep_blank_values=True)
+        require(not url.scheme and not url.netloc and not url.fragment and url.path == '/view'
+                and set(query) <= {'filename', 'subfolder', 'type'} and query.get('type') == ['input']
+                and all(len(v) == 1 for v in query.values()) and query.get('filename')
+                and '/' not in query['filename'][0] and '\\' not in query['filename'][0],
+                'legacy-h3-local-view-reference-required')
+        relative = '/'.join(p for p in (query.get('subfolder', [''])[0], query['filename'][0]) if p)
+        source = rooted(input_root, relative)
+        require(source.is_file() and source.suffix.lower() in ('.png', '.jpg', '.jpeg', '.webp')
+                and isinstance(expected_hash, str) and re.fullmatch('[a-f0-9]{64}', expected_hash)
+                and file_hash(source) == expected_hash, 'legacy-h3-source-bytes-differ')
+        role = ('first_frame', 'last_frame')[index]
+        graph = case['expected']['finalRequest']
+        node = graph.get(role, {})
+        require(node.get('class_type') == 'LoadImage' and isinstance(node.get('inputs', {}).get('image'), str)
+                and graph.get('condition', {}).get('inputs', {}).get(role) == [role, 0], 'legacy-h3-reference-slot-differs')
+        target = f'daelab/table-local-h3/snapshots/{key}/{index}{source.suffix.lower()}'
+        pointer = f'/finalRequest/{role}/inputs/image'
+        require(not any(x.get('path') == pointer for x in explanations), 'legacy-h3-static-path-explanation-refused')
+        before = node['inputs']['image']
+        if before != target:
+            explanations.append({'path': pointer, 'baselineSha256': sha256(before), 'studioSha256': sha256(target),
+                'reviewer': reviewer, 'reason': 'Pinned old freeze_media(project, original requestId); ordered source bytes verified before dispatch.'})
+        records.append({'role': role, 'sourcePath': str(source.resolve()), 'bytes': source.stat().st_size,
+                        'sha256': expected_hash, 'runtimePath': target})
+    result['runtimeDifferences'] = explanations
+    projection = {'kind': 'pinned-legacy-h3-snapshot-v1', 'sourceCommit': PINNED_SOURCES['business'],
+        'requestId': slot['requestId'], 'project': project, 'sourceFiles': records, 'runtimeDifferences': explanations}
+    return result, projection
+
+
+def reviewed_runtime_case(run, case, slot, environment, reviewer):
+    result, projection = runtime_case(case, slot, environment, reviewer)
+    require(projection == run.get('runtimeProjections', {}).get(slot['requestId']), 'slot-runtime-projection-changed')
+    return result
 
 
 def verify_prepared(prepared, approval, *, inspect_host=True):
@@ -274,10 +337,13 @@ def prepare_run(prepared_path, approval_path, cases_path, destination, *, plan_p
     require(destination.is_relative_to(ROOT / '.local') and not destination.exists(), 'new-local-evidence-directory-required')
     env_root = Path(configuration['destination']).resolve()
     require(not destination.is_relative_to(env_root) and not env_root.is_relative_to(destination), 'evidence-environment-overlap')
+    slots = schedule(plan)
+    projections = {s['requestId']: runtime_case(cases[s['variant']][s['sampleId']], s,
+        prepared['environments'][s['variant']], approval['reviewer'])[1] for s in slots}
     destination.mkdir(parents=True)
     run = {'schemaVersion': 1, 'owner': OWNER, 'createdAt': utc(), 'definitionId': str(uuid.uuid4()),
            'inputs': {k: {'path': str(p), 'sha256': file_hash(p)} for k, p in paths.items()},
-           'runnerSha256': file_hash(__file__), 'captureInputs': capture_inputs, 'slots': schedule(plan), 'comparisons': comparisons,
+           'runnerSha256': file_hash(__file__), 'captureInputs': capture_inputs, 'slots': slots, 'runtimeProjections': projections, 'comparisons': comparisons,
            'traceability': links, 'productAcceptance': False, 'qualityScores': None, 'inferencesExecuted': 0}
     write_new(destination / 'run.json', run)
     return run
@@ -518,7 +584,8 @@ async def execute_slot(run_directory, slot_number, *, resume=False, execute_revi
     configuration = verify_prepared(prepared, approval)
     require(type(slot_number) is int and 1 <= slot_number <= len(run['slots']), 'unknown-slot')
     slot = run['slots'][slot_number - 1]
-    case = cases[slot['variant']][slot['sampleId']]
+    case = reviewed_runtime_case(run, cases[slot['variant']][slot['sampleId']], slot,
+                                prepared['environments'][slot['variant']], approval.get('reviewer'))
     slot_dir = root / f'slot-{slot_number:02d}'
     if not resume:
         require(not slot_dir.exists(), 'slot-already-claimed-query-only')

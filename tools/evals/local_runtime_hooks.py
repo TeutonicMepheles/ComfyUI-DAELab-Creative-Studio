@@ -357,8 +357,13 @@ def validate_owned_ollama(configuration, *, process_factory=None, connections=No
     require(isinstance(configuration, dict), 'owned-isolated-ollama-required')
     parsed = urlsplit(endpoint(configuration['url']))
     require(parsed.port not in (8000, 8225, 8226, 8227, 11434), 'independent-ollama-port-required')
-    import psutil
-    process = (process_factory or psutil.Process)(configuration['pid'])
+    if process_factory is None or connections is None:
+        import psutil
+        if process_factory is None:
+            process_factory = psutil.Process
+        if connections is None:
+            connections = lambda: psutil.net_connections(kind='tcp')
+    process = process_factory(configuration['pid'])
     require(Path(process.exe()).resolve() == Path(configuration['exe']).resolve()
             and file_hash(configuration['exe']) == configuration['exeSha256']
             and process.create_time() == configuration['createTime'], 'ollama-process-ownership-changed')
@@ -367,7 +372,7 @@ def validate_owned_ollama(configuration, *, process_factory=None, connections=No
                 'OLLAMA_MAX_LOADED_MODELS': '1', 'OLLAMA_KEEP_ALIVE': '0'}
     require(all(environment.get(k) == v for k, v in expected.items()) and
             Path(environment.get('OLLAMA_MODELS', '')).resolve() == Path(configuration['modelsRoot']).resolve(), 'ollama-owned-environment-differs')
-    listeners = (connections or (lambda: psutil.net_connections(kind='tcp')))()
+    listeners = connections()
     require(any(c.pid == process.pid and c.status == 'LISTEN' and tuple(c.laddr) == ('127.0.0.1', parsed.port) for c in listeners),
             'ollama-owned-listener-unproven')
     return process.pid

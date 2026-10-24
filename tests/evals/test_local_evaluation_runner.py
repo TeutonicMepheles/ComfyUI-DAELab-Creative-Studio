@@ -4,11 +4,16 @@ No real ComfyUI/Ollama port, model, GPU, provider or downloader is accessed.
 Synthetic trace/metric values below test rejection logic, not Eval results.
 """
 import asyncio
+import ast
+from contextlib import nullcontext
 from copy import deepcopy
 import importlib.util
 import json
+import hashlib
 from pathlib import Path
+import shutil
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 import uuid
@@ -66,6 +71,42 @@ def metrics():
             'peakMemoryBytes': 100, 'memorySource': 'synthetic-test-only'}
 
 
+def h3_references(case, environment, identifier='LOCAL-H3-003'):
+    """Synthetic bytes for the real pinned freeze function; never decode/infer."""
+    count = 1 if identifier == 'LOCAL-H3-002' else 2
+    source = Path(environment['root']) / 'input/fixtures'
+    source.mkdir(parents=True, exist_ok=True)
+    case['payload'].update(project='reviewed-local-eval', assets=[])
+    case['expected']['sampleId'] = identifier
+    case['expected']['effective'].update(referenceOrder=[], sourceImageSha256=[])
+    graph = case['expected']['finalRequest']
+    graph['condition'] = {'class_type': 'MiniMaxH3ImageToVideo', 'inputs': {}}
+    for index in range(count):
+        name = f'frame-{index}.png'
+        (source / name).write_bytes(f'synthetic reference {index}'.encode())
+        digest = runner.file_hash(source / name)
+        case['payload']['assets'].append({'url': f'/view?type=input&subfolder=fixtures&filename={name}', 'kind': 'image'})
+        case['expected']['effective']['referenceOrder'].append('images/' + name)
+        case['expected']['effective']['sourceImageSha256'].append(digest)
+        role = ('first_frame', 'last_frame')[index]
+        graph[role] = {'class_type': 'LoadImage', 'inputs': {'image': 'daelab/table-local-h3/' + name}}
+        graph['condition']['inputs'][role] = [role, 0]
+    return case
+
+
+def pinned_freeze_media():
+    # Exact 7ff56cb51ef6f7fc3bcf5707792d655037c61b30 blob:
+    # nodes/libtv_bridge/media_snapshot.py. Do not import its package or runtime.
+    path = Path(__file__).parent / 'fixtures/pinned_media_snapshot.py'
+    assert runner.file_hash(path) == '43da427750e46ba068a04a24b7f90c90e18159506b31355701d4a3ad51c8dc09'
+    tree = ast.parse(path.read_text('utf-8'))
+    function = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'freeze_media')
+    namespace = {'hashlib': hashlib, 'shutil': shutil, 'json': json, 'Path': Path,
+                 'digest_file': runner.file_hash, 'atomic_json': store, 'job_lock': lambda _: nullcontext()}
+    exec(compile(ast.Module(body=[function], type_ignores=[]), str(path), 'exec'), namespace)
+    return namespace['freeze_media']
+
+
 class PureRunnerTests(unittest.TestCase):
     def test_schedule_is_exactly_44_unique_slots_with_smoke_first(self):
         plan = runner.read(runner.ROOT / 'docs/validation/catalog/local-eval-plan.json')
@@ -85,6 +126,67 @@ class PureRunnerTests(unittest.TestCase):
                       'http://127.0.0.1:9000/path', 'http://127.0.0.1:9000?x=1', 'http://127.0.0.1:80']:
             with self.subTest(value=value), self.assertRaises(runner.Blocked):
                 runner.endpoint(value)
+
+    def test_pinned_h3_freeze_has_exact_distinct_paths_for_repeated_original_ids(self):
+        freeze = pinned_freeze_media()
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            environment = {'root': str(root / 'environment')}
+            case = h3_references(case_at(root, 'native-video'), environment)
+            original = deepcopy(case)
+            slots = [slot('LOCAL-H3-003', 'baseline') for _ in range(2)]
+            runtime_paths = []
+            for index, s in enumerate(slots):
+                derived, projection = runner.runtime_case(case, s, environment, 'Codex fixture review')
+                media = [{'kind': 'image', 'path': item['sourcePath'], 'sha256': item['sha256']} for item in projection['sourceFiles']]
+                cache = Path(environment['root']) / 'input/daelab/table-local-h3'
+                frozen = freeze(SimpleNamespace(cache=cache), case['payload']['project'], s['requestId'], media)
+                actual = deepcopy(case['expected'])
+                for item, frozen_item in zip(projection['sourceFiles'], frozen):
+                    relative = Path(frozen_item['path']).relative_to(Path(environment['root']) / 'input').as_posix()
+                    self.assertEqual(relative, item['runtimePath'])
+                    self.assertEqual(runner.file_hash(frozen_item['path']), item['sha256'])
+                    actual['finalRequest'][item['role']]['inputs']['image'] = relative
+                self.assertFalse(runner.compare_requests(case['expected'], actual)['passed'])
+                self.assertTrue(runner.compare_requests(derived['expected'], actual, derived['runtimeDifferences'])['passed'])
+                runtime_paths.append([item['runtimePath'] for item in projection['sourceFiles']])
+                if index:
+                    self.assertFalse(runner.compare_requests(previous['expected'], actual, previous['runtimeDifferences'])['passed'])
+                previous = derived
+                hooks = {'dispatch-gate': lambda: True, 'native-event-stream': lambda: True,
+                         'live-host-identity': lambda: {}, 'network-deny-audit': lambda: {'complete': True, 'externalAttempts': 0},
+                         'resolved-weight-rehash': lambda *_: case['weights']}
+                gate = trace.BoundaryGate(root / f'trace-{index}', {'variant': 'baseline', 'port': 29001}, hooks=hooks)
+                gate.arm({'slot': s, 'case': derived})
+                self.assertEqual(gate.before_dispatch(s['requestId'], f'owned-{index}', actual)['dispatches'], 1)
+            self.assertNotEqual(runtime_paths[0], runtime_paths[1])
+            self.assertEqual(case, original)
+
+    def test_h3_slot_projection_blocks_changed_project_identity_bytes_and_reference_order(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            environment = {'root': str(root / 'environment')}
+            case, s = h3_references(case_at(root, 'native-video'), environment), slot('LOCAL-H3-003', 'baseline')
+            derived, projection = runner.runtime_case(case, s, environment, 'Codex fixture review')
+            run = {'runtimeProjections': {s['requestId']: projection}}
+            self.assertEqual(runner.reviewed_runtime_case(run, case, s, environment, 'Codex fixture review'), derived)
+            altered = deepcopy(case); altered['payload']['project'] = 'foreign-project'
+            with self.assertRaisesRegex(runner.Blocked, 'projection-changed'):
+                runner.reviewed_runtime_case(run, altered, s, environment, 'Codex fixture review')
+            with self.assertRaisesRegex(runner.Blocked, 'projection-changed'):
+                runner.reviewed_runtime_case(run, case, slot('LOCAL-H3-003', 'baseline'), environment, 'Codex fixture review')
+            altered = deepcopy(case); altered['payload']['assets'].reverse()
+            with self.assertRaisesRegex(runner.Blocked, 'source-bytes-differ'):
+                runner.runtime_case(altered, s, environment, 'Codex fixture review')
+            altered = deepcopy(case); altered['expected']['finalRequest']['condition']['inputs']['first_frame'] = ['last_frame', 0]
+            with self.assertRaisesRegex(runner.Blocked, 'slot-differs'):
+                runner.runtime_case(altered, s, environment, 'Codex fixture review')
+            altered = deepcopy(case); altered['runtimeDifferences'] = [derived['runtimeDifferences'][0]]
+            with self.assertRaisesRegex(runner.Blocked, 'static-path-explanation'):
+                runner.runtime_case(altered, s, environment, 'Codex fixture review')
+            Path(projection['sourceFiles'][0]['sourcePath']).write_bytes(b'wrong bytes')
+            with self.assertRaisesRegex(runner.Blocked, 'source-bytes-differ'):
+                runner.reviewed_runtime_case(run, case, s, environment, 'Codex fixture review')
 
     def test_paths_reject_traversal_absolute_and_device_names(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -326,6 +428,7 @@ class PreparedArchiveTests(unittest.TestCase):
                 case['expected']['inputSha256'] = 'f' * 64
                 if identifier in ('LOCAL-H3-002', 'LOCAL-H3-003'):
                     case['expectedPreprocessingSha256'] = ['a' * 64] * (1 if identifier.endswith('002') else 2)
+                    h3_references(case, self.environments[variant], identifier)
                 capture = self.fixture.root / (variant + '-' + identifier + '.json')
                 store(capture, {**case['expected'], 'captureKind': 'offline-studio-source-construction' if variant == 'studio' else 'offline-pinned-source-construction',
                                 'transportSubmitted': False, 'inferenceExecuted': False})
@@ -343,6 +446,9 @@ class PreparedArchiveTests(unittest.TestCase):
             result = runner.prepare_run(paths['prepared'], paths['approval'], paths['cases'], destination)
             self.assertEqual(len(result['slots']), 44)
             self.assertEqual(len(result['captureInputs']), 20)
+            projections = [p for p in result['runtimeProjections'].values() if p is not None]
+            self.assertEqual(len(projections), 3)  # H3-002 once, H3-003 twice, baseline only.
+            self.assertEqual(len({p['requestId'] for p in projections}), 3)
             self.assertEqual(result['traceability']['test'], 'TC-SYS-036')
             self.assertFalse(result['productAcceptance'])
             with self.assertRaisesRegex(runner.Blocked, 'new-local-evidence'):

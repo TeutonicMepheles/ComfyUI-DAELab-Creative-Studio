@@ -29,6 +29,10 @@ PINNED = {
 HOST_COMMIT = "3c1b7a17fdf239d35ce98cc777756f572d089795"
 PROTECTED_PORTS = {8000, 8224, 8226}
 DATA_NAMES = {"user", "input", "output", "temp", "models", "custom_nodes"}
+OBSERVER_NAME = "creative_studio_performance_observer"
+OBSERVER_RECORD = "passive-performance-observer.json"
+OBSERVER_ENTRY = ('"""Test-only passive performance observer. No node registrations."""\n'
+                  'NODE_CLASS_MAPPINGS = {}\nWEB_DIRECTORY = "./web"\n').encode()
 
 
 class BaselineError(ValueError):
@@ -67,7 +71,7 @@ def _linked(path):
 def _plain_ancestors(path):
     absolute = Path(os.path.abspath(path))
     for candidate in [absolute, *absolute.parents]:
-        if candidate.exists() and _linked(candidate):
+        if _linked(candidate):
             raise BaselineError("Fixture paths cannot traverse symlinks or junctions.")
     return absolute.resolve()
 
@@ -200,7 +204,78 @@ def verify_snapshot(directory, records):
         raise BaselineError("Extracted baseline changed; no refresh, overwrite or startup was performed.")
 
 
-def command_for(config):
+def observer_source(source):
+    """Only the reviewed passive observer may join an immutable old baseline."""
+    source = _plain_ancestors(source)
+    expected = {"__init__.py", "web/performance.js", "observer-package.json"}
+    files = {}
+    for base, directories, names in os.walk(source, followlinks=False):
+        root = Path(base)
+        if any((root / name).relative_to(source).as_posix() != "web" for name in directories):
+            raise BaselineError("Unexpected observer directory; only its web resources are allowed.")
+        for name in [*directories, *names]:
+            if _linked(root / name):
+                raise BaselineError("Observer packages cannot contain links or junctions.")
+        for name in names:
+            path = root / name
+            relative = path.relative_to(source).as_posix()
+            if relative not in expected or path.stat().st_size > 2 * 1024**2:
+                raise BaselineError("Only the exact passive observer package is allowed; no fixture execution services.")
+            files[relative] = path.read_bytes()
+    if set(files) != expected or files["__init__.py"] != OBSERVER_ENTRY:
+        raise BaselineError("Observer entry must contain only zero node mappings and its web directory.")
+    marker = json.loads(files["observer-package.json"])
+    digest = hashlib.sha256(files["web/performance.js"]).hexdigest()
+    if marker != {"schemaVersion": 1, "kind": "test-only-performance-observer", "sourceSha256": digest,
+                  "nodeRegistrations": 0, "requiresVisibleStart": True}:
+        raise BaselineError("Invalid passive observer manifest.")
+    if digest != _sha(ROOT / "tests/host_fixture/web/performance.js"):
+        raise BaselineError("Observer JavaScript differs from the current reviewed test-only source.")
+    records = [{"path": name, "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()} for name, data in sorted(files.items())]
+    return {"name": OBSERVER_NAME, "kind": marker["kind"], "source": str(source), "sourceSha256": digest,
+            "nodeRegistrations": 0, "requiresVisibleStart": True, "files": records}, files
+
+
+def with_observer(manifest, source=None):
+    """Explicit additive test install; old prepared.json/archives/user files are immutable."""
+    root = Path(manifest["configuration"]["environment_root"])
+    record_path, destination = root / OBSERVER_RECORD, root / "custom_nodes" / OBSERVER_NAME
+    _plain_ancestors(record_path)
+    _plain_ancestors(destination)
+    requested = observer_source(source) if source is not None else None
+    if record_path.exists():
+        observer = _json(record_path)
+        if (observer.get("name") != OBSERVER_NAME or observer.get("kind") != "test-only-performance-observer"
+                or observer.get("nodeRegistrations") != 0 or observer.get("requiresVisibleStart") is not True):
+            raise BaselineError("Existing observer ownership is invalid; no overwrite is permitted.")
+        verify_snapshot(destination, observer["files"])
+        if (destination / "__init__.py").read_bytes() != OBSERVER_ENTRY:
+            raise BaselineError("Installed observer no longer has its passive zero-node entry.")
+        if requested and requested[0] != observer:
+            raise BaselineError("An observer is already installed; existing test evidence/package is never replaced.")
+    elif requested:
+        observer, files = requested
+        if not port_free(manifest["configuration"]["port"]):
+            raise BaselineError("Stop the owned baseline explicitly before adding its observer; no process was interrupted.")
+        _plain_ancestors(destination)
+        if destination.exists():
+            raise BaselineError("Existing observer directory has no matching record; refusing overwrite.")
+        destination.mkdir()
+        for relative, data in files.items():
+            target = destination / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            with target.open("xb") as output:
+                output.write(data)
+        verify_snapshot(destination, observer["files"])
+        _write_new(record_path, observer)
+    else:
+        if destination.exists():
+            raise BaselineError("Unrecorded observer package is preserved; inspect it explicitly.")
+        return manifest
+    return {**manifest, "observer": observer, "command": command_for(manifest["configuration"], observer)}
+
+
+def command_for(config, observer=None):
     root = Path(config["environment_root"])
     return [config["python"], "-s", str(Path(config["source_host"]) / "main.py"),
             "--base-directory", str(root), "--user-directory", str(root / "user"),
@@ -209,10 +284,13 @@ def command_for(config):
             "--database-url", "sqlite:///" + (root / "user/comfyui.db").as_posix(),
             "--listen", "127.0.0.1", "--port", str(config["port"]), "--cpu", "--offline",
             "--disable-auto-launch", "--disable-all-custom-nodes", "--whitelist-custom-nodes",
-            *[entry["name"] for entry in config["sources"].values()], "--feature-flag", "enable_telemetry=false"]
+            *[entry["name"] for entry in config["sources"].values()],
+            *([OBSERVER_NAME] if observer else []), "--feature-flag", "enable_telemetry=false"]
 
 
-def prepare(config):
+def prepare(config, fixture_package=None):
+    if fixture_package is not None:
+        observer_source(fixture_package)
     if resolve_configuration(config["runtime_file"], config["environment_root"], config["archive_root"], config["port"]) != config:
         raise BaselineError("Configuration changed after validation.")
     root, archive_root = Path(config["environment_root"]), Path(config["archive_root"])
@@ -230,7 +308,7 @@ def prepare(config):
             if _sha(entry["archive"]) != entry["archive_sha256"]:
                 raise BaselineError("Stored Git archive changed.")
             verify_snapshot(root / "custom_nodes" / entry["name"], entry["files"])
-        return manifest
+        return with_observer(manifest, fixture_package)
     if root.exists() or archive_root.exists():
         raise BaselineError("Incomplete existing fixture is preserved; use an explicitly chosen new owned location.")
     for destination in (root, archive_root):
@@ -256,7 +334,7 @@ def prepare(config):
         snapshots.append({"name": source["name"], "source_commit": source["commit"], "archive": str(archive), "archive_sha256": _sha(archive), "files": records})
     manifest = {"configuration": config, "snapshots": snapshots, "command": command_for(config), "prepared_at_unix": time.time(), "status": "prepared", "workflow_imports": 0, "task_receipt_imports": 0, "generation_requests": 0, "model_downloads": 0}
     _write_new(manifest_path, manifest)
-    return manifest
+    return with_observer(manifest, fixture_package)
 
 
 def _get(port, route):
@@ -292,9 +370,12 @@ def verify_host_identity(stats, manifest):
 
 def start(manifest, timeout=60):
     config = manifest["configuration"]
-    if resolve_configuration(config["runtime_file"], config["environment_root"], config["archive_root"], config["port"]) != config or manifest["command"] != command_for(config):
+    if resolve_configuration(config["runtime_file"], config["environment_root"], config["archive_root"], config["port"]) != config or manifest["command"] != command_for(config, manifest.get("observer")):
         raise BaselineError("Prepared command or configuration changed before startup.")
     root = Path(config["environment_root"])
+    recorded = with_observer(_json(root / "prepared.json"))
+    if manifest.get("observer") != recorded.get("observer") or manifest["command"] != recorded["command"]:
+        raise BaselineError("Observer installation changed after preparation.")
     if not port_free(config["port"]):
         raise BaselineError("Baseline port became occupied; no process was interrupted.")
     for entry in manifest["snapshots"]:
@@ -326,7 +407,7 @@ def start(manifest, timeout=60):
                 raise BaselineError("Unexpected task appeared in the baseline queue; no interruption was issued.")
             _write_new(root / "evidence" / f"{stamp}-system-stats.json", stats)
             _write_new(root / "evidence" / f"{stamp}-object-info.json", object_info)
-            report = {**attempt, "status": "running", "url": f"http://127.0.0.1:{config['port']}", "registrations": registered, "backend_node_count": len(registered), "queue": queue, "generation_requests_by_launcher": 0, "workflow_imports_by_launcher": 0, "task_receipt_imports": 0, "models_shared": False, "comfytv_bundled": False, "sources": [{"name": entry["name"], "commit": entry["source_commit"], "archive_sha256": entry["archive_sha256"]} for entry in manifest["snapshots"]], "limitations": ["CPU UI baseline only; no inference or product acceptance", "ComfyUI --offline restricts frontend/partner nodes, not a process-wide network firewall", "Do not click generation, local model setup or recovery controls in this behavior fixture"]}
+            report = {**attempt, "status": "running", "url": f"http://127.0.0.1:{config['port']}", "registrations": registered, "backend_node_count": len(registered), "queue": queue, "observer": manifest.get("observer"), "generation_requests_by_launcher": 0, "workflow_imports_by_launcher": 0, "task_receipt_imports": 0, "models_shared": False, "comfytv_bundled": False, "sources": [{"name": entry["name"], "commit": entry["source_commit"], "archive_sha256": entry["archive_sha256"]} for entry in manifest["snapshots"]], "limitations": ["CPU UI baseline only; no inference or product acceptance", "ComfyUI --offline restricts frontend/partner nodes, not a process-wide network firewall", "Do not click generation, local model setup or recovery controls in this behavior fixture"]}
             _write_new(root / "evidence" / f"{stamp}-ready.json", report)
             return report
         except BaselineError:
@@ -343,10 +424,11 @@ def main():
     parser.add_argument("--environment-root", default=str(ROOT / ".local/host-old"))
     parser.add_argument("--archive-root", default=str(ROOT / ".local/baseline-code"))
     parser.add_argument("--port", type=int, default=8225)
+    parser.add_argument("--fixture-package", help="Explicit reviewed passive observer only; no nodes or generation fixture services")
     parser.add_argument("--start", action="store_true")
     args = parser.parse_args()
     try:
-        manifest = prepare(resolve_configuration(args.runtime, args.environment_root, args.archive_root, args.port))
+        manifest = prepare(resolve_configuration(args.runtime, args.environment_root, args.archive_root, args.port), args.fixture_package)
         result = start(manifest) if args.start else {"status": "prepared", "environment_root": args.environment_root}
         print(json.dumps({key: result[key] for key in ("status", "url", "pid", "stdout", "stderr", "backend_node_count", "environment_root") if key in result}, indent=2))
         return 0
