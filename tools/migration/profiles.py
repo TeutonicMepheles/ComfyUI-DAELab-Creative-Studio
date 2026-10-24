@@ -52,8 +52,8 @@ def _observer_identity(binding, install, allowed):
     files = [{"path": name, "sha256": digest, "bytes": size} for name, digest, size in REVIEWED_PROBE_FILES]
     expected = {"schemaVersion": 1, "kind": "legacy-runtime-probe-package", "coverageVersion": REVIEWED_PROBE_COVERAGE,
                 "files": files, "probeSourceSha256": REVIEWED_PROBE_SOURCE_SHA256}
-    actual = [entry for entry in inventory(probe) if not
-              ("__pycache__" in Path(entry["path"]).parts and entry["path"].endswith(".pyc"))]
+    actual = sorted([entry for entry in inventory(probe) if not
+              ("__pycache__" in Path(entry["path"]).parts and entry["path"].endswith(".pyc"))], key=lambda entry: entry["path"])
     expected_files = sorted([{"path": item["path"], "sha256": item["sha256"], "size": item["bytes"]} for item in files] + [
         {"path": "probe-manifest.json", "sha256": REVIEWED_PROBE_MANIFEST_SHA256,
          "size": REVIEWED_PROBE_MANIFEST_BYTES}], key=lambda item: item["path"])
@@ -90,8 +90,10 @@ def package_identity(spec):
             expected.append({"path": entry["path"], "size": entry["bytes"], "sha256": entry["sha256"]})
         actual = inventory(root)
         # Python caches are runtime artifacts; they cannot stand in for source files.
-        actual = [entry for entry in actual if entry["path"] != "release-candidate.json" and
-                  not ("__pycache__" in Path(entry["path"]).parts and entry["path"].endswith(".pyc"))]
+        # Package identity is independent of platform directory enumeration. Keep
+        # exact path spelling/content; do not change migration/seal inventory order.
+        actual = sorted([entry for entry in actual if entry["path"] != "release-candidate.json" and
+                  not ("__pycache__" in Path(entry["path"]).parts and entry["path"].endswith(".pyc"))], key=lambda entry: entry["path"])
         if sorted(expected, key=lambda item: item["path"]) != actual:
             raise MigrationError("Installed candidate bytes differ from the fixed release manifest.")
         if not re.fullmatch(r"[0-9a-f]{64}", record.get("frontendBuildId", "")):
@@ -110,8 +112,8 @@ def package_identity(spec):
         root = checked(path, exists=True)
         if root.parent != install / "custom_nodes":
             raise MigrationError("Legacy packages must belong to the isolated installation.")
-        trees[name] = [entry for entry in inventory(root) if not
-                       ("__pycache__" in Path(entry["path"]).parts and entry["path"].endswith(".pyc"))]
+        trees[name] = sorted([entry for entry in inventory(root) if not
+                       ("__pycache__" in Path(entry["path"]).parts and entry["path"].endswith(".pyc"))], key=lambda entry: entry["path"])
         snapshot = next((item for item in prepared["snapshots"] if item["name"] == root.name), None)
         if (snapshot is None or snapshot["source_commit"] != BASELINES[name] or
                 file_hash(snapshot["archive"]) != snapshot["archive_sha256"] or

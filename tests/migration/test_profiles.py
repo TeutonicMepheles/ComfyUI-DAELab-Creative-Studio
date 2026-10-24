@@ -218,6 +218,54 @@ class ProfileTests(unittest.TestCase):
                         (probe / "extra.py").unlink()
         self.assertTrue(package_identity(spec)["observer"])
 
+    def test_package_identity_uses_exact_paths_independent_of_inventory_enumeration(self):
+        from tools.migration.profiles import package_identity
+        old_spec, new_spec = self.profiles_plan["oldPackage"], self.profiles_plan["newPackage"]
+        prepared_path = Path(old_spec["installationRoot"]) / "prepared.json"
+        prepared = json.loads(prepared_path.read_text("utf-8"))
+        for root in [*(Path(value) for value in old_spec["roots"].values()), Path(new_spec["root"])]:
+            for name in ("AGENTS.md", "docs/SKILL.md", "docs/agents/openai.yaml"):
+                path = root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(("synthetic " + name).encode())
+        for snapshot in prepared["snapshots"]:
+            folder = Path(old_spec["installationRoot"]) / "custom_nodes" / snapshot["name"]
+            snapshot["files"] = [{"path": entry["path"], "bytes": entry["size"], "sha256": entry["sha256"]}
+                                 for entry in inventory(folder)]
+            with zipfile.ZipFile(snapshot["archive"], "w") as archive:
+                archive.comment = snapshot["source_commit"].encode("ascii")
+                for entry in snapshot["files"]:
+                    archive.writestr(entry["path"], (folder / entry["path"]).read_bytes())
+            snapshot["archive_sha256"] = file_hash(snapshot["archive"])
+        prepared_path.write_bytes(canonical(prepared))
+        candidate = Path(new_spec["root"])
+        manifest_path = candidate / "release-candidate.json"
+        manifest = json.loads(manifest_path.read_text("utf-8"))
+        manifest["files"] = [{"path": entry["path"], "bytes": entry["size"], "sha256": entry["sha256"]}
+                             for entry in inventory(candidate) if entry["path"] != "release-candidate.json"]
+        manifest_path.write_bytes(canonical(manifest))
+        for spec, package in ((old_spec, Path(old_spec["roots"]["canvas"])), (new_spec, candidate)):
+            with self.subTest(kind=spec["kind"]):
+                identity = package_identity(spec)
+                with patch("tools.migration.profiles.inventory", side_effect=lambda path: list(reversed(inventory(path)))):
+                    self.assertEqual(package_identity(spec), identity)
+                path = package / "AGENTS.md"
+                original = path.read_bytes()
+                try:
+                    path.write_bytes(original + b"changed")
+                    with self.assertRaises(MigrationError):
+                        package_identity(spec)
+                finally:
+                    path.write_bytes(original)
+                moved = package / "AGENTS-renamed.md"
+                path.rename(moved)
+                try:
+                    with self.assertRaises(MigrationError):
+                        package_identity(spec)
+                finally:
+                    moved.rename(path)
+                self.assertEqual(package_identity(spec), identity)
+
     def test_nonempty_native_database_maps_both_owned_profiles_and_rolls_back_actual_new_data(self):
         source = self.source / "user/comfyui.db"
         source.parent.mkdir()
