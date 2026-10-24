@@ -128,6 +128,13 @@
 .dae-creative-workspace>.dae-creative-body>.comfytv-root{height:100%!important;min-height:650px!important;min-width:1120px;max-height:none}
 
 /* Neutral graph chrome lets media and editing state carry emphasis. */
+/* Only these owned heading children have no zoom-variable consumers. Keep the
+   heading's live compensation and task container width outside the boundary.
+   Review tests/migrated_canvas/panel_zoom_scope.test.mjs before adding consumers. */
+.dae-creative > .dae-creative-world > .dae-creative-card > .dae-creative-heading > :is(strong,.dae-creative-icon,.dae-task-capsules){
+  --dae-canvas-zoom:initial;
+  --dae-canvas-inverse-zoom:initial;
+}
 .dae-creative-heading>.dae-creative-icon{width:18px;height:18px;color:var(--dae-text-muted)}
 .dae-creative .dae-creative-card:is([data-floating-header=true],[data-upload=true],[data-presentation=content])>.dae-creative-heading{position:absolute;left:0;bottom:100%;width:calc(100% / var(--dae-canvas-inverse-zoom,1));height:24px;margin-bottom:calc(4px * var(--dae-canvas-inverse-zoom,1));padding:0;gap:8px;flex-wrap:nowrap;background:transparent;border:0;border-radius:0;zoom:1;transform:scale(var(--dae-canvas-inverse-zoom,1));transform-origin:left bottom}
 .dae-creative .dae-creative-card:is([data-floating-header=true],[data-upload=true],[data-presentation=content])>.dae-creative-heading>input{height:24px;padding:0 6px;font-size:var(--dae-font-title);font-weight:500;line-height:22px}
