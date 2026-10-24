@@ -1,5 +1,8 @@
 /** Test-only, visible, passive observer. No graph access, prompt submission or synthetic input. */
 export const PROTOCOL = Object.freeze({warmupMs:10000,sampleMs:30000,repetitions:5,soakMs:3600000});
+// Browser viewport overrides can expose float32 rounding (for example 1.0000000298).
+// Preserve the raw DPR in evidence; tolerate only numerical noise around 1.
+const referenceDpr=value=>Number.isFinite(value)&&Math.abs(value-1)<=1e-6;
 export function percentile(values, fraction) {
     const sorted=values.filter(Number.isFinite).sort((a,b)=>a-b);
     return sorted.length?sorted[Math.max(0,Math.ceil(sorted.length*fraction)-1)]:null;
@@ -29,7 +32,7 @@ export function assessReport(report) {
     if(runs.some(r=>r.durationMs==null||r.durationMs<PROTOCOL.sampleMs))reasons.push('short_sample');
     if(report.warmupEndedAt==null||report.warmupEndedAt-report.startedAt<PROTOCOL.warmupMs)reasons.push('short_warmup');
     if(runs.some(r=>r.visibilityLoss)||(report.visibility||[]).some(e=>e.state!=='visible'))reasons.push('page_hidden_during_sample');
-    if(!report.environment?.dpr||report.environment.dpr!==1)reasons.push('DPR_not_reference_1');
+    if(!referenceDpr(report.environment?.dpr))reasons.push('DPR_not_reference_1');
     if(report.environment?.viewport?.width!==1920||report.environment?.viewport?.height!==1080)reasons.push('viewport_not_reference_1920x1080');
     if(!report.fixture?.sha256)reasons.push('missing_fixture_hash');
     if(!/^[a-f0-9]{64}$/.test(report.buildFingerprint||''))reasons.push('missing_build_fingerprint');
@@ -40,7 +43,7 @@ export function assessReport(report) {
         for(const frame of run.frames){if(!Number.isFinite(frame.at)||!Number.isFinite(frame.intervalMs)||frame.intervalMs<=0||Math.abs(frame.at-previous-frame.intervalMs)>1)return true;previous=frame.at;}
         return run.status==='complete'&&Math.abs(previous-run.sampleEndedAt)>1;
     }))reasons.push('invalid_or_missing_raw_frame_timeline');
-    if(report.runs.some(run=>(run.marks||[]).some(mark=>mark.kind==='viewport-change'&&(mark.dpr!==1||mark.width!==1920||mark.height!==1080))))reasons.push('reference_viewport_changed');
+    if(report.runs.some(run=>(run.marks||[]).some(mark=>mark.kind==='viewport-change'&&(!referenceDpr(mark.dpr)||mark.width!==1920||mark.height!==1080))))reasons.push('reference_viewport_changed');
     if(['PERF-02','PERF-08'].includes(report.scenario)&&runs.some(run=>run.trustedInputs===0))reasons.push('missing_actual_edit_or_search_input');
     const missingByScenario={'PERF-02':'semantic_display_completion_unmeasured','PERF-03':'native_save_and_load_boundaries_unmeasured','PERF-04':'operation_completion_and_cancellation_unverified','PERF-05':'product_resources_and_controlled_GC_unmeasured','PERF-06':'scheduler_concurrency_and_health_unmeasured','PERF-07':'long_run_edit_and_job_integrity_unverified','PERF-08':'semantic_search_completion_unmeasured'};
     if(missingByScenario[report.scenario])reasons.push(missingByScenario[report.scenario]);

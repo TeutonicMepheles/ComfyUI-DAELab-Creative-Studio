@@ -16,6 +16,13 @@ test('missing repeats, warmup, fixture, build, DPR and visibility are explicit i
     const r=report();r.runs.pop();r.warmupEndedAt=0;r.fixture=null;r.buildFingerprint=null;r.environment.dpr=2;r.runs[0].visibility.push({state:'hidden'});
     const result=assessReport(r);assert.equal(result.status,'insufficient_evidence');for(const reason of ['incomplete_repetitions','short_warmup','missing_fixture_hash','missing_build_fingerprint','DPR_not_reference_1','page_hidden_during_sample'])assert(result.reasons.includes(reason));
 });
+test('reference DPR tolerates browser floating-point noise but rejects real scale changes',()=>{
+    const r=report();r.environment.dpr=1.0000000298023224;
+    r.runs[0].marks=[{kind:'viewport-change',dpr:r.environment.dpr,width:1920,height:1080}];
+    assert.equal(assessReport(r).status,'requires_review');assert.equal(r.environment.dpr,1.0000000298023224);
+    for(const dpr of [0,NaN,1.001,1.25,2]){r.environment.dpr=dpr;assert(assessReport(r).reasons.includes('DPR_not_reference_1'));}
+    r.environment.dpr=1;r.runs[0].marks[0].dpr=1.25;assert(assessReport(r).reasons.includes('reference_viewport_changed'));
+});
 test('idle frames cannot satisfy interaction budget and a 201 ms active pause is retained',()=>{
     const idle=report();idle.runs[0].frames.forEach(f=>{f.active=false;});assert(assessReport(idle).reasons.includes('insufficient_actual_interaction'));
     const stalled=report();stalled.runs[0].frames[100].intervalMs=201;const result=assessReport(stalled);assert.equal(result.numericFrameBudget,false);assert.equal(result.runs[0].activeFrameIntervalsMs.max,201);
