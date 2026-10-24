@@ -93,4 +93,15 @@ def register_diagnostics(server, root: Path):
     for method, route, handler in instance.routes:
         server.routes.route(method, route)(handler)
     server._creative_studio_diagnostics = instance
+    # Stable ESM URLs must be revalidated after a package upgrade. A manifest
+    # check cannot identify a stale leaf module when the entry itself is fresh.
+    app = getattr(server, "app", None)
+    if app is not None:
+        prefix = f"/extensions/{root.name}/"
+
+        async def revalidate_product_code(request, response):
+            if request.method in {"GET", "HEAD"} and request.path.startswith(prefix) and request.path.endswith((".js", ".mjs", ".css", ".json")):
+                response.headers["Cache-Control"] = "no-cache"
+
+        app.on_response_prepare.append(revalidate_product_code)
     return instance

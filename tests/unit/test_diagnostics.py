@@ -61,5 +61,43 @@ class DiagnosticsReadinessTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(body['localGeneration']['reason'], server._creative_studio_generation_configuration_error)
 
 
+class FrontendRevalidationTests(unittest.IsolatedAsyncioTestCase):
+    async def test_actual_static_code_revalidates_and_etag_304_keeps_policy(self):
+        from aiohttp import web
+        from aiohttp.test_utils import TestClient, TestServer
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder) / 'Studio'
+            root.mkdir()
+            code = root / 'canvas.mjs'
+            code.write_text('export const version = 1;', encoding='utf-8')
+            app = web.Application()
+            server = SimpleNamespace(app=app, routes=web.RouteTableDef())
+            module.register_diagnostics(server, root)
+            module.register_diagnostics(server, root)
+            self.assertEqual(len(app.on_response_prepare), 1)
+            async def serve_file(request):
+                return web.FileResponse(code)
+            app.router.add_get('/extensions/Studio/canvas.mjs', serve_file)
+            app.router.add_get('/extensions/Other/canvas.mjs', serve_file)
+            app.router.add_get('/view', serve_file)
+            async with TestClient(TestServer(app)) as client:
+                first = await client.get('/extensions/Studio/canvas.mjs')
+                self.assertEqual(first.status, 200)
+                self.assertEqual(first.headers['Cache-Control'], 'no-cache')
+                etag = first.headers['ETag']
+                await first.read()
+                unchanged = await client.get('/extensions/Studio/canvas.mjs', headers={'If-None-Match': etag})
+                self.assertEqual(unchanged.status, 304)
+                self.assertEqual(unchanged.headers['Cache-Control'], 'no-cache')
+                code.write_text('export const version = 222;', encoding='utf-8')
+                changed = await client.get('/extensions/Studio/canvas.mjs', headers={'If-None-Match': etag})
+                self.assertEqual(changed.status, 200)
+                self.assertIn('222', await changed.text())
+                for path in ('/view', '/extensions/Other/canvas.mjs'):
+                    other = await client.get(path)
+                    self.assertNotIn('Cache-Control', other.headers)
+                    await other.read()
+
+
 if __name__ == "__main__":
     unittest.main()
