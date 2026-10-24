@@ -34,7 +34,7 @@ function fixture(t,port=new Port(),node='node-a'){
     const owner={documentId:'document',nodeId:node},connections={groups:{'groups.group0':{version:1,assets:[{id:'source',nodeId:'source',filename:'synthetic.png',type:'input'}]}}};
     const undo=[];
     const native=createBusinessDocument({read:()=>state,write:value=>{state=value;},current:()=>current,
-        identity:()=>({workflowSession:'workflow-a',epoch,documentId:'document:'+node}),stamp:value=>({edit_data:value.edit_data,connections}),
+        identity:()=>({workflowSession:'workflow-a',epoch,documentId:owner.documentId+':'+owner.nodeId}),stamp:value=>({edit_data:value.edit_data,connections}),
         history:{begin(){before=structuredClone(state);},end(){undo.push(before);},amend(fn){fn();},undo(){state=undo.pop();},redo(){}}});
     const host={input:()=>({edit_data:state.edit_data,connections:structuredClone(connections),source:owner}),current:()=>current,
         begin:id=>native.beginRequest(id),canApply:native.canApply,release:native.releaseRequest,
@@ -45,7 +45,7 @@ function fixture(t,port=new Port(),node='node-a'){
     t.after(()=>{session.dispose();native.dispose();});
     return {session,port,native,host,connections,owner,get state(){return state;},get view(){return views.at(-1);},
         edit(value='changed'){native.edit('input',draft=>{draft.edit_data=JSON.stringify({version:1,clips:[{duration:value}]});});return session.inputChanged();},
-        switch(){epoch++;session.invalidate();},detach(){current=false;},restore(value){state=structuredClone(value);},
+        get historyEdits(){return undo.length;},switch(){epoch++;session.invalidate();},detach(){current=false;},restore(value){state=structuredClone(value);},
     };
 }
 
@@ -56,6 +56,94 @@ test('one click captures immutable input and writes only a minimal reference the
     f.port.complete(id);await f.session.refresh();assert.equal(f.state.binding.asset.asset_id,'asset-'+id);assert.equal(f.view.currentOutput.reference.requestId,id);
     assert.equal('state' in f.state.binding,false);assert.equal('snapshot' in f.state.binding,false);
     assert.equal(f.port.calls.some(c=>String(c[0]).includes('queue')),false);
+});
+
+async function completedCopy(t,{documentId='saved-as',nodeId='node-a'}={}){
+    const original=fixture(t);await original.session.start();original.port.complete(original.state.reference.requestId);await original.session.refresh();
+    const saved=structuredClone(original.state),facts=structuredClone(original.port.records.get(saved.reference.requestId));original.session.dispose();
+    const copy=fixture(t,original.port,nodeId);copy.owner.documentId=documentId;copy.restore(saved);
+    const before=copy.port.calls.length;assert.equal(copy.session.load(saved.reference),true);await tick();await copy.session.inputChanged();
+    return {original,copy,saved,facts,before};
+}
+
+test('Save As and cross-node copies verify an existing binding with GET only and never write native history',async t=>{
+    for(const owner of [{documentId:'saved-as',nodeId:'node-a'},{documentId:'document',nodeId:'different-node'}]){
+        const {copy,saved,before}=await completedCopy(t,owner);
+        assert.equal(copy.view.copied,true);assert.deepEqual(copy.view.copiedOutput,saved.binding);assert.equal(copy.view.currentOutput,undefined);
+        assert.equal(copy.view.canCancel,false);assert.equal(copy.view.canRecover,false);assert.equal(copy.view.canReview,false);
+        assert.equal(copy.view.canExportCopy,true);assert.deepEqual(copy.port.calls.slice(before).map(c=>c[0]),['get']);
+        await copy.session.start();await copy.session.cancel();await copy.session.recover();assert.equal(await copy.session.review(),false);
+        assert.deepEqual(copy.port.calls.slice(before).map(c=>c[0]),['get']);assert.equal(copy.historyEdits,0);assert.deepEqual(copy.state,saved);
+        const change=copy.edit();assert.equal(copy.view.copiedOutput,undefined);await change;copy.native.undo();await copy.session.inputChanged();
+        assert.deepEqual(copy.view.copiedOutput,saved.binding);assert.equal(copy.historyEdits,0);assert.deepEqual(copy.state,saved);
+    }
+});
+
+test('a foreign reference without binding makes no GET or task-control calls, while explicit copy submission uses its new owner',async t=>{
+    const original=fixture(t);await original.session.start();const saved=structuredClone(original.state);original.session.dispose();
+    const copy=fixture(t,original.port);copy.owner.documentId='saved-as';copy.restore(saved);const before=copy.port.calls.length;
+    assert.equal(copy.session.load(saved.reference),true);await tick();await copy.session.refresh();await copy.session.recover();await copy.session.cancel();await copy.session.start();
+    assert.equal(copy.port.calls.length,before);assert.equal(copy.view.copied,true);assert.equal(copy.view.copiedOutput,undefined);
+    await copy.session.startCopy();const ref=copy.state.reference;assert.notEqual(ref.requestId,saved.reference.requestId);assert.deepEqual(ref.source,copy.owner);
+    assert.equal(copy.port.records.get(saved.reference.requestId).state,'running');assert.equal(copy.port.calls.slice(before).filter(c=>c[0]==='submit').length,1);
+});
+
+test('explicit copy submission persists a fresh identity and reload reads it without changing the original receipt',async t=>{
+    const {copy,saved,facts,before}=await completedCopy(t);
+    await copy.session.startCopy();const current=copy.state.reference;assert.notEqual(current.requestId,saved.reference.requestId);assert.deepEqual(current.source,copy.owner);
+    assert.equal(copy.view.copied,false);assert.equal(copy.view.copiedOutput,undefined);copy.port.complete(current.requestId);await copy.session.refresh();
+    assert.equal(copy.view.currentOutput.reference.requestId,current.requestId);assert.deepEqual(copy.port.records.get(saved.reference.requestId),facts);
+    const persisted=structuredClone(copy.state),reloaded=fixture(t,copy.port);reloaded.owner.documentId='saved-as';reloaded.restore(persisted);reloaded.session.load(persisted.reference);await tick();await reloaded.session.inputChanged();
+    assert.deepEqual(reloaded.view.currentOutput,persisted.binding);assert.equal(reloaded.historyEdits,0);
+    assert.equal(copy.port.calls.slice(before).filter(c=>c[0]==='submit').length,1);assert.deepEqual(saved.reference.source,{documentId:'document',nodeId:'node-a'});
+});
+
+test('foreign bad binding, forged old source, and mismatching completed receipt fail closed and keep saved JSON',async t=>{
+    for(const corrupt of [value=>{value.binding.reference.requestId='forged';},value=>{value.binding.asset.bytes=-1;},value=>{value.reference.source.documentId='forged';value.binding.reference.source.documentId='forged';},value=>{value.binding.asset.asset_id='forged';}]){
+        const {copy,saved}=await completedCopy(t);copy.session.dispose();const bad=structuredClone(saved);corrupt(bad);
+        const other=fixture(t,copy.port);other.owner.documentId='saved-as';other.restore(bad);const before=other.port.calls.length;
+        other.session.load(bad.reference);await tick();await other.session.start();await other.session.startCopy();await other.session.recover();await other.session.cancel();
+        assert.equal(other.view.currentOutput,undefined);assert.equal(other.view.copiedOutput,undefined);assert.equal(other.view.canExportCopy,false);
+        assert.ok(other.view.error);assert.deepEqual(other.state,bad);assert.equal(other.historyEdits,0);
+        assert.ok(other.port.calls.slice(before).every(c=>c[0]==='get'));
+    }
+});
+
+test('foreign completion lookup cannot cross input changes, owner changes, reload or destruction',async t=>{
+    for(const action of ['edit','owner','reload','dispose']){
+        const {copy,saved,facts}=await completedCopy(t);const gate=copy.port.getGate=deferred();copy.session.load(saved.reference);
+        if(action==='edit')await copy.edit();else if(action==='owner')copy.owner.documentId='another-save-as';else if(action==='reload')copy.session.load(undefined);else copy.session.dispose();
+        const viewsBefore=copy.view;gate.resolve(structuredClone(facts));await tick();await tick();
+        assert.equal(copy.state.binding.reference.requestId,saved.reference.requestId);assert.equal(copy.view.copiedOutput,undefined);
+        if(action==='owner'||action==='dispose')assert.equal(copy.view,viewsBefore,'stale lookup cannot notify the new owner');
+    }
+});
+
+test('same workflow object with owner ID changed rejects late own-task completion before host lifecycle catches up',async t=>{
+    const f=fixture(t);await f.session.start();const id=f.state.reference.requestId;f.port.complete(id);const gate=f.port.getGate=deferred(),pending=f.session.refresh();
+    f.owner.documentId='save-as-with-same-workflow';gate.resolve(structuredClone(f.port.records.get(id)));await pending;
+    assert.equal(f.state.binding,undefined);assert.equal(f.port.calls.filter(c=>c[0]==='submit').length,1);
+});
+
+test('copy connection edits hide old output synchronously; restoring content only restores its read-only projection',async t=>{
+    const {copy,saved,facts}=await completedCopy(t);
+    copy.connections.groups['groups.group0'].assets[0].filename='changed.png';
+    const changed=copy.session.inputChanged();assert.equal(copy.view.copiedOutput,undefined);await changed;
+    copy.connections.groups['groups.group0'].assets[0].filename='synthetic.png';await copy.session.inputChanged();
+    assert.deepEqual(copy.view.copiedOutput,saved.binding);assert.equal(copy.historyEdits,0);assert.deepEqual(copy.port.records.get(saved.reference.requestId),facts);
+    copy.state.binding.asset.sha256='bad';await copy.session.inputChanged();assert.equal(copy.view.copiedOutput,undefined);assert.equal(copy.view.canExportCopy,false);
+    const calls=copy.port.calls.length;await copy.session.startCopy();assert.equal(copy.port.calls.length,calls);
+});
+
+test('copy action waits for read-only verification and a double click creates only one new submission',async t=>{
+    const {copy,saved,facts}=await completedCopy(t);
+    const gate=copy.port.getGate=deferred(),read=copy.session.refresh();assert.equal(copy.view.canExportCopy,false);
+    gate.resolve(structuredClone(facts));await read;copy.port.getGate=null;
+    copy.port.submitGate=deferred();const submit=copy.session.startCopy();await tick();await copy.session.startCopy();
+    copy.port.submitGate.resolve();await submit;
+    assert.notEqual(copy.state.reference.requestId,saved.reference.requestId);
+    assert.equal(copy.port.calls.filter(c=>c[0]==='submit').length,2);assert.equal(copy.view.currentOutput,undefined);assert.equal(copy.view.copiedOutput,undefined);
+    assert.deepEqual(copy.port.records.get(saved.reference.requestId),facts);
 });
 
 test('double click shares one pending operation and two instances cancel only their own identity',async t=>{

@@ -237,11 +237,12 @@
       "source": "web/video_edit.js",
       "destination": "frontend/src/integrations/comfyui/canvas/video_edit.js",
       "sourceSha256": "cff552275a3cdcc69a505a353801c0a9d781d82b7cef4ecc017ca35ca9f87aa6",
-      "destinationSha256": "6a9ba739caa4929620633f29e097d7392cc7a9a7191badb9b982a561f662199c",
+      "destinationSha256": "16f9952e01007273c49ffbbba5f55160338eb5242d1200099586511fe6f7beff",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "Traceability agent M5 HTTP export-service integration in progress; hash synchronized for asset-focused checks, final host freeze waits for that owner handoff.",
-        "Unify native export-reference loading; preserve damaged raw properties, diagnose once per load, and hold an unresolved submission lock until reference identity is verified. Normal native/proxy JSON behavior retained."
+        "Unify native export-reference loading; preserve damaged raw properties, diagnose once per load, and hold an unresolved submission lock until reference identity is verified. Normal native/proxy JSON behavior retained.",
+        "Save As owner rebinding and verified copied-output projection preserve original source/request/asset provenance; explicit copy export establishes a new owner identity; legacy prepareCopy/remapCopy behavior remains unchanged."
       ],
       "kind": "production-source"
     },
@@ -379,10 +380,11 @@
       "source": "web/video_edit_panel.mjs",
       "destination": "frontend/src/features/editor/video_edit_panel.mjs",
       "sourceSha256": "bd2db748565ba29cd09dddfa682146c1a7cb9335d7fd0aaebc3718a2703bc132",
-      "destinationSha256": "91dd1840fbfa00d59cc3924715165a0f4332055e0e9fa62521ef60af9f39ea4b",
+      "destinationSha256": "26b901628c4877023e43ae57b8a5bf05ec0d753a64a3ca1dc5e0892c7831aafa",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
-        "Actual-host keyboard follow-up: reuse shared save propagation for root and clip menu; preserve existing timeline/editor shortcuts and IME ownership."
+        "Actual-host keyboard follow-up: reuse shared save propagation for root and clip menu; preserve existing timeline/editor shortcuts and IME ownership.",
+        "Expose explicit copy-export action and original-source read-only preview/download labels; shared asynchronous disabled rule and keyboard behavior retained."
       ],
       "kind": "production-source"
     },
@@ -1011,6 +1013,17 @@
       "changes": [
         "Explicit registration lifetime/binding; no secondary editable document or import-time service side effects."
       ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "frontend/src/features/editor/export_session.ts",
+      "kind": "production-source",
+      "changes": [
+        "Separate own currentOutput from GET-verified copiedOutput; compare original-owner digest with current edit/connections, prohibit foreign task control/default start, fence asynchronous observations by captured owner, and preserve native history/ledger facts."
+      ],
+      "destinationSha256": "8e2468a20ccbc6f8c7439364666c843554be791845607ad47006eb6481c6219f"
     }
   ],
   "hostBoundary": {

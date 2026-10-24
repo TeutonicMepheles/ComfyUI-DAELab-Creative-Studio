@@ -15,7 +15,8 @@ for(const proxied of [false,true])test(`real VideoEdit integration uses HTTP sna
         serialize:()=>({nodes:[...nodes.values()].map(n=>({id:n.id,properties:n.properties,widgets_values:n.widgets?.map(w=>w.value)}))})};
     let extension,invalidAsset=false;
     const app={graph,rootGraph:graph,isGraphReady:true,configuringGraph:false,canvas:{selected_nodes:{}},extensionManager:{workflow:{activeWorkflow:{}},toast:{add(){}}},registerExtension(value){extension=value;}};
-    const history={begin(){},end(){},amend(fn){fn();},undo(){},redo(){}};
+    let historyEdits=0;
+    const history={begin(){historyEdits++;},end(){},amend(fn){fn();},undo(){},redo(){}};
     const api={queuePrompt(){throw Error('native queue must never be invoked by UI');},async fetchApi(url,options={}){
         requests.push([url,options.method||'GET',options.body]);
         const prefix='/daelab/studio/media-exports';assert.ok(url.startsWith(prefix));
@@ -67,10 +68,34 @@ for(const proxied of [false,true])test(`real VideoEdit integration uses HTTP sna
     await pa.host.recoverExport();assert.match(pa.lastOutput,/result-a.mp4/);assert.equal(pb.lastOutput,null);
     a.__videoEdit.reload();await pa.host.recoverExport();assert.match(pa.lastOutput,/result-a.mp4/);assert.equal(pb.lastOutput,null);
     assert.equal(requests.filter(([url])=>url==='/daelab/studio/media-exports').length,2,'reload only reads the original request');
-    const adapter=adapters.get('daelab.video-edit');assert.equal(adapter.assets(a).assets[0].assetId,'result-a');
+    const readyEdit=a.widgets[0].value,adapter=adapters.get('daelab.video-edit');assert.equal(adapter.assets(a).assets[0].assetId,'result-a');
     const edited=JSON.parse(a.widgets[0].value);edited.clips[0].duration=1;pa.host.write(edited);assert.equal(adapter.assets(a).ready,false);assert.deepEqual(a.outputs[0].links,[701]);assert.ok(a.properties.daelabEditBinding);
     invalidAsset=true;await pa.host.exportVideo();assert.equal(requests.filter(([url])=>url==='/daelab/studio/media-exports').length,2);assert.match(pa.lastState.error,/不可保存/);invalidAsset=false;
     const copy={properties:JSON.parse(JSON.stringify(b.properties))};adapter.prepareCopy(b,copy);assert.equal(copy.properties.daelabEditExport,undefined);assert.ok(b.properties.daelabEditExport);
+    // Actual Save As keeps the workflow and node objects, but changes graph.id.
+    // Completion projection must rebind immediately, not wait for graph reload.
+    a.widgets[0].value=readyEdit;a.__videoEdit.reload();await new Promise(resolve=>setTimeout(resolve,5));
+    const originalProperties=JSON.parse(JSON.stringify(a.properties)),originalFacts=JSON.parse(JSON.stringify(report)),originalB=b.properties.daelabEditExport.requestId;
+    const editsBeforeSaveAs=historyEdits,requestsBeforeSaveAs=requests.length;
+    graph.id='save-as-graph';a.__videoEdit.syncConnections();b.__videoEdit.syncConnections();await new Promise(resolve=>setTimeout(resolve,5));
+    assert.equal(pa.lastState.copied,true);assert.equal(pa.lastState.currentOutput,undefined);assert.equal(pa.lastState.copiedOutput.reference.requestId,id);
+    assert.match(pa.lastOutput,/result-a.mp4/);assert.equal(pb.lastOutput,null);assert.equal(pb.lastState.copied,true);
+    assert.equal(pa.lastState.canCancel,false);assert.equal(pa.lastState.canRecover,false);assert.equal(pa.lastState.canReview,false);
+    assert.equal(historyEdits,editsBeforeSaveAs,'read-only copied output projection does not add native edits');
+    assert.deepEqual(JSON.parse(JSON.stringify(a.properties)),originalProperties);
+    assert.deepEqual(requests.slice(requestsBeforeSaveAs).map(([url,method])=>[url,method]),[['/daelab/studio/media-exports/'+id,'GET']]);
+    assert.equal(adapter.assets(a).assets[0].provenance.requestId,id);assert.deepEqual(adapter.assets(a).assets[0].provenance.source,{documentId:'graph-fixture',nodeId:'1'});
+    await pa.host.exportVideo();await pa.host.cancelExport();await pa.host.recoverExport();await pa.host.reviewExport();
+    await pb.host.exportVideo();await pb.host.cancelExport();await pb.host.recoverExport();
+    assert.equal(requests.length,requestsBeforeSaveAs+1,'default actions cannot run or take over a copied task');
+    await pa.host.exportCopy();const freshId=a.properties.daelabEditExport.requestId;
+    assert.notEqual(freshId,id);assert.deepEqual(a.properties.daelabEditExport.source,{documentId:'save-as-graph',nodeId:'1'});
+    assert.equal(pa.lastState.copied,false);assert.equal(pa.lastOutput,null);assert.equal(records.get(originalB).state,'running');
+    assert.deepEqual(records.get(id),originalFacts);assert.deepEqual(originalProperties.daelabEditExport.source,{documentId:'graph-fixture',nodeId:'1'});
+    Object.assign(records.get(freshId),{state:'succeeded',version:5,result:{kind:'assets',items:[{asset_id:'copy-result',reference_id:'copy-reference',sha256:'d'.repeat(64),bytes:600}]},output:{filename:'copy-result.mp4',subfolder:'DAELAB/edits',type:'output'}});
+    await pa.host.recoverExport();assert.match(pa.lastOutput,/copy-result.mp4/);a.__videoEdit.reload();await new Promise(resolve=>setTimeout(resolve,5));
+    assert.match(pa.lastOutput,/copy-result.mp4/);assert.equal(pa.lastState.currentOutput.reference.requestId,freshId);assert.equal(pa.lastState.copiedOutput,undefined);
+    assert.equal(requests.filter(([url])=>url==='/daelab/studio/media-exports').length,3);
     b.onRemoved();assert.equal(requests.some(([url])=>url.endsWith('/cancel')),false);assert.equal(records.get(b.properties.daelabEditExport.requestId).state,'running');
     const broken=new Node(3,101),originalRef={schemaVersion:1,requestId:'keep-corrupt-original',inputDigest:'invalid',source:{documentId:graph.id,nodeId:'3'}};
     broken.properties.daelabEditExport=originalRef;broken.onNodeCreated();await new Promise(resolve=>setTimeout(resolve,5));

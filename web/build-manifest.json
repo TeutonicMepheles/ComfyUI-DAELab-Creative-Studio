@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "7fd2630c1e2abed00e7f5eae287ef1e41a5c7007d6153842935dacd59418a678",
+  "sourceFingerprint": "2d6ced4dd816f982ffb45b6c727ddbd4df49162fff62eb0b0ce4f719d160818d",
   "files": [
     {
       "path": "application/asset_library_service.js",
@@ -352,7 +352,7 @@
     },
     {
       "path": "features/editor/export_session.js",
-      "sha256": "c3035f4cce9928355872a8436b12ca94129955ba7c63c9a071a8d72dfe54f0d4"
+      "sha256": "4af7f7b85c5dcb076fcfca19df0cad9dae37e7ba8d20cb15090c47167399587a"
     },
     {
       "path": "features/editor/video_edit.css",
@@ -364,7 +364,7 @@
     },
     {
       "path": "features/editor/video_edit_panel.mjs",
-      "sha256": "91dd1840fbfa00d59cc3924715165a0f4332055e0e9fa62521ef60af9f39ea4b"
+      "sha256": "26b901628c4877023e43ae57b8a5bf05ec0d753a64a3ca1dc5e0892c7831aafa"
     },
     {
       "path": "features/generation/generation_model_icons.mjs",
@@ -796,7 +796,7 @@
     },
     {
       "path": "integrations/comfyui/canvas/video_edit.js",
-      "sha256": "6a9ba739caa4929620633f29e097d7392cc7a9a7191badb9b982a561f662199c"
+      "sha256": "16f9952e01007273c49ffbbba5f55160338eb5242d1200099586511fe6f7beff"
     },
     {
       "path": "integrations/comfyui/compat_readonly.js",
@@ -808,7 +808,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "71b533d780753a79c595ad5574615d5611bc35d61da3e259d742ba3490b4b35d"
+      "sha256": "0bcd3efb7b218137cebf122b102282e941a9c38a2d2c68f092bcdf25e57ab976"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

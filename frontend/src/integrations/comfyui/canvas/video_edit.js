@@ -10,7 +10,7 @@ import {ExportSession} from '../../../features/editor/export_session.js';
 import {createMediaExportHttp} from '../media_exports.js';
 
 const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href=new URL('../../../features/editor/video_edit.css?v=20261001-timeline-background2',import.meta.url).href;document.head.append(sheet);
-const resultFor=node=>node.properties?.daelabEditBinding?node.__videoEdit?.currentResult?.()||null:node.properties?.daelabEditResultData===node.widgets?.find(w=>w.name==='edit_data')?.value?node.properties?.daelabEditResult:null;
+const resultFor=node=>node.properties?.daelabEditBinding||node.properties?.daelabEditExport?node.__videoEdit?.currentResult?.()||null:node.properties?.daelabEditResultData===node.widgets?.find(w=>w.name==='edit_data')?.value?node.properties?.daelabEditResult:null;
 const workflowPlayheads=new WeakMap();
 const exportService=createMediaExportHttp((path,options)=>api.fetchApi(path,options));
 // Native workflow properties can be reactive proxies in the pinned host.
@@ -34,7 +34,7 @@ function install(node){
     widget.hidden=true;widget.options={...widget.options,hidden:true};widget.computeSize=()=>[0,-4];if(widget.inputEl)widget.inputEl.style.display='none';
     let exportTask=null;const operations=new Map();
     let disposed=false,sourceSignature=null,sourceSync=null,syncTimer=null,playhead=null,playheadWorkflow=null,currentResult=null,displayedResult=null,currentBinding=null;
-    let session,resumedWorkflow=null,resumedEpoch=-1,referenceLoadReady=false,liveRequestId=null,finishedAt=null;
+    let session,resumedWorkflow=null,resumedEpoch=-1,resumedOwner=null,referenceLoadReady=false,liveRequestId=null,finishedAt=null;
     const current=()=>!disposed&&app.isGraphReady!==false&&!!node.graph&&node.graph===app.graph&&node.graph.getNodeById?.(node.id)===node&&!app.configuringGraph;
     const owner=()=>{if(node.graph?.id==null||String(node.graph.id)===''||node.id==null)throw new Error('宿主缺少稳定工作流身份，暂不能导出');return {documentId:String(node.graph.id),nodeId:String(node.id)};};
     const document=createBusinessDocument({
@@ -97,12 +97,13 @@ function install(node){
         inspect:(asset,signal)=>mediaTask('edit-sources','素材读取','读取连接素材','/daelab/edit/media',{asset},signal),
         proxy:(asset,scale,signal)=>mediaTask('edit-preview','预览准备',`准备 ${scale}× 预览`,'/daelab/edit/preview',{asset,scale},signal),
         exportVideo(){if(resumeExport())return session.start();},
-        cancelExport:()=>session.cancel(),
-        recoverExport:()=>session.recover(),
-        reviewExport:()=>session.review(),
+        exportCopy(){if(resumeExport())return session.startCopy();},
+        cancelExport(){if(resumeExport())return session.cancel();},
+        recoverExport(){if(resumeExport())return session.recover();},
+        reviewExport(){if(resumeExport())return session.review();},
     });
     session=new ExportSession(exportService,{
-        input:()=>({edit_data:widget.value,connections:connectionInputs(),source:owner()}),current,
+        input:()=>({edit_data:widget.value,connections:connectionInputs(),source:owner()}),current,owner,
         begin:requestId=>document.beginRequest(requestId),canApply:document.canApply,release:document.releaseRequest,
         saveReference(reference){document.edit('记录导出请求',draft=>{draft.reference=reference;});liveRequestId=reference.requestId;finishedAt=null;},
         apply(ticket,binding){return document.controller.applyResult(ticket,'绑定导出成片',draft=>{
@@ -110,15 +111,17 @@ function install(node){
         });},
         binding:()=>nativeSnapshot(node.properties.daelabEditBinding),
         changed(view){
-            const report=view.report,url=view.currentOutput?'/view?'+new URLSearchParams(view.currentOutput.output):null;
+            const report=view.report,binding=view.currentOutput||view.copiedOutput,url=binding?'/view?'+new URLSearchParams(binding.output):null;
             currentResult=url;
-            currentBinding=view.currentOutput||null;
-            const visible=url||(!node.properties.daelabEditBinding?resultFor(node):null);
-            if(visible!==displayedResult){displayedResult=visible;panel.output(visible);}
-            const detail=view.error||(report?.errorCode==='export_input_rejected'?(report.state==='cancelled'?'输入检查未通过，修复素材后可重新导出':'输入检查未通过，请取消原任务记录后重试'):(report?.state==='succeeded'&&!view.currentOutput)?'原剪辑已完成；采用前请核对当前编辑':stateLabels[report?.state]||'核对原导出任务');
+            currentBinding=binding||null;
+            const visible=url||(!node.properties.daelabEditBinding&&!node.properties.daelabEditExport?resultFor(node):null);
+            const displayStamp=JSON.stringify([visible,!!view.copiedOutput,binding?.reference.source]);
+            if(displayStamp!==displayedResult){displayedResult=displayStamp;panel.output(visible,{copied:!!view.copiedOutput,source:binding?.reference.source});}
+            const detail=view.error||(view.copied?(view.copiedOutput?'副本正在只读使用原成片；可为此副本另行导出':report?.state==='succeeded'?'副本编辑已改变，原成片不适用于当前输入；可为此副本导出':'副本正在核对原成片绑定'):
+                report?.errorCode==='export_input_rejected'?(report.state==='cancelled'?'输入检查未通过，修复素材后可重新导出':'输入检查未通过，请取消原任务记录后重试'):(report?.state==='succeeded'&&!view.currentOutput)?'原剪辑已完成；采用前请核对当前编辑':stateLabels[report?.state]||'核对原导出任务');
             panel.exportState(view,view.reference||view.error?detail:'');
             if(report?.requestId===liveRequestId&&['succeeded','cancelled'].includes(report.state)&&finishedAt===null)finishedAt=Date.now();
-            exportTask=report?{id:'edit-export',label:'成片导出',state:taskStates[report.state],detail,order:40,...(report.requestId===liveRequestId&&finishedAt!==null?{finishedAt}:{})}:view.reference||view.unresolved?{id:'edit-export',label:'成片导出',state:view.rejected?'error':'recovery',detail,order:40}:null;
+            exportTask=report?{id:'edit-export',label:view.copied?'原来源成片（只读）':'成片导出',state:taskStates[report.state],detail,order:40,...(report.requestId===liveRequestId&&finishedAt!==null?{finishedAt}:{})}:view.reference||view.unresolved?{id:'edit-export',label:view.copied?'副本成片引用':'成片导出',state:view.rejected?'error':'recovery',detail,order:40}:null;
         },
     });
     const lifecycle={invalidate(){document.invalidate();session.invalidate();currentResult=null;displayedResult=null;panel.output(null);}};
@@ -126,10 +129,13 @@ function install(node){
     function resumeExport(){
         if(!current())return false;
         const workflow=app.extensionManager?.workflow?.activeWorkflow;
-        if(resumedWorkflow===workflow&&resumedEpoch===loadEpoch)return referenceLoadReady;
+        let identity;
+        try{identity=JSON.stringify(owner());}catch(error){session.rejectReference(error.message);return false;}
+        if(resumedWorkflow===workflow&&resumedEpoch===loadEpoch&&resumedOwner===identity)return referenceLoadReady;
         // Mark the attempt before snapshotting: a damaged native reference is
         // diagnosed once per load, never retried by every source-sync tick.
-        resumedWorkflow=workflow;resumedEpoch=loadEpoch;liveRequestId=null;referenceLoadReady=false;
+        resumedWorkflow=workflow;resumedEpoch=loadEpoch;resumedOwner=identity;liveRequestId=null;referenceLoadReady=false;
+        document.invalidate();sourceSync=null;sourceSignature=null;panel.cancelSourceSync();currentBinding=null;currentResult=null;displayedResult=null;panel.output(null);
         try{referenceLoadReady=session.load(nativeSnapshot(node.properties.daelabEditExport));}
         catch(error){session.rejectReference(error instanceof Error?error.message:'宿主引用无法读取');}
         if(!referenceLoadReady){document.invalidate();sourceSync=null;sourceSignature=null;panel.cancelSourceSync();}
@@ -191,7 +197,7 @@ function install(node){
     syncTimer=setInterval(syncConnections,400);
     const availability=bindPanelAvailability(node,panel.root);
     const dom=node.addDOMWidget('video_edit','custom',panel.root,{serialize:false,hideOnZoom:false,getValue:()=>'',setValue:()=>{},getMinHeight:()=>660});dom.serialize=false;
-    node.__videoEdit={...panel,currentResult:()=>currentResult,currentBinding:()=>currentResult?structuredClone(currentBinding):null,tasks:()=>disposed?[]:[...(exportTask?[{...exportTask}]:[]),...[...operations.values()].map(t=>({...t}))],syncConnections,
+    node.__videoEdit={...panel,currentResult:()=>resumeExport()?currentResult:null,currentBinding:()=>resumeExport()&&currentResult?structuredClone(currentBinding):null,tasks:()=>disposed?[]:[...(exportTask?[{...exportTask}]:[]),...[...operations.values()].map(t=>({...t}))],syncConnections,
         output(_url,_data,report){
             // A direct whole-workflow native run is readable history; it has no
             // issued HTTP edit ticket and cannot silently bind the current edit.
@@ -208,7 +214,7 @@ registerAdapter('daelab.video-edit',{
     panel:node=>node.__videoEdit,preview:node=>({url:resultFor(node),kind:'video'}),
     summary:node=>`${readEdit(node.widgets?.find(w=>w.name==='edit_data')?.value).clips.length} 个片段`,
     materialOutput:true,
-    assets:node=>{const url=resultFor(node),binding=node.__videoEdit?.currentBinding?.(),identity=binding?{id:binding.asset.asset_id,assetId:binding.asset.asset_id,referenceId:binding.asset.reference_id,contentSha256:binding.asset.sha256,byteSize:binding.asset.bytes,provenance:{operation:'video_export',requestId:binding.reference.requestId,fingerprint:binding.fingerprint}}:{};return {version:1,ready:!!url,assets:url?[{...localAsset(url),...identity,url,kind:'video',name:'剪辑结果.mp4'}]:[]};},
+    assets:node=>{const url=resultFor(node),binding=node.__videoEdit?.currentBinding?.(),identity=binding?{id:binding.asset.asset_id,assetId:binding.asset.asset_id,referenceId:binding.asset.reference_id,contentSha256:binding.asset.sha256,byteSize:binding.asset.bytes,provenance:{operation:'video_export',requestId:binding.reference.requestId,fingerprint:binding.fingerprint,inputDigest:binding.reference.inputDigest,source:{...binding.reference.source}}}:{};return {version:1,ready:!!url,assets:url?[{...localAsset(url),...identity,url,kind:'video',name:'剪辑结果.mp4'}]:[]};},
     canConnectOutput,
     inputLabels:{assets:'素材组'},
     prepareCopy(node,serialized){
