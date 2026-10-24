@@ -63,13 +63,6 @@
 .dae-creative-card[data-unified=true]:is(:hover,:focus-within)>.dae-creative-ports button:disabled{opacity:.38}
 @media(prefers-reduced-motion:reduce){.dae-creative-card[data-unified=true]>.dae-creative-ports button{transition:none}}
 .dae-creative-wires{position:absolute;overflow:visible;width:1px;height:1px;pointer-events:none}
-/* Owned ordinary/preview/group-pulse paths do not consume these zoom values.
-   Keep the world transform, non-scaling strokes and all public card/Slot values.
-   Review tests/migrated_canvas/panel_zoom_scope.test.mjs before adding consumers. */
-.dae-creative > .dae-creative-world > svg.dae-creative-wires{
-  --dae-canvas-zoom:initial;
-  --dae-canvas-inverse-zoom:initial;
-}
 .dae-creative-wires path{fill:none;stroke:var(--dae-wire);stroke-opacity:.85;stroke-width:3;vector-effect:non-scaling-stroke;pointer-events:stroke;cursor:pointer}
 .dae-creative-wires path:hover,.dae-creative-wires path[data-selected=true]{stroke:var(--dae-wire-hover);stroke-opacity:1;stroke-width:5}
 .dae-creative-wires path[data-preview]{pointer-events:none;stroke-dasharray:5 4}

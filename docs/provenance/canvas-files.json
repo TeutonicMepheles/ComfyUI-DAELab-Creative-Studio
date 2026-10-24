@@ -102,12 +102,11 @@
       "source": "web/creative_canvas.css",
       "destination": "frontend/src/canvas/creative_canvas.css",
       "sourceSha256": "a858f0328a4f03c28c98a9d6742cbfc615e4ce1a4db8f50f50b2a3e0bca420ee",
-      "destinationSha256": "c3fc8f3b776429909d2a16e84417221777acb606ffac38ddbf9a756673ed931a",
+      "destinationSha256": "590b53cb566b733f5aa65e716ca9174b67af1ae40f18096a4eed57841d0e3970",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "Move host-private DOM selectors unchanged to integration CSS and map host sidebar variable through an explicit integration variable.",
-        "PERF-01 candidate: stop unused inherited Canvas zoom variables only at the owned leased TextInput body; preserve public root, headings, Slots, widths, native lease return and geometry. Actual browser/performance reacceptance pending.",
-        "PERF-01 candidate: stop unused inherited zoom variables only on the direct Canvas-owned wire SVG. Ordinary/preview/selected/pulse paths retain world transforms, non-scaling strokes, colors, hit testing and animation; no Slot/card/adapter scope changes. Actual browser/performance benefit remains unverified."
+        "PERF-01 candidate: stop unused inherited Canvas zoom variables only at the owned leased TextInput body; preserve public root, headings, Slots, widths, native lease return and geometry. Actual browser/performance reacceptance pending."
       ],
       "kind": "production-source"
     },
@@ -1032,11 +1031,10 @@
       "source": null,
       "sourceSha256": null,
       "destination": "tests/migrated_canvas/panel_zoom_scope.test.mjs",
-      "destinationSha256": "7a343794b872f030a67c73c92727ef0dcf1fe2a13e64ebaada76fa7907c4b302",
+      "destinationSha256": "cc2ca5f7163cf1bbb001ae297c98c4aac358dec24c612124f823c2bb82ec0316",
       "kind": "rule-regression",
       "changes": [
-        "Guard the two exact owned body scopes, actual root constructor/lease identity, preserved public sibling controls, and exhaustive CSS/JS zoom dependencies; no browser layout or performance pass claimed.",
-        "Extend exact scope/dependency guards to the direct owned wire SVG; verify actual SVG/path ownership and ordinary/preview/selected/group-pulse styling while retaining public root writes and panel scopes."
+        "Guard the two exact owned body scopes, actual root constructor/lease identity, preserved public sibling controls, and exhaustive CSS/JS zoom dependencies; no browser layout or performance pass claimed."
       ]
     }
   ],
