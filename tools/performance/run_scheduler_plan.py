@@ -70,7 +70,84 @@ def percentile(values, quantile):
     return sorted(values)[max(0, math.ceil(len(values) * quantile) - 1)] if values else None
 
 
-def analyze_run(evidence, plan, health):
+def cancellation_outcomes(evidence, control):
+    """Expected cancellation comes from the issued control/ack, never final state.
+
+    Queue membership is proven at both the observer and atomic ledger boundary.
+    A selected candidate may start before its cancellation reaches the service;
+    that case requires separate same-task provider cancellation confirmation.
+    """
+    events = evidence.get('observations', [])
+    jobs = {row['request_id']: row for row in evidence.get('jobs', [])}
+    cancels = [event for event in events if event['event'] == 'control_cancel']
+    diagnostics, queued, running, acknowledged = [], set(), set(), set()
+    if control is None:
+        return {'queued': queued, 'running': running, 'acknowledged': acknowledged,
+                'diagnostics': ['missing-cancellation-control'] if cancels else []}
+    ids = control.get('requestIds', [])
+    responses = control.get('responses', [])
+    selected = control.get('selectedFrom', [])
+    selected_ids = [row.get('requestId') for row in selected if isinstance(row, dict)]
+    response_ids = [row.get('requestId') for row in responses if isinstance(row, dict)]
+    observed_ids = [event['requestId'] for event in cancels]
+    if (control.get('action') != 'cancel' or len(set(ids)) != len(ids) or
+            len(response_ids) != len(responses) or len(set(response_ids)) != len(response_ids) or
+            set(response_ids) != set(ids) or len(observed_ids) != len(ids) or set(observed_ids) != set(ids) or
+            len(selected_ids) != len(selected) or len(set(selected_ids)) != len(selected_ids) or set(selected_ids) != set(ids)):
+        diagnostics.append('cancellation-control-identity-mismatch')
+    by_response = {row['requestId']: row for row in responses if isinstance(row, dict) and 'requestId' in row}
+    by_selection = {row['requestId']: row for row in selected if isinstance(row, dict) and 'requestId' in row}
+    for request_id in ids:
+        observed = [event for event in cancels if event['requestId'] == request_id]
+        if len(observed) != 1 or request_id not in jobs or request_id not in by_response:
+            diagnostics.append('missing-cancellation-evidence:' + str(request_id)); continue
+        response, event, job = by_response[request_id], observed[0], jobs[request_id]
+        # The frozen v3 provider requests "native"; the product gate accounts
+        # that physical class under its shared "gpu" budget.
+        resource = {'fake-local': 'native', 'fake-cloud': 'cloud', 'fake-transcode': 'transcode'}.get(job.get('kind'))
+        if by_selection.get(request_id) != {'requestId': request_id, 'state': 'pending', 'waitingResource': resource}:
+            diagnostics.append('unregistered-pending-cancel-selection:' + request_id); continue
+        if response.get('state') != 'cancelled':
+            # A cancel racing a successful/failed completion does not rewrite the
+            # pre-registered outcome. Unconfirmed cancellation is never success.
+            if response.get('state') not in TERMINAL:
+                diagnostics.append('unconfirmed-cancellation:' + request_id)
+            continue
+        facts = job.get('events', [])
+        intents = [fact for fact in facts if fact.get('request_id') == request_id and fact.get('event_type') == 'cancel_intent']
+        if len(intents) != 1 or type(intents[0].get('detail', {}).get('queued')) is not bool:
+            diagnostics.append('missing-atomic-cancel-intent:' + request_id); continue
+        intent = intents[0]
+        if intent['detail']['queued']:
+            if event.get('beforeState') != 'pending' or event.get('waitingResource') != resource:
+                diagnostics.append('queued-cancel-without-observed-wait:' + request_id); continue
+            queued.add(request_id)
+            acknowledged.add(request_id)
+            continue
+        confirms = [fact for fact in facts if fact.get('request_id') == request_id and fact.get('event_type') == 'cancel_confirmed'
+                    and fact.get('sequence', -1) > intent.get('sequence', -1)]
+        attempts = job.get('attempts', [])
+        same_task = bool(job.get('provider_task_id')) and len(attempts) == 1 and attempts[0].get('provider_task_id') == job['provider_task_id'] and any(
+            fact.get('detail', {}).get('provider_task_id') == job['provider_task_id'] and
+            fact.get('detail', {}).get('confirmation') in {'provider_cancelled', 'owned_native_execution_stopped'}
+            for fact in confirms)
+        active_before = event.get('beforeState') in {'submitting', 'submitted', 'running', 'fetching', 'unknown', 'needs_recovery'}
+        selected_before_start = event.get('beforeState') == 'pending' and event.get('waitingResource') == resource
+        own = [row for row in events if row.get('requestId') == request_id]
+        creates = [row['sequence'] for row in own if row['event'] == 'provider_create']
+        provider_cancels = [row['sequence'] for row in own if row['event'] == 'provider_cancel']
+        finished = [row['sequence'] for row in own if row['event'] == 'provider_finished' and row.get('state') == 'cancelled']
+        confirmed_order = len(creates) == 1 and any(
+            sequence > max(creates[0], event['sequence']) and any(end > sequence for end in finished)
+            for sequence in provider_cancels)
+        if not (same_task and (active_before or selected_before_start) and confirmed_order):
+            diagnostics.append('active-cancel-not-confirmed:' + request_id); continue
+        running.add(request_id)
+        acknowledged.add(request_id)
+    return {'queued': queued, 'running': running, 'acknowledged': acknowledged, 'diagnostics': diagnostics}
+
+
+def analyze_run(evidence, plan, health, *, cancellation_control=None):
     run_id = evidence['runId']
     expected = {run_id + '.' + row['request_id']: row for row in plan['jobs']}
     jobs = evidence.get('jobs', [])
@@ -102,7 +179,8 @@ def analyze_run(evidence, plan, health):
             for resource in resource_peaks:
                 resource_peaks[resource] = max(resource_peaks[resource], event['snapshot']['resources'][resource]['active'])
             lease_peak = resource_peaks['gpu']
-    queued_cancels = {e['requestId'] for e in observations if e['event'] == 'control_cancel' and e['beforeState'] == 'pending' and e.get('waitingResource')}
+    cancellation = cancellation_outcomes(evidence, cancellation_control)
+    queued_cancels, running_cancels = cancellation['queued'], cancellation['running']
     queued_by_kind = {kind: sorted(key for key in queued_cancels if expected[key]['kind'] == kind) for kind in LIMITS}
     phases = {}
     for event in observations:
@@ -118,10 +196,12 @@ def analyze_run(evidence, plan, health):
     checks = {
         'exact100Identities': len(jobs) == 100 and len(rows) == 100 and set(rows) == set(expected),
         'allTerminal': len(jobs) == 100 and all(j['state'] in TERMINAL for j in jobs),
-        'fixedOutcomes': set(rows) == set(expected) and all(rows[key]['state'] == ('cancelled' if key in queued_cancels else row['outcome']) for key, row in expected.items()),
+        'fixedOutcomes': set(rows) == set(expected) and all(rows[key]['state'] == ('cancelled' if key in cancellation['acknowledged'] else row['outcome']) for key, row in expected.items()),
+        'cancellationEvidenceValid': not cancellation['diagnostics'],
         'noDuplicateCreate': all(count == 1 for count in creates.values()) and all(j['attempt'] <= 1 for j in jobs),
         'everyUncancelledSubmittedOnce': set(creates) == set(expected) - queued_cancels,
-        'queuedCancellationNoExecution': len(queued_cancels) >= 3 and all(not creates[key] and rows.get(key, {}).get('state') == 'cancelled' for key in queued_cancels),
+        'queuedCancellationNoExecution': len(queued_cancels) >= 3 and all(not creates[key] and rows.get(key, {}).get('attempt') == 0 and rows.get(key, {}).get('state') == 'cancelled' for key in queued_cancels),
+        'runningCancellationConfirmed': all(creates[key] == 1 and rows[key].get('attempt') == 1 and rows[key]['state'] == 'cancelled' for key in running_cancels),
         'allClassesQueuedCancellationObserved': all(queued_by_kind.values()),
         'uncertainRecoveryObserved': len(recovered) == 2 and all(creates[key] == 1 for key in recovered),
         'uncertainCapacityRetainedUntilRecovery': set(retained) == recovered and all(released.get(key, -1) > sequence for key, sequence in retained.items()),
@@ -141,6 +221,10 @@ def analyze_run(evidence, plan, health):
             'observedResourcePeaks': resource_peaks,
             'atomicResourceSnapshotCount': resource_samples,
             'queuedCancellationByKind': queued_by_kind,
+            'runningCancelledIds': sorted(running_cancels), 'runningCancellationObserved': bool(running_cancels),
+            'cancellationDiagnostics': cancellation['diagnostics'],
+            'cancellationExpectedOutcomes': {key: 'cancelled' for key in sorted(cancellation['acknowledged'])},
+            'expectedOutcomeBasis': 'fixed plan plus registered cancel response and atomic ledger/provider evidence; never final job state',
             'phaseDurationMs': {key: {'count': len(values), 'p50': percentile(values, .5), 'p95': percentile(values, .95), 'max': max(values)} for key, values in phases.items()},
             'queueWaitMs': {kind: {'samples': values, 'p50': percentile(values, .5), 'p95': percentile(values, .95), 'max': max(values) if values else None} for kind, values in waiting.items()},
             'healthMs': {'samples': len(success_times), 'p50': percentile(success_times, .5), 'p95': percentile(success_times, .95), 'max': max(success_times) if success_times else None,
@@ -208,7 +292,11 @@ async def run_plan(base_url, *, run_prefix=None, repeats=5, warmup_seconds=10, r
                 for kind in LIMITS:
                     candidates = [run_id + '.' + row['request_id'] for row in plan['jobs'] if row['kind'] == kind]
                     cancel_ids.extend([key for key in candidates if key in pending and key in waiting['resourceWaiting']][-3:])
-                round_result['control'].append(await call(PREFIX + '/control', {'action': 'cancel', 'requestIds': cancel_ids}))
+                cancellation_control = {'action': 'cancel', 'requestIds': list(cancel_ids),
+                                        'selectedFrom': [{'requestId': key, 'state': 'pending', 'waitingResource': waiting['resourceWaiting'][key]} for key in cancel_ids]}
+                round_result['cancellationControl'] = cancellation_control
+                cancellation_control['responses'] = await call(PREFIX + '/control', {'action': 'cancel', 'requestIds': cancel_ids})
+                round_result['control'].append(cancellation_control['responses'])
                 recovered = set()
                 while True:
                     status = await call(PREFIX + '/status')
@@ -243,11 +331,15 @@ async def run_plan(base_url, *, run_prefix=None, repeats=5, warmup_seconds=10, r
                 stop.set(); await sampling
                 round_result['durationSeconds'] = time.perf_counter() - start
             if 'evidence' in round_result:
-                round_result['analysis'] = analyze_run(round_result['evidence'], plan, round_result['health'])
+                round_result['analysis'] = analyze_run(round_result['evidence'], plan, round_result['health'],
+                                                     cancellation_control=round_result.get('cancellationControl'))
                 round_result['analysis']['checks']['serviceReconstructionNoCreate'] = round_result.get('reconstructionQueryOnly') is True
                 if round_result.get('reconstructionQueryOnly') is not True:
                     round_result['analysis']['failedChecks'].append('serviceReconstructionNoCreate')
-            if round_result.get('collectionError') or round_result['timedOut']: break
+            if round_result.get('collectionError') or round_result['timedOut'] or round_result.get('analysis', {}).get('failedChecks'):
+                result['stoppedAfterRound'] = index + 1
+                result['unexecutedRounds'] = list(range(index + 2, repeats + 1))
+                break
         result['healthAfter'] = await call('/daelab/studio/health')
     failures = [item for round_result in result['rounds'] for item in round_result.get('analysis', {}).get('failedChecks', [])]
     result['healthBuildStable'] = result['healthBefore'] == result['healthAfter']

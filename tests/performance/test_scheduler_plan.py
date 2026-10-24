@@ -138,11 +138,16 @@ class SchedulerHTTPTests(unittest.IsolatedAsyncioTestCase):
                     'queuedCancellationNoExecution', 'uncertainRecoveryObserved', 'localGpuMutualExclusion',
                     'allResourceClassesProgressed', 'noLeakedObservedResources', 'serviceReconstructionNoCreate',
                     'cloudWithin3', 'transcodeWithin2', 'allClassesQueuedCancellationObserved',
-                    'uncertainCapacityRetainedUntilRecovery', 'transcodeInputsActuallyFrozen'):
+                    'uncertainCapacityRetainedUntilRecovery', 'transcodeInputsActuallyFrozen',
+                    'cancellationEvidenceValid', 'runningCancellationConfirmed'):
             with self.subTest(check=key): self.assertTrue(checks[key], round_result['analysis'])
         # Timing remains actual evidence, not a machine-dependent unit-test claim.
         self.assertEqual(report['status'], 'failed' if round_result['analysis']['failedChecks'] else 'insufficient_evidence')
         self.assertEqual(len(round_result['evidence']['jobs']), 100)
+        self.assertEqual(len(checks), 21)
+        self.assertEqual(round_result['cancellationControl']['action'], 'cancel')
+        self.assertEqual(set(round_result['cancellationControl']['requestIds']),
+                         {row['requestId'] for row in round_result['cancellationControl']['responses']})
         self.assertTrue(round_result['health'])
         self.assertFalse(report['fixture']['nativeQueueAdapterInstalled'])
         self.assertTrue(round_result['analysis']['phaseDurationMs'])
