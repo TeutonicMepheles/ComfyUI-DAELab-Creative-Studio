@@ -327,7 +327,9 @@ class AssetCatalog:
             raise InvalidInput("Invalid asset search bounds or kind.")
         # Escape LIKE wildcards: the search box searches literal text, not SQL patterns.
         pattern = "%" + query.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
-        sql = """SELECT f.*,a.kind,a.content_sha256,a.text_snapshot FROM favorites f
+        # The bounded search projection must retain the stored identity metadata
+        # used by HTTP file references, including NULL size for missing imports.
+        sql = """SELECT f.*,a.kind,a.content_sha256,a.byte_size,a.text_snapshot FROM favorites f
                  JOIN assets a USING(asset_id) WHERE f.removed_at IS NULL AND (f.display_name LIKE ? ESCAPE '\\' OR COALESCE(a.text_snapshot,'') LIKE ? ESCAPE '\\')"""
         params = [pattern, pattern]
         if kind:
