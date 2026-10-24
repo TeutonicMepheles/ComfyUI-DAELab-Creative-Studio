@@ -1,0 +1,522 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Studio/local-batch.schema.json",
+  "title": "Complete local inference batch evidence; no model calls performed by validation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "planHash",
+    "blindLabels",
+    "lora",
+    "executions",
+    "requestDifferences",
+    "recoveries"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "planHash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "blindLabels": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baseline",
+        "studio"
+      ],
+      "properties": {
+        "baseline": {
+          "type": "string",
+          "minLength": 1
+        },
+        "studio": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "lora": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baselineConfigured",
+        "studioConfigured",
+        "sha256"
+      ],
+      "properties": {
+        "baselineConfigured": {
+          "type": "boolean"
+        },
+        "studioConfigured": {
+          "type": "boolean"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^(?:[a-f0-9]{64})?$"
+        }
+      }
+    },
+    "executions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "sampleId",
+          "variant",
+          "repetition",
+          "turboSupplement",
+          "smoke",
+          "model",
+          "endpoint",
+          "startedAt",
+          "finishedAt",
+          "requestId",
+          "providerTaskId",
+          "attemptId",
+          "requestJson",
+          "effective",
+          "inference",
+          "output",
+          "metrics"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sampleId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "variant": {
+            "type": "string",
+            "enum": [
+              "baseline",
+              "studio"
+            ]
+          },
+          "repetition": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3
+          },
+          "turboSupplement": {
+            "type": "boolean"
+          },
+          "smoke": {
+            "type": "boolean"
+          },
+          "model": {
+            "type": "string",
+            "minLength": 1
+          },
+          "endpoint": {
+            "type": "string",
+            "const": "local"
+          },
+          "startedAt": {
+            "type": "string",
+            "minLength": 1
+          },
+          "finishedAt": {
+            "type": "string",
+            "minLength": 1
+          },
+          "requestId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "providerTaskId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "attemptId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "requestJson": {
+            "type": "string",
+            "minLength": 1
+          },
+          "effective": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "temperature",
+              "contextTokens",
+              "maxOutputTokens",
+              "seed",
+              "width",
+              "height",
+              "steps",
+              "cfg",
+              "sampler",
+              "scheduler",
+              "frames",
+              "fps",
+              "inputDurationSeconds",
+              "turbo",
+              "referenceOrder",
+              "preprocessedImageSha256",
+              "actualWeightSha256",
+              "lora"
+            ],
+            "properties": {
+              "temperature": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "contextTokens": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "maxOutputTokens": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "seed": {
+                "type": [
+                  "number",
+                  "string"
+                ]
+              },
+              "width": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "height": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "steps": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "cfg": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "sampler": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "scheduler": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "frames": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "fps": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "inputDurationSeconds": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "turbo": {
+                "type": "boolean"
+              },
+              "referenceOrder": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "preprocessedImageSha256": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              },
+              "actualWeightSha256": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                },
+                "minItems": 1
+              },
+              "lora": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              }
+            }
+          },
+          "inference": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "sampleExecutions",
+              "cacheHit",
+              "ledgerReuse",
+              "traceArtifact"
+            ],
+            "properties": {
+              "sampleExecutions": {
+                "type": "integer",
+                "const": 1
+              },
+              "cacheHit": {
+                "type": "boolean",
+                "const": false
+              },
+              "ledgerReuse": {
+                "type": "boolean",
+                "const": false
+              },
+              "traceArtifact": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "output": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "artifact",
+              "decodable",
+              "width",
+              "height",
+              "frames",
+              "fps",
+              "durationSeconds"
+            ],
+            "properties": {
+              "artifact": {
+                "type": "string",
+                "minLength": 1
+              },
+              "decodable": {
+                "type": "boolean",
+                "const": true
+              },
+              "width": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "height": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "frames": {
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "fps": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "durationSeconds": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            }
+          },
+          "metrics": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "durationMs",
+              "peakMemoryBytes",
+              "coldWarmState",
+              "segmentsMs"
+            ],
+            "properties": {
+              "durationMs": {
+                "type": "number",
+                "minimum": 1e-06
+              },
+              "peakMemoryBytes": {
+                "type": "number",
+                "minimum": 1
+              },
+              "coldWarmState": {
+                "type": "string",
+                "enum": [
+                  "cold",
+                  "warm"
+                ]
+              },
+              "segmentsMs": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "preprocess",
+                  "queue",
+                  "modelLoad",
+                  "inference",
+                  "decode",
+                  "postprocess"
+                ],
+                "properties": {
+                  "preprocess": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "queue": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "modelLoad": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "inference": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "decode": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "postprocess": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "minItems": 44
+    },
+    "requestDifferences": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sampleId",
+          "repetition",
+          "turboSupplement",
+          "path",
+          "explanation",
+          "reviewer"
+        ],
+        "properties": {
+          "sampleId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "repetition": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3
+          },
+          "turboSupplement": {
+            "type": "boolean"
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "explanation": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reviewer": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "recoveries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "originalExecutionId",
+          "requestId",
+          "providerTaskId",
+          "attemptId",
+          "sampleExecutions",
+          "ledgerReuse",
+          "traceArtifact"
+        ],
+        "properties": {
+          "originalExecutionId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "requestId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "providerTaskId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "attemptId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sampleExecutions": {
+            "type": "integer",
+            "const": 0
+          },
+          "ledgerReuse": {
+            "type": "boolean",
+            "const": true
+          },
+          "traceArtifact": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

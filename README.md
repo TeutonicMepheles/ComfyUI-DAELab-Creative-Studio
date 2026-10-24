@@ -13,4 +13,3 @@
 源代码来自同一所有者的 Creative Canvas 与 Custom Nodes Library 固定基线。
 公开托管不构成新的许可授权；来源和第三方许可见
 [来源记录](docs/provenance/README.md)。
-

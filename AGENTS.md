@@ -29,4 +29,3 @@ The migration specification and decisions are in docs/migration-blueprint/.
 - Preserve upstream copyright and asset licenses. Neither source has a repository
   code LICENSE at the pinned baseline; do not invent or change a code license.
 - Use codex/ branches and stage commits. Only release after all M6 gates pass.
-

@@ -1,0 +1,656 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Studio/evidence.schema.json",
+  "title": "Creative Studio immutable Eval run",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "runId",
+    "test",
+    "features",
+    "acceptance",
+    "usecases",
+    "evals",
+    "version",
+    "revision",
+    "startedAt",
+    "finishedAt",
+    "status",
+    "execution",
+    "fingerprint",
+    "environment",
+    "fixtures",
+    "weights",
+    "parameters",
+    "taskIdentities",
+    "assertions",
+    "scores",
+    "artifacts",
+    "trace",
+    "deviations",
+    "defects",
+    "applicability",
+    "network",
+    "uiMatrix",
+    "inference",
+    "supersedes",
+    "notes"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "runId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "test": {
+      "type": "string",
+      "pattern": "^TC-(CAN|BIZ|SYS|OUT)-[0-9]{3}$"
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^F-(CAN|BIZ|SYS|OUT)-[0-9]{3}$"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "acceptance": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^AC-(CAN|BIZ|SYS|OUT)-[0-9]{3}-[0-9]{3}$"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "usecases": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^UC-(CAN|BIZ|SYS|OUT)-[0-9]{3}$"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "evals": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "EV-ARCH",
+          "EV-UI",
+          "EV-DATA",
+          "EV-JOBS",
+          "EV-PERF",
+          "EV-LOCAL",
+          "EV-E2E"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "revision": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$"
+    },
+    "startedAt": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T.+(?:Z|[+-]\\d{2}:\\d{2})$"
+    },
+    "finishedAt": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T.+(?:Z|[+-]\\d{2}:\\d{2})$"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "passed",
+        "failed",
+        "blocked",
+        "not-executed",
+        "not-applicable"
+      ]
+    },
+    "execution": {
+      "type": "string",
+      "enum": [
+        "pure",
+        "fake-service",
+        "actual-host",
+        "local-live",
+        "measured-performance",
+        "migration"
+      ]
+    },
+    "fingerprint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "implementation",
+        "environment",
+        "fixtures",
+        "configuration",
+        "specification"
+      ],
+      "properties": {
+        "implementation": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "environment": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "fixtures": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "configuration": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "specification": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "os",
+        "cpu",
+        "ram",
+        "gpu",
+        "python",
+        "node",
+        "comfyui",
+        "frontend",
+        "browser",
+        "viewport",
+        "optionalPlugins",
+        "coldWarmState"
+      ],
+      "properties": {
+        "os": {
+          "type": "string"
+        },
+        "cpu": {
+          "type": "string"
+        },
+        "ram": {
+          "type": "string"
+        },
+        "gpu": {
+          "type": "string"
+        },
+        "python": {
+          "type": "string"
+        },
+        "node": {
+          "type": "string"
+        },
+        "comfyui": {
+          "type": "string"
+        },
+        "frontend": {
+          "type": "string"
+        },
+        "browser": {
+          "type": "string"
+        },
+        "viewport": {
+          "type": "string"
+        },
+        "optionalPlugins": {
+          "type": "string"
+        },
+        "coldWarmState": {
+          "type": "string"
+        }
+      }
+    },
+    "fixtures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "sha256",
+          "origin"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "synthetic",
+              "redacted",
+              "local-private"
+            ]
+          }
+        }
+      },
+      "minItems": 1
+    },
+    "weights": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "file",
+          "sha256",
+          "model"
+        ],
+        "properties": {
+          "file": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "model": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "parameters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "model",
+          "endpoint",
+          "requestJson"
+        ],
+        "properties": {
+          "model": {
+            "type": "string",
+            "minLength": 1
+          },
+          "endpoint": {
+            "type": "string",
+            "enum": [
+              "local",
+              "fake"
+            ]
+          },
+          "requestJson": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "taskIdentities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "requestId",
+          "workflowSession",
+          "nodeId",
+          "recordId",
+          "providerTaskId",
+          "attemptId"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "workflowSession": {
+            "type": "string"
+          },
+          "nodeId": {
+            "type": "string"
+          },
+          "recordId": {
+            "type": "string"
+          },
+          "providerTaskId": {
+            "type": "string"
+          },
+          "attemptId": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "assertions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "status",
+          "actual",
+          "artifactPaths"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^AS-(CAN|BIZ|SYS|OUT)-[0-9]{3}-[0-9]{3}$"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "passed",
+              "failed",
+              "blocked",
+              "not-executed"
+            ]
+          },
+          "actual": {
+            "type": "string",
+            "minLength": 1
+          },
+          "artifactPaths": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "scores": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sampleId",
+          "blindLabel",
+          "reviewer",
+          "dimension",
+          "critical",
+          "score"
+        ],
+        "properties": {
+          "sampleId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "blindLabel": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reviewer": {
+            "type": "string",
+            "minLength": 1
+          },
+          "dimension": {
+            "type": "string",
+            "minLength": 1
+          },
+          "critical": {
+            "type": "boolean"
+          },
+          "score": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "executionId": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "sha256",
+          "kind"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "log",
+              "screenshot",
+              "workflow",
+              "media",
+              "report",
+              "trace",
+              "parameters"
+            ]
+          }
+        }
+      }
+    },
+    "trace": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "sha256",
+          "kind"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "log",
+              "screenshot",
+              "workflow",
+              "media",
+              "report",
+              "trace",
+              "parameters"
+            ]
+          }
+        }
+      }
+    },
+    "deviations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "defects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "summary",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "resolved"
+            ]
+          }
+        }
+      }
+    },
+    "applicability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason",
+        "approvedBy"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string"
+        },
+        "approvedBy": {
+          "type": "string"
+        }
+      }
+    },
+    "network": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cloudSubmissions",
+        "externalModelCalls",
+        "auditArtifact"
+      ],
+      "properties": {
+        "cloudSubmissions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "externalModelCalls": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "auditArtifact": {
+          "type": "string"
+        }
+      }
+    },
+    "uiMatrix": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "twoInstances",
+        "focusOverflow",
+        "graphCanvasModes",
+        "activeMuteBypass",
+        "saveReload",
+        "zoom50_100_150",
+        "viewports1920_1280_680",
+        "keyboardIme",
+        "dispose"
+      ],
+      "properties": {
+        "twoInstances": {
+          "type": "boolean"
+        },
+        "focusOverflow": {
+          "type": "boolean"
+        },
+        "graphCanvasModes": {
+          "type": "boolean"
+        },
+        "activeMuteBypass": {
+          "type": "boolean"
+        },
+        "saveReload": {
+          "type": "boolean"
+        },
+        "zoom50_100_150": {
+          "type": "boolean"
+        },
+        "viewports1920_1280_680": {
+          "type": "boolean"
+        },
+        "keyboardIme": {
+          "type": "boolean"
+        },
+        "dispose": {
+          "type": "boolean"
+        }
+      }
+    },
+    "inference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sampleExecutions",
+        "cacheHit",
+        "ledgerReuse",
+        "executionTrace"
+      ],
+      "properties": {
+        "sampleExecutions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cacheHit": {
+          "type": "boolean"
+        },
+        "ledgerReuse": {
+          "type": "boolean"
+        },
+        "executionTrace": {
+          "type": "string"
+        }
+      }
+    },
+    "supersedes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "notes": {
+      "type": "string"
+    },
+    "localBatchArtifact": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

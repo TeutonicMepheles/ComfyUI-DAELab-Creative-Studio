@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 1,
+  "id": "EV-LOCAL",
+  "status": "not-executed",
+  "primaryTest": "TC-SYS-036",
+  "deferredE2E": "TC-SYS-032",
+  "baseInferenceCount": 44,
+  "pairedSmokeInferenceCount": 20,
+  "smokeCountsTowardBase": true,
+  "variants": [
+    "baseline",
+    "studio"
+  ],
+  "samples": [
+    {
+      "id": "LOCAL-TEXT-001",
+      "mode": "independent-text",
+      "model": "qwen3.5:9b-q4_K_M",
+      "repetitionsPerVariant": 3,
+      "fixtureStatus": "not-captured",
+      "evidence": []
+    },
+    {
+      "id": "LOCAL-TEXT-002",
+      "mode": "table-row-1",
+      "model": "qwen3.5:9b-q4_K_M",
+      "repetitionsPerVariant": 3,
+      "fixtureStatus": "not-captured",
+      "evidence": []
+    },
+    {
+      "id": "LOCAL-TEXT-003",
+      "mode": "table-row-2",
+      "model": "qwen3.5:9b-q4_K_M",
+      "repetitionsPerVariant": 3,
+      "fixtureStatus": "not-captured",
+      "evidence": []
+    },
+    {
+      "id": "LOCAL-VISION-001",
+      "mode": "image-caption-1",
+      "model": "qwen3.5:9b-q4_K_M",
+      "repetitionsPerVariant": 3,
+      "fixtureStatus": "not-captured",
+      "evidence": []
+    },
+    {
+      "id": "LOCAL-VISION-002",
+      "mode": "image-caption-2",
+      "model": "qwen3.5:9b-q4_K_M",
+      "repetitionsPerVariant": 3,
+      "fixtureStatus": "not-captured",
+      "evidence": []
+    },
+    {
+      "id": "LOCAL-IMAGE-001",
+      "mode": "text-to-image-seed-20261013",
+      "model": "Qwen-Image-2.1 Turbo（本地）",
+      "repetitionsPerVariant": 2,
+      "fixtureStatus": "not-captured",
+      "evidence": []
+    },
+    {
+      "id": "LOCAL-IMAGE-002",
+      "mode": "text-to-image-seed-20261014",
+      "model": "Qwen-Image-2.1 Turbo（本地）",
+      "repetitionsPerVariant": 1,
+      "fixtureStatus": "not-captured",
+      "evidence": []
+    },
+    {
+      "id": "LOCAL-H3-001",
+      "mode": "text-to-video",
+      "model": "MiniMax H3 FL（本地）",
+      "repetitionsPerVariant": 1,
+      "fixtureStatus": "not-captured",
+      "evidence": []
+    },
+    {
+      "id": "LOCAL-H3-002",
+      "mode": "first-frame-to-video",
+      "model": "MiniMax H3 FL（本地）",
+      "repetitionsPerVariant": 1,
+      "fixtureStatus": "not-captured",
+      "evidence": []
+    },
+    {
+      "id": "LOCAL-H3-003",
+      "mode": "first-last-frame-to-video",
+      "model": "MiniMax H3 FL（本地）",
+      "repetitionsPerVariant": 2,
+      "fixtureStatus": "not-captured",
+      "evidence": []
+    }
+  ],
+  "conditionalLora": {
+    "condition": "Both baseline and Studio are configured with the same 8-step LoRA.",
+    "additionalInferenceCount": 6,
+    "modes": [
+      "text-to-video",
+      "first-frame-to-video",
+      "first-last-frame-to-video"
+    ],
+    "repetitionsPerVariantPerMode": 1,
+    "status": "not-evaluated"
+  },
+  "fixedParameters": {
+    "text": {
+      "temperature": 0.4,
+      "seed": "omitted",
+      "contextAndOutputLimits": "Preserve each source entry limit; capture in final requests."
+    },
+    "image": {
+      "width": 1024,
+      "height": 1024,
+      "steps": 8,
+      "cfg": 1,
+      "sampler": "Euler",
+      "scheduler": "simple",
+      "seeds": [
+        20261013,
+        20261014
+      ]
+    },
+    "video": {
+      "width": 512,
+      "height": 288,
+      "inputDurationSeconds": 1.5,
+      "steps": 20,
+      "turbo": false,
+      "seed": 20261023,
+      "alignedFrames": 39,
+      "fps": 24,
+      "decodedDurationSeconds": 1.625
+    }
+  },
+  "requestComparison": {
+    "required": [
+      "systemInstruction",
+      "expandedText",
+      "referenceOrder",
+      "preprocessedImageSha256",
+      "actualWeightSha256",
+      "sampler",
+      "steps",
+      "seed",
+      "width",
+      "height",
+      "frames",
+      "lora"
+    ],
+    "ignored": [
+      "runId",
+      "outputPrefix"
+    ],
+    "unexplainedDifferences": "block"
+  },
+  "qualityGate": {
+    "scale": [
+      1,
+      5
+    ],
+    "humanBlindAB": true,
+    "dimensions": [
+      "subject-and-constraints",
+      "facts-and-spatial-relations",
+      "composition-and-style",
+      "first-last-frames-and-motion-continuity"
+    ],
+    "criticalMedianRegressionAllowed": 0,
+    "usableBaselineMinimumStudioScore": 3,
+    "noncriticalOnePointDropBlocks": true,
+    "maximumOverallMeanDrop": 0.25,
+    "maximumPreregisteredDisputedSupplement": 1,
+    "retainAllResults": true
+  },
+  "modelPerformanceGate": {
+    "matchColdWarm": true,
+    "maximumMedianDurationGrowth": 0.15,
+    "maximumPeakMemoryGrowth": 0.1,
+    "recordSegments": true,
+    "unresolvedExcessAfterEnvironmentReview": "block"
+  },
+  "hardStops": [
+    "data-loss",
+    "unknown-node-deletion",
+    "duplicate-submit",
+    "cross-instance-or-workflow-write",
+    "wrong-model-row-or-frame",
+    "hidden-parameter-change",
+    "cloud-call",
+    "interrupting-unowned-task",
+    "save-failure",
+    "undecodable-output",
+    "source-data-damage"
+  ],
+  "inferenceProof": {
+    "independent": "Sampler execution trace required; reject ledger reuse and Comfy cache hit.",
+    "recovery": "Preserve identity and prove no sampler rerun.",
+    "network": "Zero cloud/external model submissions; no cloud judge.",
+    "missingModel": "Block; do not download substitutions or fallback."
+  }
+}

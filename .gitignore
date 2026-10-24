@@ -13,4 +13,3 @@ __pycache__/
 dist/
 coverage/
 tests/fixtures/private/
-

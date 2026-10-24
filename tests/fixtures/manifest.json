@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "fixtures": [
+    {
+      "id": "FX-TABLE-DEFAULT-OLD",
+      "path": "workflows/old-default-table.json",
+      "source": "Synthetic empty workflow created through actual fixed-baseline ComfyUI UI on 2026-10-25; no generation submitted",
+      "sourceCommits": [
+        "3176b5a67dbcd0b66f795976e5a81bcdfe346093",
+        "7ff56cb51ef6f7fc3bcf5707792d655037c61b30"
+      ],
+      "sha256": "0c3eb3010177800f5a62e91f21d7e856d62b5545a87429c559d2113d0a476585",
+      "rows": 3,
+      "columns": 3,
+      "originalRawSha256": "67a9fa0080ce55b525d1ec1da005629dcb71a28569880437afb84fe1043b2ea2",
+      "public": true
+    }
+  ]
+}
