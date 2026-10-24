@@ -5,8 +5,10 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import threading
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 from backend.integrations.comfyui.services import CoreServices
 from backend.providers.parameters import IMAGE_MODEL,QWEN_MODEL,VIDEO_MODEL
@@ -170,6 +172,40 @@ class FixtureTests(unittest.IsolatedAsyncioTestCase):
         self.core.jobs.begin_submission('foreign',expected_version=foreign['version'])
         with self.assertRaises(self.fixture.product.errors.Conflict):await self.fixture.restart()
         self.assertEqual(self.core.jobs.get('foreign')['state'],'submitting')
+
+    async def test_cancel_intent_between_provider_ack_and_receipt_commit_keeps_owned_task_identity(self):
+        self.arm('overlapping')
+        entered, resume = threading.Event(), threading.Event()
+        original = self.core.jobs.mark_submitted
+        versions = []
+        def delayed_ack(request_id, task_id, **kwargs):
+            if request_id == 'A':
+                versions.append(kwargs['expected_version'])
+                if len(versions) == 1:
+                    entered.set()
+                    if not resume.wait(5):
+                        raise AssertionError('Test did not release the accepted receipt commit')
+            return original(request_id, task_id, **kwargs)
+        with patch.object(self.core.jobs, 'mark_submitted', delayed_ack):
+            await self.fixture.service.submit([image_job('A'), image_job('B')])
+            try:
+                await self.until(entered.is_set)
+                interim = await self.fixture.service.cancel('A')
+                self.assertTrue(interim['cancel_requested'])
+                self.assertIsNone(interim['provider_task_id'])
+                self.fixture.release('B')
+            finally:
+                resume.set()
+            await self.fixture.service.wait_idle()
+        a, b = self.core.jobs.get('A'), self.core.jobs.get('B')
+        self.assertEqual(a['state'], 'cancelled', self.core.jobs.events('A'))
+        self.assertTrue(a['provider_task_id'].startswith('fixture-'))
+        self.assertEqual(b['state'], 'succeeded')
+        self.assertEqual(self.fixture.counts['create'], 2)
+        self.assertEqual(self.fixture.counts['cancel'], 1)
+        self.assertEqual(len(self.core.jobs.attempts('A')), 1)
+        self.assertEqual(len(self.core.jobs.attempts('B')), 1)
+        self.assertGreaterEqual(len(versions), 2, 'The original receipt must retry its strict CAS without repeating create')
 
     async def test_http_faults_are_once_only_and_lost_response_preserves_query_identity(self):
         handler=self.handlers()['POST',fixture.PREFIX+'/api/daelab/studio/generation/submit']

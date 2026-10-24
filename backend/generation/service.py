@@ -32,6 +32,7 @@ class GenerationService:
         self.resources = resources if resources is not None else ResourceAdmission(jobs=jobs)
         self.poll_interval, self.poll_limit = poll_interval, poll_limit
         self._workers, self._locks = {}, weakref.WeakValueDictionary()
+        self._cancel_locks = weakref.WeakValueDictionary()
         self.barrier_namespace = identity(barrier_namespace, 'barrier namespace') if barrier_namespace is not None else None
 
     def provider(self, provider_id):
@@ -345,12 +346,25 @@ class GenerationService:
             raise InvalidInput('Provider returned an invalid observation.')
         if job['provider_task_id'] and observation.task_id != job['provider_task_id']:
             raise Conflict('Observation belongs to another native/provider execution.')
+        if job['state'] in TERMINAL_STATES:
+            return job
         if observation.state == 'unknown':
             if job['state'] in {'submitting', 'needs_recovery'}:
                 return (await complete_blocking(self._transition, job, 'unknown', task_id=observation.task_id, error_code='original_execution_unknown'))
             return (await complete_blocking(self._transition, job, 'needs_recovery', error_code='original_execution_missing'))
+        deferred_cancel = not job['provider_task_id'] and job['state'] in {'submitting', 'unknown'}
         if job['state'] in {'submitting', 'unknown'}:
-            job = (await complete_blocking(self.jobs.mark_submitted, job['request_id'], observation.task_id, expected_version=job['version'], event_id='submitted:' + uuid.uuid4().hex))
+            job = await complete_blocking(self._remember_submission, job, observation.task_id)
+        if job['state'] in TERMINAL_STATES:
+            return job
+        # A cancel intent can commit while create/ACK persistence is in flight,
+        # before any provider task ID is available to the cancelling caller.
+        # Once that same receipt is durable, deliver the deferred intent once.
+        # A completed observation wins without attempting to cancel its result.
+        if deferred_cancel and job['cancel_requested'] and observation.state in {'submitted', 'running'}:
+            job = await self._cancel(job['request_id'])
+            if job['state'] in TERMINAL_STATES:
+                return job
         if observation.state == 'cancelled':
             if not job['cancel_requested']:
                 return (await complete_blocking(self._transition, job, 'failed', error_code='native_execution_stopped'))
@@ -382,6 +396,23 @@ class GenerationService:
             return await complete_blocking(finish)
         except Exception:
             return (await complete_blocking(self._transition, (await complete_blocking(self.jobs.get, job['request_id'])), 'needs_recovery', error_code='result_unverified'))
+
+    def _remember_submission(self, original, task_id):
+        """Persist the received ACK across cancel-intent CAS updates, no create."""
+        event_id = 'submitted:' + uuid.uuid4().hex
+        for _ in range(8):
+            current = self.jobs.get(original['request_id'])
+            if (current['provider'] != original['provider'] or current['fingerprint'] != original['fingerprint'] or
+                    current['attempt'] != original['attempt'] or current['provider_task_id'] not in {None, task_id}):
+                raise Conflict('Submission receipt belongs to a different original execution.')
+            if current['state'] in TERMINAL_STATES or current['state'] not in {'submitting', 'unknown'}:
+                return current
+            try:
+                return self.jobs.mark_submitted(current['request_id'], task_id,
+                    expected_version=current['version'], event_id=event_id)
+            except Conflict:
+                continue
+        raise Conflict('Original submission receipt is contended; reconcile the same request identity.')
 
     async def _query(self, job, provider):
         try:
@@ -441,6 +472,13 @@ class GenerationService:
             await self._release_terminal_capacity(request_id)
 
     async def _cancel(self, request_id):
+        # Separate from the long-lived dispatch lock. An ACK's deferred intent
+        # and an explicit cancel may meet; a confirmed first cancellation wins.
+        lock = self._cancel_locks.setdefault(request_id, asyncio.Lock())
+        async with lock:
+            return await self._cancel_owned(request_id)
+
+    async def _cancel_owned(self, request_id):
         # Does not wait for the long-running worker's lock: cancellation is intent.
         for attempt in range(3):
             job = (await complete_blocking(self.jobs.get, request_id))
@@ -449,6 +487,9 @@ class GenerationService:
             if self._barrier(job):
                 return (await complete_blocking(self.jobs.request_cancel, request_id, expected_version=job['version']))['job']
             provider = self._owner(job)
+            if job['cancel_requested']:
+                outcome = {'job': job}
+                break  # Repeated intent does not churn the ACK's optimistic version.
             try:
                 outcome = (await complete_blocking(self.jobs.request_cancel, request_id, expected_version=job['version'], supports_remote_cancel=provider.supports_cancel))
                 break
