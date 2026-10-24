@@ -422,3 +422,58 @@ UI与退出证据由根代理实际采集，独立审查负责磁盘/数据库�
 `6e3a528c1a8b36c41b499217c7037d4bdfd52de6382444cd9309715b9635ff0b`；
 独立`.local/validation/body-zoom-891-responsive-pan-followup.json`，SHA-256
 `ba537e1cab4796ab69efab5fe7afa2a335ff847c44931b53d4526eb74acbfedf`。
+
+## M场景保存/加载五轮与行高候选比较
+
+此前M初查之后，891基线与初始行高批量读取候选各完成五轮原生保存、重开观察。
+固定工作流为300节点/400连线、两张各500行×10列的表格，无视频；
+`Studio-PERF-M-two-table-891.json`为2400456字节，当前只读复核SHA-256仍为
+`72c75a4f2c2c3818590632b8c8e8cc25f2ddd159ccd49520ee6a53db366ea1bc`。
+这确认当前文件与先前固定原件一致，不补称每轮加载时均单独采集了文件哈希。
+基线前端为`891c76378b8d130639bf327c4bcff30dc277a4e7a671f1a4dbd990224217b2b2`，
+候选`e91ef9138bdc987b9d3ec0e550b6e2bac89976b8`的前端为
+`2e7b7d57da4ffd1b6075174daf3d2baf70fcfaf274f954433845b33ca7c5a97c`；
+两组使用同一测试observer包`3080434958c50d4735cda2c0eed486ca04813ae42e3ede51bd9150d7e074392b`。
+
+每轮各有1次save、1次精确路径关联的HTTP 200存储确认、1次load，以及9次独立serialize，
+共每组60条调用，全部成功完成，停止后observer hooks均为0。每项save/storage/load每轮仅N=1，
+下表是五轮全部样本的描述统计，不据此建立稳定p95或性能通过结论。单位均为ms。
+
+| 边界/版本 | 第1～5轮 | 中位数 | 均值 | 最大值 |
+| --- | --- | ---: | ---: | ---: |
+| save / 891 | 924.2 / 1476.5 / 1700.6 / 1063.0 / 1229.7 | 1229.7 | 1278.80 | 1700.6 |
+| save / 2e7 | 1544.0 / 1372.9 / 1751.7 / 1394.2 / 1370.9 | 1394.2 | 1486.74 | 1751.7 |
+| storage / 891 | 98.7 / 214.2 / 116.7 / 100.2 / 182.4 | 116.7 | 142.44 | 214.2 |
+| storage / 2e7 | 110.7 / 172.4 / 141.6 / 87.3 / 121.5 | 121.5 | 126.70 | 172.4 |
+| load / 891 | 5500.1 / 5533.6 / 5083.0 / 5548.9 / 5600.5 | 5533.6 | 5453.22 | 5600.5 |
+| load / 2e7 | 5739.0 / 5915.8 / 5927.1 / 5846.0 / 6126.8 | 5915.8 | 5910.94 | 6126.8 |
+
+save是`saveWorkflow` Promise结束，storage是其HTTP响应，两者不可相加。
+load仅为`loadGraphData` Promise结束，不含其调用前的文件选择/解析，也不证明后续布局、焦点或输入已就绪。
+两组各45次serialize的中位数为11.7/12.4ms、均值15.39/36.31ms、最大值40.5/385.9ms；
+候选保留272.4/365.9/385.9ms三次长调用。所有serialize的saveCorrelation均为null，
+不能将其全部归入保存成本或当作额外保存样本，也不能据此归因GC或具体代码。
+
+候选load中位数比基线高6.91%，均值高8.39%，**没有展示加载收益**。
+但操作记录明确：两组之间新增空闲CPU宿主8246用于资产夹具，导入/采集在候选正式运行前结束，
+候选期间未使用其浏览器；其他固定端口保留，操作视口仍为1920×1080。
+这项环境变化未被CPU测量排除，不能将差异归因为候选造成的性能回退。
+多数逐轮DOM未独立记录viewport/DPR/visibility，亦不补称环境完全相同。
+候选已由`b83a9da584064fbe4e61ce6660301ee00fc59f10`回退，两组全部样本保留。
+
+十份DOM均记录300 cards、1000 rows及两条预期首格文字保留；仅基线第1轮同时记录行ID，
+其余九份不能独立证明同一行身份。十轮的load.editableCompleteMs、report.unmeasured.reopenToEditableMs与
+DOM.strictEditableMs全部为null，**PERF-03仍未通过，不能将约5～6秒load称为重开可编辑时间**。
+基线/候选observer会话分别为66.4～123.8秒/53.4～73.7秒，save结束至load开始间隔为
+7.3～17.3秒/6.6～22.3秒；这些包括操作者与工具等待，不是产品加载时延。
+基线DOM保留7条AX/CDP等工具失败记录，候选DOM没有toolFailures字段不等于证明无工具错误。
+原始记录未提供performance.timeOrigin，无法把工具wall-clock期限精确换算为页面加载或可编辑延迟。
+
+本地完整原始记录与独立分析（后者含十份DOM、两张完成截图和所有输入文件哈希）：
+
+- `.local/performance-actual/M-baseline-891-five-rounds-raw.json`，SHA-256
+  `ff3499502c741fb930130b171508c074e5075c632edbd7ce435ab26343d53fbe`。
+- `.local/performance-actual/M-candidate-2e7-five-rounds-raw.json`，SHA-256
+  `580420f394cf567731ea2854a18743f1721aacef2c8195230c0d4a0d7491d0e4`。
+- `.local/validation/M-891-2e7-five-rounds-independent-comparison.json`，SHA-256
+  `4f58c0289f3ae5bd55d6df3637d0fa519f130427658bb62ab8818be2d92fec6f`。
