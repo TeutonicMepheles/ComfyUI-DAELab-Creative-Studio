@@ -1867,7 +1867,7 @@
         "Post-snapshot hardblock review: immutable receipt digest, exact missing-task recovery, no automatic replay; tests include original-scope and storage-unavailable rejection.",
         "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
       ],
-      "destinationSha256": "7a7ab68085ef76c2e0f015fbef061e2a8c6c16b084f137326e91fc8d13bfad54"
+      "destinationSha256": "d268cba3d1efc062179d38889b522bba535e494ddb5a445f1b91db7be26b54a5"
     }
   ],
   "testExclusions": {

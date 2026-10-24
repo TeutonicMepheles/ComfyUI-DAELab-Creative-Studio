@@ -7,6 +7,8 @@ import {createMaterialTable} from '../../web/features/table/table_material_colum
 import {attachGenerationTasks} from '../../web/features/generation/table_generation_tasks.mjs';
 
 function fixture(t){
+ let markSubmitted;
+ const submissionReady=new Promise(resolve=>{markSubmitted=resolve;});
  let table=createMaterialTable(),steps=0,epoch=0,release,report,submitFault=null,statusFault=null;table.records=table.records.slice(0,1);const field=table.fields.find(f=>f.presentation==='generation'),row=table.records[0];row.values[field.generation.promptFieldId]='合成独立测试输入';
  const original=structuredClone(table),calls=[],history=[];
  const native=createBusinessDocument({read:()=>table,write:value=>{table=value;},current:()=>true,stamp:tableInputStamp,identity:()=>({workflowSession:'w',epoch,documentId:'node'}),history:{begin(){steps++;history.push(structuredClone(table));},end(){},amend(fn){fn();},undo(){table=history.pop();},redo(){}}});
@@ -16,12 +18,12 @@ function fixture(t){
   if(url.endsWith('/submit')&&submitFault){const status=submitFault;submitFault=null;return new Response(JSON.stringify({error:'synthetic rejection',submitted:false,code:'synthetic-fault'}),{status});}
   if(url.endsWith('/status')&&body.requestIds&&!report)return new Response(JSON.stringify({error:'missing',code:statusFault?'storage_unavailable':'record_not_found'}),{status:statusFault||404});
    if(url.endsWith('/fence-unsubmitted')){if(statusFault)return new Response(JSON.stringify({error:'storage unavailable',code:'storage_unavailable'}),{status:statusFault});report={requestId:body.requestId,source:body.source,inputFingerprint:'a'.repeat(64),state:'cancelled',phase:'needs_input',preparation:'fenced',replacementAllowed:true,version:1};}
-  if(url.endsWith('/submit')){const job=body.jobs[0];report={requestId:job.requestId,source:job.source,inputFingerprint:'a'.repeat(64),state:'succeeded',phase:'complete',version:3,result:{url:'/view?filename=synthetic.png&type=output',kind:'image',asset_id:'asset',reference_id:'ref'},receipt:{kind:'assets',items:[{asset_id:'asset',reference_id:'ref'}]}};await new Promise(resolve=>{release=resolve;});}
+  if(url.endsWith('/submit')){const job=body.jobs[0];report={requestId:job.requestId,source:job.source,inputFingerprint:'a'.repeat(64),state:'succeeded',phase:'complete',version:3,result:{url:'/view?filename=synthetic.png&type=output',kind:'image',asset_id:'asset',reference_id:'ref'},receipt:{kind:'assets',items:[{asset_id:'asset',reference_id:'ref'}]}};await new Promise(resolve=>{release=resolve;markSubmitted();});}
   return new Response(JSON.stringify({jobs:report?[report]:[],nextOffset:null}));
  });
  const notices=[],tasks=attachGenerationTasks({editor,getTable:()=>table,notify:message=>notices.push(message),prepareGeneration:async()=>{},canGenerate:()=>true});
  t.after(()=>{tasks.destroy();native.dispose();unbind();});
- return {tasks,native,calls,notices,field,row,original,rejectOnce(status){submitFault=status;},statusFailure(status){statusFault=status;},get table(){return table;},get steps(){return steps;},async submitted(){for(let i=0;i<20&&!release;i++)await new Promise(setImmediate);assert.ok(release);},complete(){release();},switch(){epoch++;}};
+ return {tasks,native,calls,notices,field,row,original,rejectOnce(status){submitFault=status;},statusFailure(status){statusFault=status;},get table(){return table;},get steps(){return steps;},async submitted(){let timeout;try{await Promise.race([submissionReady,new Promise((_,reject)=>{timeout=setTimeout(()=>reject(new Error('Generation did not reach the test submit handler')),5000);})]);}finally{clearTimeout(timeout);}},complete(){release();},switch(){epoch++;}};
 }
 test('actual table submit stores only immutable references; completion uses one native result transaction and poll never writes facts',async t=>{
  t.mock.timers.enable({apis:['setInterval']});const f=fixture(t),pending=f.tasks.generate(f.field.id,f.row.id);await f.submitted();
