@@ -163,7 +163,7 @@ export function mountNativePerformanceObserver(document,window,{app,api}={}){
     if(document.getElementById('studio-native-performance-observer'))return null;
     const make=(tag,text,parent)=>{const element=document.createElement(tag);element.textContent=text||'';parent?.append(element);return element;};
     const panel=make('details','',document.body);panel.id='studio-native-performance-observer';
-    panel.style.cssText='position:fixed;right:8px;bottom:8px;z-index:2147483001;width:350px;max-height:70vh;overflow:auto;background:#182027;color:#eee;border:1px solid #71858f;padding:10px;font:12px/1.5 sans-serif';
+    panel.style.cssText='position:fixed;right:8px;bottom:56px;z-index:2147483001;width:350px;max-height:70vh;overflow:auto;background:#182027;color:#eee;border:1px solid #71858f;padding:10px;font:12px/1.5 sans-serif';
     make('summary','原生保存 / 加载观测（仅本页测试）',panel);
     make('p','开始后仅观察真实原生调用。请在原界面保存、重开；不会自动输入、保存、加载或生成。重新加载页面后不自动继续。',panel);
     make('p','加载返回 true 仅代表原生加载完成；可编辑完成、表格语义显示和资产搜索完成仍为 null，不能由任意 DOM 变化补齐。',panel);
