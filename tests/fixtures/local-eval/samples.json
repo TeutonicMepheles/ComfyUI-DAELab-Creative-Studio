@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "provenance": "New public synthetic fixtures, created for paired migration evaluation. No historical results, receipts, caches, credentials or personal images.",
+  "table": {
+    "fields": [
+      {"id": "scene", "name": "画面", "type": "text"},
+      {"id": "prompt", "name": "提示词", "type": "json", "presentation": "prompt", "promptTemplate": {"kind": "column-template", "version": 1, "segments": [{"type": "column", "fieldId": "scene"}, {"type": "text", "text": "，构图简洁，保持主体数量。"}]}},
+      {"id": "generation", "name": "生成", "type": "content", "presentation": "generation", "generation": {"kind": "image", "promptFieldId": "prompt", "model": "Qwen-Image-2.1 Turbo（本地）"}}
+    ],
+    "records": [
+      {"id": "row-1", "values": {"scene": "白色桌面上有两只蓝色陶瓷杯，左杯比右杯高。"}},
+      {"id": "row-2", "values": {"scene": "一座红色小屋位于湖的左侧，远处只有一座山。", "prompt": {"kind": "column-template", "version": 1, "segments": [{"type": "text", "text": "固定镜头，"}, {"type": "column", "fieldId": "scene"}, {"type": "text", "text": "，不增加人物。"}]}}}
+    ],
+    "meta": {}
+  },
+  "samples": [
+    {"id": "LOCAL-TEXT-001", "entry": "canvas-polish", "source": "一只蓝色陶瓷杯放在木桌中央，杯子是蓝色的，杯柄朝右。画面中不要出现人物。", "instruction": "去掉重复表达，保持主体、位置、杯柄朝向和否定限制；不要增加场景。"},
+    {"id": "LOCAL-TEXT-002", "entry": "table-row", "recordId": "row-1", "fieldId": "prompt", "nonce": "localevalrow1", "requirements": "表达更简洁，保持引用与主体数量，不新增场景细节。", "maxOutputTokens": 1024},
+    {"id": "LOCAL-TEXT-003", "entry": "table-row", "recordId": "row-2", "fieldId": "prompt", "nonce": "localevalrow2", "requirements": "整理语序，保留动态引用、固定镜头与否定限制。", "maxOutputTokens": 1024},
+    {"id": "LOCAL-VISION-001", "entry": "canvas-reverse", "image": "images/vision-counts.png", "instruction": "描述图中形状的数量、颜色和左右位置，不把几何图形想象为真实物品。"},
+    {"id": "LOCAL-VISION-002", "entry": "canvas-reverse", "image": "images/vision-relations.png", "instruction": "描述上下关系、大小和遮挡，区分可见事实与推测，不添加文字或品牌。"},
+    {"id": "LOCAL-IMAGE-001", "entry": "local-image", "text": "白色背景上的静物画，两只蓝色陶瓷杯并排放在浅色木桌上，左杯高、右杯矮，两只杯柄都朝右。柔和自然光，无人物、无文字。", "settings": {"width": 1024, "height": 1024, "seed": 20261013}},
+    {"id": "LOCAL-IMAGE-002", "entry": "local-image", "text": "简洁的平面插画：一座红色小屋在湖的左侧，右侧只有一棵绿色树，远处一座灰色山，天空淡蓝。保持明确的左右关系，无人物、无文字。", "settings": {"width": 1024, "height": 1024, "seed": 20261014}},
+    {"id": "LOCAL-H3-001", "entry": "local-video", "mode": "text2video", "segments": [{"type": "text", "text": "固定机位。白色桌面上一个红色球缓慢从左向右移动，右后方的蓝色方块保持静止。主体数量不变，无文字。"}], "references": [], "settings": {"width": 512, "height": 288, "duration": 1.5, "turbo": false, "seed": 20261023}},
+    {"id": "LOCAL-H3-002", "entry": "local-video", "mode": "singleImage2video", "segments": [{"type": "asset", "index": 0}, {"type": "text", "text": "，作为首帧。固定机位，红色球缓慢向右移动，蓝色方块保持静止，保持颜色和主体数量。"}], "references": ["images/motion-first.png"], "settings": {"width": 512, "height": 288, "duration": 1.5, "turbo": false, "seed": 20261023}},
+    {"id": "LOCAL-H3-003", "entry": "local-video", "mode": "frames2video", "segments": [{"type": "asset", "index": 0}, {"type": "text", "text": "为首帧，"}, {"type": "asset", "index": 1}, {"type": "text", "text": "为尾帧。固定机位，红色球从左向右平稳移动到尾帧位置，蓝色方块保持静止，过渡连续，不增加物体。"}], "references": ["images/motion-first.png", "images/motion-last.png"], "settings": {"width": 512, "height": 288, "duration": 1.5, "turbo": false, "seed": 20261023}}
+  ]
+}
