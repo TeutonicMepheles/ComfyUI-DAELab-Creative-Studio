@@ -285,7 +285,7 @@
       "source": "web/table_generation_tasks.mjs",
       "destination": "frontend/src/features/generation/table_generation_tasks.mjs",
       "sourceSha256": "3812afeff3c3738abb6799f9e96812fe76e1e078262612efe9aa59b9163e765f",
-      "destinationSha256": "c88b493e183ad987c879560157cbf86d03a21dbead9fde9de4f689cc5c33832f",
+      "destinationSha256": "6c9cb526934f56e5dadc8471feb44c72aca41e67382e8a927b5d2c22a10b549c",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",

@@ -48,7 +48,10 @@ export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,
   const report=live.get(ref.requestId);
   return {...ref,...report,phase:report?.preparation&&['rejected','fenced'].includes(report.preparation)&&!session.canReplace(ref.requestId)?'needs_recovery':report?.phase||'needs_recovery',needsOriginalFence:missingRequests.has(ref.requestId),...(localErrors.has(ref.requestId)?{error:localErrors.get(ref.requestId)}:{}),history:targetReferences(row,fieldId).filter(item=>item.requestId!==ref.requestId).map(item=>({...item,...live.get(item.requestId)}))};
  }
- const projectedTable=()=>{const table=structuredClone(getTable());for(const row of table.records){row.meta||={};row.meta.generationColumns=Object.fromEntries(table.fields.filter(isGeneration).map(field=>[field.id,stateFor(row,field.id)]).filter(([,value])=>value));}return table;};
+ const projectTable=source=>{const table=structuredClone(source);for(const row of table.records){row.meta||={};row.meta.generationColumns=Object.fromEntries(table.fields.filter(isGeneration).map(field=>[field.id,stateFor(row,field.id)]).filter(([,value])=>value));}return table;};
+ const projectedTable=()=>projectTable(getTable());
+ // No generation columns means no generation capsules; preserve the public full projection.
+ const taskSnapshots=()=>{const table=getTable();return table.fields.some(field=>field.presentation==='generation')?generationTaskSnapshots(projectTable(table),live):[];};
  function ingest(response){
   for(const report of response.jobs||[])if(session.ingest(report)){live.set(report.requestId,report);missingRequests.delete(report.requestId);localErrors.delete(report.requestId);session.apply(report.requestId);}
   for(const status of editor.root.querySelectorAll('.generation-cell-state'))status.remove();decorate();
@@ -184,5 +187,5 @@ export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,
   if(refresh)refreshLive();
  }
  const timer=setInterval(()=>void poll(),3000);
- return {reviewResult,fenceOriginal,stateFor,projectedTable,tasks:trackTaskCompletion(()=>generationTaskSnapshots(projectedTable(),live)),generate,pause,resume,decorate,get submitting(){return submitting;},invalidate(){epoch++;session.invalidate();},destroy(){alive=false;epoch++;session.dispose();clearInterval(timer);live.clear();localErrors.clear();discovered.clear();discoveredByTarget.clear();editGroups.clear();missingRequests.clear();}};
+ return {reviewResult,fenceOriginal,stateFor,projectedTable,tasks:trackTaskCompletion(taskSnapshots),generate,pause,resume,decorate,get submitting(){return submitting;},invalidate(){epoch++;session.invalidate();},destroy(){alive=false;epoch++;session.dispose();clearInterval(timer);live.clear();localErrors.clear();discovered.clear();discoveredByTarget.clear();editGroups.clear();missingRequests.clear();}};
 }
