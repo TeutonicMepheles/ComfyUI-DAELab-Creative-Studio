@@ -392,3 +392,33 @@ UI与退出证据由根代理实际采集，独立审查负责磁盘/数据库�
 **此结果仅支持本次合成数据的M6迁移链子项，不代表所有TC、M6阶段或完整产品验收通过。**
 正式前端891c76的五段缩放p95仍为40.1/40.0/40.1/40.1/40.1ms，仍FAIL20；
 本轮真实GPU/模型推理为0，生成质量、完整性能门禁和发布未完成。
+
+## Header变量隔离候选的正式失败与回退
+
+候选`8f65023b46db46d53bf3e54d129495ef603ae9fd`，前端指纹
+`9817235d336fe5f0e08b1ba28d6d396f36bae562b5f8bec4c003f5a6422958fc`，
+在固定S无视频夹具、1920×1080、DPR约1、10秒预热和五段各30秒下正式采样。
+独立从全部活动帧重新计算，五段p50均13.4ms，p95均40.0ms；
+各段最大值80.0/106.7/80.0/80.1/93.3ms。五段完整、原始时间线连续、无隐藏页面、无observer错误。
+选择的夹具SHA与`FX-PERF-S-no-video.json`一致；真实加载由操作记录声明，文件复核未读取宿主图。
+操作记录为固定导航中心的真实指针放大/缩小；采样前记录无诊断样式覆盖。
+
+**仍为FAIL：五段全部超过20ms预算。** 相比891构建40.1/40.0/40.1/40.1/40.1ms，
+约0.1ms差值不足以证明实质收益；不筛选最好运行、不改预算或删除失败段。
+候选已由`c758fd6f4482bed8478828276e032934600635b1`回退。
+本次只记录缩放性能，**未完成标题UI验收**，不能据此声称标题交互或完整阶段通过。
+
+原件位于`.local/performance-actual/new-S-no-video-zoom-981723-{raw,summary,operator,before}.json`：
+
+- raw SHA-256：`ecea565cdd66186bd9de242f78d048f72693b3ade6830aa41ec2ca6322fb3e9c`。
+- summary SHA-256：`cad419aeddbc696d77f0aa08485d8925f874cb859b0f6abbcc31a469bbdea4f4`。
+- 独立核对`.local/validation/header-981723-independent-review.json`，SHA-256：
+  `9a51eb78bf274e5aed6df3b3ea05634db7b1dc7f471dddbac36bbe1d7f5260b1`。
+
+响应式证据另有后续实际平移：680×720下，150%的B页脚按钮和100%的A页脚按钮可移入画布并可见。
+只闭合这两个样例先前“尚未证明平移可达”的缺项；不推广到所有控件或视口，
+不从此推断此前截图位置、焦点或CSS候选的成因。
+平移原件`.local/validation/body-zoom-891-actual/pan-680-actual.json`，SHA-256
+`6e3a528c1a8b36c41b499217c7037d4bdfd52de6382444cd9309715b9635ff0b`；
+独立`.local/validation/body-zoom-891-responsive-pan-followup.json`，SHA-256
+`ba537e1cab4796ab69efab5fe7afa2a335ff847c44931b53d4526eb74acbfedf`。
