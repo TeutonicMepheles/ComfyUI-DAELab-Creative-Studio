@@ -627,3 +627,90 @@ display-exit从实际blur计至显示态两帧机会，独立50次中位601.15ms
 `a863829c6b81bf6dd44c6785eee99489c23d1451b88619a227ef5cd46790e5a2`，包含五份raw/context哈希和全部样本复算。
 最终保存原件SHA-256为`c2c6d69d526661223af8b4ced0bc984658bf3d17ead113c7be4a08b693fc247c`，
 重开DOM原件`M-table-semantic-1c166-reloaded-final.json`为`d1785826a506dd1da2815f395c325e8a2cb91c7e370c7d80e70bb1a5c5287394`。
+
+## a956与d599同夹具普通输入正式失败
+
+后续两个固定候选继续使用原始M无视频夹具`79ecd59cf5bbd3022abda73c2368e3e45e3b9fed824494f813cd6109e381cc79`，
+即300节点、400连线、两张500×10表格；目标仍为节点1/2的`M-table-00-row-0001`/`M-table-01-row-0001`、`field-00`。
+实际视口1920×1080、画布50%、DPR约1；主指标仍为普通input的event.timeStamp至精确编辑态两帧机会，
+不是控制调用耗时或物理呈现时间。两次各五轮、每轮N=10，nearest-rank p95等于该轮最大值。
+
+| 固定候选 | 第1～5轮editing p95 / ms | 超过100ms | display完成 | 结果 |
+| --- | --- | ---: | ---: | --- |
+| `e35592c` / `a9561917…` | 274.0 / 233.1 / 248.1 / 235.6 / 240.1 | 50/50 | 44/50 | failed |
+| `67e692b` / `d5990507…` | 316.6 / 214.6 / 207.0 / 210.8 / 202.5 | 50/50 | 50/50 | failed |
+
+a956保留六次display超时（第一轮样本1、2、6、8、10；第二轮样本11），没有用0或后续成功样本替换。
+前11次动作的分离控制调用曾超过观察器5秒display窗口，之后改为同次调用内输入、读取、600ms停留和Tab；
+该节奏变化及首次分析exit 2均保留，不能把六次超时单独归因为产品显示缺陷。后三轮完整，但整组仍不完整。
+
+d599从首键起使用同次调用内600ms停留，五轮会话分别约36.46/31.04/31.02/31.04/31.02秒。
+50次输入身份、顺序、值及editing/display均完整，无正式完成缺失或超时；115条outside-supported-identity拒绝计数保留，
+没有逐事件来源，不能改称115次无害blur或迟到任务。600ms停留与display-exit分开，未计入editing指标。
+首次设置、文件选择和重开控制错误仍保留，不折算成产品加载耗时。分析exit 0只说明本次数据协议完整，
+**50次editing仍全部超出100ms，不能判PERF-02通过**。
+
+两组末值`O`/`y`均经实际另存和重开保留。a956保存文件SHA-256为
+`c2c6d69d526661223af8b4ced0bc984658bf3d17ead113c7be4a08b693fc247c`；d599为
+`bbd50009c1a59da37ab60ad374edad419255c795b802ada282d1d421b6e4b186`，二者仅优化文档documentId不同，
+节点、连线和表格内容相同。与原始夹具相比10000个表格值中9998个不变，仅两目标变为`O`/`y`；
+原始夹具保留，未以保存副本冒充原始输入。该数据保全核对不替代任意旧Slot迁移验收。
+
+两个正式失败都绑定`TC-SYS-024 / F-SYS-012 / AC-SYS-012-001 / UC-SYS-010 / EV-PERF`：
+AS-SYS-024-001为failed，视频分支AS-SYS-024-002为not-executed；不覆盖此前1c166失败。
+尚无M拖动/缩放、可见视频、IME或完整视口矩阵的本轮证明。背景进程身份与首尾队列快照已保留，
+但没有连续CPU/GC/网络/推理审计；相关telemetry保持null，不从CPU/offline启动标记推导0。
+不同时间段、控制节奏和背景条件不足以将数值变化归因于某项修复，也没有达标的性能复测。
+
+正式记录及SHA-256：
+
+- `.local/evidence/TC-SYS-024-M-table-a956-20261025-ascii-5x10-first.json`：
+  `eeb71c6480abfe71d8c74dad8bfba6234f49c2aea2eb400f621d7cf3c896ba1e`，37份附件哈希已逐项复核。
+- `.local/evidence/TC-SYS-024-M-table-d599-20261025-ascii-5x10-first.json`：
+  `b5be9c1a8c50b6ee4ce0caa71a357f32e1fd51c13ef81b6668d68da24f4ec642`，43份附件哈希已逐项复核。
+- d599独立复核`.local/validation/M-table-semantic-d599-independent-review.json`：
+  `5da8e86d11678c13046606a4ee77932f1828df9ad83fc23651966708d98721c2`。
+
+## 两表两LLM交互范围与撤销显示缺陷
+
+独立的小夹具含无生成列Table A、真实生成列但不提交的Table B，以及各自连接的两个LLM节点。
+d599在1920×1080、50%画布完成四节点各Mute→Active→Bypass→Active共16个模式状态，
+保存数据的mode与被操作节点一致、其他节点保持Active，最后全为Active。
+Table output0→LLM input3的两条STRING连线分别断开/重连，再经Graph/Canvas往返保留对应输入和要求。
+A断线后的旧文本曾延迟消失，稳定读取已为空；保留该时序记录，不将其描述为永久失效。
+另已执行B生成列删除→撤销→重做→恢复和A第三行内容撤销/重做，另一实例未串改。
+
+两个LLM各追加要求文字、停留1100ms后caret仍为[6,6]；随后原生撤销使两份保存instruction回到旧值，
+但可见文本框仍有`D599-LLM-A/B`后缀，构成真实UI同步失败，不能说原生历史没有撤销。
+修复现已让render读取最新已保存instruction，仅值不同时写DOM；23项定向回归通过且独立代码审查无阻断。
+首轮三条新回归失败日志保留；**修复后的实际两实例键入、撤销/重做、焦点及保存重开仍待复验**。
+本小夹具未提交生成，也未完成三视口×50/100/150%矩阵、IME或整个前端验收。
+
+本地交互证据位于`.local/performance-actual/prompt-llm-d599-ui/`：
+
+- `05-modes.json`：`897b816f3f4e054c98d62c31105d493897fcfbb99b348f317d8a8418b81df8f5`。
+- `04-connections-roundtrip.json`：`048cdbf9c59e0e75f95250461ad8ab6be5f0f6069e76d2dc83151a823d9699a0`。
+- `06-llm-edit-focus.json`：`e3fdb846756b1a9cd0f1655d92c73a094547ff8fc5bcea0402b68ce3e5d4c021`。
+- `06-after-undo-save.json`：`f56ca55eba2ebd3a7c757dd0d70855cc7df4077c0b8b2b278da1fe57221e6867`；
+  与撤销前原值文件`05-modes-restored-save.json`字节完全相同，和最后DOM形成数据/显示不一致证据。
+
+## d599四键持久化方法分段诊断
+
+另在8226的d599候选、原始M夹具上采集A:P、B:z、A:O、B:y四键，两目标各两次，
+实际1920×1080/50%画布；其他观察器关闭。方法wrapper仅在目标input事件同步派发期间记录，
+四次均精确恢复八个方法描述符、无冲突或截断。前后约2秒无输入窗口没有包装方法，不能当空后台性能基线。
+
+DocumentController.edit的同步含子调用时长为88.1/86.2/89.7/88.0ms；
+其中OptimizationRevisions.observe为23.2/21.4/24.0/21.6ms，每次另观察到三次rootGraph.serialize，
+同标签区间合计27.3/27.1/28.9/27.8ms。serialize中两次嵌在history内，所有这些边界又包含在edit内，
+**跨标签不可相加，也不是CPU、自身耗时、完整input回调或输入至显示完成时间**。
+两个table_data widget边界可安装但零span，只能写未观察到，不能断言没有执行。
+原型方法receiver只与本次输入派发关联，不捏造其具体A/B归属。
+
+这四键只用于缩小后续审查范围，不混入正式五轮、不生成正式百分位、不判100ms预算达标；
+也不能据此把某次JSON拷贝、序列化或扫描确认为全部瓶颈。缓存模块字节未独立证明等限制继续保留。
+原始`.local/performance-actual/M-input-stages-d599-first-raw.json` SHA-256为
+`4bee84c1358a2ef850ca4c2833c1bcca45d6ce4bc6a83dd3b2b2cc7fcdafad15`；
+独立分析`.local/validation/M-input-stages-d599-first-analysis.json`为
+`1bac6ca274a701eb899e3f37e6c574233795f391d41c53f26d9a0e8fe1c6c926`。
+以上失败和诊断不改变M6未达、完整性能未通过、44次真实本地推理未启动及不发布的状态。
