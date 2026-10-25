@@ -1176,3 +1176,54 @@ CSS浮点边框及矩形序列化精度仍需在修复中处理，不采用任�
 检查后打印摘要的GBK终端编码错误另行保存，没有重跑npm或把该包装器错误藏去。
 完整产品515文件SHA`d9da878c38c20d41d7df466c8ad2d0ac153cba355b459d45ad97594c1efcfc9c`，19文件fixture仍为`0f589b53…`。
 本候选尚未部署实际复验；不能继承7b5/a2da的运行结果，100ms、真实IME、0/44及M6门禁均未闭合。
+
+### 41a8部署后的两例焦点复验仍失败
+
+固定`f616d281 / 41a8e1a2…`已刷新8237与干净8247，两边均为515文件包`d9da878c…`；
+8237保留19文件测试夹具，8247无夹具。首次就绪、服务文件核对与备份见
+`.local/validation/refresh-41a8-execution-handoff.json`。文档提交`d218524`的CI `40174732280`成功，
+与固定产品提交仅两份验证文档不同；就绪和CI不证明交互、性能或持续空闲。
+
+实际仅执行Table A的1920×1080/50%与680×720/150%两组focus/Tab/Shift+Tab。
+两组编辑焦点的正文、owner、6/6选区及peer值在保持观察前后相同；前向Tab的任务2行头现已可见，根滚动为0。
+**680×720/150%反向Shift+Tab仍失败**：目标为`contenteditable=false`的prompt DIV，
+宽838.59px超过安全可用590px，left840.89..right1679.48全部在680px视口外；
+1127ms保持后及距首次18.501秒的补读均未恢复。源码的wholeControl超大矩形拒绝足以阻止平移，
+与已修正的左/上边框误判分开；这不是将编辑caret可见等同整个控件可见。
+21份原件（6张case图及1张预备图均为真实JPEG）清单SHA
+`3ed860b8e501cefb21e10a3cded91ff2176fe7a95fb86fc31a9aca8992e27ef3`；独审SHA
+`ea2bf72082be41c3af07d33ea7eaf1df5f2e7db825d350b49fbaedceb68a4a3b`。
+对应`.local/validation/41a8-partial-focus-files-first.json`及`41a8-partial-focus-independent-review.json`。
+剩余34组焦点、全部36组菜单、模式/编辑历史/保存重开/App等未执行，矩阵不通过。
+
+后续oversized非编辑控件修正只在可信Tab路径显露起始区域，完整原矩形仍用于内部裁切检查；
+源码`50cfbf29…`及focused 38/38首红/最终记录均保留。已提交`8910bd207ab8419d8943ba9113a6ee7510be77dd`，
+构建`8965454852e269b1fb1989e4e08c50bd977739d070aea9522cb9e098c2d18f4e`，完整检查首次288通过/3跳过、业务413通过；
+515文件包SHA`61efb02006d1777c26d58d9953ed843324453f236cd811fb694774837697e906`。
+构建交接`.local/validation/tab-oversized-combined-check/combined-handoff.json` SHA`ef608b7f…`。
+截至本次更新新候选未部署或实际复验，8237/8247仍为41a8；不承诺整个超大控件可见或性能改善。
+
+### 41a8正式五轮失败与显隐对照未生效
+
+原M夹具`79ecd59c…`、834d观察器、1920×1080/DPR约1、Canvas50%和固定50键计划保持。
+50个真实输入顺序/目标/值全部匹配，动作错误0，实际停留600–615ms；50个display完成。
+**editing仅9个可测、41个not-observed-before-display，9个均超过1000ms，正式性能失败且测量不完整。**
+五轮可测N=3/2/1/1/2，最近秩p95分别1130.5/1123.1/1004.6/1074.7/1105.7ms；
+这些是可测子集描述，不替代每轮N=10，也不为缺测填值。冻结分析首次exit2，
+`.local/validation/41a8-table-semantic-preparation/candidate-analysis-first.json` SHA
+`180ea4449cb35518b19e9d02d31a751c931bca9e1ecbaa31b720c2c80ab6c684`。
+R5首动作DOM记录edited.at比operator dwellStart晚1ms，首次严格时序断言失败保留；未加容差或假定两时钟同域。
+六宿主/17服务文件前后核验相同、队列点时为空，不代表全程负载或浏览器调度原因已知。
+
+保存件SHA`83759b4c61a24d15dfea693296fa52740851b932b5005657f1e991dde8d2c7a3`，300节点/400连线、
+两表行列身份与9998个未编辑值保留，仅两目标值为O/y；不是宣称完整JSON仅两leaf变化。
+`M-table-semantic-41a8-reopen-context.json`与实际1920×1080 JPEG `M-table-semantic-41a8-reopen-final.jpg`支持原生重开后300卡、
+两表各500行、O/y和clean标题。DOM列数采集仍为0，10列来自保存数据；重开成功不消除缺测。
+
+另按计划SHA`116ca7deb4a1bf15b67cf0622761a9f45187fd7a14720ab43d3a16bf6d21e762`执行12键显隐ABA诊断，
+三段原始文件为`M-table-41a8-visibility-{hidden-before,visible,hidden-after}-raw.json`，均保留。
+工具请求visible=true后实际get仍false，三段observedBrowserVisibility均false；各段DOM端点仍报告hidden=false/visible，
+两种可见性作用域不能混同。editing可测数1/1/0，其余10次缺测，display12次完整；目标可见干预未生效，
+不能形成显隐对照或证明浏览器节流是根因。`open_in_codex`显示tab60仅返回queued，主代理已请用户切回本任务并保持Codex前台，
+尚不以此推定实际前台状态。此诊断不替代正式失败；先前a2da50次失败和N4全缺记录不改。
+真实IME待验、推理0/44、M6未通过，不发布。
