@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
+import {setImmediate as nextTurn} from 'node:timers/promises';
 
 const directory=path.resolve(process.env.CREATIVE_STUDIO_TEST_WEB||'web');
 const compiled=relative=>import(pathToFileURL(path.join(directory,relative)).href);
@@ -58,13 +59,54 @@ test('one click captures immutable input and writes only a minimal reference the
     assert.equal(f.port.calls.some(c=>String(c[0]).includes('queue')),false);
 });
 
-async function completedCopy(t,{documentId='saved-as',nodeId='node-a'}={}){
+function waitForLoadedView(t,f){
+    const settled=view=>view&&!view.busy&&(view.report!==undefined||view.error!==undefined);
+    if(settled(f.view))return Promise.resolve(f.view);
+    return new Promise((resolve,reject)=>{
+        const changed=f.host.changed;
+        const cleanup=()=>{clearTimeout(timer);if(f.host.changed===notify)f.host.changed=changed;};
+        const notify=view=>{changed(view);if(settled(view)){cleanup();resolve(view);}};
+        const timer=setTimeout(()=>{cleanup();reject(Error('loaded export GET did not settle through host.changed'));},5000);
+        f.host.changed=notify;t.after(cleanup);
+    });
+}
+
+async function completedCopy(t,{documentId='saved-as',nodeId='node-a',beforeLoad=()=>{}}={}){
     const original=fixture(t);await original.session.start();original.port.complete(original.state.reference.requestId);await original.session.refresh();
     const saved=structuredClone(original.state),facts=structuredClone(original.port.records.get(saved.reference.requestId));original.session.dispose();
     const copy=fixture(t,original.port,nodeId);copy.owner.documentId=documentId;copy.restore(saved);
-    const before=copy.port.calls.length;assert.equal(copy.session.load(saved.reference),true);await tick();await copy.session.inputChanged();
+    beforeLoad({copy,saved,facts});
+    const before=copy.port.calls.length;assert.equal(copy.session.load(saved.reference),true);await waitForLoadedView(t,copy);
     return {original,copy,saved,facts,before};
 }
+
+test('completed copy preparation waits for the existing GET to be ingested without another query',{timeout:5000},async t=>{
+    const staged=deferred(),firstDigest=deferred(),getGate=deferred();let finished=false;
+    const pending=completedCopy(t,{beforeLoad(context){
+        t.mock.timers.enable({apis:['setTimeout']});
+        context.copy.port.getGate=getGate;
+        const inputChanged=context.copy.session.inputChanged.bind(context.copy.session);
+        let first=true;
+        context.copy.session.inputChanged=async()=>{
+            const initial=first;first=false;await inputChanged();if(initial)firstDigest.resolve();
+        };
+        staged.resolve(context);
+    }}).then(value=>{finished=true;return value;});
+    const {copy,facts}=await staged.promise;
+    await firstDigest.promise;
+    // The real digest has settled; flush only the old helper's zero timer and
+    // its cached-input microtasks. The intentionally held GET is still pending.
+    t.mock.timers.tick(0);await nextTurn();
+    try{
+        assert.equal(finished,false,'preparation must not return before its existing GET is ingested');
+        assert.equal(copy.view.busy,true);assert.equal(copy.view.report,undefined);assert.equal(copy.view.copiedOutput,undefined);
+    }finally{getGate.resolve(structuredClone(facts));}
+    const {saved,before}=await pending;
+    assert.equal(copy.view.busy,false);assert.equal(copy.view.report.state,'succeeded');
+    assert.deepEqual(copy.view.copiedOutput,saved.binding);
+    assert.deepEqual(copy.port.calls.slice(before).map(call=>call[0]),['get']);
+    assert.equal(copy.historyEdits,0);assert.deepEqual(copy.state,saved);
+});
 
 test('Save As and cross-node copies verify an existing binding with GET only and never write native history',async t=>{
     for(const owner of [{documentId:'saved-as',nodeId:'node-a'},{documentId:'document',nodeId:'different-node'}]){
@@ -93,7 +135,7 @@ test('explicit copy submission persists a fresh identity and reload reads it wit
     await copy.session.startCopy();const current=copy.state.reference;assert.notEqual(current.requestId,saved.reference.requestId);assert.deepEqual(current.source,copy.owner);
     assert.equal(copy.view.copied,false);assert.equal(copy.view.copiedOutput,undefined);copy.port.complete(current.requestId);await copy.session.refresh();
     assert.equal(copy.view.currentOutput.reference.requestId,current.requestId);assert.deepEqual(copy.port.records.get(saved.reference.requestId),facts);
-    const persisted=structuredClone(copy.state),reloaded=fixture(t,copy.port);reloaded.owner.documentId='saved-as';reloaded.restore(persisted);reloaded.session.load(persisted.reference);await tick();await reloaded.session.inputChanged();
+    const persisted=structuredClone(copy.state),reloaded=fixture(t,copy.port);reloaded.owner.documentId='saved-as';reloaded.restore(persisted);reloaded.session.load(persisted.reference);await waitForLoadedView(t,reloaded);
     assert.deepEqual(reloaded.view.currentOutput,persisted.binding);assert.equal(reloaded.historyEdits,0);
     assert.equal(copy.port.calls.slice(before).filter(c=>c[0]==='submit').length,1);assert.deepEqual(saved.reference.source,{documentId:'document',nodeId:'node-a'});
 });
@@ -102,7 +144,7 @@ test('foreign bad binding, forged old source, and mismatching completed receipt 
     for(const corrupt of [value=>{value.binding.reference.requestId='forged';},value=>{value.binding.asset.bytes=-1;},value=>{value.reference.source.documentId='forged';value.binding.reference.source.documentId='forged';},value=>{value.binding.asset.asset_id='forged';}]){
         const {copy,saved}=await completedCopy(t);copy.session.dispose();const bad=structuredClone(saved);corrupt(bad);
         const other=fixture(t,copy.port);other.owner.documentId='saved-as';other.restore(bad);const before=other.port.calls.length;
-        other.session.load(bad.reference);await tick();await other.session.start();await other.session.startCopy();await other.session.recover();await other.session.cancel();
+        other.session.load(bad.reference);await waitForLoadedView(t,other);await other.session.start();await other.session.startCopy();await other.session.recover();await other.session.cancel();
         assert.equal(other.view.currentOutput,undefined);assert.equal(other.view.copiedOutput,undefined);assert.equal(other.view.canExportCopy,false);
         assert.ok(other.view.error);assert.deepEqual(other.state,bad);assert.equal(other.historyEdits,0);
         assert.ok(other.port.calls.slice(before).every(c=>c[0]==='get'));

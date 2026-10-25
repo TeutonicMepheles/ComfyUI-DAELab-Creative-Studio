@@ -1836,6 +1836,16 @@ NativeOpen原M后的首公开DOM同时出现两原始目标值、0卡片和Unsav
 
 累计当前构建焦点覆盖19/36，尚余17组；菜单记录12/36，其中8组有成对稳定计时，100%的4组仍有限，另24组未执行。这是覆盖计数，不是通过计数。1920×1080是上述DOM实测尺寸；IAB DPR仍约1.75，不能由用户确认的Windows 100%推导为DPR1。首次设置窄视口超时后，再尝试清除覆盖尺寸也超时并重置控制连接；恢复只读连接后仍为1920×1080/150%、四卡片。后一次原件单独保存在`.local/performance-actual/four-owner-1269-viewport-recovery-second/`，没有登记1280或680的新覆盖。不得把菜单、DOM字段保持或工具超时作为100ms、真实IME、全序列化数据或M6验收结论。
 
+100%菜单随后单独补采，22原件冻结于`.local/performance-actual/four-owner-1269-1920-z100-menu-stable-first/`，清单SHA`cd993cb2924603a83880c2b59fdb01db431d00e184e7cf7b59770bc8c55d8cd3`。通过原生标签回切到先前从原65ae导入的100%工作流，不是本次重新NativeOpen；八字段、两线及实际100%状态经公开DOM核对。两LLM菜单、A表和B表菜单分别记录1152/1147/1159/1152ms稳定对及关闭后态；四张JPEG均1920×1035，实际弹层边界完整可见，底部45px依然无截图覆盖。两表原始dialogCount为2→0，不解释为两个可见对话框；原composer及qwen选择保持，provider未装配错误仍可见。独审248项一致性检查无异常，16份合格快照保留八字段/两线，报告SHA`0a14cc4dcc3b14e89284097a99292084f1050040c4ea8fbdeb881b4fac71780a`。旧菜单原件及其计时缺口不改写；唯一菜单覆盖仍是12/36，现在这12组均有稳定计时，未执行24组，焦点仍19/36。没有增加正文输入、模型选择、生成或保存验收。
+
+### 同提交CI失败及导出测试同步修正
+
+提交`4b20c57b68428fa5b0c3dc6c69e275a0439b8735`的PR运行40239939318通过，但push运行40239936186的job121309364770在npm test失败：331通过、1失败、3跳过，后续步骤均跳过。唯一失败为`tests/application/media_export.test.mjs`的SaveAs/跨节点副本用例，copiedOutput尚为undefined。该提交没有修改产品导出源码或这个测试；不能仅凭一过一败就把现场唯一原因确定为调度。原job日志80,627字节/SHA`38f1e9c5c0e12ecf90f12b3cd9486c5ce4c51f00db6ce6becdfe677d2d1bfd8d`及源码对照保存在`.local/validation/recovery-matrix-4b20c57-ci-first/`，分析SHA`b9cd734ea08daa495f0c6c24539fb10ded75ffac24d379e94d1df559d63460ca`，未重跑原CI。
+
+确定性补充反例保持真实摘要计算，暂挂唯一GET，推进旧helper的零延时timer后确认helper已提前返回；首红0/1保留。只修测试的完成条件：通过既有host.changed等待非busy且有report或error的结案状态，之后仍逐项断言绑定、一次GET、零原生历史及原数据。等待不以期望copiedOutput为成功条件，错误仍由原断言拒绝，也不增加查询。相同缺口的已存副本重载和损坏绑定场景采用同一等待；stale lookup场景保持。修正后27旧+1新共28/28首次通过，交接`.local/validation/media-export-readiness-ci-first/handoff.json` SHA`d911b344f5e744756613d51acd6e97d01e35a23d29feab3cebc073a268b0291c`。产品/生成物未改，没有将此修复当作输入性能、实际导出或M6通过。
+
+测试修正的独审48项证据一致性检查通过，报告`.local/validation/media-export-readiness-independent-first/review.json` SHA`aa9059559be0701f09e5816b0a1c2f5e998bba6a7cac2665ccba9347eeb38337`。等待器的同步检查与通知安装之间没有await空隙；保留原host.changed，条件清理不覆盖后续替换的callback。Node定时器mock仅用于受控反例，真实摘要和下一事件循环仍参与。独审没有重复全文件运行，也没有把它升级为原CI唯一成因证明。
+
 ### 8257仅完成静态准备
 
 新版恢复诊断的8257材料保留固定671b/78产品及原19文件，只替换诊断模块和新端口绑定器。首次check-only通过，21文件夹具SHA`510bc45f01fa200b1ae52bcbf7a31162e2d7f8255d1c107c821dd24df26389cb`，交接SHA`f8acfa4500474707987efeb3f698e33efee5ceba8d49b9532bc509cbc8212475`。111项静态独审无失败，报告SHA`2abcab0992108c74df6b29c8706c93ed1348c9b870457cab6368fd8db9ef22e7`；计划中的旧8256目录误引另存勘误SHA`c057a3a150b368b04f77965bef788c5bf9952149083cac151ec97d4c1c409007`，冻结计划不改。没有prepare/start、实际Arm或输入。
