@@ -256,11 +256,86 @@ test('post-Tab control rejects changed owner/mode, detached/disabled targets and
     for(const tag of ['DIALOG','SECTION']){const f=fixture(),target=f.control();target.parentElement=tag==='DIALOG'?f.element(tag,f.a.panel):f.root;f.tabTo(target);f.flush();assert.equal(f.pans.length,0);f.controller.destroy();}
 });
 
-test('Tab cannot bypass IME or reveal hidden, oversized, internally clipped or already visible controls',()=>{
+test('Tab cannot bypass IME or reveal hidden, invalid, internally clipped or already visible controls',()=>{
     for(const setup of [f=>f.fire('compositionstart'),f=>f.fire('keydown',f.a,{keyCode:229,isComposing:true})]){const f=fixture();setup(f);f.tabTo(f.control());f.flush();assert.equal(f.pans.length,0);f.controller.destroy();}
     for(const options of [{isComposing:true},{keyCode:229}]){const f=fixture();f.tabTo(f.control(),options);f.flush();assert.equal(f.pans.length,0);f.controller.destroy();}
-    for(const bounds of [rect(100,200,150,240),rect(0,200,900,240),rect(0,0,0,0)]){const f=fixture();f.tabTo(f.control(f.a,'BUTTON',bounds));f.flush();assert.equal(f.pans.length,0);f.controller.destroy();}
+    for(const bounds of [rect(100,200,150,240),rect(0,0,0,0)]){const f=fixture();f.tabTo(f.control(f.a,'BUTTON',bounds));f.flush();assert.equal(f.pans.length,0);f.controller.destroy();}
     const clipped=fixture(),target=clipped.control();clipped.a.panel.css={overflowX:'hidden'};clipped.a.panel.bounds=rect(600,280,700,500);clipped.tabTo(target);clipped.flush();assert.equal(clipped.pans.length,0);clipped.controller.destroy();
+});
+
+test('actual 41a8 Shift+Tab oversized noneditor reveals its leading region without changing control or Selection',()=>{
+    const f=fixture(),bounds=rect(840.8907470703125,171.65623474121094,1679.4844360351562,213.65623474121097);
+    const target=f.control(f.a,'DIV',bounds),before=structuredClone(bounds),selection={...f.selection};
+    assert.equal(revealDelta(bounds,f.root.bounds),null,'public geometry retains oversized rejection');
+    f.tabTo(target,{shiftKey:true});f.doc.emit('selectionchange');f.flush();
+    assert.deepEqual(f.pans,[{x:50-(bounds.left-74),y:200,zoom:1.5}]);
+    assert.equal(f.doc.activeElement,target);assert.deepEqual(bounds,before);assert.deepEqual(f.selection,selection);assert.deepEqual(f.writes,[]);
+    assert.equal(f.rangeReads.length,0);assert.deepEqual(f.measures,[target,f.root]);
+    const moved=f.pans[0].x-50;assert.equal(bounds.left+moved,74);assert.equal(bounds.left+moved+590,664);
+    assert.ok(bounds.right+moved>664,'only the leading region fits; full-width visibility is not claimed');
+    f.doc.emit('selectionchange');f.flush();assert.equal(f.pans.length,1);
+    const after=structuredClone(f.tracker);for(const saved of [after.initialState,after.activeState,...after.undoQueue,...after.redoQueue])saved.extra.daelabCreativeCanvasV1.viewport={x:0,y:0,zoom:1};
+    assert.deepEqual(after,f.beforeSnapshots);f.controller.destroy();
+});
+
+test('Tab oversized policy is per-axis and leaves fit-sized controls on exact nearest-edge geometry',()=>{
+    const cases=[
+        {bounds:rect(800,200,1700,240),delta:{dx:726,dy:0}},
+        {bounds:rect(200,900,240,1800),delta:{dx:0,dy:788}},
+        {bounds:rect(-100,-200,800,900),delta:{dx:-174,dy:-312}},
+        {bounds:rect(74,112,974,1012),delta:{dx:0,dy:0}},
+        {bounds:rect(600,680,800,730),delta:{dx:136,dy:26}},
+    ];
+    for(const {bounds,delta} of cases)for(const owner of ['a','b']){
+        const f=fixture(),target=f.control(f[owner],'DIV',bounds);f.tabTo(target,{shiftKey:owner==='b'});f.flush();
+        assert.deepEqual(f.pans,delta.dx||delta.dy?[{x:50-delta.dx,y:200-delta.dy,zoom:1.5}]:[]);assert.deepEqual(f.writes,[]);f.controller.destroy();
+    }
+});
+
+test('Tab oversized region uses current root/visual intersection and rejects unusable geometry',()=>{
+    const f=fixture();f.win.visualViewport={offsetLeft:100,offsetTop:150,width:400,height:400};
+    const target=f.control(f.a,'DIV',rect(800,900,1800,1900));f.tabTo(target);f.flush();
+    assert.deepEqual(f.pans,[{x:50-(800-116),y:200-(900-166),zoom:1.5}]);f.controller.destroy();
+    const fractional=fixture();fractional.root.bounds=rect(58.123456789,96.234567891,679.876543219,719.765432198);
+    const large=fractional.control(fractional.a,'DIV',rect(840.8907470703125,900.234567891,1679.4844360351562,1900));
+    fractional.tabTo(large);fractional.flush();assert.deepEqual(fractional.pans,[{
+        x:50-(large.bounds.left-(fractional.root.bounds.left+16)),y:200-(large.bounds.top-(fractional.root.bounds.top+16)),zoom:1.5,
+    }]);fractional.controller.destroy();
+    for(const change of [(f,t)=>f.root.bounds=rect(58,96,90,720),(f,t)=>f.root.bounds=rect(58,96,680,128),
+        (f,t)=>f.win.visualViewport={offsetLeft:900,offsetTop:0,width:100,height:720},(f,t)=>t.bounds=rect(NaN,200,900,240),
+        (f,t)=>t.bounds=rect(900,200,800,240),(f,t)=>t.bounds=rect(800,200,900,200)]){
+        const f=fixture(),target=f.control(f.a,'DIV',rect(800,900,1800,1900));change(f,target);f.tabTo(target);f.flush();assert.equal(f.pans.length,0);f.controller.destroy();
+    }
+});
+
+test('Tab measurement truncation never bypasses full-control ancestor clipping',()=>{
+    for(const axis of ['x','y']){
+        const f=fixture(),target=f.control(f.a,'DIV',axis==='x'?rect(800,200,1800,240):rect(200,900,240,1900));
+        f.a.panel.css=axis==='x'?{overflowX:'hidden'}:{overflowY:'auto'};
+        f.a.panel.bounds=axis==='x'?rect(800,100,1500,500):rect(100,900,500,1600);
+        Object.assign(f.a.panel,{offsetWidth:f.a.panel.bounds.width,clientWidth:f.a.panel.bounds.width,offsetHeight:f.a.panel.bounds.height,clientHeight:f.a.panel.bounds.height});
+        f.tabTo(target);f.flush();assert.equal(f.pans.length,0,axis+' trailing clipping outside truncated region still blocks');f.controller.destroy();
+    }
+});
+
+test('oversized noneditor reveal remains trusted-Tab-only and native text controls retain their original path',()=>{
+    for(const kind of ['programmatic','untrusted','pointer','textarea','input','ime']){
+        const f=fixture(),target=f.control(f.a,kind==='textarea'?'TEXTAREA':kind==='input'?'INPUT':'DIV',rect(800,200,1800,240));target.type='text';
+        if(kind==='programmatic'){f.doc.activeElement=target;f.root.emit('focusin',{target,isTrusted:true,relatedTarget:f.a.editor});}
+        else if(kind==='pointer'){f.root.emit('pointerdown',{target,button:0});f.doc.activeElement=target;f.root.emit('focusin',{target,isTrusted:true,relatedTarget:f.a.editor});f.doc.emit('pointerup',{target});}
+        else f.tabTo(target,{isTrusted:kind!=='untrusted',isComposing:kind==='ime'});
+        f.flush();assert.equal(f.pans.length,0,kind);assert.deepEqual(f.writes,[]);f.controller.destroy();
+    }
+});
+
+test('oversized Tab request retains cancellation and rechecks owner after current geometry reads',()=>{
+    const changes=[f=>f.controller.suspend(),f=>f.controller.cancel(),f=>f.controller.destroy(),f=>f.win.emit('pagehide'),
+        f=>f.a.node.mode=4,f=>f.view.replaceGraph({}),f=>f.doc.activeElement=f.b.editor];
+    for(const change of changes){const f=fixture(),target=f.control(f.a,'DIV',rect(800,200,1800,240));f.tabTo(target);change(f);f.flush();assert.equal(f.pans.length,0);f.controller.destroy();}
+    for(const which of ['control','root']){
+        const f=fixture(),target=f.control(f.a,'DIV',rect(800,200,1800,240)),element=which==='control'?target:f.root,read=element.getBoundingClientRect;
+        element.getBoundingClientRect=()=>{const result=read();f.a.release=()=>{};return result;};f.tabTo(target);f.flush();assert.equal(f.pans.length,0,which);f.controller.destroy();
+    }
 });
 
 test('whole-control bounds skip self overflow, retain geometry lease validation and cancel on teardown',()=>{

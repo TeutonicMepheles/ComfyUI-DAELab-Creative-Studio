@@ -22,6 +22,26 @@ export function revealDelta(target: RevealRect, viewport: RevealRect, margin = 1
     };
 }
 
+/** Trusted Tab controls may expose only their leading region when oversized. */
+function tabControlDelta(target: RevealRect, viewport: RevealRect): RevealDelta | null {
+    const fitted = revealDelta(target, viewport);
+    if (fitted) return fitted;
+    if (!finiteRect(target) || !finiteRect(viewport)) return null;
+    const left = viewport.left + 16, right = viewport.right - 16;
+    const top = viewport.top + 16, bottom = viewport.bottom - 16;
+    if (right <= left || bottom <= top) return null;
+    // This is the delta of a measurement truncated to the available size on
+    // each oversized axis. Compute that axis directly: reconstructing a right
+    // edge then subtracting left can round its width above the exact budget.
+    // Full original bounds still decide ancestor clipping; no DOM is clipped.
+    return {
+        dx: target.right - target.left > right - left ? target.left - left
+            : target.left < left ? target.left - left : target.right > right ? target.right - right : 0,
+        dy: target.bottom - target.top > bottom - top ? target.top - top
+            : target.top < top ? target.top - top : target.bottom > bottom ? target.bottom - bottom : 0,
+    };
+}
+
 function textControl(element: HTMLElement): boolean {
     return element.tagName === 'TEXTAREA' || (element.tagName === 'INPUT'
         && /^(text|search|url|tel|email|password)$/.test((element as HTMLInputElement).type));
@@ -195,7 +215,8 @@ export function createCaretReveal({root, owner, pan}: RevealOptions) {
             if (!request || !valid(request.editor, request.lease, request.wholeControl)) return;
             const target = request.wholeControl ? request.editor.getBoundingClientRect() : caretRect(request.editor);
             if (!target) return;
-            const delta = revealDelta(target, viewportRect(root, win!));
+            const viewport = viewportRect(root, win!);
+            const delta = request.wholeControl ? tabControlDelta(target, viewport) : revealDelta(target, viewport);
             // Most editing is already visible: avoid inspecting every ancestor
             // unless translation is needed. Range/root reads remain a real cost.
             if (!delta || (!delta.dx && !delta.dy)) return;

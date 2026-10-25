@@ -1047,12 +1047,13 @@
       "source": null,
       "sourceSha256": null,
       "destination": "frontend/src/canvas/creative_focus_reveal.ts",
-      "destinationSha256": "bdb95abb8639313bb25f2976826b8279131631826b135036dcf39b9fbaf8e630",
+      "destinationSha256": "50cfbf29e19696e1d317429d4515600ca30d21c10600373e07231ca03631fcdc",
       "kind": "production-source",
       "changes": [
         "Authored strict TypeScript focus coordinator: one coalesced frame reads a collapsed Range and root viewport; visible caret skips ancestor clipping checks. Only needed translations inspect inner clipping. Native text controls use whole-control bounds only when they fit; oversized controls and noncollapsed selections are deliberately not guessed.",
         "Trusted Tab/Shift+Tab keeps native focus order and may reveal the actual fit-sized noneditor focus target through a one-frame origin intent and current origin/target ownership leases. Pending intent expires or cancels on manual navigation, unrelated keys, IME, mode/lifecycle changes and disposal; no focus, scroll, business or history writes are introduced.",
-        "Correct only rejected left/top clipping checks in the supported fractional-border domain using floating used box geometry and bounded CSS serialization/float-coordinate intervals. Unknown styles/transforms/gutters retain the old conservative path; right/bottom limits, Tab/owner/IME/navigation lifecycle and visible-caret fast return are unchanged. Sub-measurement clipping and other engines remain explicit limits pending real UI validation."
+        "Correct only rejected left/top clipping checks in the supported fractional-border domain using floating used box geometry and bounded CSS serialization/float-coordinate intervals. Unknown styles/transforms/gutters retain the old conservative path; right/bottom limits, Tab/owner/IME/navigation lifecycle and visible-caret fast return are unchanged. Sub-measurement clipping and other engines remain explicit limits pending real UI validation.",
+        "Extend only trusted Tab/Shift+Tab noneditor whole-control requests: fit-sized targets retain exact revealDelta behavior; oversized axes expose the physical left/top leading region sized to the available viewport. Full original bounds still enforce ancestor clipping. Public revealDelta, caret/textarea, focus/selection, owner leases, IME and cancellation remain unchanged; no complete visibility of oversized controls or performance result is claimed."
       ]
     },
     {
@@ -1060,12 +1061,13 @@
       "source": null,
       "sourceSha256": null,
       "destination": "tests/migrated_canvas/creative_focus_reveal.test.mjs",
-      "destinationSha256": "5baf44dc5fc2bd96b3c79a0a106d5efc1da8bb86931ad1016e947344f4c7b390",
+      "destinationSha256": "035ee9df858745ed1a37ec251fb8877cbd1f72958c34114a646c6745b6e3c6a0",
       "kind": "rule-regression",
       "changes": [
         "Execute actual core and view lease binding with two owners and native viewport history; cover stale identity, composition/229, manual navigation, geometry and read/write boundaries. Synthetic DOM does not prove browser geometry, IME or latency.",
         "Adds seven focused trusted-Tab regressions for recorded offscreen TD/button geometry, exact origin/target lease handoff, inline exit, expiry and cancellation, IME, disabled/hidden/clipped controls, current geometry and teardown. Existing caret/owner tests remain; pure tests do not establish actual browser or performance acceptance.",
-        "Adds seven focused fractional-leading-edge cases using recorded 50/150 geometry, genuine .001/.01 clipping in those cases, exact legacy right/bottom limits, unsupported styles/ancestor transforms, floating top/content-box scale and ownership recheck. Synthetic supported-domain inputs are distinguished from captured fields; no live visibility or performance claim."
+        "Adds seven focused fractional-leading-edge cases using recorded 50/150 geometry, genuine .001/.01 clipping in those cases, exact legacy right/bottom limits, unsupported styles/ancestor transforms, floating top/content-box scale and ownership recheck. Synthetic supported-domain inputs are distinguished from captured fields; no live visibility or performance claim.",
+        "Adds six focused oversized-Tab regressions including recorded 838px Shift+Tab DIV, single/both-axis leading regions, fractional root/visual viewport and invalid geometry, complete-control clipping, non-Tab/pointer/IME/text-control exclusions, two owners, post-read lease validation and unchanged native history. First old-source run failed three cases; final 38 cases pass. Pure geometry is not live UI acceptance."
       ]
     }
   ],
