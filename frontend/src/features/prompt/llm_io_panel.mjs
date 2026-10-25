@@ -8,6 +8,13 @@ import {availableModes,applyIOResult,undoIOResult} from './llm_io_model.mjs';
 import {slotRows,slotSignature,outputText} from './llm_slot_model.mjs';
 import {optimizeRow} from './llm_local_provider.mjs';
 import {createLLMTask} from './llm_task_model.mjs';
+// Reconcile against the actual controls, including shared-control changes. Do
+// not cache render inputs: Slot validation, task snapshots and native outputs
+// must still be refreshed on every render.
+const setProperty=(element,key,value)=>{if(element[key]!==value)element[key]=value;};
+const setAttribute=(element,key,value)=>{if(element.getAttribute(key)!==value)element.setAttribute(key,value);};
+const toggleAttribute=(element,key,enabled)=>{if(element.hasAttribute(key)!==enabled)element.toggleAttribute(key,enabled);};
+const toggleClass=(element,key,enabled)=>{if(element.classList.contains(key)!==enabled)element.classList.toggle(key,enabled);};
 export function bindIOPanel({node,nativeDocument=null,root,source,instruction,select,run,upload,result,materialHint}){
     const saved=()=>node.properties.llmStylePreview;
     saved().instruction??=instruction.value;
@@ -53,28 +60,28 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
             const linkedInstructions=[...new Set(rows.map(r=>r.instruction).filter(Boolean))].join('\n\n');
             if(linkedInstructions){
                 if(next.slotInstruction===undefined)next.manualInstruction=next.instruction;
-                next.slotInstruction=linkedInstructions;next.instruction=linkedInstructions;instruction.value=linkedInstructions;next.mode='reverse';
+                next.slotInstruction=linkedInstructions;next.instruction=linkedInstructions;setProperty(instruction,'value',linkedInstructions);next.mode='reverse';
             }else if(next.slotInstruction!==undefined){
-                next.instruction=next.manualInstruction||'';instruction.value=next.instruction;delete next.slotInstruction;delete next.manualInstruction;
+                next.instruction=next.manualInstruction||'';setProperty(instruction,'value',next.instruction);delete next.slotInstruction;delete next.manualInstruction;
             }
             if(!modes[next.mode]){if(modes.reverse)next.mode='reverse';else if(modes.polish)next.mode='polish';}
             try{if(JSON.stringify(next)!==JSON.stringify(saved())){if(nativeDocument)nativeDocument.replace(next,{derived:true});else Object.assign(saved(),next);}lastInput=inputKey;}catch(error){message=error.message;}
         }
-        for(const b of root.querySelectorAll('[data-mode]')){const selected=b.dataset.mode===saved().mode;b.setAttribute('aria-pressed',String(selected));b.toggleAttribute('data-primary',selected);}
+        for(const b of root.querySelectorAll('[data-mode]')){const selected=b.dataset.mode===saved().mode;setAttribute(b,'aria-pressed',String(selected));toggleAttribute(b,'data-primary',selected);}
         const mode=saved().mode||'polish',reverse=mode==='reverse',disabled=busy||!!node.mode;
-        sourceSection.hidden=reverse;imageSection.hidden=!reverse;
-        source.value=rows.map(r=>r.text).filter(Boolean).join('\n\n');
-        const first=rows.find(r=>r.image)?.image;image.hidden=!first;if(first&&image.getAttribute('src')!==first.url)image.src=first.url;image.alt=first?.name||'参考图片';imageText.hidden=!!first;imageBox.classList.toggle('has-image',!!first);
-        source.disabled=instruction.disabled=select.disabled=disabled;
-        instruction.readOnly=saved().slotInstruction!==undefined;
-        for(const b of root.querySelectorAll('[data-mode]'))b.disabled=disabled;
+        setProperty(sourceSection,'hidden',reverse);setProperty(imageSection,'hidden',!reverse);
+        setProperty(source,'value',rows.map(r=>r.text).filter(Boolean).join('\n\n'));
+        const first=rows.find(r=>r.image)?.image;setProperty(image,'hidden',!first);if(first&&image.getAttribute('src')!==first.url)image.src=first.url;setProperty(image,'alt',first?.name||'参考图片');setProperty(imageText,'hidden',!!first);toggleClass(imageBox,'has-image',!!first);
+        for(const control of [source,instruction,select])setProperty(control,'disabled',disabled);
+        setProperty(instruction,'readOnly',saved().slotInstruction!==undefined);
+        for(const b of root.querySelectorAll('[data-mode]'))setProperty(b,'disabled',disabled);
         const valid=availableModes(rows)[mode];
-        run.disabled=disabled||!!error||!valid;run.title='通过 Slot 读取输入，串行生成建议；应用后输出';run.lastChild.textContent=busy?'生成中…':'生成';run.setAttribute('aria-busy',String(busy));
+        setProperty(run,'disabled',disabled||!!error||!valid);setProperty(run,'title','通过 Slot 读取输入，串行生成建议；应用后输出');setProperty(run.lastChild,'textContent',busy?'生成中…':'生成');setAttribute(run,'aria-busy',String(busy));
         const d=proposalState||saved().ioResult,stamp=signature(),stale=d?.signature!==stamp,isApplied=!!d?.requestId&&saved().appliedIO?.requestId===d.requestId;
-        paragraph.textContent=d?.rows.map(r=>r.result).filter(Boolean).join('\n\n')||'';
-        apply.disabled=disabled||!d?.complete||stale||isApplied||!!nativeDocument&&(proposalTicket?!nativeDocument.canApply(proposalTicket):restoredProposal!==d?.requestId);apply.hidden=isApplied;
-        recover.disabled=disabled||!nativeDocument;undo.disabled=disabled||!saved().ioUndo;undo.hidden=!saved().ioUndo;regenerate.disabled=run.disabled||!d;
-        status.textContent=error||(d&&stale?'输入已改变，请重新生成':message|| (d?`${d.provider==='qwen'?'本地 Qwen 结果':d.provider==='deepseek'?'DeepSeek 结果':'示例结果 · 未调用模型'}${isApplied?' · 已应用':' · 待应用'}`:rows.length&&!valid?'当前连线输入不支持此模式':rows.length?`${rows.length} 项输入 · 等待生成`:'请通过 Slot 连接输入'));
+        setProperty(paragraph,'textContent',d?.rows.map(r=>r.result).filter(Boolean).join('\n\n')||'');
+        setProperty(apply,'disabled',disabled||!d?.complete||stale||isApplied||!!nativeDocument&&(proposalTicket?!nativeDocument.canApply(proposalTicket):restoredProposal!==d?.requestId));setProperty(apply,'hidden',isApplied);
+        setProperty(recover,'disabled',disabled||!nativeDocument);setProperty(undo,'disabled',disabled||!saved().ioUndo);setProperty(undo,'hidden',!saved().ioUndo);setProperty(regenerate,'disabled',run.disabled||!d);
+        setProperty(status,'textContent',error||(d&&stale?'输入已改变，请重新生成':message|| (d?`${d.provider==='qwen'?'本地 Qwen 结果':d.provider==='deepseek'?'DeepSeek 结果':'示例结果 · 未调用模型'}${isApplied?' · 已应用':' · 待应用'}`:rows.length&&!valid?'当前连线输入不支持此模式':rows.length?`${rows.length} 项输入 · 等待生成`:'请通过 Slot 连接输入')));
         task=[...generationTask.snapshot(),...(!busy&&error?[{id:'llm-input',label:waiting?'等待输入':'输入异常',state:waiting?'queued':'error',detail:error}]:[])];
         try{node.setOutputData?.(0,outputText(node));}catch{node.setOutputData?.(0,null);}
     }

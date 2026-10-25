@@ -372,14 +372,15 @@
       "source": "web/llm_io_panel.mjs",
       "destination": "frontend/src/features/prompt/llm_io_panel.mjs",
       "sourceSha256": "62133e0e28f809abcf5b59cca42eb091cce6cbc57749f88b01f6134c4171c89e",
-      "destinationSha256": "2c19c5f6a65935533674c2d1f6e8ae7cc89e7b038e0a3179c2ab2bcf58455d7a",
+      "destinationSha256": "5a80b6090d10fd1877392523723ecf316144351170d34786c47f0e17489886be",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Remove product simulator/model option; missing optimization service rejects before overwriting suggestions; preserve unknown saved model as unavailable instead of silently changing it.",
         "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
-        "Native reactive JSON boundary: detach nested host proxies for document transactions and LLM load/proposal/apply; preserve all unknown JSON keys and identities, reject unsavable edits before history, and verify source-bound edit/recovery/undo with no submit. Real UI acceptance remains separate."
+        "Native reactive JSON boundary: detach nested host proxies for document transactions and LLM load/proposal/apply; preserve all unknown JSON keys and identities, reject unsavable edits before history, and verify source-bound edit/recovery/undo with no submit. Real UI acceptance remains separate.",
+        "Guard repeated DOM writes against current control values while preserving every-render Slot validation, task/output publication, derived history and 500ms polling. Deterministic two-owner state regressions pass; actual UI/performance acceptance remains pending."
       ]
     },
     {

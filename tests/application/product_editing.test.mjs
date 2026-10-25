@@ -9,13 +9,14 @@ import {bindIOPanel} from '../../web/features/prompt/llm_io_panel.mjs';
 import {slotSignature} from '../../web/features/prompt/llm_slot_model.mjs';
 
 class Element extends EventTarget {
-  constructor(){super();this.children=[];this.dataset={};this.style={setProperty(){}};this.classList={add(){},toggle(){}};this.isConnected=true;}
+  constructor(){super();this.children=[];this.dataset={};this.style={setProperty(){}};this.classList={contains:name=>(this.className||'').split(/\s+/).includes(name),add:name=>this.classList.toggle(name,true),toggle:(name,force)=>{const names=new Set((this.className||'').split(/\s+/).filter(Boolean)),enabled=force??!names.has(name);if(enabled)names.add(name);else names.delete(name);this.className=[...names].join(' ');return enabled;}};this.isConnected=true;}
   append(...children){this.children.push(...children);}
   replaceChildren(...children){this.children=children;}
   setAttribute(key,value){this[key]=value;}
   getAttribute(key){return this[key]??null;}
+  hasAttribute(key){return Object.hasOwn(this,key);}
   removeAttribute(key){delete this[key];}
-  toggleAttribute(){}
+  toggleAttribute(key,force){const enabled=force??!this.hasAttribute(key);if(enabled)this.setAttribute(key,'');else this.removeAttribute(key);return enabled;}
   querySelector(){return null;}
   querySelectorAll(){return [];}
   remove(){this.isConnected=false;}
