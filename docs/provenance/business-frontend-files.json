@@ -838,10 +838,11 @@
       "source": "web/table_context_menu.mjs",
       "destination": "frontend/src/features/table/table_context_menu.mjs",
       "sourceSha256": "cc63812489f5b7c457a034d3322a96ed41bc3a86b770cd91a88776ea284408f6",
-      "destinationSha256": "bc290ebdc9c3e21fa4d1356b3aa0fba4cc2f607156a202ccd9926b94e573a1bb",
+      "destinationSha256": "de22a9ae9f03014f0c7ac7c1a28d57c247956be2af6cdc96dda63c6b93b20aec",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Inline editing clears only true column-selection markers; retain false markers to avoid whole-table attribute mutations. Keep selection, ARIA, per-instance and lifecycle behavior; actual latency and product acceptance remain unverified."
       ]
     },
     {

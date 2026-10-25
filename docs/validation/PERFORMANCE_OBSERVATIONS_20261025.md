@@ -1591,3 +1591,13 @@ SER05为保留当前历史而先测Undo/Redo再重开，顺序变化已写30号�
 新design-v2已纠正槽位名称，并将同一metadata准入/脱敏规则用于live、active、undo、redo；已知revision/stamp保留，未知状态明确不可比较。设计独审`wire-history-observer-v4-design/traceability-review/review-v2.json` SHA`37676efedc1a03ec5e850c5c27b1c30cb273b8aff810e535ca52406338a5fdab`确认两项首错闭合。
 源码与必要测试候选已冻结，handoff SHA`0b5b71b0d81fc5bfaa3690a6b64c0ff66bae9fb1f540836bff58044753376d01`，source SHA`6cbf9fa944c929e4a6559942d4b96b91244f9515ddb764984f02970f3a7948ff`；最终25/25通过，首v3合法连线停机红、v4首18/20及console编码错误均保留。实施独审进行中，尚未部署或取得新的连线历史观测；设计和离线测试不等于实际兼容性验证，也不能解释既有SER05根因。首设计、首审及原行为计划继续保留。
 此前所有失败、正式1920×1080/DPR1环境与100ms门槛、真实IME、本地推理0/44、M6未通过和不发布要求不变。
+
+### 728f列选择标记清理候选：实际复测待完成
+
+`table_context_menu.mjs`进入inline editing时，原路径删除所有`data-column-selected`属性，包括M表中5010个本为false的标记。候选仅清除值为true的标记；生产消费方均按true判断，保留false不改变现有选中含义。真正选中的列仍立即清理501项，原微任务仍更新列头ARIA；两表、重复进入和Escape取消/重选保持独立。
+
+新测试运行真实menu/selection控制器与原M数据，使用有界DOM替身计数，不测浏览器布局。首红3项失败、中间因替身缺window的清理失败均保留；最终针对性4/4通过。独审`.local/validation/table-context-selection-cleanup-independent-review/review.json` SHA`c39ff18c404827b867f0bdfafc90587cd270810b41c2dfa8994415f063064036`未见源码阻断。
+
+一次完整检查exit0，登记输入前后哈希一致：主299通过/3跳过、业务466通过、144模块/214产物；日志SHA`a510876ebe28cd92aad9684d1b95b6dbb3bc896294ea1558c25486c6e3d932fb`，构建`728fd98d6f707994dd24cfa2d46ae73fb25a808368ef7ffa8e6cfee6e36d7af3`。本变化在进入编辑的focus/pointer阶段，仍保留selection.clear的全表遍历；不能从删除计数推导普通input耗时或100ms通过。当前尚未部署，所有0448及更早证据保持原版本归属。
+
+wire v4实施独审25+5项通过，报告SHA`99a4ac0eb5630588571855bb1147a9623ab5046e8f1e5ed17f0d7b45de04d76f`；部署材料独审SHA`21555ec2b9a2205818c2de78f4e3a3c19a8d536b0c443c78b8395a07143c2313`。8250固定预检及刷新首次exit0，ready SHA`88df09f6711098e91cbc587f11e93a93d13e689a67f81f03235f1aca04de6833`，只换4文件夹具`3b64d0e2…`，产品590a/521文件不变；runtime独审和Start仍待执行。原生新基线`ef2df77c…`相对saved28只改Canvas.active及Table B/LLM A两项order，不能简称仅模式变化；冷备份与新基线保全检查已执行，尚不构成M6停机/迁移验收。

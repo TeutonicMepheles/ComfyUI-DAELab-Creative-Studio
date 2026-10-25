@@ -76,7 +76,7 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
         if(nativeMenuOpen){nativeMenuOpen=false;selected=null;toolbar.hidden=true;}
         if(e.type==='focusin'&&!root.contains(e.target))return;
         if(!active()||!context()?.contains(e.target)){if(selected)editor.clearSelection();selected=null;toolbar.hidden=true;queueMicrotask(tick);return;}
-        if(e.target.closest('[data-inline-editing=true]')){selected=null;editor.clearSelection();toolbar.hidden=true;root.querySelectorAll('[data-column-selected]').forEach(e=>delete e.dataset.columnSelected);queueMicrotask(tick);return;}
+        if(e.target.closest('[data-inline-editing=true]')){selected=null;editor.clearSelection();toolbar.hidden=true;root.querySelectorAll('[data-column-selected=true]').forEach(e=>delete e.dataset.columnSelected);queueMicrotask(tick);return;}
         const cell=e.target.closest('td[data-field]'),th=e.target.closest('th[data-column]'),row=e.target.closest('.table-choice[data-content-row]');
         selected=cell?{kind:'cell',field:cell.dataset.field,record:cell.dataset.record}:th?{kind:'column',field:th.dataset.column}:row?{kind:'row',record:row.dataset.contentRow}:{kind:'table'};
         if(selected.kind==='column')editor.selectColumn(selected.field);else if(selected.kind!=='cell')editor.clearSelection();signature='';queueMicrotask(tick);
