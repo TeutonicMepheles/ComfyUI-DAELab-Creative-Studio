@@ -18,6 +18,9 @@ export function attachGenerationColumns({editor,getTable,notify,editPromptTempla
  const configPanels=new Map();
  const frameStamps=new WeakMap();
  const settingBars=new WeakMap();
+ // Keep the original cleanup scan after any bar was created: WeakMap-owned
+ // cells may be temporarily detached and later reinserted into this editor.
+ let mayHaveSettingBars=false;
  const style=el('style',document.head);style.textContent=`
 .dae-ui [data-generation-source]{display:none}
 [data-canvas-panel=true] .dae-ui [data-generation-source]{display:grid}
@@ -93,14 +96,16 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
  }
  function refreshSettingBars(){
   onRefresh();
-  const table=getTable(),sources=new Map(),rows=new Map(table.records.map(row=>[row.id,row]));
+  const table=getTable();
+  if(!mayHaveSettingBars&&!table.fields.some(isGeneration)){refreshDefaultHeaders(new Map());return;}
+  const sources=new Map(),rows=new Map(table.records.map(row=>[row.id,row]));
   for(const target of table.fields.filter(isGeneration)){const field=generationConfigField(table,target.id),config=frameConfig(field.id);if(!sources.has(config.promptFieldId))sources.set(config.promptFieldId,{field,config});}
   refreshDefaultHeaders(sources);
   for(const cell of editor.root.querySelectorAll('td[data-field]')){
    const entry=sources.get(cell.dataset.field),row=rows.get(cell.dataset.record);let state=settingBars.get(cell);
    if(!entry){if(state){state.root.remove();settingBars.delete(cell);delete cell.dataset.generationSettings;cell.style.removeProperty('--generation-settings-height');}continue;}
    const {field,config}=entry;
-   if(state?.fieldId!==field.id){state?.root.remove();const root=el('div',cell),bar=createPromptSettingsBar((key,anchor)=>void chooseSetting(field.id,cell.dataset.record,key,anchor));root.className='generation-prompt-settings-list';root.append(bar.root);state={root,bar,fieldId:field.id};settingBars.set(cell,state);cell.dataset.generationSettings='true';}
+   if(state?.fieldId!==field.id){mayHaveSettingBars=true;state?.root.remove();const root=el('div',cell),bar=createPromptSettingsBar((key,anchor)=>void chooseSetting(field.id,cell.dataset.record,key,anchor));root.className='generation-prompt-settings-list';root.append(bar.root);state={root,bar,fieldId:field.id};settingBars.set(cell,state);cell.dataset.generationSettings='true';}
    state.bar.update(rowGenerationConfig(row,field.id,config),field.name);
    cell.style.setProperty('--generation-settings-height','38px');
   }

@@ -274,11 +274,12 @@
       "source": "web/table_generation_panel.mjs",
       "destination": "frontend/src/features/generation/table_generation_panel.mjs",
       "sourceSha256": "547d0543ec0e6359f0146f429ca9a11f9d4cce5682e1c212f01439492b1c9a50",
-      "destinationSha256": "ec067b5b6b14b00c77b321f38f62652bf3022ece4ceb348dda3951dc5a7a7811",
+      "destinationSha256": "31d6db2b82fcf058d87a2aeb29e11c76237f6ca2da7b96f8c906dea713086b14",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending."
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
+        "Skip generation settings row-map and all-TD traversal only when current fields have no generation presentation and this attachment has never created a settings bar; retain onRefresh and header cleanup, and preserve the full path forever after any bar creation for detached-cell cleanup. Actual editor/input focused regressions preserve owner/history/configuration/error/lifecycle behavior; traversal counts do not establish browser latency or product acceptance."
       ]
     },
     {
