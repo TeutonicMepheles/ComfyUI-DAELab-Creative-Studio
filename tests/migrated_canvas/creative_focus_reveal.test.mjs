@@ -22,7 +22,7 @@ function visit(node){if(ts.isVariableDeclaration(node)&&node.name.getText(syntax
 visit(syntax);
 // Execute the actual view binding and its lease callback. Replacements alter the
 // real closure, not a second test-only approximation of its ownership conditions.
-const bindView=new Function('createCaretReveal','root','cardOwners','graph','host','state','cards','isPanelActive','navigate','status',`
+const bindView=new Function('createCaretReveal','root','cardOwners','graph','host','state','cards','isPanelActive','navigate','status','zoom',`
  let visible=true,workspace=null,drag=null;
  const caretReveal=${binding};
  return {controller:caretReveal,replaceGraph(v){graph=v},replaceState(v){state=v},setVisible(v){visible=v},setWorkspace(v){workspace=v},setDrag(v){drag=v}};
@@ -59,6 +59,7 @@ function fixture(){
     }
     const root=element('SECTION');root.bounds=rect(58,96,680,720);
     const status=element('DIV',root);status.isConnected=false;status.bounds=rect(0,0,0,0);
+    const zoom=element('DIV',root);zoom.isConnected=false;zoom.bounds=rect(0,0,0,0);
     const state={viewport:{x:50,y:200,zoom:1.5}},nodes=new Map(),cards=new Map(),cardOwners=new WeakMap();
     const graph={extra:{daelabCreativeCanvasV1:state},getNodeById:id=>nodes.get(id)};
     const host={graph:()=>graph};
@@ -80,8 +81,8 @@ function fixture(){
     const history=canvasHistory({extensionManager:{workflow:{activeWorkflow:{changeTracker:tracker}}}});
     const beforeSnapshots=structuredClone(tracker);
     const navigation=()=>{pans.push({...state.viewport});history.updateViewport(state.viewport);};
-    const view=bindView(createCaretReveal,root,cardOwners,graph,host,state,cards,isPanelActive,navigation,status);
-    return {doc,win,root,status,a,b,state,nodes,cards,cardOwners,graph,host,view,controller:view.controller,frames,pans,writes,measures,styleReads,rangeReads,selection,tracker,beforeSnapshots,element,
+    const view=bindView(createCaretReveal,root,cardOwners,graph,host,state,cards,isPanelActive,navigation,status,zoom);
+    return {doc,win,root,status,zoom,a,b,state,nodes,cards,cardOwners,graph,host,view,controller:view.controller,frames,pans,writes,measures,styleReads,rangeReads,selection,tracker,beforeSnapshots,element,
         setRanges(v){ranges=v},setRangeThrows(v){rangeThrows=v},
         active(c){doc.activeElement=c.editor;selection.focusNode=c.text;selection.anchorNode=c.text;},
         fire(type,c=a,options={}){root.emit(type,{target:c.editor,...options});},
@@ -517,4 +518,87 @@ test('the owner lease is revalidated after the status rectangle is measured',()=
         f.status.getBoundingClientRect=()=>{const result=read();change(f);return result;};
         f.tabTo(f.control(f.a,'TD',rect(74,385,194,628)));f.flush();assert.equal(f.measures.filter(e=>e===f.status).length,1);assert.deepEqual(f.pans,[]);f.controller.destroy();
     }
+});
+
+// Real 78/680/150 reverse target/root and the separately captured owned HUD.
+// Other helper defaults below are explicitly synthetic boundary cases.
+const hudTarget=rect(74,112,911.9017944335938,154);
+function enableHud(f,bounds=rect(480,112,664,154)){
+    f.zoom.isConnected=true;f.zoom.bounds=bounds;
+}
+
+test('trusted reverse Tab reveals the oversized leading region below the owned zoom HUD',()=>{
+    const f=fixture();enableHud(f,rect(484.6369018554687,108.76190948486328,667.2380981445312,150.2857208251953));
+    enableHint(f,rect(70.76190948486328,613.6428833007812,651.2381057739258,643.2381210327148));
+    const target=f.control(f.a,'DIV',hudTarget),before=structuredClone(f.tracker),selection={...f.selection};
+    f.tabTo(target,{shiftKey:true});f.flush();
+    assert.deepEqual(f.pans,[{x:50,y:254.2857208251953,zoom:1.5}]);
+    assert.equal(f.measures.filter(e=>e===f.zoom).length,1);assert.equal(f.doc.activeElement,target);
+    assert.equal(target.bounds.top+f.state.viewport.y-200,166.2857208251953);assert.ok(target.bounds.right>680,'full oversized width remains outside');
+    assert.deepEqual(f.selection,selection);assert.deepEqual(f.writes,[]);
+    const after=structuredClone(f.tracker);for(const saved of [after.initialState,after.activeState,...after.undoQueue,...after.redoQueue])saved.extra.daelabCreativeCanvasV1.viewport={x:0,y:0,zoom:1};
+    assert.deepEqual(after,before);f.controller.destroy();
+});
+
+test('HUD only changes an overlapping projected Tab region, including baseline horizontal reveal',()=>{
+    const f=fixture();enableHud(f);const target=f.control(f.a,'BUTTON',rect(900,20,1000,62));
+    f.tabTo(target);f.flush();assert.deepEqual(f.pans,[{x:-286,y:350,zoom:1.5}]);f.controller.destroy();
+    for(const bounds of [rect(100,112,200,154),rect(480,170,600,212),rect(480,171,600,213)]){
+        const g=fixture();enableHud(g);g.tabTo(g.control(g.a,'BUTTON',bounds));g.flush();assert.deepEqual(g.pans,[]);g.controller.destroy();
+    }
+});
+
+test('combined top HUD and bottom status keep the existing oversized leading-only policy',()=>{
+    const f=fixture();enableHud(f);enableHint(f);const bounds=rect(100,240,600,670),target=f.control(f.a,'DIV',bounds);
+    f.tabTo(target);f.flush();assert.deepEqual(f.pans,[{x:50,y:130,zoom:1.5}]);
+    assert.equal(bounds.top+f.state.viewport.y-200,170);assert.ok(bounds.bottom+f.state.viewport.y-200>596,'only available leading region is promised');
+    assert.equal(f.measures.filter(e=>e===f.status).length,1);assert.equal(f.measures.filter(e=>e===f.zoom).length,1);f.controller.destroy();
+    const noRoom=fixture();enableHud(noRoom,rect(100,96,664,710));noRoom.tabTo(noRoom.control(noRoom.a,'BUTTON',rect(100,112,200,154)));noRoom.flush();assert.deepEqual(noRoom.pans,[]);noRoom.controller.destroy();
+});
+
+test('hidden, detached, disjoint and invalid HUD bounds preserve the existing baseline',()=>{
+    for(const change of [f=>f.zoom.isConnected=false,f=>f.zoom.parentElement=f.a.panel,f=>f.zoom.bounds=rect(0,0,0,0),
+        f=>f.zoom.bounds=rect(700,112,900,154),f=>f.zoom.bounds=rect(480,-100,664,-20),f=>f.zoom.bounds=rect(NaN,112,664,154)]){
+        const f=fixture();enableHud(f);change(f);f.tabTo(f.control(f.a,'DIV',hudTarget),{shiftKey:true});f.flush();assert.deepEqual(f.pans,[]);f.controller.destroy();
+    }
+});
+
+test('ordinary caret, input and textarea paths perform zero HUD reads',()=>{
+    for(const kind of ['visible-caret','offscreen-caret','textarea','input']){
+        const f=fixture();enableHud(f);f.zoom.getBoundingClientRect=()=>assert.fail('ordinary editor measured HUD');
+        if(kind==='visible-caret')f.setRanges([rect(400,286,400,315)]);
+        if(kind==='textarea'||kind==='input')Object.assign(f.a.editor,{tagName:kind.toUpperCase(),type:'text',isContentEditable:false,bounds:rect(600,280,800,322)});
+        f.fire('input');f.fire('keyup',f.a,{key:'End'});f.doc.emit('selectionchange');f.flush();
+        assert.equal(f.pans.length,kind==='visible-caret'?0:1);f.controller.destroy();
+    }
+});
+
+test('HUD geometry is fresh for each owner and preserves both native focus targets',()=>{
+    const f=fixture();enableHud(f);
+    for(const c of [f.a,f.b]){f.active(c);const target=f.control(c,'DIV',hudTarget);f.tabTo(target,{shiftKey:true});f.flush();assert.equal(f.doc.activeElement,target);}
+    assert.deepEqual(f.pans,[{x:50,y:258,zoom:1.5},{x:50,y:316,zoom:1.5}]);
+    f.active(f.a);f.zoom.bounds=rect(480,112,664,170);f.tabTo(f.control(f.a,'DIV',hudTarget));f.flush();assert.deepEqual(f.pans[2],{x:50,y:390,zoom:1.5});f.controller.destroy();
+});
+
+test('HUD read cannot move a stale owner, and manual/IME/untrusted paths never acquire it',()=>{
+    for(const change of [f=>f.a.panel={},f=>f.nodes.set(1,{id:1,mode:0}),f=>f.doc.activeElement=f.b.editor,f=>f.view.replaceGraph({})]){
+        const f=fixture();enableHud(f);const read=f.zoom.getBoundingClientRect;f.zoom.getBoundingClientRect=()=>{const r=read();change(f);return r;};
+        f.tabTo(f.control(f.a,'DIV',hudTarget));f.flush();assert.equal(f.measures.filter(e=>e===f.zoom).length,1);assert.deepEqual(f.pans,[]);f.controller.destroy();
+    }
+    for(const action of [f=>f.controller.suspend(),f=>f.controller.cancel(),f=>f.win.emit('pagehide'),f=>f.a.node.mode=4,f=>f.active(f.b)]){
+        const f=fixture();enableHud(f);f.zoom.getBoundingClientRect=()=>assert.fail('cancelled request measured HUD');
+        f.tabTo(f.control(f.a,'DIV',hudTarget));action(f);f.flush();assert.deepEqual(f.pans,[]);f.controller.destroy();
+    }
+    for(const options of [{isTrusted:false},{isComposing:true,keyCode:229}]){
+        const f=fixture();enableHud(f);f.zoom.getBoundingClientRect=()=>assert.fail('untrusted/composing focus measured HUD');
+        f.tabTo(f.control(f.a,'DIV',hudTarget),options);f.flush();assert.deepEqual(f.pans,[]);f.controller.destroy();
+    }
+});
+
+test('HUD avoidance keeps the full original control clipping guard and ignores other overlays',()=>{
+    const f=fixture();enableHud(f);const target=f.control(f.a,'DIV',hudTarget);
+    f.a.panel.css={overflowX:'auto'};f.a.panel.bounds=rect(74,96,680,720);Object.assign(f.a.panel,{offsetWidth:606,clientWidth:606});
+    f.tabTo(target);f.flush();assert.deepEqual(f.pans,[],'full control right edge remains internally clipped');f.controller.destroy();
+    const g=fixture(),instrument=g.element('DIV',g.root);instrument.bounds=rect(50,100,650,250);instrument.getBoundingClientRect=()=>assert.fail('instrument must not be measured');
+    g.tabTo(g.control(g.a,'DIV',hudTarget));g.flush();assert.deepEqual(g.pans,[]);g.controller.destroy();
 });

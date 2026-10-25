@@ -2,6 +2,8 @@
 
 这些是指定构建上的原始观察，不代表阶段通过。所有首次失败和后续运行均保留；相关实现变化后须重测。
 
+截至本次追加，8237为固定`671b792 / 78b180ea…`。新同原M/834d非正式N4的editing中位174.8ms、blur→display中位131.25ms，8/8端点仍超过100ms；名义DPR1.75不构成因果对照。完整33原件与保存/重开的有限结果见[本轮记录](#78b180部署与非正式n4仍未达到100ms参考值)。8252新IME宿主已启动并通过独立运行时审计，但记录器实际首次Start失败，真实IME尚未执行；下文“尚未部署”等表述保留其历史时点。
+
 ## 旧版 S 场景
 
 固定 Canvas `3176b5a67dbcd0b66f795976e5a81bcdfe346093` 与业务库
@@ -1743,3 +1745,41 @@ LoAF首次Save后复制过早：冻结的16副本仍是两目标原中文，17�
 后续候选仅给attach私有空registry增加首次obtain前的被动观察门禁，首次尝试开始即永久启用；constructor完整observe、晚账本恢复、独立estimate临时registry、BusinessDocument/native history和公共请求校验未改变。两个500×10实例、首次打开、同步constructor失败、晚恢复/销毁、估算当前值及提交后目标/引用A→B→A的新8例有效首红4/8、候选8/8；更早含两项测试等待错误的首跑也保留。相关128/128，交接`.local/validation/optimization-attach-passive-observation/handoff.json` SHA`bea6fce530540f5a91b69cd97c46ceed3f0d662f9307a80d509c87bdeb7cf418`。独立估算的revision1是新临时registry行为，不是已恢复请求的身份。
 
 候选构建`78b180ea8663ae2e4a50aa81b3fc30492878abb52157a37b4eff4ed53cd94e96`完整检查首次exit0：主324通过/3既有跳过、业务493通过、145模块/215产物；日志`.local/validation/prompt-optimization-lazy-observe-fullcheck-first/check-first.log` SHA`d9aaa2d199834ad31da10cd0df88ce61ccc40d56b029a2598fde8d2c860eb2b2`。此记录时尚未部署/实测，不从省去扫描的机制推导毫秒收益。独立IME观察器16/16定向、22/22独审和8252 fresh-only部署静态独审仅是准备；8252未创建或启动，四owner真实IME仍未执行。正式DPR1、100ms、真实推理0/44、M6未通过及不发布门禁保持。
+
+
+### 78b180部署与非正式N4：仍未达到100ms参考值
+
+固定提交`671b79284da3d940e6547ebabc0c95d379278747`、构建`78b180ea8663ae2e4a50aa81b3fc30492878abb52157a37b4eff4ed53cd94e96`已实际刷新8237；首次check-only和refresh均exit0。523文件产品包`eb9b620496dce19cd894199e84b6f956936330a03c19f6b78c1b5d424d140ae1`、215构建输出、原19文件3663夹具及28个served文件逐字核准，实际launcher51696→listener72968在审计前后身份稳定。26份工作流当前/在线/冷备份一致，cold-user30项含SQLite/wal/shm、cold-fixture23项全部保全；队列仅两点为空，不是持续入口封锁。独审`.local/validation/optimization-attach-passive-refresh-preparation/runtime-independent-first/report.json` SHA`83aab2dd9d20f402d1b803b57c5c15a984cd05b972e34ca8552e2f5b7953d9d5`；未由独审执行SQLite连接、UI或宿主变更。
+
+仅启用原semantic834d、原M文件79ecd、每次Enter前按当前目标rect定位，P/z/O/y四样本的编辑态和退出态各有两次exact/visible检查。实际1132×638、DPR1.7500000521540642、Canvas50%，300卡与两表各500×10；暖机10002ms、前后静默2011/2015ms，四次停留611/611/607/601ms，原600ms和100ms口径均未改变。
+
+| 端点 | P / z / O / y（ms） | 中位数（ms） | 100ms参考值 |
+| --- | --- | --- | --- |
+| trusted input时间戳→编辑态第二次rAF | 173.7 / 166.9 / 178.8 / 175.9 | 174.8 | 4/4超出 |
+| blur→显示态第二次rAF | 142.7 / 126.1 / 134.1 / 128.4 | 131.25 | 4/4超出 |
+
+八个端点全部observed、没有缺端点，仍未达到100ms参考值；15个outside-supported-identity聚合拒绝和0 composition原样保留，不能解释为丢失15次输入或IME通过。同名义环境下96fb的中位185.85/138.95ms仅作描述性参照：本轮Start前是带星号的原FX工作流，Stop后才SaveAs；96fb在Start前已SaveAs，历史/缓存与会话状态并未匹配。两轮不作单次因果、self CPU或p95推断，也不与独立方法/LoAF区间相减；正式1920×1080/DPR1及50样本仍未执行。
+
+原始45,019字节SHA`65b59b35cc61b1832fb22a35058c47ed4465b38c64876d45e966246bda99d986`及完整prefix共33个实际文件递归冻结，包含1,797,652字符的完整AX。7份失败/控制异常文件分别保留初页读、viewport操作前读、NativeOpen后读、截图kernel reset、文件picker locator、首次SaveAs未出对话框及NativeReopen首读超时；这是文件数，不推断底层失败调用次数，也不把缺编号当成缺执行。独审`.local/validation/M-table-semantic-78b180-current-rect-independent-first/final-report.json` SHA`f4c561c03bfd442a7b3c775dbe6f6f969e29dd946f3c40e5bee3c421f4fdc254`，measurement82项与final1036项证据检查首跑通过；handoff SHA`b0f5c273ec9fc08e3cb478381ab4cb1243ff3511cc464f61f14c844b2878403f`。一致性检查不改变性能未达标结论。
+
+SaveAs即时读取仍dirty，等待实际clean后才复制21保存件：2,400,219字节/SHA`7e68bab454eac62068a40332f57a1127c091dd66d7f463bb2b5edaf7c7a5192d`，与96fb method保存件逐字相同；对96fb semantic完整JSON仅优化`documentId`一项不同，不能由相等文件推导原因。相对原M，10000值仅O/y两目标变化，400连线与全部endpoint slots一致，但完整native仍有949项差异（含133个order），解析每表另有字段/元数据规范化。NativeOpen同源只发送一次，首读超时保留；随后精准DOM确认clean O/y、300卡、两500×10及同环境，tab81关闭。该有限保存/重开结果不替代全部交互、真实IME、生成或M6验收。
+
+另一个全新8252 IME宿主沿用固定78b180的523文件产品包及独立2文件fixture`bcde6d3f…`；root首次check-only、prepare、start均成功，start结果`.local/validation/four-owner-ime-78b180-8252-preparation/start-8252-first/result.json` SHA`d00bfcb5d63915a2b71d3162d2348b8b67da11c5adb3bde1a14efe2bd3447ec7`。独立运行时审计`.local/validation/four-owner-ime-78b180-8252-preparation/runtime-independent-first/report.json` SHA`f8b0ebb52698d4f14c02f02482d00acda6af9b55545b5d11443f957f5ce67cb5`确认523产品/2fixture/215outputs/10served一致、角色前后稳定、queue两点为空。
+
+实际首次Start返回`DOM-qualification-failed`、0事件/0检查点：固定提示词格使用`.dae-prompt-cell > .dae-prompt-preview`，记录器误用普通文本格的`.content-display`选择器及父层约束。失败DOM和截图见`.local/performance-actual/four-owner-ime-78b180-preparation-first/07-first-start-DOM-qualification-failed.json`及`08-first-start-DOM-qualification-failed.png`；首次单击/Enter/Tab的09–11结构记录保留。更早05只读快照也因选择器错误缺少表格值并产生错误辅助计数0，06已明确纠正，未覆盖原件。真实IME未做，不将runner自检或旧22/22离线测试称为实际IME完成。此前候选阶段“尚未部署/8252未启动”记录不回写。真实推理0/44、M6未通过及不发布门禁不变。
+
+### 78b180有限焦点菜单与待部署候选
+
+固定78b180、8252四owner风险批次共111份焦点原件，清单SHA`4bcdffd2127b45a115530d9c33402a999439cee6173dfafa7588715a4718495f`全部重核一致；22张截图已逐张查看。8组中最初A1920/50和A1280/100只记录有限Tab/反向Tab尾部，缺Home+6和初始稳定焦点；其后3组A与1组B采用v2、两LLM采用v3。v2闭包仍绑定旧capture，缺失的overlay/TR字段没有补写；15号仅保留A680/150反向Tab的实际另次HUD读取。主DOM、几何、overlay与textarea选区均为分次读取，不是原子快照。22图实际均JPEG，16份仍用.png扩展；首两张1920图实际1920×1035，不能用DOM1920×1080代替截图尺寸。独审`.local/validation/four-owner-78b180-focus-risk-independent-first/final-review.json` SHA`07e41f72b7b9970d8521af051cfab24995e80575bbe29c56319da77f6f64b4c8`。
+
+A1280/150、A680/150与B680/150的反向Tab正文/轮廓被产品缩放HUD遮挡，3例失败保持。A的相关Tab下缘与底部提示条约16px间距是窄成功，不消除HUD或仪器面板的另一处遮挡。B初始编辑区域也部分位于HUD下/视口外，但未采精确caret矩形，不能仅从控件矩形判定光标被挡。两LLM六个稳定端点的处理要求/恢复原结果按钮可见；native textarea选区为67/67，Home+6是视觉行内按键序列，不等于绝对offset6。受检六格提示词、两段处理要求及两条线保持，不扩大成全原生schema、保存或36格通过。用户确认Windows100%，此批IAB实测DPR1.7500000521540642；环境、首次加载失败、helper闭包错误和仪器遮挡均保留。
+
+另38份菜单原件仅包括680×720/150%两LLM模型菜单、1920×1080/100%两表首次优化对话框及关闭/重开，清单SHA`7d68c095be2d3e3f73aa96b1ec28fc90c8e6472df62055a71adc29c6117eb9d5`。Table B首locator失败后才使用真实可见交集入口；未改模型、未生成，界面显示provider未装配。独审确认两LLM真实展开/关闭后仍为qwen，两表首次打开/关闭/重开/关闭保持原composer与四peer值；6张菜单原图均逐张查看。合计焦点/菜单28图均为JPEG，其中6张1920截图实际为1920×1035。联合独审`.local/validation/four-owner-78b180-focus-menu-traceability-first/review.json` SHA`69cef7bb08c8798ab04d0417f469016ff52c28c1d69390e77bb686c037c12931`核准111+38清单；它不把有限菜单端点升级为完整36格、后端运行能力或性能通过。
+
+首次IME Start误选择器失败仍是0事件/0检查点。修正版只改固定提示词DOM资格与实例生命周期校验，源码SHA`954189ce086a3e7a13ff88abd5f3a969080fabd347d426cf5122d6e3d8cb76be`；旧源新测试首红4/20，候选20/20，独立24/24。交接`.local/validation/four-owner-ime-prompt-dom-correction-first/handoff.json` SHA`c47735d2fd7542217b15c7e4822ecb72cc4ed1e9c563fd917b84bbb9aafba42b`，独审`.local/validation/four-owner-ime-prompt-dom-correction-independent-first/corrected/review.json` SHA`e9a8c14073132e2ad6fbe2e4b2350833ceef0fa78d4cc3baacfd16bf97e486e7`。该离线交接时尚未部署；随后沿用原78b180的523文件产品包，在全新8253完成首次check-only/prepare/start，2文件fixture为`93bc0d3d…`、served记录器源码为同一`954189ce…`。启动结果`.local/validation/four-owner-ime-prompt-dom-78b180-8253-preparation/start-8253-first/result.json` SHA`6a4e0adcded31f71619bda21d4c3222a76a9e403cc69a7ccfbc8b609c381af6e`；随后独立运行时审计首跑exit0：523产品/215产物、修正2文件夹具和10个served一致，launcher159416→listener105880前后稳定、queue仅两点为空；报告`.local/validation/four-owner-ime-prompt-dom-78b180-8253-preparation/runtime-independent-first/report.json` SHA`42064e29eb75c1aec913ab7068691fa566731cc6214353d127cb5ff38520e490`。此运行时审计时尚未实际Start或真实IME。随后实际观察器资格复验见下；合成事件/DOM double及宿主启动均不等于中文IME实际候选窗、提交或取消。
+
+独立HUD候选只在可信Tab的非编辑控件投影与自有缩放HUD相交时，临时将可用上界移至HUD下缘；普通caret/input/textarea不增加HUD读取，保留完整目标内部裁剪、owner lease及底部提示条检查，不避让仪器面板。旧源新测试49/54，候选54/54及strict TypeScript通过；交接`.local/validation/canvas-zoom-hud-focus-reveal/handoff.json` SHA`2863a6a0ece5d4d8a12f46dcb8eae309d89c7da90e0f13125e908852c4c85245`，独立54/54审查`.local/validation/canvas-zoom-hud-focus-reveal-traceability-first/review.json` SHA`5ea5a333e756c0af809df825c8974bf85fe130cd0f1105d12e87c6bb0d3ec2c8`。上述focused交接时尚未完整构建；随后完整检查见下段，候选仍未部署或实机复测。不声称已解决B初始普通编辑区域遮挡，也不从测试推出性能收益。78的8/8性能端点超100ms、真实IME未执行、推理0/44、M6未通过与不发布状态不变。
+
+HUD候选随后完整检查两次首先因迁移清单未同步而失败：`canvas-zoom-hud-fullcheck-first`缺view目的hash更新，`canvas-zoom-hud-fullcheck-after-manifest-first`仍缺focus/test目的hash更新，原日志与exit1均保留。只同步已审3项destinationSha和变换说明，来源指纹未改；第三次完整检查exit0，主332通过/3既有跳过、业务493通过，145模块/215产物。新构建`1269e52fda4371fbe43748b4d2eb4f7cbeec41c9ccc4e5f172254a4c33dc01b2`；结果`.local/validation/canvas-zoom-hud-fullcheck-complete-manifest-first/result-first.json`，日志`check-first.log` SHA`165d4add2f45a82e15823326e7722efdf1caef9f03b7b789d06b32ffd7b9bda1`。当前新产品尚未提交或部署，8253运行的仍是原78产品加修正版IME夹具；HUD实际3例失败和性能/IME/M6门禁没有因构建通过而关闭。
+
+8253随后实际Start/读取四字段/Stop/下载首次成功，使用原65ae、原78产品和修正版夹具；仅验证观察器DOM资格。9份原件冻结于`.local/performance-actual/four-owner-ime-prompt-dom-78b180-qualification-first/`，清单SHA`424d8a9a95f5367851524de90a12171440669a1ba776280ecfa62a31d9a274a6`。原始记录5,618字节SHA`5a28c7795d999ce1e9d8dd74ddc8a23b38b04aba786ba1b0e7a00e918572ddd3`：0事件/0检查点、1份手动快照、6个outside-scope聚合拒绝，四字段原值和租约身份保持，operator-stop，complete/productAcceptance/formalBudgetEvaluated均false。开始时实际1920×1080/DPR1.75；新页最初默认731×411/DPR2.625也保留。没有输入文本、composition、任务或保存/重开，不是中文IME提交/取消验收。

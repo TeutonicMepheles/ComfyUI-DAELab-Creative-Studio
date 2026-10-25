@@ -95,6 +95,11 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
             const rect=status.getBoundingClientRect();
             return rect.width>0&&rect.height>0?rect:null;
         },
+        tabTopOcclusion(){
+            if(!zoom.isConnected||zoom.parentElement!==root)return null;
+            const rect=zoom.getBoundingClientRect();
+            return rect.width>0&&rect.height>0?rect:null;
+        },
         owner(editor){
             const identity=cardOwners.get(editor.closest('.dae-creative-card')),c=identity?.card;
             if(!c)return null;

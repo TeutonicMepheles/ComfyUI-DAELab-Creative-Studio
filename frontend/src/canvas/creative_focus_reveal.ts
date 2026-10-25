@@ -8,6 +8,8 @@ interface RevealOptions {
     pan(delta: RevealDelta): void;
     /** One owned bottom status overlay; measured only for trusted Tab controls. */
     tabOcclusion?(): RevealRect | null;
+    /** Owned top-right zoom HUD; also measured only for trusted Tab controls. */
+    tabTopOcclusion?(): RevealRect | null;
 }
 const finiteRect = (r: RevealRect) => [r.left, r.top, r.right, r.bottom].every(Number.isFinite)
     && r.right >= r.left && r.bottom > r.top;
@@ -60,6 +62,25 @@ function avoidTabStatus(target: RevealRect, viewport: RevealRect, delta: RevealD
     // Preserve the same 16px outline clearance above the actual status box.
     // No fixed overlay height or hidden status/error message is introduced.
     return tabControlDelta(target, {...viewport, bottom: top});
+}
+
+function avoidTabTopHud(target: RevealRect, viewport: RevealRect, delta: RevealDelta,
+    hud: RevealRect | null, status: RevealRect | null): RevealDelta | null {
+    if (!hud || !finiteRect(hud) || hud.right <= hud.left) return delta;
+    const left = Math.max(hud.left, viewport.left), right = Math.min(hud.right, viewport.right);
+    const top = Math.max(hud.top, viewport.top), bottom = Math.min(hud.bottom, viewport.bottom);
+    if (right <= left || bottom <= top) return delta;
+    const projectedLeft = target.left - delta.dx, projectedTop = target.top - delta.dy;
+    const projectedRight = Math.min(target.right - delta.dx, viewport.right - 16);
+    const projectedBottom = Math.min(target.bottom - delta.dy, viewport.bottom - 16);
+    if (projectedRight + 16 <= left || projectedLeft - 16 >= right
+        || projectedBottom + 16 <= top || projectedTop - 16 >= bottom) return delta;
+    // Reserve the top band only for a control whose revealed region hits this
+    // owned HUD. Reapply bottom-status avoidance within that same temporary
+    // viewport, preserving oversized leading-region and 16px outline margins.
+    const belowHud = {...viewport, top: bottom};
+    const cleared = tabControlDelta(target, belowHud);
+    return cleared && avoidTabStatus(target, belowHud, cleared, status);
 }
 
 function textControl(element: HTMLElement): boolean {
@@ -198,7 +219,7 @@ function internallyClipped(editor: HTMLElement, target: RevealRect, root: HTMLEl
     return false;
 }
 
-export function createCaretReveal({root, owner, pan, tabOcclusion}: RevealOptions) {
+export function createCaretReveal({root, owner, pan, tabOcclusion, tabTopOcclusion}: RevealOptions) {
     const doc = root.ownerDocument, win = doc.defaultView;
     if (!win) throw new TypeError('Caret reveal requires the owning document window');
     let frame = 0, destroyed = false, suppressed = false, pointing = false;
@@ -237,7 +258,11 @@ export function createCaretReveal({root, owner, pan, tabOcclusion}: RevealOption
             if (!target) return;
             const viewport = viewportRect(root, win!);
             let delta = request.wholeControl ? tabControlDelta(target, viewport) : revealDelta(target, viewport);
-            if (delta && request.wholeControl && tabOcclusion) delta = avoidTabStatus(target, viewport, delta, tabOcclusion());
+            if (delta && request.wholeControl) {
+                const status = tabOcclusion?.() ?? null;
+                delta = avoidTabStatus(target, viewport, delta, status);
+                if (delta && tabTopOcclusion) delta = avoidTabTopHud(target, viewport, delta, tabTopOcclusion(), status);
+            }
             // Most editing is already visible: avoid inspecting every ancestor
             // unless translation is needed. Range/root reads remain a real cost.
             if (!delta || (!delta.dx && !delta.dy)) return;

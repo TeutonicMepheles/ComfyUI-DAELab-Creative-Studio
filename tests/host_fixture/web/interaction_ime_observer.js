@@ -58,8 +58,10 @@ export function createInteractionImeObserver(document,window,{onChange=()=>{},ma
    const matches=[...cards].filter(card=>card.dataset.nodeId===spec.nodeId);
    if(matches.length!==1)throw Error('identity-lost');const card=matches[0];
    if(spec.kind==='table'){
-    const table=one(card,'.dae-table'),row=one(table,`tr[data-record-id="${spec.recordId}"]`),cell=one(row,`td[data-record="${spec.recordId}"][data-field="${spec.fieldId}"]`),editor=one(cell,'.content-display');
-    if(editor.parentElement!==cell)throw Error('identity-lost');return {spec,canvas,card,table,row,cell,editor};
+    const table=one(card,'.dae-table'),row=one(table,`tr[data-record-id="${spec.recordId}"]`),cell=one(row,`td[data-record="${spec.recordId}"][data-field="${spec.fieldId}"]`),container=one(cell,'.dae-prompt-cell'),editor=one(container,'.dae-prompt-preview');
+    // This prompt presentation keeps the same DIV through preview/inline edit/
+    // blur; only its attributes and text children change. Lease both exact layers.
+    if(container.tagName!=='DIV'||editor.tagName!=='DIV'||container.parentElement!==cell||editor.parentElement!==container)throw Error('identity-lost');return {spec,canvas,card,table,row,cell,container,editor};
    }
    const panel=one(card,'.llm-style-B'),section=one(panel,'.llm-style-instruction'),editor=one(section,'textarea');
    if(editor.getAttribute('aria-label')!=='B 处理要求')throw Error('identity-lost');return {spec,canvas,card,panel,section,editor};

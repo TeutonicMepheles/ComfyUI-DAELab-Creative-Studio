@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import '../migrated_business/register.mjs';
 import {IME_FIXTURE_SHA256,IME_FIELDS,readInteractionImeFixture,createInteractionImeObserver,mountInteractionImeObserver} from '../host_fixture/web/interaction_ime_observer.js';
+const {createPromptEditor}=await import('../../frontend/src/features/prompt/table_prompt_editor.mjs');
 
 // Public synthetic shape, not a copy of the private saved workflow. The digest
 // double tests the reader boundary; actual65ae bytes are separately checked offline.
@@ -33,14 +35,19 @@ class Text{
 class Element extends Hub{
  constructor(tag){super();this.nodeType=1;this.tagName=tag.toUpperCase();this.className='';this.dataset={};this.attributes=new Map();this.style={};this.childNodes=[];this.parentElement=null;this.hidden=false;this.disabled=false;this.readOnly=false;this.value='';this.selectionStart=0;this.selectionEnd=0;this.selectionDirection='none';}
  get children(){return this.childNodes.filter(n=>n.nodeType===1);}
+ get nodeName(){return this.tagName;}
+ get contentEditable(){return this.getAttribute('contenteditable')??'inherit';}
+ set contentEditable(value){this.setAttribute('contenteditable',value);}
  get parentNode(){return this.parentElement;}
  get isConnected(){return this.base||Boolean(this.parentElement?.isConnected);}
  get textContent(){return this.childNodes.map(n=>n.textContent).join('');}
- set textContent(value){this.childNodes=[new Text(String(value))];this.childNodes[0].parentElement=this;}
+ set textContent(value){this.replaceChildren(new Text(String(value)));}
+ replaceChildren(...nodes){for(const n of this.childNodes)n.parentElement=null;this.childNodes=[];this.append(...nodes);}
  append(...nodes){for(const n of nodes){if(n.parentElement)n.parentElement.childNodes.splice(n.parentElement.childNodes.indexOf(n),1);n.parentElement=this;this.childNodes.push(n);}}
  remove(){if(this.parentElement){this.parentElement.childNodes.splice(this.parentElement.childNodes.indexOf(this),1);this.parentElement=null;}}
  contains(node){return node===this||this.childNodes.some(n=>n.contains(node));}
  setAttribute(key,value){this.attributes.set(key,String(value));}
+ removeAttribute(key){this.attributes.delete(key);}
  getAttribute(key){if(key==='class')return this.className;if(key.startsWith('data-')){const k=key.slice(5).replace(/-([a-z])/g,(_,c)=>c.toUpperCase());return this.dataset[k]??null;}return this.attributes.get(key)??null;}
  matches(selector){
   const tag=selector.match(/^[a-z]+/i)?.[0];if(tag&&this.tagName!==tag.toUpperCase())return false;
@@ -52,11 +59,13 @@ class Element extends Hub{
  querySelectorAll(selector){const result=[],parts=selector.split(' ');const visit=n=>{for(const c of n.children){if(c.matches(parts.at(-1))&&(parts.length===1||c.parentElement?.closest(parts[0])))result.push(c);visit(c);}};visit(this);return result;}
  querySelector(s){return this.querySelectorAll(s)[0]??null;}
  click(){this.clicked=true;}
+ dispatchEvent(event){for(const fn of this.listeners.get(event.type)||[])fn(event);return !event.defaultPrevented;}
+ focus(){document.activeElement=this;}
 }
 function harness(options={}){
  let at=100,seq=0;const microtasks=[],timers=new Map(),observers=[],blobs=[];
  const body=new Element('body');body.base=true;
- const document=Object.assign(new Hub(),{body,visibilityState:'visible',activeElement:body,createElement:tag=>new Element(tag),querySelectorAll:s=>body.querySelectorAll(s),getElementById:id=>{const walk=n=>n.id===id?n:n.children.map(walk).find(Boolean);return walk(body)||null;}});
+ const document=Object.assign(new Hub(),{body,head:new Element('head'),visibilityState:'visible',activeElement:body,createElement:tag=>new Element(tag),createTextNode:text=>new Text(text),querySelectorAll:s=>body.querySelectorAll(s),getElementById:id=>{const walk=n=>n.id===id?n:n.children.map(walk).find(Boolean);return walk(body)||null;}});
  const window=Object.assign(new Hub(),{crypto:digestCrypto,performance:{now:()=>at,timeOrigin:100000},innerWidth:1920,innerHeight:1080,devicePixelRatio:1,
   getSelection:()=>window.selection??null,queueMicrotask:fn=>microtasks.push(fn),setTimeout:(fn,ms)=>{timers.set(++seq,{fn,at:at+ms});return seq;},clearTimeout:id=>timers.delete(id),
   MutationObserver:class{constructor(fn){this.fn=fn;this.records=[];this.active=false;observers.push(this);}observe(){this.active=true;}disconnect(){this.active=false;this.records=[];}takeRecords(){return this.records.splice(0);}},
@@ -65,10 +74,12 @@ function harness(options={}){
  const canvas=new Element('section');canvas.className='dae-creative';body.append(canvas);
  const owners=initial.map((text,i)=>{
   const card=new Element('article');card.className='dae-creative-card';card.dataset.nodeId=String(i+1);canvas.append(card);
-  let box,cell,table,tr,panel,section;
-  if(i<2){table=new Element('section');table.className='dae-table';tr=new Element('tr');tr.dataset.recordId=row;cell=new Element('td');cell.dataset.record=row;cell.dataset.field=field;box=new Element('div');box.className='content-display';box.setAttribute('contenteditable','false');box.textContent=text;card.append(table);table.append(tr);tr.append(cell);cell.append(box);}
+  let box,cell,table,tr,panel,section,container;
+  // Exact prompt renderer hierarchy. Initial preview has no contenteditable;
+  // generic .content-display belongs to a different table presentation.
+  if(i<2){table=new Element('section');table.className='dae-table';tr=new Element('tr');tr.dataset.recordId=row;cell=new Element('td');cell.dataset.record=row;cell.dataset.field=field;container=new Element('div');container.className='dae-prompt-cell';box=new Element('div');box.className='dae-prompt-preview';box.tabIndex=0;box.setAttribute('aria-label','提示词正文');box.textContent=text;card.append(table);table.append(tr);tr.append(cell);cell.append(container);container.append(box);}
   else{panel=new Element('section');panel.className='llm-style llm-style-B';panel.dataset.variant='B';section=new Element('label');section.className='llm-style-instruction';box=new Element('textarea');box.setAttribute('aria-label','B 处理要求');box.value=text;card.append(panel);panel.append(section);section.append(box);}
-  return {card,box,cell,table,tr,panel,section};
+  return {card,box,cell,table,tr,panel,section,container};
  });
  const recorder=createInteractionImeObserver(document,window,options);
  const start=extra=>recorder.start({isTrusted:true,type:'click'},{fixture,buildFingerprint,enabled:true,...extra});
@@ -112,6 +123,68 @@ test('all four owners preserve true composition sequence and intermediate/commit
  assert.equal(r.formalBudgetEvaluated,false);assert.equal(r.events.filter(e=>e.type==='input').length,8);h.recorder.destroy();
 });
 
+test('actual prompt owner renders previews and keeps their leases through sequential enter, composition and blur',t=>{
+ const h=harness(),globals=new Map(),mounted=[];
+ const setGlobal=(key,value)=>{globals.set(key,Object.getOwnPropertyDescriptor(globalThis,key));Object.defineProperty(globalThis,key,{configurable:true,writable:true,value});};
+ const selection={rangeCount:0,anchorNode:null,focusNode:null,anchorOffset:0,focusOffset:0,isCollapsed:true,removeAllRanges(){this.rangeCount=0;},addRange(r){this.range=r;this.anchorNode=this.focusNode=r.startContainer;this.rangeCount=1;},getRangeAt(){return this.range;}};
+ h.document.createRange=()=>({startContainer:null,selectNodeContents(node){this.startContainer=node;},collapse(){},cloneRange(){return {...this};}});
+ h.window.selection=selection;setGlobal('document',h.document);setGlobal('window',h.window);setGlobal('getSelection',()=>selection);
+ t.after(()=>{h.recorder.destroy();for(const m of mounted){m.binding.dispose();m.prompt.destroy();}for(const [key,descriptor]of globals)descriptor?Object.defineProperty(globalThis,key,descriptor):delete globalThis[key];});
+ for(let i=0;i<2;i++){
+  const o=h.owners[i];o.container.remove();
+  const model={fields:[{id:field,name:'提示词',type:'json',presentation:'prompt'}],records:[{id:row,values:{[field]:{kind:'column-template',version:1,segments:[{type:'text',text:initial[i]}]}}}],meta:{prompt_config:{bindings:{final_prompt:field}}}};
+  const editor={change:fn=>fn(model)},prompt=createPromptEditor({getTable:()=>model,editor,request:()=>assert.fail('no provider'),notify:message=>assert.fail(message)});
+  const binding=prompt.mountEditor({cell:o.cell,row:model.records[0],field:model.fields[0]});
+  o.container=o.cell.querySelector('.dae-prompt-cell');o.box=o.container.querySelector('.dae-prompt-preview');mounted.push({prompt,binding,model});
+ }
+ assert.equal(h.document.querySelectorAll('.content-display').length,0);assert(h.start());
+ const original=h.recorder.report().initial;
+ assert.deepEqual(original.slice(0,2).map(f=>[f.contenteditable,f.inlineEditing]),[[null,false],[null,false]]);
+ const send=(type,i,extra={})=>{const target=h.owners[i].box,event={type,target,isTrusted:true,timeStamp:100,eventPhase:1,preventDefault(){this.defaultPrevented=true;},stopPropagation(){},...extra};h.document.emit(type,event);target.emit(type,event);};
+ for(let i=0;i<2;i++){
+  const o=h.owners[i],oldChildren=[...o.box.childNodes];mounted[i].binding.start();h.mutate([{type:'childList',target:o.box,removedNodes:oldChildren}]);
+  assert.equal(o.box.getAttribute('contenteditable'),'true');assert.equal(o.box.getAttribute('aria-label'),'编辑 提示词');assert.equal(h.owners[1-i].cell.dataset.inlineEditing,undefined);
+  send('compositionstart',i);o.box.textContent=initial[i]+'中文';send('compositionupdate',i,{data:'中文'});send('input',i,{inputType:'insertCompositionText',isComposing:true});
+  assert.equal(mounted[i].model.records[0].values[field].segments[0].text,initial[i]);
+  send('compositionend',i,{data:'中文'});assert.equal(mounted[i].model.records[0].values[field].segments[0].text,initial[i]+'中文');
+  const blurChildren=[...o.box.childNodes];send('blur',i,{relatedTarget:h.body});h.document.activeElement=h.body;h.mutate([{type:'childList',target:o.box,removedNodes:blurChildren}]);h.flush();
+  assert.equal(o.box.getAttribute('contenteditable'),'false');assert.equal(o.box.getAttribute('role'),null);assert.equal(o.box.getAttribute('aria-label'),'编辑 提示词');
+  const after=h.recorder.report().checkpoints.at(-1);assert.equal(after.fields[i].value,initial[i]+'中文');assert.deepEqual(after.fields[i].identity,original[i].identity);assert.equal(after.fields[i].inlineEditing,false);assert(h.recorder.resources().active);
+ }
+ for(let i=2;i<4;i++){h.emit('compositionstart',i);h.set(i,initial[i]+'中文');h.emit('compositionend',i,{data:'中文'});h.flush();}
+ assert.deepEqual(h.recorder.report().events.filter(e=>e.type==='compositionstart').map(e=>e.owner.nodeId),['1','2','3','4']);
+ assert.deepEqual(h.recorder.report().checkpoints.at(-1).fields.map(f=>f.value),initial.map(s=>s+'中文'));
+ assert.equal(h.recorder.report().complete,false);
+});
+
+test('only direct prompt container/preview hierarchy qualifies, with no generic or nested editor fallback',()=>{
+ for(const mode of ['generic','nested-container','nested-preview','duplicate-preview','textarea']){
+  const h=harness(),o=h.owners[0];
+  if(mode==='generic'){o.container.remove();o.box.className='content-display';o.cell.append(o.box);}
+  else if(mode==='nested-container'){const wrapper=new Element('div');o.cell.append(wrapper);wrapper.append(o.container);}
+  else if(mode==='nested-preview'){const wrapper=new Element('div');o.container.append(wrapper);wrapper.append(o.box);}
+  else{const extra=new Element(mode==='textarea'?'textarea':'div');extra.className='dae-prompt-preview';extra.textContent=initial[0];o.container.append(extra);if(mode==='textarea')o.box.remove();}
+  assert.equal(h.start(),false,mode);assert.equal(h.recorder.report(),null,mode);assert.equal(h.document.count(),0);h.recorder.destroy();
+ }
+});
+
+test('prompt container remove-reinsert and replacement cannot renew an admitted lease',()=>{
+ for(const mode of ['reinsert','replacement']){
+  const h=harness();assert(h.start());const o=h.owners[0],old=o.container;old.remove();
+  if(mode==='reinsert'){o.cell.append(old);h.mutate([{type:'childList',target:o.cell,removedNodes:[old]}]);}
+  else{const next=new Element('div');next.className='dae-prompt-cell';next.append(o.box);o.cell.append(next);h.emit('input');}
+  assert.equal(h.recorder.resources().active,false);assert.equal(h.recorder.report().stopReason,'identity-lost');h.recorder.destroy();
+ }
+});
+
+test('preview descendants, prompt settings, and side editors do not become admitted event targets',()=>{
+ const h=harness();assert(h.start());const o=h.owners[0],child=new Element('span'),settings=new Element('textarea'),side=new Element('textarea');
+ child.textContent='';o.box.append(child);settings.className='generation-prompt-setting';o.cell.append(settings);side.className='dae-prompt-edit';h.body.append(side);
+ for(const node of [settings,side])Object.defineProperty(node,'value',{get(){throw Error('unadmitted text read');}});
+ for(const target of [child,settings,side])h.document.emit('compositionstart',{target});
+ assert.equal(h.recorder.report().events.length,0);assert.equal(h.recorder.report().rejected['outside-scope'],3);assert(h.recorder.resources().active);h.recorder.destroy();
+});
+
 test('shared row/label identifiers do not merge owners; only fixed synthetic field contents can be read',()=>{
  const h=harness();assert(h.start());const foreign=new Element('textarea');Object.defineProperty(foreign,'value',{get(){throw Error('privacy leak');}});h.body.append(foreign);
  h.document.emit('input',{target:foreign,inputType:'insertText'});h.emit('input',0,{isTrusted:false});
@@ -124,8 +197,8 @@ test('same-ID DOM replacement, duplicate cards and remove-reinsert invalidate th
  for(const mode of ['replace','duplicate','reinsert']){
   const h=harness();assert(h.start());const old=h.owners[0].box;
   if(mode==='duplicate'){const c=new Element('article');c.className='dae-creative-card';c.dataset.nodeId='1';h.canvas.append(c);h.emit('input');}
-  else if(mode==='replace'){old.remove();const next=new Element('div');next.className='content-display';next.textContent=initial[0];h.owners[0].cell.append(next);h.document.emit('input',{target:next});}
-  else{old.remove();h.owners[0].cell.append(old);h.mutate([{type:'childList',removedNodes:[old]}]);}
+  else if(mode==='replace'){old.remove();const next=new Element('div');next.className='dae-prompt-preview';next.textContent=initial[0];h.owners[0].container.append(next);h.document.emit('input',{target:next});}
+  else{old.remove();h.owners[0].container.append(old);h.mutate([{type:'childList',removedNodes:[old]}]);}
   assert.equal(h.recorder.resources().active,false,mode);assert.equal(h.recorder.report().stopReason,'identity-lost',mode);h.recorder.destroy();
  }
 });
