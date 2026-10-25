@@ -62,6 +62,8 @@ register();
 
 可选 `materialTargets(node)` 返回 `{element, key, dropElements?, previewElements?, clipElement?, project?, label?}[]`。element 为可见目标，key 为业务拥有的稳定目标键；dropElements 为同一目标的附加落点，previewElements 为拖入时一起高亮的元素数组，也可为 `(assetCount) => Element[]`，按本次素材数量返回实际受影响的元素，不扩大命中区域；clipElement 限制滚动可见区域。默认投影外置 Slot；`project:false` 仅保留元素落点，用于行头或单元格，不创建额外接口。label 同时用于接口说明和拖入提示。直接命中的目标优先于附近 Slot 的磁吸。宿主不解析 key，`acceptMaterials(node,key,collection)` 由业务按落点同步、原子地消费 `{version:1,assets:[{filename,subfolder,kind,nodeId,...}]}`，失败抛出可读错误。
 
+可选 `projectedMaterialTargets(node)` 仅为外置 Slot 投影提供同结构、同顺序的目标子集，由提供方明确选择并保留目标的 key、能力、回调与未知字段。提供此函数时，投影层使用它；缺少函数时完整保留原 `materialTargets` 读取与快照顺序，不自行提前过滤记录。完整 `materialTargets` 仍供元素落点命中、高亮与填充使用，不能改成仅列目标。两种读取必须随字段删除、隐藏、重排及面板重建一起失效，不能产生不同状态；内建表格复用同一 grid／cellsRevision 缓存及列目标对象。`materialSources` 的读取顺序与输出投影保持原样。此能力不增删原生输入、输出或持久连线。
+
 目标可选声明 `accepts:['image','video','text']`。未声明时保持原有图片／视频接收行为，不接收文本；声明后宿主在直接落点和磁吸 Slot 中都检查类型。文本来源通过公开 `inputSnapshot(node)` 提供 `{version:1,texts:[...]}`，未就绪或停用的来源不可填入。`previewElements` 的数量参数为本次素材／文本条数，具体填充范围由业务计算。2026-10-23 的表格消费方支持列头填充、素材行头横向填充和单格素材追加；列头单条素材填满现有行，多条按序向下，具体见 [表格展示](architecture/FRONTEND_INTERACTION.md#多维表格的创作画布展示)。
 
 画布只负责素材组有序快照或单个上传素材快照、命中检测、落点提示和历史边界；业务适配器负责数据验证、行数和单元格规则。该入口是显式一次填充，不创建虚假的原生输入或持久连接，不随源组变化覆盖手工编辑。字段删除、隐藏、重排后重新读取目标；使用 `.dae-material-slot` 复用素材卡片 Slot 外观。拖动素材组或上传素材本体时，宿主高亮目标接口及声明的落点并提示松开填入；结束或取消时清除提示，完成填充时恢复源节点原位置及组关系。

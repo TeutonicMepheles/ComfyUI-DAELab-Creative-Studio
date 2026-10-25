@@ -1075,11 +1075,12 @@
       "source": "web/creative_canvas_adapter.js",
       "destination": "frontend/src/integrations/comfyui/business/creative_canvas_adapter.js",
       "sourceSha256": "87d4a3ec66de9d84f4be88202779471a416ba4046a820ef1ce83780d3711f9b1",
-      "destinationSha256": "e219614581bd9955d2b2b8738b2f6690bed64327e18dc585adbf7acd34cf67a4",
+      "destinationSha256": "ad9a0e5a5ffaf67bf73f9fc0b1f8dbbadfa73f2edf6f7f7adbe57178b5214cd3",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "Register only formal table/storyboard/video adapters; exclude GPT legacy menu and execution hooks."
+        "Register only formal table/storyboard/video adapters; exclude GPT legacy menu and execution hooks.",
+        "Expose optional projectedMaterialTargets using the existing grid/cellsRevision cache and shared column descriptor objects; retain the full materialTargets API, row/cell drop capabilities and non-table provider fallback. Two 500x10 owners snapshot 10 projected descriptors each rather than 5510; this is a mechanism count, not measured latency improvement."
       ]
     },
     {

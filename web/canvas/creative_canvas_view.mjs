@@ -185,7 +185,8 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         c.materialPorts?.clear();
     }
     function projectMaterialPorts(c){
-        const adapter=adapterFor(c.node),entries=[...(adapter?.materialTargets?.(c.node)||[]).map(target=>({...target,side:'input'})),...(adapter?.materialSources?.(c.node)||[]).map(source=>({...source,side:'output'}))];
+        const adapter=adapterFor(c.node),targets=typeof adapter?.projectedMaterialTargets==='function'?adapter.projectedMaterialTargets(c.node):adapter?.materialTargets?.(c.node);
+        const entries=[...(targets||[]).map(target=>({...target,side:'input'})),...(adapter?.materialSources?.(c.node)||[]).map(source=>({...source,side:'output'}))];
         if(!entries.length&&!c.materialPorts?.size)return;
         c.materialPorts??=new Map();const current=new Set(),bounds=c.element.getBoundingClientRect(),zoom=state.viewport.zoom;
         for(const entry of entries){

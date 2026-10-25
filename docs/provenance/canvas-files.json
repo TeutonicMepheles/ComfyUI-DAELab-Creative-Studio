@@ -85,7 +85,7 @@
       "source": "web/creative_canvas_view.mjs",
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
       "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
-      "destinationSha256": "bc646de0e812db6fcb1007973793a381121e4042107bf666decb23f97ca64dab",
+      "destinationSha256": "11a7e6cb375b917621de6d49c7d62b01c30dc0c3848071c122abfcd488aa5dd3",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "remove opt-in test gallery rendering; retain unrelated graph.extra data",
@@ -95,7 +95,8 @@
         "Actual-host connection undo follow-up: let the native capture listener dispatch keyboard undo/redo once; Canvas only prepares the explicit history port.",
         "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources.",
         "PERF-01 candidate from actual c7a5aa long-animation-frame trace: collect magnetic/receiving-wire/card geometry before style writes; preserve ordinary port same-frame endpoint translation/reset and unified card-edge anchors; skip unchanged magnetic attributes. Browser performance reacceptance pending.",
-        "PERF-02 candidate: compare live serialized DOM/IDL values before card update assignments; retain every adapter/task/port/layout callback, polling and geometry read order. Two-owner state/focus/resize write-count checks pass; actual input/performance reacceptance pending."
+        "PERF-02 candidate: compare live serialized DOM/IDL values before card update assignments; retain every adapter/task/port/layout callback, polling and geometry read order. Two-owner state/focus/resize write-count checks pass; actual input/performance reacceptance pending.",
+        "Add opt-in projectedMaterialTargets adapter capability for visual Slot projection; preserve the complete legacy target snapshot/source order when absent, native slot indices, unknown own fields, geometry and callbacks. Mechanism and compatibility tests pass; actual performance acceptance pending."
       ],
       "kind": "production-source"
     },
