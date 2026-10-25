@@ -1,5 +1,6 @@
 import { createBusinessDocument } from '../../../application/business_document.js';
 import type { EditTarget } from '../../../contracts/ports.js';
+import { nativeEditHistoryStamp } from './native_edit_history_stamp.js';
 
 // This module is the only application document binding that knows the ComfyUI host.
 type Host = { app: any; history: any };
@@ -24,7 +25,7 @@ export function bindBusinessDocument<T>(node: any, read: () => T, write: (value:
       if (active() !== workflow) { workflow = active(); session++; epoch++; }
       return { workflowSession: `native-workflow-${session}`, epoch, documentId: String(node.id) };
     },
-    historyStamp: () => JSON.stringify((app.rootGraph || app.graph)?.serialize()),
+    historyStamp: () => nativeEditHistoryStamp((app.rootGraph || app.graph)?.serialize()),
     canUndo: () => {
       const tracker = active()?.changeTracker;
       return !!tracker && (!!tracker.undoQueue?.length || !!tracker.activeState && JSON.stringify(tracker.activeState) !== JSON.stringify((app.rootGraph || app.graph)?.serialize()));

@@ -1808,9 +1808,10 @@
       "sourceSha256": null,
       "kind": "authored-contract-or-integration",
       "changes": [
-        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md."
+        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
+        "Use a typed comparison-only native history stamp that excludes valid known v1 Canvas x/y/zoom navigation; preserve native/saved snapshots, unknown fields, other business revisions and all existing ownership/history checks. Actual host grouping and input latency require retest."
       ],
-      "destinationSha256": "28eb9d87f9e6a638f6629adb9c0738a1c03b3318958e0221a57b55ca60df5a49"
+      "destinationSha256": "d6fac788cef9e86206d5292fb0b4a244ad71da00ff6db7306ad957f75ecc1128"
     },
     {
       "source": null,
@@ -1979,6 +1980,28 @@
       "kind": "authored-contract-or-integration",
       "changes": [
         "Authored full owning-panel and actual BusinessDocument regressions with unrelated IO/buttons injected: two source/instruction owners, preserved focused/local input, cheap lifetime, composition/shadow focus/noncancelable/read-only/inactive exclusions and disposal. Models browser default action; does not prove real Chromium event delivery."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "frontend/src/integrations/comfyui/business/native_edit_history_stamp.ts",
+      "destinationSha256": "3ad059348af01a95eb7579445290fdad6c0884ec4badb9f9991604a0f8b56074",
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "Authored comparison helper: accept only own-data plain/null-prototype known v1 paths with finite supported viewport coordinates, shallow-copy four descriptor layers and stringify once. Preserve unknown keys/metadata and native ds/business/card/link changes; unsupported paths fall back to original stringification. No cache, saved-state change or performance claim."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "tests/migrated_business/native_edit_history_stamp.test.mjs",
+      "destinationSha256": "4bab25c9f16a92d30b650f38d12ead767b4188c9b036b8aede221acf777b8638",
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "Authored real binding/controller/native-history integration regressions with a modeled host tracker: navigation-only grouping, undo/redo, two instances, unknown/known business revision breaks, null prototypes/descriptors, aliases, malformed fallback, serialization errors and stale/disposed ownership. Does not prove real host timing or the observed first-split cause."
       ]
     }
   ],

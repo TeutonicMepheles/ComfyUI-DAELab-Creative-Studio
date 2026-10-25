@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "457995bd47edbfc7b822fe9ee4770bded712042c61522202f3402f4f7f4739c1",
+  "sourceFingerprint": "590a1e7c5b9d3294c2b704df521672eecf646f8eb1307625c8e1c42169cabb97",
   "files": [
     {
       "path": "application/asset_library_service.js",
@@ -720,7 +720,7 @@
     },
     {
       "path": "integrations/comfyui/business/business_document_host.js",
-      "sha256": "18ee37f1e28ab9e93239faf1bd5a0de90dae9d2888ccbd7c8a7392ecfb1e0a42"
+      "sha256": "faadcda080740a58a805c34c3af7df83881e0f3c9de51e4191270057983f16a9"
     },
     {
       "path": "integrations/comfyui/business/business_http.js",
@@ -749,6 +749,10 @@
     {
       "path": "integrations/comfyui/business/llm_style_preview.js",
       "sha256": "5f4caa87db1cf7e1aeef0f08d4ac7429aa3d0bc18c99cf889d45623e2f6ba9d0"
+    },
+    {
+      "path": "integrations/comfyui/business/native_edit_history_stamp.js",
+      "sha256": "de83f01b37720f16b1784382376c4cb06a5fcf47fe80b28b6c95573961bc7df1"
     },
     {
       "path": "integrations/comfyui/business/prompt_optimization_lifecycle.js",
@@ -820,7 +824,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "4c39bac583b940790870c8f63bf2b4d2e83ed63a0910f890ce281907fe1e4e53"
+      "sha256": "4af84fc1d083768b5a93f9adecb64129c7dc7fc29bb31c0006bcac337df36c6e"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
