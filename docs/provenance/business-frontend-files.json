@@ -1894,9 +1894,10 @@
       "sourceSha256": null,
       "kind": "authored-contract-or-integration",
       "changes": [
-        "Native reactive JSON boundary: detach nested host proxies for document transactions and LLM load/proposal/apply; preserve all unknown JSON keys and identities, reject unsavable edits before history, and verify source-bound edit/recovery/undo with no submit. Real UI acceptance remains separate."
+        "Native reactive JSON boundary: detach nested host proxies for document transactions and LLM load/proposal/apply; preserve all unknown JSON keys and identities, reject unsavable edits before history, and verify source-bound edit/recovery/undo with no submit. Real UI acceptance remains separate.",
+        "Extend the existing inert DOM with standard class membership and attribute presence operations for actual-control reconciliation; retain proxy, recovery and native history assertions."
       ],
-      "destinationSha256": "28474208c78e4d208f6da6db1880712d5c884531a4a9649297884d5d3f17fb9f"
+      "destinationSha256": "24fe5d5741c8cbfdf16dba1543b2734ecd43fed11ee2eb32fc5df4def976efa3"
     }
   ],
   "testExclusions": {

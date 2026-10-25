@@ -61,7 +61,7 @@ test('invalid edits fail before native history and a failed write rolls back eve
 
 // Inert DOM for the actual IO panel lifecycle; it does not claim visual acceptance.
 class Element extends EventTarget{
-  constructor(tag='div'){super();this.tagName=tag.toUpperCase();this.children=[];this.className='';this.dataset={};this.value='';this.style={setProperty(){}};this.isConnected=true;this.classList={add(){},toggle(){}};}
+  constructor(tag='div'){super();this.tagName=tag.toUpperCase();this.children=[];this.className='';this.dataset={};this.value='';this.style={setProperty(){}};this.isConnected=true;this.classList={contains:name=>this.className.split(/\s+/).includes(name),add:name=>this.classList.toggle(name,true),toggle:(name,force)=>{const names=new Set(this.className.split(/\s+/).filter(Boolean)),enabled=force??!names.has(name);if(enabled)names.add(name);else names.delete(name);this.className=[...names].join(' ');return enabled;}};}
   append(...nodes){for(const node of nodes){node.parentNode=this;this.children.push(node);}}
   replaceChildren(...nodes){this.children=[];this.append(...nodes);}
   get parentElement(){return this.parentNode;}
@@ -70,7 +70,8 @@ class Element extends EventTarget{
   setAttribute(key,value){this[key]=String(value);}
   getAttribute(key){return this[key]??null;}
   removeAttribute(key){delete this[key];}
-  toggleAttribute(key,on){if(on)this.setAttribute(key,'');else this.removeAttribute(key);}
+  hasAttribute(key){return this.getAttribute(key)!==null;}
+  toggleAttribute(key,on){const enabled=on??!this.hasAttribute(key);if(enabled)this.setAttribute(key,'');else this.removeAttribute(key);return enabled;}
   remove(){if(this.parentNode)this.parentNode.children=this.parentNode.children.filter(node=>node!==this);}
   before(node){node.remove();const parent=this.parentNode;node.parentNode=parent;parent.children.splice(parent.children.indexOf(this),0,node);}
   after(node){const parent=this.parentNode;node.parentNode=parent;parent.children.splice(parent.children.indexOf(this)+1,0,node);}
