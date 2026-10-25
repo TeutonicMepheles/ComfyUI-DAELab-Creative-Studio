@@ -46,7 +46,7 @@ export function createBusinessDocument<T>(options: BusinessDocumentOptions<T>) {
       const before = snapshotJson(options.read()), draft = snapshotJson(before);
       edit(draft); // Validation/mutation happens before opening host history.
       const next = snapshotJson(draft);
-      if (JSON.stringify(before) === JSON.stringify(next) && !settings.afterWrite) return;
+      if (!settings.afterWrite && JSON.stringify(before) === JSON.stringify(next)) return;
       const continuing = !!settings.group && settings.group === group && options.historyStamp?.() === lastHistoryStamp;
       const write = () => {
         try { options.write(next); settings.afterWrite?.(); }
