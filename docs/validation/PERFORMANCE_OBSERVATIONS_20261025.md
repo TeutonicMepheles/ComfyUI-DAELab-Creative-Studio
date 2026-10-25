@@ -1783,3 +1783,21 @@ A1280/150、A680/150与B680/150的反向Tab正文/轮廓被产品缩放HUD遮挡
 HUD候选随后完整检查两次首先因迁移清单未同步而失败：`canvas-zoom-hud-fullcheck-first`缺view目的hash更新，`canvas-zoom-hud-fullcheck-after-manifest-first`仍缺focus/test目的hash更新，原日志与exit1均保留。只同步已审3项destinationSha和变换说明，来源指纹未改；第三次完整检查exit0，主332通过/3既有跳过、业务493通过，145模块/215产物。新构建`1269e52fda4371fbe43748b4d2eb4f7cbeec41c9ccc4e5f172254a4c33dc01b2`；结果`.local/validation/canvas-zoom-hud-fullcheck-complete-manifest-first/result-first.json`，日志`check-first.log` SHA`165d4add2f45a82e15823326e7722efdf1caef9f03b7b789d06b32ffd7b9bda1`。当前新产品尚未提交或部署，8253运行的仍是原78产品加修正版IME夹具；HUD实际3例失败和性能/IME/M6门禁没有因构建通过而关闭。
 
 8253随后实际Start/读取四字段/Stop/下载首次成功，使用原65ae、原78产品和修正版夹具；仅验证观察器DOM资格。9份原件冻结于`.local/performance-actual/four-owner-ime-prompt-dom-78b180-qualification-first/`，清单SHA`424d8a9a95f5367851524de90a12171440669a1ba776280ecfa62a31d9a274a6`。原始记录5,618字节SHA`5a28c7795d999ce1e9d8dd74ddc8a23b38b04aba786ba1b0e7a00e918572ddd3`：0事件/0检查点、1份手动快照、6个outside-scope聚合拒绝，四字段原值和租约身份保持，operator-stop，complete/productAcceptance/formalBudgetEvaluated均false。开始时实际1920×1080/DPR1.75；新页最初默认731×411/DPR2.625也保留。没有输入文本、composition、任务或保存/重开，不是中文IME提交/取消验收。
+
+### 1269实际焦点模式与保存重载复测
+
+固定`c47dca264087809a52042f49303394857ee61c71 / 1269e52f…`在全新纯产品8254完成check-only、prepare、start。独审确认523产品文件、215产物及9个served文件一致，无测试面板；运行时报告SHA`df2609e229ac48acb220c47dc64d191c733bcda04a2ab048fdf060ecb5025eda`。PR仍Draft，发布门禁关闭。
+
+原50/100/150夹具逐字副本用于8组焦点序列，另补B原风险几何位置。104原件冻结于`.local/performance-actual/four-owner-1269-pure-focus-risk-first/`，清单SHA`97f0da970f1c8017b6e47da14655a793eba503f94156224b9287f24787f609f1`。27个稳定端点均至少1100ms，六提示词、两处理要求及线3/4保持。A1280/150、A680/150与B补测反向Tab稳定后与HUD相隔16px；B补测初始位置相对旧失败差x−0.6393/y+0.2429px，但新开文档和旧连续操作历史不同，不写成完全相同会话。B初始编辑区域仍局部被HUD遮挡；超宽A只确认起始区显露。两LLM native selection为67/67，往返保持。首次采集器调用不支持的performance.now错误保留，修正后的每次DOM采集只有一个callback，但不声称原子绘制或跨调用对象身份。独审SHA`d496acfdcd3dc8720496940f6eaceca9e3af816a551004c44c682b4f46307ec8`。
+
+模式/生命周期批次另有166原件，目录`.local/performance-actual/four-owner-1269-mode-lifecycle-first/`，清单SHA`7686f17bbaaef3e93c9561a7b4dc23dd62469d7f908690493a2eb9b76563a7a1`。四owner各完成Mute、Active、Bypass、Active；两表停用仅使对应下游输入不可用，恢复后原输入返回。LLM的原生右键菜单没有绕过项，首失败保留，后用实际原生工具栏完成旁路。App隐藏Canvas后返回Graph，显式回Canvas恢复四值/两线。两表在Canvas内删除/Undo恢复目标及对应线；另一次Graph删除A后切Canvas再Undo返回快照的Graph模式，显式回Canvas数据恢复。现有合同明确保持viewport，未把该跨模式行为认定为数据丢失或已证模式缺陷。01–44有限独审SHA`8a67b86c1f90f86eeed5201985532c94ec34e0acde5a60540b6585c147704d6b`。
+
+首保存49与导入/刷新后的另存56逐字相同，18,827字节/SHA`a7f6d194e989db218837076ab48a8e341def3b4ade2b26590c6cc3960bce1e1c`。对原夹具完整JSON仅A首prompt的legacy revision/stamp两叶校准；两表15格、六prompt、两LLM处理要求、14inputs/6outputs/两线以及其它未知字段均核对，没有宽泛排除。49收据曾错误读取active.title，50明确纠正，真实48的document.title为clean。导入的未保存副本在Reload前后都dirty；另存后的clean文档在58/59刷新后仍clean，这两个情形分别记录。
+
+随后对已保存文档再次SaveAs产生61：13,054字节/SHA`49b71fd954b1d5bd6ebc7f906278c63124c0b16e3a295b99cee9f33053632823`。对49/56共有17结构变化，展开41叶：5个graph/document/table身份标量变化及12项legacy revision条目删除（36叶）。这些变化与新工作流身份分叉合同相容，其它完整数据保持；不是仅documentId差异。61/62持续dirty，后续Ctrl+S及明确原生Save菜单后64/66仍dirty，磁盘字节同61。保存全链独审首报告SHA`0c48131b2955255e455cb7edfa141cfab0619a7640b3cedce6228896639de48f`；dirty原因仍待调查，不能宣布保存验收闭合。
+
+上述实测DPR仍1.75。18张焦点图均JPEG，首两张实际1920×1035，其余为1280/680×720；生命周期1920截图也裁掉底部45px。截图缺失区域不以DOM尺寸补证。没有真实IME、生成或正式100ms采样，不替代36格矩阵和M6门禁。
+
+### 原生隐藏画布暂停诊断候选
+
+新增test-only模块默认不挂载、不暂停、不监听；只有显式准入后才对固定旧canvas对象设置pause_rendering，并在停止、模式/图切换、隐藏或到期时恢复。只接受固定78产品及实际独审的新宿主收据，严格要求原生_maximumFrameGap===0，避免正限帧间隔下暂停导致短计时器循环；不调用stopRendering/startRendering、不改FPS、graph、历史或834d。定向25项、固定原生方法4项及独立补充5项通过，首红和中间失败保留。独审`.local/validation/native-canvas-pause-diagnostic-independent-first/review.json` SHA`135e44ce5b1498bff701551d0e28e03f2ae5cbd6f291e1354cfd81069b036d58`。尚未实际启用，后续基线—暂停—恢复对照只是诊断，不是产品优化或100ms通过；78的8/8超预算结果继续有效。
