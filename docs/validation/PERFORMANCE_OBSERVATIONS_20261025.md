@@ -1815,3 +1815,35 @@ HUD候选随后完整检查两次首先因迁移清单未同步而失败：`canv
 后续test-only候选只拆分capture-initial/lifetime-setup/capture-repeat阶段并记录内部品牌的有限失败码，未知异常统一unexpected-error，不读取或导出外部异常message/stack。没有增加宿主读取或改变准入、暂停、恢复流程；registration/capture/runtimeProof函数原文保持。首红25/31、首绿31/31及独立31/31保留；源码SHA`f5ea3a0886d2c05c4580d54eb840072fa419e3a521eb5b75fe411c6569c465ca`，独审`.local/validation/native-canvas-pause-observability-independent-first/review.json` SHA`dda41788056c46214942b6bd8fd701db36dd633ddfa73262c3fe6890f0a843a6`。独审报告解析首次误期待TAP而实际为spec的错误另存，随后只重读同次绿日志，没有补造通过。当前候选尚未实际启用，不回填8255首raw缺失的具体原因。
 
 8255在零输入时保存的基线另做全文件比较：原件与保存件的逐字副本固定，10,000值、1,000完整记录、400条link tuple及实际双端引用/槽名保持；完整JSON有948个路径差异，完整diff回放精确重建保存件。节点order/size、named widget、槽位索引及新增元数据均逐项保留，没有宽泛排除。两表输入槽有重排，但本M夹具两表均无输入/输出连线，不能据此证明任意表格连线迁移。磁盘独审交接SHA`647e850f60be2f2f5db59209ac1452e0ed9e7b47e6ab01af824e62e4a4686228`，未发现比较范围内意外丢失，不宣称完整工作流相同或解释准入拒绝。
+
+### 8256准备阶段控制中断
+
+固定671b792/78产品、原19文件及新f5ea诊断/8256绑定器的21文件准备通过，root首次prepare/start均exit0。实际独审1361项通过，launcher30460→listener102604前后身份、523产品/215产物/21夹具/27served及两点空队列保持；报告`.local/validation/native-canvas-pause-78b180-8256-preparation/runtime-independent-first/report.json` SHA`96b092fb40a63e03ac6941b55fa3f0ed06bb3bfc28a48b49d0d230641295570f`。真实receipt SHA`40f195b600f7622860c89c104535ad010b43ccc04fbd511dd31b24962bf60128`已通过实际文件控件绑定，空图阶段设置原M文件和构建指纹，没有Start任何观测器。
+
+执行前发现当前模块的recoveryFrameObserved固定为false，原21文件没有可见的旧captured canvas恢复后计数检查入口。下一次start的两帧准入不能替代上一次Stop的恢复证据，也不能通过私读app或截图推定计数。因此本轮另行预登记为仅baseline准入、0输入、若启用则立即Stop/下载，不执行原三臂N4或paused。
+
+NativeOpen原M后的首公开DOM同时出现两原始目标值、0卡片和Unsaved标题，仍是加载中间态；之后菜单click、DOM调度、截图、控制重连和关闭均出现超时。尚未Arm、SaveAs、语义Start或输入；原始M资格和关闭均未确认。旧8255页在完整冻结及保存副本核对后已关闭，8255宿主和原件保留；新8256页的关闭操作未成功，已明确请求用户只关闭该测试页。12原件冻结于`.local/performance-actual/native-pause-8256-admission-only-first/`，清单SHA`f1cb0c7828e83730d43c55cec5ef3a53ff4c49e35070d7dfcf3bb64f6e0e467b`。独审`.local/validation/native-pause-8256-admission-only-independent-first/review.json` SHA`5a696033231fbea885f5ce816987f90ca52bf9f7114b47127e48df3367d7205e`确认7项控制错误保留；这属于准备阶段控制中断，不是baseline准入拒绝、帧恢复失败或100ms产品性能结果。不能归因于产品、先选文件的操作顺序或某个宿主状态。
+
+另一个仅在本地目录的事务准备合并原型使用真实owning change函数体、BusinessDocument/DocumentController及snapshot模块，对照现有路径。首轮9项为5过4失败：校验回调中live A→B、draft仍为A时，原路径使票据revision=2且不可应用，直接集中到现有edit的原型却revision=0且仍可应用；getter回滚取值为原2/原型1；read/current/validate顺序和NaN/validator异常优先级也改变。原型因此停止，未进入产品，没有弱化校验、复用提前编码或延迟原生写入。原M两张500×10的成功对照虽通过，不能覆盖4个反例；反例确认测试的绿色也不代表修复绿色。首红、witness、源码pins及成功对照都保留，交接`.local/validation/table-cell-preparation-prototype-first/handoff.json` SHA`f088282d99b4c302ef0c2151f33ce088c7c502cd07454ee2ea234eb13e061540`。它否定当前直接集中路线，不证明所有未来专用事务设计都不可行，也不提供实际性能结果。
+
+### 1269的1920宽度矩阵续测
+
+沿用纯产品8254、固定c47/1269构建及原50/100/150三份夹具，继续原焦点、Tab、反向Tab和菜单协议；没有输入新正文、切换模型或提交生成。100%批次71原件冻结于`.local/performance-actual/four-owner-1269-matrix-continuation-first/`，清单SHA`eb3bf1b61dfb8884926c671a4bc31b35014eac6a786a72639ba23dab82e7dffc`。四owner新增12对焦点端点，间隔1139–1151ms；44份合格DOM保留六段提示词、两段要求及线3/4。B初始编辑框right约2115.74，caret约1811仍可见，不能将其记为全框可见。A的Tab端点缺截图，DOM仍保留。四个菜单实际打开/关闭，但该批缺配对的至少1100ms菜单稳定采样；两表另有关闭/重开记录。17张JPEG均1920×1035，底部45px未覆盖。独审630项证据一致性检查通过，报告SHA`4bdaf032e7a3eea1c21e35f92e7d90d522455d228d2b91115f6411ab9d908fcd`；采集器误选择器、原生加载中间态和错误可访问名称的首次失败均保留，不将一致性检查当作产品通过。
+
+50%批次59原件冻结于`.local/performance-actual/four-owner-1269-1920-z50-continuation-first/`，清单SHA`e9b61d55c20fff35c59a0e704a47f4bdf25740484238c524877ab1b5f5d4c93c`。新增B表和两LLM的9对焦点端点，1137–1147ms；A焦点沿用先前批次，没有重采。四菜单均有即时/稳定端点及稳定截图，间隔1149–1160ms，Escape后值保持。35份合格DOM保留八字段和两线；两表原优化要求不变，界面仍报告本地文本provider未装配。两LLM实际选区为31/31；B编辑选区原件为38/38，独审初稿摘要误写6/6，原稿保留并另附勘误。14张JPEG均1920×1035，其中一张是100%准备状态，不能算50%证据。独审538项一致性检查通过，报告SHA`7e2fbbd80b8ede6b53fbcf366f79c4618fbc9d3073b303ab668b13c6919099bd`。两次Ctrl+O超时、文件菜单ArrowRight失败及加载中间态均保留。
+
+150%批次65原件冻结于`.local/performance-actual/four-owner-1269-1920-z150-continuation-first/`，清单SHA`7f7119b9775a3bbaecc639fd60a1780a2a4da301c248ea8c99114c7e5c68acbf`。四owner新增12对焦点端点，1137–1150ms；四菜单稳定对1145–1152ms，均有真实展开截图和关闭端点。44份合格DOM保留八字段和线3/4；A/B编辑Range为6/6，反向Tab是非编辑DIV的0/0，不能称编辑光标；两LLM为67/67。全部受检active目标在采样端点位于根范围内且不与HUD或提示条相交，A的Tab下缘与提示条间隔16px。17张JPEG逐图核对，其中16张为本批焦点/菜单，另一张为文件菜单准备状态；均1920×1035。独审671项一致性检查无异常，报告SHA`2b31f4c35809d171239e4ea2e5085d45c40eb80f4a4b68f6157d6e6a130ba456`。50%选区勘误另见`.local/validation/four-owner-1269-z50-selection-correction-first/correction.json`，SHA`78a43468b4951becf97822a9adcae3d14547933ce3c165ee94ae4e692e03ea4f`；原报告字节未变。
+
+累计当前构建焦点覆盖19/36，尚余17组；菜单记录12/36，其中8组有成对稳定计时，100%的4组仍有限，另24组未执行。这是覆盖计数，不是通过计数。1920×1080是上述DOM实测尺寸；IAB DPR仍约1.75，不能由用户确认的Windows 100%推导为DPR1。首次设置窄视口超时后，再尝试清除覆盖尺寸也超时并重置控制连接；恢复只读连接后仍为1920×1080/150%、四卡片。后一次原件单独保存在`.local/performance-actual/four-owner-1269-viewport-recovery-second/`，没有登记1280或680的新覆盖。不得把菜单、DOM字段保持或工具超时作为100ms、真实IME、全序列化数据或M6验收结论。
+
+### 8257仅完成静态准备
+
+新版恢复诊断的8257材料保留固定671b/78产品及原19文件，只替换诊断模块和新端口绑定器。首次check-only通过，21文件夹具SHA`510bc45f01fa200b1ae52bcbf7a31162e2d7f8255d1c107c821dd24df26389cb`，交接SHA`f8acfa4500474707987efeb3f698e33efee5ceba8d49b9532bc509cbc8212475`。111项静态独审无失败，报告SHA`2abcab0992108c74df6b29c8706c93ed1348c9b870457cab6368fd8db9ef22e7`；计划中的旧8256目录误引另存勘误SHA`c057a3a150b368b04f77965bef788c5bf9952149083cac151ec97d4c1c409007`，冻结计划不改。没有prepare/start、实际Arm或输入。
+
+首阶段限定原M的baseline零输入准入、Stop、停止后空队列、本次旧captured canvas显式计数检查及Graph/Canvas可见恢复；完成这些才考虑暂停对照。下一次Arm不能补证上一次Stop。8256页关闭仍待用户确认；这些材料不构成运行时通过、性能改善或自动执行暂停对照的依据。
+
+### 恢复计数器检查与截止时间首红
+
+test-only模块新增显式“检查恢复计数器”入口。只有正常Stop、原暂停标志恢复、清理完成及停止后队列为空时才可检查；等待点击期间只保留六个旧实例WeakRef和标量描述，不保留监听或计时器。点击后复核捕获实例及原生循环字段，在两帧、1000ms界限内读取旧canvas计数器；不改绑新canvas，不调用draw、setDirty或HTTP，也不修改graph、历史、FPS或834d。新Arm、Stop、销毁及生命周期失效均取消检查；成功、失败和清理情况进入原始记录。计数前进只证明本次显式窗口，不证明Stop到点击间连续身份、即时恢复、自动循环来源或可见像素。捕获准入的复合条件拆成有限原因码，条件顺序及门禁不变。
+
+首候选45/45通过后，独立反例发现读取跨过截止时间仍记录observed：startedAt32、endedAt1065，实际1033ms。首红报告`.local/validation/native-canvas-recovery-checkpoint-independent-first/review-first.json` SHA`1568c162d6f6ae45acb825d307ae2027331b982b8531e7a21fe92ea202f76d72`保留；随后新增两边界在旧源0/2、仅读后修正1/2，均保留。最终修正同时检查读后时间与记录自身的endedAt，达到或超过1000ms一律不能通过；实际frameAfter和时间不截断、不回填。最终47/47通过，源码SHA`0abca7e609afdb05d491fc2da906894b7bb72c465770266783571480c02686e8`；独立增量复跑原反例1/1和边界2/2通过，报告`.local/validation/native-canvas-recovery-deadline-independent-first/review.json` SHA`82be90992451dfd1592e7a4d2a45ed245cbe29d7c336329aceee87cae550396d`。未重新部署任何宿主，8255/8256原失败不归因于此边界，也不由离线检查宣布实际恢复或性能通过。

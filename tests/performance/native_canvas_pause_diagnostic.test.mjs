@@ -238,14 +238,19 @@ test('test-only UI is idle, requires trusted explicit consent and provides synch
   assert(ui); assert.equal(d.requests.length, 0); assert.equal(d.observers.length, 0); assert.equal(d.window.listeners.size, 0);
   assert.equal(mountNativeCanvasPauseDiagnostic(d.document, d.window, {registration: d.registration}), null);
   const picker = made.find(element => element.type === 'file'), enabled = made.find(element => element.type === 'checkbox');
-  const pause = made.find(element => element.textContent === '启用原生暂停'), restore = made.find(element => element.textContent === '立即恢复');
+  const pause = made.find(element => element.textContent === '启用原生暂停'), restore = made.find(element => element.textContent === '立即恢复'), recovery = made.find(element => element.textContent === '检查恢复计数器');
+  assert(recovery); assert.equal(recovery.disabled, true); await recovery.onclick(trusted); assert.equal(imports, 0);
   picker.files = [{size: original.length, arrayBuffer: async () => Uint8Array.from(original).buffer}];
   await picker.onchange(trusted); d.window.crypto = runtimeCrypto;
   await pause.onclick(trusted); assert.equal(imports, 0); enabled.checked = true;
   await pause.onclick({isTrusted: false}); assert.equal(imports, 0);
   assert.equal(await d.drive(pause.onclick(trusted)), undefined); assert.equal(d.canvas.pause_rendering, true); assert.equal(restore.disabled, false);
   const stopping = restore.onclick(trusted); assert.equal(d.canvas.pause_rendering, false); await stopping;
-  ui.destroy(); assert.equal(pause.onclick, null); assert.equal(picker.onchange, null); assert.equal(ui.resources().listeners, 0);
+  assert.equal(recovery.disabled, false); await recovery.onclick({isTrusted: false}); assert.equal(d.rafs.size, 0);
+  const requests = d.requests.length, dirty = d.dirtyCalls();
+  await d.drive(recovery.onclick(trusted)); assert.equal(ui.report().runs[0].recoveryFrameObserved, true);
+  assert.equal(d.requests.length, requests); assert.equal(d.dirtyCalls(), dirty); assert.equal(recovery.disabled, true);
+  ui.destroy(); assert.equal(pause.onclick, null); assert.equal(picker.onchange, null); assert.equal(recovery.onclick, null); assert.equal(ui.resources().listeners, 0);
 });
 
 test('a cleanup exception retains the failure, releases other resources and refuses a new arm', async () => {
@@ -265,7 +270,7 @@ test('rejected registration and initial capture have distinct fixed stages and r
   const capture = setup(); capture.canvas.pause_rendering = true;
   assert.equal(await capture.start(), false);
   assert.equal(capture.controller.report().runs[0].failureStage, 'capture-initial');
-  assert.equal(capture.controller.report().runs[0].failureReason, 'native-loop-qualification');
+  assert.equal(capture.controller.report().runs[0].failureReason, 'native-pause-not-false');
   assert.equal(capture.requests.length, 0); assert.equal(capture.canvas.pause_rendering, true);
 });
 
@@ -326,4 +331,225 @@ test('real owned runtime guard reasons survive while unknown messages and stacks
   const unknown = setup(); unknown.window.fetch = async () => {const error = Error('secret-message'); error.stack = 'secret-stack'; throw error;};
   assert.equal(await unknown.start(), false); const raw = JSON.stringify(unknown.controller.report());
   assert(raw.includes('unexpected-error')); assert(!raw.includes('secret-message')); assert(!raw.includes('secret-stack')); assert(!JSON.stringify(record).includes('private-prompt'));
+});
+
+test('host and loop rejection reasons identify the first original failing predicate', async () => {
+  const cases = [
+    [d => {d.app.isGraphReady = false;}, 'host-graph-not-ready'],
+    [d => {d.app.rootGraph = null;}, 'host-root-graph-missing'],
+    [d => {d.app.graph = {};}, 'host-active-graph-mismatch'],
+    [d => {d.canvas.graph = {};}, 'host-canvas-graph-mismatch'],
+    [d => {d.app.extensionManager.workflow.activeWorkflow = null;}, 'host-workflow-missing'],
+    [d => {delete d.workflow.activeMode;}, 'host-workflow-mode-missing'],
+    [d => {d.workflow.activeMode = 'app';}, 'host-workflow-mode-not-graph'],
+    [d => {d.view.active = false;}, 'host-creative-view-inactive'],
+    [d => {d.canvas.subgraph = {};}, 'host-subgraph-active'],
+    [d => {Object.defineProperty(d.canvas, 'pause_rendering', {writable: false});}, 'native-pause-not-writable'],
+    [d => {d.canvas.pause_rendering = true;}, 'native-pause-not-false'],
+    [d => {d.canvas._maximumFrameGap = NaN;}, 'native-gap-not-finite'],
+    [d => {d.canvas._maximumFrameGap = Number.EPSILON;}, 'native-gap-not-zero'],
+    [d => {d.canvas.is_rendering = false;}, 'native-rendering-not-true'],
+    [d => {d.canvas.frame = NaN;}, 'native-frame-not-finite'],
+    [d => {d.canvas.frame = -1;}, 'native-frame-negative'],
+    [d => {d.canvas.setDirty = null;}, 'native-dirty-method-missing'],
+  ];
+  for (const [change, reason] of cases) {
+    const d = setup(); change(d); assert.equal(await d.start(), false);
+    const record = d.controller.report().runs[0]; assert.equal(record.failureStage, 'capture-initial'); assert.equal(record.failureReason, reason);
+    assert.equal(record.armedAt, null); assert.equal(d.requests.length, 0);
+  }
+  const d = setup(); let laterReads = 0;
+  d.app.isGraphReady = false; Object.defineProperty(d.app, 'graph', {get() {laterReads++; throw Error('later-private-value');}});
+  assert.equal(await d.start(), false); assert.equal(laterReads, 0);
+  assert.equal(d.controller.report().runs[0].failureReason, 'host-graph-not-ready');
+  const loop = setup(); loop.canvas.pause_rendering = true;
+  Object.defineProperty(loop.canvas, 'setDirty', {get() {laterReads++; throw Error('later-private-value');}});
+  assert.equal(await loop.start(), false); assert.equal(laterReads, 0);
+  assert.equal(loop.controller.report().runs[0].failureReason, 'native-pause-not-false');
+});
+
+test('recovery is explicit, idle until trusted click, and samples only the stopped captured owner', async () => {
+  const d = setup(); assert.equal(d.controller.canCheckRecovery, false);
+  assert.equal(await d.controller.checkRecovery(trusted), false); assert.equal(d.requests.length, 0);
+  assert(await d.start()); assert.equal(await d.controller.checkRecovery(trusted), false);
+  await d.controller.stop(); assert.equal(d.controller.canCheckRecovery, true);
+  assert.deepEqual(d.controller.resources(), {listeners: 0, observers: 0, raf: 0, timer: 0});
+  const requests = d.requests.length, dirty = d.dirtyCalls(), graph = JSON.stringify(d.graph);
+  assert.equal(await d.controller.checkRecovery({isTrusted: false}), false); assert.equal(d.rafs.size, 0);
+  d.canvas.frame += 50; const before = d.canvas.frame;
+  assert.equal(await d.drive(d.controller.checkRecovery(trusted)), true);
+  const record = d.controller.report().runs[0], check = record.recoveryCheckpoint;
+  assert.equal(record.recoveryFrameObserved, true); assert.equal(check.status, 'observed');
+  assert.equal(check.frameBefore, before); assert(check.frameAfter > before); assert.equal(check.canvasIdentity, record.identities.canvas);
+  assert(check.startedAt >= record.stoppedAt); assert(check.endedAt > check.startedAt); assert.equal(check.cleanup.complete, true);
+  assert.equal(d.requests.length, requests); assert.equal(d.dirtyCalls(), dirty); assert.equal(d.forbiddenCalls(), 0); assert.equal(JSON.stringify(d.graph), graph);
+  assert.equal(d.canvas.pause_rendering, false); assert.equal(d.controller.canCheckRecovery, false);
+  assert.equal(await d.controller.checkRecovery(trusted), false); assert.deepEqual(d.controller.resources(), {listeners: 0, observers: 0, raf: 0, timer: 0});
+});
+
+test('controls can prove a new counter window without claiming that they restored a pause', async () => {
+  for (const mode of ['baseline', 'restored']) {
+    const d = setup(); assert(await d.start(mode)); await d.controller.stop();
+    assert.equal(await d.drive(d.controller.checkRecovery(trusted)), true);
+    const run = d.controller.report().runs[0]; assert.equal(run.restore.flag, 'not-written'); assert.equal(d.dirtyCalls(), 0); assert.equal(run.recoveryFrameObserved, true);
+  }
+});
+
+test('recovery needs a settled empty postStop queue and a clean confirmed release', async () => {
+  const d = setup(); assert(await d.start()); let deliver;
+  d.responses.set('/queue', () => new Promise(resolve => {deliver = resolve;}));
+  const stop = d.controller.stop(); assert.equal(d.controller.canCheckRecovery, false); assert.equal(await d.controller.checkRecovery(trusted), false);
+  deliver(new TextEncoder().encode('{"queue_running":[],"queue_pending":[]}')); await stop; assert.equal(d.controller.canCheckRecovery, true);
+  for (const corrupt of [x => {x.canvas.pause_rendering = false;}, x => {x.responses.set('/queue', () => new TextEncoder().encode('{"queue_running":[1],"queue_pending":[]}'));}]) {
+    const x = setup(); assert(await x.start()); corrupt(x); await x.controller.stop(); assert.equal(x.controller.canCheckRecovery, false); assert.equal(await x.controller.checkRecovery(trusted), false);
+  }
+});
+
+test('changed canvas, descriptors and loop state never pass or invoke replacement accessors', async () => {
+  const cases = [
+    [d => {d.app.canvas = {...d.canvas, frame: 999};}, 'identity-lost'],
+    [d => {d.workflow.activeMode = 'app';}, 'identity-lost'],
+    [d => {d.canvas.pause_rendering = true;}, 'native-loop-changed'],
+    [d => {d.canvas._maximumFrameGap = 1;}, 'native-loop-changed'],
+    [d => {d.canvas.is_rendering = false;}, 'native-loop-changed'],
+    [d => {d.canvas.frame = NaN;}, 'native-loop-changed'],
+    [d => {Object.defineProperty(d.canvas, 'frame', {enumerable: false});}, 'native-loop-changed'],
+  ];
+  for (const [change, reason] of cases) {
+    const d = setup(); assert(await d.start()); await d.controller.stop(); change(d);
+    assert.equal(await d.controller.checkRecovery(trusted), false);
+    const run = d.controller.report().runs[0]; assert.equal(run.recoveryFrameObserved, false); assert.equal(run.recoveryCheckpoint.status, 'not-proven'); assert.equal(run.recoveryCheckpoint.reason, reason);
+    assert.equal(d.rafs.size, 0); assert.equal(d.timers.size, 0);
+  }
+  for (const key of ['pause_rendering', '_maximumFrameGap', 'is_rendering', 'frame']) {
+    const d = setup(); assert(await d.start()); await d.controller.stop(); let reads = 0;
+    Object.defineProperty(d.canvas, key, {get() {reads++; throw Error('private-recovery-value');}, configurable: true});
+    assert.equal(await d.controller.checkRecovery(trusted), false); assert.equal(reads, 0);
+    assert.equal(d.controller.report().runs[0].recoveryFrameObserved, false); assert(!JSON.stringify(d.controller.report()).includes('private-recovery-value'));
+  }
+});
+
+test('a stale frameAtArm and even a prior advance cannot satisfy a stationary recovery window', async () => {
+  const d = setup(); assert(await d.start()); await d.controller.stop(); d.canvas.frame += 100;
+  const promise = d.controller.checkRecovery(trusted);
+  for (let i = 0; i < 2; i++) {const callbacks = [...d.rafs.values()]; d.rafs.clear(); for (const fn of callbacks) fn();}
+  assert.equal(await promise, false); const run = d.controller.report().runs[0];
+  assert.equal(run.recoveryCheckpoint.reason, 'frame-not-advanced'); assert.equal(run.recoveryFrameObserved, false);
+});
+
+test('recovery lifecycle events, timeout and beforeLoadGraph cancel and release the bounded window', async () => {
+  const cases = [d => d.root.dispatchEvent(new Event('dae-canvas-hide')), d => d.native.dispatchEvent(new Event('litegraph:set-graph')),
+    d => d.native.dispatchEvent(new Event('subgraph-opening')), d => d.window.dispatchEvent(new Event('pagehide')),
+    d => {d.document.visibilityState = 'hidden'; d.document.dispatchEvent(new Event('visibilitychange'));}, d => d.controller.beforeLoadGraph(), d => d.elapse(1001)];
+  for (const cancel of cases) {
+    const d = setup(); assert(await d.start()); await d.controller.stop(); const promise = d.controller.checkRecovery(trusted);
+    const late = [...d.rafs.values()]; cancel(d); assert.equal(await promise, false);
+    for (const fn of late) fn(); const run = d.controller.report().runs[0]; assert.equal(run.recoveryFrameObserved, false); assert.equal(run.recoveryCheckpoint.status, 'not-proven');
+    assert.deepEqual(d.controller.resources(), {listeners: 0, observers: 0, raf: 0, timer: 0}); assert(d.observers.every(o => !o.connected));
+  }
+});
+
+test('new Arm, repeated Stop and destroy invalidate old recovery eligibility and pending callbacks', async () => {
+  for (const cancel of [d => d.controller.stop(), d => d.controller.destroy()]) {
+    const d = setup(); assert(await d.start()); await d.controller.stop(); const pending = d.controller.checkRecovery(trusted); cancel(d);
+    assert.equal(await pending, false); assert.equal(d.controller.canCheckRecovery, false); assert.equal(d.controller.report().runs[0].recoveryFrameObserved, false);
+  }
+  const d = setup(); assert(await d.start()); await d.controller.stop(); const pending = d.controller.checkRecovery(trusted);
+  const next = d.start('baseline'); assert.equal(await pending, false); assert(await next); await d.controller.stop();
+  assert.equal(d.controller.report().runs[0].recoveryFrameObserved, false); assert.equal(await d.drive(d.controller.checkRecovery(trusted)), true);
+  assert.equal(d.controller.report().runs[1].recoveryFrameObserved, true);
+});
+
+test('recovery exceptions and cleanup failure remain unknown and cannot claim progress', async () => {
+  const d = setup(); assert(await d.start()); await d.controller.stop();
+  let reads = 0; const error = Object.defineProperty({}, 'message', {get() {reads++; return 'frame-not-advanced';}});
+  d.native.addEventListener = () => {throw error;}; assert.equal(await d.controller.checkRecovery(trusted), false);
+  assert.equal(reads, 0); assert.equal(d.controller.report().runs[0].recoveryCheckpoint.reason, 'unexpected-error');
+  const e = setup(); assert(await e.start()); await e.controller.stop(); const result = e.controller.checkRecovery(trusted);
+  e.observers.at(-1).disconnect = () => {throw Error('private-cleanup');};
+  assert.equal(await e.drive(result), false); const run = e.controller.report().runs[0];
+  assert.equal(run.recoveryFrameObserved, false); assert.equal(run.recoveryCheckpoint.cleanup.complete, false); assert.equal(e.controller.resources().cleanupIncomplete, true);
+  assert.equal(await e.start('baseline'), false); assert(!JSON.stringify(run).includes('private-cleanup'));
+});
+
+test('late callbacks from a finished window cannot cancel a newer recovery window', async () => {
+  const d = setup(); assert(await d.start()); await d.controller.stop();
+  const first = d.controller.checkRecovery(trusted), timer = [...d.timers.values()][0].fn, listener = [...d.root.listeners][0];
+  assert.equal(await d.drive(first), true);
+  assert(await d.start('baseline')); await d.controller.stop();
+  const second = d.controller.checkRecovery(trusted); timer(); listener();
+  assert.equal(await d.drive(second), true); assert.equal(d.controller.report().runs[1].recoveryFrameObserved, true);
+});
+
+test('a synchronous cancellation during a checked host read cannot install late resources', async () => {
+  const d = setup(); assert(await d.start()); await d.controller.stop();
+  Object.defineProperty(d.app, 'isGraphReady', {get() {void d.controller.stop(); return true;}});
+  assert.equal(await d.controller.checkRecovery(trusted), false);
+  assert.equal(d.rafs.size, 0); assert.equal(d.timers.size, 0); assert(d.observers.every(o => !o.connected));
+});
+
+test('two captured instances recover independently without changing the other active pause', async () => {
+  const a = setup(), b = setup(); assert(await a.start()); assert(await b.start()); await a.controller.stop();
+  assert.equal(await a.drive(a.controller.checkRecovery(trusted)), true); assert.equal(b.canvas.pause_rendering, true);
+  await b.controller.stop(); assert.equal(await b.drive(b.controller.checkRecovery(trusted)), true);
+  assert.equal(a.controller.report().runs[0].recoveryFrameObserved, true); assert.equal(b.controller.report().runs[0].recoveryFrameObserved, true);
+});
+
+test('unavailable or collected weak identities cannot rebind to a current object or break restoration', async () => {
+  const NativeWeakRef = globalThis.WeakRef, refs = [];
+  const d = setup(); assert(await d.start());
+  try {
+    globalThis.WeakRef = class {constructor(value) {this.value = value; refs.push(this);} deref() {return this.value;}};
+    await d.controller.stop();
+  } finally {globalThis.WeakRef = NativeWeakRef;}
+  assert.equal(refs.length, 6); refs[0].value = undefined;
+  assert.equal(await d.controller.checkRecovery(trusted), false); const record = d.controller.report().runs[0];
+  assert.equal(record.restore.flag, 'restored'); assert.equal(record.recoveryCheckpoint.reason, 'captured-owner-unavailable'); assert.equal(record.recoveryFrameObserved, false);
+  const unsupported = setup(); assert(await unsupported.start());
+  try {globalThis.WeakRef = undefined; await unsupported.controller.stop();} finally {globalThis.WeakRef = NativeWeakRef;}
+  assert.equal(unsupported.canvas.pause_rendering, false); assert.equal(unsupported.controller.canCheckRecovery, false);
+  assert.equal(unsupported.controller.report().runs[0].recoveryCheckpoint.reason, 'captured-owner-unavailable');
+  assert.deepEqual(unsupported.controller.resources(), {listeners: 0, observers: 0, raf: 0, timer: 0});
+});
+
+test('recovery checks current identity and descriptor state again at the end of the window', async () => {
+  for (const change of [d => {d.canvas._maximumFrameGap = 1;}, d => {d.app.canvas = {...d.canvas};},
+    d => {d.root.isConnected = false;}, d => {Object.defineProperty(d.canvas, 'frame', {get() {throw Error('private-frame');}, configurable: true});}]) {
+    const d = setup(); assert(await d.start()); await d.controller.stop(); const result = d.controller.checkRecovery(trusted);
+    d.advanceFrame(); change(d);
+    const callbacks = [...d.rafs.values()]; d.rafs.clear(); for (const fn of callbacks) fn();
+    assert.equal(await result, false); assert.equal(d.controller.report().runs[0].recoveryFrameObserved, false);
+    assert.equal(d.timers.size, 0); assert(!JSON.stringify(d.controller.report()).includes('private-frame'));
+  }
+});
+
+test('recovery deadline crossed during the final checked read retains the actual sample without passing', async () => {
+  const d = setup(); assert(await d.start()); await d.controller.stop();
+  const result = d.controller.checkRecovery(trusted); d.advanceFrame();
+  const originalNow = d.window.performance.now; let offset = 0;
+  d.window.performance.now = () => originalNow() + offset;
+  Object.defineProperty(d.app, 'isGraphReady', {get() {offset = 1001; return true;}});
+  d.advanceFrame(); const observed = await result, run = d.controller.report().runs[0], check = run.recoveryCheckpoint;
+  assert.equal(observed, false); assert.equal(run.recoveryFrameObserved, false); assert.equal(check.reason, 'deadline');
+  assert.equal(check.status, 'not-proven'); assert.equal(check.frameAfter, d.canvas.frame); assert(check.frameAfter > check.frameBefore);
+  assert.equal(check.endedAt, originalNow() + offset); assert(check.endedAt - check.startedAt >= 1000);
+  assert.deepEqual(d.controller.resources(), {listeners: 0, observers: 0, raf: 0, timer: 0});
+});
+
+test('recovery final recorded endpoint at or beyond the deadline cannot pass after an earlier valid clock check', async () => {
+  for (const elapsed of [1000, 1001]) {
+    const d = setup(); assert(await d.start()); await d.controller.stop();
+    const result = d.controller.checkRecovery(trusted); d.advanceFrame();
+    const originalNow = d.window.performance.now, startedAt = d.controller.report().runs[0].recoveryCheckpoint.startedAt;
+    let readsAfterFinalSample = 0;
+    d.window.performance.now = () => {
+      const sampled = d.controller.report().runs[0].recoveryCheckpoint.frameAfter !== null;
+      return sampled && ++readsAfterFinalSample >= 2 ? startedAt + elapsed : originalNow();
+    };
+    d.advanceFrame(); const observed = await result, run = d.controller.report().runs[0], check = run.recoveryCheckpoint;
+    assert.equal(observed, false); assert.equal(run.recoveryFrameObserved, false); assert.equal(check.reason, 'deadline');
+    assert.equal(check.status, 'not-proven'); assert.equal(check.endedAt - check.startedAt, elapsed);
+    assert.equal(check.frameAfter, d.canvas.frame); assert(check.frameAfter > check.frameBefore);
+    assert.deepEqual(d.controller.resources(), {listeners: 0, observers: 0, raf: 0, timer: 0});
+  }
 });

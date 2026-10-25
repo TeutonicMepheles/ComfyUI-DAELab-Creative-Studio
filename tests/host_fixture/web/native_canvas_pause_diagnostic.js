@@ -19,9 +19,13 @@ const copy = value => JSON.parse(JSON.stringify(value));
 const admissionFailures = new WeakMap();
 const FAILURE_REASONS = new Set(['CPU-argv-mismatch', 'DOM-qualification', 'M-DOM-shape', 'M-initial-value', 'M-link-projection', 'M-node-projection',
   'admission-HTTP', 'admission-cancelled', 'admission-size', 'covered-canvas-required', 'data-property-required', 'duplicate-lease',
-  'fixed-argv-required', 'fixed-registration-required', 'host-qualification', 'invalid-duration', 'isolated-origin-required', 'native-loop-qualification',
+  'fixed-argv-required', 'fixed-registration-required', 'invalid-duration', 'isolated-origin-required',
   'origin-changed', 'original-M-required', 'pause-write-failed', 'product-build-mismatch', 'queue-not-empty', 'served-asset-mismatch',
-  'native-pause-property', 'native-gap-property', 'native-rendering-property', 'native-frame-property', 'M-nodes-property']);
+  'native-pause-property', 'native-gap-property', 'native-rendering-property', 'native-frame-property', 'M-nodes-property',
+  'host-graph-not-ready', 'host-root-graph-missing', 'host-active-graph-mismatch', 'host-canvas-graph-mismatch', 'host-workflow-missing',
+  'host-workflow-mode-missing', 'host-workflow-mode-not-graph', 'host-creative-view-inactive', 'host-subgraph-active',
+  'native-pause-not-writable', 'native-pause-not-false', 'native-gap-not-finite', 'native-gap-not-zero', 'native-rendering-not-true',
+  'native-frame-not-finite', 'native-frame-negative', 'native-dirty-method-missing', 'identity-lost', 'native-loop-changed']);
 const PROPERTY_REASONS = Object.freeze({pause_rendering: 'native-pause-property', _maximumFrameGap: 'native-gap-property', is_rendering: 'native-rendering-property', frame: 'native-frame-property', _nodes: 'M-nodes-property'});
 function failure(reason) {
   const safe = FAILURE_REASONS.has(reason) ? reason : 'unexpected-error', error = Error(safe);
@@ -119,13 +123,27 @@ async function runtimeProof(window, registration, signal) {
 
 function capture(document, window, app, fixture) {
   const canvas = app.canvas, graph = app.rootGraph, workflow = app.extensionManager?.workflow?.activeWorkflow, view = app.daelabCreativeCanvas;
-  if (app.isGraphReady !== true || !graph || app.graph !== graph || canvas?.graph !== graph || !workflow || !('activeMode' in workflow) ||
-      (workflow.activeMode ?? workflow.initialMode ?? 'graph') !== 'graph' || !view?.active || canvas.subgraph) fail('host-qualification');
+  if (app.isGraphReady !== true) fail('host-graph-not-ready');
+  if (!graph) fail('host-root-graph-missing');
+  if (app.graph !== graph) fail('host-active-graph-mismatch');
+  if (canvas?.graph !== graph) fail('host-canvas-graph-mismatch');
+  if (!workflow) fail('host-workflow-missing');
+  if (!('activeMode' in workflow)) fail('host-workflow-mode-missing');
+  if ((workflow.activeMode ?? workflow.initialMode ?? 'graph') !== 'graph') fail('host-workflow-mode-not-graph');
+  if (!view?.active) fail('host-creative-view-inactive');
+  if (canvas.subgraph) fail('host-subgraph-active');
   const root = one(document, '.dae-creative'), native = one(document, '#graph-canvas');
   if (view.root !== root || canvas.canvas !== native || !root.isConnected || root.hidden || !native.isConnected ||
       document.visibilityState !== 'visible' || document.body.dataset.daelabCreative !== 'true' || native.width <= 0 || native.height <= 0 || window.getComputedStyle(native).visibility !== 'hidden') fail('covered-canvas-required');
   const pause = data(canvas, 'pause_rendering'), gap = data(canvas, '_maximumFrameGap'), rendering = data(canvas, 'is_rendering'), frame = data(canvas, 'frame');
-  if (!pause.writable || pause.value !== false || !finite(gap.value) || gap.value !== 0 || rendering.value !== true || !finite(frame.value) || frame.value < 0 || typeof canvas.setDirty !== 'function') fail('native-loop-qualification');
+  if (!pause.writable) fail('native-pause-not-writable');
+  if (pause.value !== false) fail('native-pause-not-false');
+  if (!finite(gap.value)) fail('native-gap-not-finite');
+  if (gap.value !== 0) fail('native-gap-not-zero');
+  if (rendering.value !== true) fail('native-rendering-not-true');
+  if (!finite(frame.value)) fail('native-frame-not-finite');
+  if (frame.value < 0) fail('native-frame-negative');
+  if (typeof canvas.setDirty !== 'function') fail('native-dirty-method-missing');
   const nodes = data(graph, '_nodes').value;
   if (!Array.isArray(nodes) || nodes.length !== 300 || nodes.some((node, i) => String(node.id) !== fixture.nodes[i].id || node.type !== fixture.nodes[i].type)) fail('M-node-projection');
   const links = graph.links instanceof Map ? [...graph.links.values()] : Object.values(graph.links || {});
@@ -146,7 +164,7 @@ function capture(document, window, app, fixture) {
     if (editor.parentElement !== cell || editor.textContent !== spec.initial || editor.getAttribute('contenteditable') === 'true') fail('M-initial-value');
     return {card, table, cell, editor};
   });
-  return {canvas, graph, workflow, view, root, native, pause, gap, rendering, frame: frame.value, targets, dirtyMethod: canvas.setDirty};
+  return {canvas, graph, workflow, view, root, native, pause, gap, rendering, frame: frame.value, frameDescriptor: frame, targets, dirtyMethod: canvas.setDirty};
 }
 
 const leases = new WeakSet();
@@ -160,6 +178,7 @@ const descriptorSame = (before, after) => !!after && 'value' in after && ['writa
 export function createNativeCanvasPauseDiagnostic({document, window, app, registration, onChange = () => {}, maxDurationMs = 180000} = {}) {
   if (!Number.isSafeInteger(maxDurationMs) || maxDurationMs < 1 || maxDurationMs > 180000) fail('invalid-duration');
   let active = null, pending = null, disposed = false, finishing = false, cleanupIncomplete = false, epoch = 0, lastFinish = Promise.resolve(false);
+  let recoveryOwner = null, recoveryCheck = null;
   const runs = [], listeners = [], tokens = new WeakMap(); let nextToken = 0;
   const token = object => {if (!tokens.has(object)) tokens.set(object, ++nextToken); return tokens.get(object);};
   const now = () => window.performance.now();
@@ -191,8 +210,86 @@ export function createNativeCanvasPauseDiagnostic({document, window, app, regist
       state.record.postQueue = {empty: false, status: 'not-proven-empty'}; state.record.controlled = false; return false;
     }).finally(() => {window.clearTimeout(timer); notify();});
   }
+  const canCheckRecovery = () => !disposed && !active && !pending && !finishing && !cleanupIncomplete && !recoveryCheck && !!recoveryOwner &&
+    recoveryOwner.record.controlled === true && recoveryOwner.record.cleanup?.complete === true && recoveryOwner.record.postQueue?.empty === true;
+  function finishRecovery(reason = null, expected = recoveryCheck) {
+    const state = recoveryCheck;
+    if (!state || state !== expected || state.done) return;
+    state.done = true; state.record.endedAt = now();
+    if (reason === null && state.record.endedAt - state.record.startedAt >= 1000) reason = 'deadline';
+    cleanup(state);
+    for (const [key, name] of [['raf', 'raf'], ['timer', 'timer'], ['observer', 'observer']]) if (!state.record.cleanup.failedResources.includes(name)) state[key] = null;
+    const passed = reason === null && state.record.cleanup.complete;
+    state.record.status = passed ? 'observed' : 'not-proven';
+    state.record.reason = reason ?? (passed ? null : 'cleanup-incomplete');
+    state.run.recoveryFrameObserved = passed;
+    state.owner = null; // Never keep a completed checkpoint's captured object alive.
+    if (state.record.cleanup.complete) recoveryCheck = null;
+    state.resolve(passed); notify();
+  }
+  function invalidateRecovery() {
+    recoveryOwner = null;
+    finishRecovery('cancelled');
+  }
+  function recoveryFrame(owner) {
+    if (!isCurrent(owner)) fail('identity-lost');
+    const pause = data(owner.canvas, 'pause_rendering'), gap = data(owner.canvas, '_maximumFrameGap'), rendering = data(owner.canvas, 'is_rendering'), current = data(owner.canvas, 'frame');
+    if (!descriptorSame(owner.pause, pause) || pause.value !== false || !descriptorSame(owner.gap, gap) || gap.value !== 0 ||
+        !descriptorSame(owner.rendering, rendering) || rendering.value !== true || !descriptorSame(owner.frameDescriptor, current) || !finite(current.value) || current.value < 0) fail('native-loop-changed');
+    return current.value;
+  }
+  function checkRecovery(event) {
+    if (event?.isTrusted !== true || !canCheckRecovery()) return Promise.resolve(false);
+    const captured = recoveryOwner, run = captured.record; recoveryOwner = null;
+    const record = {status: 'pending', reason: null, scope: 'captured-counter-window-only', canvasIdentity: run.identities.canvas,
+      startedAt: now(), endedAt: null, frameBefore: null, frameAfter: null, cleanup: null};
+    run.recoveryCheckpoint = record;
+    return new Promise(resolve => {
+      let owner;
+      const state = {run, record, resolve, done: false, raf: null, timer: null, observer: null}; recoveryCheck = state;
+      const finish = reason => finishRecovery(reason, state);
+      const sample = () => {
+        if (state.done || recoveryCheck !== state) return;
+        try {
+          if (now() - record.startedAt >= 1000) {finish('deadline'); return;}
+          const value = recoveryFrame(owner);
+          if (state.done || recoveryCheck !== state) return;
+          const finalSample = ++state.frames >= 2;
+          if (finalSample) record.frameAfter = value;
+          if (now() - record.startedAt >= 1000) {finish('deadline'); return;}
+          if (!finalSample) state.raf = window.requestAnimationFrame(sample);
+          else finish(value > record.frameBefore ? null : 'frame-not-advanced');
+        } catch (error) {finish(admissionFailures.get(error) ?? 'unexpected-error');}
+      };
+      try {
+        owner = {...captured.descriptors, ...Object.fromEntries(Object.entries(captured.refs).map(([key, ref]) => [key, ref.deref()]))};
+        if (Object.keys(captured.refs).some(key => !owner[key])) {finish('captured-owner-unavailable'); return;}
+        state.owner = owner;
+        // Resources exist only inside this explicitly requested, bounded window.
+        for (const [target, type] of [[owner.root, 'dae-canvas-hide'], [owner.native, 'litegraph:set-graph'], [owner.native, 'subgraph-opening'], [window, 'pagehide'], [document, 'visibilitychange']]) {
+          listen(target, type, () => finish('lifecycle-change'));
+          if (state.done || recoveryCheck !== state) return;
+        }
+        state.observer = new window.MutationObserver(records => {
+          if (state.done || recoveryCheck !== state) return;
+          try {
+            const removed = records.some(item => [...(item.removedNodes || [])].some(node => node === owner.root || node === owner.native || node.contains?.(owner.root) || node.contains?.(owner.native)));
+            if (removed || !isCurrent(owner)) finish('identity-lost');
+          } catch (error) {finish(admissionFailures.get(error) ?? 'unexpected-error');}
+        });
+        state.observer.observe(owner.root.parentNode || document.body, {childList: true});
+        if (state.done || recoveryCheck !== state) return;
+        state.observer.observe(owner.native.parentNode || document.body, {childList: true});
+        if (state.done || recoveryCheck !== state) return;
+        record.frameBefore = recoveryFrame(owner); state.frames = 0;
+        if (state.done || recoveryCheck !== state) return;
+        state.timer = window.setTimeout(() => finish('deadline'), 1000);
+        state.raf = window.requestAnimationFrame(sample); notify();
+      } catch (error) {finish(admissionFailures.get(error) ?? 'unexpected-error');}
+    });
+  }
   function stop(reason = 'operator-restore') {
-    epoch++; cancelPending();
+    epoch++; invalidateRecovery(); cancelPending();
     if (!active) {notify(); return lastFinish;}
     const state = active; active = null;
     const {owner, record} = state;
@@ -217,7 +314,14 @@ export function createNativeCanvasPauseDiagnostic({document, window, app, regist
     finally {
       cleanup(state); leases.delete(owner.canvas);
     }
-    record.recoveryFrameObserved = false; // A later external check is still required.
+    record.recoveryFrameObserved = false;
+    if (record.controlled && record.cleanup.complete && record.restore.flag === (state.wrotePause ? 'restored' : 'not-written')) {
+      try {
+        // Waiting for a click has no listener/timer and retains no graph/DOM strongly.
+        recoveryOwner = {record, refs: Object.fromEntries(['canvas', 'graph', 'workflow', 'view', 'root', 'native'].map(key => [key, new WeakRef(owner[key])])),
+          descriptors: {pause: owner.pause, gap: owner.gap, rendering: owner.rendering, frameDescriptor: owner.frameDescriptor}};
+      } catch {record.recoveryCheckpoint = {status: 'not-proven', reason: 'captured-owner-unavailable'};}
+    }
     finishing = true; lastFinish = stoppedQueue(state, record.stopReason).finally(() => {finishing = false;}); notify(); return lastFinish;
   }
   function guard() {
@@ -243,6 +347,7 @@ export function createNativeCanvasPauseDiagnostic({document, window, app, regist
   }
   async function start(event, {fixture, mode, explicit = false} = {}) {
     if (disposed || active || pending || finishing || cleanupIncomplete || runs.length >= 12 || event?.isTrusted !== true || explicit !== true || !proofs.has(fixture) || !MODES.has(mode)) return false;
+    invalidateRecovery(); if (cleanupIncomplete) return false;
     const ownEpoch = ++epoch, abort = new AbortController();
     const record = {mode, startedAt: now(), armedAt: null, stoppedAt: null, stopReason: null, productAcceptance: false, controlled: false,
       fixtureSHA256: fixture.sha256, originalMProjectionOnly: true, restore: null, postQueue: null};
@@ -294,8 +399,8 @@ export function createNativeCanvasPauseDiagnostic({document, window, app, regist
       notify(); return false;
     }
   }
-  return {start, stop, beforeLoadGraph() {return stop('before-load');}, destroy() {disposed = true; return stop('disposed');}, get active() {return !!active;},
-    resources: () => ({listeners: listeners.length, observers: active?.observer || pending?.observer ? 1 : 0, raf: active?.raf != null ? 1 : 0, timer: active?.timer != null ? 1 : 0, ...(cleanupIncomplete ? {cleanupIncomplete: true} : {})}),
+  return {start, stop, checkRecovery, get canCheckRecovery() {return canCheckRecovery();}, beforeLoadGraph() {return stop('before-load');}, destroy() {disposed = true; return stop('disposed');}, get active() {return !!active;},
+    resources: () => ({listeners: listeners.length, observers: active?.observer || pending?.observer || recoveryCheck?.observer ? 1 : 0, raf: active?.raf != null || recoveryCheck?.raf != null ? 1 : 0, timer: active?.timer != null || recoveryCheck?.timer != null ? 1 : 0, ...(cleanupIncomplete ? {cleanupIncomplete: true} : {})}),
     report: () => copy({schemaVersion: 1, kind: 'active-native-loop-pause-diagnostic', productAcceptance: false, formalBudgetEvaluated: false,
       maxDurationMs, runs, limitations: ['External fixed receipt/manifest review owns PID, birth, disk and root isolation; the browser cannot authenticate an arbitrary receipt hash.',
         'HTTP proves current server responses, not already-cached module bytes. Queue evidence is before/after, not continuous.',
@@ -304,7 +409,8 @@ export function createNativeCanvasPauseDiagnostic({document, window, app, regist
         'Pause suppresses native loop draw including layout/widgets/previews; direct draw bypasses it. Native history/input and the existing render scheduling chain continue.',
         'Identity rAF is a later guard, not an atomic barrier to unapproved concurrent changes. Same guard runs in baseline/paused/restored.',
         'The duration limit is a JavaScript timer; main-thread blockage, page suspension or process failure can delay/prevent callbacks. It is not a wall-clock restoration guarantee.',
-        'Mode/native-frame recovery and saved/reopened data remain external acceptance. An arm is not100ms or product acceptance.']})};
+        'A recovery checkpoint observes only the captured counter advancing in its explicit window, not continuous identity since Stop, immediate restoration, automatic-loop origin or visible pixels. Only weak captured identities remain between Stop and click; no listener/timer monitors that interval.',
+        'The checkpoint deadline uses JavaScript scheduling, not a hard wall-clock guarantee during suspension. Mode/visible recovery and saved/reopened data remain external acceptance. An arm is not100ms or product acceptance.']})};
 }
 
 /** A reviewed fresh-host loader must call this explicitly with fixed pins.
@@ -322,10 +428,11 @@ export function mountNativeCanvasPauseDiagnostic(document, window, {registration
   const label = make('label', '', panel), enabled = make('input', '', label); enabled.type = 'checkbox'; make('span', '已核对外部固定准入，明确同意临时改变原生渲染', label);
   const controls = make('div', '', panel), buttons = new Map();
   for (const [mode, text] of [['baseline', '启用基线守卫'], ['paused', '启用原生暂停'], ['restored', '启用恢复后对照']]) {const button = make('button', text, controls); button.type = 'button'; buttons.set(mode, button);}
-  const restore = make('button', '立即恢复', controls), download = make('button', '下载干预记录', controls), status = make('output', '未启用；无宿主监听或暂停', panel);
-  restore.type = download.type = 'button'; restore.disabled = true;
+  const restore = make('button', '立即恢复', controls), recovery = make('button', '检查恢复计数器', controls), download = make('button', '下载干预记录', controls), status = make('output', '未启用；无宿主监听或暂停', panel);
+  restore.type = recovery.type = download.type = 'button'; restore.disabled = recovery.disabled = true;
+  make('p', '恢复并完成队列核验后，可显式检查捕获旧实例的计数器在两帧窗口内是否前进。这不证明即时恢复、自动循环来源或可见画面；检查默认关闭。', panel);
   let controller = null, selected = null, disposed = false, loading = false, revision = 0;
-  const update = () => {for (const button of buttons.values()) button.disabled = loading || !!controller?.active; restore.disabled = !loading && !controller?.active; picker.disabled = enabled.disabled = loading || !!controller?.active;};
+  const update = () => {for (const button of buttons.values()) button.disabled = loading || !!controller?.active; restore.disabled = !loading && !controller?.active; recovery.disabled = loading || !controller?.canCheckRecovery; picker.disabled = enabled.disabled = loading || !!controller?.active;};
   picker.onchange = async event => {
     if (disposed || event?.isTrusted !== true || loading || controller?.active) return;
     const own = ++revision; selected = null;
@@ -343,7 +450,13 @@ export function mountNativeCanvasPauseDiagnostic(document, window, {registration
     } catch {if (!disposed) status.textContent = '拒绝：固定准入不可用';}
     finally {loading = false; update();}
   };
-  restore.onclick = async event => {if (disposed || event?.isTrusted !== true) return; revision++; loading = false; await controller?.stop(); status.textContent = '已请求恢复；下载并检查恢复、队列及外部原生帧回升证据'; update();};
+  restore.onclick = async event => {if (disposed || event?.isTrusted !== true) return; revision++; loading = false; await controller?.stop(); if (!disposed) status.textContent = '已请求恢复；检查队列结案后，可显式检查恢复计数器'; update();};
+  recovery.onclick = async event => {
+    if (disposed || loading || event?.isTrusted !== true || !controller?.canCheckRecovery) return;
+    const own = ++revision; loading = true; update();
+    try {const observed = await controller.checkRecovery(event); if (!disposed && revision === own) status.textContent = observed ? '捕获旧实例的计数器在本检查窗口内前进；不是可见恢复或产品验收' : '恢复计数器未获证明；下载并保留原因，不自动重试';}
+    finally {if (!disposed && revision === own) {loading = false; update();}}
+  };
   download.onclick = event => {
     if (disposed || loading || controller?.active || event?.isTrusted !== true || !controller) return;
     const url = window.URL.createObjectURL(new Blob([JSON.stringify(controller.report())], {type: 'application/json'}));
@@ -351,5 +464,5 @@ export function mountNativeCanvasPauseDiagnostic(document, window, {registration
     finally {window.URL.revokeObjectURL(url);}
   };
   return {report: () => controller?.report() ?? null, resources: () => controller?.resources() ?? {listeners: 0, observers: 0, raf: 0, timer: 0},
-    destroy() {if (disposed) return; disposed = true; revision++; void controller?.destroy(); picker.onchange = restore.onclick = download.onclick = null; for (const button of buttons.values()) button.onclick = null; panel.remove();}};
+    destroy() {if (disposed) return; disposed = true; revision++; void controller?.destroy(); picker.onchange = restore.onclick = recovery.onclick = download.onclick = null; for (const button of buttons.values()) button.onclick = null; panel.remove();}};
 }
