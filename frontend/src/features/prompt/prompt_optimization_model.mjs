@@ -50,6 +50,33 @@ export function prepareWorkflowIdentity(data){
 const editable=(table,f)=>f&&!f.readonly&&isTextColumn(table,f);
 const safeLabel=text=>String(text||'引用').replace(/(?:https?:\/\/|file:\/\/|[A-Z]:[\\/])\S+/gi,'[位置已隐藏]');
 
+// Only the fixed primitive-string stamp fragment is shared within one observe
+// call. Every target still runs the inspector, and every later pass starts empty.
+const observationContentKeys=new Set(['field','hasOverride','overridePresent','original','template','dependencies','configs','purpose']);
+const observationFieldKeys=new Set(['id','type','presentation','readonly']);
+const emptyObservationArray=value=>Array.isArray(value)&&Object.getPrototypeOf(value)===Array.prototype&&Reflect.ownKeys(value).length===1&&value.length===0;
+function observationStamp(content,field,pass){
+ if(!pass)return canonical(content);
+ let entry=pass.get(field);
+ if(!entry){
+  let safe=false;
+  try{const prototype=Object.getPrototypeOf(field);safe=(prototype===Object.prototype||prototype===null)&&!('toJSON' in field)&&Object.values(Object.getOwnPropertyDescriptors(field)).every(d=>'value' in d);}catch{}
+  entry={safe,signature:null,prefix:null};pass.set(field,entry);
+ }
+ const f=content.field,keys=Object.keys(content),fieldKeys=Object.keys(f);
+ if(!entry.safe||keys.length!==8||!keys.every(key=>observationContentKeys.has(key))||
+    typeof content.original!=='string'||content.template!==null||content.purpose!=='general'||
+    typeof content.hasOverride!=='boolean'||typeof content.overridePresent!=='boolean'||
+    !emptyObservationArray(content.dependencies)||!emptyObservationArray(content.configs)||
+    fieldKeys.length!==4||!fieldKeys.every(key=>observationFieldKeys.has(key))||typeof f.id!=='string'||typeof f.type!=='string'||
+    !(f.presentation===undefined||typeof f.presentation==='string')||typeof f.readonly!=='boolean')return canonical(content);
+ const previous=entry.signature;
+ if(!previous||previous.id!==f.id||previous.type!==f.type||previous.presentation!==f.presentation||previous.readonly!==f.readonly){
+  entry.signature={...f};entry.prefix='{"configs":[],"dependencies":[],"field":'+canonical(f)+',"hasOverride":';
+ }
+ return entry.prefix+content.hasOverride+',"original":'+JSON.stringify(content.original)+',"overridePresent":'+content.overridePresent+',"purpose":"general","template":null}';
+}
+
 /** Read only. Keep editable text separate from protected structural anchors. */
 export function inspectTarget(table,recordId,fieldId,known={}){
  const field=known.field||table.fields.find(f=>f.id===fieldId),row=known.row||table.records.find(r=>r.id===recordId);
@@ -58,7 +85,7 @@ export function inspectTarget(table,recordId,fieldId,known={}){
 }
 // Only callers that just checked this table's field eligibility enter here.
 // Content/reference validation and stamps still run for every target.
-function inspectEditableTarget(table,fieldId,row,field){
+function inspectEditableTarget(table,fieldId,row,field,pass){
  const original=effectivePrompt(table,row,fieldId);
  if(original==null||original==='')throw new Error('提示词为空');
  if(typeof original==='string'){if(!original.trim())throw new Error('提示词为空');}
@@ -92,7 +119,7 @@ function inspectEditableTarget(table,fieldId,row,field){
  // Primitive text is immutable and its text segment array was created above
  // for this call. Structured prompts still need both independent snapshots.
  const plainText=typeof original==='string';
- return {original:plainText?original:copy(original),segments:plainText?segments:copy(segments),anchors,content,stamp:canonical(content),purpose};
+ return {original:plainText?original:copy(original),segments:plainText?segments:copy(segments),anchors,content,stamp:observationStamp(content,field,pass),purpose};
 }
 
 /** Registry lives outside table and native history. Saved counters are only lower bounds. */
@@ -106,17 +133,17 @@ export class OptimizationRevisions{
   if(!row||!editable(table,field)){if(old&&old.stamp!=='deleted')this.entries.set(key,{...old,stamp:'deleted',revision:old.revision+1});return this.read(r,f);}
   return this.#observeEditableTarget(table,r,f,row,field);
  }
- #observeEditableTarget(table,r,f,row,field){
+ #observeEditableTarget(table,r,f,row,field,pass){
   const key=this.key(r,f),old=this.entries.get(key);let stamp;
-  try{stamp=inspectEditableTarget(table,f,row,field).stamp;}catch(e){stamp='invalid:'+e.message;}
+  try{stamp=inspectEditableTarget(table,f,row,field,pass).stamp;}catch(e){stamp='invalid:'+e.message;}
   if(!old||old.stamp!==stamp)this.entries.set(key,{stamp,revision:(old?.revision||0)+1,requestSeq:old?.requestSeq||0});
   return this.entries.get(key);
  }
  observe(table){
   // Eligibility depends on all rows for content columns. Reuse only within this
   // synchronous pass; the next observation rechecks the current table in full.
-  const live=new Set(),fields=table.fields.filter(f=>editable(table,f));for(const row of table.records)for(const field of fields){
-   live.add(this.key(row.id,field.id));this.#observeEditableTarget(table,row.id,field.id,row,field);
+  const live=new Set(),fields=table.fields.filter(f=>editable(table,f)),pass=new Map();for(const row of table.records)for(const field of fields){
+   live.add(this.key(row.id,field.id));this.#observeEditableTarget(table,row.id,field.id,row,field,pass);
   }
   for(const [key,old] of this.entries)if(!live.has(key)&&old.stamp!=='deleted')this.entries.set(key,{...old,stamp:'deleted',revision:old.revision+1});
  }

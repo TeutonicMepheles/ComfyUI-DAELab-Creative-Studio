@@ -514,7 +514,7 @@
       "source": "web/prompt_optimization_model.mjs",
       "destination": "frontend/src/features/prompt/prompt_optimization_model.mjs",
       "sourceSha256": "44fcd380d73784d2942bed1cb85284f6bacf18f28ec3ffeafb197c5de94b26e3",
-      "destinationSha256": "9d3e0078f9d07e1ad1f130123844fc2a8e4462bea870bc6f2d67dbd26ba72b46",
+      "destinationSha256": "a9e832a1b6cf76df68f4e8d9620c371eb69adb4e85fcc3f4a755158f463004ad",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -2002,6 +2002,17 @@
       "kind": "authored-contract-or-integration",
       "changes": [
         "Authored real binding/controller/native-history integration regressions with a modeled host tracker: navigation-only grouping, undo/redo, two instances, unknown/known business revision breaks, null prototypes/descriptors, aliases, malformed fallback, serialization errors and stale/disposed ownership. Does not prove real host timing or the observed first-split cause."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "tests/migrated_business/prompt_optimization_observe_pass_local.test.mjs",
+      "destinationSha256": "38df86948c50cde6aafbef4d2d16c590b761d436ab2c3ce5478155e9a279ae13",
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "Authored exact-output regressions against the fixed a0fb1d9 model oracle: all 5000 targets, per-pass field encoding count, revisions/request sequencing/ABA/deletion, mixed templates/references/configs/invalid content, public uncached calls, accessor/nonplain fallback and field changes during a pass. Mechanism counts do not establish actual UI latency improvement."
       ]
     }
   ],

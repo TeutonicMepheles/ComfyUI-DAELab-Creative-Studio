@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "590a1e7c5b9d3294c2b704df521672eecf646f8eb1307625c8e1c42169cabb97",
+  "sourceFingerprint": "04480fa95508dd5f462fbd600a6c119d16025e9ad66da0df7b4fcfebb9793948",
   "files": [
     {
       "path": "application/asset_library_service.js",
@@ -492,7 +492,7 @@
     },
     {
       "path": "features/prompt/prompt_optimization_model.mjs",
-      "sha256": "9d3e0078f9d07e1ad1f130123844fc2a8e4462bea870bc6f2d67dbd26ba72b46"
+      "sha256": "a9e832a1b6cf76df68f4e8d9620c371eb69adb4e85fcc3f4a755158f463004ad"
     },
     {
       "path": "features/prompt/prompt_optimization_panel.mjs",
@@ -824,7 +824,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "4af84fc1d083768b5a93f9adecb64129c7dc7fc29bb31c0006bcac337df36c6e"
+      "sha256": "091cd576d7c37fd19f1ee1296bb5a3f54b6ce64ecc06536429319618404e0efb"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

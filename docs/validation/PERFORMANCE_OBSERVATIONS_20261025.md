@@ -1479,9 +1479,63 @@ zoom100派生文件的原始字节身份与底层四节点夹具SHA`2eabe9d8…`
 首红8通过/4失败保留，最终13新增及相关测试30/30、定向严格检查通过。实现只有一次stringify和四层descriptor浅拷贝，没有整图parse/深拷贝或新缓存；宿主全图serialize开销仍在。
 这不能证明首次分组由导航引起，原raw未记录比较stamp；Table A派生revision也是候选干扰因素。实际窄视口失败仍未关闭。
 独审通过后一次完整检查exit0，冻结输入在运行中未变；主测试299通过/3跳过、业务456通过，144模块/214产物。
-构建`590a1e7c5b9d3294c2b704df521672eecf646f8eb1307625c8e1c42169cabb97`，完整日志SHA`7a2496f3ef7676d54bbd7ef7795825a113bed26b069019532432ae3ed31f9498`；构建完成尚不等于部署或实际复验。
+构建`590a1e7c5b9d3294c2b704df521672eecf646f8eb1307625c8e1c42169cabb97`，完整日志SHA`7a2496f3ef7676d54bbd7ef7795825a113bed26b069019532432ae3ed31f9498`；该次构建记录不代表部署或实际复验，后续部署与诊断见下一节。
 
 旧07c方法诊断计划保留原M、九个方法边界与P/z/O/y四键；当前页实际997×561/DPR1.925，不用于100ms正式验收。
 在原页reload后读取状态超时，独立恢复页同样超时；恢复页可取得截图，四实例8250页仍可读取，因此不把工具超时直接归因为产品耗时或服务故障。
 原生打开M、Start及四键均未执行，raw尚未产生；控制失败记录和恢复图保留于`M-input-replace-stages-07c934-dpr-diagnostic-*`。
 既有失败、真实IME、正式1920×1080/DPR1性能门槛、本地推理0/44和M6不发布要求继续保留。
+
+### 590a部署与有限诊断
+
+固定提交`a0fb1d9c39c1de6dab00a17d59dd04d14c6d59be`已分别部署8250与8237，均为上述590a构建；521产品文件包SHA`5ff2f57cb6db771ab33e88a42bee90edf93d9ef288cbc3d1ee128cadd5d36794`逐字核对。
+8250使用四文件history v3夹具`c02f57c4…`；8237保留19文件`3663…`、semantic `834d…`与method `5278…`，不能混用两宿主的观测合同。
+进程出生时间/父子关系、CPU/offline完整参数、listener、marker与关键served字节经只读独审核对，queue0仅为点时状态；没有从这些检查推导浏览器缓存字节或持续空闲。
+8250运行时报告SHA`038d65bda5cab22a5283e25f38bdc7ab5c717e7eb421000e3d62b6dd7096bb8f`；8237报告SHA`955adbd15520c7c3be22e181b8272413108244228614c18cf76459d9be6af553`。干净8247仍为07c。
+
+LLM诊断冻结53份原件，分别在731×411/DPR2.625与1097×617/DPR1.75对A/B执行真实输入、Undo→Redo→Undo。
+四轮均观察到输入期间新增一条undo队列项，首次Undo回到原文并有超过10秒的稳定DOM/raw支持，Redo恢复完整后缀，最终Undo再回原文；另一LLM的导出投影保持。
+这是采样历史状态推断，不是原生事务调用次数证明。首轮初始undo/redo为0/0，后三轮为0/1，与旧457的初态不同，不能当作受控因果比较或擦除旧首次残留空格失败。
+四轮都有可取消的可信beforeinput historyUndo，未导出input historyUndo；phase1的微任务defaultPrevented读数不能证明target取消无效或确切保护调用次数。
+B在Start前发生filechooser超时，恢复后才开始该轮输入；首次控制失败及前一轮已停止的计数保留，不称整套协议无偏差。
+
+原生保存`05-saved-native.json`为18859字节，SHA`f127573e1597e1e97ef65323636cc9cf89b49812ee721a3dcada99cd34f6ce93`，与此前457保存件逐字相同。
+相对实际打开的zoom100派生输入`65ae4671…`，四节点widgets_values、inputs/outputs、两连线及documentId精确保留；完整JSON仅四叶不同：viewport x/y与Table A旧优化revision1→2及stamp补入已存在的SAVE-F6-A。
+这两项业务元数据不属于导航，不能称全部properties相同或判定其更新时间/分组因果。原生重开后四owner、两路原文/要求与保存前端点相符、标题clean；重开DOM没有完整投影所有表格行值。
+五张原图均实际查看；窄图及部分较大图的正文被观察器、提示条或资产入口遮挡，不能用图替代完整DOM文字、焦点/溢出或正式三视口验收。底层夹具`2eabe9d8…`也不是实际派生输入的字节哈希。
+独审`.local/validation/llm-history-590a-first-independent-review/review.json` SHA`6174540589b4dec79f6ed1429b1c0e2511cb7a262fdb1a2bc5d18f24c03604bc`；53件清单SHA`45155b77f6da720a5d589403a332daab88e0283d4482f728a2af6ceda9f1c3bd`，全部归档成员逐字核对。
+
+M四键方法诊断使用原79ecd夹具、两格各45字初值，P/z/O/y顺序；最初误用41a8保存O/y条件的pending计划已拒绝并保留，实际按v2计划执行。
+实际1132×638/DPR2.8875，四样本complete、九个边界安装/恢复均精确；dwell为601/604/612/614ms。可见性端点不代表连续前台，工具capability readback为null，六个面板收起也不能独立证明全部观察器停止。
+四个replace包含区间为84.5/82.1/91.9/82.1ms，observe为23.4/20.9/25.1/21.3ms，history区间并集40.5/40.9/43.9/39.6ms，graph.serialize区间并集31.4/31.6/34.5/30.4ms。
+这些区间嵌套在replace中，不相加、不相减成CPU/self time，也不是输入到下一帧或100ms预算结果。DocumentController.edit、history.amend及两个widget序列化边界均为已安装但没有记录到调用，耗时为null，不能当成产品零成本。
+prototype receiver仅关联本次dispatch，不能独立证明具体业务owner；身份检查和观察器扰动未扣除，已有缓存模块字节也未由raw独立证明。
+五项Start前设置失败、暖机/等待的长间隔及后续SaveAs控制超时均保留；无输入区间没有方法样本不能当作后台CPU基线，没有在Start后补发测试键。
+
+M的原生SaveAs副本为2400204字节，SHA`83759b4c61a24d15dfea693296fa52740851b932b5005657f1e991dde8d2c7a3`；10000表格值仅两格由45字改为O/y、9998不变，300节点和400连线保留，本轮明确未重开。
+完整比较共有972条序列化路径差异，含默认元数据、尺寸/order及两Table输入从table_data/source_table重排为source_table/table_data；原400连线没有涉及这两Table，links相同不证明其输入槽连线兼容。
+该保存件与旧41a8结果逐字相同，不能将这些差异归因于590a；槽位细节另见独审的`native-serialization-details.json`，不把整个工作流表述为仅两格变化。
+SaveAs首次确认超时、标题短暂星号和后来clean读取分别留存。最终1132×638图已实际查看，可见50%画布，但正文很小且固定观察器覆盖内容，不能证明全部值、焦点或无溢出。
+独审交接`.local/validation/M-input-replace-stages-590a-dpr-independent-first/handoff.json` SHA`c77d5d401a049c1689e27d1e444ccde7eda6337da0cb54d534d36ea184e38fa4`；23件最终原件清单SHA`da73757a8e2f2b7ab34c6e1796d31a9ded6c2541383b4de1c22dae54fcf55c89`，原件未改。
+
+上述LLM四轮和M四键均为有限诊断，不替代正式五轮/1920×1080/DPR1或100ms结论。该时点的pass-local候选后续已完成下述构建，仍未部署，不改变固定590a证据。
+旧07c/457首次失败、41a8及更早正式FAILED、真实IME、本地推理0/44、M6未通过和不发布门禁全部保留。
+
+### pass-local候选完整检查：已构建，尚未部署
+
+构建`04480fa95508dd5f462fbd600a6c119d16025e9ad66da0df7b4fcfebb9793948`的一次完整检查exit0，期间登记输入未变：主测试299通过/3跳过、业务463通过，144模块/214产物。
+结果`.local/validation/prompt-optimization-observe-pass-local-fullcheck/result-first.json` SHA`7b0325d6d6448c45972691b2cb42e5ef18cbfade0be67df30d2762da8628afd8`；首日志SHA`c50100553d8169c1a8cd136d8c8fad2ced84100683fc74631384a01af6497760`，无自动重试。
+候选只在每次observe内部复用纯文本的固定字段canonical片段；仍完整观察5000目标，保持原stamp、revision/requestSeq、删除/ABA与公共inspect/current/begin校验，不作跨编辑缓存。
+原a0fb oracle首红的固定字段编码为5000次，候选同机制为10次；旧首红保留，独审7个新测试及7个补充边界检查通过，报告SHA`f76068f2caca94dd4960a7fab3ee9e8acae6db6c0486e75f8fd43bc1a2891d0a`。
+完整观察和额外shape/descriptor检查仍有成本，机制计数不证明毫秒收益；任意可变Proxy副作用不在已验证JSON数据边界内。尚未部署，8237/8250继续固定590a；没有新的正式100ms结论。
+
+### 590a的SER有限状态：连线Redo首失败保留
+
+当前原件位于`.local/performance-actual/prompt-table-serializer-590a-first/`；实际1097×617/DPR1.75，独立完整审查仍在进行。以下仅记已读取的操作/DOM与保存端点，不登记整套通过。
+SER02中Table A追加SER-590-A1，原生Undo→Redo→Undo和相应保存件呈现目标变化，Table B及另一路保持独立。
+SER03建立原生连线5（A output0→B input0）后，首次LLMB空输入记录14保留；17号计划纠正指出，旧7ff56cb的linked-selected合同只输出显式选中的来源行，初计划漏了选行前提，空输入本身未证明产品回归。
+随后显式选择B首行，LLMB仅显示A第一行；20号保存与21号原生重开端点保留该结果，19号readonly Enter后没有editor。补测不抹除首次空输入、打开控制失败或计划偏差。
+SER04显式断线后B仍保存A2缓存；A再追加A3时B不接收新live值。建立新连线6后，30号稳定端点及保存件取得当前A2+A3。
+SER05为保留当前历史而先测Undo/Redo再重开，顺序变化已写30号备注。首次Undo仅返回Graph模式且连线6仍在；第二次Undo移除6，随后Ctrl+S、一次原生Ctrl+Shift+Z及再次Ctrl+S后的33号保存仍没有6，34号首失败完整保留。
+该轮没有被动history observer，redo栈内容、调用次数及保存/模式切换的因果均未知，不能据此判定根因。35号重开未改的原夹具后两路值恢复，但标题仍带星号；这是恢复操作，不是SER05通过。
+此前所有失败、正式1920×1080/DPR1环境与100ms门槛、真实IME、本地推理0/44、M6未通过和不发布要求不变。
