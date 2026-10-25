@@ -67,6 +67,11 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
             if(!modes[next.mode]){if(modes.reverse)next.mode='reverse';else if(modes.polish)next.mode='polish';}
             try{if(JSON.stringify(next)!==JSON.stringify(saved())){if(nativeDocument)nativeDocument.replace(next,{derived:true});else Object.assign(saved(),next);}lastInput=inputKey;}catch(error){message=error.message;}
         }
+        // Native history can replace saved configuration without recreating this
+        // panel. Reconcile changed text only; ordinary input already persisted
+        // before this render, so equal values keep their caret/selection intact.
+        const savedInstruction=saved().instruction;
+        if(savedInstruction!=null)setProperty(instruction,'value',String(savedInstruction));
         for(const b of root.querySelectorAll('[data-mode]')){const selected=b.dataset.mode===saved().mode;setAttribute(b,'aria-pressed',String(selected));toggleAttribute(b,'data-primary',selected);}
         const mode=saved().mode||'polish',reverse=mode==='reverse',disabled=busy||!!node.mode;
         setProperty(sourceSection,'hidden',reverse);setProperty(imageSection,'hidden',!reverse);

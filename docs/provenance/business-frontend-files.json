@@ -372,7 +372,7 @@
       "source": "web/llm_io_panel.mjs",
       "destination": "frontend/src/features/prompt/llm_io_panel.mjs",
       "sourceSha256": "62133e0e28f809abcf5b59cca42eb091cce6cbc57749f88b01f6134c4171c89e",
-      "destinationSha256": "5a80b6090d10fd1877392523723ecf316144351170d34786c47f0e17489886be",
+      "destinationSha256": "2c79a58a7aebe0a40ea6f49df190588e9003a7a528cc751d763bc24bf73ee987",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -380,7 +380,8 @@
         "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
         "Native reactive JSON boundary: detach nested host proxies for document transactions and LLM load/proposal/apply; preserve all unknown JSON keys and identities, reject unsavable edits before history, and verify source-bound edit/recovery/undo with no submit. Real UI acceptance remains separate.",
-        "Guard repeated DOM writes against current control values while preserving every-render Slot validation, task/output publication, derived history and 500ms polling. Deterministic two-owner state regressions pass; actual UI/performance acceptance remains pending."
+        "Guard repeated DOM writes against current control values while preserving every-render Slot validation, task/output publication, derived history and 500ms polling. Deterministic two-owner state regressions pass; actual UI/performance acceptance remains pending.",
+        "Reconcile authoritative saved instruction changes after native history/external restore with value-guarded DOM assignment; preserve focused unchanged text, actual input listener ordering, linked/manual instruction restoration and both owners. First red regressions retained; actual host undo/redo display acceptance remains pending."
       ]
     },
     {

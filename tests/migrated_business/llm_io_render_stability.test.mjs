@@ -1,11 +1,21 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import ts from 'typescript';
 import {bindIOPanel} from '../../frontend/src/features/prompt/llm_io_panel.mjs';
 import {slotSignature} from '../../frontend/src/features/prompt/llm_slot_model.mjs';
 import {createBusinessDocument} from '../../frontend/src/application/business_document.js';
 import {bindBusinessService} from '../../frontend/src/contracts/business.js';
 
 const API=Symbol.for('DAELAB.CreativeCanvas.API.v1');
+// Execute the owning field factory/write closure to retain the actual input
+// listener registration order. Only surrounding DOM/host ports are injected.
+const panelSource=readFileSync(new URL('../../frontend/src/features/prompt/llm_style_preview_panel.mjs',import.meta.url),'utf8');
+const panelSyntax=ts.createSourceFile('llm_style_preview_panel.mjs',panelSource,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
+const editorFactories=[],writeClosures=[];
+function visitPanel(node){if(ts.isFunctionDeclaration(node)&&node.name?.text==='editor')editorFactories.push(node.getText(panelSyntax));if(ts.isVariableDeclaration(node)&&node.name.getText(panelSyntax)==='write')writeClosures.push(node.initializer.getText(panelSyntax));ts.forEachChild(node,visitPanel);}
+visitPanel(panelSyntax);assert.equal(editorFactories.length,1);assert.equal(writeClosures.length,1);
+
 // Count DOM write attempts (including equal assignments), not browser layout or
 // elapsed time. Normalized IDL defaults make guards compare actual DOM values.
 function environment(t){
@@ -41,7 +51,7 @@ function environment(t){
  }
  for(const property of ['hidden','disabled','readOnly','value','textContent','title','alt','src','className'])Object.defineProperty(Element.prototype,property,{
   get(){return this.values[property]??(['hidden','disabled','readOnly'].includes(property)?false:'');},
-  set(value){const normalized=['hidden','disabled','readOnly'].includes(property)?Boolean(value):(property==='textContent'&&value==null||property==='value'&&value===null)?'':String(value);writes.push({element:this,property,value:normalized});this.values[property]=normalized;if(property==='src')this.attributes.set('src',normalized);if(property==='textContent')this.children=[];},
+  set(value){const normalized=['hidden','disabled','readOnly'].includes(property)?Boolean(value):(property==='textContent'&&value==null||property==='value'&&value===null)?'':String(value);writes.push({element:this,property,value:normalized});this.values[property]=normalized;if(property==='value'){this.selectionStart=normalized.length;this.selectionEnd=normalized.length;}if(property==='src')this.attributes.set('src',normalized);if(property==='textContent')this.children=[];},
  });
  for(const [key,value] of [['document',{createElement:tag=>new Element(tag)}],['Option',class extends Element{constructor(text,value){super('option');this.textContent=text;this.value=value;}}],[API,{inputSnapshot(upstream){reads.set(upstream,(reads.get(upstream)||0)+1);return structuredClone(upstream.snapshot);}}]]){previous.set(key,globalThis[key]);globalThis[key]=value;}
  t.mock.method(globalThis,'setInterval',(callback,delay)=>{const timer={callback,delay,cleared:false};timers.push(timer);return timer;});
@@ -50,15 +60,21 @@ function environment(t){
  return {writes,reads,timers,Element,reset(){writes.length=0;},tick(){for(const timer of timers)if(!timer.cleared)timer.callback();}};
 }
 
-function panel(t,env,id,{proposal=false}={}){
+function panel(t,env,id,{proposal=false,nativeInstruction=false}={}){
  const {Element}=env,upstream={id:id*10,type:'TestSyntheticInput',snapshot:{version:1,texts:[`输入 ${id}`]}},outputs=[];
  const node={id,type:'DAELAB.LLMStylePreviewB',mode:0,inputs:[{link:1}],outputs:[{},{}],properties:{llmStylePreview:{version:1,mode:'polish',model:'qwen',instruction:'手动要求',unknown:{kept:id}}},setOutputData(slot,value){outputs.push([slot,value]);}};
  node.graph={id:`llm-dom-${id}`,links:{1:{origin_id:upstream.id,origin_slot:0}},getNodeById:()=>upstream,change(){}};
  const state=()=>node.properties.llmStylePreview;
  if(proposal)state().ioResult={version:1,requestId:`review-${id}`,provider:'qwen',complete:true,signature:slotSignature(node),rows:[{id:'input-1',text:`输入 ${id}`,result:`结果 ${id}`} ]};
- const history={begins:0,amends:0,undo:[]};let before;
- const nativeDocument=createBusinessDocument({read:state,write:value=>{node.properties.llmStylePreview=value;},current:()=>true,identity:()=>({workflowSession:`session-${id}`,epoch:0,documentId:`node-${id}`}),stamp:value=>[value.mode,value.model,value.instruction],historyStamp:()=>JSON.stringify(state()),history:{begin(){history.begins++;before=structuredClone(state());},end(){history.undo.push(before);},amend(fn){history.amends++;fn();},undo(){node.properties.llmStylePreview=history.undo.pop();},redo(){}}});
- const root=new Element(),source=new Element('textarea'),instruction=new Element('textarea'),select=new Element('select'),run=new Element('button'),result=new Element(),heading=new Element(),materialHint=new Element(),sourceSection=new Element();
+ const history={begins:0,amends:0,undo:[],redo:[]};let before;
+ const nativeDocument=createBusinessDocument({read:state,write:value=>{node.properties.llmStylePreview=value;},current:()=>true,identity:()=>({workflowSession:`session-${id}`,epoch:0,documentId:`node-${id}`}),stamp:value=>[value.mode,value.model,value.instruction],historyStamp:()=>JSON.stringify(state()),history:{begin(){history.begins++;before=structuredClone(state());},end(){history.undo.push(before);history.redo.length=0;},amend(fn){history.amends++;fn();},undo(){if(history.undo.length){history.redo.push(structuredClone(state()));node.properties.llmStylePreview=history.undo.pop();}},redo(){if(history.redo.length){history.undo.push(structuredClone(state()));node.properties.llmStylePreview=history.redo.pop();}}}});
+ const makeInstruction=()=>{
+  const write=new Function('nativeDocument','saved','node','return ('+writeClosures[0]+');')(nativeDocument,state,node);
+  const el=(tag,cls,text)=>{const e=new Element(tag);if(cls)e.className=cls;if(text)e.textContent=text;return e;};
+  const editor=new Function('el','saved','variant','write','fields','releases','sharedFields','return ('+editorFactories[0]+');')(el,state,{id:'B'},write,[],[],undefined);
+  return editor('处理要求','instruction','fallback','llm-style-instruction').input;
+ };
+ const root=new Element(),source=new Element('textarea'),instruction=nativeInstruction?makeInstruction():new Element('textarea'),select=new Element('select'),run=new Element('button'),result=new Element(),heading=new Element(),materialHint=new Element(),sourceSection=new Element();
  root.modes=['polish','reverse'].map(mode=>{const button=new Element('button');button.dataset.mode=mode;return button;});
  source.section=sourceSection;instruction.value=state().instruction;run.append(new Element('span'));result.queries={'.llm-style-result-head':heading};materialHint.parentElement=new Element();
  const release=bindIOPanel({node,nativeDocument,root,source,instruction,select,run,result,materialHint});
@@ -136,4 +152,54 @@ test('delayed service success and failure update busy/result/task states without
  submitted=waitRequest();const failing=b.run.emit('click');await submitted;resolveRequest(new Response(JSON.stringify({error:'确定性测试失败'}),{status:503}));await failing;
  assert.equal(b.run.disabled,false);assert.match(b.status.textContent,/确定性测试失败/);assert.equal(b.release.tasks()[0].state,'error');assert.equal(a.paragraph.textContent,'服务结果');
  env.reset();a.release.sync();b.release.sync();assert.equal(env.writes.length,0);
+});
+
+
+test('external instruction replacement and native undo/redo reconcile both panels without writing unchanged values',t=>{
+ const env=environment(t),a=panel(t,env,11),b=panel(t,env,12),beforeB=JSON.stringify(b.state());
+ a.nativeDocument.edit('external saved change',draft=>{draft.instruction='撤销前 A';});env.tick();
+ assert.equal(a.instruction.value,'撤销前 A');assert.equal(b.instruction.value,'手动要求');
+ a.nativeDocument.undo();env.tick();assert.equal(a.instruction.value,'手动要求');assert.equal(b.instruction.value,'手动要求');
+ a.nativeDocument.redo();env.tick();assert.equal(a.instruction.value,'撤销前 A');
+ b.nativeDocument.edit('external saved B',draft=>{draft.instruction='撤销前 B';});env.tick();assert.equal(b.instruction.value,'撤销前 B');assert.equal(a.instruction.value,'撤销前 A');
+ b.nativeDocument.undo();env.tick();assert.equal(b.instruction.value,'手动要求');assert.equal(JSON.stringify(b.state()),beforeB);
+ document.activeElement=a.instruction;a.instruction.selectionStart=2;a.instruction.selectionEnd=4;
+ env.reset();env.tick();env.tick();assert.equal(env.writes.length,0);assert.deepEqual([a.instruction.selectionStart,a.instruction.selectionEnd],[2,4]);
+ a.node.properties.llmStylePreview={...a.state(),instruction:'权威外部恢复'};env.tick();assert.equal(a.instruction.value,'权威外部恢复');
+ assert.deepEqual(a.state().unknown,{kept:11});assert.deepEqual(b.state().unknown,{kept:12});
+});
+
+test('owning field listener persists before render and keeps focused typing/caret while native history restores displayed values',async t=>{
+ const env=environment(t),a=panel(t,env,13,{nativeInstruction:true}),b=panel(t,env,14,{nativeInstruction:true});
+ for(const owner of [a,b]){
+  document.activeElement=owner.instruction;await owner.instruction.emit('focus');
+  for(const suffix of [' X',' XY']){
+   owner.instruction.value='手动要求'+suffix;owner.instruction.selectionStart=2;owner.instruction.selectionEnd=2;
+   env.reset();await owner.instruction.emit('input');
+   assert.equal(owner.state().instruction,'手动要求'+suffix,'write listener precedes synchronous render');
+   assert.equal(env.writes.filter(x=>x.element===owner.instruction&&x.property==='value').length,0,'typed value must not be reassigned');
+   assert.deepEqual([owner.instruction.selectionStart,owner.instruction.selectionEnd],[2,2]);
+   env.tick();assert.deepEqual([owner.instruction.selectionStart,owner.instruction.selectionEnd],[2,2]);
+  }
+  assert.equal(owner.history.begins,1);assert.equal(owner.history.amends,1);
+  await owner.instruction.emit('blur');document.activeElement=null;
+ }
+ assert.equal(a.state().instruction,'手动要求 XY');assert.equal(b.state().instruction,'手动要求 XY');
+ b.nativeDocument.undo();env.tick();assert.equal(b.instruction.value,'手动要求');assert.equal(a.instruction.value,'手动要求 XY');
+ b.nativeDocument.redo();env.tick();assert.equal(b.instruction.value,'手动要求 XY');
+ a.nativeDocument.undo();env.tick();assert.equal(a.instruction.value,'手动要求');assert.equal(b.instruction.value,'手动要求 XY');
+ a.nativeDocument.redo();env.tick();assert.equal(a.instruction.value,'手动要求 XY');
+ env.reset();env.tick();assert.equal(env.writes.length,0);
+});
+
+test('slot-derived instruction and manual restoration reconcile after external saved changes without another owner or task mutation',t=>{
+ const env=environment(t),a=panel(t,env,15),b=panel(t,env,16),beforeB=JSON.stringify(b.state());
+ a.node.properties.llmStylePreview={...a.state(),instruction:'保存的手动要求'};env.tick();assert.equal(a.instruction.value,'保存的手动要求');
+ a.upstream.snapshot={version:1,inputMode:'image-instructions',texts:['来自 Slot 的要求'],assets:[{kind:'image',filename:'slot.png'}]};env.tick();
+ assert.equal(a.state().manualInstruction,'保存的手动要求');assert.equal(a.instruction.value,'来自 Slot 的要求');assert.equal(a.instruction.readOnly,true);
+ env.reset();env.tick();assert.equal(env.writes.length,0);
+ a.upstream.snapshot={version:1,texts:['恢复普通输入']};env.tick();assert.equal(a.instruction.value,'保存的手动要求');assert.equal(a.instruction.readOnly,false);assert.equal(a.state().slotInstruction,undefined);assert.equal(a.state().manualInstruction,undefined);
+ a.node.properties.llmStylePreview={...a.state(),instruction:'再次外部恢复'};env.tick();assert.equal(a.instruction.value,'再次外部恢复');
+ assert.equal(JSON.stringify(b.state()),beforeB);assert.equal(b.instruction.value,'手动要求');assert.equal(a.state().ioResult,undefined);assert.equal(b.state().ioResult,undefined);
+ env.reset();env.tick();assert.equal(env.writes.length,0);
 });
