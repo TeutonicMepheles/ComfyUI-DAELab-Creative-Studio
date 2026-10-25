@@ -90,6 +90,11 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
     const cards=new Map(),layers=new WeakMap(),cardOwners=new WeakMap();let topLayer=1,selectedLink=null,addPoint=null,pickerConnection=null,workspace=null;
     const caretReveal=createCaretReveal({
         root,
+        tabOcclusion(){
+            if(!status.isConnected||status.parentElement!==root)return null;
+            const rect=status.getBoundingClientRect();
+            return rect.width>0&&rect.height>0?rect:null;
+        },
         owner(editor){
             const identity=cardOwners.get(editor.closest('.dae-creative-card')),c=identity?.card;
             if(!c)return null;

@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "07c9345536f526b4da004de8ee4d92271c266f89923d8b2cef111eb04ba258aa",
+  "sourceFingerprint": "457995bd47edbfc7b822fe9ee4770bded712042c61522202f3402f4f7f4739c1",
   "files": [
     {
       "path": "application/asset_library_service.js",
@@ -12,7 +12,7 @@
     },
     {
       "path": "application/business_document.js",
-      "sha256": "903b3279031a196b8de3b349b58af937f9ec98486599b97f458b7d5ad2200fdb"
+      "sha256": "dfeceef1dd69cef45e2de74305f2e1ef53c01414f504f0b1a8346ee9121e80fd"
     },
     {
       "path": "application/document_controller.js",
@@ -36,7 +36,7 @@
     },
     {
       "path": "canvas/creative_canvas_view.mjs",
-      "sha256": "14fbaed65dacdd22eea6d083f93a431a1f1c2987c7a899b3861e9e13b360e9aa"
+      "sha256": "9c620bbb0002ac42eeb345ae70c875347fb9c0dc4c646f95a84fe944a6fa93c3"
     },
     {
       "path": "canvas/creative_connections.mjs",
@@ -48,7 +48,7 @@
     },
     {
       "path": "canvas/creative_focus_reveal.js",
-      "sha256": "45cb01202a05986d793e8897e0139d8cb5450f219349bc816fb124af2ad7c3be"
+      "sha256": "5d8b3b9171c49314990863d3bbdd5aea87129097603fbf7a3f092952fbf6023c"
     },
     {
       "path": "canvas/creative_input_exchange.mjs",
@@ -460,7 +460,7 @@
     },
     {
       "path": "features/prompt/llm_style_preview_panel.mjs",
-      "sha256": "e1ccdbd949b7bdcdb5cca463a82b69f5016bb4505acd2602bcbf685beef7b460"
+      "sha256": "7ed0b79ce1d243c307fca37d86ad8ef3aea27f39e1d2ad97d74230b8e765caed"
     },
     {
       "path": "features/prompt/llm_task_model.mjs",
@@ -508,7 +508,7 @@
     },
     {
       "path": "features/prompt/table_prompt_editor.mjs",
-      "sha256": "e3256b4c4cd76e7adc306beb5766d4be543f16987454ad3973017dee840bf8fb"
+      "sha256": "e9c7b07ed86e866c8c99ee7aad2c5a9a35e5b5bb5cc838c8d5951acd2daa353d"
     },
     {
       "path": "features/prompt/table_prompt_model.mjs",
@@ -820,7 +820,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "31b4dc0986e9a553fad92eb80f7e9990735eabab09f338b3fe94e6e59c5dcbd2"
+      "sha256": "4c39bac583b940790870c8f63bf2b4d2e83ed63a0910f890ce281907fe1e4e53"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
@@ -849,6 +849,10 @@
     {
       "path": "ui/creative_panel_state.mjs",
       "sha256": "236f7084fd19566a0b8da69b01e0053d1065bf9d329afefe921eee6890061df0"
+    },
+    {
+      "path": "ui/unfocused_history_guard.js",
+      "sha256": "7e041132c73349158fdc461e4bd6448f63e9bd607eb39798418838a1ef853905"
     }
   ]
 }

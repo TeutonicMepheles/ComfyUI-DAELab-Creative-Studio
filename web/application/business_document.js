@@ -99,6 +99,7 @@ export function createBusinessDocument(options) {
     };
     return {
         controller, read: options.read, observe,
+        isCurrent: () => !disposed && options.current(),
         edit: (label, edit, settings) => controller.edit(label, edit, settings),
         replace(value, settings) {
             controller.replace('编辑内容', value, settings);

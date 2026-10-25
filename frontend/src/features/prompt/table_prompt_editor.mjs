@@ -15,6 +15,10 @@ export function createPromptEditor({getTable,editor,request,notify,renderFrame,g
  const releaseEditRequest=ticket=>{if(ticket){editor.releaseAsync(ticket);editTickets.delete(ticket);}};
  const releaseEditRequests=()=>{for(const ticket of editTickets)releaseEditRequest(ticket);};
  const requests=new PromptRequests();requests.observe(getTable());let hover=null,timer=null,closeTimer=null,parsing=false,alive=true,task=null;
+ // Before any begin there is no token to invalidate; begin observes its current
+ // table. Once attempted, keep all passive observations, including after close.
+ let hasBegunRequest=false;
+ const beginRequest=(table,ids)=>{hasBegunRequest=true;return requests.begin(table,ids);};
  const style=document.createElement('style');style.textContent=`
 .dae-prompt-preview{white-space:pre-wrap;max-height:72px;overflow:auto;line-height:1.6}.dae-prompt-ref{display:inline-block;border-radius:4px;background:#254b45;color:#b9f4dc;padding:1px 5px;margin:0 2px;cursor:pointer}.dae-prompt-ref[data-invalid=true]{background:#542e36;color:#ffd1d1}.dae-prompt-active{outline:2px solid #9ce8c4!important;outline-offset:2px}.dae-prompt-edit{white-space:pre-wrap;min-height:140px;max-height:340px;overflow:auto;padding:12px;border:1px solid #596a78;border-radius:6px;line-height:1.7;outline-offset:2px}.dae-prompt-dialog{width:min(860px,92vw)}.dae-prompt-assets{max-height:240px;overflow:auto}.dae-prompt-assets img{width:60px;height:45px;object-fit:contain}.dae-prompt-hover{position:fixed;z-index:100000;background:#202b31;color:#e5ecef;border:1px solid #82ad9d;padding:10px;border-radius:8px;width:260px;box-shadow:0 8px 30px #0008;font:14px/1.6 var(--dae-font-family,sans-serif)}.dae-prompt-hover img{width:100%;height:160px;object-fit:contain}.dae-prompt-status{display:block;font-size:11px;color:#9ec4b4}.dae-prompt-error{color:#ffadad;white-space:pre-wrap}.dae-prompt-choices{display:flex;gap:5px;flex-wrap:wrap;max-height:180px;overflow:auto}.dae-prompt-choices button{display:flex;align-items:center}.dae-prompt-choices img{width:44px;height:34px;object-fit:contain}.dae-prompt-diff{display:grid;grid-template-columns:1fr 1fr;gap:16px}.dae-prompt-diff pre{white-space:pre-wrap;max-height:45vh;overflow:auto}
 .dae-prompt-cell{display:flex;flex-direction:column;gap:4px;height:auto;min-width:0}
@@ -57,7 +61,7 @@ export function createPromptEditor({getTable,editor,request,notify,renderFrame,g
    report({busy:true,message:`正在解析 ${pending.length} 行…`});
    const tickets=new Map(pending.map(recordId=>[recordId,beginEditRequest({recordId,fieldId:field})]));
    parseTickets=[...tickets.values()].filter(Boolean);
-   const token=requests.begin(before,pending),result=await call(clone(before),pending);const good=[],bad=[],expired=[];if(!alive)return;
+   const token=beginRequest(before,pending),result=await call(clone(before),pending);const good=[],bad=[],expired=[];if(!alive)return;
    for(const r of result.results){if((tickets.get(r.recordId)&&!editor.canAsync(tickets.get(r.recordId)))||!requests.matches(getTable(),token,r.recordId))expired.push(r);else if(r.error)bad.push(r);else good.push(r);}
    report({busy:false,error:Boolean(bad.length||expired.length),message:`解析完成：成功 ${good.length} · 手工跳过 ${skipped} · 失败 ${bad.length} · 过期 ${expired.length}`});
    if(compare&&good.length){retainTickets=true;const release=()=>{for(const ticket of parseTickets)releaseEditRequest(ticket);};const item=good[0],row=getTable().records.find(r=>r.id===item.recordId),d=editor.openDialog('重新解析：比较结果');d.classList.add('dae-prompt-dialog');d.addEventListener('close',release,{once:true});d.addEventListener('cancel',release,{once:true});const diff=el('div',d);diff.className='dae-prompt-diff';compareColumn(diff,'当前结果',row.values[promptField(getTable())],row);compareColumn(diff,'新结果',item.document,row);const error=el('p',d);error.className='dae-prompt-error';d.append(button('取消',()=>{release();d.remove();}),button('替换解析结果',()=>{if((tickets.get(item.recordId)&&!editor.canAsync(tickets.get(item.recordId)))||!requests.matches(getTable(),token,item.recordId)){error.textContent='比较期间数据已变化，请取消并重新解析';return;}editor.change(t=>applyPromptResults(t,[item]),{tickets:tickets.get(item.recordId)?[tickets.get(item.recordId)]:null});release();d.remove();},true));return;}
@@ -74,7 +78,7 @@ export function createPromptEditor({getTable,editor,request,notify,renderFrame,g
   const table=getTable(),row=table.records.find(r=>r.id===recordId),original=row?.values[promptField(table)];if(!original){editor.openTextSide(recordId,promptField(table),'最终提示词',d=>{el('p',d,'尚未解析最终提示词。');d.append(button('解析此行',async()=>{await parse([recordId],false);if(getTable().records.find(r=>r.id===recordId)?.values[promptField(getTable())]){d.close();edit(recordId);}}));},{toggle});return;}
   if(original.version!==1||original.compilerVersion!==1||!Array.isArray(original.segments)||!Array.isArray(original.references)){notify('不支持的提示词版本，请保留原数据或明确重新解析','error');return;}
   editor.openTextSide(recordId,promptField(table),'最终提示词',d=>{
-  let draft=clone(original),composing=false,range=null;const token=requests.begin(table,[recordId]),editTicket=beginEditRequest({recordId,fieldId});d.onCleanup?.(()=>releaseEditRequest(editTicket));
+  let draft=clone(original),composing=false,range=null;const token=beginRequest(table,[recordId]),editTicket=beginEditRequest({recordId,fieldId});d.onCleanup?.(()=>releaseEditRequest(editTicket));
   const status=el('p',d,`${promptState(table,row).error||promptState(table,row).label} · 删除 @ 仅移除文字引用，素材参与状态在下方管理。`),box=el('div',d);box.className='dae-prompt-edit';box.contentEditable='true';box.setAttribute('role','textbox');box.setAttribute('aria-label','最终提示词正文');box.setAttribute('aria-multiline','true');drawSegments(box,draft,row);
   const choices=el('div',d);choices.hidden=true;let referencePicker=null;
   d.addEventListener('scroll',()=>referencePicker?.layout(),true);
@@ -122,5 +126,5 @@ export function createPromptEditor({getTable,editor,request,notify,renderFrame,g
 
  function decorateAsset(item,row,asset,field){identity(item,row.id,asset.id);}
  const escape=e=>{if(e.key==='Escape'&&(hover||timer)){e.preventDefault();e.stopImmediatePropagation();closeHover();}};document.addEventListener('keydown',escape,true);
- return {tasks:()=>alive&&task?[{...task}]:[],parse,edit,editTemplate,renderCell,mountEditor,decorateAsset,observe:()=>requests.observe(getTable()),invalidate:()=>{requests.invalidate();releaseEditRequests();},close:()=>{closeHover();requests.invalidate();releaseEditRequests();},destroy(){alive=false;requests.invalidate();releaseEditRequests();closeHover();style.remove();document.removeEventListener('keydown',escape,true);}};
+ return {tasks:()=>alive&&task?[{...task}]:[],parse,edit,editTemplate,renderCell,mountEditor,decorateAsset,observe:()=>{if(hasBegunRequest)requests.observe(getTable());},invalidate:()=>{requests.invalidate();releaseEditRequests();},close:()=>{closeHover();requests.invalidate();releaseEditRequests();},destroy(){alive=false;requests.invalidate();releaseEditRequests();closeHover();style.remove();document.removeEventListener('keydown',escape,true);}};
 }

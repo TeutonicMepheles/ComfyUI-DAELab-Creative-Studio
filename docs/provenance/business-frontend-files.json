@@ -423,12 +423,13 @@
       "source": "web/llm_style_preview_panel.mjs",
       "destination": "frontend/src/features/prompt/llm_style_preview_panel.mjs",
       "sourceSha256": "78d3e2dd23a3fbf1cc216ca90f9fce223889f06475ed49234cc84020426bd166",
-      "destinationSha256": "e1ccdbd949b7bdcdb5cca463a82b69f5016bb4505acd2602bcbf685beef7b460",
+      "destinationSha256": "7ed0b79ce1d243c307fca37d86ad8ef3aea27f39e1d2ad97d74230b8e765caed",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Use one local shared ui field/panel module and unique design assets; no absolute legacy package import.",
-        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md."
+        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
+        "Bind field-local beforeinput history protection only to the two nativeDocument-controlled textareas. Preserve focused text undo, ordinary input listener order, IME, inactive/read-only fields and teardown; never dispatch graph undo or write a replacement value. Real cancelable-beforeinput and two-owner host verification pending."
       ]
     },
     {
@@ -557,12 +558,13 @@
       "source": "web/table_prompt_editor.mjs",
       "destination": "frontend/src/features/prompt/table_prompt_editor.mjs",
       "sourceSha256": "3cddf1579bc49d9c39f53910d3917fcee6d7e94dfa08d7689a77f31fcd19baa2",
-      "destinationSha256": "e3256b4c4cd76e7adc306beb5766d4be543f16987454ad3973017dee840bf8fb",
+      "destinationSha256": "e9c7b07ed86e866c8c99ee7aad2c5a9a35e5b5bb5cc838c8d5951acd2daa353d",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
-        "Allow host save through nested prompt/editor controls while retaining IME and text editing key ownership."
+        "Allow host save through nested prompt/editor controls while retaining IME and text editing key ownership.",
+        "Preserve initial request observation; skip passive scans only before either private begin has ever been attempted. Both begin sites activate permanent full observation before strict public begin, including failure, settled comparison and close. Do not skip render, OptimizationRevisions, public matches or validation. Actual performance acceptance pending."
       ]
     },
     {
@@ -1795,9 +1797,10 @@
         "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
         "Native reactive JSON boundary: detach nested host proxies for document transactions and LLM load/proposal/apply; preserve all unknown JSON keys and identities, reject unsavable edits before history, and verify source-bound edit/recovery/undo with no submit. Real UI acceptance remains separate.",
         "Skip only unused whole-table equality encodings in the native afterWrite path; preserve all validated snapshots, native history, rollback, per-target revisions and fallback ordering. Count and semantic regressions pass; actual performance acceptance pending.",
-        "Add optional typed native replacement through DocumentController: ordinary same-container JSON replacements retain isolated before/next snapshots while sharing unchanged history, no-op, rollback and observation logic. Preserve unlike-root descriptor behavior and the asynchronous review mutation path. Two-snapshot mechanism and focused checks pass; actual performance acceptance remains pending."
+        "Add optional typed native replacement through DocumentController: ordinary same-container JSON replacements retain isolated before/next snapshots while sharing unchanged history, no-op, rollback and observation logic. Preserve unlike-root descriptor behavior and the asynchronous review mutation path. Two-snapshot mechanism and focused checks pass; actual performance acceptance remains pending.",
+        "Expose cheap isCurrent using the existing disposed/options.current lifetime predicate without document reads, serialization or history access. Existing host current/ready semantics, transactions, revisions and undo remain unchanged."
       ],
-      "destinationSha256": "59a0445482e8ca9a872c895f790074c684739d5ffb48b86acf6eb0146139cc72"
+      "destinationSha256": "8559ee9251854f69395dd5ca82d3f881c4880fa72bd1d80748492c0539d04043"
     },
     {
       "source": null,
@@ -1943,6 +1946,39 @@
       "kind": "authored-contract-or-integration",
       "changes": [
         "Authored strict TypeScript proof for the optional constant-empty row-state capability. Compare field/configuration metadata, view and ordered stable row IDs before and after a private single-cell edit; never read or serialize cell values, whole tables, native graphs or task facts. No row-state cache, background observer or parallel editing truth."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "tests/migrated_business/table_prompt_passive_observation.test.mjs",
+      "destinationSha256": "f6708fe1a33ac1dac843fea36dfc166e8529918cc2d4e4d70f72fd0a482c2ecf",
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "Authored real owning-editor/document and two-instance 500x10 request-observation regressions: initial scan, first current begin, ABA/deletion-reinsert, retained comparison, rich-sidebar second begin, late/close/failed request and peer isolation. Additional native tickets are disabled to expose PromptRequests rejection; bounded DOM is not real browser performance."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "frontend/src/ui/unfocused_history_guard.ts",
+      "destinationSha256": "0eee581b79b29fa35b0e8c5ce85fe862a685d1da1eb3d6f4a2f26a2fe01a438e",
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "Authored typed field-local helper: cancel only exact connected editable unfocused fields with cancelable historyUndo/historyRedo and valid current owner outside composition. No global key listener, propagation stop, value/history write or synthetic graph undo; disposal removes exact listeners. Actual browser cancelability remains unverified."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "tests/migrated_business/unfocused_history_guard.test.mjs",
+      "destinationSha256": "cee2ef962d1ea52677f68f853a2a837bda654d9847996bfee61cecc2b265c3c2",
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "Authored full owning-panel and actual BusinessDocument regressions with unrelated IO/buttons injected: two source/instruction owners, preserved focused/local input, cheap lifetime, composition/shadow focus/noncancelable/read-only/inactive exclusions and disposal. Models browser default action; does not prove real Chromium event delivery."
       ]
     }
   ],

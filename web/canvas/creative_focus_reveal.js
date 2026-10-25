@@ -35,6 +35,25 @@ function tabControlDelta(target, viewport) {
             : target.top < top ? target.top - top : target.bottom > bottom ? target.bottom - bottom : 0,
     };
 }
+function avoidTabStatus(target, viewport, delta, status) {
+    if (!status || !finiteRect(status) || status.right <= status.left)
+        return delta;
+    const left = Math.max(status.left, viewport.left), right = Math.min(status.right, viewport.right);
+    const top = Math.max(status.top, viewport.top), bottom = Math.min(status.bottom, viewport.bottom);
+    if (right <= left || bottom <= top)
+        return delta;
+    // Check the region the baseline pan would reveal, not the pre-pan location.
+    // Oversized controls retain the existing leading-region guarantee only.
+    const projectedLeft = target.left - delta.dx, projectedTop = target.top - delta.dy;
+    const projectedRight = Math.min(target.right - delta.dx, viewport.right - 16);
+    const projectedBottom = Math.min(target.bottom - delta.dy, viewport.bottom - 16);
+    if (projectedRight + 16 <= left || projectedLeft - 16 >= right
+        || projectedBottom + 16 <= top || projectedTop - 16 >= bottom)
+        return delta;
+    // Preserve the same 16px outline clearance above the actual status box.
+    // No fixed overlay height or hidden status/error message is introduced.
+    return tabControlDelta(target, { ...viewport, bottom: top });
+}
 function textControl(element) {
     return element.tagName === 'TEXTAREA' || (element.tagName === 'INPUT'
         && /^(text|search|url|tel|email|password)$/.test(element.type));
@@ -187,7 +206,7 @@ function internallyClipped(editor, target, root, win, wholeControl = false) {
     }
     return false;
 }
-export function createCaretReveal({ root, owner, pan }) {
+export function createCaretReveal({ root, owner, pan, tabOcclusion }) {
     const doc = root.ownerDocument, win = doc.defaultView;
     if (!win)
         throw new TypeError('Caret reveal requires the owning document window');
@@ -242,7 +261,9 @@ export function createCaretReveal({ root, owner, pan }) {
             if (!target)
                 return;
             const viewport = viewportRect(root, win);
-            const delta = request.wholeControl ? tabControlDelta(target, viewport) : revealDelta(target, viewport);
+            let delta = request.wholeControl ? tabControlDelta(target, viewport) : revealDelta(target, viewport);
+            if (delta && request.wholeControl && tabOcclusion)
+                delta = avoidTabStatus(target, viewport, delta, tabOcclusion());
             // Most editing is already visible: avoid inspecting every ancestor
             // unless translation is needed. Range/root reads remain a real cost.
             if (!delta || (!delta.dx && !delta.dy))

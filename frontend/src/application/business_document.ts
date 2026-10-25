@@ -84,6 +84,7 @@ export function createBusinessDocument<T>(options: BusinessDocumentOptions<T>) {
   };
   return {
     controller, read: options.read, observe,
+    isCurrent: () => !disposed && options.current(),
     edit: (label: string, edit: (document: T) => void, settings?: EditTransactionOptions) => controller.edit(label, edit, settings),
     replace(value: T, settings?: EditTransactionOptions) {
       controller.replace('编辑内容', value, settings);

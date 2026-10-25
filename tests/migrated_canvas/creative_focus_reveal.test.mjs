@@ -22,7 +22,7 @@ function visit(node){if(ts.isVariableDeclaration(node)&&node.name.getText(syntax
 visit(syntax);
 // Execute the actual view binding and its lease callback. Replacements alter the
 // real closure, not a second test-only approximation of its ownership conditions.
-const bindView=new Function('createCaretReveal','root','cardOwners','graph','host','state','cards','isPanelActive','navigate',`
+const bindView=new Function('createCaretReveal','root','cardOwners','graph','host','state','cards','isPanelActive','navigate','status',`
  let visible=true,workspace=null,drag=null;
  const caretReveal=${binding};
  return {controller:caretReveal,replaceGraph(v){graph=v},replaceState(v){state=v},setVisible(v){visible=v},setWorkspace(v){workspace=v},setDrag(v){drag=v}};
@@ -58,6 +58,7 @@ function fixture(){
         return e;
     }
     const root=element('SECTION');root.bounds=rect(58,96,680,720);
+    const status=element('DIV',root);status.isConnected=false;status.bounds=rect(0,0,0,0);
     const state={viewport:{x:50,y:200,zoom:1.5}},nodes=new Map(),cards=new Map(),cardOwners=new WeakMap();
     const graph={extra:{daelabCreativeCanvasV1:state},getNodeById:id=>nodes.get(id)};
     const host={graph:()=>graph};
@@ -79,8 +80,8 @@ function fixture(){
     const history=canvasHistory({extensionManager:{workflow:{activeWorkflow:{changeTracker:tracker}}}});
     const beforeSnapshots=structuredClone(tracker);
     const navigation=()=>{pans.push({...state.viewport});history.updateViewport(state.viewport);};
-    const view=bindView(createCaretReveal,root,cardOwners,graph,host,state,cards,isPanelActive,navigation);
-    return {doc,win,root,a,b,state,nodes,cards,cardOwners,graph,host,view,controller:view.controller,frames,pans,writes,measures,styleReads,rangeReads,selection,tracker,beforeSnapshots,element,
+    const view=bindView(createCaretReveal,root,cardOwners,graph,host,state,cards,isPanelActive,navigation,status);
+    return {doc,win,root,status,a,b,state,nodes,cards,cardOwners,graph,host,view,controller:view.controller,frames,pans,writes,measures,styleReads,rangeReads,selection,tracker,beforeSnapshots,element,
         setRanges(v){ranges=v},setRangeThrows(v){rangeThrows=v},
         active(c){doc.activeElement=c.editor;selection.focusNode=c.text;selection.anchorNode=c.text;},
         fire(type,c=a,options={}){root.emit(type,{target:c.editor,...options});},
@@ -419,4 +420,101 @@ test('fractional correction requires an axis-aligned ancestor path and rechecks 
     const changed=fractionalScrollport(1.5),read=changed.f.win.getComputedStyle;
     changed.f.win.getComputedStyle=e=>{const style=read(e);if(e===changed.f.a.body)changed.f.a.panel={};return style;};
     changed.f.tabTo(changed.target);changed.f.flush();assert.equal(changed.f.pans.length,0);changed.f.controller.destroy();
+});
+
+// Target/root rectangles are the four preserved 07c A-Tab samples. The status
+// rectangle is explicitly synthetic: collector v5 did not capture that overlay.
+const hintTargetCases=[
+    {width:1280,left:56,target:rect(72.00001525878906,385.5555419921875,192.00001525878903,628.0711669921875)},
+    {width:1280,left:56,target:rect(72.00001525878906,340.2265625,252.00001525878903,704)},
+    {width:680,left:58,target:rect(74,385.5555419921875,194,628.0711669921875)},
+    {width:680,left:58,target:rect(74,340.2265625,254,704)},
+];
+function enableHint(f,bounds=rect(70,612,650,644)){
+    f.status.isConnected=true;f.status.bounds=bounds;f.status.textContent='Connection failed: retained status';
+}
+
+test('owned bottom status is avoided for the four real Tab target geometries without hiding errors or changing focus/history',()=>{
+    for(const sample of hintTargetCases){
+        const f=fixture();f.doc.documentElement.clientWidth=sample.width;f.root.bounds=rect(sample.left,96,sample.width,720);enableHint(f);
+        const target=f.control(f.a,'TD',sample.target),selection={...f.selection};
+        assert.deepEqual(revealDelta(sample.target,f.root.bounds),{dx:0,dy:0},'old viewport-only test accepts the obscured target');
+        f.tabTo(target);f.flush();
+        assert.deepEqual(f.pans,[{x:50,y:200-(sample.target.bottom-596),zoom:1.5}]);
+        assert.equal(f.measures.filter(e=>e===f.status).length,1);assert.equal(f.doc.activeElement,target);
+        assert.deepEqual(f.selection,selection);assert.deepEqual(f.writes,[]);assert.equal(f.status.textContent,'Connection failed: retained status');
+        assert.equal(f.status.hidden,false);assert.equal(f.status.parentElement,f.root);
+        const after=structuredClone(f.tracker);for(const saved of [after.initialState,after.activeState,...after.undoQueue,...after.redoQueue])saved.extra.daelabCreativeCanvasV1.viewport={x:0,y:0,zoom:1};
+        assert.deepEqual(after,f.beforeSnapshots);f.controller.destroy();
+    }
+});
+
+test('ordinary caret input, selection and native text controls never measure the Tab-only status',()=>{
+    for(const kind of ['visible-caret','offscreen-caret','textarea','input']){
+        const f=fixture();enableHint(f);f.status.getBoundingClientRect=()=>assert.fail('ordinary editor measured status');
+        if(kind==='visible-caret')f.setRanges([rect(400,286,400,315)]);
+        if(kind==='textarea'||kind==='input')Object.assign(f.a.editor,{tagName:kind.toUpperCase(),type:'text',isContentEditable:false,bounds:rect(600,280,800,322)});
+        f.fire('input');f.fire('keyup',f.a,{key:'End'});f.doc.emit('selectionchange');f.flush();
+        assert.equal(f.rangeReads.length,kind.endsWith('caret')?1:0);assert.equal(f.pans.length,kind==='visible-caret'?0:1);f.controller.destroy();
+    }
+});
+
+test('Tab status measurement keeps baseline geometry when hidden, detached, disjoint, outside viewport or invalid',()=>{
+    for(const change of [f=>f.status.isConnected=false,f=>f.status.parentElement=f.a.panel,
+        f=>f.status.bounds=rect(0,0,0,0),f=>f.status.bounds=rect(400,612,650,644),
+        f=>f.status.bounds=rect(70,800,650,840),f=>f.status.bounds=rect(NaN,612,650,644)]){
+        const f=fixture();enableHint(f);change(f);const target=f.control(f.a,'TD',rect(74,385,194,628));f.tabTo(target);f.flush();
+        assert.deepEqual(f.pans,[]);assert.deepEqual(f.writes,[]);f.controller.destroy();
+    }
+    const omitted=fixture();omitted.controller.destroy();enableHint(omitted);
+    omitted.status.getBoundingClientRect=()=>assert.fail('no optional callback');
+    const controller=createCaretReveal({root:omitted.root,owner:()=>({isCurrent:()=>true}),pan:delta=>omitted.pans.push(delta)});
+    omitted.tabTo(omitted.control(omitted.a,'TD',rect(74,385,194,628)));omitted.flush();assert.deepEqual(omitted.pans,[]);controller.destroy();
+});
+
+test('status overlap uses the baseline translated target and current message size, preserving the 16px gap',()=>{
+    const f=fixture();enableHint(f,rect(100,612,300,644));const target=f.control(f.a,'BUTTON',rect(-100,600,-50,628));
+    f.tabTo(target);f.flush();assert.deepEqual(f.pans,[{x:224,y:168,zoom:1.5}],'baseline horizontal reveal moves into status');
+    f.active(f.a);f.status.bounds=rect(100,580,300,644);f.tabTo(target);f.flush();
+    assert.deepEqual(f.pans[1],{x:398,y:104,zoom:1.5},'new status top is read; no cross-event geometry cache');f.controller.destroy();
+    for(const gap of [16,15]){
+        const g=fixture();enableHint(g);const t=g.control(g.a,'BUTTON',rect(100,560,150,612-gap));g.tabTo(t);g.flush();
+        assert.deepEqual(g.pans,gap===16?[]:[{x:50,y:199,zoom:1.5}]);g.controller.destroy();
+    }
+});
+
+test('status does not reserve space for a horizontally disjoint target after its baseline pan',()=>{
+    const f=fixture();enableHint(f,rect(70,612,300,644));const target=f.control(f.a,'BUTTON',rect(900,600,950,628));
+    f.tabTo(target);f.flush();assert.deepEqual(f.pans,[{x:50-286,y:200,zoom:1.5}]);f.controller.destroy();
+});
+
+test('reduced Tab area keeps oversized leading-only policy and rejects unusable space without weakening full-rect clipping',()=>{
+    const f=fixture();enableHint(f);const bounds=rect(800,500,1800,1400),target=f.control(f.a,'DIV',bounds);
+    f.tabTo(target);f.flush();assert.deepEqual(f.pans,[{x:50-726,y:200-388,zoom:1.5}]);
+    assert.equal(bounds.left+f.pans[0].x-50,74);assert.equal(bounds.top+f.pans[0].y-200,112);
+    assert.ok(bounds.bottom+f.pans[0].y-200>596,'full oversized border is not claimed visible');f.controller.destroy();
+    const noRoom=fixture();enableHint(noRoom,rect(70,110,650,710));noRoom.tabTo(noRoom.control(noRoom.a,'TD',rect(74,385,194,628)));noRoom.flush();assert.deepEqual(noRoom.pans,[]);noRoom.controller.destroy();
+    const clipped=fixture();enableHint(clipped);const t=clipped.control(clipped.a,'DIV',bounds);clipped.a.panel.css={overflowY:'auto'};
+    clipped.a.panel.bounds=rect(700,400,1900,1000);Object.assign(clipped.a.panel,{offsetHeight:600,clientHeight:600});
+    clipped.tabTo(t);clipped.flush();assert.deepEqual(clipped.pans,[],'full original target remains internally clipped');clipped.controller.destroy();
+});
+
+test('status reveal stays trusted-Tab-only and does not consume cancellation or another owner',()=>{
+    for(const cancel of [f=>f.controller.suspend(),f=>f.controller.cancel(),f=>f.win.emit('pagehide'),f=>f.a.node.mode=4,f=>f.active(f.b)]){
+        const f=fixture();enableHint(f);f.status.getBoundingClientRect=()=>assert.fail('cancelled request measured status');
+        f.tabTo(f.control(f.a,'TD',rect(74,385,194,628)));cancel(f);f.flush();assert.deepEqual(f.pans,[]);f.controller.destroy();
+    }
+    for(const owner of ['a','b']){
+        const f=fixture();enableHint(f);f.active(f[owner]);const target=f.control(f[owner],'TD',rect(74,385,194,628));
+        f.tabTo(target,{isTrusted:false});f.flush();assert.equal(f.measures.includes(f.status),false);
+        f.active(f[owner]);f.tabTo(target,{shiftKey:owner==='b'});f.flush();assert.deepEqual(f.pans,[{x:50,y:168,zoom:1.5}]);assert.equal(f.doc.activeElement,target);f.controller.destroy();
+    }
+});
+
+test('the owner lease is revalidated after the status rectangle is measured',()=>{
+    for(const change of [f=>f.a.panel={},f=>f.nodes.set(1,{id:1,mode:0}),f=>f.doc.activeElement=f.b.editor]){
+        const f=fixture();enableHint(f);const read=f.status.getBoundingClientRect;
+        f.status.getBoundingClientRect=()=>{const result=read();change(f);return result;};
+        f.tabTo(f.control(f.a,'TD',rect(74,385,194,628)));f.flush();assert.equal(f.measures.filter(e=>e===f.status).length,1);assert.deepEqual(f.pans,[]);f.controller.destroy();
+    }
 });

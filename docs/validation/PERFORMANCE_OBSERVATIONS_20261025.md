@@ -1364,8 +1364,96 @@ updateSummary的两个按钮和普通状态文字在实际textContent相同时�
 首次测试替身递归遍历中止、后续替身修正和有效首红日志都保留在`.local/validation/generation-input-empty-chain/`。
 72项相关检查通过；单次完整检查291通过/3跳过、业务430通过，142模块/212构建文件，日志SHA`b7797b47…`。
 提交`3afdf061baa902087ed84e7d788bfaf9a94fb3c6`，构建`07c9345536f526b4da004de8ee4d92271c266f89923d8b2cef111eb04ba258aa`，517产品文件SHA`4ca9959998021646ff6917b22d3122733b917805fd31cca89ed9d58b3caacb2d`。
-独审SHA`5dd75b05…`、完整交接SHA`66887f51…`。未部署，未执行新的正式50键，不从旧replace时间中扣除估算收益。
+独审SHA`5dd75b05…`、完整交接SHA`66887f51…`。上述构建交接时未部署、未执行新的正式50键；后续实际结果见下文，不从旧replace时间中扣除估算收益。
 Canvas全卡同步、历史快照/序列化、引用revision等剩余路径没有足够等价证明，因此本候选未跳过这些行为。M6与发布门禁不变。
 固定Git归档SHA`73c30d62…`与517文件完整manifest逐项相等，归档准备handoff SHA`bfd50bfc…`；原e9ea包未变。
 下一次正式采样优先最新07c934，e9ea保持未冻结/0正式输入/未执行，全部前态、首错和计划保留；原M、834d、50动作、100ms和环境合同不放宽。
 此决策独立记录SHA`68913f64…`，不把准备文件当作实际运行证据。
+
+### 07c934实际矩阵、尾部与历史失败
+
+8237和干净8247已部署固定`3afdf061baa902087ed84e7d788bfaf9a94fb3c6`，构建`07c9345536f526b4da004de8ee4d92271c266f89923d8b2cef111eb04ba258aa`，
+517产品文件包`4ca9959998021646ff6917b22d3122733b917805fd31cca89ed9d58b3caacb2d`；8237测试夹具仍为3663/19文件，语义观察器834d未改。
+部署、291通过/3跳过及业务430通过均不构成产品或性能通过。
+
+主矩阵`.local/performance-actual/prompt-llm-07c934-clean-matrix/`共349原件，清单`07c934-menu-independent-input-manifest.json` SHA`e740caa8…`已固定。
+三视口×三倍率×四owner的36组焦点、Tab、反向Tab共108张原图均已逐图查看；216个DOM端点的owner、connected、正文、四peer和rootScroll=0一致，36组初始选区均为6/6。
+稳定几何仍保留680/100% A、680/150% A/B三处编辑框部分越界，以及680/150% A反向Tab超宽控件仅左侧显露，不能声称整个输入框包含。
+另在1280×720及680×720的100%/150%共4个A-Tab图中，固定键盘提示条覆盖任务2单元格下缘及部分焦点轮廓；标签仍可见，不称整个目标不可见。
+collector没有hint rect，遮挡结论来自实际图审；50%细光标和闪烁仍有像素不确定性，不能用DOM选区替代视觉证明。
+焦点独审`07c934-focus-tab-back-independent-review-v2.json` SHA`0df13bc0…`；提示条修正尚未部署或实际复验。
+
+36张展开菜单原图也全部实际查看：18个表格composer、18个LLM选项列表未见菜单或选项文字被视口裁切，稳定/关闭/peer端点保留。
+表格dialog没有直接owner字段，归属由操作前owner、唯一COMPOSER-A/B内容及关闭后的单元格身份共同支持。
+菜单独审`07c934-menu-independent-review.json` SHA`66e4fe8a…`；截图capturedAt均为null，仅有275–357ms调用bracket，未补造精确拍摄时刻。
+priority2要求第二项执行的680/150% A实际到第33项，另有collector角色/选区方向/内部滚动/可见性等缺项；`execution-deviations-first.json` SHA`4ee7f13d…`保留偏差。
+这些记录不等于完整协议通过；手写build多一个字符的原注记及更正`3e72604e…`也分别保留，实际固定plan/安装身份未改。
+
+尾部独审`07c934-tail-independent-review.json` SHA`db571718…`实际查看8图并核18个端点。
+A/B的End、Home稳定caret均在根视口安全边界内，Home后Left仍为offset0，只覆盖起始边界no-op；超宽或部分越界的完整编辑框没有因此通过。
+两实例手动平移后world和编辑框实测x均变化−24px，10028/10030ms后端点保持，正文、owner和选区不变。
+A保持后的caret x50比画布左界x58更靠左8px，首字亦有裁切；B仍可见。这里证明手动导航端点保留，不能称A平移后caret持续可见，也没有后续按键重新显露的样本。
+
+功能独审`07c934-edit-save-through17-independent-review.json` SHA`df276ffc…`核对两表编辑→原生Undo→Redo→Undo的正文端点，另一实例保持不变。
+但两LLM首次Undo仍保留EDIT后缀，`08-after-history-saved-first.json` SHA`d9bb55d0…`也保存了这些后缀。
+LLM A另次分段检查在编辑后1130ms稳定，再Undo并等待1203ms，DIAG后缀仍在；`11-LLMA-undo-failed-saved.json` SHA`3b071b35…`证实保存数据也未撤回。
+后续显式恢复与Undo失败分开记录，不能算Undo修复或通过；不把端点结果推断成命令顺序或根因结论。
+六份保存副本的table_data原字符串/解码值、节点ID/slots/links相同；13至15读到的文件逐字节相同`de607879…`，17原生重开四peer一致、标题clean。
+这些副本相同不能证明各次Ctrl+S均成功；后续400独审及早读错位纠正见下，原件不改。
+表格revision/stamp有明确变化，不能称全部properties回到原字节；本夹具未见其他静默字段删除，不代表未知schema专项覆盖。
+本段实际环境为1097×617/DPR1.7500000521540642/100%，只作行为诊断，不替代登记的1920×1080功能条件；独审截至17，不扩展为后续模式、页面重载/App或全流程通过。
+
+07c正式性能仍为0样本，未冻结正式计划、没有五轮raw。性能页初读DPR1.881，工具Reset后DPR1.1/1745×982，用户应用复位后DPR1.75/1097×617；均不符合1920×1080/DPR1。
+准备独审`07c934-page-setup-audit.json` SHA`0db9f30e…`与后续`M-table-semantic-07c934-user-app-reset-followup.json` SHA`4e15f356…`分开保留，工具首错和中间变化不改写为产品性能数据。
+原41a8正式FAILED、用户前台12键及读取时序ABA全部超100ms、a2da及更早失败保持有效；不宣称新候选解决100ms、真实IME或0/44已完成。M6未通过，不发布。
+
+### 07c模式诊断补齐、保存400与历史v2定位
+
+模式诊断目录`prompt-llm-07c934-mode-diagnostic/`冻结71份原件，清单SHA`15cd74241a84eb3bcd38b99d97740110631d5835f25d084c414612e472f90832`。
+独审实际查看17张JPEG，并核16个DOM状态和15份保存副本；四owner的Mute/Bypass及Active恢复操作已有证据，两LLM另以原生Ctrl+B补齐4→0。
+12个纠正后的延迟读取步骤均符合目标模式，全部保存副本的节点字段除目标mode外、table_data原字符串、LLM属性、槽位及连线与此前22号副本精确相同。
+A首次Bypass/Active的两个副本与当时UI错位，不能算干净的即时保存检查；两LLM原生菜单缺Bypass未被快捷键补测消除。
+最终25号原生重开四卡Active，但标题仍带星号，没有新的重开后干净保存证明。05恢复后的旧错误提示仍可见，不与新文件状态混淆。
+该轮实际1097×617/DPR1.75，起初100%后fit约29%；不是登记的三视口/倍率验收，也未提交生成。
+独审`07c934-mode-diagnostic-final-independent-review.json` SHA`d5b122fbacdf1d321347f36ce14d37b0114c7664a174fc7d73239ca2805bc7e6`。
+
+保存400独审确认，宿主`user_manager.py`写临时文件后调用`os.replace`时返回WinError5 Access denied，随后被统一映射为“Invalid filename”400。
+这不证明文件名非法、某个特定进程持锁或所有先前保存失败。首次01副本仍是Active，02副本已是前一Bypass；紧随异步保存立即读取可能参与竞态，但没有句柄证据建立原因。
+05/08/11/13四份不同内容支持相应状态已落盘；14/15/22均与13字节相同，只证明读取时文件稳定，不能据此宣布三次独立写入成功。
+重开、reload和App返回的DOM是可见状态端点，不补造HTTP200回执；原LLMA稳定Undo失败及11号不同保存件仍有效。
+独审`07c934-save400-investigation-first/review.json` SHA`be82327b3bc77e4ae35d60bb9a722d42cc0c12dd168f8405a276adf83c674711`；原日志、错位副本和早先报告全部保留。
+
+独立8250测试宿主的history v2仅作行为定位：原始记录有860个顺序快照、32个事件、19个状态转换，未包装原生方法。
+Ctrl+Z前唯一undo尾部含原始instruction，当前值含完整后缀；随后，已blur的LLMA textarea收到可信`historyUndo`输入，先去掉末尾一个字母并新增第二个undo条目。
+之后节点token改变，完整后缀恢复，而短一字状态进入redo；从该恢复状态的采样端点至停止，导出状态不再变化。
+这与图撤销撤回刚新增的文字历史事务一致，不支持“起初保存了错误快照”的解释；未采到“先恢复原文再被后缀覆写”的状态，也不能排除采样间的瞬态。
+原生Undo调用次数、beforeinput的cancelable/defaultPrevented边界均未观测；全部restoringState=false不等于没有恢复执行。
+顺序读数非原子快照，观察器自身有调度扰动，不提供性能结论。其余三个owner的已导出投影稳定，但raw没有完整表格行值，不能扩大成全数据相等。
+该轮同样1097×617/DPR1.75；诊断未修产品，也不清除原Undo失败。
+原始`08-raw-history-first.json` SHA`546d40a146d7c95dcdddadd8b41567887e6b14e7467871db286e05bfb919ea66`，
+独审`llm-history-observer-07c934-v2-first-independent-analysis.json` SHA`5416fc36222d26e8a374f279fee6bc30b9d1fcbcecc1a52219e4b80435156e86`。
+最终11份原件冻结附录SHA`30c56a9deb22458535766f3ec822ca4be11a5f570d4a8d9a7b9bdf85b78104e8`保留后续图/DOM：图中可见DIAG后缀，但提示条覆盖部分正文，完整文字以该次DOM为限，标题仍带星号。
+
+### 两个后续源码候选：尚未构建或实际复验
+
+固定提示条避让仅补充可信Tab目标的可见区域，普通caret/input路径没有新增提示条几何读取；状态错误没有被隐藏。
+旧源首红保留，46项定向检查和单模块严格类型检查通过，两份独立源码审查无阻断；实际4个遮挡端点仍待复验。
+交接`canvas-status-hint-focus-reveal/handoff.json` SHA`3fb1d22cbeec21df40fdb4f114bedfa8a83785f1984ae6128199fe5a2db0f5e9`。
+
+never-requested观察候选仅修改私有提示词编辑器：保留初始化observe；首次任一begin尝试前，跳过后续被动请求扫描；两个begin均先单调置位，之后永久保持原完整观察。
+它不等同于“所有idle都可跳过”，不跳渲染、OptimizationRevisions或公共请求校验；完成、失败、比较弹框留存、关闭后均不复位。
+旧源8项中7过1红，修后8项及相关回归共36/36；真实owning editor的两张500×10表验证写回/历史保留，并覆盖首请求当前基线、ABA、删除重插、比较、侧栏第二入口及延迟返回。
+这些使用有界DOM替身，仅证明机制和请求生命周期；没有浏览器布局或实际输入耗时收益证据。
+交接`prompt-never-requested-observation/handoff.json` SHA`e847b2c4ad4ece3b262a14e3a58ded74ac6ae98854b8f1337ed997a1b8f9ec02`。
+独立源码审查`migration-inventory-independent-review.json` SHA`6a79414659f9bc8bda1b1626b2be3f8b139d331c0da6cd465fa41c4e5d760768`未发现阻断，不替代实际复验。
+记录当时两候选均未生成新web或部署；07c正式性能0样本，旧41a8及更早失败、真实IME、真实推理0/44、M6未通过和不发布门禁不变。
+
+### 457995合并源码候选
+
+提示条避让与never-requested请求观察已与LLM失焦历史输入保护合并，构建`457995bd47edbfc7b822fe9ee4770bded712042c61522202f3402f4f7f4739c1`。
+LLM原文/处理要求的绑定只取消仍有效、已失焦、连接中且可编辑字段的可取消historyUndo/historyRedo；聚焦文本、组合输入、只读/禁用及失效字段沿用原行为，不额外调用宿主撤销。
+新只读isCurrent查询不序列化图；默认共享字段合同不变。guard首红1通过/4失败保留，相关25项及独立复核通过，真实浏览器可取消性仍待验。
+一次完整npm检查主测试299通过/3跳过、业务443通过，143模块/213构建产物，冻结源码未变化；完整日志SHA`3869debd5a0cbe17ea95238c358130ab481bb4c518e4ec684665217288ad2978`。
+该构建尚未部署，不能继承07c的界面结果或推断100ms收益。Chrome另开8247首次返回403，隔离服务health读取200；根因及真实IME未证实。
+07c失败现场已通过原生另存保存，工作流副本SHA`c97c75554e8f8ba1aebb88e0189b6d72f9ee912b913fba8d62defb1d4648a55a`，原始history目录11份记录仍冻结。
+所有既有失败、正式性能环境门槛、本地推理0/44、M6未通过和不发布要求不变。
