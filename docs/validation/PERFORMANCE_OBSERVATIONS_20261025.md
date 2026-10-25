@@ -1651,3 +1651,17 @@ idx231–342的112份样本持续10.538秒，live、active及两队列尾部各�
 raw278489字节，SHA`1ea1e2caeab5defebdf9fd39d789223b1c68b5a3ab683af85bdc2886499ced40`；177长帧、operator-stop、captureValid=true、missing空，所有容量/交付/排除及null字段保留。初始约1.95秒静置已有10长帧。四个Tab区间各有一个inline keydown归因，处理168.5–177.5ms、其中强制布局167.6–176.0ms，随后context choose亦有54.0–78.3ms强制布局；未被脚本归因的间隔不补造为CPU或绘制。四个输入处理81.7–97.1ms、forced为0。script duration已含强制布局，不能二者相加或从端到端时延扣除。
 `sync`共107次、描述性中位40.6ms，但上述4个input和4个Tab事件帧均无sync归因，不能用累计sync成本解释这些事件。背景重复扫描与Tab提前finish均只是后续候选；改变归因位置不能证明实际时延达标。observer回调本身累计619.9ms包含在该不同仪器会话中，也不作性能扣减。
 11原件及10份只读HTTP源码已逐字核验冻结，owned脚本精确匹配固定728f，offset据该源码解释。独审`.local/validation/M-table-728f-LoAF-independent-first/conclusions.json` SHA`e063ea0256517ec7c31345288adce789af939a6f87ac7f153866d451e34326b3`，handoff SHA`5b3964e595a6ccc9a7dc6b7e7707de441d1e9cba3ac0db16b00e2a6e56b2a2b8`。这不提供语义两帧时延、正式p95或100ms通过结论。
+
+### eca1部署与首次回执拒绝
+
+固定提交`27e07740d67947800760813213c91a635a6ff13b`已推送；PR/push的Pure checks `40211052759` / `40211048280`均成功，PR仍为draft。8250刷新首跑成功，产品523文件包`ffc5b534161ceb8d3055799e29902c841e600740ecfd848f033114e5e26cc3d5`，fixture4文件包`36dc7209a53629d5a54859fdeabdeb7dce7572ac545f4c5d752913471ba4ded8`。独立运行核验`acaf8447d76a0080472311fa84408f2719e499fdd2f292e2793f568bd6f327ab`确认launcher179932/listener4976、27项served字节及9份workflow当前/在线/冷备份一致；SQLite及侧文件冷字节保全，queue0仅点时，不是M6正常停机或封存证明。
+
+在原28夹具上原生Open→Graph→SaveAs为`Studio-eca1-wire-A-v5`后，新的正确eca1回执被观察器拒绝为`deployment-pin-mismatch`，尚未Start或执行connect/Undo/Redo。配置已更新，但观察器源码内REVISION/BUILD仍固定590a；先前离线部署审查遗漏了该运行校验。`.local/performance-actual/wire-history-eca1-A-first/`保留首次拒绝和截图，后续须修正固定常量、验证新旧回执接受/拒绝并使用新尝试目录；不得放宽pin或把此尝试计为修复验收。
+
+### Tab实际失焦候选2f2921：浏览器生命周期与自动检查
+
+独立静态harness使用原inline函数和500×10的两表，分别对current/candidate执行A输入AP后Tab、B输入BZ后ShiftTab、A输入CANCEL后Escape。两者Tab均到A-r1-f1，反向Tab均到B-r1-f0；退出后contenteditable=false、peer值保持。Escape回到stub预设初值，不扩大成产品原生撤销或真实IME。两个控制失败（未await页句柄、label未匹配）及原13件均冻结；raw分别18073/17920字节，SHA`80819293d9525fdf3479687c8bb046816f89b58713f83978287f97e9d55907a0` / `28f5a9be6814f58313c2de055dfc6eaa8f3542acf80bd3a130905afbbd676a4f`。事件包含可信blur，但无finish埋点，退出时点结合源码解释，不冒称直接测得。
+
+产品仅令Tab keydown返回，由原blur逻辑在实际外部失焦后finish；仍由input/compositionend持久化，Escape保持owner reset。新增7项真实module生命周期测试，首红3过4失败保留，修改后与renderer回归13/13；旧renderer的合成Tab helper补实际blur语义，新测试独立要求keydown之后仍编辑。来源交接`.local/validation/tab-boundary-native-and-source-first/handoff.json` SHA`536cbd25df2f64b798dafbb7804e07eda22459a1d177ed38c9058932dc91bc89`。
+
+完整检查首exit0，311通过/3既有跳过、业务473通过，145模块/215产物；日志`.local/validation/tab-deferred-fullcheck-first/check-first.log` SHA`d01169ca8030510fbfb8a9c470d0487e0b4549628a0b3e722c63a7e7ebcf54eb`。构建`2f2921d986e4308f26f598be4cf5b6f73ea8c46eaeff5472f5b08b5b3841f245`尚未部署，不能从代码或测试推导时延改善。输入路径整表复制成本仅形成后续方案，未改产品。正式DPR1、100ms、真实IME、0/44和M6门禁不变。

@@ -74,7 +74,8 @@ export function bindInlineEditor({cell,box,label,read,write,reset,draw,columns,g
   if(menu&&['ArrowDown','ArrowUp','ArrowLeft','ArrowRight','Enter','Escape'].includes(e.key)){e.preventDefault();if(e.key==='Escape')closeMenu();else{picker.keydown(e.key);if(picker)box.setAttribute('aria-activedescendant',picker.activeId||'');}return;}
   if(e.key==='Escape'){e.preventDefault();finish(true);cell.focus();return;}
   if(e.key==='Enter'){e.preventDefault();selection();insert(document.createTextNode('\n'));persist();return;}
-  if(e.key==='Tab'){finish();return;}
+  // Keep editing until native focus actually leaves, including a canceled Tab.
+  if(e.key==='Tab')return;
  });
  box.addEventListener('blur',e=>{if(active&&!composing&&!box.contains(e.relatedTarget))finish();});
  const dispose=()=>{closeMenu();cell.removeEventListener('dblclick',double);cell.removeEventListener('keydown',enter);cell.removeEventListener('dae-edit-text',edit);};

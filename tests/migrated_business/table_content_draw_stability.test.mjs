@@ -54,7 +54,7 @@ function cell(env,id,value,{type='content',readonly=false}={}){
  const changes=[],cleanups=[],errors=[];
  renderContentCell(cell,row,field,{getTable:()=>table,change:(fn,options)=>{changes.push(options);fn(table);},upload:async()=>{throw Error('Unexpected upload');},notify:error=>errors.push(error),onCleanup:fn=>cleanups.push(fn)});
  const box=cell.firstChild;
- return {cell,box,row,table,changes,errors,start(){cell.emit('keydown',{key:'Enter'});},tab(){return box.emit('keydown',{key:'Tab'});},blur(){box.emit('blur',{relatedTarget:null});},dispose(){for(const fn of cleanups)fn();}};
+ return {cell,box,row,table,changes,errors,start(){cell.emit('keydown',{key:'Enter'});},tab(){const event=box.emit('keydown',{key:'Tab'});box.emit('blur',{relatedTarget:null});return event;},blur(){box.emit('blur',{relatedTarget:null});},dispose(){for(const fn of cleanups)fn();}};
 }
 
 test('two instances retain the exact single Text through unchanged Enter/Tab and ordinary input',t=>{
