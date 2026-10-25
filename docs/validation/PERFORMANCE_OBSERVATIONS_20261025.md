@@ -1227,3 +1227,145 @@ R5首动作DOM记录edited.at比operator dwellStart晚1ms，首次严格时序�
 不能形成显隐对照或证明浏览器节流是根因。`open_in_codex`显示tab60仅返回queued，主代理已请用户切回本任务并保持Codex前台，
 尚不以此推定实际前台状态。此诊断不替代正式失败；先前a2da50次失败和N4全缺记录不改。
 真实IME待验、推理0/44、M6未通过，不发布。
+
+### 8965部分矩阵与菜单首个裁切失败
+
+干净8247已按固定`8910bd2 / 8965454852…`刷新，515文件包`61efb020…`、无测试夹具；
+就绪原件`.local/validation/refresh-8247-8965-first/ready-first.json` SHA`de5e9b39…`。
+同一四实例夹具`2eabe9d8…`已完成1920×1080/50%的Table A和680×720/150%的四实例，共5组focus/Tab/Shift+Tab。
+每组有至少1100ms稳定观察，owner、四路值、6/6选区和root滚动保持。
+窄视口Table A反向Tab现在显露左端，原完整矩形为x74..912.59；仅是超宽控件起始区域恢复，不承诺完整可见。
+
+四个菜单key都已执行，但首批B/LLMA/LLMB截图过早，缺少展开菜单的视觉证明；首图保留，另存补图。
+B补图确认完整composer；LLMA第一次展开补图的选项x−33.3949、左侧文字真实截断，属于保留的失败。
+随后LLMA/LLMB经真实Tab导航到可见select再展开，选项完整，Qwen仍选中；这些不同条件补测不覆盖首次裁切。
+实际样式为`appearance:base-select`，UA三个fallback都依赖锚点两端。候选共享CSS追加全横向区域回退，尚未实际部署验收。
+这组补件DPR变为1.1，DOM680×720与JPEG680×720同时记录，但截图内容存在缩放和padding，不能按像素一比一推断CSS几何。
+显示截图时一次相对路径ENOENT、视口guard失败及缩放调整记录也保留。
+
+目录`.local/performance-actual/prompt-llm-8965-clean-matrix/`共62原件（23 JPEG、39 JSON），
+冻结清单`.local/validation/8965-partial-matrix-final/originals-first.json` SHA`58b25797…`，
+独审`review-first.json` SHA`1e44c8ac…`。覆盖仍为5焦点/4菜单，不因补图增加唯一key；
+剩余31焦点、32菜单、尾部光标、模式、编辑历史、保存重载/App及序列化连线补充未完成。矩阵未通过。
+
+### 41a8用户确认前台后的12键补充诊断
+
+41a8正式失败已仅一次追加至`.local/evidence/TC-SYS-024-M-table-41a8-20261025-ascii-5x10-first.json`，
+SHA`94cdbbad19cdbd3e932d15940143aa99d13075c4b1d1d77b747c12d46751ff63`，186附件；
+AS-SYS-024-001为failed、002为not-executed，原185附件草稿未改，旧显隐ABA不混入正式数据。
+
+用户确认本任务及右侧8237已前台后，首次工具仍返回false/queued，DOM为visible；
+浏览器缩放复位后1920×1080、DPR1，后续工具读数true。这些不同时间与作用域原件全部保留。
+预登记`.local/validation/41a8-user-foreground-supplement-plan.json` SHA`a3248b60…`，
+继续同41a8/834d、同原始M身份与当前已重开O/y状态，无reload；三块各预热10秒、A:P/B:z/A:O/B:y，
+仍为立即DOM读取、600ms停留后原生Tab，不改变观察器时限。背景8247已经8965，是明确记录的环境差异。
+
+12次editing/display均observed，editing范围255.6–388ms、中位306.15ms，**全部超过100ms**；
+三块N4最近秩p95为388/338.4/346.3ms，只作描述，不替代正式50次或声明预算通过。
+退出编辑至display完成为469.1–675.2ms、中位631.05ms；实际停留601–614ms，0动作错误，33次outside拒绝原因不猜。
+六次前后环境端点均为1920×1080/DPR1/50%、DOM visible和工具true，最终值仍O/y；不证明连续前台或因果。
+首次setup字符串代码生成被拒在计时前、0输入，已保留；随后显式函数定义未重发任何已发送键。
+
+原始系列`.local/performance-actual/M-table-41a8-user-foreground-supplement-*`；
+分析`.local/validation/41a8-user-foreground-supplement-analysis-first/analysis-first.json` SHA`d11a91ab…`，
+57份原件归档清单SHA`61999951…`，独审`.local/validation/41a8-user-foreground-supplement-independent-review.json`
+SHA`6a29bca1…`。旧正式失败、旧ABA缺测和全部历史候选不变。
+
+只读审计定位普通单格输入后的`updateFooter→refreshStates`会扫描500行/5000格，但尚未量化其占用；
+测试分段观察器原先只包`DocumentController.edit`，实际输入使用`replace`，空edit记录不等于持久化成本为0。
+新增测试专用replace边界保留原事件lease与身份检查，34项相关检查通过；既有wrapper的DOM身份检查成本未扣除。
+这些源码与机制事实不构成性能收益证明。Chrome扩展新建8247页另报HTTP响应失败，拥有的错误页已关闭，
+本机HTTP200不等同Chrome可达；真实Windows中文输入法仍未执行。M6未通过，不发布。
+
+### 读取时序ABA与同步持久化分段
+
+固定旧41a8/834d/0f589夹具，在同页1920×1080/DPR1/50%追加预登记12键A1/B/A2。
+A在按键后立即读编辑态再停留600ms；B在按键返回后602–609ms内无显式页面读取，再读编辑态并Tab；A2恢复。
+三块各四个editing/display均完整，全部editing超100ms；中位235.70/295.95/284.30ms，N4 p95为256.2/372.2/345.4ms。
+B没有显示一致改善；不能因此证明工具读取有或没有因果影响。原生按键API内部行为未知，被动834d读取仍在，
+实际key→Tab时长也不完全相同。原始系列`M-table-41a8-tool-dom-ABA-*`、30原件归档与独审均保留；
+独审`.local/validation/41a8-tool-dom-ABA-independent-review.json` SHA`4adc850e…`，不作正式追加。
+
+随后仅8237测试夹具更新到19文件`3663cd47…`，产品仍固定41a8/515/d9da；新方法观察器`52780a9d…`只补replace边界，
+语义观察器834d未改。严格停机刷新保留原生保存件、SQLite逻辑备份、停止后的数据库/sidecars及旧夹具原字节，
+v2显式关闭SQLite备份连接；首次ready SHA`2bcd4d12…`。这不是M6一致性封存。
+真实页面重载后只开启方法观察器，按同M身份及O/y执行P/z/O/y四键，实际停留603/612/611/604ms；
+4样本complete、9边界available，每次恢复exact且无冲突。replace包含时间104.7/82.7/82.3/86.0ms，
+等于已记录区间union；history组union38.1/38.1/37.6/41.1ms，13次graph.serialize单次8.4–10.2ms均嵌套其中，不能相加。
+这些是同步方法包络，既有身份检查扰动未扣除，不是CPU自耗时、输入延迟或100ms通过。
+
+方法原始报告`M-input-replace-stages-41a8-first-raw.json` SHA`b5d0bfec…`，
+独审`.local/validation/input-replace-stages-41a8-independent-review.json` SHA`e7882a12…`。
+五项准备首错包括重载读取超时、重叠面板、选择器失配，全部保留；前控结束至首动作41.117秒空隙明确记录，不能充作CPU基线。
+最终原生保存件仍与旧O/y文件逐字相同`83759b4c…`；8965四实例另存件`53507064…`保留原4个ID、2条连线及四份widgets_values。
+
+### e9ea候选部署与四实例复验
+
+代码提交`cd0cff8ed1de83c8a3d62c6494b7aa2da049cd4c`，构建`e9ea44f50e332962bae419775d0aae5e338f616b493442bda2e8135b225fe6e8`。
+单格状态刷新只在内建generic/no-prompt_config明确恒空状态、编辑器私有content-cell路径及结构/配置/DOM身份不变时处理目标行；
+未知或全表依赖、结构配置变化、派生和异步结果保持原全刷新。没有新增MutationObserver或状态值缓存。
+真实编辑器机制测试从500行/5000格状态扫描降为0行查询/10格访问，未据此换算毫秒收益；整表快照、历史和revision观察仍在。
+共享base-select保留原生主位置和已有候选，另加全横向区域候选；是否解决实际裁切仍待同边界复验。
+
+完整检查首轮291通过/3跳过、业务421通过，212构建文件、142架构模块；方法观察器另有34项相关检查通过。
+固定Git产品517文件SHA`09f2f04204fdc31373a858d29fc2d2fb11e857b9ffcdeac9bd729fce36d467c9`，
+交接`.local/validation/row-state-picker-combined-check/combined-handoff.json` SHA`bf6107ee…`。
+8237与干净8247按固定Git产品分别首次刷新成功，517产品文件及16个产品served响应一致；8237另核19文件测试夹具及3个served脚本。
+刷新保留原生保存工作流和SQLite备份，ready SHA分别为`9f866dc0…`和`16ffa306…`；这些仍不是M6一致性封存或浏览器模块执行证明。
+精确`cd0cff8`的PR/push CI `40181227559` / `40181223893`均completed/success。
+旧测试页保存并关闭后，新8237页面仍实测DPR1.1、1745×982；工具快捷键未恢复登记的1920×1080/DPR1条件，正式50键尚未开始。
+新页首次读取/原始夹具加载后的读取超时均保留；不重复发加载、不把工具超时当作产品加载计时。
+原始M已通过原生文件选择加载并另存为本轮独立文件：300节点身份、400条完整连线、10000个表格值与原79ecd一致，仍为原始中文值。
+初始保存件`d2efa268…`与此前41a8初始保存逐字节相同；原始夹具至宿主保存表示的slot metadata变化另记，不称原slot JSON逐字节等价。
+用户手动复位后，性能页又实测DPR1.71、1123×631，显示请求一度queued；后续工具快捷键未恢复条件。
+正式计划未冻结、正式输入0，所有准备原件在`M-table-semantic-e9ea-*`，不能用缺失数据宣称预算通过。
+
+另一个干净8247页面63的四实例主矩阵实际DPR1，三视口×三倍率×四owner共36组焦点、36次Tab、36次反向Tab及36组菜单均已采集。
+108阶段记录/216端点的正文、归属、connected、选区6/6、四peer和固定控件位置一致，停留1112–1151ms，根滚动均0。
+全部36个Tab目标在根视口内；35个反向Tab目标完整包含，680×720/150% A返回目标宽837.16px、left74/right911.16，按已登记超宽左侧显露记录，不能称整个控件可见。
+初始编辑态680×720/100% A、150% A/B共3处右侧局部越界仍保留；当前6位caret可见，不推定尾部或完整内容可见。
+焦点独审`e9ea-focus-tab-back-independent-review.json` SHA`4e15602c…`核验108图hash/真实JPEG尺寸，实际逐图查看30张关键图，未声称已看其他78图。
+后续独立报告`e9ea-focus-remaining-visual-review.json` SHA`2777bd91…`实际逐张查看其余78图，两集合互斥补齐108张。
+未见新增完全不可见目标；1280×720/100% A的Tab单元格底部被固定快捷键提示条局部遮挡，标签/checkbox仍可见，不能称整个焦点轮廓无遮挡。
+50%细光标和单帧闪烁仍有视觉不确定性，不用DOM选区替代像素判断。原始报告/全部图片未改。
+
+36张实际展开菜单均逐图检查：18个表格对话框、18个原生LLM列表未见菜单边界/选项文字被视口裁切，图片尺寸与实际viewport一致。
+每次即刻DOM→无输入停留1112–1155ms→稳定DOM/截图→Escape→关闭/peer核验均保留。
+表格dialog没有内置owner属性，关联依据真实操作路由和唯一COMPOSER-A/B内容，不伪造直接owner字段。
+菜单独审`e9ea-menu-visual36-independent-review.json` SHA`94e174de…`；348份主矩阵原件清单`e9ea-mainmatrix-raw-manifest.json` SHA`459d7feb…`。
+这是DPR1主矩阵结果，不能追溯填补8965提前截图缺口，也不证明DPR1.1、部分屏外anchor的旧左侧裁切已按同条件修复。
+
+尾部检查另存`prompt-llm-e9ea-tail-functional/`，不改冻结主矩阵。A/B End光标实测在视口内，正文与owner保持。
+B平移前后world x相差24px，停留10秒后仍编辑原单元格。A首次意图24px但实际16px；另次补充实际36px，期间DPR由1变为约1，原因未建立。
+两次A偏差均保留，不称A的24px协议通过；Home首个即时屏外读数和后续独立稳定可见记录也分别保留。
+尾部独审SHA`66e5873e…`已实际查看五张680×720原图，13原件清单SHA`2695234f…`；主矩阵348文件重哈希仍一致。
+A补充退出的两次DOM读取相隔约10ms且几何改变，只保留即时观察，不据此作稳定Tab通过或失败结论。
+用户Esc停止期间没有继续界面采样，之后用户明确允许恢复。模式切换、编辑历史、保存重载/App、原生表间连线专项、真实IME和正式性能仍待完成。
+M6未通过，不发布。
+
+### 7f7196后续候选：无设置条时避免整表扫描
+
+代码`085084f19f8a321be73a704731242eee651b6744`，build`7f7196fb5420dbb28986c0206d823f74d752f373523778b0bff4d3a36c13926c`。
+generation panel只有在当前无生成列且该实例从未创建设置条时跳过row map和全TD扫描，仍先调用onRefresh并清理header。
+曾创建过bar的实例始终保持原扫描，保留删列和分离后重插入cell的WeakMap清理。
+同M真实editor机制首红中为500行映射/5000格扫描，修复为0；这只是回调遍历计数，没有换算实际延迟。
+首轮完整检查291通过/3跳过、业务426通过，517产品文件`b14dee40…`，交接SHA`7ab0213c…`。
+已推送草稿分支但未部署，e9ea主矩阵不替代此候选的受影响实际复验。全部旧失败与100ms门禁不变。
+
+### 07c934输入链候选：资格扫描与同值文字赋值
+
+在085084f之后合并两个限定变化：对已规范化且无生成列的表，私有syncFrameTags和syncPromptChanges入口只检查字段描述后返回；
+不再先执行没有后续业务作用的prompt-column资格扫描。未知外层/字段形状回原路，公开model API与配置表的同步保持原行为。
+updateSummary的两个按钮和普通状态文字在实际textContent相同时不赋值；选中行计算、禁用/隐藏状态以及配置表的问题定位控件仍按原路径更新。
+只有parseButton位于generation childList观察范围内，不能把三次setter都称为三个实际观察器回调。
+
+同M机制首红分别测得refresh及pre-save入口各5010次字段值读取，新候选均为0；同值summary的3次setter变为0。
+真实editor/document/input链与有界DOM替身回归覆盖两owner、历史、配置帧同步、删列/重插清理和外部文字变化；不是浏览器布局、CPU或延迟测试。
+首次测试替身递归遍历中止、后续替身修正和有效首红日志都保留在`.local/validation/generation-input-empty-chain/`。
+72项相关检查通过；单次完整检查291通过/3跳过、业务430通过，142模块/212构建文件，日志SHA`b7797b47…`。
+提交`3afdf061baa902087ed84e7d788bfaf9a94fb3c6`，构建`07c9345536f526b4da004de8ee4d92271c266f89923d8b2cef111eb04ba258aa`，517产品文件SHA`4ca9959998021646ff6917b22d3122733b917805fd31cca89ed9d58b3caacb2d`。
+独审SHA`5dd75b05…`、完整交接SHA`66887f51…`。未部署，未执行新的正式50键，不从旧replace时间中扣除估算收益。
+Canvas全卡同步、历史快照/序列化、引用revision等剩余路径没有足够等价证明，因此本候选未跳过这些行为。M6与发布门禁不变。
+固定Git归档SHA`73c30d62…`与517文件完整manifest逐项相等，归档准备handoff SHA`bfd50bfc…`；原e9ea包未变。
+下一次正式采样优先最新07c934，e9ea保持未冻结/0正式输入/未执行，全部前态、首错和计划保留；原M、834d、50动作、100ms和环境合同不放宽。
+此决策独立记录SHA`68913f64…`，不把准备文件当作实际运行证据。
