@@ -1,4 +1,5 @@
 import type { AsyncEditTicket, EditIdentity, EditTarget, EditTransactionOptions, NativeDocumentPort } from '../contracts/ports.js';
+import { snapshotJson } from '../contracts/json_snapshot.js';
 
 const sameIdentity = (a: EditIdentity, b: EditIdentity): boolean =>
   a.workflowSession === b.workflowSession && a.epoch === b.epoch &&
@@ -13,6 +14,15 @@ export class DocumentController<T> {
   edit(label: string, mutation: (document: T) => void, options?: EditTransactionOptions): void {
     if (this.#disposed) throw new Error('Document controller has been released');
     this.port.transact(label, mutation, options);
+  }
+
+  replace(label: string, value: T, options?: EditTransactionOptions): void {
+    if (this.#disposed) throw new Error('Document controller has been released');
+    if (this.port.replace) this.port.replace(label, value, options);
+    else this.port.transact(label, draft => {
+      for (const key of Object.keys(draft as object)) delete (draft as Record<string, unknown>)[key];
+      Object.defineProperties(draft as object, Object.getOwnPropertyDescriptors(snapshotJson(value)));
+    }, options);
   }
 
   beginRequest(requestId: string, target?: EditTarget): AsyncEditTicket {

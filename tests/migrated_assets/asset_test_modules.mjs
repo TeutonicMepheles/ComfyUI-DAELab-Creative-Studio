@@ -24,4 +24,4 @@ export function moduleURL(relative,replacements={}){
 }
 export const favoriteURL=moduleURL('features/assets/asset_favorite.mjs',{'./asset_library_model.mjs':modelURL});
 export const libraryURL=moduleURL('features/assets/asset_library.mjs',{'./asset_library_model.mjs':modelURL,'./asset_favorite.mjs':favoriteURL});
-export const canvasViewURL=moduleURL('canvas/creative_canvas_view.mjs',{'../features/assets/asset_library.mjs':libraryURL,'../application/asset_library_service.js':serviceURL});
+export const canvasViewURL=moduleURL('canvas/creative_canvas_view.mjs',{'../features/assets/asset_library.mjs':libraryURL,'../application/asset_library_service.js':serviceURL,'./creative_focus_reveal.js':uri(ts.transpileModule(readFileSync(new URL('canvas/creative_focus_reveal.ts',root),'utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText)});

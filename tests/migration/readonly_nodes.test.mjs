@@ -9,8 +9,11 @@ import {canvasHistory} from '../../frontend/src/integrations/comfyui/canvas/crea
 
 const root = new URL('../../frontend/src/', import.meta.url);
 const uri = code => 'data:text/javascript;base64,' + Buffer.from(code).toString('base64');
-function compiled(path) { return uri(ts.transpileModule(readFileSync(new URL(path,root),'utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText); }
-const coreUrl = compiled('compat/readonly_nodes.ts'), controllerUrl = compiled('application/document_controller.ts');
+function compiled(path,dependencies={}) {
+  const code=ts.transpileModule(readFileSync(new URL(path,root),'utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText;
+  return uri(code.replace(/from (['"])([^'"]+)\1/g,(_,quote,specifier)=>`from ${quote}${dependencies[specifier]??specifier}${quote}`));
+}
+const coreUrl = compiled('compat/readonly_nodes.ts'), controllerUrl = compiled('application/document_controller.ts',{'../contracts/json_snapshot.js':compiled('contracts/json_snapshot.ts')});
 const core = await import(coreUrl);
 const integrationFile = new URL('integrations/comfyui/compat_readonly.js', root);
 const integrationCode = readFileSync(integrationFile,'utf8').replace(/from (['"])([^'"]+)\1/g, (_,quote,path) => `from ${quote}${path==='../../compat/readonly_nodes.js'?coreUrl:path==='../../application/document_controller.js'?controllerUrl:new URL(path,integrationFile).href}${quote}`);

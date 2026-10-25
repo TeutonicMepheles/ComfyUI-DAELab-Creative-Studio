@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "510538aaa7878945ca242282fc9236ea8106bcc9216216389caf7af026c8f6c3",
+  "sourceFingerprint": "a2da4e1a97e1294f6d9f8c5d0659acfaf99114c51bc6f3274a4ca0516b930061",
   "files": [
     {
       "path": "application/asset_library_service.js",
@@ -12,11 +12,11 @@
     },
     {
       "path": "application/business_document.js",
-      "sha256": "28db17bb997bfd7e65f4c1e05c070ef93a11bdab5f882edcb1fdc679d1558ea3"
+      "sha256": "903b3279031a196b8de3b349b58af937f9ec98486599b97f458b7d5ad2200fdb"
     },
     {
       "path": "application/document_controller.js",
-      "sha256": "c4dc3ecbce278c894f179c9eb0ad7fd09dbb4b3b37f627355a7a980107799ab1"
+      "sha256": "c1df201283d16e3a2a55a38f3203cd4075216aa8f3bfcc07cfe616d7eaf2f927"
     },
     {
       "path": "application/media_export_service.js",
@@ -36,7 +36,7 @@
     },
     {
       "path": "canvas/creative_canvas_view.mjs",
-      "sha256": "0aa3776f4c4284c69a521acad4a416e83a5adeda2e395ae8c531200b3a1731b9"
+      "sha256": "14fbaed65dacdd22eea6d083f93a431a1f1c2987c7a899b3861e9e13b360e9aa"
     },
     {
       "path": "canvas/creative_connections.mjs",
@@ -45,6 +45,10 @@
     {
       "path": "canvas/creative_contract.mjs",
       "sha256": "c51ad7454f9fe3c3d57ee6591143e21de415893b94cf3c612a13ce10fb8848aa"
+    },
+    {
+      "path": "canvas/creative_focus_reveal.js",
+      "sha256": "d52f790314da3bfe28c62d761cc2a922fdd55adb957146abd8e1ab1bb04ce0cf"
     },
     {
       "path": "canvas/creative_input_exchange.mjs",
@@ -808,7 +812,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "ce910059c2af35166ed321d9da12dc162e79806937aabfc0b92a8f7f53bc649d"
+      "sha256": "4a489ec789e5b58773887e2dda6d32e8b8c9c6cc9fe152972c22db20e1375fa0"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

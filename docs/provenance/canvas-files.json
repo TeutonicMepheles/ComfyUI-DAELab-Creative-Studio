@@ -85,7 +85,7 @@
       "source": "web/creative_canvas_view.mjs",
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
       "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
-      "destinationSha256": "0aa3776f4c4284c69a521acad4a416e83a5adeda2e395ae8c531200b3a1731b9",
+      "destinationSha256": "14fbaed65dacdd22eea6d083f93a431a1f1c2987c7a899b3861e9e13b360e9aa",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "remove opt-in test gallery rendering; retain unrelated graph.extra data",
@@ -97,7 +97,8 @@
         "PERF-01 candidate from actual c7a5aa long-animation-frame trace: collect magnetic/receiving-wire/card geometry before style writes; preserve ordinary port same-frame endpoint translation/reset and unified card-edge anchors; skip unchanged magnetic attributes. Browser performance reacceptance pending.",
         "PERF-02 candidate: compare live serialized DOM/IDL values before card update assignments; retain every adapter/task/port/layout callback, polling and geometry read order. Two-owner state/focus/resize write-count checks pass; actual input/performance reacceptance pending.",
         "Add opt-in projectedMaterialTargets adapter capability for visual Slot projection; preserve the complete legacy target snapshot/source order when absent, native slot indices, unknown own fields, geometry and callbacks. Mechanism and compatibility tests pass; actual performance acceptance pending.",
-        "Stable input-port projection candidate: measure existing independent body-local anchors/clips before guarded DOM paint; preserve creation/output/duplicate or external-geometry fallback order, live inline/priority repair, geometry failure partial updates, focus, native slots and source callback sequence. No geometry cache or decimal rounding; focused mechanism checks are not latency acceptance."
+        "Stable input-port projection candidate: measure existing independent body-local anchors/clips before guarded DOM paint; preserve creation/output/duplicate or external-geometry fallback order, live inline/priority repair, geometry failure partial updates, focus, native slots and source callback sequence. No geometry cache or decimal rounding; focused mechanism checks are not latency acceptance.",
+        "Add transient caret reveal through the existing viewport navigation: creation-time native lookup and exact card/panel leases, composition/manual-navigation cancellation, no focus/scroll/business or undo-entry writes. Actual two-instance viewport acceptance remains pending."
       ],
       "kind": "production-source"
     },
@@ -1039,6 +1040,28 @@
       "kind": "rule-regression",
       "changes": [
         "Guard the two exact owned body scopes, actual root constructor/lease identity, preserved public sibling controls, and exhaustive CSS/JS zoom dependencies; no browser layout or performance pass claimed."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "frontend/src/canvas/creative_focus_reveal.ts",
+      "destinationSha256": "b462bd2dea7ea66d1f209ec2e192aafa762dbbf9c657395d9425866d504f5ec8",
+      "kind": "production-source",
+      "changes": [
+        "Authored strict TypeScript focus coordinator: one coalesced frame reads a collapsed Range and root viewport; visible caret skips ancestor clipping checks. Only needed translations inspect inner clipping. Native text controls use whole-control bounds only when they fit; oversized controls and noncollapsed selections are deliberately not guessed."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "tests/migrated_canvas/creative_focus_reveal.test.mjs",
+      "destinationSha256": "0c399e2c3e6d4f0f1104d8ed36785680bfebac520eb0a169c2ca0aaddf4e62a9",
+      "kind": "rule-regression",
+      "changes": [
+        "Execute actual core and view lease binding with two owners and native viewport history; cover stale identity, composition/229, manual navigation, geometry and read/write boundaries. Synthetic DOM does not prove browser geometry, IME or latency."
       ]
     }
   ],

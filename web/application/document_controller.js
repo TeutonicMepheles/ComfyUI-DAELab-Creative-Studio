@@ -1,3 +1,4 @@
+import { snapshotJson } from '../contracts/json_snapshot.js';
 const sameIdentity = (a, b) => a.workflowSession === b.workflowSession && a.epoch === b.epoch &&
     a.documentId === b.documentId && a.recordId === b.recordId && a.fieldId === b.fieldId;
 /** One edit entry point over native workflow state. No shadow document or job state. */
@@ -12,6 +13,18 @@ export class DocumentController {
         if (this.#disposed)
             throw new Error('Document controller has been released');
         this.port.transact(label, mutation, options);
+    }
+    replace(label, value, options) {
+        if (this.#disposed)
+            throw new Error('Document controller has been released');
+        if (this.port.replace)
+            this.port.replace(label, value, options);
+        else
+            this.port.transact(label, draft => {
+                for (const key of Object.keys(draft))
+                    delete draft[key];
+                Object.defineProperties(draft, Object.getOwnPropertyDescriptors(snapshotJson(value)));
+            }, options);
     }
     beginRequest(requestId, target) {
         if (this.#disposed)

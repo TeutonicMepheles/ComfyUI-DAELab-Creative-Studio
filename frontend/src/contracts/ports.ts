@@ -14,6 +14,8 @@ export interface NativeDocumentPort<T> {
   revision(target?: EditTarget): number;
   /** The host owns history and rollback; nested derived edits join this transaction. */
   transact(label: string, edit: (document: T) => void, options?: EditTransactionOptions): void;
+  /** Optional whole-value edit, with the same isolation, validation and history contract as transact. */
+  replace?(label: string, value: T, options?: EditTransactionOptions): void;
 }
 export interface EditTarget { recordId?: string; fieldId?: string }
 export interface EditTransactionOptions {

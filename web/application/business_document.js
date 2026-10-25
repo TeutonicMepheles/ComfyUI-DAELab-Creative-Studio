@@ -16,6 +16,37 @@ export function createBusinessDocument(options) {
             }
         }
     };
+    const commit = (before, next, settings) => {
+        if (!settings.afterWrite && JSON.stringify(before) === JSON.stringify(next))
+            return;
+        const continuing = !!settings.group && settings.group === group && options.historyStamp?.() === lastHistoryStamp;
+        const write = () => {
+            try {
+                options.write(next);
+                settings.afterWrite?.();
+            }
+            catch (error) {
+                options.write(before);
+                throw error;
+            }
+            finally {
+                observe();
+            }
+        };
+        if (settings.derived || continuing)
+            options.history.amend(write);
+        else {
+            options.history.begin();
+            try {
+                write();
+            }
+            finally {
+                options.history.end();
+            }
+        }
+        group = settings.group ?? null;
+        lastHistoryStamp = options.historyStamp?.();
+    };
     const port = {
         read: options.read,
         identity(target = {}) {
@@ -39,35 +70,23 @@ export function createBusinessDocument(options) {
             const before = snapshotJson(options.read()), draft = snapshotJson(before);
             edit(draft); // Validation/mutation happens before opening host history.
             const next = snapshotJson(draft);
-            if (!settings.afterWrite && JSON.stringify(before) === JSON.stringify(next))
-                return;
-            const continuing = !!settings.group && settings.group === group && options.historyStamp?.() === lastHistoryStamp;
-            const write = () => {
-                try {
-                    options.write(next);
-                    settings.afterWrite?.();
-                }
-                catch (error) {
-                    options.write(before);
-                    throw error;
-                }
-                finally {
-                    observe();
-                }
-            };
-            if (settings.derived || continuing)
-                options.history.amend(write);
-            else {
-                options.history.begin();
-                try {
-                    write();
-                }
-                finally {
-                    options.history.end();
-                }
+            commit(before, next, settings);
+        },
+        replace(_label, value, settings = {}) {
+            assertCurrent();
+            observe();
+            const before = snapshotJson(options.read()), next = snapshotJson(value);
+            if (before !== null && next !== null && typeof before === 'object' && typeof next === 'object' && Array.isArray(before) === Array.isArray(next)) {
+                commit(before, next, settings);
             }
-            group = settings.group ?? null;
-            lastHistoryStamp = options.historyStamp?.();
+            else {
+                // Retain legacy key/descriptor replacement for unlike root containers.
+                const draft = snapshotJson(before);
+                for (const key of Object.keys(draft))
+                    delete draft[key];
+                Object.defineProperties(draft, Object.getOwnPropertyDescriptors(next));
+                commit(before, snapshotJson(draft), settings);
+            }
         },
     };
     const controller = new DocumentController(port);
@@ -82,7 +101,7 @@ export function createBusinessDocument(options) {
         controller, read: options.read, observe,
         edit: (label, edit, settings) => controller.edit(label, edit, settings),
         replace(value, settings) {
-            controller.edit('编辑内容', replacement(value), settings);
+            controller.replace('编辑内容', value, settings);
         },
         replaceResults: (tickets, value, settings) => controller.applyResults(tickets, '应用审阅结果', replacement(value), settings),
         beginRequest: (requestId, target) => controller.beginRequest(requestId, target),

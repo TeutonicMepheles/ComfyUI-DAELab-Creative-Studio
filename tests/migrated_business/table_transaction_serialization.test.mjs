@@ -59,11 +59,11 @@ function harness({native=true,content=false,validate=()=>{},removeEmpty=false,pr
   nativeEdit(){value={...value,future:{...value.future,native:true}};stamp++;},detach(){active=false;}};
 }
 
-test('native table edit skips four unused encodings while retaining every snapshot and widget encoding',t=>{
+test('native table edit keeps two replacement snapshots and the required widget encodings',t=>{
  const h=harness(),before=duplicate(h.value);let retainedDraft;
  const counts=encodings(()=>h.change(next=>{retainedDraft=next;next.records[0].values.a+=' edited';},{render:false,group:'typing'}));
  t.diagnostic('whole-table encodings: '+JSON.stringify(counts));
- assert.deepEqual(counts,{validated:4,plain:3,total:7});
+ assert.deepEqual(counts,{validated:2,plain:3,total:5});
  assert.deepEqual(h.events,['validate','history.begin','write','observed','footer','history.end']);
  assert.equal(h.value.records[0].values.a,'中文 English edited');
  assert.deepEqual(JSON.parse(h.wire),h.value);

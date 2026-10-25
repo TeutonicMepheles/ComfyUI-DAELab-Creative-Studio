@@ -5,6 +5,7 @@ import {createTaskCapsules} from '../features/tasks/creative_tasks.mjs';
 import {bindPanelContext} from '../ui/creative_panel_context.mjs?v=20260930-public-layout4';
 import {isPanelActive} from '../ui/creative_panel_state.mjs?v=20261013-active-state';
 import {wheelViewport,copySnapshot,readSnapshot} from './creative_navigation.mjs';
+import {createCaretReveal} from './creative_focus_reveal.js';
 import {UPLOAD_TYPE,mediaKind,readAsset} from '../features/assets/media_upload_model.mjs';
 import {MATERIAL_SLOT,uploadKind,sourceSlots,resolveOutput,targetChoices,outputSelector,inputSelector,unifiedNode,inputSlots} from './creative_connections.mjs';
 import {menuItems,canConnectDefinition,matchingSlot} from './creative_canvas_catalog.mjs';
@@ -86,7 +87,22 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         // Read every port/path/card before magnetic and wire styles invalidate layout.
         hoverPoint=null;drawWires(paintHover,portShifts);
     });}
-    const cards=new Map(),layers=new WeakMap();let topLayer=1,selectedLink=null,addPoint=null,pickerConnection=null,workspace=null;
+    const cards=new Map(),layers=new WeakMap(),cardOwners=new WeakMap();let topLayer=1,selectedLink=null,addPoint=null,pickerConnection=null,workspace=null;
+    const caretReveal=createCaretReveal({
+        root,
+        owner(editor){
+            const identity=cardOwners.get(editor.closest('.dae-creative-card')),c=identity?.card;
+            if(!c)return null;
+            const ownerGraph=graph,ownerState=state,ownerPanel=c.panel,ownerRelease=c.release,ownerNode=identity.node;
+            return {isCurrent:()=>visible&&!workspace&&!drag&&graph===ownerGraph&&host.graph()===ownerGraph&&state===ownerState
+                &&ownerGraph.extra?.daelabCreativeCanvasV1===ownerState&&cards.get(c.node.id)===c
+                &&ownerNode!=null&&ownerGraph.getNodeById(c.node.id)===ownerNode
+                &&cardOwners.get(c.element)===identity&&c.panel===ownerPanel&&c.release===ownerRelease
+                &&isPanelActive(c.node)&&!c.body.hidden&&!c.body.inert&&c.element.contains(c.body)
+                &&root.contains(c.element)&&c.body.contains(editor)};
+        },
+        pan({dx,dy}){state.viewport.x-=dx;state.viewport.y-=dy;navigate();},
+    });
     const dirty=()=>{host.changed(graph);};
     const message=text=>{status.textContent=text;};
     const assetLibrary=createAssetLibrary(root,{
@@ -118,9 +134,10 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
     function compactCard(c){const limit=adapterFor(c.node)?.compactWidth,width=typeof limit==='function'?limit(c.node):limit;return Boolean(width&&c.layout.width*state.viewport.zoom<width&&workspace?.c!==c);}
     function viewport(){cancelAnimationFrame(viewportFrame);viewportFrame=0;setMagnet(null);const v=state.viewport;root.style.setProperty('--dae-canvas-zoom',String(v.zoom));root.style.setProperty('--dae-canvas-inverse-zoom',String(1/v.zoom));world.style.transform=`translate(${v.x}px,${v.y}px) scale(${v.zoom})`;grid.style.backgroundSize=`${24*v.zoom}px ${24*v.zoom}px`;grid.style.backgroundPosition=`${v.x}px ${v.y}px`;zoomLabel.textContent=`${Math.round(v.zoom*100)}%`;for(const c of cards.values())if(c.element.dataset.compact!==String(compactCard(c)))update(c);queueLayout();}
     function navigate(){history.updateViewport(state.viewport);if(!viewportFrame)viewportFrame=requestAnimationFrame(()=>{viewport();animateWires();host.redraw(graph);});}
-    function setZoom(factor){state.viewport=zoomAt(state.viewport,{x:root.clientWidth/2,y:root.clientHeight/2},factor);navigate();}
+    function setZoom(factor){caretReveal.suspend();state.viewport=zoomAt(state.viewport,{x:root.clientWidth/2,y:root.clientHeight/2},factor);navigate();}
     zoom.append(button('−',()=>setZoom(0.8)),zoomLabel,button('+',()=>setZoom(1.25)),button('适应',fit));
     function fit(){
+        caretReveal.suspend();
         const list=[...cards.values()];if(!list.length){state.viewport={x:60,y:60,zoom:.8};navigate();return;}
         const minX=Math.min(...list.map(c=>c.layout.x-(unifiedNode(c.node||{})?60:0))),minY=Math.min(...list.map(c=>c.layout.y));
         const maxX=Math.max(...list.map(c=>c.layout.x+c.layout.width+(unifiedNode(c.node||{})?60:0))),maxY=Math.max(...list.map(c=>c.layout.y+c.element.offsetHeight));
@@ -346,6 +363,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
             },
             panBy(dx,dy){
                 if(!leased||!visible||c.body.hidden||c.body.inert||!Number.isFinite(dx)||!Number.isFinite(dy))return false;
+                caretReveal.suspend();
                 state.viewport.x-=dx;state.viewport.y-=dy;navigate();return true;
             },
         });
@@ -376,6 +394,9 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         element.style.zIndex=String(layers.get(node)??(node.type===GROUP_TYPE?0:1));
         const heading=el('header','dae-creative-heading'),title=el('strong','',node.title||node.type),media=el('div','dae-creative-media'),summary=el('div','dae-creative-summary'),body=el('div','dae-creative-body'),portBox=el('div','dae-creative-ports');
         const c={node,layout,element,heading,title,media,summary,body,fields:el('div','dae-creative-fields'),ports:portBox,panel:null,release:null,portSignature:null};
+        // Capture the native lookup identity at creation, independently of a
+        // possible Vue proxy in c.node; same-ID replacement cannot reuse a lease.
+        cardOwners.set(element,{card:c,node:graph.getNodeById(node.id)});
         const adapter=adapterFor(node),floatingHeader=typeof adapter?.floatingHeader==='function'?adapter.floatingHeader(node):!!adapter?.floatingHeader;element.dataset.floatingHeader=String(floatingHeader);
         const category=menuItems().find(item=>item.type===node.type);
         if(category&&node.type!==UPLOAD_TYPE)heading.append(categoryIcon(category));
@@ -540,7 +561,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         else if(drag?.kind==='wire'&&drag.point)previewConnection(drag,drag.point);
         if(changed)root.dispatchEvent(new Event('dae-canvas-wires-changed'));
     }
-    function clear(){assetLibrary.close();cancelAnimationFrame(viewportFrame);viewportFrame=0;previewMaterialDrop(null);cancelAnimationFrame(layoutFrame);layoutFrame=0;cancelAnimationFrame(wireFrame);wireFrame=0;hoverPoint=null;incomingWire=null;wirePaths.clear();setMagnet(null);closeWorkspace();closePicker();for(const c of cards.values()){c.cancelWidthResize?.();resizeObserver.unobserve(c.element);clearMaterialPorts(c);adapterFor(c.node)?.panel?.(c.node)?.close?.();c.release?.();c.tasks?.destroy();c.element.remove();}cards.clear();wires.replaceChildren();selected.clear();marquee.hidden=true;delete root.dataset.panning;selectedLink=null;pending=null;drag=null;}
+    function clear(){caretReveal.cancel();assetLibrary.close();cancelAnimationFrame(viewportFrame);viewportFrame=0;previewMaterialDrop(null);cancelAnimationFrame(layoutFrame);layoutFrame=0;cancelAnimationFrame(wireFrame);wireFrame=0;hoverPoint=null;incomingWire=null;wirePaths.clear();setMagnet(null);closeWorkspace();closePicker();for(const c of cards.values()){c.cancelWidthResize?.();resizeObserver.unobserve(c.element);clearMaterialPorts(c);adapterFor(c.node)?.panel?.(c.node)?.close?.();c.release?.();c.tasks?.destroy();c.element.remove();}cards.clear();wires.replaceChildren();selected.clear();marquee.hidden=true;delete root.dataset.panning;selectedLink=null;pending=null;drag=null;}
     function syncPositions(ids){
         for(const id of ids){const c=cards.get(id);if(c){c.element.style.left=`${c.layout.x}px`;c.element.style.top=`${c.layout.y}px`;}}
         animateWires();queueLayout();
@@ -798,12 +819,12 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
                 if(/auto|scroll/.test(overflow)&&(horizontal?owner.scrollWidth>owner.clientWidth:owner.scrollHeight>owner.clientHeight))return;
             }
         }
-        closePicker();setMagnet(null);e.preventDefault();e.stopPropagation();const r=root.getBoundingClientRect();
+        caretReveal.suspend();closePicker();setMagnet(null);e.preventDefault();e.stopPropagation();const r=root.getBoundingClientRect();
         state.viewport=wheelViewport(state.viewport,{x:e.clientX-r.left,y:e.clientY-r.top},e,root.clientHeight);navigate();
     },{passive:false,capture:true});
     root.addEventListener('pointerdown',e=>{
         if(e.button!==1||e.target.closest('dialog,.dae-creative-picker,.dae-library-overlay'))return;
-        e.preventDefault();e.stopPropagation();setMagnet(null);closePicker();root.focus();
+        caretReveal.suspend();e.preventDefault();e.stopPropagation();setMagnet(null);closePicker();root.focus();
         drag={kind:'pan',x:e.clientX,y:e.clientY,original:{...state.viewport}};root.dataset.panning='true';root.setPointerCapture(e.pointerId);
     },true);
     root.addEventListener('auxclick',e=>{if(e.button===1)e.preventDefault();});
@@ -893,5 +914,5 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
     function show(){graph=host.graph();state=canvasState(graph);state.active=true;visible=true;root.hidden=false;document.body.dataset.daelabCreative='true';viewport();sync();dirty();}
     function hide(save=true){root.dispatchEvent(new Event('dae-canvas-hide'));if(save&&state){state.active=false;dirty();}visible=false;root.hidden=true;delete document.body.dataset.daelabCreative;clear();closePicker();host.redrawNative();}
     const timer=setInterval(sync,250);root.hidden=true;
-    return {root,show,hide,sync,syncPositions,add,fit,select,receiveMaterialGroup,previewMaterialDrop,get selectedIds(){return [...selected];},get active(){return visible;},destroy(){hide(false);assetLibrary.destroy();resizeObserver.disconnect();clearInterval(timer);root.remove();}};
+    return {root,show,hide,sync,syncPositions,add,fit,select,receiveMaterialGroup,previewMaterialDrop,get selectedIds(){return [...selected];},get active(){return visible;},destroy(){caretReveal.destroy();hide(false);assetLibrary.destroy();resizeObserver.disconnect();clearInterval(timer);root.remove();}};
 }

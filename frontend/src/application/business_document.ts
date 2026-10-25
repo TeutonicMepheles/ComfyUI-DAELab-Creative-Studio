@@ -27,6 +27,19 @@ export function createBusinessDocument<T>(options: BusinessDocumentOptions<T>) {
       if (stamp !== entry.stamp) { entry.stamp = stamp; entry.version++; }
     }
   };
+  const commit = (before: T, next: T, settings: EditTransactionOptions) => {
+    if (!settings.afterWrite && JSON.stringify(before) === JSON.stringify(next)) return;
+    const continuing = !!settings.group && settings.group === group && options.historyStamp?.() === lastHistoryStamp;
+    const write = () => {
+      try { options.write(next); settings.afterWrite?.(); }
+      catch (error) { options.write(before); throw error; }
+      finally { observe(); }
+    };
+    if (settings.derived || continuing) options.history.amend(write);
+    else { options.history.begin(); try { write(); } finally { options.history.end(); } }
+    group = settings.group ?? null;
+    lastHistoryStamp = options.historyStamp?.();
+  };
   const port: NativeDocumentPort<T> = {
     read: options.read,
     identity(target = {}) {
@@ -46,17 +59,20 @@ export function createBusinessDocument<T>(options: BusinessDocumentOptions<T>) {
       const before = snapshotJson(options.read()), draft = snapshotJson(before);
       edit(draft); // Validation/mutation happens before opening host history.
       const next = snapshotJson(draft);
-      if (!settings.afterWrite && JSON.stringify(before) === JSON.stringify(next)) return;
-      const continuing = !!settings.group && settings.group === group && options.historyStamp?.() === lastHistoryStamp;
-      const write = () => {
-        try { options.write(next); settings.afterWrite?.(); }
-        catch (error) { options.write(before); throw error; }
-        finally { observe(); }
-      };
-      if (settings.derived || continuing) options.history.amend(write);
-      else { options.history.begin(); try { write(); } finally { options.history.end(); } }
-      group = settings.group ?? null;
-      lastHistoryStamp = options.historyStamp?.();
+      commit(before, next, settings);
+    },
+    replace(_label, value, settings = {}) {
+      assertCurrent(); observe();
+      const before = snapshotJson(options.read()), next = snapshotJson(value);
+      if (before !== null && next !== null && typeof before === 'object' && typeof next === 'object' && Array.isArray(before) === Array.isArray(next)) {
+        commit(before, next, settings);
+      } else {
+        // Retain legacy key/descriptor replacement for unlike root containers.
+        const draft = snapshotJson(before);
+        for (const key of Object.keys(draft as object)) delete (draft as Record<string, unknown>)[key];
+        Object.defineProperties(draft as object, Object.getOwnPropertyDescriptors(next));
+        commit(before, snapshotJson(draft), settings);
+      }
     },
   };
   const controller = new DocumentController(port);
@@ -70,7 +86,7 @@ export function createBusinessDocument<T>(options: BusinessDocumentOptions<T>) {
     controller, read: options.read, observe,
     edit: (label: string, edit: (document: T) => void, settings?: EditTransactionOptions) => controller.edit(label, edit, settings),
     replace(value: T, settings?: EditTransactionOptions) {
-      controller.edit('编辑内容', replacement(value), settings);
+      controller.replace('编辑内容', value, settings);
     },
     replaceResults: (tickets: readonly AsyncEditTicket[], value: T, settings?: EditTransactionOptions) => controller.applyResults(tickets, '应用审阅结果', replacement(value), settings),
     beginRequest: (requestId: string, target?: EditTarget) => controller.beginRequest(requestId, target),
