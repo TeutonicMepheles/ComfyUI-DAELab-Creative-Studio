@@ -16,12 +16,23 @@ export const NATIVE_PAUSE_PINS = Object.freeze({
 const HEX = /^[a-f0-9]{64}$/;
 const proofs = new WeakSet();
 const copy = value => JSON.parse(JSON.stringify(value));
-const fail = reason => { throw Error(reason); };
+const admissionFailures = new WeakMap();
+const FAILURE_REASONS = new Set(['CPU-argv-mismatch', 'DOM-qualification', 'M-DOM-shape', 'M-initial-value', 'M-link-projection', 'M-node-projection',
+  'admission-HTTP', 'admission-cancelled', 'admission-size', 'covered-canvas-required', 'data-property-required', 'duplicate-lease',
+  'fixed-argv-required', 'fixed-registration-required', 'host-qualification', 'invalid-duration', 'isolated-origin-required', 'native-loop-qualification',
+  'origin-changed', 'original-M-required', 'pause-write-failed', 'product-build-mismatch', 'queue-not-empty', 'served-asset-mismatch',
+  'native-pause-property', 'native-gap-property', 'native-rendering-property', 'native-frame-property', 'M-nodes-property']);
+const PROPERTY_REASONS = Object.freeze({pause_rendering: 'native-pause-property', _maximumFrameGap: 'native-gap-property', is_rendering: 'native-rendering-property', frame: 'native-frame-property', _nodes: 'M-nodes-property'});
+function failure(reason) {
+  const safe = FAILURE_REASONS.has(reason) ? reason : 'unexpected-error', error = Error(safe);
+  admissionFailures.set(error, safe); return error;
+}
+const fail = reason => { throw failure(reason); };
 const sha = async (bytes, crypto) => [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map(x => x.toString(16).padStart(2, '0')).join('');
 const plain = value => value && Object.getPrototypeOf(value) === Object.prototype;
 const data = (object, key) => {
   const descriptor = object && Object.getOwnPropertyDescriptor(object, key);
-  if (!descriptor || !('value' in descriptor)) fail('data-property-required');
+  if (!descriptor || !('value' in descriptor)) fail(PROPERTY_REASONS[key] || 'data-property-required');
   return descriptor;
 };
 const finite = value => typeof value === 'number' && Number.isFinite(value);
@@ -223,7 +234,7 @@ export function createNativeCanvasPauseDiagnostic({document, window, app, regist
   function frame(state) {
     return new Promise((resolve, reject) => {
       let id;
-      const abort = () => {window.cancelAnimationFrame(id); state.abort.signal.removeEventListener('abort', abort); reject(Error('admission-cancelled'));};
+      const abort = () => {window.cancelAnimationFrame(id); state.abort.signal.removeEventListener('abort', abort); reject(failure('admission-cancelled'));};
       state.cancelFrame = abort;
       id = window.requestAnimationFrame(() => {state.abort.signal.removeEventListener('abort', abort); state.cancelFrame = null; resolve();});
       state.abort.signal.addEventListener('abort', abort, {once: true});
@@ -239,8 +250,10 @@ export function createNativeCanvasPauseDiagnostic({document, window, app, regist
     const state = {abort, timer: window.setTimeout(() => abort.abort(), 15000), cancelFrame: null, record}; pending = state;
     let stage = 'registration';
     try {
-      const fixed = registrationOf(registration, window.location); const owner = capture(document, window, app, fixture);
+      const fixed = registrationOf(registration, window.location);
+      stage = 'capture-initial'; const owner = capture(document, window, app, fixture);
       if (leases.has(owner.canvas)) fail('duplicate-lease');
+      stage = 'lifetime-setup';
       Object.assign(state, {owner, registration: fixed, mode, wrotePause: false, raf: null, observer: null});
       // Watch lifetime while asynchronous admission is pending too. A hide/load
       // and return to the same graph cannot silently resurrect the old request.
@@ -260,7 +273,7 @@ export function createNativeCanvasPauseDiagnostic({document, window, app, regist
       if (abort.signal.aborted || epoch !== ownEpoch || !isCurrent(owner)) fail('admission-cancelled');
       stage = 'live-loop'; await frame(state); await frame(state);
       if (abort.signal.aborted || epoch !== ownEpoch || !isCurrent(owner) || data(owner.canvas, 'frame').value <= owner.frame) fail('admission-cancelled');
-      const refreshed = capture(document, window, app, fixture);
+      stage = 'capture-repeat'; const refreshed = capture(document, window, app, fixture);
       if (refreshed.canvas !== owner.canvas || refreshed.graph !== owner.graph || refreshed.workflow !== owner.workflow || leases.has(owner.canvas) ||
           !descriptorSame(owner.pause, refreshed.pause) || !descriptorSame(owner.gap, refreshed.gap) || !descriptorSame(owner.rendering, refreshed.rendering) || refreshed.dirtyMethod !== owner.dirtyMethod) fail('admission-cancelled');
       window.clearTimeout(state.timer); pending = null;
@@ -272,8 +285,10 @@ export function createNativeCanvasPauseDiagnostic({document, window, app, regist
       if (mode === 'paused') {state.wrotePause = true; owner.canvas.pause_rendering = true; if (data(owner.canvas, 'pause_rendering').value !== true) fail('pause-write-failed');}
       record.armedAt = now(); record.controlled = true; record.identities = Object.fromEntries(['canvas', 'graph', 'workflow', 'view', 'root', 'native'].map(key => [key, token(owner[key])]));
       record.frameAtArm = state.frameAtArm; record.branch = 'pinned-own-data-gap-exactly-zero'; notify(); return true;
-    } catch {
-      record.failureStage = stage; record.controlled = false;
+    } catch (error) {
+      // Only our own errors carry codes. Never inspect arbitrary message/stack
+      // properties, including a thrown getter or a spoofed known reason string.
+      record.failureStage = stage; record.failureReason = admissionFailures.get(error) ?? 'unexpected-error'; record.controlled = false;
       if (active === state) await stop('setup-failed');
       else {record.stopReason = 'admission-failed'; record.stoppedAt = now(); if (pending === state) cancelPending();}
       notify(); return false;

@@ -1801,3 +1801,17 @@ HUD候选随后完整检查两次首先因迁移清单未同步而失败：`canv
 ### 原生隐藏画布暂停诊断候选
 
 新增test-only模块默认不挂载、不暂停、不监听；只有显式准入后才对固定旧canvas对象设置pause_rendering，并在停止、模式/图切换、隐藏或到期时恢复。只接受固定78产品及实际独审的新宿主收据，严格要求原生_maximumFrameGap===0，避免正限帧间隔下暂停导致短计时器循环；不调用stopRendering/startRendering、不改FPS、graph、历史或834d。定向25项、固定原生方法4项及独立补充5项通过，首红和中间失败保留。独审`.local/validation/native-canvas-pause-diagnostic-independent-first/review.json` SHA`135e44ce5b1498bff701551d0e28e03f2ae5cbd6f291e1354cfd81069b036d58`。尚未实际启用，后续基线—暂停—恢复对照只是诊断，不是产品优化或100ms通过；78的8/8超预算结果继续有效。
+
+### 保存标题补证与8255首次诊断拒绝
+
+8254保存标题的补充8份原件位于`.local/performance-actual/1269-saveas-dirty-public-dom-first/`，清单SHA`e4e6d59867b6c1f4df7469e6bf348acca9aaffdb4cf5fe9d71538de1178b506b`。同一次公开DOM读取显示，verified-first窗口标题带星，该标签却没有dirty指示。按预登记点击另一已保存标签再返回后，verified-first标题clean，四值和两线保持；第一保存标签此时dirty，未清除或隐藏该观察。原生标签切换会加载/重置图，不能把这次恢复单独归因于computed缓存。
+
+离线复现使用本地真实Vue/Pinia及17段原生AST函数体，运行实际saveAs、saveWorkflow、UserFile/ComfyWorkflow保存和标题computed；文件/草稿与useTitle是明确的内存端口。3/3场景确认：raw目标保存后isPersisted/isModified已clean，但已缓存标题仍可能带星；之后经proxy重复写入相同状态仍可不刷新；首次就通过canonical proxy保存的控制组会清星。未执行完整open/load/prepareForSave、HTTP、实际图归一化或8254内部状态采集，因此只证明充分机制，不确定现场唯一原因。首CRLF源校验失败脚本和日志保留，后续直接从source-map原文抽取。交接SHA`233397be38a126b255a769c955ca12f08589f96040e875142701a2723e91826a`；独审`.local/validation/1269-saveas-title-offline-independent-first/review.json` SHA`9958925e5ae310bdd030191a527b1633c4e7845ad17ff7803430347db9fef835`，独立3/3及17处原生抽取/编译字节一致。没有清dirty、改标题或修改宿主。
+
+8255实际运行固定671b792/78b180产品与原19文件加暂停模块/收据绑定器的21文件夹具；运行时独审1361项无失败，报告SHA`2475af7c7706a33e260b014016c05eabb535b11ded435410ad9fca53b8ee9cce`。已将真实启动结果SHA`afe23254f6d2e079ac40fa570b9906887b2c835e7e5e4177950fef93c9473237`通过文件控件绑定，原M分别原生打开及选择于两记录器，原生SaveAs后标题clean。实际1132×638/DPR1.7500000521540642、Canvas50%，原始目标值已由公开DOM确认；拒绝后的公开DOM另记录300个Canvas卡片DOM、每表500行/5000格。这不表示300张卡片都在视口内，也不证明完整准入通过。
+
+首次启用baseline返回拒绝，原始干预记录的armedAt=null、stopReason=admission-failed、failureStage=registration、cleanup.complete=true，未暂停、未Start语义观测、0测试键，paused/restored未执行。该阶段同时涵盖registrationOf和capture，首raw没有保留具体原因，不能由阶段名推断唯一故障。24份首次原件冻结于`.local/performance-actual/native-hidden-draw-78b180-8255-first/`，清单SHA`0a2b39428d7dcb967d3ad39a29a653114bc7bf93f622c8a12b1bc863eb6f8a01`；原生AX超帧、DOM超时、文件控件超时及REPL恢复、指纹fill失败、只读选择器错误均保留，均发生在采样前。未自动重试Arm或放宽资格。此失败不提供任何输入耗时或暂停收益；此前8/8超100ms、正式环境和M6门禁继续有效。
+
+后续test-only候选只拆分capture-initial/lifetime-setup/capture-repeat阶段并记录内部品牌的有限失败码，未知异常统一unexpected-error，不读取或导出外部异常message/stack。没有增加宿主读取或改变准入、暂停、恢复流程；registration/capture/runtimeProof函数原文保持。首红25/31、首绿31/31及独立31/31保留；源码SHA`f5ea3a0886d2c05c4580d54eb840072fa419e3a521eb5b75fe411c6569c465ca`，独审`.local/validation/native-canvas-pause-observability-independent-first/review.json` SHA`dda41788056c46214942b6bd8fd701db36dd633ddfa73262c3fe6890f0a843a6`。独审报告解析首次误期待TAP而实际为spec的错误另存，随后只重读同次绿日志，没有补造通过。当前候选尚未实际启用，不回填8255首raw缺失的具体原因。
+
+8255在零输入时保存的基线另做全文件比较：原件与保存件的逐字副本固定，10,000值、1,000完整记录、400条link tuple及实际双端引用/槽名保持；完整JSON有948个路径差异，完整diff回放精确重建保存件。节点order/size、named widget、槽位索引及新增元数据均逐项保留，没有宽泛排除。两表输入槽有重排，但本M夹具两表均无输入/输出连线，不能据此证明任意表格连线迁移。磁盘独审交接SHA`647e850f60be2f2f5db59209ac1452e0ed9e7b47e6ab01af824e62e4a4686228`，未发现比较范围内意外丢失，不宣称完整工作流相同或解释准入拒绝。

@@ -77,7 +77,7 @@ function setup(options = {}) {
   const advanceFrame = () => { time += 16; if (!canvas.pause_rendering && canvas.is_rendering) canvas.frame++; const current = [...rafs]; rafs.clear(); for (const [, fn] of current) fn(time); };
   const elapse = ms => { time += ms; const due = [...timers].filter(([, timer]) => timer.at <= time); for (const [id, timer] of due) { timers.delete(id); timer.fn(); } };
   const controller = createNativeCanvasPauseDiagnostic({document, window, app, registration, ...options});
-  const drive = async promise => { let done = false, result, failure; promise.then(value => {done = true; result = value;}, error => {done = true; failure = error;}); for (let i = 0; !done && i < 100; i++) {await nextTurn(); advanceFrame();} if (failure) throw failure; assert(done, 'bounded async preparation'); return result; };
+  const drive = async promise => { let done = false, result, failure; promise.then(value => {done = true; result = value;}, error => {done = true; failure = error;}); for (let i = 0; !done && i < 100; i++) {await nextTurn(); if (!done) advanceFrame();} if (failure) throw failure; assert(done, 'bounded async preparation'); return result; };
   const start = (mode = 'paused', args = {}) => drive(controller.start(trusted, {fixture, mode, explicit: true, ...args}));
   return {root, native, document, window, tables, editors, app, graph, canvas, view, workflow, controller, registration, requests, responses, observers, rafs, timers, advanceFrame, elapse, drive, start, dirtyCalls: () => dirtyCalls, forbiddenCalls: () => forbiddenCalls};
 }
@@ -255,4 +255,75 @@ test('a cleanup exception retains the failure, releases other resources and refu
   assert.equal(d.root.listeners.size, 0); assert.equal(d.native.listeners.size, 0);
   const record = d.controller.report().runs[0]; assert.equal(record.controlled, false); assert.deepEqual(record.cleanup, {complete: false, failedResources: ['observer']});
   assert.equal(d.controller.resources().cleanupIncomplete, true); assert.equal(await d.start('baseline'), false);
+});
+
+test('rejected registration and initial capture have distinct fixed stages and reasons without any pause', async () => {
+  const registration = setup(); registration.registration.receiptSHA256 = '';
+  assert.equal(await registration.start(), false);
+  assert.equal(registration.controller.report().runs[0].failureStage, 'registration');
+  assert.equal(registration.controller.report().runs[0].failureReason, 'fixed-registration-required');
+  const capture = setup(); capture.canvas.pause_rendering = true;
+  assert.equal(await capture.start(), false);
+  assert.equal(capture.controller.report().runs[0].failureStage, 'capture-initial');
+  assert.equal(capture.controller.report().runs[0].failureReason, 'native-loop-qualification');
+  assert.equal(capture.requests.length, 0); assert.equal(capture.canvas.pause_rendering, true);
+});
+
+test('own-property rejection identifies the fixed field without invoking its accessor or reading its value', async () => {
+  for (const [key, reason] of [
+    ['pause_rendering', 'native-pause-property'], ['_maximumFrameGap', 'native-gap-property'],
+    ['is_rendering', 'native-rendering-property'], ['frame', 'native-frame-property'], ['_nodes', 'M-nodes-property'],
+  ]) {
+    const d = setup(); let reads = 0;
+    Object.defineProperty(key === '_nodes' ? d.graph : d.canvas, key, {configurable: true, get() {reads++; throw Error('private-property-value');}});
+    assert.equal(await d.start(), false); assert.equal(reads, 0);
+    const record = d.controller.report().runs[0]; assert.equal(record.failureStage, 'capture-initial'); assert.equal(record.failureReason, reason);
+    assert.equal(record.armedAt, null); assert.equal(d.requests.length, 0); assert(!JSON.stringify(record).includes('private-property-value'));
+  }
+});
+
+test('bounded M projection failures retain a specific reason rather than being mislabeled registration', async () => {
+  for (const [change, reason] of [
+    [d => {d.graph._nodes.pop();}, 'M-node-projection'],
+    [d => {d.graph.links.delete(1);}, 'M-link-projection'],
+    [d => {d.tables[0].queries.get('tr[data-record-id]')[4].setAttribute('data-record-id', 'wrong');}, 'M-DOM-shape'],
+    [d => {d.editors[0].textContent = 'private-other-value';}, 'M-initial-value'],
+  ]) {
+    const d = setup(); change(d); assert.equal(await d.start(), false);
+    const record = d.controller.report().runs[0]; assert.equal(record.failureStage, 'capture-initial'); assert.equal(record.failureReason, reason);
+    assert.equal(d.canvas.pause_rendering, false); assert(!JSON.stringify(record).includes('private-other-value'));
+  }
+});
+
+test('repeat capture after successful HTTP and live-loop checks has its own failure stage', async () => {
+  const d = setup(); let queues = 0;
+  d.responses.set('/queue', () => {
+    if (++queues === 2) d.editors[0].textContent = 'private-late-change';
+    return new TextEncoder().encode('{"queue_running":[],"queue_pending":[]}');
+  });
+  assert.equal(await d.start(), false); const record = d.controller.report().runs[0];
+  assert.equal(record.failureStage, 'capture-repeat'); assert.equal(record.failureReason, 'M-initial-value');
+  assert(record.runtime); assert.equal(record.armedAt, null); assert.equal(d.canvas.pause_rendering, false);
+  assert(!JSON.stringify(record).includes('private-late-change'));
+});
+
+test('lifetime setup failures are distinct and arbitrary errors cannot impersonate whitelisted reasons', async () => {
+  const d = setup(); let messageReads = 0;
+  const injected = Object.defineProperty({}, 'message', {get() {messageReads++; return 'queue-not-empty';}});
+  d.native.addEventListener = () => {throw injected;};
+  assert.equal(await d.start(), false); const record = d.controller.report().runs[0];
+  assert.equal(record.failureStage, 'lifetime-setup'); assert.equal(record.failureReason, 'unexpected-error');
+  assert.equal(messageReads, 0); assert.equal(d.canvas.pause_rendering, false); assert.equal(d.requests.length, 0);
+  const runtime = setup(); runtime.window.fetch = async () => {throw Error('queue-not-empty');};
+  assert.equal(await runtime.start(), false); const other = runtime.controller.report().runs[0];
+  assert.equal(other.failureStage, 'runtime'); assert.equal(other.failureReason, 'unexpected-error');
+});
+
+test('real owned runtime guard reasons survive while unknown messages and stacks are omitted', async () => {
+  const d = setup(); d.responses.set('/queue', () => new TextEncoder().encode('{"queue_running":["private-prompt"],"queue_pending":[]}'));
+  assert.equal(await d.start(), false); const record = d.controller.report().runs[0];
+  assert.equal(record.failureStage, 'runtime'); assert.equal(record.failureReason, 'queue-not-empty');
+  const unknown = setup(); unknown.window.fetch = async () => {const error = Error('secret-message'); error.stack = 'secret-stack'; throw error;};
+  assert.equal(await unknown.start(), false); const raw = JSON.stringify(unknown.controller.report());
+  assert(raw.includes('unexpected-error')); assert(!raw.includes('secret-message')); assert(!raw.includes('secret-stack')); assert(!JSON.stringify(record).includes('private-prompt'));
 });
