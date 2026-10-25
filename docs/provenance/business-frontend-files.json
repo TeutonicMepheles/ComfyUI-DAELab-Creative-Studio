@@ -274,12 +274,13 @@
       "source": "web/table_generation_panel.mjs",
       "destination": "frontend/src/features/generation/table_generation_panel.mjs",
       "sourceSha256": "547d0543ec0e6359f0146f429ca9a11f9d4cce5682e1c212f01439492b1c9a50",
-      "destinationSha256": "31d6db2b82fcf058d87a2aeb29e11c76237f6ca2da7b96f8c906dea713086b14",
+      "destinationSha256": "be8f63987e764304c731cad9b1811c53e51de1c0de39610cdbc243a4682f296b",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
-        "Skip generation settings row-map and all-TD traversal only when current fields have no generation presentation and this attachment has never created a settings bar; retain onRefresh and header cleanup, and preserve the full path forever after any bar creation for detached-cell cleanup. Actual editor/input focused regressions preserve owner/history/configuration/error/lifecycle behavior; traversal counts do not establish browser latency or product acceptance."
+        "Skip generation settings row-map and all-TD traversal only when current fields have no generation presentation and this attachment has never created a settings bar; retain onRefresh and header cleanup, and preserve the full path forever after any bar creation for detached-cell cleanup. Actual editor/input focused regressions preserve owner/history/configuration/error/lifecycle behavior; traversal counts do not establish browser latency or product acceptance.",
+        "At the private normalized-table boundary, skip frame/source synchronization when known field descriptors contain no generation field; avoid otherwise unused prompt-column row-value qualification. Unknown outer/field shapes and generation-bearing tables retain the original path; public validation, frame-token refresh, stale metadata and configured updates are unchanged. Focused mechanism counts do not establish browser performance."
       ]
     },
     {
@@ -1100,14 +1101,15 @@
       "source": "web/data_table_nodes.mjs",
       "destination": "frontend/src/integrations/comfyui/business/data_table_nodes.mjs",
       "sourceSha256": "6febb9bb7cf7a2530fa4fcd4b483fc93d56e3dd6f09cb1274a12145210f7f3fd",
-      "destinationSha256": "e6edd6c90a0434628b5d3a28db11369eea10bcc5c9b08c8e2b4ff6ae4dc8cace",
+      "destinationSha256": "6ae87c8e42386ddebc61d57f25849ad1b692b02a541cfb44bd11fc6b22cffdef",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Formal Table/StoryboardImport only; remove old LibTV connection/batch execution UI and legacy widget coercion; preserve explicit delete operations and historical receipt reads; inject BusinessPorts.",
         "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
         "Route only the native Table table_data serializer through a per-install canonical immutable-string proof. Preserve the complete public readTableView and JSON encoding on misses/errors; history, public snapshots and connected projections retain their original path.",
-        "Declare the existing generic Table without prompt_config row-state branch as explicitly constant-empty, enabling scoped input state refresh only in that mode. Configured tables, storyboards and unknown/global-dependent providers retain full refresh; no row-locality assumption is made for arbitrary callbacks."
+        "Declare the existing generic Table without prompt_config row-state branch as explicitly constant-empty, enabling scoped input state refresh only in that mode. Configured tables, storyboards and unknown/global-dependent providers retain full refresh; no row-locality assumption is made for arbitrary callbacks.",
+        "Guard the two summary-button textContent assignments and generic plain status against the current DOM string to avoid redundant child replacement. Preserve row counting, hidden/disabled computation, configured issue controls and the native write/history callback order; no summary-state cache or full-render skip."
       ]
     },
     {

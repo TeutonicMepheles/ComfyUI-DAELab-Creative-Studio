@@ -1,3 +1,4 @@
+import {FIELD_TYPES} from '../table/data_table_model.mjs';
 import {setPromptSource} from '../prompt/table_prompt_source.mjs';
 import {modelCapabilities} from './table_generation_api.mjs';
 import {attachGenerationTasks,generationTaskStyle} from './table_generation_tasks.mjs';
@@ -8,6 +9,10 @@ import {frameReferenceOptions,createReferenceMenu,materialReferenceLabel} from '
 import {PROMPT_SETTINGS_TEMPLATE,createPromptSettingsBar,promptSettingsStyle,normalizeLocalGenerationConfig,generationModeLabels,generationModeChoice,generationSettingSpecs,generationModes,promptSettingSpecs,generationSettingWarning,createGenerationSetting,createGenerationParameters,createLocalVideoSizePicker,createSettingsPopover} from '../prompt/table_prompt_settings.mjs';
 import {prependGenerationModelIcon,generationModelLabel} from './generation_model_icons.mjs';
 const el=(tag,parent,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;parent?.append(node);return node;};
+// Private normalized-table boundary: no generation means both sync passes are
+// no-ops. Check field shape only; do not revalidate or scan every row value.
+// Unknown outer/field shapes retain the existing path and its diagnostics.
+const noGenerationWork=table=>table?.version===1&&Array.isArray(table.fields)&&Array.isArray(table.records)&&table.fields.every(field=>field&&typeof field.id==='string'&&FIELD_TYPES.includes(field.type)&&!isGeneration(field));
 function applyModelDefaults(config,schema){
  if(isLocalGenerationModel(config.model)||isComfyGenerationModel(config.model)&&schema.properties)normalizeLocalGenerationConfig(config,schema);
  if(!config.mode)config.mode=Object.keys(schema.properties?.modeType?.items||{})[0]||(config.kind==='video'?'text2video':'');
@@ -233,7 +238,8 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
   return token;
  }
  function syncFrameTags(){
-  const table=getTable(),pending=[],sources=new Set(promptColumns(table).map(f=>f.id));
+  const table=getTable();if(noGenerationWork(table))return;
+  const pending=[],sources=new Set(promptColumns(table).map(f=>f.id));
   for(const field of new Set(table.fields.filter(isGeneration).map(f=>generationConfigField(table,f.id))))for(const row of table.records){
    const config=frameConfig(field.id,row),roles=generationFrameRoles(config),previous=row.meta?.generationFrameTags?.[field.id];
    if((!roles.length||sources.has(config.promptFieldId))&&(previous||roles.length)&&previous!==generationFrameTagKey(config))pending.push({fieldId:field.id,recordId:row.id,config});
@@ -343,6 +349,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
  const promptInput=refreshSettingBars;editor.root.addEventListener('input',promptInput);
  decorate();
  return {reviewResult:tasks.reviewResult,stateFor:tasks.stateFor,projectedTable:tasks.projectedTable,tasks:tasks.tasks,generate:tasks.generate,pause:tasks.pause,resume:tasks.resume,chooseSetting,setKind,close(){closeFrames();closeSettings();closePromptSources();},refresh(){syncFrameTags();refreshFrameTokens();refreshSettingBars();},get submitting(){return tasks.submitting;},open,renderFrame,syncPromptChanges(table,before){
+  if(noGenerationWork(table))return;
   for(const field of table.fields.filter(isGeneration)){
    syncGenerationPromptSource(table,before,field.generation);const panel=configPanels.get(field.id);
    const draftChanged=panel&&syncGenerationPromptSource(table,before,panel.draft);

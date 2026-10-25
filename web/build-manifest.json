@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "7f7196fb5420dbb28986c0206d823f74d752f373523778b0bff4d3a36c13926c",
+  "sourceFingerprint": "07c9345536f526b4da004de8ee4d92271c266f89923d8b2cef111eb04ba258aa",
   "files": [
     {
       "path": "application/asset_library_service.js",
@@ -396,7 +396,7 @@
     },
     {
       "path": "features/generation/table_generation_panel.mjs",
-      "sha256": "31d6db2b82fcf058d87a2aeb29e11c76237f6ca2da7b96f8c906dea713086b14"
+      "sha256": "be8f63987e764304c731cad9b1811c53e51de1c0de39610cdbc243a4682f296b"
     },
     {
       "path": "features/generation/table_generation_tasks.mjs",
@@ -736,7 +736,7 @@
     },
     {
       "path": "integrations/comfyui/business/data_table_nodes.mjs",
-      "sha256": "e6edd6c90a0434628b5d3a28db11369eea10bcc5c9b08c8e2b4ff6ae4dc8cace"
+      "sha256": "6ae87c8e42386ddebc61d57f25849ad1b692b02a541cfb44bd11fc6b22cffdef"
     },
     {
       "path": "integrations/comfyui/business/dynamic_widget_lifecycle.mjs",
@@ -820,7 +820,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "575c018bb6d52a4ff3a209ac610fb7600f6a808eeaf29965907ad855fedef00d"
+      "sha256": "31b4dc0986e9a553fad92eb80f7e9990735eabab09f338b3fe94e6e59c5dcbd2"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
