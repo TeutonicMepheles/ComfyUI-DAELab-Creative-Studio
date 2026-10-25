@@ -1787,9 +1787,10 @@
       "changes": [
         "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
         "Native reactive JSON boundary: detach nested host proxies for document transactions and LLM load/proposal/apply; preserve all unknown JSON keys and identities, reject unsavable edits before history, and verify source-bound edit/recovery/undo with no submit. Real UI acceptance remains separate.",
-        "Skip only unused whole-table equality encodings in the native afterWrite path; preserve all validated snapshots, native history, rollback, per-target revisions and fallback ordering. Count and semantic regressions pass; actual performance acceptance pending."
+        "Skip only unused whole-table equality encodings in the native afterWrite path; preserve all validated snapshots, native history, rollback, per-target revisions and fallback ordering. Count and semantic regressions pass; actual performance acceptance pending.",
+        "Add optional typed native replacement through DocumentController: ordinary same-container JSON replacements retain isolated before/next snapshots while sharing unchanged history, no-op, rollback and observation logic. Preserve unlike-root descriptor behavior and the asynchronous review mutation path. Two-snapshot mechanism and focused checks pass; actual performance acceptance remains pending."
       ],
-      "destinationSha256": "ac6180770c82b6b5dbe165e6534fc56c9a00580921ed9903d9dcf72c86310ae2"
+      "destinationSha256": "59a0445482e8ca9a872c895f790074c684739d5ffb48b86acf6eb0146139cc72"
     },
     {
       "source": null,

@@ -119,10 +119,11 @@
     },
     {
       "destination": "tests/migration/readonly_nodes.test.mjs",
-      "destinationSha256": "35bed3ec24cbf0993f6f880537221769dbd4cec8e86fd4a8ef46570277f93053",
+      "destinationSha256": "84415c71bf78d3cdb04cd1f1856f1e4bba847cf4eb1eae03bba5df752a180ff0",
       "kind": "new-host-contract-regression",
       "changes": [
-        "Pinned 1.53.10 constructor/serialization transformation regression; no host bundle or private data included."
+        "Pinned 1.53.10 constructor/serialization transformation regression; no host bundle or private data included.",
+        "Map the real json_snapshot TypeScript dependency into the existing data-URL test loader for DocumentController; preserve production code and all readonly compatibility assertions. The first combined-check loader failure is retained; focused and combined checks pass after the test-only dependency mapping."
       ]
     },
     {
