@@ -15,11 +15,12 @@ const sameDescriptor = (a, b) => a === undefined ? b === undefined : b !== undef
  * that argument after successful explicit restoration. No graph serialization,
  * live mutation, comparator changes or history queue ownership belongs here.
  */
-export function reconcileRestoredNodeOrder(appValue, snapshotValue, trackerValue, workflowValue, graphValue, result) {
+export function reconcileRestoredNodeOrder(appValue, snapshotValue, trackerValue, workflowValue, graphValue, result, activeWorkflowValue) {
     if (result !== true || !record(appValue) || !record(snapshotValue) || !record(trackerValue) ||
-        !record(workflowValue) || !record(graphValue))
+        !record(workflowValue) || !record(graphValue) || !record(activeWorkflowValue))
         return false;
     const app = appValue, snapshot = snapshotValue, tracker = trackerValue, workflow = workflowValue, graph = graphValue;
+    const activeWorkflow = activeWorkflowValue;
     const staged = [];
     try {
         const graphId = data(snapshot, 'id'), savedNodes = data(snapshot, 'nodes');
@@ -30,9 +31,11 @@ export function reconcileRestoredNodeOrder(appValue, snapshotValue, trackerValue
         const leaseValid = () => {
             const extensions = app.extensionManager;
             const workflowManager = record(extensions) ? extensions.workflow : undefined;
+            // The active store handle can be reactive while the markRaw tracker
+            // retains its raw workflow argument. Keep both identities independently.
             return app.isGraphReady === true && app.rootGraph === graph && app.graph === graph &&
-                record(workflowManager) && workflowManager.activeWorkflow === workflow &&
-                workflow.changeTracker === tracker && tracker.workflow === workflow &&
+                record(workflowManager) && workflowManager.activeWorkflow === activeWorkflow &&
+                activeWorkflow.changeTracker === tracker && workflow.changeTracker === tracker && tracker.workflow === workflow &&
                 tracker._restoringState === true && tracker.changeCount === 0 && graph.id === graphId &&
                 data(snapshot, 'id') === graphId && data(snapshot, 'nodes') === savedNodes &&
                 graph._nodes === nativeNodes && graph.getNodeById === lookup;

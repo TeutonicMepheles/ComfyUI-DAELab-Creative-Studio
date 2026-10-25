@@ -64,9 +64,12 @@ export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRow
  function change(fn,{render:draw=true,group=null,tickets=null,derived=false}={},rowStateEdit=null) {
     if(released)throw new Error('编辑器已释放');
     if(tickets&&!tickets.every(canAsync))throw new Error('输入或工作流已变化，结果仅供查看');
-    const previous=clone(getTable()),context=promptColumnsOnly&&displayContent()?globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root):null;
+    // Reuse encoding only inside a local cell edit; both snapshots stay detached.
+    const encoded=rowStateEdit&&rowStateEdit.owner===changeCell&&!draw&&!tickets&&!derived?JSON.stringify(getTable()):null;
+    const previous=encoded===null?clone(getTable()):JSON.parse(encoded),context=promptColumnsOnly&&displayContent()?globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root):null;
+    const reuseEncoding=encoded!==null&&!(context?.resizeWidth&&previous.meta.canvasWidth!=null);
     if(context?.resizeWidth&&previous.meta.canvasWidth!=null)previous.meta.canvasWidth=context.width;
-    const next=clone(previous);fn(next);validateChange(getTable(),next);
+    const next=reuseEncoding?JSON.parse(encoded):clone(previous);fn(next);validateChange(getTable(),next);
     const removed=previous.fields.filter(field=>!field.hidden&&!next.fields.some(item=>item.id===field.id));
     let width=null;
     if((removed.length||next.records.length<previous.records.length)&&context?.resizeWidth&&context.getViewport()&&root.offsetWidth){

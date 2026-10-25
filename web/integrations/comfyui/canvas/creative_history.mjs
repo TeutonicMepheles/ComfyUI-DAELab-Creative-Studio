@@ -10,7 +10,8 @@ export function installLayoutHistory(app){
     const load=app.loadGraphData;
     app.loadGraphData=async function(...args){
         const [snapshot,reset=true,restoreView=true,workflow=null]=args;
-        const t=app.extensionManager?.workflow?.activeWorkflow?.changeTracker;
+        const activeWorkflow=app.extensionManager?.workflow?.activeWorkflow;
+        const t=activeWorkflow?.changeTracker;
         // Initial loading may precede graph construction. Only inspect a live graph
         // for the host's explicit history-restore call, never an ordinary open.
         if(app.isGraphReady===false||reset!==false||restoreView!==false||!t?._restoringState||t.changeCount!==0||workflow!==t.workflow)return load.apply(this,args);
@@ -32,7 +33,7 @@ export function installLayoutHistory(app){
             }
         }
         const result=await load.apply(this,args);
-        reconcileRestoredNodeOrder(app,snapshot,t,workflow,graph,result);
+        reconcileRestoredNodeOrder(app,snapshot,t,workflow,graph,result,activeWorkflow);
         return result;
     };
 }

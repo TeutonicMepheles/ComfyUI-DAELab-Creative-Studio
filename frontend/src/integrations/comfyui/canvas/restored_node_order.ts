@@ -34,11 +34,12 @@ const sameDescriptor = (a: PropertyDescriptor | undefined, b: PropertyDescriptor
  */
 export function reconcileRestoredNodeOrder(
   appValue: unknown, snapshotValue: unknown, trackerValue: unknown,
-  workflowValue: unknown, graphValue: unknown, result: unknown,
+  workflowValue: unknown, graphValue: unknown, result: unknown, activeWorkflowValue: unknown,
 ): boolean {
   if (result !== true || !record(appValue) || !record(snapshotValue) || !record(trackerValue) ||
-      !record(workflowValue) || !record(graphValue)) return false;
+      !record(workflowValue) || !record(graphValue) || !record(activeWorkflowValue)) return false;
   const app = appValue, snapshot = snapshotValue, tracker = trackerValue, workflow = workflowValue, graph = graphValue;
+  const activeWorkflow = activeWorkflowValue;
   const staged: StagedNode[] = [];
   try {
     const graphId = data(snapshot, 'id'), savedNodes = data(snapshot, 'nodes');
@@ -48,9 +49,11 @@ export function reconcileRestoredNodeOrder(
     const leaseValid = (): boolean => {
       const extensions = app.extensionManager;
       const workflowManager = record(extensions) ? extensions.workflow : undefined;
+      // The active store handle can be reactive while the markRaw tracker
+      // retains its raw workflow argument. Keep both identities independently.
       return app.isGraphReady === true && app.rootGraph === graph && app.graph === graph &&
-        record(workflowManager) && workflowManager.activeWorkflow === workflow &&
-        workflow.changeTracker === tracker && tracker.workflow === workflow &&
+        record(workflowManager) && workflowManager.activeWorkflow === activeWorkflow &&
+        activeWorkflow.changeTracker === tracker && workflow.changeTracker === tracker && tracker.workflow === workflow &&
         tracker._restoringState === true && tracker.changeCount === 0 && graph.id === graphId &&
         data(snapshot, 'id') === graphId && data(snapshot, 'nodes') === savedNodes &&
         graph._nodes === nativeNodes && graph.getNodeById === lookup;

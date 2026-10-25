@@ -726,14 +726,15 @@
       "source": "web/data_table_editor.mjs",
       "destination": "frontend/src/features/table/data_table_editor.mjs",
       "sourceSha256": "5294f268a05f00fb6b0135b91596ce1bddf3d8efe640e12da2b1ed6d6a017d7f",
-      "destinationSha256": "77a53c5bb400715384fdda83041bf90c86642a62244a91707bba1a33a93e9d6c",
+      "destinationSha256": "6622f19ecf8435509b546920b98333a0383a18989dbd5730bf6b4136f62227e9",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
         "Actual-host keyboard follow-up: native keyboard history dispatches once from host capture; retain pending-review invalidation, direct toolbar restore, standalone local history and text/IME guards.",
         "Skip only unused whole-table equality encodings in the native afterWrite path; preserve all validated snapshots, native history, rollback, per-target revisions and fallback ordering. Count and semantic regressions pass; actual performance acceptance pending.",
-        "Limit row-state DOM refresh only for editor-owned content-cell edits under an explicit constant-empty provider capability. Recheck field/configuration metadata, ordered row identities and current render/cell lifetime after native writes and observers; unknown, structural, configured, derived, ticket and full-render paths retain full refresh. Validation, native history, rollback and revision observation remain unchanged. Real editor 500x10 traversal checks pass; actual latency and UI acceptance remain pending."
+        "Limit row-state DOM refresh only for editor-owned content-cell edits under an explicit constant-empty provider capability. Recheck field/configuration metadata, ordered row identities and current render/cell lifetime after native writes and observers; unknown, structural, configured, derived, ticket and full-render paths retain full refresh. Validation, native history, rollback and revision observation remain unchanged. Real editor 500x10 traversal checks pass; actual latency and UI acceptance remain pending.",
+        "Reuse only the encoded JSON of editor-owned local cell edits to construct detached previous and next snapshots. Preserve width-sync fallback, validated native rollback/replacement snapshots, unknown data and all history/save behavior. Isolated semantic/count tests pass; actual latency and UI acceptance remain pending."
       ]
     },
     {
@@ -2014,6 +2015,17 @@
       "kind": "authored-contract-or-integration",
       "changes": [
         "Authored exact-output regressions against the fixed a0fb1d9 model oracle: all 5000 targets, per-pass field encoding count, revisions/request sequencing/ABA/deletion, mixed templates/references/configs/invalid content, public uncached calls, accessor/nonplain fallback and field changes during a pass. Mechanism counts do not establish actual UI latency improvement."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "tests/migrated_business/table_input_snapshot_encoding.test.mjs",
+      "destinationSha256": "26c6527c6a56692c1f556f345e1780683db9ce9a94490b9d0869fffe03a58c9c",
+      "kind": "test-source",
+      "changes": [
+        "Authored local cell snapshot isolation, rollback, unknown JSON, width/derived/ticket fallback and encoding-count contracts. These do not establish actual latency or UI acceptance."
       ]
     }
   ],

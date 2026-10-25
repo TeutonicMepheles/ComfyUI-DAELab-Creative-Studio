@@ -196,13 +196,14 @@
       "source": "web/creative_history.mjs",
       "destination": "frontend/src/integrations/comfyui/canvas/creative_history.mjs",
       "sourceSha256": "688668a804afd5a0d4ea4748e2b29e9d616688c9102dd23f8eb55ca5f7a4d829",
-      "destinationSha256": "ee7907079a561628f5d8ea1a1f272f64d1ebbbc89e7abbb5c71b44b6a68ae691",
+      "destinationSha256": "f205d18dfdf1598273089a377ecbd8eb4c24dd47f40e27adacaf051e4b52e247",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "Reject untracked edits when history/serialization capability is missing; close original tracker after workflow switch; avoid reading graph during ordinary startup/load; preserve layout-only restore and navigation redo behavior.",
         "honor native isGraphReady before history graph reads; preserve regular load delegation and layout-only undo behavior",
         "Actual-host connection undo follow-up: prepareNativeShortcut flushes pending native squash without calling undo/redo a second time after the native window capture listener already scheduled it.",
-        "After successful explicit native history restore, reconcile only validated owned numeric execution orders in the original restore snapshot; keep layout fast path, native graph, queues and comparator unchanged."
+        "After successful explicit native history restore, reconcile only validated owned numeric execution orders in the original restore snapshot; keep layout fast path, native graph, queues and comparator unchanged.",
+        "Capture the active workflow handle separately from the native restore argument; preserve both identities across the awaited native restore and reject changed owners."
       ],
       "kind": "production-source"
     },
@@ -1082,10 +1083,11 @@
       "source": null,
       "sourceSha256": null,
       "destination": "frontend/src/integrations/comfyui/canvas/restored_node_order.ts",
-      "destinationSha256": "4a30c384b37733d5250d8013e5b7e3cf652ab654b9ae8ecf10cadc87221f5c7e",
+      "destinationSha256": "657c58fc115e83ba0e7e1aa88f914202df7b7e41e5af8522468960392427ba71",
       "kind": "production-source",
       "changes": [
-        "Authored strict native restore boundary: stage one order read per owned node, revalidate workflow/root/node identity, preserve all non-order data."
+        "Authored strict native restore boundary: stage one order read per owned node, revalidate workflow/root/node identity, preserve all non-order data.",
+        "Validate the active workflow handle and tracker workflow argument as independent leases, supporting transparent reactive handles without weakening root, tracker, snapshot, node or data guards."
       ]
     },
     {
@@ -1097,6 +1099,17 @@
       "kind": "rule-regression",
       "changes": [
         "Authored synthetic native history contract tests for order-only restoration, both real generation wrapper orders, real edit detection, failed/ordinary loads and identity/getter boundaries."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "tests/migrated_canvas/history_workflow_lease.test.mjs",
+      "destinationSha256": "0daa3534f94a47496e84a22c4e23b6127f56ce7b77abd3704706663e672233cc",
+      "kind": "test-source",
+      "changes": [
+        "Authored raw/proxy workflow lease, failed restore, changed-owner and real-edit contracts; actual isolated history acceptance remains pending."
       ]
     }
   ],

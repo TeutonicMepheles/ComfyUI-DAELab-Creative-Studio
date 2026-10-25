@@ -1637,12 +1637,12 @@ idx231–342的112份样本持续10.538秒，live、active及两队列尾部各�
 
 61个原件与20个资格/源码/候选输入已前后逐字重核并冻结。独审`.local/validation/wire-history-v5-B-independent-first/review-first.json` SHA`a3e1c71a351518398627a8b89493c8db949cce32eae246d8c4ed7ad5c9e827ef`；manifest SHA`656b50f1febad617f58fad2e917e40808e0a12d3b4ba3b8b7538c604d86b1899`。证据支持在既有显式restore成功边界，对匹配的两种Studio节点同步派生order，再作产品实际复测；没有钩native capture，也不是完整宿主图或唯一因果证明。既有隔离候选及generation包装器组合回归不能替代该复测。正式性能、真实IME、本地推理0/44、M6未通过及不发布门禁保持。
 
-### eca1历史恢复候选：完整检查通过，实际复测待执行
+### eca1历史恢复候选：自动检查与恢复边界
 
 既有`installLayoutHistory`的普通Open与layout-only快路径保持，仅在显式完整restore的native load成功返回true后调用typed helper。它逐节点匹配原快照与实时图的id/type，单次读取`DAELAB.Table`、`DAELAB.LLMStylePreviewB`的非负安全整数order，全部暂存并再次验证workflow/tracker/rootGraph/节点/属性描述符后，才更新原快照对应字段。异常、初始化、异图、身份切换、缺项或非法order全部跳过；未知节点order、业务字段、实时图、native比较器和队列均不替换。任意恶意Proxy写陷阱不属于本次宿主普通JSON/透明proxy合同。
 
 产品首红6过5失败保留，新增12项通过；相关101通过/3既有跳过、业务历史32项及实际固定宿主方法合同17项通过。独审直接导入产品installer，验证真实保留native方法与generation lifecycle两种安装次序等12项首跑全通过，SHA`fe320806cacce1766f8c22492cbb34ba669333da8785942584ab3d66a3c9517c`。真实widget、unknown property、revision或link改变仍可清redo；不把这些合同替代真实ComfyUI。
-完整`npm run check`首次exit0，登记源码/测试/来源输入前后一致；主311通过/3跳过、业务466通过，145模块/215产物。日志SHA`67de9455149fbc39b7cfef05db8a56b85f348f22f9a149a0dd3dd02dd0bba602`位于`.local/validation/history-restored-order-fullcheck/`。构建`eca1b9f134b818bf07aae34a4ec7b2437c3c238fafe4ba4138f475334b7c4973`尚未部署，不能宣布SER05或M6通过。
+完整`npm run check`首次exit0，登记源码/测试/来源输入前后一致；主311通过/3跳过、业务466通过，145模块/215产物。日志SHA`67de9455149fbc39b7cfef05db8a56b85f348f22f9a149a0dd3dd02dd0bba602`位于`.local/validation/history-restored-order-fullcheck/`。构建`eca1b9f134b818bf07aae34a4ec7b2437c3c238fafe4ba4138f475334b7c4973`在该检查时尚未部署；后续部署和实际结果见下，不从自动检查宣布SER05或M6通过。
 
 ### 728f独立LoAF诊断：输入与Tab区间
 
@@ -1656,7 +1656,17 @@ raw278489字节，SHA`1ea1e2caeab5defebdf9fd39d789223b1c68b5a3ab683af85bdc288649
 
 固定提交`27e07740d67947800760813213c91a635a6ff13b`已推送；PR/push的Pure checks `40211052759` / `40211048280`均成功，PR仍为draft。8250刷新首跑成功，产品523文件包`ffc5b534161ceb8d3055799e29902c841e600740ecfd848f033114e5e26cc3d5`，fixture4文件包`36dc7209a53629d5a54859fdeabdeb7dce7572ac545f4c5d752913471ba4ded8`。独立运行核验`acaf8447d76a0080472311fa84408f2719e499fdd2f292e2793f568bd6f327ab`确认launcher179932/listener4976、27项served字节及9份workflow当前/在线/冷备份一致；SQLite及侧文件冷字节保全，queue0仅点时，不是M6正常停机或封存证明。
 
-在原28夹具上原生Open→Graph→SaveAs为`Studio-eca1-wire-A-v5`后，新的正确eca1回执被观察器拒绝为`deployment-pin-mismatch`，尚未Start或执行connect/Undo/Redo。配置已更新，但观察器源码内REVISION/BUILD仍固定590a；先前离线部署审查遗漏了该运行校验。`.local/performance-actual/wire-history-eca1-A-first/`保留首次拒绝和截图，后续须修正固定常量、验证新旧回执接受/拒绝并使用新尝试目录；不得放宽pin或把此尝试计为修复验收。
+在原28夹具上原生Open→Graph→SaveAs为`Studio-eca1-wire-A-v5`后，新的正确eca1回执被观察器拒绝为`deployment-pin-mismatch`，尚未Start或执行connect/Undo/Redo。配置已更新，但观察器源码内REVISION/BUILD仍固定590a；先前离线部署审查遗漏了该运行校验。`.local/performance-actual/wire-history-eca1-A-first/`的六个首次拒绝原件及截图保持独立，不由后续pinfix或新尝试替代，也不计为修复验收。
+
+### eca1 pinfix实际A/B：历史问题仍未闭合
+
+观察器只修正内部REVISION/BUILD两个固定字符串，所有观察、profile、limits和读取逻辑逐字保留，未放宽pin。真实`readRuntimeReceipt`首红保留，修后与既有回归共35/35；独审亦直接导入发布包验证新回执接受、旧产品回执拒绝。8250产品仍为上述523文件`ffc5b534…`，仅fixture4文件改为`85e8976dae4913fc952045e31311f79b95b550cf680379b9c7b664f0c576b087`。独立runtime audit SHA`9562d338efd9e2e99f5e0d270ada96db534751649daaa24b5a3467f91962d197`核对27项served与10份工作流当前/在线/冷备份，随后新回执实际接受。
+
+A从原28原生Open、Graph、另存后执行connect6/Save→Undo等待超过10秒/Save→Redo等待超过10秒/Save。raw为41,127,002字节、SHA`3e857f9ca1139959e35a0ccf564c82f2c404054a0022f3022c3c06c821103d18`，325快照/29事件。Undo后idx48–187的140份样本保持undo1/redo1且无6，Save未清redo；Redo恢复6。其后idx188–301共114份/10.5694秒，live与active仍仅nodes2/3.order不同；Save keyup的idx302中live不变、active两order同步，undo2→3，不能称完整历史修复。原baseline→Undo保存另有14个优化revision/stamp叶差异，connect→Redo保存有这14叶及2个order变化，不能称所有properties相等。24原件逐字冻结，独审`.local/validation/wire-history-eca1-A-pinfix-independent-first/analysis-first.json` SHA`524017e6c3445a5d0377c5769ed60ca612c29f127e7d43ae45eb78cb7bd1ce58`。
+
+B从原65ae重走完整setup，prearm全部nodes精确等原28，只差7个导航叶。raw为87,641,272字节、SHA`ebf83dc906fff105e298fd21c40c5fe3e92ddad10cf33f001e815255ae1579bb`，475快照/43事件；初始历史10/0未清空。Undo2后idx199–312共114份/10.561秒的live、active和两tail各自稳定，仅nodes2/3.order不同；Save的idx313 poll中live不变、active两order同步，10/2→11/0。随后可信Redo未恢复6，23/24保存件逐字相同。68原件逐字冻结，独审`.local/validation/wire-history-eca1-B-independent-first/analysis-first.json` SHA`5a46f909a8890c88c2428085f8158c7249f82738b914c5e6ed4373ba1a19a7c3`；独立分析的首个差异列表排序断言错误及修正均保留。
+
+两raw均operator-stop、failures空，complete=false与fullHostGraphEqual=null原样保留；事件/轮询邻接不是方法埋点或唯一完整因果证明。两支实际1132×638/DPR2.8875；A原生32%，B原生33%/Canvas fit约31%，不与旧731窄视口/15%称同条件试验。B的08/12/20保存后仍dirty-star但native副本已有当次值；拖空+Escape后菜单仍显且wire5保留，随后显式Disconnect。选择同一receipt文件未再次触发change，B复用已接受身份并成功Start，不算第二次上传验证。100ms、正式DPR1、真实IME、推理0/44与M6未通过门禁不变。
 
 ### Tab实际失焦候选2f2921：浏览器生命周期与自动检查
 
@@ -1664,4 +1674,22 @@ raw278489字节，SHA`1ea1e2caeab5defebdf9fd39d789223b1c68b5a3ab683af85bdc288649
 
 产品仅令Tab keydown返回，由原blur逻辑在实际外部失焦后finish；仍由input/compositionend持久化，Escape保持owner reset。新增7项真实module生命周期测试，首红3过4失败保留，修改后与renderer回归13/13；旧renderer的合成Tab helper补实际blur语义，新测试独立要求keydown之后仍编辑。来源交接`.local/validation/tab-boundary-native-and-source-first/handoff.json` SHA`536cbd25df2f64b798dafbb7804e07eda22459a1d177ed38c9058932dc91bc89`。
 
-完整检查首exit0，311通过/3既有跳过、业务473通过，145模块/215产物；日志`.local/validation/tab-deferred-fullcheck-first/check-first.log` SHA`d01169ca8030510fbfb8a9c470d0487e0b4549628a0b3e722c63a7e7ebcf54eb`。构建`2f2921d986e4308f26f598be4cf5b6f73ea8c46eaeff5472f5b08b5b3841f245`尚未部署，不能从代码或测试推导时延改善。输入路径整表复制成本仅形成后续方案，未改产品。正式DPR1、100ms、真实IME、0/44和M6门禁不变。
+完整检查首exit0，311通过/3既有跳过、业务473通过，145模块/215产物；日志`.local/validation/tab-deferred-fullcheck-first/check-first.log` SHA`d01169ca8030510fbfb8a9c470d0487e0b4549628a0b3e722c63a7e7ebcf54eb`。构建`2f2921d986e4308f26f598be4cf5b6f73ea8c46eaeff5472f5b08b5b3841f245`随后以固定提交`5b6a105a93de73928fc978c2a473e2583bc0b1bf`仅部署8237：523产品文件包`044cc8041dfa366902dd202006cdf27da0060a409d2350b97b7c988b4025db9f`，原19文件3663夹具不变。独立audit `.local/validation/tab-deferred-2f29-refresh-preparation/runtime-independent-first/audit.json` SHA`21acd73f9a8e3174b6bd6523f91ff4ace65306cdd91c62a656e84db3a345e98e`核对27项served、18份工作流与1份settings JSON保全（共19份JSON、22份cold-user文件）；queue0只作点时观察，不能从部署、代码或测试推导时延改善。该次部署时输入路径整表复制成本仅形成后续方案；下述编码复用候选尚未部署。
+
+随后按原834d观察器开展首次非正式N4，实际只完成P/z两个输入。第三动作的真实entry为owner1、row0001、field-01，预期field-00的guard拒绝，在发O之前停止；第四未尝试，没有自动重试或补齐。`.local/performance-actual/M-table-semantic-2f29-dpr-diagnostic-first/first-raw.json`为40,301字节，SHA`0dc4ed7def5a13a3fed519235e431bd4163a3754508dcb5467288936212e4768`，仅2个insertText样本，两者editing/display均observed，11次outside-supported-identity保留。editing为259.1/210.9ms，display-exit为170.0/160.5ms；后者从blur计时，不与包含操作停留的input-to-display混用。
+
+前后实际1132×638、visible、DPR2.625，登记已明确不同于728f的DPR2.8875，不能称同环境speedup或正式100ms通过；两个editing仍高于100ms参考值。`20-native-saved.json`和`24-reopened-state.json`保留P/z，原生重开clean、300卡及目标值已记录，不扩大为重开后10000格遍历。完整prefix闭合，35原件（含3份嵌套action receipt）已递归逐字冻结；10000格仅P/z两值变化，400连线与槽数组逐值一致。独审`.local/validation/M-table-semantic-2f29-partial-independent-first/report.json` SHA`8f0d9797a1dc5a42111cba5cd7de75b0c1487220de13f5b4317efa3eb9537386`，原件manifest SHA`12f929df73517d65f78f4f3c329aba766d13753a436e40d31778091ca9bb5322`；最终清单`handoff-v2.json` SHA`8003663d109fcca0db13357b379be42b1c97595401ba451628f1ce2f058ec502`保留首次开放日志hash及初次漏读嵌套actions的分析错误。准备/加载/面板/字段入口/重开读取首失败与partial操作记录均保留。正式执行数仍0，1920×1080/DPR1、100ms、真实IME、推理0/44、M6与不发布门禁不变。
+
+### 2f29第二次N4：当前目标矩形定位变体
+
+原M/834d与P/z/O/y顺序保持，每次Enter前改读当前目标rect及可见交集并点击当前中点；本次4个editing/display均observed，不补齐或替换首次N2。editing为253.5/385.7/237.7/222.1ms，blur→display为151.6/150.1/158.4/150.5ms，八项均高于100ms参考值。实际1132×638/DPR2.625；四次停留603/599/612/613ms，第二次比登记≥600ms少1ms，不四舍五入或剔除。原plan遗留首次SaveAs名称、runtime pending及旧DPR措辞原样保留，registration与实际结果另列。定位方式改变、环境不满足正式DPR1，不能声称同条件speedup或正式预算通过。
+
+31原件递归冻结；raw44,979字节SHA`4123aa8f0c3a4b4e4b7bb853d0a854524ff8bd7c4e4ad1e464c38bddff3688ef`。保存件10000格仅两目标为O/y，400连线及slot引用一致；完整workflow仍有949差异路径，包含133个node.order及viewport x从24到−35.5714，未据此推断pan原因。16原生重开为clean且O/y可见、17截图保留；18导航ERR_ABORTED不视为已到空白页，19才确认tab72关闭。独审`.local/validation/M-table-semantic-2f29-current-rect-independent-second/final-report.json` SHA`2fd0fa9ded22635e2d6cdbb9fae81a0859d11a6cec6eacd03d54af2f8c3f954a`，原件manifest SHA`447dfeb164a7a2d557ef2bbb502c3fe3854bddaf51581cfc02e12beb399d8208`，final-handoff SHA`de9277cc2ea8fc6cbf5f2ed08abfd120c520ca5f15895de1f1404ec7de1b8bfa`。旧N2、全部控制失败及正式0样本/M6未通过状态不变。
+
+### 双身份lease与输入编码复用合并候选
+
+历史候选分别捕获当前active workflow handle与原生恢复参数，不再假定透明Proxy与raw对象恒等；仍要求各自绑定同一tracker，并在native成功后的stage前后复核handle、root、graph、节点及snapshot。未知字段、真实编辑、普通Open、失败恢复和layout-only路径不变。旧源新增8项首红4过4失败保留；独立focused20/20及固定native/generation合同17/17通过。独审`.local/validation/history-workflow-dual-lease-independent-first/review.json` SHA`ca6a75ba6d856ed39a0bcc1b6a96959ee85a4bfeef92a023f9155f5fce1b6baf`无可行动阻断；此前A/B raw未采两种对象身份或helper guard结果，不能将该支持边界缺口判为实际唯一原因。
+
+输入候选仅在私有changeCell、render:false、无tickets且非derived时复用当次JSON编码。previous和next仍分别parse为独立对象；需要同步canvasWidth时保留原clone路径，原生before/next校验、rollback、未知JSON、分组和widget保存编码保持。500×10合同中普通整表编码3→2、validated编码仍2，只是机制计数。拒绝的alias变体、旧源count首红、测试提取guard首错及全部修正日志保留；独立42/42通过，源码hash不变。独审`.local/validation/table-input-snapshot-encoding-independent-first/review.json` SHA`631aab54b959987ba72da649a795f76df208e678e7b6bba02dba9e762456a298`无可行动阻断；检查成功后打印日志尾的GBK编码错误另记，不改写测试exit0或重跑掩盖。
+
+两候选完整检查首次exit0：主319通过/3既有跳过、业务485通过，145模块/215产物。日志`.local/validation/dual-lease-and-input-encoding-fullcheck-first/check-first.log` SHA`ff2cd27d91045c5a72687de2e73a3a8a5ab2042e8369811f80c67888dfbcdf05`；构建`73c99412096070861615ebcd15123c66b1492d57ba8fe5584afbc4f80544387d`。本记录时尚未部署，实际A/B历史与同M输入仍须新版本复测；原eca1失败、2f29 partial N2和环境差异全部保留，不从pure检查宣布100ms、M6或发布门禁通过。
