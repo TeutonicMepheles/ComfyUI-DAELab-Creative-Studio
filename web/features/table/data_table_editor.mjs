@@ -79,13 +79,13 @@ export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRow
             for(const field of next.fields)if(widths.has(field.id))field.width=widths.get(field.id);
         }
     }
-    const before=JSON.stringify(previous),after=JSON.stringify(next),continuing=group&&group===history.group;
     if(nativeDocument){
       const afterWrite=()=>{if(displayContent()&&removeEmptyNode?.(next))return;if(width!==null)context.resizeWidth(width);observed();if(draw)render();else updateFooter();};
       if(tickets){if(!nativeDocument.replaceResults(tickets,next,{group,derived,afterWrite}))throw new Error('输入或工作流已变化，结果仅供查看');}
       else nativeDocument.replace(next,{group,derived,afterWrite});
       return;
     }
+    const before=JSON.stringify(previous),after=JSON.stringify(next),continuing=group&&group===history.group;
     history.record(before,after,group);
     const write=()=>{if(displayContent()&&removeEmptyNode?.(next))return;setTable(next);if(width!==null)context.resizeWidth(width);observed();if(draw)render();else updateFooter();};
     const boundary=nativeHistory&&displayContent()&&before!==after;
