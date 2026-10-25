@@ -42,7 +42,7 @@ function fixture(){
     win.visualViewport=null;
     win.requestAnimationFrame=fn=>{const id=++nextFrame;frames.set(id,fn);return id;};
     win.cancelAnimationFrame=id=>frames.delete(id);
-    win.getComputedStyle=e=>{styleReads.push(e);return {overflowX:'visible',overflowY:'visible',...e.css};};
+    win.getComputedStyle=e=>{styleReads.push(e);return {overflowX:'visible',overflowY:'visible',transform:'none',rotate:'none',scale:'none',perspective:'none',zoom:'1',...e.css};};
     function element(tag='DIV',parent=null){
         const e=new Events();Object.assign(e,{tagName:tag,ownerDocument:doc,parentElement:parent,isConnected:true,hidden:false,inert:false,isContentEditable:false,
             bounds:rect(108,280,946.59375,322),offsetWidth:558.3958333333,offsetHeight:28,clientWidth:558.3958333333,clientHeight:28,clientLeft:0,clientTop:0});
@@ -268,4 +268,80 @@ test('whole-control bounds skip self overflow, retain geometry lease validation 
     f.tabTo(target);f.flush();assert.equal(f.pans.length,1);assert.ok(!f.styleReads.includes(target));assert.deepEqual(f.writes,[]);f.controller.destroy();
     const changed=fixture(),other=changed.control();const read=other.getBoundingClientRect;other.getBoundingClientRect=()=>{const r=read();changed.a.release=()=>{};return r;};changed.tabTo(other);changed.flush();assert.equal(changed.pans.length,0);changed.controller.destroy();
     for(const close of [f=>f.controller.destroy(),f=>f.win.emit('pagehide')]){const f=fixture();f.root.emit('keydown',{target:f.a.editor,key:'Tab',isTrusted:true});close(f);f.flush();assert.equal(f.frames.size,0);assert.equal(f.pans.length,0);f.controller.destroy();assert.equal(f.root.count()+f.doc.count()+f.win.count(),0);}
+});
+
+// Actual 7b5 stable post-Tab geometry. The 150% follow-up supplied the shared
+// computed border/used-size values; 50% retains its original measured rectangles.
+// writingMode/individual transforms are explicit supported-domain test inputs,
+// not fields claimed to have been captured in the old operator JSON.
+function fractionalScrollport(zoom){
+    const f=fixture(),shell=f.a.panel;
+    shell.css={overflowX:'auto',overflowY:'auto',width:'1140px',height:'620.229px',boxSizing:'border-box',
+        borderLeftWidth:'0.666667px',borderRightWidth:'0.666667px',borderTopWidth:'0.666667px',borderBottomWidth:'0.666667px',
+        paddingLeft:'0px',paddingRight:'0px',paddingTop:'0px',paddingBottom:'0px',
+        direction:'ltr',writingMode:'horizontal-tb',scrollbarGutter:'auto',transform:'none',rotate:'none',scale:'none',zoom:'1'};
+    Object.assign(shell,{offsetWidth:1140,offsetHeight:620,clientLeft:1,clientTop:1,clientWidth:1139,clientHeight:609});
+    shell.bounds=zoom===.5?rect(-145.9635467529297,221.33334350585935,424.0364532470703,531.4479370117188)
+        :rect(-637.890625,163.99998474121094,1072.109375,1094.343734741211);
+    const bounds=zoom===.5?rect(-145.63021850585938,316.3333435058594,-85.63021850585938,437.4479293823242)
+        :rect(-636.890625,449,-456.890625,812.34375);
+    const target=f.control(f.a,'TD',bounds);
+    return {f,shell,target};
+}
+for(const zoom of [.5,1.5])test(`fractional scrollport leading edge permits actual ${zoom*100}% Tab geometry`,()=>{
+    const {f,target}=fractionalScrollport(zoom),delta=revealDelta(target.bounds,f.root.bounds);
+    f.tabTo(target);f.flush();assert.equal(f.pans.length,1);
+    assert.deepEqual(f.pans[0],{x:50-delta.dx,y:200-delta.dy,zoom:1.5});
+    assert.equal(f.doc.activeElement,target);assert.deepEqual(f.writes,[]);f.controller.destroy();
+});
+
+test('fractional leading correction still rejects real .001px and .01px clipping on both axes',()=>{
+    for(const zoom of [.5,1.5])for(const amount of [.001,.01])for(const axis of ['left','top']){
+        const {f,shell,target}=fractionalScrollport(zoom);
+        if(axis==='left'){target.bounds.left-=amount;target.bounds.right-=amount;}
+        else {target.bounds.top=shell.bounds.top+(2/3)*zoom-amount;target.bounds.bottom=target.bounds.top+20;}
+        f.tabTo(target);f.flush();assert.equal(f.pans.length,0,`${zoom}/${axis}/${amount}`);f.controller.destroy();
+    }
+});
+
+test('fractional correction preserves legacy right/bottom scrollbar limits exactly',()=>{
+    for(const edge of ['right','bottom'])for(const beyond of [0,.001,1]){
+        const {f,shell,target}=fractionalScrollport(1.5);
+        const sx=shell.bounds.width/shell.offsetWidth,sy=shell.bounds.height/shell.offsetHeight;
+        const legacy=edge==='right'?(shell.bounds.left+shell.clientLeft*sx)+shell.clientWidth*sx
+            :(shell.bounds.top+shell.clientTop*sy)+shell.clientHeight*sy;
+        if(edge==='right'){target.bounds.right=legacy+beyond;target.bounds.left=target.bounds.right-180;}
+        else {target.bounds.bottom=legacy+beyond;target.bounds.top=target.bounds.bottom-40;}
+        f.tabTo(target);f.flush();assert.equal(f.pans.length,beyond===0?1:0,`${edge}/${beyond}`);f.controller.destroy();
+    }
+});
+
+test('short fractional borders, unsupported style and leading gutters retain the old conservative path',()=>{
+    const changes=[s=>s.css.borderLeftWidth='.5px',s=>s.css.borderLeftWidth='1px',s=>s.css.borderLeftWidth='calc(2px / 3)',
+        s=>s.css.width='auto',s=>s.css.width='0px',s=>s.css.width='NaNpx',s=>s.css.boxSizing='unknown',
+        s=>s.css.direction='rtl',s=>s.css.writingMode='vertical-rl',s=>delete s.css.writingMode,s=>s.css.scrollbarGutter='stable both-edges',
+        s=>s.css.transform='matrix(1, .2, 0, 1, 0, 0)',s=>s.css.rotate='10deg',s=>s.css.scale='-1',s=>s.css.zoom='2',
+        s=>s.clientLeft=11];
+    for(const change of changes){const {f,shell,target}=fractionalScrollport(1.5);change(shell);f.tabTo(target);f.flush();
+        assert.equal(f.pans.length,0,String(change));f.controller.destroy();}
+});
+
+test('fractional top uses floating used height and content-box leading border includes padding only in scale',()=>{
+    for(const boxSizing of ['border-box','content-box']){
+        const {f,shell,target}=fractionalScrollport(1.5);
+        if(boxSizing==='content-box')Object.assign(shell.css,{boxSizing,width:'1130.67px',height:'610.896px',paddingLeft:'4px',paddingRight:'4px',paddingTop:'4px',paddingBottom:'4px'});
+        target.bounds.top=shell.bounds.top+1;target.bounds.bottom=target.bounds.top+20;
+        f.tabTo(target);f.flush();assert.equal(f.pans.length,1,boxSizing);assert.deepEqual(f.writes,[]);f.controller.destroy();
+    }
+});
+
+test('fractional correction requires an axis-aligned ancestor path and rechecks ownership after its reads',()=>{
+    for(const css of [{transform:'matrix(1, .2, 0, 1, 0, 0)'},{transform:'matrix(-1, 0, 0, 1, 0, 0)'},{perspective:'300px'},{rotate:'1deg'},{transform:undefined}]){
+        const {f,target}=fractionalScrollport(1.5);f.a.body.css=css;f.tabTo(target);f.flush();assert.equal(f.pans.length,0);f.controller.destroy();
+    }
+    const {f,target}=fractionalScrollport(.5);f.a.body.css={transform:'matrix(0.5, 0, 0, 0.5, -30, 20)'};
+    f.tabTo(target);f.flush();assert.equal(f.pans.length,1);f.controller.destroy();
+    const changed=fractionalScrollport(1.5),read=changed.f.win.getComputedStyle;
+    changed.f.win.getComputedStyle=e=>{const style=read(e);if(e===changed.f.a.body)changed.f.a.panel={};return style;};
+    changed.f.tabTo(changed.target);changed.f.flush();assert.equal(changed.f.pans.length,0);changed.f.controller.destroy();
 });

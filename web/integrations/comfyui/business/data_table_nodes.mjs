@@ -1,6 +1,7 @@
 import {bindBusinessDocument,tableInputStamp} from './business_document_host.js';
 import {businessFetch} from '../../../contracts/business.js';
 import {readTableView} from '../../../features/table/table_exchange.mjs';
+import {createTableWidgetSerializer} from './table_serializer.js';
 import {removeEmptyTableNode} from '../../../features/table/table_empty_node.mjs';
 import {preserveGenerationHistory} from '../../../features/generation/table_generation_history.mjs';
 import {scheduleTableInstall} from '../../../features/table/table_node_install.mjs';
@@ -155,7 +156,7 @@ function install(node){
  try{const next=isGeneric(node)?(raw?normalizeTable(raw):createMaterialTable()):readStoryboard(raw);if(node.__dataTable){preserveGenerationHistory(node.__dataTable,next);assertTransition(node.__dataTable,next,{restoring:true});}node.__dataTable=next;}catch(e){notify(`表格未加载：${e.message}`,'error');return;}
  syncGenerationConfigOwners(node.__dataTable);
  // Loading a saved empty table never deletes its node or links.
- if(isGeneric(node)){const data=widget(node,'table_data');if(data)data.serializeValue=()=>{try{return JSON.stringify(readTableView(node));}catch{return data.value;}};}
+ if(isGeneric(node)){const data=widget(node,'table_data');if(data)data.serializeValue=createTableWidgetSerializer(node,data,readTableView);}
  hideNative(node,dataName(node));hideNative(node,'main_prompt');save(node,node.__dataTable);
  if(node.__dataTablePanel){node.__dataTablePanel.render();return;}
  removeOwnedWidgets(node,OWNER);const panel=createPanel(node);node.__dataTablePanel=panel;node.__daelabStoryboardRender=panel.render;

@@ -70,6 +70,67 @@ function viewportRect(root: HTMLElement, win: Window): RevealRect {
     };
 }
 
+interface MeasuredPx {value: number; error: number; significant: number}
+function measuredPx(text: string): MeasuredPx | null {
+    if (!/^(?:\d+(?:\.\d+)?|\.\d+)px$/.test(text)) return null;
+    const value = Number(text.slice(0, -2));
+    if (!Number.isFinite(value) || value < 0) return null;
+    const significant = text.slice(0, -2).replace('.', '').replace(/^0+/, '').length;
+    // Blink CSSNumericLiteralValue uses %.6g for nonintegers. Short strings do
+    // NOT mean coarse precision ("1.5px" must not grant a .05px tolerance).
+    // https://chromium.googlesource.com/chromium/src/+/494419358caf690316f160a1f27d9e771a14c033/third_party/blink/renderer/core/css/css_numeric_literal_value.cc
+    const error = value === 0 ? 0 : .5 * 10 ** (Math.floor(Math.log10(value)) - Math.max(6, significant) + 1);
+    return {value, error, significant};
+}
+function axisAligned(style: CSSStyleDeclaration): boolean {
+    if (style.rotate !== 'none' || style.scale !== 'none' || style.perspective !== 'none'
+        || !/^(1|normal)$/.test(style.zoom)) return false;
+    if (style.transform === 'none') return true;
+    const match = /^matrix\(([^)]+)\)$/.exec(style.transform);
+    const values = match?.[1]?.split(',').map(Number);
+    return !!values && values.length === 6 && values.every(Number.isFinite)
+        && values[0]! > 0 && values[3]! > 0 && values[1] === 0 && values[2] === 0;
+}
+function alignedPath(node: HTMLElement | null, root: HTMLElement, win: Window): boolean {
+    for (; node && node !== root; node = node.parentElement) if (!axisAligned(win.getComputedStyle(node))) return false;
+    return node === root;
+}
+function floatRectHalfUlp(value: number): number {
+    // Blink Element::getBoundingClientRect returns DOMRect::FromRectF. Account
+    // for the coordinates' float32 rounding, not an arbitrary screen-pixel gap.
+    // https://chromium.googlesource.com/chromium/src/+/6c499eeecfb7a65b0ffd42782cbdf9c813bfd968/third_party/blink/renderer/core/dom/element.cc
+    return value === 0 ? 2 ** -150 : 2 ** (Math.max(-126, Math.floor(Math.log2(Math.abs(value)))) - 24);
+}
+function fractionalLeadingEdge(style: CSSStyleDeclaration, axis: 'x' | 'y', start: number, end: number,
+    target: number, clientLeading: number): number | null {
+    if (style.direction !== 'ltr' || style.writingMode !== 'horizontal-tb' || style.scrollbarGutter !== 'auto'
+        || !axisAligned(style)) return null;
+    const horizontal = axis === 'x';
+    const leading = measuredPx(horizontal ? style.borderLeftWidth : style.borderTopWidth);
+    // Deliberately narrow: short/integer borders and unknown serialization keep
+    // the existing conservative path. No claim of sub-serialization accuracy.
+    if (!leading || Number.isInteger(leading.value) || leading.significant < 6
+        || Math.round(leading.value) !== clientLeading) return null;
+    const size = measuredPx(horizontal ? style.width : style.height);
+    if (!size || size.value <= 0) return null;
+    let extent = size.value, extentError = size.error;
+    if (style.boxSizing === 'content-box') {
+        for (const text of horizontal ? [style.paddingLeft, style.paddingRight, style.borderLeftWidth, style.borderRightWidth]
+            : [style.paddingTop, style.paddingBottom, style.borderTopWidth, style.borderBottomWidth]) {
+            const part = measuredPx(text); if (!part) return null;
+            extent += part.value; extentError += part.error;
+        }
+    } else if (style.boxSizing !== 'border-box') return null;
+    const span = end - start, coordinateError = floatRectHalfUlp(start), spanError = coordinateError + floatRectHalfUlp(end);
+    if (span <= spanError || extent <= extentError) return null;
+    // Lower endpoint of the propagated measurement interval: only leading
+    // border equality is corrected. Genuine clipping beyond this interval is
+    // still rejected; right/bottom retain their original client/offset limits.
+    const edge = start - coordinateError + Math.max(0, leading.value - leading.error)
+        * (span - spanError) / (extent + extentError) - floatRectHalfUlp(target);
+    return edge - Number.EPSILON * 8 * (Math.abs(start) + Math.abs(edge - start) + Math.abs(target));
+}
+
 function internallyClipped(editor: HTMLElement, target: RevealRect, root: HTMLElement, win: Window, wholeControl = false): boolean {
     // Moving the whole world cannot repair clipping relative to an inner scrollport.
     // For native controls the measured border box already includes native scrolling.
@@ -82,8 +143,17 @@ function internallyClipped(editor: HTMLElement, target: RevealRect, root: HTMLEl
         if (!finiteRect(r) || !node.offsetWidth || !node.offsetHeight) return true;
         const sx = (r.right - r.left) / node.offsetWidth, sy = (r.bottom - r.top) / node.offsetHeight;
         const left = r.left + node.clientLeft * sx, top = r.top + node.clientTop * sy;
-        if ((clipX && (target.left < left || target.right > left + node.clientWidth * sx))
-            || (clipY && (target.top < top || target.bottom > top + node.clientHeight * sy))) return true;
+        let leadingLeft = left, leadingTop = top;
+        if ((clipX && target.left < left) || (clipY && target.top < top)) {
+            const x = clipX && target.left < left ? fractionalLeadingEdge(style, 'x', r.left, r.right, target.left, node.clientLeft) : null;
+            const y = clipY && target.top < top ? fractionalLeadingEdge(style, 'y', r.top, r.bottom, target.top, node.clientTop) : null;
+            if ((x !== null || y !== null) && alignedPath(node.parentElement, root, win)) {
+                if (x !== null) leadingLeft = Math.min(left, x);
+                if (y !== null) leadingTop = Math.min(top, y);
+            }
+        }
+        if ((clipX && (target.left < leadingLeft || target.right > left + node.clientWidth * sx))
+            || (clipY && (target.top < leadingTop || target.bottom > top + node.clientHeight * sy))) return true;
     }
     return false;
 }

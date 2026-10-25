@@ -1098,12 +1098,13 @@
       "source": "web/data_table_nodes.mjs",
       "destination": "frontend/src/integrations/comfyui/business/data_table_nodes.mjs",
       "sourceSha256": "6febb9bb7cf7a2530fa4fcd4b483fc93d56e3dd6f09cb1274a12145210f7f3fd",
-      "destinationSha256": "2a35be4f537aa12476eb2747aa351d88a801d8fa7c07a20df21a949c2f1a20b9",
+      "destinationSha256": "c1e059402b92093fa43c4b45a42ad7ecde6e63e6ac085f9b16f6280f03cfb567",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Formal Table/StoryboardImport only; remove old LibTV connection/batch execution UI and legacy widget coercion; preserve explicit delete operations and historical receipt reads; inject BusinessPorts.",
-        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md."
+        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
+        "Route only the native Table table_data serializer through a per-install canonical immutable-string proof. Preserve the complete public readTableView and JSON encoding on misses/errors; history, public snapshots and connected projections retain their original path."
       ]
     },
     {
@@ -1905,6 +1906,28 @@
         "Extend the existing inert DOM with standard class membership and attribute presence operations for actual-control reconciliation; retain proxy, recovery and native history assertions."
       ],
       "destinationSha256": "55f3072c30f7ad26997baca5f3defd5feff0ee01734092fcad3b31eb022e5824"
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "frontend/src/integrations/comfyui/business/table_serializer.ts",
+      "destinationSha256": "00cd51d23c97f998aac3481320f0a82520f1d5b8309f64aa10d496fb5951c857",
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "Authored strict TypeScript integration helper: cache one exact primitive string only after the full old output equals that string, mode0/unlinked/no liveSource, with node/graph/native lookup, first widget/slot and current hook/connectivity guards. Known native customtext getValue is read anew on every hit; unknown accessors delegate. A supported miss adds one public getter read; arbitrary side-effectful third-party getters are outside the fixed native contract. No mutable table, graph or history cache."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "tests/migrated_business/table_widget_serializer.test.mjs",
+      "destinationSha256": "1c3ec15b23147b18a3418f5e6d4e84e03ec4b840c9bc34ca541cf6f8d397ac25",
+      "kind": "rule-regression",
+      "changes": [
+        "Authored owning-module regressions: two 500x10 tables, complete-delegate counters, unknown JSON and public snapshot isolation, real install/save/hideNative scheduling, native customtext getter/store and inherited slot.link, identity/hook/raw changes, fallback/error behavior and native history serialization oracle. Counter reductions are not runtime latency or product acceptance."
+      ]
     }
   ],
   "testExclusions": {
