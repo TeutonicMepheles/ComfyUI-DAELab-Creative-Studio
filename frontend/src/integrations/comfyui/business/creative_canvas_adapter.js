@@ -37,7 +37,8 @@ function register(){
             // Other providers retain their full list and the Canvas fallback check.
             return cached?.targets===targets?cached.projectedTargets:targets;
         },
-        materialSources:node=>[...(node.__dataTablePanel?.root.querySelectorAll('[data-generation-source]')||[])].map(element=>({element,key:element.dataset.generationSource,label:'输出为素材组'})),
+        // Generation output controls belong to the current header; never cache its DOM.
+        materialSources:node=>[...(node.__dataTablePanel?.root.querySelector('thead')?.querySelectorAll('[data-generation-source]')||[])].map(element=>({element,key:element.dataset.generationSource,label:'输出为素材组'})),
         outputMaterials:(node,key)=>generationMaterials(node.__dataTable,key),
         acceptMaterials(node,key,collection){if(node.type==='DAELAB.LibTV.VideoGenerate')return node.__libtvPanel.acceptMaterials(key,collection);const editor=node.__dataTablePanel?.editor;if(!editor)throw new Error('表格尚未就绪');editor.change(t=>{if(t.fields.some(f=>f.id===key))fillMaterialColumn(t,key,collection);else{const [kind,record,field]=JSON.parse(key);if(kind==='row')fillMaterialRow(t,record,collection);else if(kind==='cell')fillMaterialCell(t,record,field,collection);else throw new Error('素材落点已失效');}});},
         tasks:node=>node.__dataTablePanel?.tasks?.()||node.__libtvPanel?.tasks?.()||[],
