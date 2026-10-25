@@ -509,11 +509,12 @@
       "source": "web/prompt_optimization_model.mjs",
       "destination": "frontend/src/features/prompt/prompt_optimization_model.mjs",
       "sourceSha256": "44fcd380d73784d2942bed1cb85284f6bacf18f28ec3ffeafb197c5de94b26e3",
-      "destinationSha256": "f5566b697061e712b07db814e04346ab4d48e563e42531a3f21c206a5b6dacb6",
+      "destinationSha256": "8de9bb95eaa81870fa8ddd2526ded570ffdbd54169a4b3e9592dd84f83209f90",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "Caller supplies live node list; restrict identity mutation to formal owning types so raw legacy/unknown nodes remain unchanged."
+        "Caller supplies live node list; restrict identity mutation to formal owning types so raw legacy/unknown nodes remain unchanged.",
+        "Reuse editable-field classification only within one synchronous revision observation; private stamping preserves per-target content/reference checks and strict public validation. Count/semantic regressions pass; actual UI and performance acceptance remain pending."
       ]
     },
     {

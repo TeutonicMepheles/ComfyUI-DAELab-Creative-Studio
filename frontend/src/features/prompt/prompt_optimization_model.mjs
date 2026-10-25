@@ -54,6 +54,11 @@ const safeLabel=text=>String(text||'引用').replace(/(?:https?:\/\/|file:\/\/|[
 export function inspectTarget(table,recordId,fieldId,known={}){
  const field=known.field||table.fields.find(f=>f.id===fieldId),row=known.row||table.records.find(r=>r.id===recordId);
  if(!editable(table,field)||!row)throw new Error(field?.readonly?'此列由上游同步，请在上游原始列优化':'目标行或可编辑文本列已删除');
+ return inspectEditableTarget(table,fieldId,row,field);
+}
+// Only callers that just checked this table's field eligibility enter here.
+// Content/reference validation and stamps still run for every target.
+function inspectEditableTarget(table,fieldId,row,field){
  const original=effectivePrompt(table,row,fieldId);
  if(original==null||original==='')throw new Error('提示词为空');
  if(typeof original==='string'){if(!original.trim())throw new Error('提示词为空');}
@@ -93,16 +98,22 @@ export class OptimizationRevisions{
  key(recordId,fieldId){return JSON.stringify([recordId,fieldId]);}
  read(r,f){return this.entries.get(this.key(r,f));}
  observeTarget(table,r,f,known={}){
-  const key=this.key(r,f),old=this.entries.get(key);let stamp;
+  const key=this.key(r,f),old=this.entries.get(key);
   const row=known.row||table.records.find(row=>row.id===r),field=known.field||table.fields.find(field=>field.id===f);
   if(!row||!editable(table,field)){if(old&&old.stamp!=='deleted')this.entries.set(key,{...old,stamp:'deleted',revision:old.revision+1});return this.read(r,f);}
-  try{stamp=inspectTarget(table,r,f,{row,field}).stamp;}catch(e){stamp='invalid:'+e.message;}
+  return this.#observeEditableTarget(table,r,f,row,field);
+ }
+ #observeEditableTarget(table,r,f,row,field){
+  const key=this.key(r,f),old=this.entries.get(key);let stamp;
+  try{stamp=inspectEditableTarget(table,f,row,field).stamp;}catch(e){stamp='invalid:'+e.message;}
   if(!old||old.stamp!==stamp)this.entries.set(key,{stamp,revision:(old?.revision||0)+1,requestSeq:old?.requestSeq||0});
   return this.entries.get(key);
  }
  observe(table){
+  // Eligibility depends on all rows for content columns. Reuse only within this
+  // synchronous pass; the next observation rechecks the current table in full.
   const live=new Set(),fields=table.fields.filter(f=>editable(table,f));for(const row of table.records)for(const field of fields){
-   live.add(this.key(row.id,field.id));this.observeTarget(table,row.id,field.id,{row,field});
+   live.add(this.key(row.id,field.id));this.#observeEditableTarget(table,row.id,field.id,row,field);
   }
   for(const [key,old] of this.entries)if(!live.has(key)&&old.stamp!=='deleted')this.entries.set(key,{...old,stamp:'deleted',revision:old.revision+1});
  }
