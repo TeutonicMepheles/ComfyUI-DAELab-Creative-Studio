@@ -136,6 +136,79 @@ test('real public controller, business document, revision class and two widget i
   docs.forEach(doc => doc.dispose());
 });
 
+test('real 500x10 business replacements are observed under replace without pretending edit was called', t => {
+  const h = harness(); t.after(() => h.observer.dispose());
+  const original = descriptor(DocumentController.prototype, 'replace');
+  const values = [JSON.parse(fixtureValue(0)), JSON.parse(fixtureValue(1))];
+  const docs = values.map((_, index) => createBusinessDocument({read: () => values[index], write: value => { values[index] = value; },
+    current: () => true, identity: () => ({workflowSession: 'replace-test', epoch: 1, documentId: String(index)}),
+    history: h.history, historyStamp: () => JSON.stringify(h.graph.serialize())}));
+  t.after(() => docs.forEach(doc => doc.dispose())); assert(h.start());
+  assert.deepEqual(descriptor(DocumentController.prototype, 'replace'), original); // Start alone installs no hooks.
+  for (const [index, text] of ['P', 'z'].entries()) {
+    const next = structuredClone(values[index]); next.records[0].values['field-00'] = text;
+    h.dispatch(() => docs[index].replace(next, {derived: index === 1}), index, {data: text});
+    assert.equal(values[index].records[0].values['field-00'], text);
+    assert.equal(values[index].records.length, 500); assert.equal(values[index].fields.length, 10);
+    assert.deepEqual(descriptor(DocumentController.prototype, 'replace'), original);
+  }
+  const results = h.observer.report().samples;
+  for (const [index, s] of results.entries()) {
+    assert.equal(s.identity.nodeId, String(index + 1)); assert(s.complete && s.restoration.exact);
+    assert.equal(byName(s, 'DocumentController.edit').length, 0);
+    const replacements = byName(s, 'DocumentController.replace'); assert.equal(replacements.length, 1);
+    const replace = replacements[0]; assert.equal(replace.association, 'dispatch-associated-only'); assert.equal(replace.nodeId, null);
+    const graph = byName(s, 'rootGraph.serialize')[0]; assert.equal(graph.parentSpan, replace.id);
+    for (const id of ['1', '2']) assert.equal(byName(s, 'table_data.serializeValue:' + id)[0].parentSpan, graph.id);
+    assert.equal(byName(s, index ? 'history.amend' : 'history.begin')[0].parentSpan, replace.id);
+  }
+  assert.notEqual(byName(results[0], 'DocumentController.replace')[0].receiverToken, byName(results[1], 'DocumentController.replace')[0].receiverToken);
+  assert.equal(h.observer.resources().leasedMethods, 0); assert.equal(h.timers.size, 0);
+});
+
+test('replace lease preserves this, opaque args, return/throw identities and exact restoration after exceptional dispatch', t => {
+  const receiver = {}, secret = 'private-replacement-payload'; let reads = 0, next;
+  const opaque = new Proxy({}, {get() { reads++; throw Error('must not inspect argument'); }, ownKeys() { reads++; throw Error('must not enumerate argument'); }});
+  const result = Object.defineProperty({}, 'then', {get() { reads++; throw Error('must not inspect result'); }});
+  const promise = Promise.resolve(secret), thrown = new Error(secret);
+  class Controller {
+    edit() {}
+    replace(...args) { assert.equal(this, receiver); assert.equal(args[0], opaque); if (next === thrown) throw thrown; return next; }
+  }
+  const original = descriptor(Controller.prototype, 'replace'), h = harness({DocumentController: Controller});
+  t.after(() => h.observer.dispose()); assert(h.start());
+  for (const value of [result, promise, thrown]) {
+    next = value;
+    if (value === thrown) assert.throws(() => h.dispatch(() => Controller.prototype.replace.call(receiver, opaque)), error => error === thrown);
+    else assert.equal(h.dispatch(() => Controller.prototype.replace.call(receiver, opaque)), value);
+    assert.deepEqual(descriptor(Controller.prototype, 'replace'), original);
+    assert.equal(h.observer.resources().leasedMethods, 0); assert.equal(h.timers.size, 0);
+  }
+  assert.equal(reads, 0);
+  assert.deepEqual(h.observer.report().samples.map(s => byName(s, 'DocumentController.replace')[0]?.outcome), ['returned', 'returned', 'threw']);
+  assert(h.observer.report().samples.every(s => s.restoration.exact)); assert(!JSON.stringify(h.observer.report()).includes(secret));
+});
+
+test('replace is a required observed capability and stale/late wrappers delegate without attribution', t => {
+  class EditOnly { edit() {} }
+  const missing = harness({DocumentController: EditOnly}); t.after(() => missing.observer.dispose()); assert(missing.start());
+  missing.dispatch(() => missing.graph.serialize());
+  const boundary = missing.observer.report().boundaries.find(item => item.label === 'DocumentController.replace');
+  assert.equal(boundary?.available, false); assert.equal(boundary.reason, 'data-method-unavailable'); assert.equal(sample(missing).complete, false);
+  missing.observer.dispose();
+  const h = harness(); t.after(() => h.observer.dispose()); let calls = 0;
+  const controller = new DocumentController({replace() { calls++; }, transact() { assert.fail('must retain replacement capability'); }});
+  const original = descriptor(DocumentController.prototype, 'replace'); assert(h.start());
+  const event = h.event(); h.document.emit('input', event); event.eventPhase = 2;
+  const leased = DocumentController.prototype.replace; assert.notEqual(leased, original.value);
+  h.dom[0].editor.remove(); leased.call(controller, 'late-owner', {});
+  assert.equal(calls, 1); assert.equal(sample(h).complete, false); assert.equal(sample(h).spans.length, 0);
+  assert.equal(sample(h).restoration.reason, 'outside-input-dispatch');
+  event.eventPhase = 0; h.flushMicrotasks(); h.flushTimers(); const before = h.observer.report();
+  leased.call(controller, 'released', {}); assert.equal(calls, 2); assert.deepEqual(h.observer.report(), before);
+  assert.deepEqual(descriptor(DocumentController.prototype, 'replace'), original); assert.equal(h.observer.resources().leasedMethods, 0);
+});
+
 test('capture microtask checkpoint leaves hooks for target listener; next task restores without recursive microtasks', t => {
   const h = harness(); t.after(() => h.observer.dispose()); h.start();
   const original = h.graph.serialize, e = h.event(); h.document.emit('input', e);
@@ -195,7 +268,10 @@ test('missing/unreplaceable/accessor boundaries stay unobserved without construc
   Object.defineProperty(h.nodes[0].widgets[0], 'serializeValue', {value() {}, configurable: false, writable: false});
   t.after(() => h.observer.dispose()); assert(h.start()); assert.equal(getterReads, 0); assert.equal(hostReads, 1);
   h.dispatch(() => h.nodes[1].widgets[0].serializeValue());
-  const report = h.observer.report(); assert.equal(report.boundaries.filter(item => !item.available).length, 6);
+  const report = h.observer.report();
+  assert.deepEqual(report.boundaries.filter(item => !item.available).map(item => item.label), [
+    'DocumentController.edit', 'DocumentController.replace', 'history.begin', 'history.end', 'history.amend', 'rootGraph.serialize', 'table_data.serializeValue:1',
+  ]);
   assert.equal(sample(h).spans.length, 1); assert.equal(sample(h).spans[0].nodeId, '2'); assert.equal(getterReads, 0);
 });
 
@@ -272,12 +348,12 @@ test('sample/span caps preserve truncation; observer UI callbacks are outside in
 
 test('stop, pagehide, hidden page and dispose clear hooks/listeners/timers even with a pending capture microtask', () => {
   for (const action of ['stop', 'pagehide', 'hidden', 'dispose']) {
-    const h = harness(); h.start(); const edit = descriptor(DocumentController.prototype, 'edit'), e = h.event(); h.document.emit('input', e);
+    const h = harness(); h.start(); const edit = descriptor(DocumentController.prototype, 'edit'), replace = descriptor(DocumentController.prototype, 'replace'), e = h.event(); h.document.emit('input', e);
     if (action === 'stop') h.observer.stop();
     if (action === 'pagehide') h.window.emit('pagehide');
     if (action === 'hidden') { h.document.visibilityState = 'hidden'; h.document.emit('visibilitychange'); }
     if (action === 'dispose') h.observer.dispose();
-    assert.deepEqual(descriptor(DocumentController.prototype, 'edit'), edit); assert.equal(descriptor(h.graph, 'serialize'), undefined);
+    assert.deepEqual(descriptor(DocumentController.prototype, 'edit'), edit); assert.deepEqual(descriptor(DocumentController.prototype, 'replace'), replace); assert.equal(descriptor(h.graph, 'serialize'), undefined);
     assert.equal(h.document.count(), 0); assert.equal(h.window.count(), 0); assert.equal(h.timers.size, 0); assert.equal(h.observer.resources().leasedMethods, 0);
     e.eventPhase = 0; h.flushMicrotasks(); assert.equal(h.observer.resources().leasedMethods, 0); h.observer.dispose();
   }

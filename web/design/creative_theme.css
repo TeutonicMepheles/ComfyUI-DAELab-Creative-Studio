@@ -76,6 +76,16 @@
     font:400 var(--dae-font-body)/1.5 var(--dae-font-family);
     scrollbar-width:thin;scrollbar-color:var(--dae-border-control) transparent;
   }
+  /* Retain the native primary area and three HTML default alternatives. A
+     partly offscreen anchor also needs a full-inline-span option; that area
+     lets browser overflow alignment keep the picker inside its viewport.
+     https://html.spec.whatwg.org/multipage/rendering.html#the-select-element-2
+     https://drafts.csswg.org/css-anchor-position-1/#position-area-alignment */
+  @supports (position-try-fallbacks: self-start span-self-end, self-end span-self-start, self-start span-self-start, self-block-end span-all, self-block-start span-all) {
+    :is(.dae-creative,.dae-ui) select:not([multiple]):not([size])::picker(select) {
+      position-try-fallbacks:self-start span-self-end, self-end span-self-start, self-start span-self-start, self-block-end span-all, self-block-start span-all;
+    }
+  }
   :is(.dae-creative,.dae-ui) select:not([multiple]):not([size]) option {
     display:flex;align-items:center;gap:12px;box-sizing:border-box;min-height:34px;
     padding:6px 10px;border:0;border-radius:6px;white-space:normal;overflow-wrap:anywhere;

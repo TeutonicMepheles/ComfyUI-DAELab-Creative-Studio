@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "8965454852e269b1fb1989e4e08c50bd977739d070aea9522cb9e098c2d18f4e",
+  "sourceFingerprint": "e9ea44f50e332962bae419775d0aae5e338f616b493442bda2e8135b225fe6e8",
   "files": [
     {
       "path": "application/asset_library_service.js",
@@ -96,7 +96,7 @@
     },
     {
       "path": "design/creative_theme.css",
-      "sha256": "eb35668cbdf400db5d3ed873258de5019f19ceae9f66daee876136615c3970f3"
+      "sha256": "48319649b032d5246757596a354a5c4181a5dc219dcc5ce21237841aacf0cbc6"
     },
     {
       "path": "design/vendor/alibaba-puhuiti-3/AlibabaPuHuiTi-3-55-Regular.woff2",
@@ -572,7 +572,7 @@
     },
     {
       "path": "features/table/data_table_editor.mjs",
-      "sha256": "ebb4ebf763aec21859dbc80d53789580927fb399c7a3cb26b9da4e28f3b3eb9b"
+      "sha256": "77a53c5bb400715384fdda83041bf90c86642a62244a91707bba1a33a93e9d6c"
     },
     {
       "path": "features/table/data_table_groups.mjs",
@@ -581,6 +581,10 @@
     {
       "path": "features/table/data_table_model.mjs",
       "sha256": "80e6548168407b9943e734c41e795225693af0e1e1132666f705cb6d82c70b73"
+    },
+    {
+      "path": "features/table/empty_row_state_scope.js",
+      "sha256": "0a7d4c4725fbc54263337fa690d237d8846eeb5d64ab9b9f08d467f41e4820ba"
     },
     {
       "path": "features/table/list_editor_controls.mjs",
@@ -732,7 +736,7 @@
     },
     {
       "path": "integrations/comfyui/business/data_table_nodes.mjs",
-      "sha256": "c1e059402b92093fa43c4b45a42ad7ecde6e63e6ac085f9b16f6280f03cfb567"
+      "sha256": "e6edd6c90a0434628b5d3a28db11369eea10bcc5c9b08c8e2b4ff6ae4dc8cace"
     },
     {
       "path": "integrations/comfyui/business/dynamic_widget_lifecycle.mjs",
@@ -816,7 +820,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "ece6aa3e702d2c9201eb5abff15c49ff682d5d8b4e5bdc6e86d616c36ac871aa"
+      "sha256": "04f40944598ac7eb4bc584329ba5023d83d57600ff13c242088ab3fb451b1f1c"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

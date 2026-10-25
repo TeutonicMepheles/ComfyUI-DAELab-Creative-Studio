@@ -12,6 +12,7 @@ import {isPrompt,promptText} from '../prompt/table_prompt_model.mjs';
 import {attachColumnSplitters} from './table_column_splitters.mjs';
 import {videoReferenceFields,setVideoReference} from './table_video_references.mjs';
 import {bindColumnAssets} from '../prompt/table_prompt_template.mjs';
+import {captureEmptyRowStateScope,matchesEmptyRowStateScope} from './empty_row_state_scope.js';
 
 let copiedRegion=null;
 export const FIELD_LABELS={content:'内容',text:'文本',longtext:'多行文本',number:'数字',checkbox:'勾选',select:'单选',assets:'素材',json:'结构化原文'};
@@ -43,7 +44,7 @@ function styles(){
 export function tableDialog(title){tableTheme();const d=element('dialog','dae-ui dae-table-dialog');d.setAttribute('aria-label',title);const h=element('h3','',d);h.textContent=title;d.addEventListener('pointerdown',stopCanvasPropagation);d.oncancel=()=>d.remove();document.body.append(d);d.showModal();return d;}
 
 // The very same editor is used by every template. Integrations only supply data and upload I/O.
-export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRowState=null,renderCell=null,decorateAsset=null,onRestore=()=>{},displayContent=()=>false,nativeHistory=null,documentFactory=null,promptColumnsOnly=false,validateChange=()=>{},textPanelHost=undefined,removeEmptyNode=null}) {
+export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRowState=null,isRowStateEmpty=null,renderCell=null,decorateAsset=null,onRestore=()=>{},displayContent=()=>false,nativeHistory=null,documentFactory=null,promptColumnsOnly=false,validateChange=()=>{},textPanelHost=undefined,removeEmptyNode=null}) {
  let released=false;
  const nativeDocument=documentFactory?.(getTable,setTable);
  const beginAsync=(target={},requestId=crypto.randomUUID())=>nativeDocument?.beginRequest(requestId,target)||null;
@@ -57,9 +58,10 @@ export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRow
  const textSide=createTextSide({root,getHost:textPanelHost});
  const expandedAssets=new Set();
  shell.dataset.storyboardScroll='true';let busy=false,editGroup=null,drag=null,raf=null,splitters=null,structure=null,materialSort=null;
+ const stateRows=new Map();let stateTable=null;
  const fields=()=>getTable().fields.filter(f=>!f.hidden);
  const packet=e=>{try{return JSON.parse(e.dataTransfer.getData(MIME));}catch{return null;}};
- function change(fn,{render:draw=true,group=null,tickets=null,derived=false}={}) {
+ function change(fn,{render:draw=true,group=null,tickets=null,derived=false}={},rowStateEdit=null) {
     if(released)throw new Error('编辑器已释放');
     if(tickets&&!tickets.every(canAsync))throw new Error('输入或工作流已变化，结果仅供查看');
     const previous=clone(getTable()),context=promptColumnsOnly&&displayContent()?globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root):null;
@@ -79,24 +81,30 @@ export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRow
             for(const field of next.fields)if(widths.has(field.id))field.width=widths.get(field.id);
         }
     }
+    let stateScope=null;
+    if(rowStateEdit&&rowStateEdit.owner===changeCell&&!draw&&!tickets&&!derived&&isRowStateEmpty){
+      const cell=rowStateEdit.cell,scope=captureEmptyRowStateScope(previous,next,cell.dataset.record,isRowStateEmpty);
+      if(scope)stateScope={...scope,cell,row:stateRows.get(scope.recordId),table:stateTable,field:cell.dataset.field};
+    }
     if(nativeDocument){
-      const afterWrite=()=>{if(displayContent()&&removeEmptyNode?.(next))return;if(width!==null)context.resizeWidth(width);observed();if(draw)render();else updateFooter();};
+      const afterWrite=()=>{if(displayContent()&&removeEmptyNode?.(next))return;if(width!==null)context.resizeWidth(width);observed();if(draw)render();else updateFooter(stateScope);};
       if(tickets){if(!nativeDocument.replaceResults(tickets,next,{group,derived,afterWrite}))throw new Error('输入或工作流已变化，结果仅供查看');}
       else nativeDocument.replace(next,{group,derived,afterWrite});
       return;
     }
     const before=JSON.stringify(previous),after=JSON.stringify(next),continuing=group&&group===history.group;
     history.record(before,after,group);
-    const write=()=>{if(displayContent()&&removeEmptyNode?.(next))return;setTable(next);if(width!==null)context.resizeWidth(width);observed();if(draw)render();else updateFooter();};
+    const write=()=>{if(displayContent()&&removeEmptyNode?.(next))return;setTable(next);if(width!==null)context.resizeWidth(width);observed();if(draw)render();else updateFooter(stateScope);};
     const boundary=nativeHistory&&displayContent()&&before!==after;
     if(boundary&&continuing&&nativeHistory.amend)return nativeHistory.amend(write);
     if(boundary)nativeHistory.begin();try{return write();}finally{if(boundary)nativeHistory.end();}
  }
+ function changeCell(cell,fn,settings){return change(fn,settings,{owner:changeCell,cell});}
  function safely(fn){try{return fn();}catch(e){notify(e.message);return null;}}
  function clearCells(cells=selection().flat()){safely(()=>change(t=>{const fields=new Map(t.fields.map(f=>[f.id,f])),records=new Map(t.records.map(r=>[r.id,r]));for(const {row,field} of cells){const f=fields.get(field.id),r=records.get(row.id);if(!f||!r||f.readonly)continue;r.values[f.id]=f.promptTemplate?{kind:'column-template',version:1,segments:[]}:emptyValue(f);}}));}
  function restore(redo=false){if(nativeDocument){onRestore();return Promise.resolve(redo?nativeDocument.redo():nativeDocument.undo()).catch(error=>notify(error.message));}const pending=(redo?history.redoStack:history.undoStack).at(-1);if(pending){try{validateChange(getTable(),preserveGenerationHistory(getTable(),JSON.parse(pending)),{restoring:true});}catch(e){notify(e.message);return;}}const value=history.restore(JSON.stringify(getTable()),redo);if(value){const boundary=nativeHistory&&displayContent();if(boundary)nativeHistory.begin();try{onRestore();preserveGenerationHistory(getTable(),value);setTable(value);if(value.meta.canvasWidth!=null)globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root)?.resizeWidth?.(value.meta.canvasWidth);observed();render();}finally{if(boundary)nativeHistory.end();}}}
  const undo=tableButton('撤销',()=>restore()),redo=tableButton('重做',()=>restore(true)),count=element('span','table-count');
- function updateFooter(){const table=getTable(),selected=table.records.filter(r=>r.selected).length;selectionActions.hidden=!selected;refreshStates();undo.disabled=nativeDocument?!nativeDocument.canUndo():!history.undoStack.length;redo.disabled=nativeDocument?!nativeDocument.canRedo():!history.redoStack.length;const label=`${selected} / ${table.records.length} 行已选`;if(count.textContent!==label)count.textContent=label;}
+ function updateFooter(stateScope=null){const table=getTable(),selected=table.records.filter(r=>r.selected).length;selectionActions.hidden=!selected;refreshStates(stateScope);undo.disabled=nativeDocument?!nativeDocument.canUndo():!history.undoStack.length;redo.disabled=nativeDocument?!nativeDocument.canRedo():!history.redoStack.length;const label=`${selected} / ${table.records.length} 行已选`;if(count.textContent!==label)count.textContent=label;}
  const cellSelection=attachCellSelection({root,shell,getTable}),{selection,choose,mark}=cellSelection;
  function clearDropHints(){shell.querySelectorAll('[data-drop],[data-material-drop-side]').forEach(e=>{delete e.dataset.drop;delete e.dataset.materialDropSide;});}
  function dragEnd(){drag=null;if(raf)cancelAnimationFrame(raf);raf=null;clearDropHints();clearMaterialSort();}
@@ -176,7 +184,12 @@ export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRow
  const selectionActions=element('div','table-selection-actions');
  selectionActions.append(tableButton('复制选中',()=>change(duplicateSelected)),tableButton('删除选中',()=>{if(getTable().records.some(r=>r.selected)&&window.confirm('删除选中的记录？可撤销。'))change(t=>t.records=t.records.filter(r=>!r.selected));}));
  footer.append(tableButton('＋ 新增记录',()=>change(t=>addRecord(t))),selectionActions,undo,redo,count);
- function refreshStates(){if(!getRowState)return;const table=getTable(),rows=new Map([...shell.querySelectorAll('tr[data-record-id]')].map(tr=>[tr.dataset.recordId,tr]));for(const row of table.records){const state=getRowState(table,row),tr=rows.get(row.id);if(!tr)continue;if(tr.title!==state.hint)tr.title=state.hint;for(const cell of tr.querySelectorAll('td[data-field]')){const issue=state.issues.find(i=>i.field===cell.dataset.field),invalid=String(Boolean(issue)),title=issue?.message||'';if(cell.dataset.invalid!==invalid)cell.dataset.invalid=invalid;if(cell.title!==title)cell.title=title;if(cell.dataset.field===state.field){let badge=cell.querySelector('.task-badge');if(!badge){cell.replaceChildren();badge=element('span','task-badge readonly-value',cell);}if(badge.textContent!==state.label)badge.textContent=state.label;if(badge.dataset.state!==state.key)badge.dataset.state=state.key;if(badge.title!==state.hint)badge.title=state.hint;}}}}
+ function refreshStates(scope=null){
+    if(!getRowState)return;
+    const table=getTable(),local=scope&&scope.table===stateTable&&scope.cell.isConnected&&shell.contains(scope.cell)&&scope.cell.dataset.record===scope.recordId&&scope.cell.dataset.field===scope.field&&scope.row===stateRows.get(scope.recordId)&&scope.row?.dataset.recordId===scope.recordId&&scope.cell.closest('tr[data-record-id]')===scope.row&&scope.cell.closest('table')===stateTable&&matchesEmptyRowStateScope(scope,table,isRowStateEmpty);
+    const rows=local?new Map([[scope.recordId,scope.row]]):new Map([...shell.querySelectorAll('tr[data-record-id]')].map(tr=>[tr.dataset.recordId,tr]));
+    for(const row of local?[table.records[scope.index]]:table.records){const state=getRowState(table,row),tr=rows.get(row.id);if(!tr)continue;if(tr.title!==state.hint)tr.title=state.hint;for(const cell of tr.querySelectorAll('td[data-field]')){const issue=state.issues.find(i=>i.field===cell.dataset.field),invalid=String(Boolean(issue)),title=issue?.message||'';if(cell.dataset.invalid!==invalid)cell.dataset.invalid=invalid;if(cell.title!==title)cell.title=title;if(cell.dataset.field===state.field){let badge=cell.querySelector('.task-badge');if(!badge){cell.replaceChildren();badge=element('span','task-badge readonly-value',cell);}if(badge.textContent!==state.label)badge.textContent=state.label;if(badge.dataset.state!==state.key)badge.dataset.state=state.key;if(badge.title!==state.hint)badge.title=state.hint;}}}
+ }
  async function uploadInto(record,field,files){
     if(busy)return;busy=true;const ticket=beginAsync({recordId:record,fieldId:field}),snapshot=JSON.stringify(getTable());
     try{const targetField=getTable().fields.find(f=>f.id===field);if(targetField?.maxItems===1&&files.length>1)throw new Error('每个单元格最多一个图片或视频');const additions=[];for(const file of files){if(!/\.(png|jpe?g|webp)$/i.test(file.name))throw new Error('上传暂支持 PNG、JPG、WebP');additions.push({id:uid(),url:await upload(file),name:file.name});}if(!canAsync(ticket)||JSON.stringify(getTable())!==snapshot)throw new Error('上传期间表格已变化，未覆盖当前数据');change(t=>{const r=t.records.find(r=>r.id===record);setValue(t,record,field,[...(targetField?.maxItems===1||!Array.isArray(r.values[field])?[]:r.values[field]),...additions]);},{tickets:[ticket]});}catch(e){notify(e.message);}finally{releaseAsync(ticket);busy=false;}
@@ -264,7 +277,7 @@ export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRow
     cell.ondragenter=cell.ondragover=e=>{if(drag?.kind==='asset'&&(f.readonly||!['assets','content'].includes(f.type)))return;if(drag?.kind!=='row'&&drag?.kind!=='column'){dragOver(e,cell);if(drag?.kind==='asset'){const target=assetDropPosition(e,r,f);if(target&&!target.sorting)target.item.dataset.materialDropSide=target.side;}}};cell.ondrop=e=>dropCell(e,r,f);
     cell.ondragleave=e=>{if(!cell.contains(document.elementFromPoint(e.clientX,e.clientY))){delete cell.dataset.drop;cell.querySelectorAll('[data-material-drop-side]').forEach(item=>delete item.dataset.materialDropSide);if(materialSort?.cell===cell)clearMaterialSort();}};
     const value=r.values[f.id]??emptyValue(f);
-    if(f.type==='content'){if(!displayContent())draggable(cell,{kind:'cell',record:r.id,field:f.id});renderContentCell(cell,r,f,{change,upload,beginAsync,releaseAsync,notify,getTable,onCleanup,bindAssetDrag:(element,asset)=>draggable(element,{kind:'asset',record:r.id,field:f.id,asset:asset.id})});}
+    if(f.type==='content'){if(!displayContent())draggable(cell,{kind:'cell',record:r.id,field:f.id});renderContentCell(cell,r,f,{change:(fn,settings)=>changeCell(cell,fn,settings),upload,beginAsync,releaseAsync,notify,getTable,onCleanup,bindAssetDrag:(element,asset)=>draggable(element,{kind:'asset',record:r.id,field:f.id,asset:asset.id})});}
     else if(renderCell?.({cell,row:r,field:f,onCleanup})){}
     else if(f.type==='assets'){
       if(t.view==='cards'){const ref=referenceButton(t,f);if(ref)cell.append(ref);}
@@ -302,7 +315,7 @@ export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRow
     splitters?.dispose();splitters=null;
     const focused=document.activeElement?.closest?.('td[data-field]'),focus=focused&&root.contains(focused)?{record:focused.dataset.record,field:focused.dataset.field,start:document.activeElement.selectionStart,end:document.activeElement.selectionEnd,editing:document.activeElement!==focused}:null;
     const scroll=[shell.scrollLeft,shell.scrollTop],t=getTable(),fs=fields().map(f=>({...f,width:Math.max(f.width,COLUMN_MINIMUM_WIDTH)}));root.dataset.view=t.view;root.dataset.fieldCount=String(fs.length);root.style.setProperty('--dae-card-columns',String(Math.max(1,Math.min(3,fs.length))));view.value=t.view;root.dataset.density=t.meta.density||'comfortable';density.value=root.dataset.density;shell.replaceChildren();
-    const table=element('table','',shell);table.setAttribute('role','grid');table.setAttribute('aria-label','数据表');
+    const table=element('table','',shell);stateTable=table;stateRows.clear();table.setAttribute('role','grid');table.setAttribute('aria-label','数据表');
     table.style.setProperty('--dae-table-width',((promptColumnsOnly?120+(displayContent()?48:0):displayContent()?116:58)+fs.reduce((sum,f)=>sum+f.width,0))+'px');
     const fluid=Boolean(globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root)),choiceWidth=promptColumnsOnly?120:displayContent()?68:58,totalWidth=fs.reduce((sum,f)=>sum+f.width,0);table.dataset.fluid=String(fluid);table.dataset.choiceWidth=String(choiceWidth);
     table.style.setProperty('--dae-table-min-width',(choiceWidth+fs.length*100+(displayContent()?48:0))+'px');
@@ -312,7 +325,7 @@ export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRow
  const icon=element('span','field-kind-icon',title);tableIcon(icon,{'提示词':'edit-line','生成结果':'video-line','素材':'image-line','文本':'list-ordered'}[kind],kind);icon.setAttribute('aria-hidden','true');const name=element('span','field-name',title);name.textContent=f.name;title.tabIndex=0;if(f.goal==='image'){const goal=element('span','content-goal',th);goal.textContent='图像生成';}title.title=`${f.name} · ${FIELD_LABELS[f.type]}${f.readonly?' · 来源字段':''}`;const settings=tableIcon(tableButton('设置',()=>editField(f.id)),'edit-line',`设置字段 ${f.name}`);settings.className='field-settings';settings.setAttribute('aria-label',`设置字段 ${f.name}`);th.append(settings);promptSourceHeader({table:t,field:f,header:th,title,change,root,notify});draggable(th,{kind:'column',field:f.id});th.ondragover=e=>{if(drag?.kind==='column')dragOver(e,th);};th.ondrop=e=>{const p=packet(e);if(p?.owner!==owner||p.kind!=='column')return;e.preventDefault();e.stopPropagation();dragEnd();change(n=>reorder(n.fields,p.field,f.id));};}
     const body=element('tbody','',table);
     for(const [ri,r] of t.records.entries()){
-      const row=element('tr','',body);row.dataset.recordId=r.id;row.dataset.shotId=r.id;if(t.view!=='cards'&&Number(r.meta?.height)>0)row.style.height=Number(r.meta.height)+'px';
+      const row=element('tr','',body);stateRows.set(r.id,row);row.dataset.recordId=r.id;row.dataset.shotId=r.id;if(t.view!=='cards'&&Number(r.meta?.height)>0)row.style.height=Number(r.meta.height)+'px';
       const select=element('td','table-choice',row),grip=tableButton('↕',()=>{});grip.className='row-grip';grip.dataset.dragKind='row';grip.title=`拖动第 ${ri+1} 行`;draggable(grip,{kind:'row',record:r.id});select.dataset.contentRow=r.id;select.append(grip);const rowNumber=element('span','content-row-number',select);rowNumber.textContent=promptColumnsOnly?(r.name||`任务${ri+1}`):String(ri+1);if(promptColumnsOnly){rowNumber.title=rowNumber.textContent+' · 双击重命名';rowNumber.setAttribute('aria-label',rowNumber.title);}
       const check=element('input','',select);check.type='checkbox';check.checked=r.selected;check.setAttribute('aria-label',`选择第 ${ri+1} 行`);check.onchange=()=>change(n=>n.records.find(x=>x.id===r.id).selected=check.checked);
       row.ondragover=e=>{if(drag?.kind==='row')dragOver(e,row);};row.ondrop=e=>{const p=packet(e);if(p?.owner!==owner||p.kind!=='row')return;e.preventDefault();e.stopPropagation();const after=e.clientY>row.getBoundingClientRect().top+row.getBoundingClientRect().height/2;dragEnd();change(n=>reorder(n.records,p.record,r.id,after));};
@@ -377,5 +390,5 @@ export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRow
     if(['Delete','Backspace'].includes(e.key)){e.preventDefault();clearCells();}
  });
  for(const event of ['pointerdown','pointerup','mousedown','mouseup','click','dblclick','wheel','keydown'])root.addEventListener(event,e=>{if(event==='wheel'&&e.ctrlKey||event==='pointerdown'&&e.button===1||event==='mousedown'&&e.button===1)return;stopCanvasPropagation(e);});
- render();return {nativeDocument,beginAsync,canAsync,releaseAsync,invalidateAsync:()=>nativeDocument?.invalidate(),applyAsync:(tickets,fn,options={})=>change(fn,{...options,tickets:Array.isArray(tickets)?tickets:[tickets]}),onTableChange(fn){observers.add(fn);return()=>observers.delete(fn);},manageFields,addColumn:(target=null,before=false,anchor=root)=>root.dispatchEvent(new CustomEvent('dae-add-column',{detail:{target,before,anchor}})),addRow:(target=null,before=false)=>root.dispatchEvent(new CustomEvent('dae-add-row',{detail:{target,before}})),root,toolbar,selectionActions,selection,restore,copySelection:async()=>{const matrix=selection().map(cells=>cells.map(({row,field})=>clone(row.values[field.id]??emptyValue(field)))),text=encodeTSV(matrix);await navigator.clipboard.writeText(text);copiedRegion={text,matrix};},selectColumn:cellSelection.selectColumn,clearSelection:cellSelection.clear,render,refreshCells,change,clearCells,history,openDialog,closeDialogs,openTextSide:textSide.open,collapseTextSide:textSide.hide,focusCell:(record,field)=>{const cell=[...shell.querySelectorAll('td[data-field]')].find(e=>e.dataset.record===record&&e.dataset.field===field);cell?.focus();cell?.scrollIntoView({block:'nearest',inline:'nearest'});},destroy:()=>{released=true;nativeDocument?.dispose();observers.clear();cellSelection.destroy();clearBindings();structure?.dispose();splitters?.dispose();dragEnd();closeDialogs();textSide.destroy();}};
+ render();return {nativeDocument,beginAsync,canAsync,releaseAsync,invalidateAsync:()=>nativeDocument?.invalidate(),applyAsync:(tickets,fn,options={})=>change(fn,{...options,tickets:Array.isArray(tickets)?tickets:[tickets]}),onTableChange(fn){observers.add(fn);return()=>observers.delete(fn);},manageFields,addColumn:(target=null,before=false,anchor=root)=>root.dispatchEvent(new CustomEvent('dae-add-column',{detail:{target,before,anchor}})),addRow:(target=null,before=false)=>root.dispatchEvent(new CustomEvent('dae-add-row',{detail:{target,before}})),root,toolbar,selectionActions,selection,restore,copySelection:async()=>{const matrix=selection().map(cells=>cells.map(({row,field})=>clone(row.values[field.id]??emptyValue(field)))),text=encodeTSV(matrix);await navigator.clipboard.writeText(text);copiedRegion={text,matrix};},selectColumn:cellSelection.selectColumn,clearSelection:cellSelection.clear,render,refreshCells,change,clearCells,history,openDialog,closeDialogs,openTextSide:textSide.open,collapseTextSide:textSide.hide,focusCell:(record,field)=>{const cell=[...shell.querySelectorAll('td[data-field]')].find(e=>e.dataset.record===record&&e.dataset.field===field);cell?.focus();cell?.scrollIntoView({block:'nearest',inline:'nearest'});},destroy:()=>{released=true;stateRows.clear();stateTable=null;nativeDocument?.dispose();observers.clear();cellSelection.destroy();clearBindings();structure?.dispose();splitters?.dispose();dragEnd();closeDialogs();textSide.destroy();}};
 }

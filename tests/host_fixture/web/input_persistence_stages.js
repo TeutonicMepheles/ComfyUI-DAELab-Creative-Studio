@@ -232,6 +232,7 @@ export function createInputPersistenceStageObserver({document, window, app, Docu
       maxSamples, maxSpans, boundaries: [], samples: [], rejected: {}, conflicts: [], preflight: [],
       limits: ['Diagnostic only; not formal PERF-02 input-to-paint latency or acceptance',
         'Inclusive synchronous public-method envelopes; no self-time subtraction, CPU total, async settlement or serialization attribution',
+        'Existing event/owner identity checks retain DOM reads outside each timed boundary; nested checks may remain inside parent spans. Total diagnostic perturbation is unknown and not subtracted',
         'Prototype receiver tokens are dispatch-associated, not proof of table/controller ownership',
         'Fixed DOM target identities and widget shape do not attest all currently loaded workflow contents',
         'No JSON wrapping, method args/results, user text, per-cell scans, Error.stack or UI updates inside measured dispatch',
@@ -263,6 +264,7 @@ export function createInputPersistenceStageObserver({document, window, app, Docu
       if (!method.reason) bindings.push({target, key, label, association, nodeId, ...method});
     };
     add(DocumentController?.prototype, 'edit', 'DocumentController.edit', 'dispatch-associated-only');
+    add(DocumentController?.prototype, 'replace', 'DocumentController.replace', 'dispatch-associated-only');
     for (const key of ['begin', 'end', 'amend']) add(port, key, 'history.' + key, 'shared-history-dispatch');
     add(OptimizationRevisions?.prototype, 'observe', 'OptimizationRevisions.observe', 'dispatch-associated-only');
     add(graph, 'serialize', 'rootGraph.serialize', 'captured-native-root');

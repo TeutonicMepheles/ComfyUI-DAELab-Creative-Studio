@@ -14,9 +14,10 @@
       "source": "web/creative_theme.css",
       "destination": "frontend/src/design/creative_theme.css",
       "sourceSha256": "eb35668cbdf400db5d3ed873258de5019f19ceae9f66daee876136615c3970f3",
-      "destinationSha256": "eb35668cbdf400db5d3ed873258de5019f19ceae9f66daee876136615c3970f3",
+      "destinationSha256": "48319649b032d5246757596a354a5c4181a5dc219dcc5ce21237841aacf0cbc6",
       "changes": [
-        "relocate into owner layer; rewrite relative module/style/resource paths"
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "Scoped base-select picker fallback preserves native anchor alternatives and adds viewport-wide inline choices; real edge-menu acceptance pending."
       ],
       "kind": "production-source"
     },
