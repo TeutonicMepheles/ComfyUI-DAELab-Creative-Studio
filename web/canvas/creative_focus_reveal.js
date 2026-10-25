@@ -17,12 +17,21 @@ function textControl(element) {
     return element.tagName === 'TEXTAREA' || (element.tagName === 'INPUT'
         && /^(text|search|url|tel|email|password)$/.test(element.type));
 }
-function activeEditor(root) {
+function activeTarget(root) {
     const element = root.ownerDocument.activeElement;
     if (!element || !root.contains(element) || !element.isConnected
         || element.closest('[hidden],[inert],dialog,.dae-creative-workspace'))
         return null;
-    return element.isContentEditable || textControl(element) ? element : null;
+    return element;
+}
+function activeEditor(root) {
+    const element = activeTarget(root);
+    return element && (element.isContentEditable || textControl(element)) ? element : null;
+}
+function activeControl(root) {
+    const element = activeTarget(root);
+    return element && !element.isContentEditable && !textControl(element)
+        && element.tabIndex >= 0 && !element.matches(':disabled') ? element : null;
 }
 /** A detached Range reads the live collapsed focus boundary without moving Selection. */
 function caretRect(editor) {
@@ -52,10 +61,10 @@ function viewportRect(root, win) {
         bottom: Math.min(r.bottom, visual ? visual.offsetTop + visual.height : doc.clientHeight),
     };
 }
-function internallyClipped(editor, target, root, win) {
+function internallyClipped(editor, target, root, win, wholeControl = false) {
     // Moving the whole world cannot repair clipping relative to an inner scrollport.
     // For native controls the measured border box already includes native scrolling.
-    for (let node = textControl(editor) ? editor.parentElement : editor; node && node !== root; node = node.parentElement) {
+    for (let node = wholeControl || textControl(editor) ? editor.parentElement : editor; node && node !== root; node = node.parentElement) {
         const style = win.getComputedStyle(node);
         const clipX = /^(auto|scroll|hidden|clip)$/.test(style.overflowX);
         const clipY = /^(auto|scroll|hidden|clip)$/.test(style.overflowY);
@@ -79,6 +88,7 @@ export function createCaretReveal({ root, owner, pan }) {
     let frame = 0, destroyed = false, suppressed = false, pointing = false;
     let composing = null, imeKey = null;
     let pending = null;
+    let tabIntent = null, tabFrame = 0;
     const releases = [];
     function cancel() {
         if (frame)
@@ -86,18 +96,24 @@ export function createCaretReveal({ root, owner, pan }) {
         frame = 0;
         pending = null;
     }
-    function suspend() { suppressed = true; cancel(); }
-    function reset() { suspend(); composing = null; imeKey = null; pointing = false; }
-    function valid(editor, lease) {
-        return !destroyed && !suppressed && !pointing && !composing && !imeKey
-            && !doc.hidden && activeEditor(root) === editor && lease.isCurrent();
+    function cancelTab() {
+        if (tabFrame)
+            win.cancelAnimationFrame(tabFrame);
+        tabFrame = 0;
+        tabIntent = null;
     }
-    function schedule(intent = false) {
+    function suspend() { suppressed = true; cancel(); cancelTab(); }
+    function reset() { suspend(); composing = null; imeKey = null; pointing = false; }
+    function valid(editor, lease, wholeControl) {
+        return !destroyed && !suppressed && !pointing && !composing && !imeKey
+            && !doc.hidden && (wholeControl ? activeControl(root) : activeEditor(root)) === editor && lease.isCurrent();
+    }
+    function schedule(intent = false, control = null) {
         if (destroyed)
             return;
         if (intent)
             suppressed = false;
-        const editor = activeEditor(root);
+        const editor = control ?? activeEditor(root);
         if (!editor || suppressed || pointing || composing || imeKey || doc.hidden) {
             cancel();
             return;
@@ -107,16 +123,16 @@ export function createCaretReveal({ root, owner, pan }) {
             cancel();
             return;
         }
-        pending = { editor, lease };
+        pending = { editor, lease, wholeControl: control !== null };
         if (frame)
             return;
         frame = win.requestAnimationFrame(() => {
             frame = 0;
             const request = pending;
             pending = null;
-            if (!request || !valid(request.editor, request.lease))
+            if (!request || !valid(request.editor, request.lease, request.wholeControl))
                 return;
-            const target = caretRect(request.editor);
+            const target = request.wholeControl ? request.editor.getBoundingClientRect() : caretRect(request.editor);
             if (!target)
                 return;
             const delta = revealDelta(target, viewportRect(root, win));
@@ -124,7 +140,8 @@ export function createCaretReveal({ root, owner, pan }) {
             // unless translation is needed. Range/root reads remain a real cost.
             if (!delta || (!delta.dx && !delta.dy))
                 return;
-            if (!internallyClipped(request.editor, target, root, win) && valid(request.editor, request.lease))
+            if (!internallyClipped(request.editor, target, root, win, request.wholeControl)
+                && valid(request.editor, request.lease, request.wholeControl))
                 pan(delta);
         });
     }
@@ -136,9 +153,19 @@ export function createCaretReveal({ root, owner, pan }) {
         const editor = activeEditor(root);
         return editor && event.target && editor.contains(event.target) ? editor : null;
     };
-    listen(root, 'focusin', () => schedule(true));
+    listen(root, 'focusin', event => {
+        const navigation = tabIntent;
+        cancelTab();
+        const control = activeControl(root);
+        if (control && navigation && event.isTrusted && event.target === control
+            && event.relatedTarget === navigation.origin && navigation.lease.isCurrent())
+            schedule(true, control);
+        else
+            schedule(true);
+    });
     listen(root, 'focusout', () => { cancel(); composing = null; imeKey = null; });
     listen(root, 'compositionstart', event => {
+        cancelTab();
         composing = belongs(event);
         if (composing) {
             imeKey = null;
@@ -154,11 +181,25 @@ export function createCaretReveal({ root, owner, pan }) {
         schedule(true);
     });
     listen(root, 'keydown', event => {
+        cancelTab();
         const key = event, editor = belongs(event);
         if (editor && (key.isComposing || key.keyCode === 229)) {
             imeKey = editor;
             cancel();
         }
+        // Observe native Tab intent without consuming it or choosing the next control.
+        // Focusout may end inline editing; the card lease survives that transition.
+        if (key.key !== 'Tab' || !key.isTrusted || key.ctrlKey || key.metaKey || key.altKey
+            || key.isComposing || key.keyCode === 229 || composing || imeKey || pointing || doc.hidden || destroyed)
+            return;
+        const origin = activeTarget(root);
+        if (!origin || event.target !== origin)
+            return;
+        const lease = owner(origin);
+        if (!lease?.isCurrent())
+            return;
+        tabIntent = { origin, lease };
+        tabFrame = win.requestAnimationFrame(() => { tabFrame = 0; tabIntent = null; });
     });
     listen(root, 'keyup', event => {
         const key = event;
@@ -181,8 +222,10 @@ export function createCaretReveal({ root, owner, pan }) {
     });
     listen(root, 'select', event => { if (belongs(event))
         schedule(); });
-    listen(doc, 'selectionchange', () => schedule());
+    listen(doc, 'selectionchange', () => { if (!pending?.wholeControl)
+        schedule(); });
     listen(root, 'pointerdown', event => {
+        cancelTab();
         if (event.button === 0) {
             pointing = true;
             cancel();
@@ -207,6 +250,7 @@ export function createCaretReveal({ root, owner, pan }) {
                 return;
             destroyed = true;
             cancel();
+            cancelTab();
             composing = null;
             imeKey = null;
             pointing = false;

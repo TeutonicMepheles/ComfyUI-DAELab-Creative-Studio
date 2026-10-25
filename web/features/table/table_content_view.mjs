@@ -157,6 +157,8 @@ export function renderContentCell(cell,row,field,{change,upload,notify,getTable,
         return chip;
     }
     function drawContent(value,editing=false){
+        // Keep an already normalized Text node; rich DOM and pending media cleanup still rebuild.
+        if(typeof value==='string'&&value!==''&&!materialCleanups.length&&display.classList.contains('content-text')&&!display.classList.contains('content-materials')&&display.childNodes.length===1&&display.firstChild.nodeType===3&&display.firstChild.nodeValue===value)return;
         clearMaterials();display.replaceChildren();const assets=!editing&&Array.isArray(value)?value:[];
         display.classList.toggle('content-materials',!!assets.length);
         display.classList.toggle('content-text',!assets.length);

@@ -820,12 +820,13 @@
       "source": "web/table_content_view.mjs",
       "destination": "frontend/src/features/table/table_content_view.mjs",
       "sourceSha256": "6f83b0c4964dab7ec13613005b2940c25b0a6c1a2ed5c2b90a0cfeeed93ab31e",
-      "destinationSha256": "1a58a1bd074a47bfffe430727895bf2ee1e38615542fdac5b4bcee2219081dd1",
+      "destinationSha256": "9fecc5e0c7b63726944f843875707a9b3b13b0b62dee06ae774cc5d4fb8587d3",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
-        "Actual-host nested keyboard follow-up: shared save propagation in nested panel/popover; keep local editor keys and IME/229 ownership."
+        "Actual-host nested keyboard follow-up: shared save propagation in nested panel/popover; keep local editor keys and IME/229 ownership.",
+        "Preserve a sole matching nonempty Text node when text display classes already match and no media cleanup is pending; retain all other normalization and inline editing lifecycle paths. Pure DOM identity/mutation regressions do not establish browser performance acceptance."
       ]
     },
     {

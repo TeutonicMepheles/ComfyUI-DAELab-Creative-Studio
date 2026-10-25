@@ -52,6 +52,7 @@ function fixture(){
             if(selector.includes('[hidden]')&&(n.hidden||n.inert||n.tagName==='DIALOG'||n.workspace))return n;
         }return null;};
         e.getBoundingClientRect=()=>{measures.push(e);return e.bounds;};
+        e.tabIndex=-1;e.disabled=false;e.matches=selector=>selector===':disabled'&&e.disabled;
         for(const name of ['focus','blur','setSelectionRange'])e[name]=()=>{throw new Error('forbidden '+name);};
         for(const name of ['value','scrollLeft','scrollTop'])Object.defineProperty(e,name,{get:()=>name==='value'?'unchanged':0,set:v=>{writes.push([name,v]);throw new Error('forbidden '+name);}});
         return e;
@@ -83,6 +84,8 @@ function fixture(){
         setRanges(v){ranges=v},setRangeThrows(v){rangeThrows=v},
         active(c){doc.activeElement=c.editor;selection.focusNode=c.text;selection.anchorNode=c.text;},
         fire(type,c=a,options={}){root.emit(type,{target:c.editor,...options});},
+        control(c=a,tag='BUTTON',bounds=rect(918.671875,341.8125,1072,398.40625)){const e=element(tag,c.panel);e.tabIndex=0;e.bounds=bounds;return e;},
+        tabTo(target,{shiftKey=false,isTrusted=true,isComposing=false,keyCode=9,relatedTarget=doc.activeElement}={}){const from=doc.activeElement;root.emit('keydown',{target:from,key:'Tab',shiftKey,isTrusted,isComposing,keyCode});root.emit('focusout',{target:from,relatedTarget:target});doc.activeElement=target;root.emit('focusin',{target,relatedTarget,isTrusted});},
         flush(){const todo=[...frames.values()];frames.clear();for(const fn of todo)fn();},
     };
 }
@@ -206,4 +209,63 @@ test('view reveal pan uses only existing viewport navigation and manual routes e
     assert.match(viewSource,/function setZoom\(factor\)\{caretReveal\.suspend\(\)/);
     assert.match(viewSource,/function fit\(\)\{\s*caretReveal\.suspend\(\)/);
     assert.match(viewSource,/panBy\(dx,dy\)\{[\s\S]*?caretReveal\.suspend\(\)/);
+});
+
+test('real post-Tab TD and button geometry is revealed without changing focus or native history facts',()=>{
+    const tableRects=[rect(-145.63021850585938,316.3333435058594,-85.63021850585938,437.4479293823242),rect(-391.2604370117187,382.6666870117187,-271.26043701171875,624.8958587646484),rect(-636.890625,449,-456.890625,812.34375)];
+    for(const [width,height] of [[680,720],[1280,720],[1920,1080]])for(const bounds of tableRects){
+        const f=fixture();f.doc.documentElement={clientWidth:width,clientHeight:height};f.root.bounds=rect(58,96,width,height);
+        const target=f.control(f.a,'TD',bounds),delta=revealDelta(bounds,f.root.bounds);f.tabTo(target);f.flush();
+        assert.equal(f.doc.activeElement,target);assert.equal(f.pans.length,1);assert.deepEqual(f.pans[0],{x:50-delta.dx,y:200-delta.dy,zoom:1.5});assert.deepEqual(f.writes,[]);
+        const after=structuredClone(f.tracker);for(const saved of [after.initialState,after.activeState,...after.undoQueue,...after.redoQueue])saved.extra.daelabCreativeCanvasV1.viewport={x:0,y:0,zoom:1};assert.deepEqual(after,f.beforeSnapshots);f.controller.destroy();
+    }
+    for(const owner of ['a','b'])for(const bounds of [rect(918.671875,341.8125,1072,398.40625),rect(645.78125,311.2083435058594,748,348.9375114440918)]){
+        const f=fixture(),target=f.control(f[owner],'BUTTON',bounds);f.tabTo(target,{shiftKey:owner==='b'});f.flush();assert.equal(f.doc.activeElement,target);assert.equal(f.pans.length,1);assert.equal(f.pans[0].x,50-(bounds.right-664));assert.deepEqual(f.writes,[]);f.controller.destroy();
+    }
+});
+
+test('noneditor focus needs a current trusted Tab intent; selection changes cannot replace that target',()=>{
+    const f=fixture(),target=f.control();f.doc.activeElement=target;f.root.emit('focusin',{target,isTrusted:true,relatedTarget:f.a.editor});f.flush();assert.equal(f.pans.length,0);
+    f.active(f.a);f.tabTo(target,{isTrusted:false});f.flush();assert.equal(f.pans.length,0);
+    f.active(f.a);f.tabTo(target);f.doc.emit('selectionchange');f.flush();assert.equal(f.pans.length,1);assert.equal(f.rangeReads.length,0);assert.equal(f.doc.activeElement,target);f.controller.destroy();
+});
+
+test('Tab intent survives inline focusout but expires and never follows a different focus transition',()=>{
+    for(const change of [f=>f.flush(),f=>f.controller.suspend(),f=>f.controller.cancel(),f=>f.root.emit('pointerdown',{button:0}),f=>f.root.emit('keydown',{target:f.a.editor,key:'x',isTrusted:true})]){
+        const f=fixture(),target=f.control();f.root.emit('keydown',{target:f.a.editor,key:'Tab',isTrusted:true});change(f);f.root.emit('focusout',{target:f.a.editor});f.doc.activeElement=target;f.root.emit('focusin',{target,isTrusted:true,relatedTarget:f.a.editor});f.flush();assert.equal(f.pans.length,0,String(change));f.controller.destroy();
+    }
+    const f=fixture(),target=f.control();f.tabTo(target,{relatedTarget:f.b.editor});f.flush();assert.equal(f.pans.length,0);f.controller.destroy();
+});
+
+test('Tab handoff permits inline editing to end but requires the original lease through focus transfer',()=>{
+    for(const invalidate of [false,true]){
+        const f=fixture(),target=f.control(f.b,'TD',rect(700,300,820,420));
+        f.root.emit('keydown',{target:f.a.editor,key:'Tab',isTrusted:true});
+        f.a.editor.isContentEditable=false;if(invalidate)f.a.node.mode=4;
+        f.root.emit('focusout',{target:f.a.editor,relatedTarget:target});f.doc.activeElement=target;
+        f.root.emit('focusin',{target,relatedTarget:f.a.editor,isTrusted:true});f.flush();
+        assert.equal(f.pans.length,invalidate?0:1);assert.equal(f.doc.activeElement,target);assert.deepEqual(f.writes,[]);f.controller.destroy();
+    }
+});
+
+test('post-Tab control rejects changed owner/mode, detached/disabled targets and foreign focus',()=>{
+    const changes=[(f,t)=>f.view.replaceGraph({}),(f,t)=>f.a.panel={},(f,t)=>f.a.release=()=>{},(f,t)=>f.nodes.set(1,{id:1,mode:0}),
+        (f,t)=>f.a.node.mode=2,(f,t)=>f.a.node.mode=4,(f,t)=>t.hidden=true,(f,t)=>t.inert=true,(f,t)=>t.disabled=true,
+        (f,t)=>t.isConnected=false,(f,t)=>t.parentElement=null,(f,t)=>f.doc.activeElement=f.b.editor,(f,t)=>f.doc.hidden=true];
+    for(const change of changes){const f=fixture(),target=f.control();f.tabTo(target);change(f,target);f.flush();assert.equal(f.pans.length,0,String(change));f.controller.destroy();}
+    for(const tag of ['DIALOG','SECTION']){const f=fixture(),target=f.control();target.parentElement=tag==='DIALOG'?f.element(tag,f.a.panel):f.root;f.tabTo(target);f.flush();assert.equal(f.pans.length,0);f.controller.destroy();}
+});
+
+test('Tab cannot bypass IME or reveal hidden, oversized, internally clipped or already visible controls',()=>{
+    for(const setup of [f=>f.fire('compositionstart'),f=>f.fire('keydown',f.a,{keyCode:229,isComposing:true})]){const f=fixture();setup(f);f.tabTo(f.control());f.flush();assert.equal(f.pans.length,0);f.controller.destroy();}
+    for(const options of [{isComposing:true},{keyCode:229}]){const f=fixture();f.tabTo(f.control(),options);f.flush();assert.equal(f.pans.length,0);f.controller.destroy();}
+    for(const bounds of [rect(100,200,150,240),rect(0,200,900,240),rect(0,0,0,0)]){const f=fixture();f.tabTo(f.control(f.a,'BUTTON',bounds));f.flush();assert.equal(f.pans.length,0);f.controller.destroy();}
+    const clipped=fixture(),target=clipped.control();clipped.a.panel.css={overflowX:'hidden'};clipped.a.panel.bounds=rect(600,280,700,500);clipped.tabTo(target);clipped.flush();assert.equal(clipped.pans.length,0);clipped.controller.destroy();
+});
+
+test('whole-control bounds skip self overflow, retain geometry lease validation and cancel on teardown',()=>{
+    const f=fixture(),target=f.control();target.css={overflowX:'hidden',overflowY:'hidden'};target.clientWidth=20;target.clientHeight=10;
+    f.tabTo(target);f.flush();assert.equal(f.pans.length,1);assert.ok(!f.styleReads.includes(target));assert.deepEqual(f.writes,[]);f.controller.destroy();
+    const changed=fixture(),other=changed.control();const read=other.getBoundingClientRect;other.getBoundingClientRect=()=>{const r=read();changed.a.release=()=>{};return r;};changed.tabTo(other);changed.flush();assert.equal(changed.pans.length,0);changed.controller.destroy();
+    for(const close of [f=>f.controller.destroy(),f=>f.win.emit('pagehide')]){const f=fixture();f.root.emit('keydown',{target:f.a.editor,key:'Tab',isTrusted:true});close(f);f.flush();assert.equal(f.frames.size,0);assert.equal(f.pans.length,0);f.controller.destroy();assert.equal(f.root.count()+f.doc.count()+f.win.count(),0);}
 });

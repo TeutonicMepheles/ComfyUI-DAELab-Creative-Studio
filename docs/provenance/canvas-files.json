@@ -1047,10 +1047,11 @@
       "source": null,
       "sourceSha256": null,
       "destination": "frontend/src/canvas/creative_focus_reveal.ts",
-      "destinationSha256": "b462bd2dea7ea66d1f209ec2e192aafa762dbbf9c657395d9425866d504f5ec8",
+      "destinationSha256": "04e1903cd03443efd9af906580dd6770323e296a9ac152467cc659a377992b5c",
       "kind": "production-source",
       "changes": [
-        "Authored strict TypeScript focus coordinator: one coalesced frame reads a collapsed Range and root viewport; visible caret skips ancestor clipping checks. Only needed translations inspect inner clipping. Native text controls use whole-control bounds only when they fit; oversized controls and noncollapsed selections are deliberately not guessed."
+        "Authored strict TypeScript focus coordinator: one coalesced frame reads a collapsed Range and root viewport; visible caret skips ancestor clipping checks. Only needed translations inspect inner clipping. Native text controls use whole-control bounds only when they fit; oversized controls and noncollapsed selections are deliberately not guessed.",
+        "Trusted Tab/Shift+Tab keeps native focus order and may reveal the actual fit-sized noneditor focus target through a one-frame origin intent and current origin/target ownership leases. Pending intent expires or cancels on manual navigation, unrelated keys, IME, mode/lifecycle changes and disposal; no focus, scroll, business or history writes are introduced."
       ]
     },
     {
@@ -1058,10 +1059,11 @@
       "source": null,
       "sourceSha256": null,
       "destination": "tests/migrated_canvas/creative_focus_reveal.test.mjs",
-      "destinationSha256": "0c399e2c3e6d4f0f1104d8ed36785680bfebac520eb0a169c2ca0aaddf4e62a9",
+      "destinationSha256": "fa6344341f40c355f51b5ff45d03349d33d50ea412c623445a9eb729ad968f3c",
       "kind": "rule-regression",
       "changes": [
-        "Execute actual core and view lease binding with two owners and native viewport history; cover stale identity, composition/229, manual navigation, geometry and read/write boundaries. Synthetic DOM does not prove browser geometry, IME or latency."
+        "Execute actual core and view lease binding with two owners and native viewport history; cover stale identity, composition/229, manual navigation, geometry and read/write boundaries. Synthetic DOM does not prove browser geometry, IME or latency.",
+        "Adds seven focused trusted-Tab regressions for recorded offscreen TD/button geometry, exact origin/target lease handoff, inline exit, expiry and cancellation, IME, disabled/hidden/clipped controls, current geometry and teardown. Existing caret/owner tests remain; pure tests do not establish actual browser or performance acceptance."
       ]
     }
   ],

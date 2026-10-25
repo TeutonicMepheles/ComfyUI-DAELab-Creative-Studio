@@ -27,11 +27,22 @@ function textControl(element: HTMLElement): boolean {
         && /^(text|search|url|tel|email|password)$/.test((element as HTMLInputElement).type));
 }
 
-function activeEditor(root: HTMLElement): HTMLElement | null {
+function activeTarget(root: HTMLElement): HTMLElement | null {
     const element = root.ownerDocument.activeElement as HTMLElement | null;
     if (!element || !root.contains(element) || !element.isConnected
         || element.closest('[hidden],[inert],dialog,.dae-creative-workspace')) return null;
-    return element.isContentEditable || textControl(element) ? element : null;
+    return element;
+}
+
+function activeEditor(root: HTMLElement): HTMLElement | null {
+    const element = activeTarget(root);
+    return element && (element.isContentEditable || textControl(element)) ? element : null;
+}
+
+function activeControl(root: HTMLElement): HTMLElement | null {
+    const element = activeTarget(root);
+    return element && !element.isContentEditable && !textControl(element)
+        && element.tabIndex >= 0 && !element.matches(':disabled') ? element : null;
 }
 
 /** A detached Range reads the live collapsed focus boundary without moving Selection. */
@@ -59,10 +70,10 @@ function viewportRect(root: HTMLElement, win: Window): RevealRect {
     };
 }
 
-function internallyClipped(editor: HTMLElement, target: RevealRect, root: HTMLElement, win: Window): boolean {
+function internallyClipped(editor: HTMLElement, target: RevealRect, root: HTMLElement, win: Window, wholeControl = false): boolean {
     // Moving the whole world cannot repair clipping relative to an inner scrollport.
     // For native controls the measured border box already includes native scrolling.
-    for (let node: HTMLElement | null = textControl(editor) ? editor.parentElement : editor; node && node !== root; node = node.parentElement) {
+    for (let node: HTMLElement | null = wholeControl || textControl(editor) ? editor.parentElement : editor; node && node !== root; node = node.parentElement) {
         const style = win.getComputedStyle(node);
         const clipX = /^(auto|scroll|hidden|clip)$/.test(style.overflowX);
         const clipY = /^(auto|scroll|hidden|clip)$/.test(style.overflowY);
@@ -82,38 +93,44 @@ export function createCaretReveal({root, owner, pan}: RevealOptions) {
     if (!win) throw new TypeError('Caret reveal requires the owning document window');
     let frame = 0, destroyed = false, suppressed = false, pointing = false;
     let composing: HTMLElement | null = null, imeKey: HTMLElement | null = null;
-    let pending: {editor: HTMLElement; lease: CaretLease} | null = null;
+    let pending: {editor: HTMLElement; lease: CaretLease; wholeControl: boolean} | null = null;
+    let tabIntent: {origin: HTMLElement; lease: CaretLease} | null = null, tabFrame = 0;
     const releases: Array<() => void> = [];
     function cancel() {
         if (frame) win!.cancelAnimationFrame(frame);
         frame = 0; pending = null;
     }
-    function suspend() { suppressed = true; cancel(); }
-    function reset() { suspend(); composing = null; imeKey = null; pointing = false; }
-    function valid(editor: HTMLElement, lease: CaretLease) {
-        return !destroyed && !suppressed && !pointing && !composing && !imeKey
-            && !doc.hidden && activeEditor(root) === editor && lease.isCurrent();
+    function cancelTab() {
+        if (tabFrame) win!.cancelAnimationFrame(tabFrame);
+        tabFrame = 0; tabIntent = null;
     }
-    function schedule(intent = false) {
+    function suspend() { suppressed = true; cancel(); cancelTab(); }
+    function reset() { suspend(); composing = null; imeKey = null; pointing = false; }
+    function valid(editor: HTMLElement, lease: CaretLease, wholeControl: boolean) {
+        return !destroyed && !suppressed && !pointing && !composing && !imeKey
+            && !doc.hidden && (wholeControl ? activeControl(root) : activeEditor(root)) === editor && lease.isCurrent();
+    }
+    function schedule(intent = false, control: HTMLElement | null = null) {
         if (destroyed) return;
         if (intent) suppressed = false;
-        const editor = activeEditor(root);
+        const editor = control ?? activeEditor(root);
         if (!editor || suppressed || pointing || composing || imeKey || doc.hidden) { cancel(); return; }
         const lease = owner(editor);
         if (!lease || !lease.isCurrent()) { cancel(); return; }
-        pending = {editor, lease};
+        pending = {editor, lease, wholeControl: control !== null};
         if (frame) return;
         frame = win!.requestAnimationFrame(() => {
             frame = 0;
             const request = pending; pending = null;
-            if (!request || !valid(request.editor, request.lease)) return;
-            const target = caretRect(request.editor);
+            if (!request || !valid(request.editor, request.lease, request.wholeControl)) return;
+            const target = request.wholeControl ? request.editor.getBoundingClientRect() : caretRect(request.editor);
             if (!target) return;
             const delta = revealDelta(target, viewportRect(root, win!));
             // Most editing is already visible: avoid inspecting every ancestor
             // unless translation is needed. Range/root reads remain a real cost.
             if (!delta || (!delta.dx && !delta.dy)) return;
-            if (!internallyClipped(request.editor, target, root, win!) && valid(request.editor, request.lease)) pan(delta);
+            if (!internallyClipped(request.editor, target, root, win!, request.wholeControl)
+                && valid(request.editor, request.lease, request.wholeControl)) pan(delta);
         });
     }
     function listen(target: EventTarget, type: string, listener: EventListener) {
@@ -124,9 +141,16 @@ export function createCaretReveal({root, owner, pan}: RevealOptions) {
         const editor = activeEditor(root);
         return editor && event.target && editor.contains(event.target as Node) ? editor : null;
     };
-    listen(root, 'focusin', () => schedule(true));
+    listen(root, 'focusin', event => {
+        const navigation = tabIntent; cancelTab();
+        const control = activeControl(root);
+        if (control && navigation && event.isTrusted && event.target === control
+            && (event as FocusEvent).relatedTarget === navigation.origin && navigation.lease.isCurrent()) schedule(true, control);
+        else schedule(true);
+    });
     listen(root, 'focusout', () => { cancel(); composing = null; imeKey = null; });
     listen(root, 'compositionstart', event => {
+        cancelTab();
         composing = belongs(event); if (composing) { imeKey = null; cancel(); }
     });
     listen(root, 'compositionend', event => {
@@ -135,8 +159,19 @@ export function createCaretReveal({root, owner, pan}: RevealOptions) {
         composing = null; imeKey = null; schedule(true);
     });
     listen(root, 'keydown', event => {
+        cancelTab();
         const key = event as KeyboardEvent, editor = belongs(event);
         if (editor && (key.isComposing || key.keyCode === 229)) { imeKey = editor; cancel(); }
+        // Observe native Tab intent without consuming it or choosing the next control.
+        // Focusout may end inline editing; the card lease survives that transition.
+        if (key.key !== 'Tab' || !key.isTrusted || key.ctrlKey || key.metaKey || key.altKey
+            || key.isComposing || key.keyCode === 229 || composing || imeKey || pointing || doc.hidden || destroyed) return;
+        const origin = activeTarget(root);
+        if (!origin || event.target !== origin) return;
+        const lease = owner(origin);
+        if (!lease?.isCurrent()) return;
+        tabIntent = {origin, lease};
+        tabFrame = win!.requestAnimationFrame(() => { tabFrame = 0; tabIntent = null; });
     });
     listen(root, 'keyup', event => {
         const key = event as KeyboardEvent;
@@ -151,8 +186,9 @@ export function createCaretReveal({root, owner, pan}: RevealOptions) {
         schedule(true);
     });
     listen(root, 'select', event => { if (belongs(event)) schedule(); });
-    listen(doc, 'selectionchange', () => schedule());
+    listen(doc, 'selectionchange', () => { if (!pending?.wholeControl) schedule(); });
     listen(root, 'pointerdown', event => {
+        cancelTab();
         if ((event as PointerEvent).button === 0) { pointing = true; cancel(); }
     });
     listen(doc, 'pointerup', event => {
@@ -168,7 +204,7 @@ export function createCaretReveal({root, owner, pan}: RevealOptions) {
         suspend,
         destroy() {
             if (destroyed) return;
-            destroyed = true; cancel(); composing = null; imeKey = null; pointing = false;
+            destroyed = true; cancel(); cancelTab(); composing = null; imeKey = null; pointing = false;
             for (const release of releases) release();
         },
     };
