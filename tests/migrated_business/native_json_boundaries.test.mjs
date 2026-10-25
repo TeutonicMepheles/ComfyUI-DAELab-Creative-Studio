@@ -90,6 +90,20 @@ function dom(t){
   sourceSection.append(source);materials.append(materialHint);result.append(heading);root.append(sourceSection,materials,result);run.append(new Element('span'));
   return {root,source,instruction,select,run,upload,result,materialHint};
 }
+function deferred(){let resolve;const promise=new Promise(done=>{resolve=done;});return {promise,resolve};}
+// recoverProposal deliberately returns void from its click handler. Its finally
+// render changes this real control from busy to idle on both success and error.
+// Observe that boundary in the fake DOM instead of guessing async turn counts.
+function observeBusyCycle(control,t){
+  const descriptor=Object.getOwnPropertyDescriptor(control,'disabled'),finished=deferred(),transitions=[];
+  let disabled=Boolean(control.disabled),seenBusy=false;
+  Object.defineProperty(control,'disabled',{configurable:true,enumerable:true,get:()=>disabled,set(value){
+    disabled=Boolean(value);transitions.push(disabled);
+    if(disabled)seenBusy=true;else if(seenBusy)finished.resolve();
+  }});
+  t.after(()=>{if(descriptor)Object.defineProperty(control,'disabled',descriptor);else delete control.disabled;});
+  return {finished:finished.promise,transitions};
+}
 test('actual LLM panel mounts the imported fixture with nested proxies and applies/undoes restored proposals',t=>{
   const elements=dom(t),fixture=JSON.parse(fs.readFileSync(new URL('../fixtures/performance/FX-PERF-S-no-video.json',import.meta.url)));
   const seed=fixture.nodes.find(node=>node.type==='DAELAB.LLMStylePreviewB');
@@ -107,7 +121,7 @@ test('actual LLM panel mounts the imported fixture with nested proxies and appli
   a.doc.redo();release.sync();assert.equal(a.value.appliedIO.requestId,'saved-result');
 });
 
-test('actual LLM recovery detaches nested Slot proxies, stays read-only until review and preserves history',async t=>{
+test('actual LLM recovery detaches nested Slot proxies, stays read-only until review and preserves history',{timeout:5000},async t=>{
   const elements=dom(t),a=documentFor({instruction:'保持主体',mode:'polish',model:'qwen',future:{opaque:['keep']},ioResult:{complete:false,requestId:'old-read-only',rows:[],future:{preserve:true}}});
   const upstream={id:10,type:'DAELAB.MaterialGroup',mode:0};
   const graph={links:{1:{origin_id:10,origin_slot:0}},getNodeById:()=>upstream,change(){}};
@@ -125,8 +139,21 @@ test('actual LLM recovery detaches nested Slot proxies, stays read-only until re
   }}));
   const release=bindIOPanel({node,nativeDocument:a.doc,...elements});t.after(release);
   const actions=elements.result.querySelector('.llm-style-result-actions');
+  const recover=actions.children[3],cycle=observeBusyCycle(recover,t),digestGate=deferred();
+  const originalDigest=crypto.subtle.digest;let digestCalls=0;
+  t.mock.method(crypto.subtle,'digest',async function(...args){digestCalls++;await digestGate.promise;return Reflect.apply(originalDigest,this,args);});
   actions.children[3].onclick({preventDefault(){},stopPropagation(){}});
-  for(let n=0;n<100&&elements.result.children[0].textContent!=='已恢复建议';n++)await new Promise(resolve=>setImmediate(resolve));
+  try{
+    // Deliberately keep the real WebCrypto call pending across the old loop's
+    // entire budget. These turns prove absence of completion, not readiness.
+    for(let n=0;n<100;n++)await new Promise(resolve=>setImmediate(resolve));
+    assert.equal(digestCalls,1);assert.equal(requests.length,0);
+    assert.equal(recover.disabled,true);assert.deepEqual(cycle.transitions,[true]);
+    assert.equal(elements.result.children[0].textContent,'');
+  }finally{
+    digestGate.resolve();await cycle.finished;
+  }
+  assert.deepEqual(cycle.transitions,[true,false]);
   assert.equal(elements.result.children[0].textContent,'已恢复建议');assert.equal(requests.length,1);assert.equal(a.steps,0);
   assert.equal(a.value.appliedIO,undefined);assert.deepEqual(a.value.ioResult,{complete:false,requestId:'old-read-only',rows:[],future:{preserve:true}});
   assert.equal(actions.children[0].disabled,false);actions.children[0].onclick({preventDefault(){},stopPropagation(){}});
@@ -137,4 +164,22 @@ test('actual LLM recovery detaches nested Slot proxies, stays read-only until re
   assert.equal(a.value.ioResult.requestId,'old-read-only');assert.equal(snapshot.rows[0].image.future.opaque[1].stable,true);
   a.doc.undo();release.sync();assert.equal(a.value.appliedIO,undefined);assert.equal(a.value.ioResult.requestId,'old-read-only');
   a.doc.redo();release.sync();assert.equal(a.value.appliedIO.requestId,'original-group');assert.equal(requests.length,1);
+});
+
+test('actual LLM recovery failure reaches the same busy-to-idle boundary before error assertions',{timeout:5000},async t=>{
+  const elements=dom(t),a=documentFor({instruction:'保持主体',mode:'polish',model:'qwen',future:{opaque:['keep']}});
+  const node={id:21,mode:0,inputs:[],outputs:[{},{}],properties:{},graph:{links:{},getNodeById(){},change(){}}};
+  Object.defineProperty(node.properties,'llmStylePreview',{get:()=>a.doc.read()});
+  let requests=0;
+  t.after(bindBusinessService('generation',{async request(action){
+    requests++;assert.equal(action,'status');throw new Error('确定性恢复查询失败');
+  }}));
+  const release=bindIOPanel({node,nativeDocument:a.doc,...elements});t.after(release);
+  const recover=elements.result.querySelector('.llm-style-result-actions').children[3],cycle=observeBusyCycle(recover,t);
+  const before=json(a.value);
+  recover.onclick({preventDefault(){},stopPropagation(){}});
+  await cycle.finished;
+  assert.deepEqual(cycle.transitions,[true,false]);assert.equal(recover.disabled,false);assert.equal(requests,1);
+  assert.equal(elements.result.querySelector('.llm-style-preview-status').textContent,'确定性恢复查询失败');
+  assert.equal(a.steps,0);assert.deepEqual(a.value,before);assert.equal(a.value.appliedIO,undefined);
 });

@@ -20,6 +20,10 @@ const el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className
 const button=(text,action)=>{const b=el('button','',text);b.type='button';b.onclick=action;return b;};
 const categoryIcon=item=>{const icon=el('i','dae-creative-icon');icon.style.setProperty('--dae-icon',`url("${new URL(`../design/vendor/remixicon/${item.icon}.svg`,import.meta.url).href}")`);icon.setAttribute('aria-hidden','true');return icon;};
 const value=(n,name)=>n.widgets?.find(w=>w.name===name)?.value;
+// Compare live DOM/IDL values, not a cached model: outside updates still repair
+// themselves on the next poll; equal serialized values need no assignment.
+function setViewProperty(target,key,next){if(target[key]!==next)target[key]=next;}
+function setViewAttribute(target,key,next){if(target.getAttribute(key)!==next)target.setAttribute(key,next);}
 const SLOT_MAGNET_RADIUS=32;
 const previewFor=n=>adapterFor(n)?.preview?.(n)||{};
 // Lease the actual panel, not a clone: Vue Teleports, callbacks and editor history stay alive.
@@ -392,42 +396,42 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         resizeObserver.observe(element,{box:'border-box'});return c;
     }
     function update(c){
-        c.element.dataset.slotsSuppressed=String(suppressGroupSlots(host.nodes(graph),c.node,selected));
+        setViewProperty(c.element.dataset,'slotsSuppressed',String(suppressGroupSlots(host.nodes(graph),c.node,selected)));
         const {node,layout}=c;
         const adapter=adapterFor(node),presentation=adapter?.presentation;
         // Optional read-only interface. A broken provider must not break the canvas.
         try{c.tasks.update(adapter?.tasks?.(node)||[]);}catch{c.tasks.update([]);}
-        c.element.dataset.presentation=(typeof presentation==='function'?presentation(node):presentation)==='content'?'content':'card';
-        const fullHeight=adapter?.fullHeight;c.element.dataset.fullHeight=String(typeof fullHeight==='function'?fullHeight(node):!!fullHeight);
+        setViewProperty(c.element.dataset,'presentation',(typeof presentation==='function'?presentation(node):presentation)==='content'?'content':'card');
+        const fullHeight=adapter?.fullHeight;setViewProperty(c.element.dataset,'fullHeight',String(typeof fullHeight==='function'?fullHeight(node):!!fullHeight));
         if(c.panel){
-            c.panel.dataset.canvasPanel='true';c.panel.dataset.canvasFullHeight=c.element.dataset.fullHeight;c.panel.dataset.canvasWorkspace=String(workspace?.c===c);
+            if(c.panel.dataset.canvasPanel!=='true')c.panel.dataset.canvasPanel='true';setViewProperty(c.panel.dataset,'canvasFullHeight',c.element.dataset.fullHeight);setViewProperty(c.panel.dataset,'canvasWorkspace',String(workspace?.c===c));
             const surface=adapter?.selectionSurface?.(node);
-            if(surface!==c.surface){c.surface?.classList.remove('dae-creative-selection-active');c.surface=surface&&c.panel.contains(surface)?surface:null;}
-            c.surface?.classList.toggle('dae-creative-selection-active',selected.has(node.id));
+            if(surface!==c.surface){if(c.surface?.classList.contains('dae-creative-selection-active'))c.surface.classList.remove('dae-creative-selection-active');c.surface=surface&&c.panel.contains(surface)?surface:null;}
+            const active=selected.has(node.id);if(c.surface&&c.surface.classList.contains('dae-creative-selection-active')!==active)c.surface.classList.toggle('dae-creative-selection-active',active);
         }
         if(node.type===UPLOAD_TYPE)layout.width=cardWidth(node.type);
         // Legacy saved collapsed cards must reopen now that manual collapse is removed.
         layout.expanded=true;
-        if(c.widthHandle)layout.width=Math.max(c.minimumWidth(),layout.width);adapterFor(node)?.refresh?.(node);c.element.style.left=`${layout.x}px`;c.element.style.top=`${layout.y}px`;c.element.style.width=`${layout.width}px`;
-        if(c.widthHandle){c.widthHandle.setAttribute('aria-valuenow',String(layout.width));c.widthHandle.setAttribute('aria-valuemin',String(c.minimumWidth()));c.widthHandle.setAttribute('aria-valuemax',String(Math.max(3600,layout.width)));c.widthHandle.setAttribute('aria-valuetext',`${layout.width} 像素`);}
-        const inactive=!isPanelActive(node);c.element.dataset.inactive=String(inactive);c.body.inert=inactive;
-        for(const {w,input} of c.fieldBindings||[]){input.disabled=node.inputs?.some(p=>p.name===w.name&&p.link!=null);if(document.activeElement!==input){input.value=w.value??'';input.checked=!!w.value;}}
-        const compact=compactCard(c);c.element.dataset.compact=String(compact);
-        if(c.title.textContent!==(node.title||node.type))c.title.textContent=node.title||node.type;c.body.hidden=inactive||compact;
+        if(c.widthHandle)layout.width=Math.max(c.minimumWidth(),layout.width);adapterFor(node)?.refresh?.(node);setViewProperty(c.element.style,'left',`${layout.x}px`);setViewProperty(c.element.style,'top',`${layout.y}px`);setViewProperty(c.element.style,'width',`${layout.width}px`);
+        if(c.widthHandle){setViewAttribute(c.widthHandle,'aria-valuenow',String(layout.width));setViewAttribute(c.widthHandle,'aria-valuemin',String(c.minimumWidth()));setViewAttribute(c.widthHandle,'aria-valuemax',String(Math.max(3600,layout.width)));setViewAttribute(c.widthHandle,'aria-valuetext',`${layout.width} 像素`);}
+        const inactive=!isPanelActive(node);setViewProperty(c.element.dataset,'inactive',String(inactive));setViewProperty(c.body,'inert',inactive);
+        for(const {w,input} of c.fieldBindings||[]){setViewProperty(input,'disabled',!!node.inputs?.some(p=>p.name===w.name&&p.link!=null));if(document.activeElement!==input){setViewProperty(input,'value',`${w.value??''}`);setViewProperty(input,'checked',!!w.value);}}
+        const compact=compactCard(c);setViewProperty(c.element.dataset,'compact',String(compact));
+        if(c.title.textContent!==(node.title||node.type))c.title.textContent=node.title||node.type;setViewProperty(c.body,'hidden',inactive||compact);
         const text=adapterFor(node)?.summary?.(node)||value(node,'prompt')||value(node,'text')||'';
-        if(c.summary.textContent!==text)c.summary.textContent=text;c.summary.hidden=!inactive&&layout.expanded&&!compact||node.type===UPLOAD_TYPE;
+        if(c.summary.textContent!==text)c.summary.textContent=text;setViewProperty(c.summary,'hidden',!inactive&&layout.expanded&&!compact||node.type===UPLOAD_TYPE);
         const panelPreview=layout.expanded&&!compact&&!!c.panel?.querySelector('video[src],img[src]');
         const preview=panelPreview?{}:previewFor(node),url=preview.url;if(url!==c.mediaURL){c.mediaURL=url;const previous=c.media.querySelector('video');if(previous){previous.pause();previous.removeAttribute('src');previous.load();}c.media.replaceChildren();if(typeof url==='string'&&(/^(\/view\?|\/comfytv\/|https?:\/\/)/).test(url)){
             const file=new URL(url,location.href).searchParams.get('filename')||url;
             const isVideo=preview.kind==='video'||/\.(mp4|webm|mov)(?:[?&]|$)/i.test(file);const m=el(isVideo?'video':'img');m.src=url;if(isVideo){m.controls=true;m.preload='metadata';}else m.alt=node.title||'素材';c.media.append(m);
         }}
-        c.media.hidden=inactive||panelPreview;
+        setViewProperty(c.media,'hidden',inactive||panelPreview);
         if(c.widthHandle){
             // The resize boundary belongs to the panel, not its heading or summary.
-            c.widthHandle.hidden=c.body.hidden;
-            c.widthHandle.style.top=c.body.offsetTop+'px';
-            c.widthHandle.style.height=c.body.offsetHeight+'px';
-            c.widthHandle.style.bottom='auto';
+            setViewProperty(c.widthHandle,'hidden',c.body.hidden);
+            setViewProperty(c.widthHandle.style,'top',c.body.offsetTop+'px');
+            setViewProperty(c.widthHandle.style,'height',c.body.offsetHeight+'px');
+            setViewProperty(c.widthHandle.style,'bottom','auto');
         }
         ports(c);
         projectMaterialPorts(c);materialSources(c);

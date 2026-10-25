@@ -89,7 +89,10 @@ function inspectEditableTarget(table,fieldId,row,field){
  const configs=table.fields.filter(f=>f.generation?.promptFieldId===fieldId).map(f=>({id:f.id,config:row.meta?.generationSettings?.[fieldId]?.[f.id]||f.generation}));
  const kinds=new Set(configs.map(f=>f.config.kind));const purpose=kinds.size===1&&['image','video'].includes([...kinds][0])?[...kinds][0]:'general';
  const content={field:{id:field.id,type:field.type,presentation:field.presentation,readonly:!!field.readonly},hasOverride:!!row.values[fieldId],overridePresent:Object.hasOwn(row.values,fieldId),original,template:field.promptTemplate??null,dependencies,configs,purpose};
- return {original:copy(original),segments:copy(segments),anchors,content,stamp:canonical(content),purpose};
+ // Primitive text is immutable and its text segment array was created above
+ // for this call. Structured prompts still need both independent snapshots.
+ const plainText=typeof original==='string';
+ return {original:plainText?original:copy(original),segments:plainText?segments:copy(segments),anchors,content,stamp:canonical(content),purpose};
 }
 
 /** Registry lives outside table and native history. Saved counters are only lower bounds. */

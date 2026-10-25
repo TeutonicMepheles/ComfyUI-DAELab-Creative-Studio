@@ -511,12 +511,13 @@
       "source": "web/prompt_optimization_model.mjs",
       "destination": "frontend/src/features/prompt/prompt_optimization_model.mjs",
       "sourceSha256": "44fcd380d73784d2942bed1cb85284f6bacf18f28ec3ffeafb197c5de94b26e3",
-      "destinationSha256": "8de9bb95eaa81870fa8ddd2526ded570ffdbd54169a4b3e9592dd84f83209f90",
+      "destinationSha256": "9d3e0078f9d07e1ad1f130123844fc2a8e4462bea870bc6f2d67dbd26ba72b46",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Caller supplies live node list; restrict identity mutation to formal owning types so raw legacy/unknown nodes remain unchanged.",
-        "Reuse editable-field classification only within one synchronous revision observation; private stamping preserves per-target content/reference checks and strict public validation. Count/semantic regressions pass; actual UI and performance acceptance remain pending."
+        "Reuse editable-field classification only within one synchronous revision observation; private stamping preserves per-target content/reference checks and strict public validation. Count/semantic regressions pass; actual UI and performance acceptance remain pending.",
+        "Primitive string inspection returns the immutable string and its fresh per-call text segments without redundant JSON roundtrips. Structured snapshots, validation, canonical stamps and request sequencing retain their existing paths; 5000-target operation-count and isolation regressions pass, without a measured product latency claim."
       ]
     },
     {
