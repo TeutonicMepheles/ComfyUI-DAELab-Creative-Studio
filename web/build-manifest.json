@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "728fd98d6f707994dd24cfa2d46ae73fb25a808368ef7ffa8e6cfee6e36d7af3",
+  "sourceFingerprint": "eca1b9f134b818bf07aae34a4ec7b2437c3c238fafe4ba4138f475334b7c4973",
   "files": [
     {
       "path": "application/asset_library_service.js",
@@ -796,7 +796,7 @@
     },
     {
       "path": "integrations/comfyui/canvas/creative_history.mjs",
-      "sha256": "eb7926303275489dc51397b8ef0a8daaeb4cb6e998f34547a5fea961f8252dac"
+      "sha256": "ee7907079a561628f5d8ea1a1f272f64d1ebbbc89e7abbb5c71b44b6a68ae691"
     },
     {
       "path": "integrations/comfyui/canvas/material_group.js",
@@ -805,6 +805,10 @@
     {
       "path": "integrations/comfyui/canvas/media_upload.js",
       "sha256": "93c63be487e472f4d9b80835a7b5adf9b833e93345bbbcb89cb2e4171d360091"
+    },
+    {
+      "path": "integrations/comfyui/canvas/restored_node_order.js",
+      "sha256": "77954f661a12b1442a58eb9ff14e3de542c293f140a67560a2f88b6f1a33793a"
     },
     {
       "path": "integrations/comfyui/canvas/text_input.js",
@@ -824,7 +828,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "5e1f1556568d738d6f753d2c6b93a597a39a5ec8e31fd337cbc5b8dcc83daa6e"
+      "sha256": "9ab1724218e913cced3531be3f7e818e8d8a1062bf1f1a61f655ec2412decf7a"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

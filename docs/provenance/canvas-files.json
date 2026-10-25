@@ -196,12 +196,13 @@
       "source": "web/creative_history.mjs",
       "destination": "frontend/src/integrations/comfyui/canvas/creative_history.mjs",
       "sourceSha256": "688668a804afd5a0d4ea4748e2b29e9d616688c9102dd23f8eb55ca5f7a4d829",
-      "destinationSha256": "eb7926303275489dc51397b8ef0a8daaeb4cb6e998f34547a5fea961f8252dac",
+      "destinationSha256": "ee7907079a561628f5d8ea1a1f272f64d1ebbbc89e7abbb5c71b44b6a68ae691",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "Reject untracked edits when history/serialization capability is missing; close original tracker after workflow switch; avoid reading graph during ordinary startup/load; preserve layout-only restore and navigation redo behavior.",
         "honor native isGraphReady before history graph reads; preserve regular load delegation and layout-only undo behavior",
-        "Actual-host connection undo follow-up: prepareNativeShortcut flushes pending native squash without calling undo/redo a second time after the native window capture listener already scheduled it."
+        "Actual-host connection undo follow-up: prepareNativeShortcut flushes pending native squash without calling undo/redo a second time after the native window capture listener already scheduled it.",
+        "After successful explicit native history restore, reconcile only validated owned numeric execution orders in the original restore snapshot; keep layout fast path, native graph, queues and comparator unchanged."
       ],
       "kind": "production-source"
     },
@@ -935,10 +936,11 @@
       "source": null,
       "destination": "tests/migrated_canvas/canvas_host.test.mjs",
       "sourceSha256": null,
-      "destinationSha256": "0167c0b83fb5223a7edce66909d18016673615c7d4c8087511edc6184a645dc4",
+      "destinationSha256": "8505787ba2bd367f29cc0fa8d6ef55e07b6577218c69abb9b5081085c23bb839",
       "changes": [
         "Execute real typed adapter and mature history with capability removal, stale workflow, startup, native identity, mode and private-access boundary regressions.",
-        "cover native afterLoadGraph activation order, absent initialMode, no-op/failed native toggles, workflow races and safe isGraphReady history guards"
+        "cover native afterLoadGraph activation order, absent initialMode, no-op/failed native toggles, workflow races and safe isGraphReady history guards",
+        "Load the existing source TypeScript resolution hook before dynamically importing the history integration; assertions unchanged."
       ],
       "kind": "rule-test"
     },
@@ -1064,14 +1066,37 @@
       "source": null,
       "sourceSha256": null,
       "destination": "tests/migrated_canvas/creative_focus_reveal.test.mjs",
-      "destinationSha256": "5535f73da756ddc52614ae41e71f69fdffa3b3831637f15790cf9eb3cde09a3e",
+      "destinationSha256": "76b8abe4d7d4823695845ec0045af4cba93e1f6106472cfca6cfc98cfed89b61",
       "kind": "rule-regression",
       "changes": [
         "Execute actual core and view lease binding with two owners and native viewport history; cover stale identity, composition/229, manual navigation, geometry and read/write boundaries. Synthetic DOM does not prove browser geometry, IME or latency.",
         "Adds seven focused trusted-Tab regressions for recorded offscreen TD/button geometry, exact origin/target lease handoff, inline exit, expiry and cancellation, IME, disabled/hidden/clipped controls, current geometry and teardown. Existing caret/owner tests remain; pure tests do not establish actual browser or performance acceptance.",
         "Adds seven focused fractional-leading-edge cases using recorded 50/150 geometry, genuine .001/.01 clipping in those cases, exact legacy right/bottom limits, unsupported styles/ancestor transforms, floating top/content-box scale and ownership recheck. Synthetic supported-domain inputs are distinguished from captured fields; no live visibility or performance claim.",
         "Adds six focused oversized-Tab regressions including recorded 838px Shift+Tab DIV, single/both-axis leading regions, fractional root/visual viewport and invalid geometry, complete-control clipping, non-Tab/pointer/IME/text-control exclusions, two owners, post-read lease validation and unchanged native history. First old-source run failed three cases; final 38 cases pass. Pure geometry is not live UI acceptance.",
-        "Add status-hint overlap, baseline projection, oversized/unsafe bounds, stale owner and zero ordinary-caret status-geometry-read regressions. First red retained; 46 focused checks and strict typing do not establish browser layout or input latency."
+        "Add status-hint overlap, baseline projection, oversized/unsafe bounds, stale owner and zero ordinary-caret status-geometry-read regressions. First red retained; 46 focused checks and strict typing do not establish browser layout or input latency.",
+        "Dynamically import history after the existing TypeScript resolution hook; focus assertions unchanged."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "frontend/src/integrations/comfyui/canvas/restored_node_order.ts",
+      "destinationSha256": "4a30c384b37733d5250d8013e5b7e3cf652ab654b9ae8ecf10cadc87221f5c7e",
+      "kind": "production-source",
+      "changes": [
+        "Authored strict native restore boundary: stage one order read per owned node, revalidate workflow/root/node identity, preserve all non-order data."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "tests/migrated_canvas/history_restored_order.test.mjs",
+      "destinationSha256": "145820e6163503bd456833275c0da7548b60d6fe7661961b4bb7283b2b799f5f",
+      "kind": "rule-regression",
+      "changes": [
+        "Authored synthetic native history contract tests for order-only restoration, both real generation wrapper orders, real edit detection, failed/ordinary loads and identity/getter boundaries."
       ]
     }
   ],

@@ -1,8 +1,9 @@
+import '../migrated_business/register.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync,readdirSync} from 'node:fs';
 import ts from 'typescript';
-import {canvasHistory,installLayoutHistory} from '../../frontend/src/integrations/comfyui/canvas/creative_history.mjs';
+const {canvasHistory,installLayoutHistory}=await import('../../frontend/src/integrations/comfyui/canvas/creative_history.mjs');
 import {installComfyTVAdapter} from '../../frontend/src/integrations/comfyui/canvas/adapters/comfytv.mjs';
 import {suppressGroupSlots,GROUP_TYPE} from '../../frontend/src/features/groups/material_group_model.mjs';
 

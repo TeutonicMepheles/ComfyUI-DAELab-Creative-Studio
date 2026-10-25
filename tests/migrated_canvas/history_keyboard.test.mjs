@@ -1,7 +1,8 @@
+import '../migrated_business/register.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {canvasHistory} from '../../frontend/src/integrations/comfyui/canvas/creative_history.mjs';
+const {canvasHistory}=await import('../../frontend/src/integrations/comfyui/canvas/creative_history.mjs');
 
 // Fixed host 1.53.10: src/scripts/changeTracker.ts, captureCanvasState (397-429),
 // squashState (431-444), before/afterChange (504-512), init keydown (520-570).

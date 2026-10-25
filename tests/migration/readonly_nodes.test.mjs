@@ -1,3 +1,4 @@
+import '../migrated_business/register.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -5,7 +6,7 @@ import {createHash} from 'node:crypto';
 import ts from 'typescript';
 import {Element as BaseElement} from '../migrated_business/prompt_optimization_dom.mjs';
 import {readStoryboard} from '../../frontend/src/features/storyboard/storyboard_table_adapter.mjs';
-import {canvasHistory} from '../../frontend/src/integrations/comfyui/canvas/creative_history.mjs';
+const {canvasHistory}=await import('../../frontend/src/integrations/comfyui/canvas/creative_history.mjs');
 
 const root = new URL('../../frontend/src/', import.meta.url);
 const uri = code => 'data:text/javascript;base64,' + Buffer.from(code).toString('base64');

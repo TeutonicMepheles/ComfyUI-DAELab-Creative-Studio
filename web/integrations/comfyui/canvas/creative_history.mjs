@@ -1,4 +1,5 @@
 import {STATE_KEY} from '../../../canvas/creative_canvas_model.mjs';
+import {reconcileRestoredNodeOrder} from './restored_node_order.js';
 
 function withoutLayout(snapshot){
     return JSON.stringify({...snapshot,nodes:snapshot.nodes.map(node=>({...node,properties:{...node.properties,daelabLayoutRevision:undefined}})),extra:{...snapshot.extra,[STATE_KEY]:{...snapshot.extra[STATE_KEY],cards:null}}});
@@ -30,7 +31,9 @@ export function installLayoutHistory(app){
                 view.sync();graph.setDirtyCanvas?.(true,true);return;
             }
         }
-        return load.apply(this,args);
+        const result=await load.apply(this,args);
+        reconcileRestoredNodeOrder(app,snapshot,t,workflow,graph,result);
+        return result;
     };
 }
 

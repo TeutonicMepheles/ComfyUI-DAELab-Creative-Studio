@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import '../migrated_business/register.mjs';
 import ts from 'typescript';
-import {canvasHistory} from '../../frontend/src/integrations/comfyui/canvas/creative_history.mjs';
+const {canvasHistory}=await import('../../frontend/src/integrations/comfyui/canvas/creative_history.mjs');
 import {isPanelActive} from '../../frontend/src/ui/creative_panel_state.mjs';
 
 const {createCaretReveal,revealDelta}=await import('../../frontend/src/canvas/creative_focus_reveal.ts');
