@@ -581,3 +581,49 @@ DPR均为`1.0000000298023224`（与1比较容差`1e-6`），页面visible。
 - 原始`M-candidate-1c166-five-rounds-raw.json`：`b9471efabd1769117cc5c48100675bb2ddc1f3b45d8bb2596ae006cb8221e4be`。
 - 分析`M-1c166-five-rounds-independent-analysis.json`：`4274b464a30c19139330e9e4ce9e22eba46274312a4a363a4af5585d511a9277`。
 - 独立复核`M-1c166-five-rounds-review.json`：`4ca5c997c0d5686c73bbae8646c4bff60946f3b3f8ed9dca875d30cca2ad8c1b`，含四个累计前缀和五份DOM哈希。
+
+
+## M场景50次普通输入的语义观察
+
+同一1c166前端在50%画布、1920×1080下，使用原始无视频M夹具
+`79ecd59cf5bbd3022abda73c2368e3e45e3b9fed824494f813cd6109e381cc79`，完成预登记五轮各10次ASCII输入。
+A/B分别绑定节点1/2、记录`M-table-00-row-0001`/`M-table-01-row-0001`及`field-00`；
+全部50次目标、字符和顺序匹配。预备探针`p`的editing为317.9ms，按预声明单列排除；
+正式样本ID为2～51，未把探针ID1或重试混入。
+
+主指标为普通`insertText`事件的`event.timeStamp`至同一编辑目标精确文本经两次可见rAF校验后的机会，
+50次均使用事件时钟，没有handler fallback或IME。所有editing检查在实际blur之前完成。
+这是paint opportunity，包含观察器开销，不是物理像素呈现时间；进入编辑器动作不在此计时边界内。
+操作日志的startedAt/typedAt是控制调用时刻，不能替代input事件时刻。
+
+| 轮次 | editing p50 / ms | editing p95（nearest-rank）/最大值 / ms | 会话秒数 |
+| --- | ---: | ---: | ---: |
+| 1 | 359.45 | 512.6 | 93.52 |
+| 2 | 374.00 | 582.7 | 55.34 |
+| 3 | 257.75 | 381.5 | 60.76 |
+| 4 | 269.40 | 391.4 | 61.35 |
+| 5 | 339.05 | 409.5 | 65.05 |
+
+每轮整体N=10、每个实例N=5，nearest-rank p95在两种样本量下均等于最大值，属于小样本描述统计。
+但**50次editing全部超过100ms**（最小250.4、最大582.7ms），本次普通文本输入子项失败。
+所有注册动作均完成，无缺失、超时、superseded或失效目标的正式完成；
+另有116条outside-supported-identity拒绝计数原样保留，缺逐事件关联，不能全部解释为无害blur。
+第一轮发送字符前的编辑态检查错误；实际属性确认已进入编辑且尚无input，修正检查后继续，未重跑输入。
+
+display-exit从实际blur计至显示态两帧机会，独立50次中位601.15ms、最大702.3ms。
+输入至blur的停留为621.0～1672.7ms；display.inputToPaintOpportunityMs包含这段停留，未混入editing指标。
+轮次长度使用stoppedAt-startedAt，五轮均超过30秒；预热仍为操作者协议。
+各轮结束的稳定node/record/field及最后文本吻合，最终另存文件含300节点/400连线、两张各500行表格，
+实际保存重开后同两目标仍为`O`/`y`。此内容保全结果不消除输入延迟失败。
+
+本轮没有视频、M拖动/缩放或实际IME覆盖，**不判完整PERF-02通过**；
+没有匹配的891语义输入对照，也不据此判断快路径收益或具体耗时原因。
+另一次LoAF诊断在进入编辑器时遇控制期限，实际发送0个计划字符，原始记录已保留；
+它是观察器开启时的空闲/控制诊断，不能作为这50次输入的归因。
+
+本地formal分析`M-table-semantic-1c166-formal-analysis.json`的SHA-256为
+`ddfc97b2e50893afbd663b72e1f79e458492aba49068547f28a6297384e9936a`；
+独立复核`M-table-semantic-1c166-formal-independent-review.json`为
+`a863829c6b81bf6dd44c6785eee99489c23d1451b88619a227ef5cd46790e5a2`，包含五份raw/context哈希和全部样本复算。
+最终保存原件SHA-256为`c2c6d69d526661223af8b4ced0bc984658bf3d17ead113c7be4a08b693fc247c`，
+重开DOM原件`M-table-semantic-1c166-reloaded-final.json`为`d1785826a506dd1da2815f395c325e8a2cb91c7e370c7d80e70bb1a5c5287394`。
