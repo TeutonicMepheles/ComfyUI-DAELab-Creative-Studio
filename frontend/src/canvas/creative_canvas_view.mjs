@@ -188,10 +188,31 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         const adapter=adapterFor(c.node),targets=typeof adapter?.projectedMaterialTargets==='function'?adapter.projectedMaterialTargets(c.node):adapter?.materialTargets?.(c.node);
         const entries=[...(targets||[]).map(target=>({...target,side:'input'})),...(adapter?.materialSources?.(c.node)||[]).map(source=>({...source,side:'output'}))];
         if(!entries.length&&!c.materialPorts?.size)return;
+        // Existing input projections have no setup writes. Measure this stable
+        // pass before painting; creation and source hiding keep their old order.
+        const anchors=new Map(),seen=new Set(),measurements=[];
+        const batch=entries.every(entry=>{
+            if(entry.project===false)return true;
+            const original=entry.element,projected=c.materialPorts?.get(original);
+            if(entry.side!=='input'||!projected||seen.has(original))return false;
+            const anchor=entry.anchorElement||original.closest('th')||original;
+            if(projected.port.parentElement!==c.element||c.body.contains(projected.port)||!c.body.contains(original)||!c.body.contains(anchor)||!entry.clipElement||!c.body.contains(entry.clipElement))return false;
+            seen.add(original);anchors.set(entry,anchor);return true;
+        });
+        const paint=m=>{
+            const {port}=m;
+            if(port.hidden!==m.hidden)port.hidden=m.hidden;
+            if(port.disabled!==m.disabled)port.disabled=m.disabled;
+            if(port.style.left!==m.left||port.style.getPropertyPriority?.('left'))port.style.left=m.left;
+            if(port.style.top!==m.top||port.style.getPropertyPriority?.('top'))port.style.top=m.top;
+            if(port.getAttribute('aria-label')!==m.label)port.setAttribute('aria-label',m.label);
+            if(port.title!==m.title)port.title=m.title;
+        };
         c.materialPorts??=new Map();const current=new Set(),bounds=c.element.getBoundingClientRect(),zoom=state.viewport.zoom;
+        try{
         for(const entry of entries){
             if(entry.project===false)continue;
-            const original=entry.element,anchor=entry.anchorElement||original.closest('th')||original;
+            const original=entry.element,anchor=batch?anchors.get(entry):entry.anchorElement||original.closest('th')||original;
             if(!c.body.contains(original))continue;
             current.add(original);let projected=c.materialPorts.get(original);
             if(!projected){const port=button('+',()=>{});port.className='dae-material-slot dae-column-slot';port.dataset.side=entry.side;port.dataset.materialColumnSlot='true';c.element.append(port);projected={original,port};c.materialPorts.set(original,projected);
@@ -202,13 +223,14 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
             let clipElement=entry.clipElement;
             if(!clipElement)for(let parent=anchor.parentElement;parent&&parent!==c.element;parent=parent.parentElement){if(/auto|scroll|hidden|clip/.test(getComputedStyle(parent).overflowX)){clipElement=parent;break;}}
             const r=anchor.getBoundingClientRect(),clip=clipElement?.getBoundingClientRect();
-            port.hidden=c.body.hidden||c.body.inert||!r.width||!r.height||!!clip&&(r.left+r.width/2<clip.left||r.left+r.width/2>clip.right||r.bottom<=clip.top||r.top>=clip.bottom);
-            port.disabled=!!original.disabled;
-            port.style.left=`${(r.left+r.width/2-bounds.left)/zoom-16}px`;
-            port.style.top=`${(r.top-bounds.top)/zoom-54}px`;
-            port.setAttribute('aria-label',entry.label||`${c.node.title} 列${entry.side==='input'?'输入':'输出'}`);
-            port.title=entry.label||(entry.side==='input'?'拖入素材组，填充此列':'输出为素材组');
+            const measured={port,
+                hidden:c.body.hidden||c.body.inert||!r.width||!r.height||!!clip&&(r.left+r.width/2<clip.left||r.left+r.width/2>clip.right||r.bottom<=clip.top||r.top>=clip.bottom),
+                disabled:!!original.disabled,left:`${(r.left+r.width/2-bounds.left)/zoom-16}px`,top:`${(r.top-bounds.top)/zoom-54}px`,
+                label:String(entry.label||`${c.node.title} 列${entry.side==='input'?'输入':'输出'}`),title:String(entry.label||(entry.side==='input'?'拖入素材组，填充此列':'输出为素材组'))};
+            if(batch)measurements.push(measured);else paint(measured);
         }
+        }catch(error){for(const measured of measurements)paint(measured);throw error;}
+        for(const measured of measurements)paint(measured);
         for(const [original,entry] of c.materialPorts)if(!current.has(original)){original.classList.remove('dae-projected-source');if(magneticPort===entry.port)setMagnet(null);entry.port.remove();c.materialPorts.delete(original);}
     }
     function materialSources(c){
