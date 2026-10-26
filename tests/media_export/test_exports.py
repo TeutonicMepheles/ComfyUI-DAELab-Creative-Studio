@@ -2,6 +2,7 @@
 import asyncio
 import copy
 import json
+import os
 from pathlib import Path
 import tempfile
 import threading
@@ -88,6 +89,21 @@ class ExportTests(unittest.TestCase):
         self.assertEqual(self.execute()['path'], result['path'])
         self.assertEqual(Path(result['path']).stat().st_mtime_ns, modified)
         self.assertEqual(self.submit()['state'], 'succeeded')
+        self.assertEqual(len(self.queue.calls), 1)
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows preserves existing directory case during canonical resolution')
+    def test_canonical_output_receipt_uses_existing_directory_case(self):
+        (self.root / 'output/daelab/edits').mkdir(parents=True)
+        job = self.submit('case-output')
+        self.assertTrue(job['snapshot']['output'].startswith('DAELAB/edits/'))
+        result = self.execute()
+        self.assertEqual(result['job']['state'], 'succeeded')
+        reference = self.core.assets.validate_reference(result['job']['result']['items'][0]['reference_id'])
+        self.assertTrue(reference['relative_path'].startswith('daelab/edits/'))
+        self.assertEqual(result['job']['attempt'], 1)
+        modified = Path(result['path']).stat().st_mtime_ns
+        self.assertEqual(self.execute()['path'], result['path'])
+        self.assertEqual(Path(result['path']).stat().st_mtime_ns, modified)
         self.assertEqual(len(self.queue.calls), 1)
 
     def test_concurrent_submission_claim_enqueues_only_once_and_identity_conflicts(self):

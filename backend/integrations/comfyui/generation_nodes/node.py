@@ -70,13 +70,13 @@ def read_current_result(service, task_data):
         kind = selected.get('kind') or ('image' if PurePosixPath(name).suffix.lower() in ('.png', '.jpg', '.jpeg', '.webp') else 'video')
         if kind not in ('image', 'video'):
             raise InvalidInput('Current result is not image or video.')
+        file, relative = service.assets.resolve_reference('output', relative)
         asset = service.assets.register_file('output', relative, kind=kind, provenance={'origin': 'native-result-read'})
         reference = next(r for r in asset['references'] if r['root_key'] == 'output' and r['relative_path'] == relative)
         if allowed is not None and reference['reference_id'] not in allowed:
             raise InvalidInput('Saved display result does not match the immutable task receipt.')
         receipt = service.assets.result_receipt([reference['reference_id']])
         MediaResultValidator(service.assets)(receipt)
-        file, _ = service.assets.resolve_reference('output', relative)
         report = json.dumps([{'id': r['id'], 'name': r.get('name', ''), 'results': r['values'].get(field_id, [])} for r in tasks['table']['records']], ensure_ascii=False)
         return kind, file, report, selected['url']
     except (KeyError, TypeError, ValueError, StopIteration):

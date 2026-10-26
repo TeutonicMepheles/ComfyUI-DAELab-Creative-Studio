@@ -294,7 +294,7 @@ class ExportService:
             return job
         receipt = job['result']
         if not receipt:
-            relative = job['snapshot']['output']
+            _file, relative = self.assets.resolve_reference('output', job['snapshot']['output'])
             asset = self.assets.register_file('output', relative, kind='video',
                 provenance={'operation': 'video_export', 'request_id': request_id,
                             'fingerprint': job['fingerprint'], 'native': job['snapshot']['native']})

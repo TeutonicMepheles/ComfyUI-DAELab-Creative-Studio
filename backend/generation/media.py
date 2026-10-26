@@ -24,6 +24,7 @@ def freeze_reference(assets, item):
         root, name = query.get('type', ['input'])[0], query['filename'][0]
         relative = '/'.join(part for part in (query.get('subfolder', [''])[0], name) if part)
         kind = item.get('kind') or ('image' if Path(name).suffix.lower() in ('.png', '.jpg', '.jpeg', '.webp') else 'video')
+        _file, relative = assets.resolve_reference(root, relative)
         asset = assets.register_file(root, relative, kind=kind, provenance={'origin': 'generation-input'})
         reference_id = next(r['reference_id'] for r in asset['references'] if r['root_key'] == root and r['relative_path'] == relative)
     frozen = assets.freeze(reference_id)
