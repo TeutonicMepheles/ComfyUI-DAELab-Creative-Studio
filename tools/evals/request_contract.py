@@ -50,8 +50,13 @@ def validate_payload(value, depth=0, parents=()):
 
 
 def differences(before, after, pointer=""):
-    """Exact strings and ordered arrays; ignore only declared semantic output paths."""
-    if pointer in _IGNORED or canonical(before) == canonical(after):
+    """Exact JSON values, including numeric equality; capture hashes stay byte-bound."""
+    before_json, after_json = canonical(before), canonical(after)
+    if pointer in _IGNORED or before_json == after_json:
+        return []
+    # Python compares int/float exactly without first rounding the integer to
+    # float. Exclude bool, and validate finiteness above even on ignored paths.
+    if type(before) in (int, float) and type(after) in (int, float) and before == after:
         return []
     if isinstance(before, dict) and isinstance(after, dict):
         result = []

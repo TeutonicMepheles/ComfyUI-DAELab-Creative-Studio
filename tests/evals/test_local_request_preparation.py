@@ -8,7 +8,7 @@ import tempfile
 import unittest
 
 from tools.evals.prepare_local_inputs import ROOT, no_external_io, safe_relative, save_new, selected, synthetic_images, validate_fixed_inputs
-from tools.evals.request_contract import RequestContractError, compare_requests, sha256, validate_payload
+from tools.evals.request_contract import RequestContractError, canonical, compare_requests, differences, sha256, validate_payload
 
 
 def capture():
@@ -17,6 +17,42 @@ def capture():
 
 
 class RequestComparisonTests(unittest.TestCase):
+    def test_equivalent_json_numbers_admit_without_rewriting_capture_hashes(self):
+        old, new = capture(), capture()
+        old['effective']['cfg'], new['effective']['cfg'] = 1, 1.0
+        old['finalRequest']['sample'] = {'inputs': {'cfg': 1, 'denoise': 1}}
+        new['finalRequest']['sample'] = {'inputs': {'cfg': 1.0, 'denoise': 1.0}}
+        before = (canonical(old), canonical(new), sha256(old), sha256(new))
+        result = compare_requests(old, new)
+        self.assertTrue(result['passed'])
+        self.assertEqual(result['differences'], [])
+        self.assertEqual(before, (canonical(old), canonical(new), sha256(old), sha256(new)))
+        self.assertEqual(canonical(1), '1')
+        self.assertEqual(canonical(1.0), '1.0')
+        self.assertEqual(sha256(1), '6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b')
+        self.assertEqual(sha256(1.0), 'd0ff5974b6aa52cf562bea5921840c032a860a91a3512f7fe8f768f6bbe005f6')
+
+    def test_number_equivalence_is_exact_symmetric_and_recursive(self):
+        for a, b in ((0, -0.0), (-1, -1.0), (2**53, float(2**53)), (1.5, 1.5)):
+            for left, right in ((a, b), (b, a)):
+                with self.subTest(left=left, right=right):
+                    self.assertEqual(differences({'nested': [left]}, {'nested': [right]}), [])
+
+    def test_changed_values_and_non_numeric_json_types_cannot_use_numeric_equivalence(self):
+        for a, b in ((1, 1.0000000000000002), (0, 5e-324), (2**53 + 1, float(2**53 + 1)),
+                     (10**100 + 1, float(10**100 + 1)), (True, 1.0), (False, 0.0),
+                     ('1', 1.0), (None, 0.0)):
+            for left, right in ((a, b), (b, a)):
+                with self.subTest(left=left, right=right):
+                    self.assertEqual(differences({'value': [left]}, {'value': [right]})[0]['path'], '/value/0')
+
+    def test_nonfinite_numbers_are_rejected_even_when_equal_or_on_ignored_paths(self):
+        for value in (float('nan'), float('inf'), -float('inf')):
+            for left, right in ((value, value), (1, value), (value, 1)):
+                for pointer in ('', '/runId'):
+                    with self.subTest(left=left, right=right, pointer=pointer), self.assertRaises(RequestContractError):
+                        differences(left, right, pointer)
+
     def test_same_request_and_only_explicit_output_prefix_or_run_id_changes_pass(self):
         old, new = capture(), capture()
         new["finalRequest"]["runId"] = "new"

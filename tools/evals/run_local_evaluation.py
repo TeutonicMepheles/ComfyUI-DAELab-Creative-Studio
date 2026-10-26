@@ -517,18 +517,19 @@ def decode_outputs(output_root, report, case, destination, *, existed_before=())
 
 def assess_observation(observed, events, case, slot, *, resumed=False):
     """Evidence completeness, not a visual/semantic or batch acceptance decision."""
-    reasons = []
+    reasons = list(observed.get('blocks') or [])
     def need(value, code):
         if not value:
             reasons.append(code)
     need(observed.get('requestId') == slot['requestId'] and observed.get('dispatches') == 1, 'single-original-dispatch-unproven')
-    need(observed.get('comparison', {}).get('passed') is True and observed.get('finalRequest'), 'actual-final-request-unproven')
+    need((observed.get('comparison') or {}).get('passed') is True and observed.get('finalRequest'), 'actual-final-request-unproven')
     if observed.get('finalRequest'):
         need(compare_requests(case['expected'], observed['finalRequest'], case.get('runtimeDifferences', []))['passed'],
              'observed-final-request-differs')
     need(observed.get('weightRehashVerified') is True, 'actual-resolved-weights-unproven')
     need(observed.get('state') == 'complete', 'original-execution-not-complete')
-    need(observed.get('network', {}).get('externalAttempts') == 0 and observed.get('network', {}).get('complete') is True,
+    network = observed.get('network') or {}
+    need(network.get('externalAttempts') == 0 and network.get('complete') is True,
          'zero-external-network-unproven')
     need(observed.get('ledgerReuse') is False, 'ledger-reuse-unproven')
     need(bool(observed.get('providerTaskId')), 'provider-identity-missing')

@@ -288,6 +288,49 @@ class PureRunnerTests(unittest.TestCase):
             self.assertIn('performance-segments-unmeasured', reasons)
             self.assertIsNone(observed['metrics'])
 
+    def test_predispatch_block_with_null_network_preserves_original_reason(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            case, s = case_at(Path(temporary)), slot()
+            observed = {'requestId': s['requestId'], 'dispatches': 0, 'state': 'blocked',
+                        'comparison': {'passed': False}, 'finalRequest': case['expected'],
+                        'blocks': ['dispatch-admission-failed'], 'network': None,
+                        'weightRehashVerified': None, 'ledgerReuse': None, 'providerTaskId': None,
+                        'metrics': None}
+            for comparison in ({'passed': False}, None):
+                with self.subTest(comparison=comparison):
+                    observed['comparison'] = comparison
+                    original = deepcopy(observed)
+                    reasons = runner.assess_observation(observed, [], case, s)
+                    self.assertIn('dispatch-admission-failed', reasons)
+                    self.assertIn('actual-final-request-unproven', reasons)
+                    self.assertIn('zero-external-network-unproven', reasons)
+                    self.assertIn('single-original-dispatch-unproven', reasons)
+                    self.assertIn('original-execution-not-complete', reasons)
+                    self.assertEqual(observed, original)
+
+    def test_network_proof_and_original_blocks_remain_required_for_complete_observation(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            case, s = case_at(Path(temporary)), slot()
+            observed = {'requestId': s['requestId'], 'providerTaskId': 'task', 'dispatches': 1,
+                        'comparison': {'passed': True}, 'finalRequest': case['expected'],
+                        'weightRehashVerified': True, 'state': 'complete', 'blocks': [],
+                        'network': {'complete': True, 'externalAttempts': 0}, 'ledgerReuse': False,
+                        'serviceReceipt': {'complete': True, 'requestId': s['requestId'],
+                                           'readOnly': True, 'value': {'fixture': True}},
+                        'actualLoadedWeightSha256': case['expected']['effective']['weightSha256'],
+                        'metrics': metrics()}
+            events = [{'source': 'PromptServer.send_sync', 'type': kind, 'data': {'prompt_id': 'task', **data}}
+                      for kind, data in [('execution_start', {}), ('executing', {'node': 'sample'}),
+                                         ('execution_success', {})]]
+            self.assertEqual(runner.assess_observation(observed, events, case, s), [])
+            for network in (None, {}, {'complete': False, 'externalAttempts': 0},
+                            {'complete': True, 'externalAttempts': 1}):
+                with self.subTest(network=network):
+                    changed = {**observed, 'network': network}
+                    self.assertIn('zero-external-network-unproven', runner.assess_observation(changed, events, case, s))
+            observed['blocks'] = ['dispatch-admission-failed']
+            self.assertEqual(runner.assess_observation(observed, events, case, s), ['dispatch-admission-failed'])
+
     def test_no_sampler_or_duplicate_sampler_is_not_independent_inference(self):
         with tempfile.TemporaryDirectory() as temporary:
             case, s = case_at(Path(temporary)), slot()
