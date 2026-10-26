@@ -31,3 +31,17 @@ Only Table, StoryboardImport, ScriptParser, LLMStylePreviewB and LibTV.VideoGene
 The current default table is compared against the public synthetic workflow saved from the isolated old ComfyUI host. It remains 图片/视频、提示词、生成 with 任务1–3, local Qwen-Image-2.1 Turbo, 1024×1024 and text2image. Only generated IDs are normalized in that comparison. ScriptParser keeps `scene` as longtext and gives images a separate content column; repeated image occurrences retain independent identities and source provenance.
 
 Root owns backend/bootstrap composition, package scripts, final build and live ComfyUI verification. Add this suite's loader/command to CI after integration. Root also owns further DocumentController convergence and actual generation ledger/provider assembly; this extraction does not establish those later gates.
+
+## Current collaboration guide (2026-10-26)
+
+Historical frontend extraction failures and later integration follow-ups.
+
+The existing README retains original counts and the generation entrypoint correction.
+
+The older statement that generation/optimization are unbound describes initial extraction. Current bindings are in frontend/src/integrations/comfyui/business/business_http.js and backend/generation/http.py.
+
+Focused checks, from the repository root:
+
+```powershell
+npm run test:business
+```

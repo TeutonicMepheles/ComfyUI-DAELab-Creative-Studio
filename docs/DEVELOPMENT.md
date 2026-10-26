@@ -12,7 +12,7 @@ M6 累计验收完成前不发布、不切换用户生产环境。
 ```powershell
 git switch main
 git pull --ff-only
-git switch -c feature/your-feature
+git switch -c codex/your-feature
 ```
 
 源代码、构建产物、公开合成夹具与 Showcase 随仓库交付；模型权重、凭据、
@@ -20,6 +20,11 @@ git switch -c feature/your-feature
 运行生成时仍需自己的 ComfyUI 宿主、依赖及明确配置的本地模型。
 
 ## 编辑与构建
+
+使用 Node 24、Python 3.12，并在独立 ComfyUI 的 Python 环境安装本仓库
+`requirements.txt`；纯 Python 测试的固定依赖见 `tests/requirements.txt`。
+先克隆本仓库并进入仓库根目录，以下命令均从根目录执行。不要向系统 Python
+或另一位开发者的运行环境盲目安装依赖。
 
 - 前端源代码：`frontend/src/`；构建产物：`web/`，不要只修改产物。
 - 后端与 ComfyUI 接入：`backend/`；兼容读取：`compat/`。
@@ -33,6 +38,10 @@ npm run check # 提交涉及产品行为的修改时运行相关检查
 ```
 
 前端构建后刷新开发页面；Python 后端修改后重启独立开发宿主。
+重启前先原生保存当前工作流，核对宿主队列与 Studio 账本中没有仍在运行或待提交的任务。
+ComfyUI 的原生执行 history 位于进程内存；存在未核对的 submitted/running 或
+`result_unverified` 任务时，先保存原始 history、输出与任务身份并完成原任务核对，
+不要用重启或重新生成掩盖结果问题。保存编辑数据不等于保存原生执行 history。
 新增功能按改动范围验证，不要求每次开发都重新执行完整迁移矩阵或 44 次模型评估。
 
 ## 独立 ComfyUI
@@ -47,6 +56,15 @@ npm run check # 提交涉及产品行为的修改时运行相关检查
 
 本机现成开发入口和启动脚本由本地交接记录提供，不将机器路径或运行数据作为产品配置提交。
 CPU 开发入口适用于编辑、界面和保存功能；真实模型生成需要单独配置本地模型运行环境。
+
+## 分工与交接
+
+按拥有模块分配文件范围和完成条件，避免多个 Agent 同时修改同一文件。共享合同的变化
+需要明确更新调用方；新源码入口要考虑 ComfyUI 会自动发现 web 中的 JavaScript，避免重复注册。
+前端 README/AGENTS 会随现有构建复制到 web；在 source 修改后统一构建，不在 web 维护第二份实现。
+
+交接提供分支/提交、改动范围、已跑命令、实际宿主观察、未完成事项及本地证据位置。
+只把可公开的代码、合成夹具和脱敏结论加入 Git，模型与运行数据由每位开发者独立配置。
 
 ## 尚未关闭的发布验收
 

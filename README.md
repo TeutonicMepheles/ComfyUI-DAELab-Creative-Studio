@@ -8,6 +8,22 @@
 
 现有功能的可编辑展示工程见 [Creative Studio Showcase](Showcase/README.md)，附示例素材与逐项确认清单。
 
+## 协作入口
+
+从最新 `main` 创建功能分支，通过审核和 CI 后合并。各自有模块的 README 说明职责与验证入口，
+AGENTS.md 补充局部协作约束；先读根 [AGENTS.md](AGENTS.md)，再读将修改的目录。
+
+| 范围 | 入口 |
+| --- | --- |
+| 前端源代码、宿主接入与共享 UI | [frontend](frontend/README.md) |
+| 任务、资产、模型提供方与后端 | [backend](backend/README.md) |
+| 旧数据兼容读取 | [compat](compat/README.md) |
+| 测试、固定夹具与证据 | [tests](tests/README.md) |
+| 构建、迁移、评估与打包工具 | [tools](tools/README.md) |
+| 架构、协作、迁移规格与验收状态 | [docs](docs/README.md) |
+
+`web/` 随源码构建生成；第三方资源由其父目录登记来源。依赖、模型、运行数据不属于协作源码。
+
 目标流程：素材/分镜导入 → 画布与表格编辑 → 提示词配置与优化 →
 表内/表外生成 → 结果回填与复用 → 剪辑导出 → 保存重开与任务恢复。
 

@@ -12,3 +12,7 @@
 Alibaba PuHuiTi 3.0 字体保留原始 WOFF2、许可证、SHA-256 清单和说明。
 Remix Icon 保留其 LICENSE 和原有说明。第三方资源不适用任何推定的仓库代码许可。
 ComfyTV 为外部可选依赖，不复制其实现。
+
+`*-files.json` 分别登记 Canvas、业务、生成、兼容和资产注册的迁入来源；
+`MIGRATION_AUDIT.md` 保留抽取与后续改动说明。新增迁入文件需补齐对应来源记录，
+不能把当前改动后的哈希回填成原始基线。资源核对运行 `node tools/verify_assets.mjs`。

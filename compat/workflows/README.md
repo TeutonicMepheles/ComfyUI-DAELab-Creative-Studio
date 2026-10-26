@@ -37,7 +37,9 @@ GPT 只在用户点击“预览转换为表格”后构造完整可审阅 JSON�
 
 应用使用 `DocumentController` → `canvasHistory` → 宿主 changeTracker 的一个原生事务。不存在第二套可写图或撤销栈；失败添加会撤回新节点，原节点保持不变。单元测试用宿主端口替身验证一次 undo/redo 同时恢复整个新增表格及其内容；这不代替真实 ComfyUI 撤销验收。
 
-## 验证边界
+## 历史验证边界
+
+以下数字与宿主缺口是首次抽取时的记录，保留原始失败；当前协作基线与后续验证以 `docs/validation/STATUS.md` 最新条目和当前提交 CI 为准。
 
 命令：宿主 Python 3.12.11 运行 `-m unittest discover -s tests/migration -v`；Node 24.14.0 运行 `--test tests/migration/readonly_nodes.test.mjs`；`npx tsc --noEmit`；`node tools/check_architecture.mjs`。夹具所有提示词、结果路径、身份和媒体值均为合成内容，GPT 槽位来自固定提交受跟踪的 serialized workflow，其他槽位来自固定构造器。没有导入真实用户任务回执运行。
 

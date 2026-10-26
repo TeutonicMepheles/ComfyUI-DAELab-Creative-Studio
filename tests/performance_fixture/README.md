@@ -157,3 +157,17 @@ tests assert actual resource limits, all-class queued cancellation, retained
 unknown ownership, frozen inputs, terminal capacity release and reconstruction
 without new creates. Timing checks remain measured report facts; green tests
 are not a green performance gate or ComfyUI acceptance.
+
+## Current collaboration guide (2026-10-26)
+
+Explicit PERF-06 fixture using real product services and deterministic providers.
+
+harness.py uses shared jobs/assets/resources; __init__.py registers test routes; earlier README sections retain installation and failure/rerun history.
+
+Fake transcode performs bounded PNG work, not GPU inference or video export. Installation alone submits nothing.
+
+Focused checks, from the repository root:
+
+```powershell
+python -m unittest discover -s tests/performance -p "test_*.py" -v
+```

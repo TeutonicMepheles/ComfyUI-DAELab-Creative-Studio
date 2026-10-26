@@ -1,0 +1,14 @@
+# 应用用例与编辑事务
+
+将编辑控制器、资产服务和剪辑导出组合为可由宿主适配器绑定的用例。这里不拥有另一份可写工作流。
+
+源码入口：document_controller.ts：同步编辑与异步票据；business_document.ts：原生读写闭包；asset_library_service.ts、asset_registration.ts：资产流程；media_export_service.ts：导出应用服务。
+
+协作边界：通过 contracts 的端口访问宿主和后端。异步结果必须核对会话、文档、输入版本；撤销不能改变后端任务事实。
+
+本目录的可编辑源位于 `frontend/src/application/`。若在 `web/` 看到同名文档，它是构建副本；回到源码修改，再从仓库根目录构建。所有下述命令均从仓库根目录执行。
+
+```powershell
+node --import ./tests/migrated_business/register.mjs --test tests/application/business_document.test.mjs tests/application/prepared_document_edit.test.mjs tests/application/media_export.test.mjs
+```
+

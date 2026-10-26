@@ -65,3 +65,17 @@ Independent polish accepts optional `sourceScope` and freezes it as job.source. 
 The preflight race fix adds POST `/daelab/studio/generation/fence-unsubmitted` and `/daelab/prompt-optimization/fence`. A missing row is never proof of no submission. An explicit original-ID fence competes in the same SQLite JobLedger with late prepare; only a cancelled, cancellation-requested, zero-attempt fact permits a replacement. Normal claimed execution wins unchanged. A prompt-free barrier is non-executable even if interruption occurs before its terminal cancellation. Automatic definite preparation refusal may record the same safe barrier only with validated complete correlation scope. The optimization fence accepts either the validated original intent or a bounded prompt-free `{batchId,quoteId,range,references:[{requestId,source,revision,requestSeq}]}` projection; caller scope/digest/revision must match any existing fact. No barrier stores unvalidated model input or credentials.
 
 Reproduction and first-failure logs remain under ignored `.local/validation/`; public tests use generated data only. Source-only checks do not establish actual ComfyUI/provider acceptance. The prior host snapshots predate this fix.
+
+## Current collaboration guide (2026-10-26)
+
+Historical generation implementation, failures and verification limits.
+
+The existing README preserves original handoff notes; ../fixtures/ contains public request captures.
+
+Older route counts, host descriptions and agent/root references describe that phase; backend/generation/http.py owns current routes.
+
+Focused checks, from the repository root:
+
+```powershell
+python -m unittest discover -s tests/generation -p "test_*.py" -v
+```
