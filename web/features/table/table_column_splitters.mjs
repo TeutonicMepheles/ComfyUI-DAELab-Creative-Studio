@@ -65,14 +65,16 @@ export function attachColumnSplitters({root, shell, table, fields, change}) {
         const origin = viewport.left + shell.clientLeft * scale;
         const choice = table.querySelector('th.table-choice').getBoundingClientRect();
         const covered = (choice.right - origin) / scale;
+        // Read this pass's header geometry before divider writes invalidate layout.
+        const clientWidth = shell.clientWidth, clientHeight = shell.clientHeight;
+        const headerRects = bars.map((_, i) => headers[i].getBoundingClientRect());
         bars.forEach((bar, i) => {
-            const x = (headers[i].getBoundingClientRect().right - origin) / scale;
+            const header = headerRects[i], x = (header.right - origin) / scale;
             bar.style.left = x + 'px';
-            bar.hidden = x < covered + 5 || x > shell.clientWidth - 5;
-            const header=headers[i].getBoundingClientRect();
+            bar.hidden = x < covered + 5 || x > clientWidth - 5;
             bar.style.top=Math.max(0,(header.top-viewport.top)/scale)+'px';
-            bar.style.height=Math.min(shell.clientHeight,header.height/scale)+'px';
-            bar.style.setProperty('--divider-line-height',shell.clientHeight+'px');
+            bar.style.height=Math.min(clientHeight,header.height/scale)+'px';
+            bar.style.setProperty('--divider-line-height',clientHeight+'px');
         });
     }
     function schedule() {

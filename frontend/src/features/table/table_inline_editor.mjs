@@ -64,7 +64,7 @@ export function bindInlineEditor({cell,box,label,read,write,reset,draw,columns,g
  }
  function finish(cancel=false){if(!active)return;closeMenu();if(cancel)reset();active=false;box.contentEditable='false';delete cell.dataset.inlineEditing;cell.draggable=wasDraggable;box.removeAttribute('role');box.removeAttribute('aria-multiline');box.removeAttribute('aria-invalid');draw?.();}
  const double=e=>{if(!allowDoubleClick||e.target.closest('button'))return;e.preventDefault();e.stopPropagation();start(e);};
- const enter=e=>{if(e.target===cell&&e.key==='Enter'){e.preventDefault();e.stopPropagation();start();}};
+ const enter=e=>{if(!active&&!composing&&!e.isComposing&&e.keyCode!==229&&(e.target===cell||e.target===box)&&e.key==='Enter'){e.preventDefault();e.stopPropagation();start();}};
  const edit=()=>start();cell.addEventListener('dblclick',double);cell.addEventListener('keydown',enter);cell.addEventListener('dae-edit-text',edit);
  box.addEventListener('compositionstart',()=>composing=true);box.addEventListener('compositionend',()=>{composing=false;persist();suggest();});
  box.addEventListener('input',()=>{if(active&&!composing){persist();suggest();}});

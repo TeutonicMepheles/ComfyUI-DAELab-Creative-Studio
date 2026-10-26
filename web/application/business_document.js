@@ -1,5 +1,5 @@
 import { DocumentController } from './document_controller.js';
-import { snapshotJson } from '../contracts/json_snapshot.js';
+import { snapshotJson, snapshotJsonForPreparation } from '../contracts/json_snapshot.js';
 /** Only native read/write closures own data. Stored state is session/revision bookkeeping. */
 export function createBusinessDocument(options) {
     let disposed = false, epoch = 0, group = null, lastHistoryStamp;
@@ -72,6 +72,15 @@ export function createBusinessDocument(options) {
             const next = snapshotJson(draft);
             commit(before, next, settings);
         },
+        transactPrepared(_label, prepare, settings = {}) {
+            assertCurrent();
+            observe();
+            const { rollback, previous, draft } = snapshotJsonForPreparation(options.read());
+            prepare(previous, draft);
+            const next = snapshotJson(draft);
+            assertCurrent();
+            commit(rollback, next, settings);
+        },
         replace(_label, value, settings = {}) {
             assertCurrent();
             observe();
@@ -101,6 +110,7 @@ export function createBusinessDocument(options) {
         controller, read: options.read, observe,
         isCurrent: () => !disposed && options.current(),
         edit: (label, edit, settings) => controller.edit(label, edit, settings),
+        editPrepared: (label, prepare, settings) => controller.editPrepared(label, prepare, settings),
         replace(value, settings) {
             controller.replace('编辑内容', value, settings);
         },

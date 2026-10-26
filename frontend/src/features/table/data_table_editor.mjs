@@ -64,12 +64,12 @@ export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRow
  function change(fn,{render:draw=true,group=null,tickets=null,derived=false}={},rowStateEdit=null) {
     if(released)throw new Error('编辑器已释放');
     if(tickets&&!tickets.every(canAsync))throw new Error('输入或工作流已变化，结果仅供查看');
-    // Reuse encoding only inside a local cell edit; both snapshots stay detached.
-    const encoded=rowStateEdit&&rowStateEdit.owner===changeCell&&!draw&&!tickets&&!derived?JSON.stringify(getTable()):null;
-    const previous=encoded===null?clone(getTable()):JSON.parse(encoded),context=promptColumnsOnly&&displayContent()?globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root):null;
-    const reuseEncoding=encoded!==null&&!(context?.resizeWidth&&previous.meta.canvasWidth!=null);
+    const cellInput=rowStateEdit&&rowStateEdit.owner===changeCell&&!draw&&!tickets&&!derived;
+    function prepare(previous,makeNext){
+    const context=promptColumnsOnly&&displayContent()?globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root):null;
+    const syncCanvasWidth=!!(context?.resizeWidth&&previous.meta.canvasWidth!=null);
     if(context?.resizeWidth&&previous.meta.canvasWidth!=null)previous.meta.canvasWidth=context.width;
-    const next=reuseEncoding?JSON.parse(encoded):clone(previous);fn(next);validateChange(getTable(),next);
+    const next=makeNext(previous,syncCanvasWidth);fn(next);validateChange(getTable(),next);
     const removed=previous.fields.filter(field=>!field.hidden&&!next.fields.some(item=>item.id===field.id));
     let width=null;
     if((removed.length||next.records.length<previous.records.length)&&context?.resizeWidth&&context.getViewport()&&root.offsetWidth){
@@ -85,12 +85,27 @@ export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRow
         }
     }
     let stateScope=null;
-    if(rowStateEdit&&rowStateEdit.owner===changeCell&&!draw&&!tickets&&!derived&&isRowStateEmpty){
+    if(cellInput&&isRowStateEmpty){
       const cell=rowStateEdit.cell,scope=captureEmptyRowStateScope(previous,next,cell.dataset.record,isRowStateEmpty);
       if(scope)stateScope={...scope,cell,row:stateRows.get(scope.recordId),table:stateTable,field:cell.dataset.field};
     }
+    return {next,context,width,stateScope};
+    }
+    const afterNativeWrite=({next,context,width,stateScope})=>{if(displayContent()&&removeEmptyNode?.(next))return;if(width!==null)context.resizeWidth(width);observed();if(draw)render();else updateFooter(stateScope);};
+    if(cellInput&&typeof nativeDocument?.editPrepared==='function'){
+      let prepared;
+      nativeDocument.editPrepared('编辑内容',(previous,draft)=>{
+        prepared=prepare(previous,(_before,syncCanvasWidth)=>{if(syncCanvasWidth)draft.meta.canvasWidth=previous.meta.canvasWidth;return draft;});
+      },{group,derived,afterWrite:()=>afterNativeWrite(prepared)});
+      return;
+    }
+    // Legacy/structural edits retain separate snapshots and their original boundary.
+    const encoded=cellInput?JSON.stringify(getTable()):null;
+    const previous=encoded===null?clone(getTable()):JSON.parse(encoded);
+    const prepared=prepare(previous,(before,syncCanvasWidth)=>encoded!==null&&!syncCanvasWidth?JSON.parse(encoded):clone(before));
+    const {next,context,width,stateScope}=prepared;
     if(nativeDocument){
-      const afterWrite=()=>{if(displayContent()&&removeEmptyNode?.(next))return;if(width!==null)context.resizeWidth(width);observed();if(draw)render();else updateFooter(stateScope);};
+      const afterWrite=()=>afterNativeWrite(prepared);
       if(tickets){if(!nativeDocument.replaceResults(tickets,next,{group,derived,afterWrite}))throw new Error('输入或工作流已变化，结果仅供查看');}
       else nativeDocument.replace(next,{group,derived,afterWrite});
       return;

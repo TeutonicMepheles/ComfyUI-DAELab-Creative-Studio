@@ -14,6 +14,12 @@ export interface NativeDocumentPort<T> {
   revision(target?: EditTarget): number;
   /** The host owns history and rollback; nested derived edits join this transaction. */
   transact(label: string, edit: (document: T) => void, options?: EditTransactionOptions): void;
+  /** Optional preparation over two detached values; neither is the private rollback.
+   * Preparation is synchronous and must not write the live native document.
+   * Preparation/validation finishes before opening history. The committed draft
+   * must be detached again so retained callback values cannot mutate native data.
+   */
+  transactPrepared?(label: string, prepare: (previous: T, draft: T) => void, options?: EditTransactionOptions): void;
   /** Optional whole-value edit, with the same isolation, validation and history contract as transact. */
   replace?(label: string, value: T, options?: EditTransactionOptions): void;
 }

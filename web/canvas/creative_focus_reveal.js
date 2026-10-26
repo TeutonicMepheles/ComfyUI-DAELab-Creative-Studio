@@ -35,7 +35,7 @@ function tabControlDelta(target, viewport) {
             : target.top < top ? target.top - top : target.bottom > bottom ? target.bottom - bottom : 0,
     };
 }
-function avoidTabStatus(target, viewport, delta, status) {
+function avoidStatus(target, viewport, delta, status, fit) {
     if (!status || !finiteRect(status) || status.right <= status.left)
         return delta;
     const left = Math.max(status.left, viewport.left), right = Math.min(status.right, viewport.right);
@@ -43,7 +43,7 @@ function avoidTabStatus(target, viewport, delta, status) {
     if (right <= left || bottom <= top)
         return delta;
     // Check the region the baseline pan would reveal, not the pre-pan location.
-    // Oversized controls retain the existing leading-region guarantee only.
+    // Only noneditor Tab controls use the existing oversized leading region.
     const projectedLeft = target.left - delta.dx, projectedTop = target.top - delta.dy;
     const projectedRight = Math.min(target.right - delta.dx, viewport.right - 16);
     const projectedBottom = Math.min(target.bottom - delta.dy, viewport.bottom - 16);
@@ -52,9 +52,9 @@ function avoidTabStatus(target, viewport, delta, status) {
         return delta;
     // Preserve the same 16px outline clearance above the actual status box.
     // No fixed overlay height or hidden status/error message is introduced.
-    return tabControlDelta(target, { ...viewport, bottom: top });
+    return fit(target, { ...viewport, bottom: top });
 }
-function avoidTabTopHud(target, viewport, delta, hud, status) {
+function avoidTopHud(target, viewport, delta, hud, status, fit) {
     if (!hud || !finiteRect(hud) || hud.right <= hud.left)
         return delta;
     const left = Math.max(hud.left, viewport.left), right = Math.min(hud.right, viewport.right);
@@ -69,10 +69,11 @@ function avoidTabTopHud(target, viewport, delta, hud, status) {
         return delta;
     // Reserve the top band only for a control whose revealed region hits this
     // owned HUD. Reapply bottom-status avoidance within that same temporary
-    // viewport, preserving oversized leading-region and 16px outline margins.
+    // viewport. Editors must still fit fully; only noneditor Tab controls may
+    // expose an oversized leading region. Both retain 16px outline margins.
     const belowHud = { ...viewport, top: bottom };
-    const cleared = tabControlDelta(target, belowHud);
-    return cleared && avoidTabStatus(target, belowHud, cleared, status);
+    const cleared = fit(target, belowHud);
+    return cleared && avoidStatus(target, belowHud, cleared, status, fit);
 }
 function textControl(element) {
     return element.tagName === 'TEXTAREA' || (element.tagName === 'INPUT'
@@ -281,15 +282,20 @@ export function createCaretReveal({ root, owner, pan, tabOcclusion, tabTopOcclus
             if (!target)
                 return;
             const viewport = viewportRect(root, win);
-            let delta = request.wholeControl ? tabControlDelta(target, viewport) : revealDelta(target, viewport);
-            if (delta && request.wholeControl) {
+            const fit = request.wholeControl ? tabControlDelta : revealDelta;
+            let delta = fit(target, viewport);
+            if (delta) {
+                // Viewport containment does not prove visibility under owned
+                // overlays. Reuse this frame's target/root geometry and read
+                // each overlay at most once; no cross-event geometry cache.
                 const status = tabOcclusion?.() ?? null;
-                delta = avoidTabStatus(target, viewport, delta, status);
+                delta = avoidStatus(target, viewport, delta, status, fit);
                 if (delta && tabTopOcclusion)
-                    delta = avoidTabTopHud(target, viewport, delta, tabTopOcclusion(), status);
+                    delta = avoidTopHud(target, viewport, delta, tabTopOcclusion(), status, fit);
             }
             // Most editing is already visible: avoid inspecting every ancestor
-            // unless translation is needed. Range/root reads remain a real cost.
+            // unless translation is needed. Range/root/overlay reads remain a
+            // real cost, including for already clear editors.
             if (!delta || (!delta.dx && !delta.dy))
                 return;
             if (!internallyClipped(request.editor, target, root, win, request.wholeControl)

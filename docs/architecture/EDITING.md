@@ -19,6 +19,23 @@
 
 ## 历史与生命周期
 
+### 同步单格编辑的准备边界
+
+表格本地 `changeCell` 的非重绘、非异步票据、非派生修改，可使用可选的
+`BusinessDocument.editPrepared` → `DocumentController.editPrepared` →
+`NativeDocumentPort.transactPrepared`。其他表格修改和旧宿主保留现有替换路径。
+此入口的准备函数接收独立的修改前副本与草稿，完成原有变更校验、尺寸和行状态范围计算；
+准备结束后才打开原生历史。控制器在本次事务内对当前数据校验编码一次，分别解析回滚、
+修改前和草稿三个对象；回滚对象不交给准备函数。草稿仍须通过最终 JSON 快照验证并再次隔离，
+准备函数或状态提供者保留的对象不能在事务结束后改写已提交内容或回滚数据。
+这里不缓存跨编辑数据、不省略未知字段、不复用可写 live 对象，也不改变 `afterWrite`、
+分组、外部编辑检测、Undo/Redo、异步票据和宿主序列化边界。
+
+可选端口缺失时，控制器通过旧 `transact` 并为修改前数据另建隔离快照完成相同行为；
+没有 `editPrepared` 的编辑器消费者继续原路径。首次消费者仅为上述同步单格编辑，
+不把该入口扩展到生成、导入或派生回填。本候选的源码/合同检查和实际同夹具输入时延，
+以及两表、两LLM的相关交互验收必须分别记录；减少编码次数不证明100ms已达标。
+
 普通用户动作使用原生 `begin/end`，一次批量审阅只开一次事务。持续输入通过显式 group 合并；如果原生序列化状态已被另一个动作改变，就停止合并，避免吞掉别的节点操作。Undo/Redo 始终调用宿主历史，不通过一次新的表格编辑模拟撤销。撤销只恢复编辑投影，不调用任务取消、重提、状态回写等后端操作。
 
 宿主扩展的 `beforeConfigureGraph` 和 `afterLoadGraph` 推进会话 epoch；activeWorkflow 对象变化推进 workflowSession。票据含 workflowSession、epoch、documentId、recordId、fieldId、requestId、inputVersion，并且只能由签发它的控制器实例使用。相同 requestId、复制的票据对象和旧节点对象均不能跨实例授权应用。节点移除、面板销毁和对应请求取消会释放票据。既有生成状态轮询与 LLM 面板定时同步随所属面板销毁；没有新增全局轮询器。

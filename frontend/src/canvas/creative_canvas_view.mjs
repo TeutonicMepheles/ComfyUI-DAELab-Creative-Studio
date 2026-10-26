@@ -156,7 +156,15 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         const z=Math.max(.15,Math.min(1,(root.clientWidth-100)/(maxX-minX),(root.clientHeight-headroom-100)/(maxY-minY)));
         state.viewport={x:50-minX*z,y:headroom-minY*z,zoom:z};navigate();
     }
-    function paintSelection(){for(const c of cards.values()){c.element.dataset.selected=String(selected.has(c.node.id));c.surface?.classList.toggle('dae-creative-selection-active',selected.has(c.node.id));c.element.dataset.slotsSuppressed=String(suppressGroupSlots(host.nodes(graph),c.node,selected));}queueLayout();}
+    function paintSelection(){
+        for(const c of cards.values()){
+            const active=selected.has(c.node.id);
+            setViewProperty(c.element.dataset,'selected',String(active));
+            if(c.surface&&c.surface.classList.contains('dae-creative-selection-active')!==active)c.surface.classList.toggle('dae-creative-selection-active',active);
+            setViewProperty(c.element.dataset,'slotsSuppressed',String(suppressGroupSlots(host.nodes(graph),c.node,selected)));
+        }
+        queueLayout();
+    }
     function raise(node){
         if(layers.get(node)===topLayer)return;
         const group=node.type===GROUP_TYPE?node:host.nodes(graph).find(n=>n.type===GROUP_TYPE&&(n.properties.members||[]).includes(node.id));

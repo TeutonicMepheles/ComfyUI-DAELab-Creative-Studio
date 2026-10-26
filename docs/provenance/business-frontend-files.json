@@ -726,7 +726,7 @@
       "source": "web/data_table_editor.mjs",
       "destination": "frontend/src/features/table/data_table_editor.mjs",
       "sourceSha256": "5294f268a05f00fb6b0135b91596ce1bddf3d8efe640e12da2b1ed6d6a017d7f",
-      "destinationSha256": "6622f19ecf8435509b546920b98333a0383a18989dbd5730bf6b4136f62227e9",
+      "destinationSha256": "a1c99bc0be120a1abcb9bb7e2321c54a30acc50851d07c9f7b6afd268ead5957",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -734,7 +734,8 @@
         "Actual-host keyboard follow-up: native keyboard history dispatches once from host capture; retain pending-review invalidation, direct toolbar restore, standalone local history and text/IME guards.",
         "Skip only unused whole-table equality encodings in the native afterWrite path; preserve all validated snapshots, native history, rollback, per-target revisions and fallback ordering. Count and semantic regressions pass; actual performance acceptance pending.",
         "Limit row-state DOM refresh only for editor-owned content-cell edits under an explicit constant-empty provider capability. Recheck field/configuration metadata, ordered row identities and current render/cell lifetime after native writes and observers; unknown, structural, configured, derived, ticket and full-render paths retain full refresh. Validation, native history, rollback and revision observation remain unchanged. Real editor 500x10 traversal checks pass; actual latency and UI acceptance remain pending.",
-        "Reuse only the encoded JSON of editor-owned local cell edits to construct detached previous and next snapshots. Preserve width-sync fallback, validated native rollback/replacement snapshots, unknown data and all history/save behavior. Isolated semantic/count tests pass; actual latency and UI acceptance remain pending."
+        "Reuse only the encoded JSON of editor-owned local cell edits to construct detached previous and next snapshots. Preserve width-sync fallback, validated native rollback/replacement snapshots, unknown data and all history/save behavior. Isolated semantic/count tests pass; actual latency and UI acceptance remain pending.",
+        "Use optional DocumentController prepared transactions for local synchronous non-rendering cell changes: one validated current encoding supplies isolated rollback, previous and draft objects; retain final draft validation, width/state preparation, legacy fallback, native history and all serialization boundaries. Actual latency and UI reacceptance remain pending."
       ]
     },
     {
@@ -816,10 +817,11 @@
       "source": "web/table_column_splitters.mjs",
       "destination": "frontend/src/features/table/table_column_splitters.mjs",
       "sourceSha256": "e8700d33cfebf2bc50034b302cbea89591d83c32e009585f760cd9e2511ed9ff",
-      "destinationSha256": "56f7f7137a55ab66cd11c7c8cf1b25a50490c227e1ff3db73c6a642f77e215da",
+      "destinationSha256": "0c7ea2c3b4b070b10a41b62f45b602b9794f4e0e698bca608ac32eafe2a912de",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Batch divider header and shell geometry reads within one geometry pass before divider writes; retain fluid/layer ordering, scheduling, model, and lifecycle."
       ]
     },
     {
@@ -882,11 +884,22 @@
       "source": "web/table_inline_editor.mjs",
       "destination": "frontend/src/features/table/table_inline_editor.mjs",
       "sourceSha256": "99f52423125d99656cabfd274a1895f4b0bb84a60aa080a39dedfa0a37ea8709",
-      "destinationSha256": "29b948a3dd865183f865c5cff771065a45ccb1189b0c1943ad9d79db57147871",
+      "destinationSha256": "751a1ea27b10b83386a0665d4fec78784622e8ca008966cd4215ba1ae9d7f8f4",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "Allow host save through nested prompt/editor controls while retaining IME and text editing key ownership."
+        "Allow host save through nested prompt/editor controls while retaining IME and text editing key ownership.",
+        "Allow Enter to reopen only the inactive owning cell or exact preview; retain composition guards, active multiline editing and descendant control ownership."
+      ]
+    },
+    {
+      "source": null,
+      "destination": "tests/migrated_business/table_inline_preview_enter.test.mjs",
+      "sourceSha256": null,
+      "destinationSha256": "1a8afba9c7258d4415a77bb0a81db2cd6b52b830c240c53caa6306678250d435",
+      "kind": "authored-test",
+      "changes": [
+        "Execute the real inline handler lifecycle and box-to-cell bubbling with bounded DOM doubles: Tab blur/preview re-entry, two owners, exact-target exclusion, IME, active newline and disposal. Actual browser focus, IME and layout acceptance remain separate."
       ]
     },
     {
@@ -1563,11 +1576,12 @@
       "source": "tests/table_column_splitters.test.mjs",
       "destination": "tests/migrated_business/table_column_splitters.test.mjs",
       "sourceSha256": "1f00747d905394047362a3fe5cde949653f07e99ff2a55800a24d4759d041bd1",
-      "destinationSha256": "2db04ccb088632141ebb5152f515a378954c99b1725dae1d702bcfc561c72119",
+      "destinationSha256": "f1164642e595467707e2042d634324373bd05e91b24ceeb42fec66753fdcb98e",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
-        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
+        "Add actual attachColumnSplitters DOM-port regression coverage for read-before-write order, projected geometry at three zooms, two-instance scroll/resize/disposal, and fresh fluid measurements."
       ]
     },
     {

@@ -40,6 +40,14 @@ const data = (object, key) => {
   return descriptor;
 };
 const finite = value => typeof value === 'number' && Number.isFinite(value);
+// Pinned LLink stores endpoint IDs as strings; its native serialization emits
+// canonical integer IDs as numbers. M uses safe integers; leave all other values
+// unchanged for the existing strict tuple comparison and JSON error boundary.
+const serializedEndpointId = value => {
+  if (typeof value !== 'string') return value;
+  const number = Number(value);
+  return Number.isSafeInteger(number) && String(number) === value ? number : value;
+};
 const one = (root, selector) => {
   const nodes = root.querySelectorAll(selector);
   if (nodes.length !== 1) fail('DOM-qualification');
@@ -148,7 +156,7 @@ function capture(document, window, app, fixture) {
   if (!Array.isArray(nodes) || nodes.length !== 300 || nodes.some((node, i) => String(node.id) !== fixture.nodes[i].id || node.type !== fixture.nodes[i].type)) fail('M-node-projection');
   const links = graph.links instanceof Map ? [...graph.links.values()] : Object.values(graph.links || {});
   if (links.length !== 400) fail('M-link-projection');
-  const tuples = links.map(link => [link.id, link.origin_id, link.origin_slot, link.target_id, link.target_slot, link.type]).sort((a, b) => a[0] - b[0]);
+  const tuples = links.map(link => [link.id, serializedEndpointId(link.origin_id), link.origin_slot, serializedEndpointId(link.target_id), link.target_slot, link.type]).sort((a, b) => a[0] - b[0]);
   if (JSON.stringify(tuples) !== JSON.stringify([...fixture.links].sort((a, b) => a[0] - b[0]))) fail('M-link-projection');
   const cards = root.querySelectorAll('.dae-creative-card[data-node-id]');
   if (cards.length !== 300 || root.querySelectorAll('.dae-table').length !== 2) fail('M-DOM-shape');

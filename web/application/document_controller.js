@@ -14,6 +14,14 @@ export class DocumentController {
             throw new Error('Document controller has been released');
         this.port.transact(label, mutation, options);
     }
+    editPrepared(label, prepare, options) {
+        if (this.#disposed)
+            throw new Error('Document controller has been released');
+        if (this.port.transactPrepared)
+            this.port.transactPrepared(label, prepare, options);
+        else
+            this.port.transact(label, draft => prepare(snapshotJson(draft), draft), options);
+    }
     replace(label, value, options) {
         if (this.#disposed)
             throw new Error('Document controller has been released');

@@ -14,11 +14,12 @@ const body=found.map(n=>n.getText(syntax)).join('\n');
 
 const marker='table-copy-boundary-local';
 const table=()=>({version:1,fields:[{id:'a',type:'content',name:'A',width:100},{id:'b',type:'content',name:'B',width:200}],records:[{id:'r',selected:false,values:{a:'before',b:'peer'},unknown:{keep:[1,null]}},{id:'s',selected:false,values:{a:'other',b:'peer2'}}],meta:{material_columns:true},unknown:JSON.parse('{"__proto__":{"kept":1},"nested":[null,{"future":true}]}'),serializationMarker:marker});
-function harness({value=table(),native=true,content=true,validate=()=>{},empty=()=>true,after=()=>{},failWrite=false}={}){
+function harness({value=table(),native=true,content=true,prepared=true,validate=()=>{},empty=()=>true,after=()=>{},failWrite=false}={}){
  const initial=value,events=[],scopes=[],undo=[],redo=[];let before,stamp=0,current=true,throwNextWrite=failWrite,retainedWrite;
  const write=next=>{events.push('write');retainedWrite=next;if(throwNextWrite){throwNextWrite=false;next.records[0].values.a='write-partial';throw Error('write-failed');}JSON.stringify(next);value=next;stamp++;};
  const history={begin(){events.push('begin');before=value;},end(){events.push('end');undo.push(before);redo.length=0;},amend(fn){events.push('amend');return fn();},undo(){if(undo.length){redo.push(value);value=undo.pop();stamp++;}},redo(){if(redo.length){undo.push(value);value=redo.pop();stamp++;}}};
  const doc=createBusinessDocument({read:()=>value,write,current:()=>current,identity:()=>({workflowSession:'local',epoch:0,documentId:'node'}),history,historyStamp:()=>stamp});
+ if(!prepared)delete doc.editPrepared;
  const context={width:1000,getViewport:()=>({}),resizeWidth:w=>{context.width=w;events.push('resize');}},root={offsetWidth:400,getBoundingClientRect:()=>({width:800})};
  const env={released:false,canAsync:ticket=>doc.canApply(ticket),clone,getTable:()=>value,promptColumnsOnly:content,displayContent:()=>content,
   globalThis:{[Symbol.for('DAELAB.CreativeCanvas.API.v1')]:{getPanelContext:()=>context}},root,
@@ -62,13 +63,13 @@ test('JSON toJSON boundary still supplies serialized previous metadata to empty-
 test('retained rollback before is stable even when write mutates incoming next before throwing',()=>{
  const h=harness({failWrite:true}),before=clone(h.value);assert.throws(()=>h.edit(t=>{t.records[0].values.a='draft';}),/write-failed/);assert.deepEqual(h.value,before);assert.notEqual(h.value,h.initial);assert.equal(h.value.unknown.__proto__.kept,1);
 });
-test('render, derived and width-sync edits retain their fallback encoding and effects',()=>{
+test('render and derived keep fallback; prepared width sync keeps its data and resize behavior',()=>{
  for(const mode of ['render','derived','width']){
   const value=table();if(mode==='width')value.meta.canvasWidth=600;
   const h=harness({value}),stringify=JSON.stringify;let plain=0;
   JSON.stringify=function(v,replacer,space){if(v?.serializationMarker===marker&&typeof replacer!=='function')plain++;return stringify.call(this,v,replacer,space);};
   try{h.edit(t=>{t.records[0].values.a='fallback';},mode==='render'?{render:true}:mode==='derived'?{derived:true}:{});}finally{JSON.stringify=stringify;}
-  assert.equal(plain,3);assert.equal(h.value.records[0].values.a,'fallback');assert.equal(h.initial.records[0].values.a,'before');
+  assert.equal(plain,mode==='width'?1:3);assert.equal(h.value.records[0].values.a,'fallback');assert.equal(h.initial.records[0].values.a,'before');
   if(mode==='render')assert.ok(h.events.includes('render'));
   if(mode==='derived'){assert.ok(h.events.includes('amend'));assert.equal(h.events.includes('begin'),false);}
   if(mode==='width'){assert.equal(h.value.meta.canvasWidth,1000);assert.equal(h.initial.meta.canvasWidth,600);}
@@ -84,5 +85,22 @@ test('500x10 owner input reports encoding count without treating it as latency',
  const workflow=JSON.parse(fs.readFileSync(new URL('../fixtures/performance/FX-PERF-M-no-video.json',import.meta.url),'utf8'));const node=workflow.nodes.find(n=>n.type==='DAELAB.Table');const value=node.widgets_values.map(x=>{try{return JSON.parse(x);}catch{return null;}}).find(x=>x?.records?.length===500);assert.equal(value.fields.length,10);value.serializationMarker=marker;value.records[0].id='r';
  const h=harness({value});const stringify=JSON.stringify;const counts={plain:0,validated:0};JSON.stringify=function(v,replacer,space){if(v?.serializationMarker===marker&&Array.isArray(v.records))counts[typeof replacer==='function'?'validated':'plain']++;return stringify.call(this,v,replacer,space);};
  try{h.edit(t=>{t.records[0].values['field-00']='P';});}finally{JSON.stringify=stringify;}
- assert.equal(h.value.records[0].values['field-00'],'P');assert.equal(h.value.records.length,500);assert.equal(h.value.fields.length,10);assert.equal(counts.validated,2,'do not remove transaction validation snapshots');assert.equal(counts.plain,2,'reuse only the encoded editor snapshot; keep separate previous/next objects and the widget write');t.diagnostic(JSON.stringify({wholeTableEncodings:counts,actualPerformance:false}));
+ assert.equal(h.value.records[0].values['field-00'],'P');assert.equal(h.value.records.length,500);assert.equal(h.value.fields.length,10);assert.equal(counts.validated,2,'keep current and final-draft validation');assert.equal(counts.plain,1,'only widget write encodes outside the prepared transaction');t.diagnostic(JSON.stringify({wholeTableEncodings:counts,actualPerformance:false}));
+});
+
+test('legacy document without prepared capability retains local snapshot path and isolation',()=>{
+ const h=harness({prepared:false});let retained;
+ h.edit(t=>{retained=t;t.records[0].values.a='legacy';});
+ retained.records[0].values.a='late';assert.equal(h.value.records[0].values.a,'legacy');
+ assert.deepEqual(h.events,['validate','begin','write','observe','footer','end']);
+ h.doc.undo();assert.equal(h.value.records[0].values.a,'before');h.doc.redo();assert.equal(h.value.records[0].values.a,'legacy');
+});
+
+test('empty-state provider retaining and changing its previous snapshot cannot corrupt rollback',()=>{
+ const original=table();let retained;
+ const h=harness({value:original,empty:previous=>{retained??=previous;retained.records[0].values.b='provider-mutated';return true;},after:()=>{throw Error('after-failed');}});
+ assert.throws(()=>h.edit(t=>{t.records[0].values.a='draft';}),/after-failed/);
+ assert.equal(h.value.records[0].values.a,'before');assert.equal(h.value.records[0].values.b,'peer');
+ assert.equal(original.records[0].values.b,'peer');retained.unknown.nested[1].future=false;
+ assert.equal(h.value.unknown.nested[1].future,true);
 });

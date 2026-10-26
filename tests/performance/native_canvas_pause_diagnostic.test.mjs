@@ -553,3 +553,98 @@ test('recovery final recorded endpoint at or beyond the deadline cannot pass aft
     assert.deepEqual(d.controller.resources(), {listeners: 0, observers: 0, raf: 0, timer: 0});
   }
 });
+
+test('link projection accepts canonical native endpoint strings in all three arms and retains explicit recovery', async () => {
+  for (const mode of ['baseline', 'paused', 'restored']) {
+    const d = setup();
+    for (const [index, link] of [...d.graph.links.values()].entries()) {
+      link.origin_id = String(link.origin_id);
+      if (index % 2 === 0 || mode === 'paused') link.target_id = String(link.target_id);
+    }
+    const before = JSON.stringify([...d.graph.links]);
+    assert.equal(await d.start(mode), true, mode);
+    assert.equal(d.canvas.pause_rendering, mode === 'paused');
+    await d.controller.stop(); assert.equal(d.canvas.pause_rendering, false);
+    assert.equal(await d.drive(d.controller.checkRecovery(trusted)), true);
+    assert.equal(d.controller.report().runs[0].postQueue.empty, true);
+    assert.equal(JSON.stringify([...d.graph.links]), before);
+    assert.equal(d.forbiddenCalls(), 0);
+    assert.deepEqual(d.controller.resources(), {listeners: 0, observers: 0, raf: 0, timer: 0});
+  }
+});
+
+test('link projection rejects noncanonical, nonfinite and unsafe endpoints without coercing objects', async () => {
+  for (const key of ['origin_id', 'target_id']) {
+    const expected = fixture.links[0][key === 'origin_id' ? 1 : 3];
+    const invalid = [`0${expected}`, ` ${expected}`, `${expected} `, `+${expected}`, `${expected}.0`, `${expected}e0`, '', 'unknown', '-0', 'NaN', 'Infinity',
+      '9007199254740992', Number.MAX_SAFE_INTEGER + 1, NaN, Infinity, -Infinity, -0, 0, null, undefined, false];
+    let coercions = 0;
+    invalid.push({valueOf() {coercions++; return expected;}, [Symbol.toPrimitive]() {coercions++; return expected;}});
+    for (const value of invalid) {
+      const d = setup(); d.graph.links.get(1)[key] = value;
+      assert.equal(await d.start(), false, `${key}: ${typeof value}`);
+      const run = d.controller.report().runs[0];
+      assert.equal(run.failureStage, 'capture-initial'); assert.equal(run.failureReason, 'M-link-projection');
+      assert.equal(run.armedAt, null); assert.equal(run.cleanup.complete, true);
+      assert.equal(d.canvas.pause_rendering, false); assert.equal(d.requests.length, 0); assert.equal(d.forbiddenCalls(), 0);
+      assert.deepEqual(d.controller.resources(), {listeners: 0, observers: 0, raf: 0, timer: 0});
+    }
+    assert.equal(coercions, 0);
+  }
+});
+
+test('link projection preserves all six tuple fields, multiplicity and count', async () => {
+  const changes = [
+    d => {d.graph.links.get(1).id = '1';},
+    d => {d.graph.links.get(1).origin_id = '2';},
+    d => {d.graph.links.get(1).origin_slot++;},
+    d => {d.graph.links.get(1).target_id = '1';},
+    d => {d.graph.links.get(1).target_slot++;},
+    d => {d.graph.links.get(1).type = 'IMAGE';},
+    d => {d.graph.links.set(2, {...d.graph.links.get(1)});},
+    d => {d.graph.links.delete(1);},
+    d => {d.graph.links.set(401, {...d.graph.links.get(1), id: 401});},
+  ];
+  for (const change of changes) {
+    const d = setup();
+    for (const link of d.graph.links.values()) {link.origin_id = String(link.origin_id); link.target_id = String(link.target_id);}
+    change(d); assert.equal(await d.start(), false);
+    const run = d.controller.report().runs[0]; assert.equal(run.failureReason, 'M-link-projection'); assert.equal(run.failureStage, 'capture-initial');
+    assert.equal(run.armedAt, null); assert.equal(run.cleanup.complete, true); assert.equal(d.canvas.pause_rendering, false); assert.equal(d.requests.length, 0);
+  }
+});
+
+test('link projection reads each tuple member once in original order per capture and never calls native serialization', async () => {
+  const d = setup(), reads = [], keys = ['id', 'origin_id', 'origin_slot', 'target_id', 'target_slot', 'type'];
+  const first = d.graph.links.get(1), values = {...first};
+  values.origin_id = String(values.origin_id); values.target_id = String(values.target_id);
+  for (const key of keys) Object.defineProperty(first, key, {configurable: true, get() {reads.push(key); return values[key];}});
+  let serializations = 0; first.serialize = () => {serializations++; throw Error('must-not-serialize');};
+  assert.equal(await d.start('baseline'), true);
+  assert.deepEqual(reads, [...keys, ...keys], 'initial and repeated capture each read the same six fields once');
+  assert.equal(serializations, 0); await d.controller.stop(); assert.equal(d.forbiddenCalls(), 0);
+});
+
+test('link projection preserves thrown getter and JSON errors without exposing unknown data', async () => {
+  for (const change of [
+    link => Object.defineProperty(link, 'origin_id', {get() {throw Error('private-link-error');}}),
+    link => {link.target_id = {toJSON() {throw Error('private-link-error');}};},
+    link => {link.target_id = 167n;},
+  ]) {
+    const d = setup(); change(d.graph.links.get(1)); assert.equal(await d.start(), false);
+    const run = d.controller.report().runs[0]; assert.equal(run.failureStage, 'capture-initial'); assert.equal(run.failureReason, 'unexpected-error');
+    assert.equal(run.armedAt, null); assert.equal(run.cleanup.complete, true); assert.equal(d.canvas.pause_rendering, false);
+    assert.equal(d.requests.length, 0); assert(!JSON.stringify(run).includes('private-link-error'));
+  }
+});
+
+test('link projection still revalidates native topology after asynchronous admission', async () => {
+  const d = setup();
+  for (const link of d.graph.links.values()) {link.origin_id = String(link.origin_id); link.target_id = String(link.target_id);}
+  const stats = d.responses.get('/system_stats');
+  d.responses.set('/system_stats', () => {d.graph.links.get(1).target_id = '1'; return stats();});
+  assert.equal(await d.start(), false); const run = d.controller.report().runs[0];
+  assert.equal(run.failureStage, 'capture-repeat'); assert.equal(run.failureReason, 'M-link-projection');
+  assert.equal(run.armedAt, null); assert.equal(run.cleanup.complete, true); assert.equal(d.canvas.pause_rendering, false); assert.equal(d.forbiddenCalls(), 0);
+  assert.deepEqual(d.controller.resources(), {listeners: 0, observers: 0, raf: 0, timer: 0});
+});

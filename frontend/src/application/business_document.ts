@@ -1,5 +1,5 @@
 import { DocumentController } from './document_controller.js';
-import { snapshotJson } from '../contracts/json_snapshot.js';
+import { snapshotJson, snapshotJsonForPreparation } from '../contracts/json_snapshot.js';
 import type { AsyncEditTicket, EditIdentity, EditTarget, EditTransactionOptions, NativeDocumentPort } from '../contracts/ports.js';
 
 export interface BusinessDocumentOptions<T> {
@@ -61,6 +61,14 @@ export function createBusinessDocument<T>(options: BusinessDocumentOptions<T>) {
       const next = snapshotJson(draft);
       commit(before, next, settings);
     },
+    transactPrepared(_label, prepare, settings = {}) {
+      assertCurrent(); observe();
+      const { rollback, previous, draft } = snapshotJsonForPreparation(options.read());
+      prepare(previous, draft);
+      const next = snapshotJson(draft);
+      assertCurrent();
+      commit(rollback, next, settings);
+    },
     replace(_label, value, settings = {}) {
       assertCurrent(); observe();
       const before = snapshotJson(options.read()), next = snapshotJson(value);
@@ -86,6 +94,7 @@ export function createBusinessDocument<T>(options: BusinessDocumentOptions<T>) {
     controller, read: options.read, observe,
     isCurrent: () => !disposed && options.current(),
     edit: (label: string, edit: (document: T) => void, settings?: EditTransactionOptions) => controller.edit(label, edit, settings),
+    editPrepared: (label: string, prepare: (previous: T, draft: T) => void, settings?: EditTransactionOptions) => controller.editPrepared(label, prepare, settings),
     replace(value: T, settings?: EditTransactionOptions) {
       controller.replace('编辑内容', value, settings);
     },

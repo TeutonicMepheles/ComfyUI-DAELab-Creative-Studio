@@ -450,13 +450,15 @@ test('owned bottom status is avoided for the four real Tab target geometries wit
     }
 });
 
-test('ordinary caret input, selection and native text controls never measure the Tab-only status',()=>{
+test('editor events coalesce status geometry to one read without extra Range or ancestor reads when clear',()=>{
     for(const kind of ['visible-caret','offscreen-caret','textarea','input']){
-        const f=fixture();enableHint(f);f.status.getBoundingClientRect=()=>assert.fail('ordinary editor measured status');
+        const f=fixture();enableHint(f);
         if(kind==='visible-caret')f.setRanges([rect(400,286,400,315)]);
         if(kind==='textarea'||kind==='input')Object.assign(f.a.editor,{tagName:kind.toUpperCase(),type:'text',isContentEditable:false,bounds:rect(600,280,800,322)});
         f.fire('input');f.fire('keyup',f.a,{key:'End'});f.doc.emit('selectionchange');f.flush();
-        assert.equal(f.rangeReads.length,kind.endsWith('caret')?1:0);assert.equal(f.pans.length,kind==='visible-caret'?0:1);f.controller.destroy();
+        assert.equal(f.rangeReads.length,kind.endsWith('caret')?1:0);assert.equal(f.pans.length,kind==='visible-caret'?0:1);
+        assert.equal(f.measures.filter(e=>e===f.status).length,1);assert.equal(f.measures.filter(e=>e===f.root).length,1);
+        if(kind==='visible-caret')assert.deepEqual(f.styleReads,[]);f.controller.destroy();
     }
 });
 
@@ -500,7 +502,7 @@ test('reduced Tab area keeps oversized leading-only policy and rejects unusable 
     clipped.tabTo(t);clipped.flush();assert.deepEqual(clipped.pans,[],'full original target remains internally clipped');clipped.controller.destroy();
 });
 
-test('status reveal stays trusted-Tab-only and does not consume cancellation or another owner',()=>{
+test('noneditor status reveal stays trusted-Tab-only and does not consume cancellation or another owner',()=>{
     for(const cancel of [f=>f.controller.suspend(),f=>f.controller.cancel(),f=>f.win.emit('pagehide'),f=>f.a.node.mode=4,f=>f.active(f.b)]){
         const f=fixture();enableHint(f);f.status.getBoundingClientRect=()=>assert.fail('cancelled request measured status');
         f.tabTo(f.control(f.a,'TD',rect(74,385,194,628)));cancel(f);f.flush();assert.deepEqual(f.pans,[]);f.controller.destroy();
@@ -563,13 +565,17 @@ test('hidden, detached, disjoint and invalid HUD bounds preserve the existing ba
     }
 });
 
-test('ordinary caret, input and textarea paths perform zero HUD reads',()=>{
+test('editor input and selection reuse one HUD read per frame and never measure unrelated overlays',()=>{
     for(const kind of ['visible-caret','offscreen-caret','textarea','input']){
-        const f=fixture();enableHud(f);f.zoom.getBoundingClientRect=()=>assert.fail('ordinary editor measured HUD');
+        const f=fixture();enableHud(f);enableHint(f);
+        const other=f.element('DIV',f.root);other.getBoundingClientRect=()=>assert.fail('unowned overlay read');
         if(kind==='visible-caret')f.setRanges([rect(400,286,400,315)]);
         if(kind==='textarea'||kind==='input')Object.assign(f.a.editor,{tagName:kind.toUpperCase(),type:'text',isContentEditable:false,bounds:rect(600,280,800,322)});
         f.fire('input');f.fire('keyup',f.a,{key:'End'});f.doc.emit('selectionchange');f.flush();
-        assert.equal(f.pans.length,kind==='visible-caret'?0:1);f.controller.destroy();
+        assert.equal(f.pans.length,kind==='visible-caret'?0:1);
+        assert.equal(f.measures.filter(e=>e===f.zoom).length,1);assert.equal(f.measures.filter(e=>e===f.status).length,1);
+        assert.equal(f.measures.filter(e=>e===f.root).length,1);assert.equal(f.rangeReads.length,kind.endsWith('caret')?1:0);
+        if(kind==='visible-caret')assert.deepEqual(f.styleReads,[]);f.controller.destroy();
     }
 });
 
@@ -601,4 +607,78 @@ test('HUD avoidance keeps the full original control clipping guard and ignores o
     f.tabTo(target);f.flush();assert.deepEqual(f.pans,[],'full control right edge remains internally clipped');f.controller.destroy();
     const g=fixture(),instrument=g.element('DIV',g.root);instrument.bounds=rect(50,100,650,250);instrument.getBoundingClientRect=()=>assert.fail('instrument must not be measured');
     g.tabTo(g.control(g.a,'DIV',hudTarget));g.flush();assert.deepEqual(g.pans,[]);g.controller.destroy();
+});
+
+// Exact 1269/1280x720/150% LLMA stable focus and reverse-Tab rectangles.
+// Native textarea caret rect was not available; the whole fit-sized control is
+// the existing conservative reveal target. No caret location is inferred here.
+const resumedTextarea=rect(238.217529296875,528.9445190429688,720.1898803710938,695.4380187988281);
+function resumedEditor(f,c=f.a){
+    f.doc.documentElement.clientWidth=1280;f.root.bounds=rect(55.99567031860352,95.99566650390624,1279.999942779541,719.9999389648438);
+    enableHint(f,rect(76.68830871582031,612.1211547851562,734.5129547119141,643.3116302490234));
+    enableHud(f,rect(1081.0064697265625,112.68397521972656,1263.3116607666016,154.0638427734375));
+    Object.assign(c.editor,{tagName:'TEXTAREA',isContentEditable:false,bounds:resumedTextarea,selectionStart:67,selectionEnd:67});
+    f.active(c);
+}
+
+test('editor overlay: actual LLMA focus and reverse Tab reveal the full textarea above the retained hint for either owner',()=>{
+    for(const owner of ['a','b'])for(const event of ['focusin','reverse-tab']){
+        const f=fixture(),c=f[owner];resumedEditor(f,c);const before=structuredClone(f.tracker);
+        assert.deepEqual(revealDelta(c.editor.bounds,f.root.bounds),{dx:0,dy:0},'viewport-only baseline misses actual obstruction');
+        if(event==='reverse-tab'){f.doc.activeElement=f.control(c);f.tabTo(c.editor,{shiftKey:true});}
+        else {f.fire('focusin',c);f.fire('keyup',c,{key:'ArrowRight'});}
+        f.flush();const dy=resumedTextarea.bottom-(f.status.bounds.top-16);
+        assert.deepEqual(f.pans,[{x:50,y:200-dy,zoom:1.5}]);
+        assert.equal(resumedTextarea.bottom-dy,f.status.bounds.top-16);assert.equal(f.doc.activeElement,c.editor);
+        assert.equal(c.editor.selectionStart,67);assert.equal(c.editor.selectionEnd,67);assert.deepEqual(f.writes,[]);
+        assert.equal(f.status.textContent,'Connection failed: retained status');assert.equal(f.status.hidden,false);
+        const after=structuredClone(f.tracker);for(const saved of [after.initialState,after.activeState,...after.undoQueue,...after.redoQueue])saved.extra.daelabCreativeCanvasV1.viewport={x:0,y:0,zoom:1};
+        assert.deepEqual(after,before);assert.equal(f.frames.size,0);f.controller.destroy();
+    }
+});
+
+test('editor overlay: collapsed caret uses its actual Range, not the editor box, to avoid either owned overlay',()=>{
+    for(const sample of [{caret:rect(500,620,500,640),dy:44},{caret:rect(500,120,500,145),dy:-50},{caret:rect(400,286,400,315),dy:0}]){
+        const f=fixture();enableHint(f);enableHud(f);f.a.editor.bounds=rect(74,112,664,704);f.setRanges([sample.caret]);
+        f.fire('input');f.fire('keyup',f.a,{key:'End'});f.doc.emit('selectionchange');f.flush();
+        assert.deepEqual(f.pans,sample.dy?[{x:50,y:200-sample.dy,zoom:1.5}]:[]);
+        assert.equal(f.rangeReads.length,1);assert.equal(f.measures.filter(e=>e===f.status).length,1);assert.equal(f.measures.filter(e=>e===f.zoom).length,1);
+        assert.equal(f.doc.activeElement,f.a.editor);assert.deepEqual(f.writes,[]);f.controller.destroy();
+    }
+});
+
+test('editor overlay: fit-sized native controls clear the HUD but oversized or unmeasurable editors never use leading-only reveal',()=>{
+    for(const tag of ['TEXTAREA','INPUT']){
+        const f=fixture();enableHud(f);Object.assign(f.a.editor,{tagName:tag,type:'text',isContentEditable:false,bounds:rect(500,120,640,150)});
+        f.fire('focusin');f.flush();assert.deepEqual(f.pans,[{x:50,y:250,zoom:1.5}]);assert.deepEqual(f.writes,[]);f.controller.destroy();
+        const oversized=fixture();enableHint(oversized);enableHud(oversized);
+        Object.assign(oversized.a.editor,{tagName:tag,type:'text',isContentEditable:false,bounds:rect(74,112,912,154)});
+        oversized.fire('input');oversized.flush();assert.deepEqual(oversized.pans,[]);
+        assert.equal(oversized.measures.includes(oversized.status)||oversized.measures.includes(oversized.zoom),false);oversized.controller.destroy();
+    }
+    const f=fixture();enableHint(f);enableHud(f);f.selection.isCollapsed=false;f.fire('input');f.flush();
+    assert.deepEqual(f.measures,[]);assert.deepEqual(f.pans,[]);f.controller.destroy();
+});
+
+test('editor overlay: insufficient space and internal clipping keep native caret and scroll ownership',()=>{
+    const tight=fixture();enableHud(tight);enableHint(tight);
+    Object.assign(tight.a.editor,{tagName:'TEXTAREA',isContentEditable:false,bounds:rect(100,240,600,670)});
+    tight.fire('focusin');tight.flush();assert.deepEqual(tight.pans,[],'fits full viewport but not the space between both overlays');assert.deepEqual(tight.writes,[]);tight.controller.destroy();
+    const clipped=fixture();resumedEditor(clipped);clipped.a.panel.css={overflowY:'auto'};
+    clipped.a.panel.bounds=rect(200,500,800,660);Object.assign(clipped.a.panel,{offsetHeight:160,clientHeight:160});
+    clipped.fire('focusin');clipped.flush();assert.deepEqual(clipped.pans,[],'full original textarea remains internally clipped');clipped.controller.destroy();
+});
+
+test('editor overlay: current leases, IME, manual suppression and fresh overlay bounds remain authoritative',()=>{
+    for(const overlay of ['status','zoom'])for(const change of [f=>f.a.panel={},f=>f.doc.activeElement=f.b.editor,f=>f.view.replaceGraph({})]){
+        const f=fixture();resumedEditor(f);const read=f[overlay].getBoundingClientRect;
+        f[overlay].getBoundingClientRect=()=>{const r=read();change(f);return r;};f.fire('focusin');f.flush();assert.deepEqual(f.pans,[]);f.controller.destroy();
+    }
+    for(const cancel of [f=>f.fire('compositionstart'),f=>f.fire('keydown',f.a,{keyCode:229}),f=>f.controller.suspend(),f=>f.controller.cancel(),f=>f.doc.hidden=true]){
+        const f=fixture();resumedEditor(f);f.fire('focusin');cancel(f);f.flush();assert.deepEqual(f.pans,[]);
+        assert.equal(f.measures.includes(f.status)||f.measures.includes(f.zoom),false);f.controller.destroy();
+    }
+    const f=fixture();resumedEditor(f);f.fire('compositionstart');f.fire('input',f.a,{isComposing:true});f.flush();assert.deepEqual(f.pans,[]);
+    f.status.bounds=rect(76,580,735,644);f.fire('compositionend');f.flush();assert.deepEqual(f.pans,[{x:50,y:200-(resumedTextarea.bottom-564),zoom:1.5}]);
+    assert.equal(f.measures.filter(e=>e===f.status).length,1);assert.deepEqual(f.writes,[]);f.controller.destroy();
 });
