@@ -39,6 +39,8 @@ from tools.host.prepare_baseline import _git, _plain_ancestors
 CONTEXT = ContextVar('creative_eval_original_request', default=None)
 OWNER = 'creative-studio-local-runtime-hooks-v1'
 QWEN = 'qwen3.5:9b-q4_K_M'
+_OPTIONAL_ROCM_DRIVER = Path(sys.prefix) / 'Lib/site-packages/triton/backends/amd/driver.py'
+_OPTIONAL_ROCM_DRIVER_SHA256 = 'aa1c7f20cac090deac4598af69f7deda1140db7a4cb07d69ff57cc4e5bc0b564'
 
 # Names and parameter order come from the pinned host/old archive and current
 # reviewed Studio implementation. Any source or signature change needs review.
@@ -191,6 +193,64 @@ def build_launch_manifest(prepared_path, run_directory, variant, fixture_root, d
     return result
 
 
+def _absent_optional_rocm_probe(args):
+    """Normalize one unavailable optional probe; never permit a child process."""
+    # Windows Popen audits its already-quoted command line, not the original list.
+    if sys.platform != 'win32' or args != (None, 'rocm-sdk path --root', None, None):
+        return False
+    try:
+        if file_hash(_OPTIONAL_ROCM_DRIVER) != _OPTIONAL_ROCM_DRIVER_SHA256:
+            return False
+        frame, trusted = sys._getframe(1), False
+        try:
+            while frame is not None:
+                if (frame.f_code.co_name == '_get_rocm_sdk_root'
+                        and frame.f_globals.get('__name__') == 'triton.backends.amd.driver'):
+                    trusted = Path(frame.f_code.co_filename).resolve() == _OPTIONAL_ROCM_DRIVER.resolve()
+                    break
+                frame = frame.f_back
+        finally:
+            del frame
+        if not trusted:
+            return False
+        windows = [Path(os.environ[key]) for key in ('SystemRoot', 'WINDIR') if os.environ.get(key)]
+        if not windows or any(not root.is_absolute() for root in windows):
+            return False
+        cwd = Path.cwd()
+        roots = [Path(sys.executable).parent, Path(sys._base_executable).parent, Path(sys.base_prefix), cwd]
+        for root in windows:
+            roots.extend((root / 'System32', root / 'System', root))
+        for entry in os.environ.get('PATH', '').split(os.pathsep):
+            entry = entry.strip()
+            if entry.startswith('"') and entry.endswith('"'):
+                entry = entry[1:-1]
+            if '"' in entry:
+                return False
+            expanded = os.path.expandvars(entry)
+            if '%' in expanded or '$' in expanded:
+                return False  # An unresolved search component is not proof of absence.
+            folder = Path(expanded) if expanded else cwd
+            roots.append(folder if folder.is_absolute() else cwd / folder)
+        if any(not root.is_absolute() for root in roots):
+            return False
+        extensions = {'', '.exe', '.com', '.bat', '.cmd'}
+        for extension in os.environ.get('PATHEXT', '').split(';'):
+            if extension:
+                if not extension.startswith('.') or not extension[1:].isalnum():
+                    return False
+                extensions.add(extension.lower())
+        for root in set(roots):
+            for extension in extensions:
+                try:
+                    (root / ('rocm-sdk' + extension)).stat()
+                except FileNotFoundError:
+                    continue
+                return False  # Existing files/directories, even non-executable, stay denied.
+        return True
+    except (OSError, ValueError, AttributeError):
+        return False  # Inaccessible paths or incomplete interpreter identity stay denied.
+
+
 class NetworkAudit:
     """Audited known egress surface; no firewall or shared interpreter changes."""
     def __init__(self, host_port, ollama_port=None, *, log=None, read_only_roots=()):
@@ -221,6 +281,9 @@ class NetworkAudit:
             self.record(event, allowed, destination='loopback' if allowed else 'external-name')
             require(allowed, 'external-dns-denied')
         elif event in ('subprocess.Popen', 'os.system', 'os.posix_spawn', 'os.posix_spawnp'):
+            if event == 'subprocess.Popen' and _absent_optional_rocm_probe(args):
+                self.record('optional-rocm-probe-absent', True, destination='rocm-sdk')
+                raise FileNotFoundError(2, 'Optional ROCm SDK command is absent; no process started', 'rocm-sdk')
             self.record('child-process', False)
             raise Blocked('unreviewed-child-process-denied')
         elif event == 'open':

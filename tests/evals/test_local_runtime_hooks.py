@@ -1,5 +1,7 @@
 """Offline hooks only: synthetic files and random loopback servers, no real host/GPU."""
 import asyncio
+import os
+import subprocess
 from copy import deepcopy
 import importlib.util
 import inspect
@@ -29,6 +31,114 @@ class Probe:
     def sample(self):
         return {'atNs': 1, 'processRssBytes': {'123': 100}, 'gpuDeviceUsedBytes': None if self.missing else 200,
                 'gpuProcessBytes': None, 'gpuProcessIds': None}
+
+
+class OptionalRocmProbeTests(unittest.TestCase):
+    """Exercise the optional caller's real exception handling without importing Triton."""
+    def setUp(self):
+        self.root = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        self.application, self.base, self.cwd, self.windows, self.bin = [self.root / name for name in ('application', 'base', 'cwd', 'windows', 'bin')]
+        for directory in (self.application, self.base, self.cwd, self.windows / 'System32', self.windows / 'System', self.bin):
+            directory.mkdir(parents=True)
+        self.driver = self.root / 'driver.py'
+        self.driver.write_text('def _get_rocm_sdk_root():\n'
+            '    try:\n'
+            '        return subprocess.check_output(["rocm-sdk", "path", "--root"], stderr=subprocess.DEVNULL)\n'
+            '    except (subprocess.CalledProcessError, FileNotFoundError):\n'
+            '        return None\n', encoding='utf-8')
+        namespace = {'__name__': 'triton.backends.amd.driver', 'subprocess': subprocess}
+        exec(compile(self.driver.read_text('utf-8'), str(self.driver), 'exec'), namespace)
+        self.probe = namespace['_get_rocm_sdk_root']
+        self.enterContext(patch.object(hooks, '_OPTIONAL_ROCM_DRIVER', self.driver, create=True))
+        self.enterContext(patch.object(hooks, '_OPTIONAL_ROCM_DRIVER_SHA256', runner.file_hash(self.driver), create=True))
+        self.enterContext(patch.object(sys, 'platform', 'win32'))
+        self.enterContext(patch.object(sys, 'executable', str(self.application / 'python.exe')))
+        self.enterContext(patch.object(sys, '_base_executable', str(self.base / 'python.exe'), create=True))
+        self.enterContext(patch.object(sys, 'base_prefix', str(self.base)))
+        self.enterContext(patch.object(Path, 'cwd', return_value=self.cwd))
+        self.enterContext(patch.dict(os.environ, {'SystemRoot': str(self.windows), 'WINDIR': str(self.windows),
+            'PATH': str(self.bin), 'PATHEXT': '.COM;.EXE;.BAT;.CMD'}, clear=True))
+        self.audit = hooks.NetworkAudit(29501)
+        self.audit.enabled = True
+        self.event = (None, 'rocm-sdk path --root', None, None)
+
+    def invoke(self, event=None):
+        with patch.object(subprocess, 'check_output', side_effect=lambda *_a, **_k: self.audit.audit('subprocess.Popen', self.event if event is None else event)):
+            return self.probe()
+
+    def test_absence_reaches_upstream_fallback_without_external_attempt(self):
+        self.assertIsNone(self.invoke())
+        self.assertEqual(self.audit.report()['externalAttempts'], 0)
+        self.assertEqual([row['operation'] for row in self.audit.events], ['optional-rocm-probe-absent'])
+        self.assertFalse(any(row['operation'] == 'child-process' and row['allowed'] for row in self.audit.events))
+
+    def test_present_candidate_in_each_windows_search_directory_stays_blocked(self):
+        for directory in (self.application, self.base, self.cwd, self.windows / 'System32', self.windows / 'System', self.windows, self.bin):
+            candidate = directory / 'rocm-sdk.exe'
+            with self.subTest(directory=directory):
+                candidate.write_bytes(b'not executable; it must never be launched')
+                try:
+                    with self.assertRaisesRegex(runner.Blocked, 'unreviewed-child-process-denied'):
+                        self.invoke()
+                finally:
+                    candidate.unlink()
+
+    def test_bare_file_custom_extension_and_quoted_path_stay_blocked(self):
+        for name in ('rocm-sdk', 'rocm-sdk.cmd', 'rocm-sdk.xyz'):
+            candidate = self.bin / name
+            with self.subTest(name=name), patch.dict(os.environ, {'PATHEXT': '.EXE;.XYZ', 'PATH': '"' + str(self.bin) + '"'}):
+                candidate.touch()
+                try:
+                    with self.assertRaises(runner.Blocked): self.invoke()
+                finally:
+                    candidate.unlink()
+
+    def test_unreadable_candidate_cannot_be_declared_absent(self):
+        original = Path.stat
+        def uncertain(path, *args, **kwargs):
+            if path.name.lower().startswith('rocm-sdk'):
+                raise PermissionError('unreadable test candidate')
+            return original(path, *args, **kwargs)
+        with patch.object(Path, 'stat', uncertain), self.assertRaises(runner.Blocked):
+            self.invoke()
+
+    def test_exact_audit_signature_required(self):
+        for event in ((None, 'rocm-sdk path --root --other', None, None),
+                      (None, ['rocm-sdk', 'path', '--root'], None, None),
+                      ('rocm-sdk', 'rocm-sdk path --root', None, None),
+                      (None, 'rocm-sdk path --root', str(self.cwd), None),
+                      (None, 'rocm-sdk path --root', None, {}),
+                      (None, 'cmd /c rocm-sdk path --root', None, None)):
+            with self.subTest(event=event), self.assertRaises(runner.Blocked):
+                self.invoke(event)
+
+    def test_foreign_caller_or_changed_source_stays_blocked(self):
+        with self.assertRaises(runner.Blocked):
+            self.audit.audit('subprocess.Popen', self.event)
+        self.driver.write_text(self.driver.read_text('utf-8') + '# drift\n', encoding='utf-8')
+        with self.assertRaises(runner.Blocked): self.invoke()
+        with patch.object(hooks, '_OPTIONAL_ROCM_DRIVER_SHA256', runner.file_hash(self.driver)):
+            with patch.object(hooks, '_OPTIONAL_ROCM_DRIVER', self.root / 'another.py'), self.assertRaises(runner.Blocked):
+                self.invoke()
+
+    def test_missing_system_root_or_non_windows_stays_blocked(self):
+        with patch.dict(os.environ, {'SystemRoot': '', 'WINDIR': ''}), self.assertRaises(runner.Blocked):
+            self.invoke()
+        with patch.object(sys, 'platform', 'linux'), self.assertRaises(runner.Blocked):
+            self.invoke()
+
+    @unittest.skipUnless(os.name == 'nt', 'Native Windows subprocess audit payload')
+    def test_real_windows_subprocess_never_reaches_create_process(self):
+        # The installed audit callback receives CPython's string argv, not the list.
+        self.audit.enabled = False
+        close = self.audit.install()
+        try:
+            with patch.object(subprocess._winapi, 'CreateProcess', side_effect=AssertionError('must not spawn')) as create:
+                self.assertIsNone(self.probe())
+                create.assert_not_called()
+            self.assertEqual(self.audit.report()['externalAttempts'], 0)
+        finally:
+            close()
 
 
 class HookContractTests(unittest.TestCase):
