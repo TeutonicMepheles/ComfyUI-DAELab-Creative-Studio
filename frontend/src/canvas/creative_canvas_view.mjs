@@ -95,6 +95,12 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
             const rect=status.getBoundingClientRect();
             return rect.width>0&&rect.height>0?rect:null;
         },
+        tabDockOcclusion(){
+            const dock=assetLibrary.dock;
+            if(!dock?.isConnected||dock.parentElement!==root||dock.hidden)return null;
+            const rect=dock.getBoundingClientRect();
+            return rect.width>0&&rect.height>0?rect:null;
+        },
         tabTopOcclusion(){
             if(!zoom.isConnected||zoom.parentElement!==root)return null;
             const rect=zoom.getBoundingClientRect();

@@ -86,7 +86,7 @@
       "source": "web/creative_canvas_view.mjs",
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
       "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
-      "destinationSha256": "b038a9cd8360642a1703d46e7cfa1ad98e2cf31ca39e0a59f38124a124920c8e",
+      "destinationSha256": "254fa1ec55697d67ced13768cc23b1740e79b2f77d0e265e998eddbfa963445d",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "remove opt-in test gallery rendering; retain unrelated graph.extra data",
@@ -102,7 +102,8 @@
         "Add transient caret reveal through the existing viewport navigation: creation-time native lookup and exact card/panel leases, composition/manual-navigation cancellation, no focus/scroll/business or undo-entry writes. Actual two-instance viewport acceptance remains pending.",
         "Inject only the current direct-child status hint bounds for trusted Tab reveal; ordinary caret/input never reads status geometry. Preserve error/status visibility, viewport navigation and exact panel lifetime. Actual occlusion acceptance pending.",
         "Inject current direct-child zoom HUD bounds for trusted Tab whole-control reveal; reserve its top band only when the projected visible control intersects it, then preserve bottom-hint avoidance. Ordinary caret/input adds no HUD read; live owner, internal clipping and post-read lease checks remain. Actual 78 reverse-Tab failures are retained; new candidate browser acceptance pending.",
-        "PERF selection-paint candidate: compare current selected/slotsSuppressed attributes and selection-surface class before writes; preserve every select/raise/focus/layout and per-card group projection call. Real closure tests cover 300-card selection, live group mutations and outside DOM repair; actual latency acceptance remains pending."
+        "PERF selection-paint candidate: compare current selected/slotsSuppressed attributes and selection-surface class before writes; preserve every select/raise/focus/layout and per-card group projection call. Real closure tests cover 300-card selection, live group mutations and outside DOM repair; actual latency acceptance remains pending.",
+        "Expose only the existing connected, visible direct-child asset dock bounds to focus reveal; retain native focus, owner leases and viewport-only navigation. The 1752 LLM B dock interception failure is retained; candidate browser reacceptance follows."
       ],
       "kind": "production-source"
     },
@@ -1054,7 +1055,7 @@
       "source": null,
       "sourceSha256": null,
       "destination": "frontend/src/canvas/creative_focus_reveal.ts",
-      "destinationSha256": "adc58b2815bc89b5ea79855f6d3fd2f0a5d1e4876fb3fb938474fca5cb58918a",
+      "destinationSha256": "9a284416d1ce38b583d146ebda5e390d983f76341740270d8444597af9ad05aa",
       "kind": "production-source",
       "changes": [
         "Authored strict TypeScript focus coordinator: one coalesced frame reads a collapsed Range and root viewport; visible caret skips ancestor clipping checks. Only needed translations inspect inner clipping. Native text controls use whole-control bounds only when they fit; oversized controls and noncollapsed selections are deliberately not guessed.",
@@ -1063,7 +1064,8 @@
         "Extend only trusted Tab/Shift+Tab noneditor whole-control requests: fit-sized targets retain exact revealDelta behavior; oversized axes expose the physical left/top leading region sized to the available viewport. Full original bounds still enforce ancestor clipping. Public revealDelta, caret/textarea, focus/selection, owner leases, IME and cancellation remain unchanged; no complete visibility of oversized controls or performance result is claimed.",
         "For trusted Tab only, test the baseline-projected focus region against the current status hint and choose a bounded additional translation when possible. Preserve original full-target clipping, oversized leading-region limits, owner recheck, IME/manual-navigation cancellation and ordinary caret fast path. Actual UI acceptance pending.",
         "For trusted Tab whole-control requests only, avoid the current owned zoom HUD after the status-adjusted projection intersects it; reuse a temporary top bound and reapply bottom-status avoidance. Preserve ordinary caret/input/textarea paths, original full-control clipping, live geometry and post-read identity checks. Actual narrow 150% reverse-Tab failures remain until new candidate UI verification.",
-        "Extend owned bottom-status/top-HUD avoidance to measurable editors using strict full-fit geometry; noneditor trusted Tab retains leading-only behavior. Reuse existing target/root measurements and read each owned overlay at most once per eligible coalesced frame, including clear editors. Preserve IME, leases, cancellation, full original clipping and native history; added layout cost and actual UI acceptance remain unmeasured."
+        "Extend owned bottom-status/top-HUD avoidance to measurable editors using strict full-fit geometry; noneditor trusted Tab retains leading-only behavior. Reuse existing target/root measurements and read each owned overlay at most once per eligible coalesced frame, including clear editors. Preserve IME, leases, cancellation, full original clipping and native history; added layout cost and actual UI acceptance remain unmeasured.",
+        "Avoid current status and asset dock separately in descending top order, then reapply both inside the temporary below-HUD viewport. Each overlay is read at most once per eligible frame. Preserve strict editor fit, trusted-Tab leading-region limits, clipping, IME/manual cancellation and post-read ownership. No latency acceptance claimed."
       ]
     },
     {
@@ -1071,7 +1073,7 @@
       "source": null,
       "sourceSha256": null,
       "destination": "tests/migrated_canvas/creative_focus_reveal.test.mjs",
-      "destinationSha256": "ebc3f249a7bb0fcc0caa08b866eda3336b6a3d71efbb7a452fbf33a5c09e032e",
+      "destinationSha256": "68a7a645c0977a7f1e59cce47383e7788a27fad0ffdba71758f27a20faf67b06",
       "kind": "rule-regression",
       "changes": [
         "Execute actual core and view lease binding with two owners and native viewport history; cover stale identity, composition/229, manual navigation, geometry and read/write boundaries. Synthetic DOM does not prove browser geometry, IME or latency.",
@@ -1081,7 +1083,8 @@
         "Add status-hint overlap, baseline projection, oversized/unsafe bounds, stale owner and zero ordinary-caret status-geometry-read regressions. First red retained; 46 focused checks and strict typing do not establish browser layout or input latency.",
         "Dynamically import history after the existing TypeScript resolution hook; focus assertions unchanged.",
         "Add owned top-right HUD overlap, status/HUD combination, oversized leading region, current two-owner geometry, unsupported HUD and post-read cancellation regressions. Retain old-source five failures and candidate/independent 54-pass results; synthetic geometry does not establish live focus or input latency acceptance.",
-        "Add five editor-overlay cases including recorded 1269 LLMA textarea focus/reverse-Tab geometry, caret Range versus editor-box distinction, two owner leases, strict native fit, internal clipping, current overlay bounds and IME cancellation. Replace two previous zero-overlay-read assertions with bounded per-frame read/reuse checks. First old-source run 53/59; candidate 59/59. No browser or latency acceptance claim."
+        "Add five editor-overlay cases including recorded 1269 LLMA textarea focus/reverse-Tab geometry, caret Range versus editor-box distinction, two owner leases, strict native fit, internal clipping, current overlay bounds and IME cancellation. Replace two previous zero-overlay-read assertions with bounded per-frame read/reuse checks. First old-source run 53/59; candidate 59/59. No browser or latency acceptance claim.",
+        "Add nine dock regression groups with recorded select geometry for both owners, dock/status order, HUD reapplication, disjoint rectangles, missing/hidden/reparented dock, stale leases and IME/manual cancellation. First old-source 60/68 (all 59 previous pass), candidate 68/68; actual UI remains separate."
       ]
     },
     {

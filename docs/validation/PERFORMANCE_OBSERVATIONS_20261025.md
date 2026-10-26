@@ -2075,3 +2075,42 @@ DPR 不同，不作配对差值或因果提速结论；两 rAF 边界仅表示�
 首次落盘前复制ENOENT、B屏外点击、A即时Undo断言失败均保留；A的下一稳定采集恢复正确，不能用它删除首失败。09删除截图仍显示旧合成帧，与同次DOM不同，10稳定图另存；17的B来源暂未清空，18稳定来源为空。最终34截图可见四owner，但底部提示条仍与LLM下部边缘相交，不作完整溢出通过。原始目录`.local/interaction-actual/four-owner-1752-lifecycle-first/`冻结45件，清单SHA256为92acc24b4b145636a27b4afda29c06ac3756fac1ec06bfbda74ae835f086adbe；独审目录`.local/validation/four-owner-1752-lifecycle-independent-first/`。运行与模式路径核验在`.local/validation/four-owner-lifecycle-scope-first/`。
 
 独审125项证据一致性检查通过，45原件及冻结清单保持；这不是125个产品用例通过。独审report JSON SHA256为801f0fc83e3e335ed2a007099a04625ac8539bd732ea2b0013b6c421222d24ce，保留metadata开放差异及全部即时失败。此次仅补齐已执行子项，不是完整生命周期或M6通过。待完成项仍包括上述metadata差异定位、四owner模式、菜单边缘/手动pan与视觉缺口、人工真实IME、联合安装、本地44次推理及其余累计门禁。性能仍未通过但暂缓，未发布。
+
+### 后续派生元数据解释与固定本地推理准备
+
+固定 1752 源码及原 65ae F6 的离线实验表明：A 提示词正文已经包含 SAVE-F6-A，而旧 stamp 未包含；真实 OptimizationRevisions.observe 恰好生成上述 revision 1→2 和当前 stamp，再次 observe 幂等。真实 workflow history 包装器在 ready、同 document、clean=false、restoreView=false、live A 存在的受控模型下，恰好复现 native08→27 的两项派生差异；clean load 或 live A 缺失时不走同一路径。因此将该差异登记为已验证条件下的派生元数据校正，不需要产品补丁。没有现场 trace，具体浏览器触发链仍未证明，原五差异和全部失败继续保留。报告 `.local/validation/lifecycle-revision-causal-first/report.md`，result JSON SHA256 `ed109bcf562c86cdd7da027d6c58ed09af780b53692fb31e553cc820bde5af98`。
+
+本地阶段提交 c02faf52f6bd4375c576770f756ee30b65a15c7a 保存此前 35 文件的输入、历史和焦点修复，没有 push/PR/release。以该 commit 创建 `.local/eval-c02faf-first` 固定旧/新独立目录和端口 8240/8241；prepared.json SHA256 `99d0801761574c7a6ad4863fddbf0fc34d8be6c8ab7f2d259e0c59737fce95ce`。十组旧/新请求及八份公开 PNG 已按模型请求、内容哈希和精确媒体路径差异完成工程审核，固定 44-slot run `.local/local-run-c02faf-first/run.json` SHA256 `ea100a48e66eeff71d1b74aa0d32bd26bea6764ab0af547f630964de87bf6edc`；20 次 smoke 包含其中，不另加次数。首次素材目录已存在拒绝保留，未覆盖文件。Ollama 仅准备独立 launcher，GPU/Ollama/推理均未启动。当前 GPU 显存占用约 9.2/16.3 GB 且存在 Unity 使用者，测试窗口等待用户答复；未关闭用户程序，0/44 不变。
+
+<a id="interaction-dock-55d647"></a>
+## LLM 模型选择框的资产库遮挡
+
+1752 / 8267 的原 F6 100% 菜单边缘复测在 1280×720、DPR 约 1.75 下，分别从两 LLM 的处理要求经 Tab 到模型选择框，Alt+ArrowDown 展开并 Escape 关闭。模型仍为本地 Qwen，八字段保持，菜单向上展开。LLM B 关闭后的选择框虽然持有焦点，但其左侧/中心实际命中资产库 NAV/按钮；记录 15 的 select 为 [613.286,664.077,853.286,704.000]，dock 为 [586.310,653.792,749.690,705.238]，稳定截图 16 证实遮挡。原件冻结于 `.local/interaction-actual/four-owner-1752-menu-edge-first/`，manifest SHA256 `14e133487b3c30d69d753ef3fe113284e3a8904aa722801459a79b3001eb9d9f`；未执行两表菜单，不计四 owner 菜单矩阵通过。
+
+窄修复读取现有 assetLibrary.dock 的有效直接子节点矩形，将 dock 与 status 分别按 top 降序避让，并在 HUD 调整后的同一临时视口中重算底部遮挡。保留每帧单读、16px 间距、严格 editor 全容纳、可信 Tab 的 oversized leading-region、IME/手动导航取消、内部裁切与读后 lease 检查；不写焦点、文本或历史。旧源码 68 项定向为 60 通过/8 失败，原 59 项全通过；候选 68 项全过，首红不覆盖。完整 npm run check 首轮退出 0，构建 `55d647679114bd42c4223a047cef2495fab86aa2a285e224eec9e77a1bff177a`，独立源码审查无阻断。日志 `.local/validation/dock-focus-first/`，独审 `.local/validation/dock-focus-independent-first/`。此处仍是构建/代码证据，实际同夹具复测另记，100ms 不测、不宣布通过。
+
+实际候选复测：纯产品 8268 首次准备/启动后，独审63项核验固定523文件、215产物、4个实际 served 模块、CPU和两点空队列，报告 `.local/validation/dock-8268-runtime-first/report.json` SHA256 `c639066ff68dc531f1a75f8d00c83ec3c03146d32d709485d14bacd6927b07c3`。IAB103 原生打开相同65ae夹具；初始01为731×411/DPR2.625，保留且不纳入同环境比较；页面 Ctrl+0 与已登记视口恢复后02起为1280×720/DPR1.750000052、Canvas100%。沿同顺序分别对两LLM执行Ctrl+End、两次Tab、Alt+ArrowDown、Escape；08/14截图菜单向上展开，09/15/17关闭后焦点回对应SELECT、qwen不变。16记录原B三横向点均命中SELECT；17稳定截图可见选择框完整，距status约15.9999886px、dock约57.7499886px。八字段、两LLM来源及线3/4保持，仅支持这一环境的有限交互结果，不外推九组矩阵。
+
+后续两表菜单准备的18首次Ctrl+O未取得filechooser，pending promise超时导致工具会话重置；原件保留。重绑同103、切到非编辑控件后原生chooser成功，19/20/21八字段仍相同；22读取owner1为空，下一新鲜AX为about:blank，原因未知，不推断数据丢失。未继续操作空页，两表菜单及55d647保存/重开尚未完成。`.local/interaction-actual/four-owner-55d647-menu-edge-first/`冻结29原件，manifest SHA256 `9dbaca5fa28597bff341bda3972f820977f095eb213db76385669ba14c2420aa`；独审 `.local/validation/dock-menu-evidence-first/report.json` SHA256 `fd4c8455019552465e95bd106da4dba1a21bdf75cc691a67d675ef292d2fd073`。完整检查为主365通过/3既有跳过，业务507通过，不是产品或M6用例通过数。
+
+用户随后确认GPU测试窗口。重新读取RTX5080状态和桌面驻留见 `.local/validation/local-eval-window-confirmed-first/`；deviceUsed包含其它进程，WDDM进程显存为N/A，不称显存独占，不修改配对阈值。独立审查发现原Ollama启动可能清理共享模型根，因此v1准备保留且未执行；v2在 `.local/validation/ollama-local-eval-c02faf5-second/` 真实复制六blob和manifest，共6,550,826,638 bytes，源/副本重哈希一致、非hardlink/junction，并配置NOPRUNE=1。v2首次check-only和明确启动均exit0，独立18268空驻留服务归属已核；原模型根及runtime/prepared/run保持。到本条记录时尚未推理，0/44及M6门禁不变。
+
+### GPU 窗口确认后的启动失败与 instrumentation 修正
+
+固定 c02 的首次启动误将非 LISTEN 的对外连接视为端口占用，第二次在启动子进程的版本校验阶段因隔离 PATH 缺 Git 退出，第三次进入真实宿主导入后，被隔离器对 Triton 可选 `rocm-sdk path --root` 探测的异常类型中断。三次均未提交推理；14 个启动原件清单为 `.local/validation/local-eval-c02faf5-launch-first/three-startup-failures.json`，SHA256 `7300aad5330cfb6bbbca0dc7912995f3a40f18b80d3fc61e25d9def61e74aa28`。8240 独占 loopback bind 成功，8241 实际 WinError10013 单列保留，没有终止用户的连接或修改原定义。
+
+本地提交 `b763aaf6e804d3196f0440388a520fe379c5392b` 仅修改 runtime hooks 和对应测试：限定 Windows 精确探测参数、固定 Triton 文件/函数/源码哈希，并证明所有相关搜索目录均无该程序后，以 FileNotFoundError 表达缺失；始终不执行子进程，其余请求仍拒绝。新增首红保留，定向文件29/29通过。独立进程实际导入 cuda_malloc、comfy.utils、execution、server、nodes、model_management、model_patcher 成功，只有一次已核验缺失探测、0未审拒绝，没有构造服务或加载模型；报告 `.local/validation/rocm-audit-import-first/report.json` SHA256 `8a43fcb2bae2396d4bc72a378a631b624a766146c38f2119c2a243c35f678497`。这不是完整启动或产品验收通过。
+
+新的 `.local/eval-rocm-fix-first` / 8270、8271 准备成功，40项实际捕获依赖未变，20份捕获及 cases 原字节保持，44槽顺序不变；新ID单列，不把首次20次 smoke 另加进44次。8270 实际启动服务器后准入超时：固定宿主将 `--temp-directory` 追加 `temp`，但测试器仍期望旧的单层目录；旧表格 QwenTransport 又由 service.local_transport 延迟导入，测试器提前要求其 hook 已安装。真实 identity 的 root=null、temp/temp、缺 old_table 和首次超时全部保留于 `.local/validation/local-eval-rocm-fix-first/host-slot-01-first/` 与该 eval 的 baseline/evidence。修正仅涉及测试器，不修改业务、模型或请求参数。
+
+复核该宿主没有 slot、arm、dispatch 或输出，原生队列和 owned Ollama 均空后，明确退役其 listener27132和launcher129056；conhost44392仅等待自然退出。三者退出、8270可绑定后，备份并清理精确死 owner 锁，未删除日志或终止 Ollama/8000/用户进程；记录 `.local/validation/local-eval-rocm-fix-zero-retire-first/retire-first/`。用户手动恢复8000后只读确认队列0/0；当次GPU为10486/16303 MiB、3%，不据此宣称显存独占。到此仍0/44，后续新快照单列；100ms继续暂缓、IME待人工、M6未通过、不发布。
+
+### 原夹具的首次真实配对采集
+
+本地提交 `60a86bfea4a3bf258bfca400699387170ccbd8dc` 仅修正上述测试准入及对应反例，完整定向34/34通过。新 `.local/eval-admission-fix-first` 的8272/8273实际准入成功，prepared SHA256 `738eff616ea2358267edfcc3e5b8324c33a67b0cb11130f33b1aef02c7f00128`，固定 run `.local/local-run-admission-fix-first/run.json` SHA256 `0c512630e066a07813fce8517438e566b00cf53a8bff260a3dccb397e5cb4121`。40项捕获依赖、20份捕获、cases原字节及44槽顺序不变，只有测试器、隔离目录/端口与新请求身份改变。
+
+首对 LOCAL-TEXT-001 的旧/新结果均 captured、blocks=[]、dispatches=1、非ledger reuse，实际模型请求一致。Slot1/2 result SHA256分别为 `beaf4b11cb196599c1a3f1950164097da18e52e996dda8cc30f3e69cc80d33af`、`f903bc65ec9afb3f339845e350bd375c55e17924d6ab88c6e8906a8c937041d5`。旧输出122字节，新输出81字节；Agent初审均保留蓝色陶瓷杯、木桌中央、杯柄朝右、无人限制并消除重复。旧输出英语、新输出中文，未增设语言硬阈值，也不冒充人工盲评。质量分数与人工签名仍null。
+
+首对独审报告 `.local/validation/local-eval-first-pair-review/pair-independent-corrected.json` SHA256 `78ae08be0ce0af79a5e5cd086c9431310558a3f94896452baadb184453806205`：82项记录核验通过，18个登记artifact、20份原件哈希保持。首次审计自身将文件数误计为22而失败，其报告及更正依据保留，不将其作为产品故障。两次记录耗时68009.0917/16489.1619ms，差异主要在模型加载和prefill；cold只证明Ollama `/api/ps`为空，不证明系统/编译缓存等价。所有GPU process byte为null，device-wide峰值包含其他进程，不作为模型独占内存或单对产品收益结论。
+
+两个已完成宿主均退役并保留锁原件。Slot2首次退役在任何终止前拒绝：PowerShell把未加引号的 `1793012265.2066016` 传成 `1793012265.2066`。原失败SHA256 `7729f2f2e5d9fb8c2940b9fa0f669274fe9279de7d4df14ae13d59a43428ff99` 保留；相同脚本与plan复制至独立second目录，精确字符串参数重新核验后成功，没有放宽身份比较。后续命令使用参数数组及 `repr(createTime)`，防止shell数值转换。Slot3 LOCAL-TEXT-002旧版随后也captured并退役，当前3/44，继续固定20次smoke；产品/人工质量/M6未通过，未发布。

@@ -22,7 +22,7 @@ function visit(node){if(ts.isVariableDeclaration(node)&&node.name.getText(syntax
 visit(syntax);
 // Execute the actual view binding and its lease callback. Replacements alter the
 // real closure, not a second test-only approximation of its ownership conditions.
-const bindView=new Function('createCaretReveal','root','cardOwners','graph','host','state','cards','isPanelActive','navigate','status','zoom',`
+const bindView=new Function('createCaretReveal','root','cardOwners','graph','host','state','cards','isPanelActive','navigate','status','zoom','assetLibrary',`
  let visible=true,workspace=null,drag=null;
  const caretReveal=${binding};
  return {controller:caretReveal,replaceGraph(v){graph=v},replaceState(v){state=v},setVisible(v){visible=v},setWorkspace(v){workspace=v},setDrag(v){drag=v}};
@@ -60,6 +60,8 @@ function fixture(){
     const root=element('SECTION');root.bounds=rect(58,96,680,720);
     const status=element('DIV',root);status.isConnected=false;status.bounds=rect(0,0,0,0);
     const zoom=element('DIV',root);zoom.isConnected=false;zoom.bounds=rect(0,0,0,0);
+    const dock=element('NAV',root);dock.isConnected=false;dock.bounds=rect(0,0,0,0);
+    const assetLibrary={dock};
     const state={viewport:{x:50,y:200,zoom:1.5}},nodes=new Map(),cards=new Map(),cardOwners=new WeakMap();
     const graph={extra:{daelabCreativeCanvasV1:state},getNodeById:id=>nodes.get(id)};
     const host={graph:()=>graph};
@@ -81,8 +83,8 @@ function fixture(){
     const history=canvasHistory({extensionManager:{workflow:{activeWorkflow:{changeTracker:tracker}}}});
     const beforeSnapshots=structuredClone(tracker);
     const navigation=()=>{pans.push({...state.viewport});history.updateViewport(state.viewport);};
-    const view=bindView(createCaretReveal,root,cardOwners,graph,host,state,cards,isPanelActive,navigation,status,zoom);
-    return {doc,win,root,status,zoom,a,b,state,nodes,cards,cardOwners,graph,host,view,controller:view.controller,frames,pans,writes,measures,styleReads,rangeReads,selection,tracker,beforeSnapshots,element,
+    const view=bindView(createCaretReveal,root,cardOwners,graph,host,state,cards,isPanelActive,navigation,status,zoom,assetLibrary);
+    return {doc,win,root,status,zoom,dock,assetLibrary,a,b,state,nodes,cards,cardOwners,graph,host,view,controller:view.controller,frames,pans,writes,measures,styleReads,rangeReads,selection,tracker,beforeSnapshots,element,
         setRanges(v){ranges=v},setRangeThrows(v){rangeThrows=v},
         active(c){doc.activeElement=c.editor;selection.focusNode=c.text;selection.anchorNode=c.text;},
         fire(type,c=a,options={}){root.emit(type,{target:c.editor,...options});},
@@ -681,4 +683,130 @@ test('editor overlay: current leases, IME, manual suppression and fresh overlay 
     const f=fixture();resumedEditor(f);f.fire('compositionstart');f.fire('input',f.a,{isComposing:true});f.flush();assert.deepEqual(f.pans,[]);
     f.status.bounds=rect(76,580,735,644);f.fire('compositionend');f.flush();assert.deepEqual(f.pans,[{x:50,y:200-(resumedTextarea.bottom-564),zoom:1.5}]);
     assert.equal(f.measures.filter(e=>e===f.status).length,1);assert.deepEqual(f.writes,[]);f.controller.destroy();
+});
+
+// Exact 1752/F6/1280x720/100% LLMB select, dock, root and retained status.
+// 15-LLMB-focus-toolbar-occlusion.json records NAV/button hits at x633/x733;
+// these unit tests exercise geometry/ownership, not a simulated browser hit test.
+const dockSelect=rect(613.2857055664062,664.0773315429688,853.2857513427734,703.9999504089355);
+const recordedDock=rect(586.3095092773438,653.7916870117188,749.6904602050781,705.2381172180176);
+const recordedDockHint=rect(76.76190948486328,612.0416870117188,734.5952835083008,643.238115310669);
+function enableDock(f,bounds=recordedDock){f.dock.isConnected=true;f.dock.bounds=bounds;}
+function dockViewport(f){f.doc.documentElement.clientWidth=1280;f.root.bounds=rect(56,96,1280,720);f.state.viewport.zoom=1;}
+
+test('dock overlay: actual select geometry clears the owned dock for either Tab owner without focus or history edits',()=>{
+    for(const owner of ['a','b'])for(const shiftKey of [false,true]){
+        const f=fixture();dockViewport(f);enableDock(f);f.active(f[owner]);
+        const target=f.control(f[owner],'SELECT',dockSelect),before=structuredClone(f.tracker),selection={...f.selection};
+        assert.deepEqual(revealDelta(dockSelect,f.root.bounds),{dx:0,dy:0},'viewport containment missed the actual dock');
+        f.tabTo(target,{shiftKey});f.flush();
+        const dy=dockSelect.bottom-(recordedDock.top-16);
+        assert.deepEqual(f.pans,[{x:50,y:200-dy,zoom:1}]);
+        assert.equal(dockSelect.bottom+f.state.viewport.y-200,recordedDock.top-16);
+        assert.equal(f.doc.activeElement,target);assert.deepEqual(f.selection,selection);assert.deepEqual(f.writes,[]);
+        assert.equal(f.measures.filter(e=>e===f.dock).length,1);assert.equal(f.frames.size,0);
+        const after=structuredClone(f.tracker);
+        for(const saved of [after.initialState,after.activeState,...after.undoQueue,...after.redoQueue])saved.extra.daelabCreativeCanvasV1.viewport={x:0,y:0,zoom:1};
+        assert.deepEqual(after,before);f.controller.destroy();
+    }
+});
+
+test('dock overlay: actual dock avoidance must then clear the higher status, regardless of which bottom overlay is lower',()=>{
+    for(const swapped of [false,true]){
+        const f=fixture();dockViewport(f);enableDock(f,swapped?recordedDockHint:recordedDock);
+        enableHint(f,swapped?recordedDock:recordedDockHint);
+        const target=f.control(f.b,'SELECT',dockSelect);f.active(f.b);f.tabTo(target);f.flush();
+        const dy=dockSelect.bottom-(recordedDockHint.top-16);
+        assert.deepEqual(f.pans,[{x:50,y:200-dy,zoom:1}]);
+        assert.equal(dockSelect.bottom+f.state.viewport.y-200,recordedDockHint.top-16);
+        for(const overlay of [f.dock,f.status])assert.equal(f.measures.filter(e=>e===overlay).length,1);
+        assert.equal(f.status.textContent,'Connection failed: retained status');assert.equal(f.dock.hidden,false);
+        assert.equal(f.doc.activeElement,target);assert.deepEqual(f.writes,[]);f.controller.destroy();
+    }
+});
+
+test('dock overlay: HUD clearance reapplies the dock while preserving Tab leading-region and native editor fit policies',()=>{
+    // Synthetic tight space: clearing the dock moves this tall target into the HUD.
+    // A Tab control may expose its leading region; a native editor must fit fully.
+    for(const editor of [false,true]){
+        const f=fixture();enableHud(f);enableDock(f,rect(70,650,650,704));
+        const bounds=rect(100,210,600,690);
+        if(editor){Object.assign(f.a.editor,{tagName:'TEXTAREA',isContentEditable:false,bounds});f.fire('focusin');}
+        else f.tabTo(f.control(f.a,'DIV',bounds));
+        f.flush();assert.deepEqual(f.pans,editor?[]:[{x:50,y:160,zoom:1.5}]);
+        if(!editor){assert.equal(bounds.top+f.state.viewport.y-200,170);assert.ok(bounds.bottom+f.state.viewport.y-200>634,'full oversized border is not claimed clear');}
+        assert.equal(f.measures.filter(e=>e===f.zoom).length,1);assert.equal(f.measures.filter(e=>e===f.dock).length,1);
+        assert.deepEqual(f.writes,[]);f.controller.destroy();
+    }
+});
+
+test('dock overlay: disjoint status and dock do not become a full-width reserved bottom band',()=>{
+    const f=fixture();dockViewport(f);enableHint(f,rect(70,580,300,610));enableDock(f);
+    const target=f.control(f.a,'SELECT',rect(100,656,240,695));f.tabTo(target);f.flush();
+    assert.deepEqual(f.pans,[]);assert.equal(f.measures.filter(e=>e===f.status).length,1);
+    assert.equal(f.measures.filter(e=>e===f.dock).length,1);assert.deepEqual(f.writes,[]);f.controller.destroy();
+});
+
+test('dock overlay: missing, hidden, detached, reparented and empty docks do not reserve space',()=>{
+    for(const change of [f=>f.assetLibrary.dock=null,f=>delete f.assetLibrary.dock,f=>f.dock.hidden=true,
+        f=>f.dock.isConnected=false,f=>f.dock.parentElement=f.a.panel]){
+        const f=fixture();dockViewport(f);enableDock(f);change(f);
+        f.dock.getBoundingClientRect=()=>assert.fail('unavailable dock must not be measured');
+        f.tabTo(f.control(f.a,'SELECT',dockSelect));f.flush();assert.deepEqual(f.pans,[]);f.controller.destroy();
+    }
+    for(const bounds of [rect(0,0,0,0),rect(600,650,600,705),rect(NaN,650,750,705),rect(600,800,750,850)]){
+        const f=fixture();dockViewport(f);enableDock(f,bounds);f.tabTo(f.control(f.a,'SELECT',dockSelect));f.flush();
+        assert.deepEqual(f.pans,[]);assert.equal(f.measures.filter(e=>e===f.dock).length,1);f.controller.destroy();
+    }
+    const f=fixture();dockViewport(f);enableDock(f);f.controller.destroy();
+    const controller=createCaretReveal({root:f.root,owner:()=>({isCurrent:()=>true}),pan:delta=>f.pans.push(delta)});
+    f.dock.getBoundingClientRect=()=>assert.fail('omitted optional dock callback');
+    f.tabTo(f.control(f.a,'SELECT',dockSelect));f.flush();assert.deepEqual(f.pans,[]);controller.destroy();
+});
+
+test('dock overlay: a fresh rectangle is read for each owner and an obsolete owner is never panned',()=>{
+    const f=fixture();dockViewport(f);enableDock(f);
+    for(const [c,top] of [[f.a,653.7916870117188],[f.b,640]]){
+        f.active(c);f.dock.bounds=rect(recordedDock.left,top,recordedDock.right,recordedDock.bottom);
+        const before=f.state.viewport.y,target=f.control(c,'SELECT',dockSelect);f.tabTo(target);f.flush();
+        assert.equal(f.state.viewport.y,before-(dockSelect.bottom-(top-16)));assert.equal(f.doc.activeElement,target);
+    }
+    assert.equal(f.measures.filter(e=>e===f.dock).length,2);assert.deepEqual(f.writes,[]);f.controller.destroy();
+    for(const change of [g=>g.a.panel={},g=>g.nodes.set(1,{id:1,mode:0}),g=>g.active(g.b),g=>g.view.replaceGraph({})]){
+        const g=fixture();dockViewport(g);enableDock(g);const read=g.dock.getBoundingClientRect;
+        g.dock.getBoundingClientRect=()=>{const bounds=read();change(g);return bounds;};
+        g.tabTo(g.control(g.a,'SELECT',dockSelect));g.flush();
+        assert.equal(g.measures.filter(e=>e===g.dock).length,1);assert.deepEqual(g.pans,[]);g.controller.destroy();
+    }
+});
+
+test('dock overlay: normal visible caret coalesces one owned-overlay pass with no pan or ancestor reads',()=>{
+    const f=fixture();dockViewport(f);enableDock(f);enableHint(f);enableHud(f);f.setRanges([rect(400,286,400,315)]);
+    const unowned=f.element('NAV',f.root);unowned.getBoundingClientRect=()=>assert.fail('unowned toolbar read');
+    f.fire('input');f.fire('keyup',f.a,{key:'End'});f.doc.emit('selectionchange');assert.equal(f.frames.size,1);f.flush();
+    assert.deepEqual(f.pans,[]);assert.deepEqual(f.styleReads,[]);assert.equal(f.rangeReads.length,1);
+    for(const overlay of [f.root,f.status,f.zoom,f.dock])assert.equal(f.measures.filter(e=>e===overlay).length,1);
+    assert.deepEqual(f.writes,[]);f.controller.destroy();
+});
+
+test('dock overlay: a collapsed caret uses its Range and leaves native editor dimensions untouched',()=>{
+    const f=fixture();dockViewport(f);enableDock(f);f.a.editor.bounds=rect(100,112,1100,704);
+    const caret=rect(650,675,650,698);f.setRanges([caret]);f.fire('input');f.doc.emit('selectionchange');f.flush();
+    assert.deepEqual(f.pans,[{x:50,y:200-(caret.bottom-(recordedDock.top-16)),zoom:1}]);
+    assert.equal(f.doc.activeElement,f.a.editor);assert.equal(f.rangeReads.length,1);
+    assert.deepEqual(f.writes,[]);assert.equal(f.measures.includes(f.a.editor),false);f.controller.destroy();
+});
+
+test('dock overlay: IME, manual navigation, stale leases and untrusted focus never read dock geometry',()=>{
+    for(const cancel of [f=>f.fire('compositionstart'),f=>f.fire('keydown',f.a,{keyCode:229}),
+        f=>f.controller.suspend(),f=>f.controller.cancel(),f=>f.win.emit('pagehide'),
+        f=>f.a.node.mode=4,f=>f.active(f.b),f=>f.view.replaceGraph({})]){
+        const f=fixture();dockViewport(f);enableDock(f);f.setRanges([rect(650,675,650,698)]);
+        f.dock.getBoundingClientRect=()=>assert.fail('ineligible frame read dock');
+        f.fire('input');cancel(f);f.flush();assert.deepEqual(f.pans,[]);f.controller.destroy();
+    }
+    for(const options of [{isTrusted:false},{isComposing:true,keyCode:229}]){
+        const f=fixture();dockViewport(f);enableDock(f);f.dock.getBoundingClientRect=()=>assert.fail('untrusted/IME Tab read dock');
+        f.tabTo(f.control(f.a,'SELECT',dockSelect),options);f.flush();assert.deepEqual(f.pans,[]);f.controller.destroy();
+    }
 });

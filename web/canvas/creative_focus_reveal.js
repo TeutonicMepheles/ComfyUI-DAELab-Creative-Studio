@@ -54,7 +54,17 @@ function avoidStatus(target, viewport, delta, status, fit) {
     // No fixed overlay height or hidden status/error message is introduced.
     return fit(target, { ...viewport, bottom: top });
 }
-function avoidTopHud(target, viewport, delta, hud, status, fit) {
+function avoidBottomOverlays(target, viewport, delta, overlays, fit) {
+    let cleared = delta;
+    // Lower overlays first: each later fit can only move the bottom boundary up.
+    for (const overlay of overlays) {
+        cleared = avoidStatus(target, viewport, cleared, overlay, fit);
+        if (!cleared)
+            return null;
+    }
+    return cleared;
+}
+function avoidTopHud(target, viewport, delta, hud, overlays, fit) {
     if (!hud || !finiteRect(hud) || hud.right <= hud.left)
         return delta;
     const left = Math.max(hud.left, viewport.left), right = Math.min(hud.right, viewport.right);
@@ -68,12 +78,12 @@ function avoidTopHud(target, viewport, delta, hud, status, fit) {
         || projectedBottom + 16 <= top || projectedTop - 16 >= bottom)
         return delta;
     // Reserve the top band only for a control whose revealed region hits this
-    // owned HUD. Reapply bottom-status avoidance within that same temporary
+    // owned HUD. Reapply bottom-overlay avoidance within that same temporary
     // viewport. Editors must still fit fully; only noneditor Tab controls may
     // expose an oversized leading region. Both retain 16px outline margins.
     const belowHud = { ...viewport, top: bottom };
     const cleared = fit(target, belowHud);
-    return cleared && avoidStatus(target, belowHud, cleared, status, fit);
+    return cleared && avoidBottomOverlays(target, belowHud, cleared, overlays, fit);
 }
 function textControl(element) {
     return element.tagName === 'TEXTAREA' || (element.tagName === 'INPUT'
@@ -227,7 +237,7 @@ function internallyClipped(editor, target, root, win, wholeControl = false) {
     }
     return false;
 }
-export function createCaretReveal({ root, owner, pan, tabOcclusion, tabTopOcclusion }) {
+export function createCaretReveal({ root, owner, pan, tabOcclusion, tabDockOcclusion, tabTopOcclusion }) {
     const doc = root.ownerDocument, win = doc.defaultView;
     if (!win)
         throw new TypeError('Caret reveal requires the owning document window');
@@ -288,10 +298,12 @@ export function createCaretReveal({ root, owner, pan, tabOcclusion, tabTopOcclus
                 // Viewport containment does not prove visibility under owned
                 // overlays. Reuse this frame's target/root geometry and read
                 // each overlay at most once; no cross-event geometry cache.
-                const status = tabOcclusion?.() ?? null;
-                delta = avoidStatus(target, viewport, delta, status, fit);
+                const overlays = [tabOcclusion?.(), tabDockOcclusion?.()]
+                    .filter((rect) => !!rect && finiteRect(rect) && rect.right > rect.left)
+                    .sort((a, b) => b.top - a.top);
+                delta = avoidBottomOverlays(target, viewport, delta, overlays, fit);
                 if (delta && tabTopOcclusion)
-                    delta = avoidTopHud(target, viewport, delta, tabTopOcclusion(), status, fit);
+                    delta = avoidTopHud(target, viewport, delta, tabTopOcclusion(), overlays, fit);
             }
             // Most editing is already visible: avoid inspecting every ancestor
             // unless translation is needed. Range/root/overlay reads remain a
