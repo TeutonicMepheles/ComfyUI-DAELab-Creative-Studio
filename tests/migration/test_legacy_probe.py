@@ -238,12 +238,25 @@ class LegacyProbeTests(unittest.IsolatedAsyncioTestCase):
         self.assertRegex(digest, r"^[0-9a-f]{64}$")
         root = self.base / "probe-copy"
         root.mkdir()
-        for name in ("__init__.py", "probe.py", "probe-manifest.json"):
+        for name in ("__init__.py", "probe.py", "README.md", "AGENTS.md", "probe-manifest.json"):
             shutil.copyfile(Path(probe.__file__).parent / name, root / name)
         self.assertEqual(probe.manifest_identity(root), digest)
-        (root / "unexpected.txt").write_text("private", encoding="utf-8")
-        with self.assertRaises(probe.Unobservable):
-            probe.manifest_identity(root)
+        for name in ("README.md", "AGENTS.md"):
+            original = (root / name).read_bytes()
+            try:
+                (root / name).write_bytes(original + b"\nchanged\n")
+                with self.assertRaisesRegex(probe.Unobservable, "probe-source-changed"):
+                    probe.manifest_identity(root)
+            finally:
+                (root / name).write_bytes(original)
+        for name in ("unexpected.txt", "extra.md", "extra.py"):
+            try:
+                (root / name).write_text("unreviewed", encoding="utf-8")
+                with self.assertRaisesRegex(probe.Unobservable, "unexpected-probe-file"):
+                    probe.manifest_identity(root)
+            finally:
+                (root / name).unlink()
+        self.assertEqual(probe.manifest_identity(root), digest)
 
     async def test_request_boundary_nonce_loopback_port_origin_and_get_only(self):
         class Query(dict):

@@ -80,12 +80,12 @@ def manifest_identity(package_root=None):
             record["schemaVersion"] == 1 and record["kind"] == "legacy-runtime-probe-package" and
             record["coverageVersion"] == COVERAGE_VERSION, "unsupported-probe-manifest")
     expected = []
-    for name in ("__init__.py", "probe.py"):
+    for name in ("__init__.py", "probe.py", "README.md", "AGENTS.md"):
         raw = source_bytes(root / name)
         expected.append({"path": name, "sha256": hashlib.sha256(raw).hexdigest(), "bytes": len(raw)})
     require(record["files"] == expected and record["probeSourceSha256"] == hashlib.sha256(canonical(expected)).hexdigest(), "probe-source-changed")
     require(expected[1]["sha256"] == _IMPORTED_PROBE_SHA256, "loaded-probe-source-changed")
-    require({p.name for p in root.iterdir()} <= {"__init__.py", "probe.py", "probe-manifest.json", "__pycache__"}, "unexpected-probe-file")
+    require({p.name for p in root.iterdir()} <= {entry["path"] for entry in expected} | {"probe-manifest.json", "__pycache__"}, "unexpected-probe-file")
     return record["probeSourceSha256"]
 
 

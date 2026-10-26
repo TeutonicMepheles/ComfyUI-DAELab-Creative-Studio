@@ -66,11 +66,11 @@ class ProfileTests(unittest.TestCase):
         probe = old / "custom_nodes/StudioMigration.LegacyProbe"
         probe.mkdir()
         probe_source = Path(__file__).resolve().parents[2] / "tools/migration/legacy_probe"
-        for name in ("__init__.py", "probe.py", "probe-manifest.json"):
+        for name in ("__init__.py", "probe.py", "README.md", "AGENTS.md", "probe-manifest.json"):
             shutil.copyfile(probe_source / name, probe / name)
         new_probe = new / "custom_nodes/StudioMigration.LegacyProbe"
         new_probe.mkdir()
-        for name in ("__init__.py", "probe.py", "probe-manifest.json"):
+        for name in ("__init__.py", "probe.py", "README.md", "AGENTS.md", "probe-manifest.json"):
             shutil.copyfile(probe_source / name, new_probe / name)
         self.plan = {"schemaVersion": 1, "migrationId": "migration", "sourceRoot": str(self.source),
                      "workspaceRoot": str(self.workspace), "files": [
@@ -180,7 +180,7 @@ class ProfileTests(unittest.TestCase):
         from tools.migration import profiles
         source = Path(__file__).resolve().parents[2] / "tools/migration/legacy_probe"
         files = [{"path": name, "sha256": file_hash(source / name), "bytes": (source / name).stat().st_size}
-                 for name in ("__init__.py", "probe.py")]
+                 for name in ("__init__.py", "probe.py", "README.md", "AGENTS.md")]
         self.assertEqual(tuple((item["path"], item["sha256"], item["bytes"]) for item in files), profiles.REVIEWED_PROBE_FILES)
         self.assertEqual(json_hash(files), profiles.REVIEWED_PROBE_SOURCE_SHA256)
         manifest = source / "probe-manifest.json"
@@ -194,16 +194,17 @@ class ProfileTests(unittest.TestCase):
         from tools.migration.profiles import package_identity
         spec = self.profiles_plan["oldPackage"]
         probe = Path(spec["observer"]["root"])
-        original = {name: (probe / name).read_bytes() for name in ("__init__.py", "probe.py", "probe-manifest.json")}
-        for mutation in ("__init__.py", "probe.py", "manifest-bytes", "self-attested-manifest", "extra.py"):
+        original = {name: (probe / name).read_bytes() for name in ("__init__.py", "probe.py", "README.md", "AGENTS.md", "probe-manifest.json")}
+        for mutation in ("__init__.py", "probe.py", "README.md", "AGENTS.md", "manifest-bytes", "self-attested-manifest", "self-attested-doc", "extra.py", "extra.md"):
             with self.subTest(mutation=mutation):
                 try:
-                    if mutation in {"__init__.py", "probe.py", "extra.py"}:
+                    if mutation in {"__init__.py", "probe.py", "README.md", "AGENTS.md", "extra.py", "extra.md"}:
                         (probe / mutation).write_bytes(original.get(mutation, b"") + b"# changed\n")
                     elif mutation == "manifest-bytes":
                         (probe / "probe-manifest.json").write_bytes(original["probe-manifest.json"] + b"\n")
                     else:
-                        (probe / "probe.py").write_bytes(original["probe.py"] + b"# unreviewed\n")
+                        changed = "README.md" if mutation == "self-attested-doc" else "probe.py"
+                        (probe / changed).write_bytes(original[changed] + b"# unreviewed\n")
                         record = json.loads(original["probe-manifest.json"])
                         for entry in record["files"]:
                             entry.update(sha256=file_hash(probe / entry["path"]), bytes=(probe / entry["path"]).stat().st_size)
@@ -214,8 +215,9 @@ class ProfileTests(unittest.TestCase):
                 finally:
                     for name, raw in original.items():
                         (probe / name).write_bytes(raw)
-                    if (probe / "extra.py").exists():
-                        (probe / "extra.py").unlink()
+                    for name in ("extra.py", "extra.md"):
+                        if (probe / name).exists():
+                            (probe / name).unlink()
         self.assertTrue(package_identity(spec)["observer"])
 
     def test_package_identity_uses_exact_paths_independent_of_inventory_enumeration(self):
