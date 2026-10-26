@@ -508,7 +508,10 @@ class RuntimeHooks:
         running, pending = queue.get_current_queue() if queue is not None else (None, None)
         folders = sys.modules.get('folder_paths')
         actual_roots = {} if folders is None else {key: str(Path(getattr(folders, 'get_' + key + '_directory')()).resolve()) for key in ('user', 'input', 'output', 'temp')}
-        roots_valid = actual_roots == {key: str(self.environment / key) for key in ('user', 'input', 'output', 'temp')}
+        expected_roots = {key: str(self.environment / key) for key in ('user', 'input', 'output', 'temp')}
+        # Fixed host main.start_comfyui appends 'temp' to our --temp-directory.
+        expected_roots['temp'] = str(self.environment / 'temp' / 'temp')
+        roots_valid = actual_roots == expected_roots
         argv = sys.argv
         port = int(argv[argv.index('--port') + 1]) if '--port' in argv else None
         return {'pid': os.getpid(), 'port': port, 'actualRoots': actual_roots,
@@ -899,7 +902,15 @@ class RuntimeHooks:
         pass  # Source/signature verified; this adapter only reads the original receipt.
 
     def install_old_optimization_api(self, module):
-        pass  # No public query/recover invoked; ledger.get is read-only.
+        if self.variant != 'baseline' or not self.ollama:
+            return
+        # Service.local_transport imports this class lazily. Import its own package
+        # now so the source/signature-checked boundary exists before gate admission.
+        package = getattr(module, '__package__', None)
+        require(isinstance(package, str) and package, 'old-optimization-package-unproven')
+        transport = importlib.import_module('.qwen', package)
+        self.module_loaded(transport)  # Also verifies an already imported module.
+        require('old_table' in self.installed and self.modules.get('old_table') is transport, 'old-table-hook-missing')
 
     def _qwen_outer(self, original, request_position=None):
         @functools.wraps(original)

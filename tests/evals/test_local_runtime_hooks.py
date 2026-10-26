@@ -141,6 +141,96 @@ class OptionalRocmProbeTests(unittest.TestCase):
             close()
 
 
+class HostAdmissionTests(unittest.TestCase):
+    def setUp(self):
+        self.root = Path(self.enterContext(tempfile.TemporaryDirectory())).resolve()
+
+    def test_identity_matches_fixed_native_nested_temp_and_rejects_foreign_roots(self):
+        instance = hooks.RuntimeHooks.__new__(hooks.RuntimeHooks)
+        instance.environment = self.root / 'baseline'
+        instance.server = SimpleNamespace(prompt_queue=SimpleNamespace(get_current_queue=lambda: ([], [])))
+        instance.installed, instance.ollama, instance.exclusive_window = set(), None, True
+        directories = {key: instance.environment / key for key in ('user', 'input', 'output', 'temp')}
+        directories['temp'] /= 'temp'  # The fixed host appends this to --temp-directory.
+        folders = SimpleNamespace(**{'get_' + key + '_directory': lambda key=key: directories[key] for key in directories})
+        argv = ['main.py', '--port', '29501', '--temp-directory', str(instance.environment / 'temp'), '--offline', '--cache-none']
+        with patch.dict(sys.modules, {'folder_paths': folders}), patch.object(sys, 'argv', argv):
+            identity = instance.live_identity()
+            self.assertEqual(identity['root'], str(instance.environment))
+            self.assertEqual(identity['actualRoots']['temp'], str(instance.environment / 'temp/temp'))
+            for key in directories:
+                original = directories[key]
+                for foreign in (self.root / 'foreign' / key, instance.environment / 'temp' if key == 'temp' else self.root / 'another' / key):
+                    with self.subTest(key=key, path=foreign):
+                        directories[key] = foreign
+                        self.assertIsNone(instance.live_identity()['root'])
+                directories[key] = original
+
+    def lazy_package(self):
+        name = 'creative_eval_lazy_' + uuid.uuid4().hex
+        package = self.root / name
+        package.mkdir()
+        (package / '__init__.py').write_text('', encoding='utf-8')
+        (package / 'service.py').write_text('class Service:\n'
+            '    def __init__(self): raise AssertionError("must not instantiate service")\n'
+            '    def local_transport(self):\n'
+            '        from .qwen import QwenTransport\n'
+            '        return QwenTransport()\n', encoding='utf-8')
+        api, qwen = package / 'api.py', package / 'qwen.py'
+        api.write_text('from .service import Service\n_service = None\n'
+            'async def handle(request): raise AssertionError("must not invoke API")\n', encoding='utf-8')
+        qwen.write_text('class QwenTransport:\n'
+            '    def __init__(self): raise AssertionError("must not instantiate transport")\n'
+            '    async def create(self, snapshot, instructions, auth): raise AssertionError("must not generate")\n', encoding='utf-8')
+        instance = hooks.RuntimeHooks.__new__(hooks.RuntimeHooks)
+        instance.manifest = {'sourceContracts': {'old_optimization_api': hooks.source_contract(api, {'handle': ['request']}),
+            'old_table': hooks.source_contract(qwen, {'QwenTransport.create': ['self', 'snapshot', 'instructions', 'auth']})}}
+        instance.variant, instance.ollama = 'baseline', {'url': 'http://127.0.0.1:29502'}
+        instance.modules, instance.restores, instance.metrics, instance.completion_tasks = {}, [], {}, []
+        instance.installed = {'server', 'queue', 'h3', 'torch_files', 'gguf_files', 'old_native', 'old_qwen', 'old_polish', 'old_receipt'}
+        self.addCleanup(lambda: [sys.modules.pop(key, None) for key in list(sys.modules) if key == name or key.startswith(name + '.')])
+        self.enterContext(patch.object(sys, 'path', [str(self.root), *sys.path]))
+        instance.install_loader()
+        self.addCleanup(instance.close)
+        return instance, name, qwen
+
+    def test_only_baseline_with_owned_ollama_imports_table_transport(self):
+        instance = hooks.RuntimeHooks.__new__(hooks.RuntimeHooks)
+        for variant, ollama in (('baseline', None), ('studio', None), ('studio', {'url': 'http://127.0.0.1:29502'})):
+            with self.subTest(variant=variant, ollama=ollama):
+                instance.variant, instance.ollama = variant, ollama
+                with patch.object(importlib, 'import_module', side_effect=AssertionError('must not import optional transport')):
+                    instance.install_old_optimization_api(SimpleNamespace())
+
+    def test_api_import_admits_actual_lazy_qwen_module_without_instantiation(self):
+        instance, package, _ = self.lazy_package()
+        self.assertFalse(instance.dispatch_ready())
+        self.assertNotIn(package + '.qwen', sys.modules)
+        api = importlib.import_module(package + '.api')
+        self.assertIn(package + '.qwen', sys.modules)
+        self.assertIs(instance.modules['old_table'], sys.modules[package + '.qwen'])
+        self.assertTrue(hasattr(instance.modules['old_table'].QwenTransport.create, '__wrapped__'))
+        self.assertIsNone(api._service)
+        self.assertTrue(instance.dispatch_ready())
+        instance.installed.remove('old_table')
+        self.assertFalse(instance.dispatch_ready())  # The required boundary is never dropped.
+
+    def test_changed_lazy_qwen_source_blocks_before_import(self):
+        instance, package, qwen = self.lazy_package()
+        qwen.write_text(qwen.read_text('utf-8') + 'raise AssertionError("changed source must not execute")\n', encoding='utf-8')
+        with self.assertRaisesRegex(runner.Blocked, 'hook-source-changed-before-import'):
+            importlib.import_module(package + '.api')
+        self.assertNotIn('old_table', instance.installed)
+        self.assertFalse(instance.dispatch_ready())
+
+    def test_cached_foreign_qwen_cannot_satisfy_required_hook(self):
+        instance, package, _ = self.lazy_package()
+        sys.modules[package + '.qwen'] = SimpleNamespace(__file__=str(self.root / 'foreign-qwen.py'))
+        with self.assertRaisesRegex(runner.Blocked, 'old-table-hook-missing'):
+            importlib.import_module(package + '.api')
+        self.assertFalse(instance.dispatch_ready())
+
+
 class HookContractTests(unittest.TestCase):
     def test_import_and_unapproved_launch_do_not_start_anything(self):
         with patch.object(hooks, 'RuntimeHooks', side_effect=AssertionError('must not initialize resources')), patch.object(hooks.runpy, 'run_path', side_effect=AssertionError('must not start')):
