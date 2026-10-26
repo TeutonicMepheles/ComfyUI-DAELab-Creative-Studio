@@ -2,6 +2,7 @@
 import asyncio
 from contextlib import asynccontextmanager
 import json
+import os
 from pathlib import Path
 import struct
 import tempfile
@@ -151,6 +152,50 @@ class GenerationTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.service.public('request-one')['phase'], 'complete')
         self.assertEqual(set(self.fake.queries), {'native-request-one'})
         self.assertEqual(self.fake.creates, ['request-one'])
+
+    async def test_result_receipt_uses_rooted_canonical_path(self):
+        folder = self.root / 'output/DAELAB/creative-studio'
+        folder.mkdir(parents=True)
+        (folder / 'result.png').write_bytes(png())
+        paths = [r'DAELAB\creative-studio/result.png', 'DAELAB/./creative-studio/result.png']
+        if os.name == 'nt':
+            paths.append(r'daelab\creative-studio/result.png')
+        for index, path in enumerate(paths):
+            with self.subTest(path=path):
+                request_id = f'canonical-{index}'
+                self.fake.file = path
+                await self.service.submit([self.item(request_id)])
+                await self.service.wait_idle()
+                result = self.service.public(request_id)
+                self.assertEqual(result['phase'], 'complete')
+                ref = self.core.assets.validate_reference(result['receipt']['items'][0]['reference_id'])
+                self.assertEqual(ref['relative_path'], 'DAELAB/creative-studio/result.png')
+                self.assertEqual(self.fake.creates.count(request_id), 1)
+
+    async def test_canonical_result_recovery_reuses_original_execution(self):
+        folder = self.root / 'output/DAELAB/creative-studio'
+        folder.mkdir(parents=True)
+        self.fake.file = r'daelab\creative-studio/result.png' if os.name == 'nt' else r'DAELAB\creative-studio/result.png'
+        await self.service.submit([self.item()]); await self.service.wait_idle()
+        before = self.core.jobs.get('request-one')
+        self.assertEqual(before['state'], 'needs_recovery')
+        (folder / 'result.png').write_bytes(png())
+        await self.service.recover('request-one')
+        after = self.core.jobs.get('request-one')
+        self.assertEqual(after['state'], 'succeeded')
+        self.assertEqual(after['provider_task_id'], before['provider_task_id'])
+        self.assertEqual(after['attempt'], 1)
+        self.assertEqual(self.fake.creates, ['request-one'])
+
+    async def test_result_path_normalization_does_not_admit_root_escape(self):
+        for index, path in enumerate((r'..\input\outside.png', str(self.root / 'input/outside.png'))):
+            with self.subTest(path=path):
+                (self.root / 'input/outside.png').write_bytes(png())
+                self.fake.file = path
+                request_id = f'escape-{index}'
+                await self.service.submit([self.item(request_id)]); await self.service.wait_idle()
+                self.assertEqual(self.service.public(request_id)['phase'], 'needs_recovery')
+                self.assertIsNone(self.core.jobs.get(request_id)['result'])
 
     async def test_invalid_media_never_success_and_recovery_is_bounded_without_resubmission(self):
         (self.root / 'output/result.png').write_bytes(b'broken')

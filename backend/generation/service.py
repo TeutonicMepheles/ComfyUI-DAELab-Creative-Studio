@@ -385,8 +385,12 @@ class GenerationService:
                 for file in observation.files:
                     if file.get('root') != 'output':
                         raise InvalidInput('Generated media must be inside the configured output root.')
-                    asset = self.assets.register_file('output', file['path'], kind=file['kind'], provenance={'request_id': job['request_id'], 'provider_task_id': observation.task_id})
-                    refs.append(next(r['reference_id'] for r in asset['references'] if r['root_key'] == 'output' and r['relative_path'] == file['path']))
+                    # Native Windows receipts can use backslashes or a different
+                    # directory case. Match the catalog's rooted canonical path,
+                    # which also performs the existing traversal/containment checks.
+                    _file, relative = self.assets.resolve_reference('output', file['path'])
+                    asset = self.assets.register_file('output', relative, kind=file['kind'], provenance={'request_id': job['request_id'], 'provider_task_id': observation.task_id})
+                    refs.append(next(r['reference_id'] for r in asset['references'] if r['root_key'] == 'output' and r['relative_path'] == relative))
                 receipt = self.assets.result_receipt(refs)
             current = self.jobs.get(job['request_id'])
             if current['state'] in TERMINAL_STATES:

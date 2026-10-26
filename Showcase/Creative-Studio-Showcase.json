@@ -1,8 +1,8 @@
 {
   "id": "b52b0f3f-f096-5e73-a67f-81eae8899efa",
   "revision": 0,
-  "last_node_id": 16,
-  "last_link_id": 5,
+  "last_node_id": 23,
+  "last_link_id": 8,
   "nodes": [
     {
       "inputs": [
@@ -1189,7 +1189,7 @@
         "16:9",
         false,
         "[]",
-        "{\"version\":1,\"table\":{\"version\":1,\"fields\":[{\"id\":\"b0098edf-188c-4988-acaf-d750080a36ef\",\"name\":\"图片/视频\",\"type\":\"content\",\"width\":260,\"hidden\":false,\"video_reference\":false},{\"id\":\"7c4cbaea-b406-403e-b007-39c045dbbce7\",\"name\":\"提示词\",\"type\":\"json\",\"width\":420,\"hidden\":false,\"presentation\":\"prompt\",\"generationPrompt\":true},{\"id\":\"94dc951b-6b7e-4fff-915a-dc127800e6f2\",\"name\":\"生成\",\"type\":\"content\",\"width\":340,\"hidden\":false,\"video_reference\":false,\"presentation\":\"generation\",\"readonly\":true,\"generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"7c4cbaea-b406-403e-b007-39c045dbbce7\",\"mode\":\"frames2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":4,\"turbo\":true,\"seed\":20261026}}}],\"records\":[{\"id\":\"7724cb79-3986-46b1-8fe3-c7566d2ab264\",\"selected\":false,\"values\":{\"b0098edf-188c-4988-acaf-d750080a36ef\":[{\"id\":\"showcase-scene-1\",\"kind\":\"image\",\"name\":\"01 · 清晨客舱\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\"}],\"7c4cbaea-b406-403e-b007-39c045dbbce7\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"清晨的民航客舱，暖白色座椅沿中央过道延伸；柔和自然光透过舷窗，蓝灰色织物与浅木饰面形成舒适的层次。\\n镜头沿中央过道缓慢向前推进，保持稳定构图。\"}]},\"94dc951b-6b7e-4fff-915a-dc127800e6f2\":[]},\"name\":\"01 · 清晨客舱\",\"meta\":{}},{\"id\":\"ae111c37-c093-4574-af1c-28890663e9b3\",\"selected\":false,\"values\":{\"7c4cbaea-b406-403e-b007-39c045dbbce7\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"客舱设计工作室里的材质样板台，蓝灰色织物、浅木饰面、磨砂金属样片整齐并列，侧光展现纹理与质感。\\n近景缓慢横移，对焦织物与木纹边缘。\"}]},\"94dc951b-6b7e-4fff-915a-dc127800e6f2\":[],\"b0098edf-188c-4988-acaf-d750080a36ef\":[{\"id\":\"showcase-scene-2\",\"kind\":\"image\",\"name\":\"02 · 材质细节\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\"}]},\"name\":\"02 · 材质细节\",\"meta\":{}},{\"id\":\"e1bb5dc4-9d9b-44b9-b8d5-d5e0bcdd8654\",\"selected\":false,\"values\":{\"7c4cbaea-b406-403e-b007-39c045dbbce7\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"设计团队围绕客舱概念模型协同评审，桌面摆放色卡与草图，大屏呈现同一套客舱方案，空间明亮、秩序清晰。\\n从桌面模型缓慢拉远，展示完整工作室。\"}]},\"94dc951b-6b7e-4fff-915a-dc127800e6f2\":[],\"b0098edf-188c-4988-acaf-d750080a36ef\":[{\"id\":\"showcase-scene-3\",\"kind\":\"image\",\"name\":\"03 · 协同评审\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\"}]},\"name\":\"03 · 协同评审\",\"meta\":{}}],\"view\":\"table\",\"meta\":{\"material_columns\":true,\"video_reference_version\":1,\"generationInput\":{\"version\":1,\"promptFieldId\":\"7c4cbaea-b406-403e-b007-39c045dbbce7\"},\"generationProject\":\"\",\"showcase\":{\"synthetic\":true,\"note\":\"参数预置，尚未提交\"}}},\"fieldId\":\"94dc951b-6b7e-4fff-915a-dc127800e6f2\",\"currentId\":\"7724cb79-3986-46b1-8fe3-c7566d2ab264\"}"
+        "{\"version\":1,\"table\":{\"version\":1,\"fields\":[{\"id\":\"b0098edf-188c-4988-acaf-d750080a36ef\",\"name\":\"图片/视频\",\"type\":\"content\",\"width\":260,\"hidden\":false,\"video_reference\":false},{\"id\":\"7c4cbaea-b406-403e-b007-39c045dbbce7\",\"name\":\"提示词\",\"type\":\"json\",\"width\":420,\"hidden\":false,\"presentation\":\"prompt\",\"generationPrompt\":true},{\"id\":\"94dc951b-6b7e-4fff-915a-dc127800e6f2\",\"name\":\"生成\",\"type\":\"content\",\"width\":340,\"hidden\":false,\"video_reference\":false,\"presentation\":\"generation\",\"readonly\":true,\"generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"7c4cbaea-b406-403e-b007-39c045dbbce7\",\"mode\":\"frames2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":4,\"turbo\":false,\"seed\":20261026}}}],\"records\":[{\"id\":\"7724cb79-3986-46b1-8fe3-c7566d2ab264\",\"selected\":false,\"values\":{\"b0098edf-188c-4988-acaf-d750080a36ef\":[{\"id\":\"showcase-scene-1\",\"kind\":\"image\",\"name\":\"01 · 清晨客舱\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\"}],\"7c4cbaea-b406-403e-b007-39c045dbbce7\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"清晨的民航客舱，暖白色座椅沿中央过道延伸；柔和自然光透过舷窗，蓝灰色织物与浅木饰面形成舒适的层次。\\n镜头沿中央过道缓慢向前推进，保持稳定构图。\"}]},\"94dc951b-6b7e-4fff-915a-dc127800e6f2\":[]},\"name\":\"01 · 清晨客舱\",\"meta\":{}},{\"id\":\"ae111c37-c093-4574-af1c-28890663e9b3\",\"selected\":false,\"values\":{\"7c4cbaea-b406-403e-b007-39c045dbbce7\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"客舱设计工作室里的材质样板台，蓝灰色织物、浅木饰面、磨砂金属样片整齐并列，侧光展现纹理与质感。\\n近景缓慢横移，对焦织物与木纹边缘。\"}]},\"94dc951b-6b7e-4fff-915a-dc127800e6f2\":[],\"b0098edf-188c-4988-acaf-d750080a36ef\":[{\"id\":\"showcase-scene-2\",\"kind\":\"image\",\"name\":\"02 · 材质细节\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\"}]},\"name\":\"02 · 材质细节\",\"meta\":{}},{\"id\":\"e1bb5dc4-9d9b-44b9-b8d5-d5e0bcdd8654\",\"selected\":false,\"values\":{\"7c4cbaea-b406-403e-b007-39c045dbbce7\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"设计团队围绕客舱概念模型协同评审，桌面摆放色卡与草图，大屏呈现同一套客舱方案，空间明亮、秩序清晰。\\n从桌面模型缓慢拉远，展示完整工作室。\"}]},\"94dc951b-6b7e-4fff-915a-dc127800e6f2\":[],\"b0098edf-188c-4988-acaf-d750080a36ef\":[{\"id\":\"showcase-scene-3\",\"kind\":\"image\",\"name\":\"03 · 协同评审\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\"}]},\"name\":\"03 · 协同评审\",\"meta\":{}}],\"view\":\"table\",\"meta\":{\"material_columns\":true,\"video_reference_version\":1,\"generationInput\":{\"version\":1,\"promptFieldId\":\"7c4cbaea-b406-403e-b007-39c045dbbce7\"},\"generationProject\":\"\",\"showcase\":{\"synthetic\":true,\"note\":\"参数预置，尚未提交\"}}},\"fieldId\":\"94dc951b-6b7e-4fff-915a-dc127800e6f2\",\"currentId\":\"7724cb79-3986-46b1-8fe3-c7566d2ab264\"}"
       ],
       "widgets_values_named": {
         "project_uuid": "",
@@ -1202,7 +1202,7 @@
         "ratio": "16:9",
         "sound": false,
         "reference_files": "[]",
-        "task_data": "{\"version\":1,\"table\":{\"version\":1,\"fields\":[{\"id\":\"b0098edf-188c-4988-acaf-d750080a36ef\",\"name\":\"图片/视频\",\"type\":\"content\",\"width\":260,\"hidden\":false,\"video_reference\":false},{\"id\":\"7c4cbaea-b406-403e-b007-39c045dbbce7\",\"name\":\"提示词\",\"type\":\"json\",\"width\":420,\"hidden\":false,\"presentation\":\"prompt\",\"generationPrompt\":true},{\"id\":\"94dc951b-6b7e-4fff-915a-dc127800e6f2\",\"name\":\"生成\",\"type\":\"content\",\"width\":340,\"hidden\":false,\"video_reference\":false,\"presentation\":\"generation\",\"readonly\":true,\"generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"7c4cbaea-b406-403e-b007-39c045dbbce7\",\"mode\":\"frames2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":4,\"turbo\":true,\"seed\":20261026}}}],\"records\":[{\"id\":\"7724cb79-3986-46b1-8fe3-c7566d2ab264\",\"selected\":false,\"values\":{\"b0098edf-188c-4988-acaf-d750080a36ef\":[{\"id\":\"showcase-scene-1\",\"kind\":\"image\",\"name\":\"01 · 清晨客舱\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\"}],\"7c4cbaea-b406-403e-b007-39c045dbbce7\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"清晨的民航客舱，暖白色座椅沿中央过道延伸；柔和自然光透过舷窗，蓝灰色织物与浅木饰面形成舒适的层次。\\n镜头沿中央过道缓慢向前推进，保持稳定构图。\"}]},\"94dc951b-6b7e-4fff-915a-dc127800e6f2\":[]},\"name\":\"01 · 清晨客舱\",\"meta\":{}},{\"id\":\"ae111c37-c093-4574-af1c-28890663e9b3\",\"selected\":false,\"values\":{\"7c4cbaea-b406-403e-b007-39c045dbbce7\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"客舱设计工作室里的材质样板台，蓝灰色织物、浅木饰面、磨砂金属样片整齐并列，侧光展现纹理与质感。\\n近景缓慢横移，对焦织物与木纹边缘。\"}]},\"94dc951b-6b7e-4fff-915a-dc127800e6f2\":[],\"b0098edf-188c-4988-acaf-d750080a36ef\":[{\"id\":\"showcase-scene-2\",\"kind\":\"image\",\"name\":\"02 · 材质细节\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\"}]},\"name\":\"02 · 材质细节\",\"meta\":{}},{\"id\":\"e1bb5dc4-9d9b-44b9-b8d5-d5e0bcdd8654\",\"selected\":false,\"values\":{\"7c4cbaea-b406-403e-b007-39c045dbbce7\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"设计团队围绕客舱概念模型协同评审，桌面摆放色卡与草图，大屏呈现同一套客舱方案，空间明亮、秩序清晰。\\n从桌面模型缓慢拉远，展示完整工作室。\"}]},\"94dc951b-6b7e-4fff-915a-dc127800e6f2\":[],\"b0098edf-188c-4988-acaf-d750080a36ef\":[{\"id\":\"showcase-scene-3\",\"kind\":\"image\",\"name\":\"03 · 协同评审\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\"}]},\"name\":\"03 · 协同评审\",\"meta\":{}}],\"view\":\"table\",\"meta\":{\"material_columns\":true,\"video_reference_version\":1,\"generationInput\":{\"version\":1,\"promptFieldId\":\"7c4cbaea-b406-403e-b007-39c045dbbce7\"},\"generationProject\":\"\",\"showcase\":{\"synthetic\":true,\"note\":\"参数预置，尚未提交\"}}},\"fieldId\":\"94dc951b-6b7e-4fff-915a-dc127800e6f2\",\"currentId\":\"7724cb79-3986-46b1-8fe3-c7566d2ab264\"}"
+        "task_data": "{\"version\":1,\"table\":{\"version\":1,\"fields\":[{\"id\":\"b0098edf-188c-4988-acaf-d750080a36ef\",\"name\":\"图片/视频\",\"type\":\"content\",\"width\":260,\"hidden\":false,\"video_reference\":false},{\"id\":\"7c4cbaea-b406-403e-b007-39c045dbbce7\",\"name\":\"提示词\",\"type\":\"json\",\"width\":420,\"hidden\":false,\"presentation\":\"prompt\",\"generationPrompt\":true},{\"id\":\"94dc951b-6b7e-4fff-915a-dc127800e6f2\",\"name\":\"生成\",\"type\":\"content\",\"width\":340,\"hidden\":false,\"video_reference\":false,\"presentation\":\"generation\",\"readonly\":true,\"generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"7c4cbaea-b406-403e-b007-39c045dbbce7\",\"mode\":\"frames2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":4,\"turbo\":false,\"seed\":20261026}}}],\"records\":[{\"id\":\"7724cb79-3986-46b1-8fe3-c7566d2ab264\",\"selected\":false,\"values\":{\"b0098edf-188c-4988-acaf-d750080a36ef\":[{\"id\":\"showcase-scene-1\",\"kind\":\"image\",\"name\":\"01 · 清晨客舱\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\"}],\"7c4cbaea-b406-403e-b007-39c045dbbce7\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"清晨的民航客舱，暖白色座椅沿中央过道延伸；柔和自然光透过舷窗，蓝灰色织物与浅木饰面形成舒适的层次。\\n镜头沿中央过道缓慢向前推进，保持稳定构图。\"}]},\"94dc951b-6b7e-4fff-915a-dc127800e6f2\":[]},\"name\":\"01 · 清晨客舱\",\"meta\":{}},{\"id\":\"ae111c37-c093-4574-af1c-28890663e9b3\",\"selected\":false,\"values\":{\"7c4cbaea-b406-403e-b007-39c045dbbce7\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"客舱设计工作室里的材质样板台，蓝灰色织物、浅木饰面、磨砂金属样片整齐并列，侧光展现纹理与质感。\\n近景缓慢横移，对焦织物与木纹边缘。\"}]},\"94dc951b-6b7e-4fff-915a-dc127800e6f2\":[],\"b0098edf-188c-4988-acaf-d750080a36ef\":[{\"id\":\"showcase-scene-2\",\"kind\":\"image\",\"name\":\"02 · 材质细节\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\"}]},\"name\":\"02 · 材质细节\",\"meta\":{}},{\"id\":\"e1bb5dc4-9d9b-44b9-b8d5-d5e0bcdd8654\",\"selected\":false,\"values\":{\"7c4cbaea-b406-403e-b007-39c045dbbce7\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"设计团队围绕客舱概念模型协同评审，桌面摆放色卡与草图，大屏呈现同一套客舱方案，空间明亮、秩序清晰。\\n从桌面模型缓慢拉远，展示完整工作室。\"}]},\"94dc951b-6b7e-4fff-915a-dc127800e6f2\":[],\"b0098edf-188c-4988-acaf-d750080a36ef\":[{\"id\":\"showcase-scene-3\",\"kind\":\"image\",\"name\":\"03 · 协同评审\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\"}]},\"name\":\"03 · 协同评审\",\"meta\":{}}],\"view\":\"table\",\"meta\":{\"material_columns\":true,\"video_reference_version\":1,\"generationInput\":{\"version\":1,\"promptFieldId\":\"7c4cbaea-b406-403e-b007-39c045dbbce7\"},\"generationProject\":\"\",\"showcase\":{\"synthetic\":true,\"note\":\"参数预置，尚未提交\"}}},\"fieldId\":\"94dc951b-6b7e-4fff-915a-dc127800e6f2\",\"currentId\":\"7724cb79-3986-46b1-8fe3-c7566d2ab264\"}"
       }
     },
     {
@@ -1278,6 +1278,902 @@
       "widgets_values_named": {
         "edit_data": "{\"version\":1,\"fit\":\"contain\",\"resolution\":{\"width\":960,\"height\":540},\"clips\":[{\"id\":\"showcase-clip-1\",\"source\":{\"asset\":{\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\"}},\"asset\":{\"version\":1,\"id\":\"studio-showcase-scene-01\",\"kind\":\"image\",\"name\":\"镜头 01 · 合成演示图\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\"},\"start\":0,\"duration\":2,\"mute\":false,\"fit\":\"contain\"},{\"id\":\"showcase-clip-2\",\"source\":{\"asset\":{\"filename\":\"preview-motion.mp4\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\"}},\"asset\":{\"version\":1,\"id\":\"studio-showcase-motion\",\"kind\":\"video\",\"name\":\"4 秒合成演示片段\",\"filename\":\"preview-motion.mp4\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"duration\":4,\"fps\":24,\"has_audio\":false,\"url\":\"/view?filename=preview-motion.mp4&subfolder=CreativeStudioShowcase&type=input\"},\"start\":0,\"duration\":4,\"mute\":false,\"fit\":\"contain\"},{\"id\":\"showcase-clip-3\",\"source\":{\"asset\":{\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\"}},\"asset\":{\"version\":1,\"id\":\"studio-showcase-scene-03\",\"kind\":\"image\",\"name\":\"镜头 03 · 合成演示图\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\"},\"start\":0,\"duration\":2,\"mute\":false,\"fit\":\"contain\"}]}"
       }
+    },
+    {
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "slot_index": 0,
+          "links": []
+        }
+      ],
+      "id": 17,
+      "type": "DAELAB.TextInput",
+      "title": "08 · MiniMax H3 复测说明",
+      "pos": [
+        0,
+        3000
+      ],
+      "size": [
+        730,
+        320
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "DAELAB.TextInput"
+      },
+      "widgets_values": [
+        "MINIMAX H3 FL · 本地功能复测\n\nA 文生视频 → B 首帧 → C 首尾帧，逐项串行运行。\n固定夹具 LOCAL-H3-001/002/003；512×288，输入 1.5 秒，20 步，seed 20261023。\n预期输出 39 帧 / 24 fps，约 1.625 秒，包含模型音轨。\n本机没有 8 步加速 LoRA，已关闭加速；不下载替代权重。\n检查：参考帧顺序、比例与时长、两实例隔离、任务状态、结果播放与复用、保存重开。\n当前为待复测配置；成功记录仅来自实际任务，不预填结果。"
+      ],
+      "widgets_values_named": {
+        "text": "MINIMAX H3 FL · 本地功能复测\n\nA 文生视频 → B 首帧 → C 首尾帧，逐项串行运行。\n固定夹具 LOCAL-H3-001/002/003；512×288，输入 1.5 秒，20 步，seed 20261023。\n预期输出 39 帧 / 24 fps，约 1.625 秒，包含模型音轨。\n本机没有 8 步加速 LoRA，已关闭加速；不下载替代权重。\n检查：参考帧顺序、比例与时长、两实例隔离、任务状态、结果播放与复用、保存重开。\n当前为待复测配置；成功记录仅来自实际任务，不预填结果。"
+      }
+    },
+    {
+      "inputs": [
+        {
+          "name": "asset_data",
+          "type": "STRING",
+          "widget": {
+            "name": "asset_data"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image_ref",
+          "type": "COMFYTV_IMAGE",
+          "slot_index": 0,
+          "links": []
+        },
+        {
+          "name": "image_refs",
+          "type": "COMFYTV_IMAGES",
+          "slot_index": 1,
+          "links": []
+        },
+        {
+          "name": "video_ref",
+          "type": "COMFYTV_VIDEO",
+          "slot_index": 2,
+          "links": []
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "slot_index": 3,
+          "links": [
+            6,
+            7
+          ]
+        },
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "slot_index": 4,
+          "links": []
+        }
+      ],
+      "id": 18,
+      "type": "DAELAB.MediaUpload",
+      "title": "H3 固定首帧 · 红球在左",
+      "pos": [
+        0,
+        3450
+      ],
+      "size": [
+        450,
+        253
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "DAELAB.MediaUpload"
+      },
+      "widgets_values": [
+        "{\"version\":1,\"id\":\"showcase-h3-motion-first.png\",\"kind\":\"image\",\"name\":\"H3 固定首帧 · 红球在左\",\"filename\":\"motion-first.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":640,\"height\":360,\"url\":\"/view?filename=motion-first.png&subfolder=CreativeStudioShowcase&type=input\"}"
+      ],
+      "widgets_values_named": {
+        "asset_data": "{\"version\":1,\"id\":\"showcase-h3-motion-first.png\",\"kind\":\"image\",\"name\":\"H3 固定首帧 · 红球在左\",\"filename\":\"motion-first.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":640,\"height\":360,\"url\":\"/view?filename=motion-first.png&subfolder=CreativeStudioShowcase&type=input\"}"
+      }
+    },
+    {
+      "inputs": [
+        {
+          "name": "asset_data",
+          "type": "STRING",
+          "widget": {
+            "name": "asset_data"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image_ref",
+          "type": "COMFYTV_IMAGE",
+          "slot_index": 0,
+          "links": []
+        },
+        {
+          "name": "image_refs",
+          "type": "COMFYTV_IMAGES",
+          "slot_index": 1,
+          "links": []
+        },
+        {
+          "name": "video_ref",
+          "type": "COMFYTV_VIDEO",
+          "slot_index": 2,
+          "links": []
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "slot_index": 3,
+          "links": [
+            8
+          ]
+        },
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "slot_index": 4,
+          "links": []
+        }
+      ],
+      "id": 19,
+      "type": "DAELAB.MediaUpload",
+      "title": "H3 固定尾帧 · 红球在右",
+      "pos": [
+        0,
+        3820
+      ],
+      "size": [
+        450,
+        253
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "DAELAB.MediaUpload"
+      },
+      "widgets_values": [
+        "{\"version\":1,\"id\":\"showcase-h3-motion-last.png\",\"kind\":\"image\",\"name\":\"H3 固定尾帧 · 红球在右\",\"filename\":\"motion-last.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":768,\"height\":512,\"url\":\"/view?filename=motion-last.png&subfolder=CreativeStudioShowcase&type=input\"}"
+      ],
+      "widgets_values_named": {
+        "asset_data": "{\"version\":1,\"id\":\"showcase-h3-motion-last.png\",\"kind\":\"image\",\"name\":\"H3 固定尾帧 · 红球在右\",\"filename\":\"motion-last.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":768,\"height\":512,\"url\":\"/view?filename=motion-last.png&subfolder=CreativeStudioShowcase&type=input\"}"
+      }
+    },
+    {
+      "id": 20,
+      "type": "DAELAB.LibTV.VideoGenerate",
+      "pos": [
+        900,
+        3000
+      ],
+      "size": [
+        700,
+        800
+      ],
+      "flags": {},
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "first_frame",
+          "name": "first_frame",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "localized_name": "last_frame",
+          "name": "last_frame",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "localized_name": "reference_images",
+          "name": "reference_images",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "localized_name": "reference_video",
+          "name": "reference_video",
+          "shape": 7,
+          "type": "COMFYTV_VIDEO",
+          "link": null
+        },
+        {
+          "localized_name": "text_input",
+          "name": "text_input",
+          "shape": 7,
+          "type": "STRING",
+          "link": null
+        },
+        {
+          "localized_name": "table_json",
+          "name": "table_json",
+          "shape": 7,
+          "type": "STRING",
+          "link": null
+        },
+        {
+          "localized_name": "project_uuid",
+          "name": "project_uuid",
+          "type": "STRING",
+          "widget": {
+            "name": "project_uuid"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "request_id",
+          "name": "request_id",
+          "type": "STRING",
+          "widget": {
+            "name": "request_id"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "COMBO",
+          "widget": {
+            "name": "model"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "mode",
+          "name": "mode",
+          "type": "COMBO",
+          "widget": {
+            "name": "mode"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "prompt",
+          "name": "prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "prompt"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "duration",
+          "name": "duration",
+          "type": "INT",
+          "widget": {
+            "name": "duration"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "resolution",
+          "name": "resolution",
+          "type": "COMBO",
+          "widget": {
+            "name": "resolution"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "ratio",
+          "name": "ratio",
+          "type": "COMBO",
+          "widget": {
+            "name": "ratio"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "sound",
+          "name": "sound",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "sound"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "reference_files",
+          "name": "reference_files",
+          "type": "STRING",
+          "widget": {
+            "name": "reference_files"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "task_data",
+          "name": "task_data",
+          "shape": 7,
+          "type": "STRING",
+          "widget": {
+            "name": "task_data"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "video",
+          "name": "video",
+          "type": "VIDEO",
+          "links": []
+        },
+        {
+          "localized_name": "comfytv_video",
+          "name": "comfytv_video",
+          "type": "COMFYTV_VIDEO",
+          "links": []
+        },
+        {
+          "localized_name": "local_path",
+          "name": "local_path",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "localized_name": "task_report",
+          "name": "task_report",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "links": []
+        }
+      ],
+      "title": "08 A · H3 文生视频 / 标准 20 步",
+      "properties": {
+        "Node name for S&R": "DAELAB.LibTV.VideoGenerate"
+      },
+      "widgets_values": [
+        "",
+        "showcase-h3-20",
+        "MiniMax H3 FL（本地）",
+        "text2video",
+        "",
+        2,
+        "480p",
+        "16:9",
+        false,
+        "[]",
+        "{\"version\":1,\"table\":{\"version\":1,\"fields\":[{\"id\":\"h3-20-material\",\"name\":\"参考素材\",\"type\":\"content\",\"width\":240,\"hidden\":false,\"video_reference\":false},{\"id\":\"h3-20-prompt\",\"name\":\"提示词\",\"type\":\"json\",\"width\":420,\"hidden\":false,\"presentation\":\"prompt\",\"generationPrompt\":true,\"generationConfigFieldId\":\"h3-20-generation\"},{\"id\":\"h3-20-generation\",\"name\":\"H3 视频结果\",\"type\":\"content\",\"width\":340,\"hidden\":false,\"presentation\":\"generation\",\"readonly\":true,\"generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"h3-20-prompt\",\"mode\":\"text2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":1.5,\"turbo\":false,\"seed\":20261023}}}],\"records\":[{\"id\":\"h3-20-row\",\"name\":\"LOCAL-H3-001\",\"selected\":false,\"values\":{\"h3-20-material\":[],\"h3-20-generation\":[],\"h3-20-prompt\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"固定机位。白色桌面上一个红色球缓慢从左向右移动，右后方的蓝色方块保持静止。主体数量不变，无文字。\"}]}},\"meta\":{\"generationFrames\":{\"h3-20-generation\":{}},\"generationSettings\":{\"h3-20-prompt\":{\"h3-20-generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"h3-20-prompt\",\"mode\":\"text2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":1.5,\"turbo\":false,\"seed\":20261023}}}}}}],\"view\":\"table\",\"meta\":{\"material_columns\":true,\"video_reference_version\":1,\"generationInput\":{\"version\":1,\"promptFieldId\":\"h3-20-prompt\"},\"generationProject\":\"\",\"showcase\":{\"synthetic\":true,\"fixture\":\"LOCAL-H3-001\",\"note\":\"待复测；无预造结果\"}}},\"fieldId\":\"h3-20-generation\",\"currentId\":\"h3-20-row\"}"
+      ],
+      "widgets_values_named": {
+        "project_uuid": "",
+        "request_id": "showcase-h3-20",
+        "model": "MiniMax H3 FL（本地）",
+        "mode": "text2video",
+        "prompt": "",
+        "duration": 2,
+        "resolution": "480p",
+        "ratio": "16:9",
+        "sound": false,
+        "reference_files": "[]",
+        "task_data": "{\"version\":1,\"table\":{\"version\":1,\"fields\":[{\"id\":\"h3-20-material\",\"name\":\"参考素材\",\"type\":\"content\",\"width\":240,\"hidden\":false,\"video_reference\":false},{\"id\":\"h3-20-prompt\",\"name\":\"提示词\",\"type\":\"json\",\"width\":420,\"hidden\":false,\"presentation\":\"prompt\",\"generationPrompt\":true,\"generationConfigFieldId\":\"h3-20-generation\"},{\"id\":\"h3-20-generation\",\"name\":\"H3 视频结果\",\"type\":\"content\",\"width\":340,\"hidden\":false,\"presentation\":\"generation\",\"readonly\":true,\"generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"h3-20-prompt\",\"mode\":\"text2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":1.5,\"turbo\":false,\"seed\":20261023}}}],\"records\":[{\"id\":\"h3-20-row\",\"name\":\"LOCAL-H3-001\",\"selected\":false,\"values\":{\"h3-20-material\":[],\"h3-20-generation\":[],\"h3-20-prompt\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"固定机位。白色桌面上一个红色球缓慢从左向右移动，右后方的蓝色方块保持静止。主体数量不变，无文字。\"}]}},\"meta\":{\"generationFrames\":{\"h3-20-generation\":{}},\"generationSettings\":{\"h3-20-prompt\":{\"h3-20-generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"h3-20-prompt\",\"mode\":\"text2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":1.5,\"turbo\":false,\"seed\":20261023}}}}}}],\"view\":\"table\",\"meta\":{\"material_columns\":true,\"video_reference_version\":1,\"generationInput\":{\"version\":1,\"promptFieldId\":\"h3-20-prompt\"},\"generationProject\":\"\",\"showcase\":{\"synthetic\":true,\"fixture\":\"LOCAL-H3-001\",\"note\":\"待复测；无预造结果\"}}},\"fieldId\":\"h3-20-generation\",\"currentId\":\"h3-20-row\"}"
+      }
+    },
+    {
+      "id": 21,
+      "type": "DAELAB.LibTV.VideoGenerate",
+      "pos": [
+        1750,
+        3000
+      ],
+      "size": [
+        700,
+        800
+      ],
+      "flags": {},
+      "order": 20,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "first_frame",
+          "name": "first_frame",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 6
+        },
+        {
+          "localized_name": "last_frame",
+          "name": "last_frame",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "localized_name": "reference_images",
+          "name": "reference_images",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "localized_name": "reference_video",
+          "name": "reference_video",
+          "shape": 7,
+          "type": "COMFYTV_VIDEO",
+          "link": null
+        },
+        {
+          "localized_name": "text_input",
+          "name": "text_input",
+          "shape": 7,
+          "type": "STRING",
+          "link": null
+        },
+        {
+          "localized_name": "table_json",
+          "name": "table_json",
+          "shape": 7,
+          "type": "STRING",
+          "link": null
+        },
+        {
+          "localized_name": "project_uuid",
+          "name": "project_uuid",
+          "type": "STRING",
+          "widget": {
+            "name": "project_uuid"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "request_id",
+          "name": "request_id",
+          "type": "STRING",
+          "widget": {
+            "name": "request_id"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "COMBO",
+          "widget": {
+            "name": "model"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "mode",
+          "name": "mode",
+          "type": "COMBO",
+          "widget": {
+            "name": "mode"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "prompt",
+          "name": "prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "prompt"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "duration",
+          "name": "duration",
+          "type": "INT",
+          "widget": {
+            "name": "duration"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "resolution",
+          "name": "resolution",
+          "type": "COMBO",
+          "widget": {
+            "name": "resolution"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "ratio",
+          "name": "ratio",
+          "type": "COMBO",
+          "widget": {
+            "name": "ratio"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "sound",
+          "name": "sound",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "sound"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "reference_files",
+          "name": "reference_files",
+          "type": "STRING",
+          "widget": {
+            "name": "reference_files"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "task_data",
+          "name": "task_data",
+          "shape": 7,
+          "type": "STRING",
+          "widget": {
+            "name": "task_data"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "video",
+          "name": "video",
+          "type": "VIDEO",
+          "links": []
+        },
+        {
+          "localized_name": "comfytv_video",
+          "name": "comfytv_video",
+          "type": "COMFYTV_VIDEO",
+          "links": []
+        },
+        {
+          "localized_name": "local_path",
+          "name": "local_path",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "localized_name": "task_report",
+          "name": "task_report",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "links": []
+        }
+      ],
+      "title": "08 B · H3 首帧视频 / 标准 20 步",
+      "properties": {
+        "Node name for S&R": "DAELAB.LibTV.VideoGenerate"
+      },
+      "widgets_values": [
+        "",
+        "showcase-h3-21",
+        "MiniMax H3 FL（本地）",
+        "singleImage2video",
+        "",
+        2,
+        "480p",
+        "16:9",
+        false,
+        "[]",
+        "{\"version\":1,\"table\":{\"version\":1,\"fields\":[{\"id\":\"h3-21-material\",\"name\":\"参考素材\",\"type\":\"content\",\"width\":240,\"hidden\":false,\"video_reference\":false},{\"id\":\"h3-21-prompt\",\"name\":\"提示词\",\"type\":\"json\",\"width\":420,\"hidden\":false,\"presentation\":\"prompt\",\"generationPrompt\":true,\"generationConfigFieldId\":\"h3-21-generation\"},{\"id\":\"h3-21-generation\",\"name\":\"H3 视频结果\",\"type\":\"content\",\"width\":340,\"hidden\":false,\"presentation\":\"generation\",\"readonly\":true,\"generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"h3-21-prompt\",\"mode\":\"singleImage2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":1.5,\"turbo\":false,\"seed\":20261023}}},{\"id\":\"h3-21-first\",\"name\":\"输入首帧\",\"type\":\"content\",\"width\":180,\"hidden\":false,\"video_reference\":false,\"videoInput\":\"first_frame\"}],\"records\":[{\"id\":\"h3-21-row\",\"name\":\"LOCAL-H3-002\",\"selected\":false,\"values\":{\"h3-21-material\":[],\"h3-21-generation\":[],\"h3-21-first\":[{\"version\":1,\"id\":\"showcase-h3-motion-first.png\",\"kind\":\"image\",\"name\":\"H3 固定首帧 · 红球在左\",\"filename\":\"motion-first.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":640,\"height\":360,\"url\":\"/view?filename=motion-first.png&subfolder=CreativeStudioShowcase&type=input\"}],\"h3-21-prompt\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"frame\",\"generationFieldId\":\"h3-21-generation\",\"role\":\"first\"},{\"type\":\"column\",\"fieldId\":\"h3-21-first\",\"assetId\":\"showcase-h3-motion-first.png\"},{\"type\":\"text\",\"text\":\"，作为首帧。固定机位，红色球缓慢向右移动，蓝色方块保持静止，保持颜色和主体数量。\"}]}},\"meta\":{\"generationFrames\":{\"h3-21-generation\":{\"first\":{\"fieldId\":\"h3-21-first\",\"assetId\":\"showcase-h3-motion-first.png\"}}},\"generationSettings\":{\"h3-21-prompt\":{\"h3-21-generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"h3-21-prompt\",\"mode\":\"singleImage2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":1.5,\"turbo\":false,\"seed\":20261023}}}}}}],\"view\":\"table\",\"meta\":{\"material_columns\":true,\"video_reference_version\":1,\"generationInput\":{\"version\":1,\"promptFieldId\":\"h3-21-prompt\"},\"generationProject\":\"\",\"showcase\":{\"synthetic\":true,\"fixture\":\"LOCAL-H3-002\",\"note\":\"待复测；无预造结果\"}}},\"fieldId\":\"h3-21-generation\",\"currentId\":\"h3-21-row\"}"
+      ],
+      "widgets_values_named": {
+        "project_uuid": "",
+        "request_id": "showcase-h3-21",
+        "model": "MiniMax H3 FL（本地）",
+        "mode": "singleImage2video",
+        "prompt": "",
+        "duration": 2,
+        "resolution": "480p",
+        "ratio": "16:9",
+        "sound": false,
+        "reference_files": "[]",
+        "task_data": "{\"version\":1,\"table\":{\"version\":1,\"fields\":[{\"id\":\"h3-21-material\",\"name\":\"参考素材\",\"type\":\"content\",\"width\":240,\"hidden\":false,\"video_reference\":false},{\"id\":\"h3-21-prompt\",\"name\":\"提示词\",\"type\":\"json\",\"width\":420,\"hidden\":false,\"presentation\":\"prompt\",\"generationPrompt\":true,\"generationConfigFieldId\":\"h3-21-generation\"},{\"id\":\"h3-21-generation\",\"name\":\"H3 视频结果\",\"type\":\"content\",\"width\":340,\"hidden\":false,\"presentation\":\"generation\",\"readonly\":true,\"generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"h3-21-prompt\",\"mode\":\"singleImage2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":1.5,\"turbo\":false,\"seed\":20261023}}},{\"id\":\"h3-21-first\",\"name\":\"输入首帧\",\"type\":\"content\",\"width\":180,\"hidden\":false,\"video_reference\":false,\"videoInput\":\"first_frame\"}],\"records\":[{\"id\":\"h3-21-row\",\"name\":\"LOCAL-H3-002\",\"selected\":false,\"values\":{\"h3-21-material\":[],\"h3-21-generation\":[],\"h3-21-first\":[{\"version\":1,\"id\":\"showcase-h3-motion-first.png\",\"kind\":\"image\",\"name\":\"H3 固定首帧 · 红球在左\",\"filename\":\"motion-first.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":640,\"height\":360,\"url\":\"/view?filename=motion-first.png&subfolder=CreativeStudioShowcase&type=input\"}],\"h3-21-prompt\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"frame\",\"generationFieldId\":\"h3-21-generation\",\"role\":\"first\"},{\"type\":\"column\",\"fieldId\":\"h3-21-first\",\"assetId\":\"showcase-h3-motion-first.png\"},{\"type\":\"text\",\"text\":\"，作为首帧。固定机位，红色球缓慢向右移动，蓝色方块保持静止，保持颜色和主体数量。\"}]}},\"meta\":{\"generationFrames\":{\"h3-21-generation\":{\"first\":{\"fieldId\":\"h3-21-first\",\"assetId\":\"showcase-h3-motion-first.png\"}}},\"generationSettings\":{\"h3-21-prompt\":{\"h3-21-generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"h3-21-prompt\",\"mode\":\"singleImage2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":1.5,\"turbo\":false,\"seed\":20261023}}}}}}],\"view\":\"table\",\"meta\":{\"material_columns\":true,\"video_reference_version\":1,\"generationInput\":{\"version\":1,\"promptFieldId\":\"h3-21-prompt\"},\"generationProject\":\"\",\"showcase\":{\"synthetic\":true,\"fixture\":\"LOCAL-H3-002\",\"note\":\"待复测；无预造结果\"}}},\"fieldId\":\"h3-21-generation\",\"currentId\":\"h3-21-row\"}"
+      }
+    },
+    {
+      "id": 22,
+      "type": "DAELAB.LibTV.VideoGenerate",
+      "pos": [
+        2600,
+        3000
+      ],
+      "size": [
+        700,
+        800
+      ],
+      "flags": {},
+      "order": 21,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "first_frame",
+          "name": "first_frame",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 7
+        },
+        {
+          "localized_name": "last_frame",
+          "name": "last_frame",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 8
+        },
+        {
+          "localized_name": "reference_images",
+          "name": "reference_images",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "localized_name": "reference_video",
+          "name": "reference_video",
+          "shape": 7,
+          "type": "COMFYTV_VIDEO",
+          "link": null
+        },
+        {
+          "localized_name": "text_input",
+          "name": "text_input",
+          "shape": 7,
+          "type": "STRING",
+          "link": null
+        },
+        {
+          "localized_name": "table_json",
+          "name": "table_json",
+          "shape": 7,
+          "type": "STRING",
+          "link": null
+        },
+        {
+          "localized_name": "project_uuid",
+          "name": "project_uuid",
+          "type": "STRING",
+          "widget": {
+            "name": "project_uuid"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "request_id",
+          "name": "request_id",
+          "type": "STRING",
+          "widget": {
+            "name": "request_id"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "COMBO",
+          "widget": {
+            "name": "model"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "mode",
+          "name": "mode",
+          "type": "COMBO",
+          "widget": {
+            "name": "mode"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "prompt",
+          "name": "prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "prompt"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "duration",
+          "name": "duration",
+          "type": "INT",
+          "widget": {
+            "name": "duration"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "resolution",
+          "name": "resolution",
+          "type": "COMBO",
+          "widget": {
+            "name": "resolution"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "ratio",
+          "name": "ratio",
+          "type": "COMBO",
+          "widget": {
+            "name": "ratio"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "sound",
+          "name": "sound",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "sound"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "reference_files",
+          "name": "reference_files",
+          "type": "STRING",
+          "widget": {
+            "name": "reference_files"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "task_data",
+          "name": "task_data",
+          "shape": 7,
+          "type": "STRING",
+          "widget": {
+            "name": "task_data"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "video",
+          "name": "video",
+          "type": "VIDEO",
+          "links": []
+        },
+        {
+          "localized_name": "comfytv_video",
+          "name": "comfytv_video",
+          "type": "COMFYTV_VIDEO",
+          "links": []
+        },
+        {
+          "localized_name": "local_path",
+          "name": "local_path",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "localized_name": "task_report",
+          "name": "task_report",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "links": []
+        }
+      ],
+      "title": "08 C · H3 首尾帧 / 标准 20 步",
+      "properties": {
+        "Node name for S&R": "DAELAB.LibTV.VideoGenerate"
+      },
+      "widgets_values": [
+        "",
+        "showcase-h3-22",
+        "MiniMax H3 FL（本地）",
+        "frames2video",
+        "",
+        2,
+        "480p",
+        "16:9",
+        false,
+        "[]",
+        "{\"version\":1,\"table\":{\"version\":1,\"fields\":[{\"id\":\"h3-22-material\",\"name\":\"参考素材\",\"type\":\"content\",\"width\":240,\"hidden\":false,\"video_reference\":false},{\"id\":\"h3-22-prompt\",\"name\":\"提示词\",\"type\":\"json\",\"width\":420,\"hidden\":false,\"presentation\":\"prompt\",\"generationPrompt\":true,\"generationConfigFieldId\":\"h3-22-generation\"},{\"id\":\"h3-22-generation\",\"name\":\"H3 视频结果\",\"type\":\"content\",\"width\":340,\"hidden\":false,\"presentation\":\"generation\",\"readonly\":true,\"generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"h3-22-prompt\",\"mode\":\"frames2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":1.5,\"turbo\":false,\"seed\":20261023}}},{\"id\":\"h3-22-first\",\"name\":\"输入首帧\",\"type\":\"content\",\"width\":180,\"hidden\":false,\"video_reference\":false,\"videoInput\":\"first_frame\"},{\"id\":\"h3-22-last\",\"name\":\"输入尾帧\",\"type\":\"content\",\"width\":180,\"hidden\":false,\"video_reference\":false,\"videoInput\":\"last_frame\"}],\"records\":[{\"id\":\"h3-22-row\",\"name\":\"LOCAL-H3-003\",\"selected\":false,\"values\":{\"h3-22-material\":[],\"h3-22-generation\":[],\"h3-22-first\":[{\"version\":1,\"id\":\"showcase-h3-motion-first.png\",\"kind\":\"image\",\"name\":\"H3 固定首帧 · 红球在左\",\"filename\":\"motion-first.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":640,\"height\":360,\"url\":\"/view?filename=motion-first.png&subfolder=CreativeStudioShowcase&type=input\"}],\"h3-22-last\":[{\"version\":1,\"id\":\"showcase-h3-motion-last.png\",\"kind\":\"image\",\"name\":\"H3 固定尾帧 · 红球在右\",\"filename\":\"motion-last.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":768,\"height\":512,\"url\":\"/view?filename=motion-last.png&subfolder=CreativeStudioShowcase&type=input\"}],\"h3-22-prompt\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"frame\",\"generationFieldId\":\"h3-22-generation\",\"role\":\"first\"},{\"type\":\"frame\",\"generationFieldId\":\"h3-22-generation\",\"role\":\"last\"},{\"type\":\"column\",\"fieldId\":\"h3-22-first\",\"assetId\":\"showcase-h3-motion-first.png\"},{\"type\":\"text\",\"text\":\"为首帧，\"},{\"type\":\"column\",\"fieldId\":\"h3-22-last\",\"assetId\":\"showcase-h3-motion-last.png\"},{\"type\":\"text\",\"text\":\"为尾帧。固定机位，红色球从左向右平稳移动到尾帧位置，蓝色方块保持静止，过渡连续，不增加物体。\"}]}},\"meta\":{\"generationFrames\":{\"h3-22-generation\":{\"first\":{\"fieldId\":\"h3-22-first\",\"assetId\":\"showcase-h3-motion-first.png\"},\"last\":{\"fieldId\":\"h3-22-last\",\"assetId\":\"showcase-h3-motion-last.png\"}}},\"generationSettings\":{\"h3-22-prompt\":{\"h3-22-generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"h3-22-prompt\",\"mode\":\"frames2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":1.5,\"turbo\":false,\"seed\":20261023}}}}}}],\"view\":\"table\",\"meta\":{\"material_columns\":true,\"video_reference_version\":1,\"generationInput\":{\"version\":1,\"promptFieldId\":\"h3-22-prompt\"},\"generationProject\":\"\",\"showcase\":{\"synthetic\":true,\"fixture\":\"LOCAL-H3-003\",\"note\":\"待复测；无预造结果\"}}},\"fieldId\":\"h3-22-generation\",\"currentId\":\"h3-22-row\"}"
+      ],
+      "widgets_values_named": {
+        "project_uuid": "",
+        "request_id": "showcase-h3-22",
+        "model": "MiniMax H3 FL（本地）",
+        "mode": "frames2video",
+        "prompt": "",
+        "duration": 2,
+        "resolution": "480p",
+        "ratio": "16:9",
+        "sound": false,
+        "reference_files": "[]",
+        "task_data": "{\"version\":1,\"table\":{\"version\":1,\"fields\":[{\"id\":\"h3-22-material\",\"name\":\"参考素材\",\"type\":\"content\",\"width\":240,\"hidden\":false,\"video_reference\":false},{\"id\":\"h3-22-prompt\",\"name\":\"提示词\",\"type\":\"json\",\"width\":420,\"hidden\":false,\"presentation\":\"prompt\",\"generationPrompt\":true,\"generationConfigFieldId\":\"h3-22-generation\"},{\"id\":\"h3-22-generation\",\"name\":\"H3 视频结果\",\"type\":\"content\",\"width\":340,\"hidden\":false,\"presentation\":\"generation\",\"readonly\":true,\"generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"h3-22-prompt\",\"mode\":\"frames2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":1.5,\"turbo\":false,\"seed\":20261023}}},{\"id\":\"h3-22-first\",\"name\":\"输入首帧\",\"type\":\"content\",\"width\":180,\"hidden\":false,\"video_reference\":false,\"videoInput\":\"first_frame\"},{\"id\":\"h3-22-last\",\"name\":\"输入尾帧\",\"type\":\"content\",\"width\":180,\"hidden\":false,\"video_reference\":false,\"videoInput\":\"last_frame\"}],\"records\":[{\"id\":\"h3-22-row\",\"name\":\"LOCAL-H3-003\",\"selected\":false,\"values\":{\"h3-22-material\":[],\"h3-22-generation\":[],\"h3-22-first\":[{\"version\":1,\"id\":\"showcase-h3-motion-first.png\",\"kind\":\"image\",\"name\":\"H3 固定首帧 · 红球在左\",\"filename\":\"motion-first.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":640,\"height\":360,\"url\":\"/view?filename=motion-first.png&subfolder=CreativeStudioShowcase&type=input\"}],\"h3-22-last\":[{\"version\":1,\"id\":\"showcase-h3-motion-last.png\",\"kind\":\"image\",\"name\":\"H3 固定尾帧 · 红球在右\",\"filename\":\"motion-last.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":768,\"height\":512,\"url\":\"/view?filename=motion-last.png&subfolder=CreativeStudioShowcase&type=input\"}],\"h3-22-prompt\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"frame\",\"generationFieldId\":\"h3-22-generation\",\"role\":\"first\"},{\"type\":\"frame\",\"generationFieldId\":\"h3-22-generation\",\"role\":\"last\"},{\"type\":\"column\",\"fieldId\":\"h3-22-first\",\"assetId\":\"showcase-h3-motion-first.png\"},{\"type\":\"text\",\"text\":\"为首帧，\"},{\"type\":\"column\",\"fieldId\":\"h3-22-last\",\"assetId\":\"showcase-h3-motion-last.png\"},{\"type\":\"text\",\"text\":\"为尾帧。固定机位，红色球从左向右平稳移动到尾帧位置，蓝色方块保持静止，过渡连续，不增加物体。\"}]}},\"meta\":{\"generationFrames\":{\"h3-22-generation\":{\"first\":{\"fieldId\":\"h3-22-first\",\"assetId\":\"showcase-h3-motion-first.png\"},\"last\":{\"fieldId\":\"h3-22-last\",\"assetId\":\"showcase-h3-motion-last.png\"}}},\"generationSettings\":{\"h3-22-prompt\":{\"h3-22-generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"h3-22-prompt\",\"mode\":\"frames2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":1.5,\"turbo\":false,\"seed\":20261023}}}}}}],\"view\":\"table\",\"meta\":{\"material_columns\":true,\"video_reference_version\":1,\"generationInput\":{\"version\":1,\"promptFieldId\":\"h3-22-prompt\"},\"generationProject\":\"\",\"showcase\":{\"synthetic\":true,\"fixture\":\"LOCAL-H3-003\",\"note\":\"待复测；无预造结果\"}}},\"fieldId\":\"h3-22-generation\",\"currentId\":\"h3-22-row\"}"
+      }
+    },
+    {
+      "id": 23,
+      "type": "DAELAB.Table",
+      "pos": [
+        900,
+        4050
+      ],
+      "size": [
+        1140,
+        750
+      ],
+      "flags": {},
+      "order": 22,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "source_table",
+          "name": "source_table",
+          "shape": 7,
+          "type": "STRING",
+          "link": null
+        },
+        {
+          "localized_name": "table_data",
+          "name": "table_data",
+          "type": "STRING",
+          "widget": {
+            "name": "table_data"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "table_json",
+          "name": "table_json",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "title": "08 D · H3 表内配置 / 三种输入",
+      "properties": {
+        "Node name for S&R": "DAELAB.Table"
+      },
+      "widgets_values": [
+        "{\"version\":1,\"fields\":[{\"id\":\"h3-23-material\",\"name\":\"参考素材\",\"type\":\"content\",\"width\":240,\"hidden\":false,\"video_reference\":false},{\"id\":\"h3-23-prompt\",\"name\":\"提示词\",\"type\":\"json\",\"width\":420,\"hidden\":false,\"presentation\":\"prompt\",\"generationPrompt\":true,\"generationConfigFieldId\":\"h3-23-generation\"},{\"id\":\"h3-23-generation\",\"name\":\"H3 视频结果\",\"type\":\"content\",\"width\":340,\"hidden\":false,\"presentation\":\"generation\",\"readonly\":true,\"generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"h3-23-prompt\",\"mode\":\"text2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":1.5,\"turbo\":false,\"seed\":20261023}}},{\"id\":\"h3-23-first\",\"name\":\"输入首帧\",\"type\":\"content\",\"width\":180,\"hidden\":false,\"video_reference\":false,\"videoInput\":\"first_frame\"},{\"id\":\"h3-23-last\",\"name\":\"输入尾帧\",\"type\":\"content\",\"width\":180,\"hidden\":false,\"video_reference\":false,\"videoInput\":\"last_frame\"}],\"records\":[{\"id\":\"h3-20-row\",\"name\":\"LOCAL-H3-001\",\"selected\":false,\"values\":{\"h3-23-material\":[],\"h3-23-generation\":[],\"h3-23-prompt\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"固定机位。白色桌面上一个红色球缓慢从左向右移动，右后方的蓝色方块保持静止。主体数量不变，无文字。\"}]},\"h3-23-first\":[],\"h3-23-last\":[]},\"meta\":{\"generationFrames\":{\"h3-23-generation\":{}},\"generationSettings\":{\"h3-23-prompt\":{\"h3-23-generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"h3-23-prompt\",\"mode\":\"text2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":1.5,\"turbo\":false,\"seed\":20261023}}}}}},{\"id\":\"h3-21-row\",\"name\":\"LOCAL-H3-002\",\"selected\":false,\"values\":{\"h3-23-material\":[],\"h3-23-generation\":[],\"h3-23-first\":[{\"version\":1,\"id\":\"showcase-h3-motion-first.png\",\"kind\":\"image\",\"name\":\"H3 固定首帧 · 红球在左\",\"filename\":\"motion-first.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":640,\"height\":360,\"url\":\"/view?filename=motion-first.png&subfolder=CreativeStudioShowcase&type=input\"}],\"h3-23-prompt\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"frame\",\"generationFieldId\":\"h3-23-generation\",\"role\":\"first\"},{\"type\":\"column\",\"fieldId\":\"h3-23-first\",\"assetId\":\"showcase-h3-motion-first.png\"},{\"type\":\"text\",\"text\":\"，作为首帧。固定机位，红色球缓慢向右移动，蓝色方块保持静止，保持颜色和主体数量。\"}]},\"h3-23-last\":[]},\"meta\":{\"generationFrames\":{\"h3-23-generation\":{\"first\":{\"fieldId\":\"h3-23-first\",\"assetId\":\"showcase-h3-motion-first.png\"}}},\"generationSettings\":{\"h3-23-prompt\":{\"h3-23-generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"h3-23-prompt\",\"mode\":\"singleImage2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":1.5,\"turbo\":false,\"seed\":20261023}}}}}},{\"id\":\"h3-22-row\",\"name\":\"LOCAL-H3-003\",\"selected\":false,\"values\":{\"h3-23-material\":[],\"h3-23-generation\":[],\"h3-23-first\":[{\"version\":1,\"id\":\"showcase-h3-motion-first.png\",\"kind\":\"image\",\"name\":\"H3 固定首帧 · 红球在左\",\"filename\":\"motion-first.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":640,\"height\":360,\"url\":\"/view?filename=motion-first.png&subfolder=CreativeStudioShowcase&type=input\"}],\"h3-23-last\":[{\"version\":1,\"id\":\"showcase-h3-motion-last.png\",\"kind\":\"image\",\"name\":\"H3 固定尾帧 · 红球在右\",\"filename\":\"motion-last.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":768,\"height\":512,\"url\":\"/view?filename=motion-last.png&subfolder=CreativeStudioShowcase&type=input\"}],\"h3-23-prompt\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"frame\",\"generationFieldId\":\"h3-23-generation\",\"role\":\"first\"},{\"type\":\"frame\",\"generationFieldId\":\"h3-23-generation\",\"role\":\"last\"},{\"type\":\"column\",\"fieldId\":\"h3-23-first\",\"assetId\":\"showcase-h3-motion-first.png\"},{\"type\":\"text\",\"text\":\"为首帧，\"},{\"type\":\"column\",\"fieldId\":\"h3-23-last\",\"assetId\":\"showcase-h3-motion-last.png\"},{\"type\":\"text\",\"text\":\"为尾帧。固定机位，红色球从左向右平稳移动到尾帧位置，蓝色方块保持静止，过渡连续，不增加物体。\"}]}},\"meta\":{\"generationFrames\":{\"h3-23-generation\":{\"first\":{\"fieldId\":\"h3-23-first\",\"assetId\":\"showcase-h3-motion-first.png\"},\"last\":{\"fieldId\":\"h3-23-last\",\"assetId\":\"showcase-h3-motion-last.png\"}}},\"generationSettings\":{\"h3-23-prompt\":{\"h3-23-generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"h3-23-prompt\",\"mode\":\"frames2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":1.5,\"turbo\":false,\"seed\":20261023}}}}}}],\"view\":\"table\",\"meta\":{\"material_columns\":true,\"video_reference_version\":1,\"generationInput\":{\"version\":1,\"promptFieldId\":\"h3-23-prompt\"},\"generationProject\":\"\",\"showcase\":{\"synthetic\":true,\"note\":\"表内复测；列默认配置可检查加速开关和种子\"}}}"
+      ],
+      "widgets_values_named": {
+        "table_data": "{\"version\":1,\"fields\":[{\"id\":\"h3-23-material\",\"name\":\"参考素材\",\"type\":\"content\",\"width\":240,\"hidden\":false,\"video_reference\":false},{\"id\":\"h3-23-prompt\",\"name\":\"提示词\",\"type\":\"json\",\"width\":420,\"hidden\":false,\"presentation\":\"prompt\",\"generationPrompt\":true,\"generationConfigFieldId\":\"h3-23-generation\"},{\"id\":\"h3-23-generation\",\"name\":\"H3 视频结果\",\"type\":\"content\",\"width\":340,\"hidden\":false,\"presentation\":\"generation\",\"readonly\":true,\"generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"h3-23-prompt\",\"mode\":\"text2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":1.5,\"turbo\":false,\"seed\":20261023}}},{\"id\":\"h3-23-first\",\"name\":\"输入首帧\",\"type\":\"content\",\"width\":180,\"hidden\":false,\"video_reference\":false,\"videoInput\":\"first_frame\"},{\"id\":\"h3-23-last\",\"name\":\"输入尾帧\",\"type\":\"content\",\"width\":180,\"hidden\":false,\"video_reference\":false,\"videoInput\":\"last_frame\"}],\"records\":[{\"id\":\"h3-20-row\",\"name\":\"LOCAL-H3-001\",\"selected\":false,\"values\":{\"h3-23-material\":[],\"h3-23-generation\":[],\"h3-23-prompt\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"固定机位。白色桌面上一个红色球缓慢从左向右移动，右后方的蓝色方块保持静止。主体数量不变，无文字。\"}]},\"h3-23-first\":[],\"h3-23-last\":[]},\"meta\":{\"generationFrames\":{\"h3-23-generation\":{}},\"generationSettings\":{\"h3-23-prompt\":{\"h3-23-generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"h3-23-prompt\",\"mode\":\"text2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":1.5,\"turbo\":false,\"seed\":20261023}}}}}},{\"id\":\"h3-21-row\",\"name\":\"LOCAL-H3-002\",\"selected\":false,\"values\":{\"h3-23-material\":[],\"h3-23-generation\":[],\"h3-23-first\":[{\"version\":1,\"id\":\"showcase-h3-motion-first.png\",\"kind\":\"image\",\"name\":\"H3 固定首帧 · 红球在左\",\"filename\":\"motion-first.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":640,\"height\":360,\"url\":\"/view?filename=motion-first.png&subfolder=CreativeStudioShowcase&type=input\"}],\"h3-23-prompt\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"frame\",\"generationFieldId\":\"h3-23-generation\",\"role\":\"first\"},{\"type\":\"column\",\"fieldId\":\"h3-23-first\",\"assetId\":\"showcase-h3-motion-first.png\"},{\"type\":\"text\",\"text\":\"，作为首帧。固定机位，红色球缓慢向右移动，蓝色方块保持静止，保持颜色和主体数量。\"}]},\"h3-23-last\":[]},\"meta\":{\"generationFrames\":{\"h3-23-generation\":{\"first\":{\"fieldId\":\"h3-23-first\",\"assetId\":\"showcase-h3-motion-first.png\"}}},\"generationSettings\":{\"h3-23-prompt\":{\"h3-23-generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"h3-23-prompt\",\"mode\":\"singleImage2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":1.5,\"turbo\":false,\"seed\":20261023}}}}}},{\"id\":\"h3-22-row\",\"name\":\"LOCAL-H3-003\",\"selected\":false,\"values\":{\"h3-23-material\":[],\"h3-23-generation\":[],\"h3-23-first\":[{\"version\":1,\"id\":\"showcase-h3-motion-first.png\",\"kind\":\"image\",\"name\":\"H3 固定首帧 · 红球在左\",\"filename\":\"motion-first.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":640,\"height\":360,\"url\":\"/view?filename=motion-first.png&subfolder=CreativeStudioShowcase&type=input\"}],\"h3-23-last\":[{\"version\":1,\"id\":\"showcase-h3-motion-last.png\",\"kind\":\"image\",\"name\":\"H3 固定尾帧 · 红球在右\",\"filename\":\"motion-last.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":768,\"height\":512,\"url\":\"/view?filename=motion-last.png&subfolder=CreativeStudioShowcase&type=input\"}],\"h3-23-prompt\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"frame\",\"generationFieldId\":\"h3-23-generation\",\"role\":\"first\"},{\"type\":\"frame\",\"generationFieldId\":\"h3-23-generation\",\"role\":\"last\"},{\"type\":\"column\",\"fieldId\":\"h3-23-first\",\"assetId\":\"showcase-h3-motion-first.png\"},{\"type\":\"text\",\"text\":\"为首帧，\"},{\"type\":\"column\",\"fieldId\":\"h3-23-last\",\"assetId\":\"showcase-h3-motion-last.png\"},{\"type\":\"text\",\"text\":\"为尾帧。固定机位，红色球从左向右平稳移动到尾帧位置，蓝色方块保持静止，过渡连续，不增加物体。\"}]}},\"meta\":{\"generationFrames\":{\"h3-23-generation\":{\"first\":{\"fieldId\":\"h3-23-first\",\"assetId\":\"showcase-h3-motion-first.png\"},\"last\":{\"fieldId\":\"h3-23-last\",\"assetId\":\"showcase-h3-motion-last.png\"}}},\"generationSettings\":{\"h3-23-prompt\":{\"h3-23-generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"h3-23-prompt\",\"mode\":\"frames2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":1.5,\"turbo\":false,\"seed\":20261023}}}}}}],\"view\":\"table\",\"meta\":{\"material_columns\":true,\"video_reference_version\":1,\"generationInput\":{\"version\":1,\"promptFieldId\":\"h3-23-prompt\"},\"generationProject\":\"\",\"showcase\":{\"synthetic\":true,\"note\":\"表内复测；列默认配置可检查加速开关和种子\"}}}"
+      }
     }
   ],
   "links": [
@@ -1318,6 +2214,30 @@
       4,
       3,
       15,
+      1,
+      "IMAGE"
+    ],
+    [
+      6,
+      18,
+      3,
+      21,
+      0,
+      "IMAGE"
+    ],
+    [
+      7,
+      18,
+      3,
+      22,
+      0,
+      "IMAGE"
+    ],
+    [
+      8,
+      19,
+      3,
+      22,
       1,
       "IMAGE"
     ]
@@ -1428,6 +2348,48 @@
           "x": 4050,
           "y": 0,
           "width": 960,
+          "expanded": true
+        },
+        "17": {
+          "x": 0,
+          "y": 3000,
+          "width": 730,
+          "expanded": true
+        },
+        "18": {
+          "x": 0,
+          "y": 3450,
+          "width": 450,
+          "expanded": true
+        },
+        "19": {
+          "x": 0,
+          "y": 3820,
+          "width": 450,
+          "expanded": true
+        },
+        "20": {
+          "x": 900,
+          "y": 3000,
+          "width": 700,
+          "expanded": true
+        },
+        "21": {
+          "x": 1750,
+          "y": 3000,
+          "width": 700,
+          "expanded": true
+        },
+        "22": {
+          "x": 2600,
+          "y": 3000,
+          "width": 700,
+          "expanded": true
+        },
+        "23": {
+          "x": 900,
+          "y": 4050,
+          "width": 1140,
           "expanded": true
         }
       }

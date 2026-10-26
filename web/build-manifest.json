@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "55d647679114bd42c4223a047cef2495fab86aa2a285e224eec9e77a1bff177a",
+  "sourceFingerprint": "55fbeea1a5740e9731f0985ca953245afc0b2d835f58743b640f37422332169d",
   "files": [
     {
       "path": "application/asset_library_service.js",
@@ -743,10 +743,6 @@
       "sha256": "d45b249c92efefd3adb3994c8f31f4a18cbf6674d79381b5b46b1e23181421a5"
     },
     {
-      "path": "integrations/comfyui/business/libtv_panel.js",
-      "sha256": "22853cda7ba2432611dd5695c922300ce019f053d503364bd8c95af246c3fb49"
-    },
-    {
       "path": "integrations/comfyui/business/llm_style_preview.js",
       "sha256": "5f4caa87db1cf7e1aeef0f08d4ac7429aa3d0bc18c99cf889d45623e2f6ba9d0"
     },
@@ -828,7 +824,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "bb4f148b9d0dcb81bf6526d7a2c4dc287c0f228b859e180dd4953e27002cfccc"
+      "sha256": "a6e777144e4ddde9098070666a768d76c62912f7f35da894d5390311209bde5d"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

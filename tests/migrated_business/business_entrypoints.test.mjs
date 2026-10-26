@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {registerHooks} from 'node:module';
+import {readdirSync} from 'node:fs';
 
 test('production entry closure loads before graph initialization and exposes only formal business nodes',async t=>{
  const extensions=[],adapters=[],types=new Map();let graphReads=0;
@@ -15,8 +16,19 @@ test('production entry closure loads before graph initialization and exposes onl
  globalThis.LiteGraph={registerNodeType:(type,constructor)=>types.set(type,constructor)};
  globalThis.LGraphNode=class{constructor(){this.inputs=[];this.outputs=[];this.widgets=[];}addInput(name,type){this.inputs.push({name,type});}addOutput(name,type){this.outputs.push({name,type});}addWidget(_type,name,value){const w={name,value};this.widgets.push(w);return w;}};
  t.after(()=>{delete globalThis.addEventListener;delete globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')];delete globalThis.LiteGraph;delete globalThis.LGraphNode;});
- for(const file of ['business_bootstrap.js','app_mode_bypass.js','creative_canvas_adapter.js','daelab_comfytv_storyboard.js','libtv_panel.js','llm_style_preview.js','prompt_optimization_lifecycle.js','script_parser.js'])await import(`../../frontend/src/integrations/comfyui/business/${file}`);
+ // ComfyUI discovers every emitted .js file, including entries outside the
+ // bootstrap import closure. TS sources also emit discoverable .js modules.
+ const directory=new URL('../../frontend/src/integrations/comfyui/business/',import.meta.url);
+ for(const file of readdirSync(directory,{recursive:true}).filter(file=>/\.(?:js|ts)$/.test(file)&&!file.endsWith('.d.ts')).sort())await import(new URL(file,directory));
  assert.equal(graphReads,0);assert.equal(new Set(extensions.map(e=>e.name)).size,extensions.length);
+ const generationOwners=[];
+ for(const extension of extensions){
+  class GenerationNode{};
+  const before=Object.getOwnPropertyDescriptors(GenerationNode.prototype);
+  await extension.beforeRegisterNodeDef?.(GenerationNode,{name:'DAELAB.LibTV.VideoGenerate'});
+  if(Object.keys(Object.getOwnPropertyDescriptors(GenerationNode.prototype)).some(key=>!Object.hasOwn(before,key)))generationOwners.push(extension.name);
+ }
+ assert.deepEqual(generationOwners,['DAELab.Studio.GenerationPanel'],'one native-document generation owner, independent of entry load order');
  for(const extension of extensions)extension.registerCustomNodes?.();
  assert.deepEqual([...types.keys()],['DAELAB.LLMStylePreviewB']);
  const formal=new Set(['DAELAB.Table','DAELAB.StoryboardImport','DAELAB.ScriptParser','DAELAB.LLMStylePreviewB','DAELAB.LibTV.VideoGenerate']);
