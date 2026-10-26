@@ -1,0 +1,177 @@
+{
+  "version": 1,
+  "sourceRepository": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Canvas",
+  "sourceCommit": "3176b5a67dbcd0b66f795976e5a81bcdfe346093",
+  "status": "implementation extracted; 18 local Python checks passed; actual host/product acceptance remains separately recorded",
+  "files": [
+    {
+      "source": "nodes/media_upload.py",
+      "destination": "backend/integrations/comfyui/canvas_nodes/media_upload.py",
+      "sourceSha256": "958cdebf5c07cd9aebef35ba3242985ca4f2aee62db12792fcbd2e9e312885c3",
+      "destinationSha256": "2a90aa0cdf4e4c66ed53d0de4c9a1475146d852ee43a71c13c6d896be447857b",
+      "changes": [
+        "relocate to owning backend module without changing node identifiers or declared slot order",
+        "reject non-object material JSON without changing valid material interpretation",
+        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources."
+      ],
+      "kind": "migrated-production"
+    },
+    {
+      "source": "nodes/text_input.py",
+      "destination": "backend/integrations/comfyui/canvas_nodes/text_input.py",
+      "sourceSha256": "ceb2e947ad3caaecbe76ac68fb6f7c7f592883afba43aaa28eb62f769c1424ad",
+      "destinationSha256": "c726592f4f340e848ae1d6011d7509018038157fc132e638c8663de2a7dcc968",
+      "changes": [
+        "relocate to owning backend module without changing node identifiers or declared slot order",
+        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources."
+      ],
+      "kind": "migrated-production"
+    },
+    {
+      "source": "nodes/material_group.py",
+      "destination": "backend/integrations/comfyui/canvas_nodes/material_group.py",
+      "sourceSha256": "154c870817b0dcab957aad3ccd93d2e86443c18dd7b4c19defaf064454e98979",
+      "destinationSha256": "4c247b047564de393574a000153e97e362a2642e2cc3b7224f1753b9c0ad26eb",
+      "changes": [
+        "relocate to owning backend module without changing node identifiers or declared slot order",
+        "reject non-object collection JSON with the normal validation error",
+        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources."
+      ],
+      "kind": "migrated-production"
+    },
+    {
+      "source": "nodes/material_output_api.py",
+      "destination": "backend/integrations/comfyui/canvas_nodes/material_output_api.py",
+      "sourceSha256": "592e4cf13227bf59997439c8e9bf1c23b250b242b9eac9879b3894031314a120",
+      "destinationSha256": "cb47e2fb94d1c4555e4670f72183e4edd2d8a0db66a547ff868d0c728de125ac",
+      "changes": [
+        "relocate to owning backend module without changing node identifiers or declared slot order",
+        "remove import-time route decoration; expose immutable route definitions for explicit assembly",
+        "reject non-object JSON bodies with the existing 400 error contract",
+        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources."
+      ],
+      "kind": "migrated-production"
+    },
+    {
+      "source": "nodes/video_edit.py",
+      "destination": "backend/integrations/comfyui/canvas_nodes/video_edit.py",
+      "sourceSha256": "80da94a8c9027d97cffc387eefbbe05288ec65e4df6c13f36d4d705bf0bbe710",
+      "destinationSha256": "ed138036b96d677c9505e4f9967e58369dda73838d5073b09e0cb42822f6e292",
+      "changes": [
+        "relocate to owning backend module without changing node identifiers or declared slot order",
+        "remove import-time route registration; expose route definitions for explicit assembly",
+        "inject host media roots into the backend media service",
+        "Traceability agent: explicit shared ExportService/native task context integration; retain owned export lifecycle and original result contract.",
+        "Shared CoreServices resource admission (GPU 1/cloud 3/transcode 2), retained uncertain executions, and off-loop persistence where asynchronous; existing native queue and JobLedger remain authoritative.",
+        "Cancellation-safe blocking completion holds capacity through repeated caller cancellation; async native VideoEdit captures host context before entering its synchronous renderer. Ordered regressions retain initial failure evidence."
+      ],
+      "kind": "migrated-production"
+    },
+    {
+      "source": "nodes/material_output_files.py",
+      "destination": "backend/media/material_output_files.py",
+      "sourceSha256": "b915d141a9aafccfa744fed3b256d404e2b6f640b3536b2363164f260ce58e30",
+      "destinationSha256": "762a7ccd3dd263e6d8e359cf7910b3443875eca3c24fcc26a08eb1c1b3a182ad",
+      "changes": [
+        "relocate to owning backend module without changing node identifiers or declared slot order",
+        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources."
+      ],
+      "kind": "migrated-production"
+    },
+    {
+      "source": "nodes/video_edit_media.py",
+      "destination": "backend/media/video_edit_media.py",
+      "sourceSha256": "2d08a0d53bd4e0662eb44b5134b1b65a49989261e9f0abdd00a0d17882b57a4e",
+      "destinationSha256": "3a7b65f832300a97540d604c147a191931fbe9b71d719053166b33a6d7b51025",
+      "changes": [
+        "relocate to owning backend module without changing node identifiers or declared slot order",
+        "remove host folder_paths dependency; callers inject allowed input/output/temp roots",
+        "reject ambiguous duplicate URL path/type fields before resolving a local file"
+      ],
+      "kind": "migrated-production"
+    },
+    {
+      "source": "tests/material_output_import_test.py",
+      "destination": "tests/migrated_canvas_backend/test_material_output_import.py",
+      "sourceSha256": "f0dd04d5232d7ef665b7869659674e63ce7518ea571b488d467e00f000736e85",
+      "destinationSha256": "80d25e8da64f11be12afacdba321bb71810967200a180046eedf7d6974dc3829",
+      "kind": "migrated-rule-test",
+      "changes": [
+        "point original path/reference regression at relocated media service"
+      ]
+    },
+    {
+      "source": null,
+      "destination": "backend/media/__init__.py",
+      "sourceSha256": null,
+      "destinationSha256": "6198689ee2077918921560195a7c9ed711dc593a8e3dbeec28789cbd1fbf0ad1",
+      "kind": "authored-migration",
+      "changes": [
+        "side-effect-free media package boundary"
+      ]
+    },
+    {
+      "source": null,
+      "destination": "backend/integrations/comfyui/canvas_nodes/__init__.py",
+      "sourceSha256": null,
+      "destinationSha256": "a872e7f36a7510ec8672b3598b58a0b9f80158c35697465cd463e71d29fd9799",
+      "kind": "authored-migration",
+      "changes": [
+        "explicit fresh node mappings and idempotent conflict-preflight route registration",
+        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources."
+      ]
+    },
+    {
+      "source": null,
+      "destination": "tests/migrated_canvas_backend/test_media.py",
+      "sourceSha256": null,
+      "destinationSha256": "d34a5bf81efca04c889e06e024fdd41e1a1895ca299665d80cc027d9105ccf8b",
+      "kind": "authored-migration",
+      "changes": [
+        "synthetic local path, identity, CPU export/decode, cancellation and preview checks",
+        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources."
+      ]
+    },
+    {
+      "source": null,
+      "destination": "tests/migrated_canvas_backend/test_registration.py",
+      "sourceSha256": null,
+      "destinationSha256": "46f67cb55db2c310c9b05b43cdbac62574252d7364cea56a92a40c664741bf81",
+      "kind": "authored-migration",
+      "changes": [
+        "inert host contract and HTTP security tests; not actual host acceptance",
+        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "backend/integrations/comfyui/canvas_nodes/asset_binding.py",
+      "destinationSha256": "2774ffa7f7810d1ee9a65aeeb19bd961df59abc26cc34c550d03bb14cc12f851",
+      "kind": "authored-migration",
+      "changes": [
+        "Explicit registration lifetime/binding; no secondary editable document or import-time service side effects."
+      ]
+    }
+  ],
+  "validation": {
+    "python": "3.12.11",
+    "commands": [
+      "python -m unittest discover -s tests/migrated_canvas_backend -v",
+      "python -m compileall -q backend/media backend/integrations/comfyui/canvas_nodes"
+    ],
+    "tests": 18,
+    "passed": 18,
+    "failures": 0,
+    "modelsCalled": 0,
+    "cloudCalls": 0,
+    "sourceOrUserFilesModified": false,
+    "limitations": [
+      "node schema and registration tests use inert host IO, not live ComfyUI",
+      "synthetic media test encoded and decoded 12 CPU frames; not full editor or performance acceptance",
+      "M2/M5 host, two-instance, save/reload and complete workflow gates remain pending"
+    ]
+  },
+  "checkoutNormalization": "Product source uses LF; original third-party vendor bytes are preserved. Source hashes continue to identify the original source bytes."
+}

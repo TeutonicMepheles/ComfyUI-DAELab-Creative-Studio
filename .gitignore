@@ -13,4 +13,7 @@ __pycache__/
 dist/
 coverage/
 tests/fixtures/private/
-
+# Raw local execution logs are preserved but never published with source.
+tests/**/evidence/*.txt
+tests/**/evidence/*.tap
+tests/**/evidence/*.json

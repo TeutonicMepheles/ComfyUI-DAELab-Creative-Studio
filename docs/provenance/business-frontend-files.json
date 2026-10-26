@@ -1,0 +1,2130 @@
+{
+  "version": 1,
+  "sourceRepository": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library",
+  "sourceCommit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+  "status": "formal frontend closure implemented; 322 rule/contract tests pass; document/pure prompt HTTP assembled; real ComfyUI/M3 acceptance pending",
+  "excluded": [
+    "libtv_batch_panel.mjs",
+    "libtv_canvas_result.mjs",
+    "libtv_connection.mjs",
+    "libtv_task_snapshots.mjs",
+    "prompt_preset.js",
+    "prompt_preset_model.mjs",
+    "storyboard_legacy_widgets.mjs",
+    "thumbnail_selector.js",
+    "vendor/prompt-optimization-shared duplicate theme/fonts"
+  ],
+  "files": [
+    {
+      "source": null,
+      "destination": "frontend/src/contracts/business.ts",
+      "sourceSha256": null,
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "New typed port, explicit HTTP assembly, focused migration regression or sanitized evidence; no copied upstream source claimed.",
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+      ],
+      "destinationSha256": "86edf4f5bcc01fbb6a50a4fd1a376cc6946e5bfaf92f2e2395228ab96173df24"
+    },
+    {
+      "source": "web/vendor/model-icons/LICENSE",
+      "destination": "frontend/src/design/vendor/model-icons/LICENSE",
+      "sourceSha256": "add9d7531d1b21646317a8958e38fc727506fa39d24bdecb44154d943c82753a",
+      "kind": "shared-resource",
+      "changes": [
+        "Original business source bytes preserved in the unique design/vendor tree by root; shared Remix license original kept as LICENSE.business-source."
+      ],
+      "destinationSha256": "add9d7531d1b21646317a8958e38fc727506fa39d24bdecb44154d943c82753a"
+    },
+    {
+      "source": "web/vendor/model-icons/README.md",
+      "destination": "frontend/src/design/vendor/model-icons/README.md",
+      "sourceSha256": "c5b430378c0ecce53b12705032152990cb88839a48f5bead0e31df0e046f251f",
+      "kind": "shared-resource",
+      "changes": [
+        "Original business source bytes preserved in the unique design/vendor tree by root; shared Remix license original kept as LICENSE.business-source."
+      ],
+      "destinationSha256": "c5b430378c0ecce53b12705032152990cb88839a48f5bead0e31df0e046f251f"
+    },
+    {
+      "source": "web/vendor/model-icons/bytedance.svg",
+      "destination": "frontend/src/design/vendor/model-icons/bytedance.svg",
+      "sourceSha256": "f7ae0a574bd2e28b17258e6e65061c564f764d807cba65d6d1013f50cbfdd7f5",
+      "kind": "shared-resource",
+      "changes": [
+        "Original business source bytes preserved in the unique design/vendor tree by root; shared Remix license original kept as LICENSE.business-source."
+      ],
+      "destinationSha256": "f7ae0a574bd2e28b17258e6e65061c564f764d807cba65d6d1013f50cbfdd7f5"
+    },
+    {
+      "source": "web/vendor/model-icons/deepseek.svg",
+      "destination": "frontend/src/design/vendor/model-icons/deepseek.svg",
+      "sourceSha256": "da7ea009ae25b2cac7b84ab96212567954c9e4edeb2a1f946a0224208dbce8c2",
+      "kind": "shared-resource",
+      "changes": [
+        "Original business source bytes preserved in the unique design/vendor tree by root; shared Remix license original kept as LICENSE.business-source."
+      ],
+      "destinationSha256": "da7ea009ae25b2cac7b84ab96212567954c9e4edeb2a1f946a0224208dbce8c2"
+    },
+    {
+      "source": "web/vendor/model-icons/libtv.svg",
+      "destination": "frontend/src/design/vendor/model-icons/libtv.svg",
+      "sourceSha256": "98be91fbe3bd388d6a5ce9d5daf2b80844beef52e4a06796433532f53324492f",
+      "kind": "shared-resource",
+      "changes": [
+        "Original business source bytes preserved in the unique design/vendor tree by root; shared Remix license original kept as LICENSE.business-source."
+      ],
+      "destinationSha256": "98be91fbe3bd388d6a5ce9d5daf2b80844beef52e4a06796433532f53324492f"
+    },
+    {
+      "source": "web/vendor/model-icons/minimax.svg",
+      "destination": "frontend/src/design/vendor/model-icons/minimax.svg",
+      "sourceSha256": "bb96e2005081494716de6af5fd030701ae551ee68393ad61b325c07325607848",
+      "kind": "shared-resource",
+      "changes": [
+        "Original business source bytes preserved in the unique design/vendor tree by root; shared Remix license original kept as LICENSE.business-source."
+      ],
+      "destinationSha256": "bb96e2005081494716de6af5fd030701ae551ee68393ad61b325c07325607848"
+    },
+    {
+      "source": "web/vendor/model-icons/qwen.svg",
+      "destination": "frontend/src/design/vendor/model-icons/qwen.svg",
+      "sourceSha256": "b2c16efc3bd32b88a941842d41222e1e1e0e40441222218b725afc0aef6d9a36",
+      "kind": "shared-resource",
+      "changes": [
+        "Original business source bytes preserved in the unique design/vendor tree by root; shared Remix license original kept as LICENSE.business-source."
+      ],
+      "destinationSha256": "b2c16efc3bd32b88a941842d41222e1e1e0e40441222218b725afc0aef6d9a36"
+    },
+    {
+      "source": "web/vendor/remixicon/LICENSE",
+      "destination": "frontend/src/design/vendor/remixicon/LICENSE.business-source",
+      "sourceSha256": "34b126645bc042b49edc9bec5e8d8166d05469c17841a30ffa8210c2a25de970",
+      "kind": "shared-resource",
+      "changes": [
+        "Original business source bytes preserved in the unique design/vendor tree by root; shared Remix license original kept as LICENSE.business-source."
+      ],
+      "destinationSha256": "34b126645bc042b49edc9bec5e8d8166d05469c17841a30ffa8210c2a25de970"
+    },
+    {
+      "source": "web/vendor/remixicon/arrow-go-back-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/arrow-go-back-line.svg",
+      "sourceSha256": "03aace204af1b57c5d9de601cb83a53714ad26fd4fb472ede99fa09faa421b80",
+      "kind": "shared-resource",
+      "changes": [
+        "Original business source bytes preserved in the unique design/vendor tree by root; shared Remix license original kept as LICENSE.business-source."
+      ],
+      "destinationSha256": "03aace204af1b57c5d9de601cb83a53714ad26fd4fb472ede99fa09faa421b80"
+    },
+    {
+      "source": "web/vendor/remixicon/aspect-ratio-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/aspect-ratio-line.svg",
+      "sourceSha256": "6247256bcc907e00b9347af427c29ca5e3b5557254749bec5b694efe2eac5831",
+      "kind": "shared-resource",
+      "changes": [
+        "Original business source bytes preserved in the unique design/vendor tree by root; shared Remix license original kept as LICENSE.business-source."
+      ],
+      "destinationSha256": "6247256bcc907e00b9347af427c29ca5e3b5557254749bec5b694efe2eac5831"
+    },
+    {
+      "source": "web/vendor/remixicon/box-3-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/box-3-line.svg",
+      "sourceSha256": "a6155980d02e0f747b6b48763a0ec66dc9f22e5030f7194ba37190e9166f10af",
+      "kind": "shared-resource",
+      "changes": [
+        "Original business source bytes preserved in the unique design/vendor tree by root; shared Remix license original kept as LICENSE.business-source."
+      ],
+      "destinationSha256": "a6155980d02e0f747b6b48763a0ec66dc9f22e5030f7194ba37190e9166f10af"
+    },
+    {
+      "source": "web/vendor/remixicon/chat-ai-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/chat-ai-line.svg",
+      "sourceSha256": "fae9c4bde0fc613bf107b88258edd430286b8ca342faba6c30e8cc66620d606a",
+      "kind": "shared-resource",
+      "changes": [
+        "Original business source bytes preserved in the unique design/vendor tree by root; shared Remix license original kept as LICENSE.business-source."
+      ],
+      "destinationSha256": "fae9c4bde0fc613bf107b88258edd430286b8ca342faba6c30e8cc66620d606a"
+    },
+    {
+      "source": "web/vendor/remixicon/draggable.svg",
+      "destination": "frontend/src/design/vendor/remixicon/draggable.svg",
+      "sourceSha256": "a2dde9ca77c6f92ee3bec88ad0b93d66495dea63d43bf07cc6613d022274c0b8",
+      "kind": "shared-resource",
+      "changes": [
+        "Original business source bytes preserved in the unique design/vendor tree by root; shared Remix license original kept as LICENSE.business-source."
+      ],
+      "destinationSha256": "a2dde9ca77c6f92ee3bec88ad0b93d66495dea63d43bf07cc6613d022274c0b8"
+    },
+    {
+      "source": "web/vendor/remixicon/film-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/film-line.svg",
+      "sourceSha256": "0a2185148d645229e30a23a4682a0aea6e628cae02389d357ecdb556a4fc0277",
+      "kind": "shared-resource",
+      "changes": [
+        "Original business source bytes preserved in the unique design/vendor tree by root; shared Remix license original kept as LICENSE.business-source."
+      ],
+      "destinationSha256": "0a2185148d645229e30a23a4682a0aea6e628cae02389d357ecdb556a4fc0277"
+    },
+    {
+      "source": "web/vendor/remixicon/openai-fill.svg",
+      "destination": "frontend/src/design/vendor/remixicon/openai-fill.svg",
+      "sourceSha256": "738f3c0a083a5ad2ec966c98af14346a004fccf4b30569104355233cdd5fef12",
+      "kind": "shared-resource",
+      "changes": [
+        "Original business source bytes preserved in the unique design/vendor tree by root; shared Remix license original kept as LICENSE.business-source."
+      ],
+      "destinationSha256": "738f3c0a083a5ad2ec966c98af14346a004fccf4b30569104355233cdd5fef12"
+    },
+    {
+      "source": "web/vendor/remixicon/play-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/play-line.svg",
+      "sourceSha256": "3dcfeba5edfd64745b8357898c33094e1a6477c180c45fbda4712c58758edf9f",
+      "kind": "shared-resource",
+      "changes": [
+        "Original business source bytes preserved in the unique design/vendor tree by root; shared Remix license original kept as LICENSE.business-source."
+      ],
+      "destinationSha256": "3dcfeba5edfd64745b8357898c33094e1a6477c180c45fbda4712c58758edf9f"
+    },
+    {
+      "source": "web/vendor/remixicon/restart-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/restart-line.svg",
+      "sourceSha256": "6f00dc4352e4e402e08561d4aff111d83ed0f4e5e07033e9d4cd75d7d8e487d5",
+      "kind": "shared-resource",
+      "changes": [
+        "Original business source bytes preserved in the unique design/vendor tree by root; shared Remix license original kept as LICENSE.business-source."
+      ],
+      "destinationSha256": "6f00dc4352e4e402e08561d4aff111d83ed0f4e5e07033e9d4cd75d7d8e487d5"
+    },
+    {
+      "source": "web/vendor/remixicon/settings-3-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/settings-3-line.svg",
+      "sourceSha256": "f2e1fd30e6eadb8d5636f5037cf477f38ef81b235757d3ed290b92b2c002fec1",
+      "kind": "shared-resource",
+      "changes": [
+        "Original business source bytes preserved in the unique design/vendor tree by root; shared Remix license original kept as LICENSE.business-source."
+      ],
+      "destinationSha256": "f2e1fd30e6eadb8d5636f5037cf477f38ef81b235757d3ed290b92b2c002fec1"
+    },
+    {
+      "source": "web/vendor/remixicon/time-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/time-line.svg",
+      "sourceSha256": "4bd04ed06619c4454759a680eb3bb05f0ac90e74423dee23e6e38e6c6a48375a",
+      "kind": "shared-resource",
+      "changes": [
+        "Original business source bytes preserved in the unique design/vendor tree by root; shared Remix license original kept as LICENSE.business-source."
+      ],
+      "destinationSha256": "4bd04ed06619c4454759a680eb3bb05f0ac90e74423dee23e6e38e6c6a48375a"
+    },
+    {
+      "source": "web/generation_model_icons.mjs",
+      "destination": "frontend/src/features/generation/generation_model_icons.mjs",
+      "sourceSha256": "233367542e7d3bf8a86bd5831ba527ad92d4101a881f977bb32203e0b0c342b5",
+      "destinationSha256": "96026d3666f6d2a2bc319c32f85fcb97161787827d8934d0735846289c23fee7",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/libtv_video_model.mjs",
+      "destination": "frontend/src/features/generation/libtv_video_model.mjs",
+      "sourceSha256": "b6b726ede5f9864de0a92d0d2714c820b3647ffc734053e456f0a26a0eba78c0",
+      "destinationSha256": "b6b726ede5f9864de0a92d0d2714c820b3647ffc734053e456f0a26a0eba78c0",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/table_generation_api.mjs",
+      "destination": "frontend/src/features/generation/table_generation_api.mjs",
+      "sourceSha256": "cc9c00ed14a5d9bfc339bd65fede6867585bea5a2b718942238940be2bd6e7cd",
+      "destinationSha256": "e8a39c468c142e371102fe7d209f094bda8b9e75e158a06a7386640ed109383d",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Route generation actions through explicit new-service port, retain timeout/unknown/preflight semantics, never old LibTV HTTP.",
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending."
+      ]
+    },
+    {
+      "source": "web/table_generation_history.mjs",
+      "destination": "frontend/src/features/generation/table_generation_history.mjs",
+      "sourceSha256": "bcbe6e3c04f13e2b6c0b33d0e31f5edf3436e76eab77683c949ee76555600d8f",
+      "destinationSha256": "3fcbf9e5ace3090aff77c05c10a5eefa9f074296d1ea8bc4ded95af0d4724c22",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending."
+      ]
+    },
+    {
+      "source": "web/table_generation_model.mjs",
+      "destination": "frontend/src/features/generation/table_generation_model.mjs",
+      "sourceSha256": "eee30572bc581bfd1c90925935d73227ee29578d0dbfb8779bd6e763912b532d",
+      "destinationSha256": "e32977ef92679484e813300acd33ebe240e8b130acdca8156a29521535ab3afc",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/table_generation_panel.mjs",
+      "destination": "frontend/src/features/generation/table_generation_panel.mjs",
+      "sourceSha256": "547d0543ec0e6359f0146f429ca9a11f9d4cce5682e1c212f01439492b1c9a50",
+      "destinationSha256": "be8f63987e764304c731cad9b1811c53e51de1c0de39610cdbc243a4682f296b",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
+        "Skip generation settings row-map and all-TD traversal only when current fields have no generation presentation and this attachment has never created a settings bar; retain onRefresh and header cleanup, and preserve the full path forever after any bar creation for detached-cell cleanup. Actual editor/input focused regressions preserve owner/history/configuration/error/lifecycle behavior; traversal counts do not establish browser latency or product acceptance.",
+        "At the private normalized-table boundary, skip frame/source synchronization when known field descriptors contain no generation field; avoid otherwise unused prompt-column row-value qualification. Unknown outer/field shapes and generation-bearing tables retain the original path; public validation, frame-token refresh, stale metadata and configured updates are unchanged. Focused mechanism counts do not establish browser performance."
+      ]
+    },
+    {
+      "source": "web/table_generation_tasks.mjs",
+      "destination": "frontend/src/features/generation/table_generation_tasks.mjs",
+      "sourceSha256": "3812afeff3c3738abb6799f9e96812fe76e1e078262612efe9aa59b9163e765f",
+      "destinationSha256": "6c9cb526934f56e5dadc8471feb44c72aca41e67382e8a927b5d2c22a10b549c",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
+        "Post-snapshot hardblock review: immutable receipt digest, exact missing-task recovery, no automatic replay; tests include original-scope and storage-unavailable rejection.",
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+      ]
+    },
+    {
+      "source": "web/task_snapshots.mjs",
+      "destination": "frontend/src/features/generation/task_snapshots.mjs",
+      "sourceSha256": "4911f0d2226cd7d0969e5b87824d5f1acacdadd8e1dd719497593f638d9ed642",
+      "destinationSha256": "e2f7af9ed24c454da99b99a44279f0f94576f8048a9ea1736e081243330dbd37",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/video_task_linked_prompt.mjs",
+      "destination": "frontend/src/features/generation/video_task_linked_prompt.mjs",
+      "sourceSha256": "66481e0db0bc4f8e85bae00f9c14cac6dd294138f990cf1c711b8ad1f619b53b",
+      "destinationSha256": "f7b89941b71964061d2bd2322c69e531351e045284556c118710fac56bda5080",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/video_task_rows.mjs",
+      "destination": "frontend/src/features/generation/video_task_rows.mjs",
+      "sourceSha256": "de2c073983d8492918e142a1885749f428c2fe439c2621909f34d09bdf164ccb",
+      "destinationSha256": "5f262202f2fd6cf22fccd0505c6e55637ab7f8acc74df3afde730d2308833382",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/video_tasks.css",
+      "destination": "frontend/src/features/generation/video_tasks.css",
+      "sourceSha256": "f662c345f3f44010d82961172cb0954db3b8ec2ffb086dfb65cf11c89a0cbf07",
+      "destinationSha256": "2a8090c898477a72189dd27e2a2566597723d9e9f79c34813c4f7fcd1050aea8",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/video_tasks_model.mjs",
+      "destination": "frontend/src/features/generation/video_tasks_model.mjs",
+      "sourceSha256": "3572671a035745a74966e2cdd6e7e6f421a49938218c7d03ee2f9601f902c684",
+      "destinationSha256": "743a9aa0c6f8a4b721262cabf4e9302a85034f69b44bd7bee8c345588043f2e1",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/video_tasks_panel.mjs",
+      "destination": "frontend/src/features/generation/video_tasks_panel.mjs",
+      "sourceSha256": "1f567635a4b88ab672b6f656d1c2ede14a5a79432592e26ccf2c39775281452d",
+      "destinationSha256": "e06ea0b3146c36846f628313dfec66762466e265b1e3ce3171c35e3cbdd9a882",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Native selection and upload use BusinessHostPort; legacy generation channel is unreachable.",
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+      ]
+    },
+    {
+      "source": "web/llm_io_model.mjs",
+      "destination": "frontend/src/features/prompt/llm_io_model.mjs",
+      "sourceSha256": "28f0488fbd3a0469ff360a15037e03fc1330060e3772a37953906ece940ba321",
+      "destinationSha256": "6188343c0d1359da184a54679ec76d25955827aa3b64ec5abc66d9fa149e928a",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Remove production simulateRows export and require explicit qwen/deepseek provenance for table export; retain input/apply/undo behavior."
+      ]
+    },
+    {
+      "source": "web/llm_io_panel.mjs",
+      "destination": "frontend/src/features/prompt/llm_io_panel.mjs",
+      "sourceSha256": "62133e0e28f809abcf5b59cca42eb091cce6cbc57749f88b01f6134c4171c89e",
+      "destinationSha256": "2c79a58a7aebe0a40ea6f49df190588e9003a7a528cc751d763bc24bf73ee987",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Remove product simulator/model option; missing optimization service rejects before overwriting suggestions; preserve unknown saved model as unavailable instead of silently changing it.",
+        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
+        "Native reactive JSON boundary: detach nested host proxies for document transactions and LLM load/proposal/apply; preserve all unknown JSON keys and identities, reject unsavable edits before history, and verify source-bound edit/recovery/undo with no submit. Real UI acceptance remains separate.",
+        "Guard repeated DOM writes against current control values while preserving every-render Slot validation, task/output publication, derived history and 500ms polling. Deterministic two-owner state regressions pass; actual UI/performance acceptance remains pending.",
+        "Reconcile authoritative saved instruction changes after native history/external restore with value-guarded DOM assignment; preserve focused unchanged text, actual input listener ordering, linked/manual instruction restoration and both owners. First red regressions retained; actual host undo/redo display acceptance remains pending."
+      ]
+    },
+    {
+      "source": "web/llm_local_provider.mjs",
+      "destination": "frontend/src/features/prompt/llm_local_provider.mjs",
+      "sourceSha256": "76762831347dc9159e7ab404e8e5203966ae9469b0745c53d284c7db5738f9d1",
+      "destinationSha256": "f6a61f8bc9b540a3856db3101ae9daaa4c255751e5fae52f37931352291ae861",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Default transport is the explicit business port; test transport injection is retained.",
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending."
+      ]
+    },
+    {
+      "source": "web/llm_slot_model.mjs",
+      "destination": "frontend/src/features/prompt/llm_slot_model.mjs",
+      "sourceSha256": "6a6a558a5b9c1f8b481e726cbf4d1772390530e9732edfd24d0a58fb6e8cec9e",
+      "destinationSha256": "9062537db94c14d159c83346fedb55520d9e9520a0613c725a33574debdce95b",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/llm_style_preview.css",
+      "destination": "frontend/src/features/prompt/llm_style_preview.css",
+      "sourceSha256": "91ecfb9d971e13ef211a313656fdac10bb7f430b79582058f63b27224e9112d5",
+      "destinationSha256": "a4e46a46f973e7eb41d32ff6405fc89de613aca05223156497e41e908d33f3c3",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "PERF-01 candidate: stop unused inherited Canvas zoom variables only at the owned leased formal LLM B body; preserve public adapter/root, floating headings, Slots and all other variants. Actual browser/performance reacceptance pending."
+      ]
+    },
+    {
+      "source": "web/llm_style_preview_panel.mjs",
+      "destination": "frontend/src/features/prompt/llm_style_preview_panel.mjs",
+      "sourceSha256": "78d3e2dd23a3fbf1cc216ca90f9fce223889f06475ed49234cc84020426bd166",
+      "destinationSha256": "7ed0b79ce1d243c307fca37d86ad8ef3aea27f39e1d2ad97d74230b8e765caed",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Use one local shared ui field/panel module and unique design assets; no absolute legacy package import.",
+        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
+        "Bind field-local beforeinput history protection only to the two nativeDocument-controlled textareas. Preserve focused text undo, ordinary input listener order, IME, inactive/read-only fields and teardown; never dispatch graph undo or write a replacement value. Real cancelable-beforeinput and two-owner host verification pending."
+      ]
+    },
+    {
+      "source": "web/llm_task_model.mjs",
+      "destination": "frontend/src/features/prompt/llm_task_model.mjs",
+      "sourceSha256": "1953200ebc3a3adabb5a79e51057ad60ec12a3cb52421630862d7df84366a451",
+      "destinationSha256": "1d96e38be2df8a71312c5f831467e04781b07b4debfc97a2f77a1cfa59cb2c68",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/prompt_optimization.css",
+      "destination": "frontend/src/features/prompt/prompt_optimization.css",
+      "sourceSha256": "acb5463d96809014cb2b4b31b9c40ea018c34ef4f5dab5c6450604177e6a891b",
+      "destinationSha256": "e3dda6d03de42e8a5cf2844dfd9a585a9e02c16c2966c090c9ef69513a8b6d1e",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/prompt_optimization_api.mjs",
+      "destination": "frontend/src/features/prompt/prompt_optimization_api.mjs",
+      "sourceSha256": "289ee903be0ce0bc553d35e47490a3df38b8e4c666143a725dde7bb3c2f3d965",
+      "destinationSha256": "fc5ffe23a19eb1d1b17bfb25ccc09913a95c51ef1c116d508619c6f45cd927c7",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Replace private native auth/Pinia probing with injected BusinessAuth; propagate unavailable capability and do not discover old package endpoints.",
+        "Post-snapshot hardblock review: immutable receipt digest, exact missing-task recovery, no automatic replay; tests include original-scope and storage-unavailable rejection.",
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+      ]
+    },
+    {
+      "source": "web/prompt_optimization_composer.css",
+      "destination": "frontend/src/features/prompt/prompt_optimization_composer.css",
+      "sourceSha256": "ee7b9ab58190582f6e7e2518910f0d397c7aed5c6b1007b914c5bb4d8de02878",
+      "destinationSha256": "6dcac793df0bbdefda690bd22f5f06c0148343c24fcb5eb9625e406a18cf0178",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/prompt_optimization_composer.mjs",
+      "destination": "frontend/src/features/prompt/prompt_optimization_composer.mjs",
+      "sourceSha256": "316ff91f418ad004696e89c8eed1c17a7ae42d5ddac3caf6b0a8039eb160af6f",
+      "destinationSha256": "92298af1c52bc2a49ae6e9050b59b89a3ac139c8bf829739dc98a751790900ab",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+      ]
+    },
+    {
+      "source": "web/prompt_optimization_context_copy.mjs",
+      "destination": "frontend/src/features/prompt/prompt_optimization_context_copy.mjs",
+      "sourceSha256": "fdbdd0c165a7267c46e6305b36237708d8e12c2b6e495117c29cb19a47a66312",
+      "destinationSha256": "e0ec943399e733e4562b17d4a387b531c13279f6602e2471dedbe846371bd3a0",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/prompt_optimization_controller.mjs",
+      "destination": "frontend/src/features/prompt/prompt_optimization_controller.mjs",
+      "sourceSha256": "cb2e642be72425bbc3a1f56fa5cb7201f528305d7308a766ad5783f2b7bf1867",
+      "destinationSha256": "0cc25006e38ba86183c0ff650e21d4f28e1ac0ff83967a9750b7c0432f87668b",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
+        "Post-snapshot hardblock review: immutable receipt digest, exact missing-task recovery, no automatic replay; tests include original-scope and storage-unavailable rejection.",
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
+        "Optimization popover resolves a replacement td/th only within its original editor/root and stable field/record; requirement and intent edits retain focus, while deletion, inactive mode and lifecycle release still close. Mock regressions do not replace actual ComfyUI acceptance."
+      ]
+    },
+    {
+      "source": "web/prompt_optimization_model.mjs",
+      "destination": "frontend/src/features/prompt/prompt_optimization_model.mjs",
+      "sourceSha256": "44fcd380d73784d2942bed1cb85284f6bacf18f28ec3ffeafb197c5de94b26e3",
+      "destinationSha256": "a9e832a1b6cf76df68f4e8d9620c371eb69adb4e85fcc3f4a755158f463004ad",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Caller supplies live node list; restrict identity mutation to formal owning types so raw legacy/unknown nodes remain unchanged.",
+        "Reuse editable-field classification only within one synchronous revision observation; private stamping preserves per-target content/reference checks and strict public validation. Count/semantic regressions pass; actual UI and performance acceptance remain pending.",
+        "Primitive string inspection returns the immutable string and its fresh per-call text segments without redundant JSON roundtrips. Structured snapshots, validation, canonical stamps and request sequencing retain their existing paths; 5000-target operation-count and isolation regressions pass, without a measured product latency claim."
+      ]
+    },
+    {
+      "source": "web/prompt_optimization_panel.mjs",
+      "destination": "frontend/src/features/prompt/prompt_optimization_panel.mjs",
+      "sourceSha256": "a189e6ca2616bf0cf6a4e84430ae2fe4d4e8cf9068f5e53e3392bf745a9a5cc2",
+      "destinationSha256": "e896be3adb4bebf5ee1aa3062f9ec5e8c4b75ed658eedc1a9c3142dd02e0cc89",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+      ]
+    },
+    {
+      "source": "web/prompt_optimization_status.mjs",
+      "destination": "frontend/src/features/prompt/prompt_optimization_status.mjs",
+      "sourceSha256": "8af9c352eb9d77c8475a800e0aa95df9b1afee7f7afa5a691b38fec7b0383a99",
+      "destinationSha256": "10c65fd9a79d494cbec062bcb7db5d0607992eba5e3a3d51891359059e95d06f",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/prompt_optimization_summary.mjs",
+      "destination": "frontend/src/features/prompt/prompt_optimization_summary.mjs",
+      "sourceSha256": "ecb1c5aef8b070af35bf604c63e9b5f97070663ab567d869295225bbfec5d56c",
+      "destinationSha256": "6e02666081e085f90fd7ee7989becd85bb79ed6a7d7b5065b8f3ef6511f087be",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/table_prompt_editor.mjs",
+      "destination": "frontend/src/features/prompt/table_prompt_editor.mjs",
+      "sourceSha256": "3cddf1579bc49d9c39f53910d3917fcee6d7e94dfa08d7689a77f31fcd19baa2",
+      "destinationSha256": "e9c7b07ed86e866c8c99ee7aad2c5a9a35e5b5bb5cc838c8d5951acd2daa353d",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
+        "Allow host save through nested prompt/editor controls while retaining IME and text editing key ownership.",
+        "Preserve initial request observation; skip passive scans only before either private begin has ever been attempted. Both begin sites activate permanent full observation before strict public begin, including failure, settled comparison and close. Do not skip render, OptimizationRevisions, public matches or validation. Actual performance acceptance pending."
+      ]
+    },
+    {
+      "source": "web/table_prompt_model.mjs",
+      "destination": "frontend/src/features/prompt/table_prompt_model.mjs",
+      "sourceSha256": "554b71c9f03d0505243352e66204c3af3c230c8fa92eca60e6ede9d8ed87d50b",
+      "destinationSha256": "7e5013f1b5844041519b71d9ac1657256079fdc27da9e1e014e45b31c12b1707",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/table_prompt_settings.mjs",
+      "destination": "frontend/src/features/prompt/table_prompt_settings.mjs",
+      "sourceSha256": "bfe4726e48470729694c7a86878e50662a3ec0fad7837a9323bbb21a022c432a",
+      "destinationSha256": "f5f3ab37b977c7c20d6a2c8177338a5cbd31f57f61c0bfadfa5026e2dd2923eb",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Allow host save through nested prompt/editor controls while retaining IME and text editing key ownership.",
+        "Optimization popover resolves a replacement td/th only within its original editor/root and stable field/record; requirement and intent edits retain focus, while deletion, inactive mode and lifecycle release still close. Mock regressions do not replace actual ComfyUI acceptance."
+      ]
+    },
+    {
+      "source": "web/table_prompt_source.mjs",
+      "destination": "frontend/src/features/prompt/table_prompt_source.mjs",
+      "sourceSha256": "f2e667e35a4f6623e4b3a2cbc2303ba768246d49e68b68cdd030d42cc595b5c3",
+      "destinationSha256": "4030f5b745e9cc26db5a550a4a3833ce0cc23d5479bb467342c2aa838bc0bb1b",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/table_prompt_source_header.mjs",
+      "destination": "frontend/src/features/prompt/table_prompt_source_header.mjs",
+      "sourceSha256": "d68ded6e3a8385c2697e93f98566dd64feeb5fc57a33f645a90748fb713fe2f3",
+      "destinationSha256": "c385c88ee97a9b48ea0779ce95769db559a44fbf76ed148adde8326a3cb2950b",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/table_prompt_template.mjs",
+      "destination": "frontend/src/features/prompt/table_prompt_template.mjs",
+      "sourceSha256": "743ca197bb412f6d2718d64ffbcfd1e60b5784de84113c9f2b9be255672a6498",
+      "destinationSha256": "aa5ca9fcab36be2bf72aad9607f0c2706c9da441a13fa508c0c0b2f996c79500",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/table_prompt_template_editor.mjs",
+      "destination": "frontend/src/features/prompt/table_prompt_template_editor.mjs",
+      "sourceSha256": "39389aa7f0ec0773e1546cd0a530a302f582ecc97be74aafb2c73c5a0eeaf683",
+      "destinationSha256": "759a361790635d8980aa8edd6b394891d1afe9e654496862b48cc665392af5e0",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Allow host save through nested prompt/editor controls while retaining IME and text editing key ownership."
+      ]
+    },
+    {
+      "source": "web/daelab_storyboard_import.mjs",
+      "destination": "frontend/src/features/storyboard/daelab_storyboard_import.mjs",
+      "sourceSha256": "31d7c039a5b9c10aeba8fe83b3582463a0c1bf805069295c50d823f33a150f1e",
+      "destinationSha256": "b972a7fc913b9b0735bdd7756a661e0df245258e56ab295f852331b408e9c651",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/daelab_storyboard_model.mjs",
+      "destination": "frontend/src/features/storyboard/daelab_storyboard_model.mjs",
+      "sourceSha256": "478849462d2763b81eba1a5e0b8bc4d3de9ba942986c0f2f9ecbc018f0a1ba99",
+      "destinationSha256": "dd1a0e3488fa8d949b90f42b74e262c6a7af338353225b3dc1a3a55c2ff4bb78",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/script_parser.css",
+      "destination": "frontend/src/features/storyboard/script_parser.css",
+      "sourceSha256": "14ee3d7a070af16c00e3d12156c1cf1baabd67c4b591d79cdda62c045f2c3339",
+      "destinationSha256": "b511ef161e6853825f30ed6d45f6668b8fc7dd0382d814b2927f46a6453f5c93",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/script_parser_model.mjs",
+      "destination": "frontend/src/features/storyboard/script_parser_model.mjs",
+      "sourceSha256": "8510cc481847691a1c035b9b950ad9022755f58ff2cb4adb433160eb3f5db51e",
+      "destinationSha256": "9aa110160762fa7edcc99e077d67a1ad349128cffbb28849e4e9c42bd585d4bb",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/script_parser_panel.mjs",
+      "destination": "frontend/src/features/storyboard/script_parser_panel.mjs",
+      "sourceSha256": "4d89cbcdfb3b98d090bafaf0696f5022afc2e43977d0e21bca78e792a701654d",
+      "destinationSha256": "a1878af09e6b52a94740c26e03b90db9f27ea2d23787543a46872fc894531045",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Use domain/native-upload HTTP port; preserve old document and normalization DTOs.",
+        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md."
+      ]
+    },
+    {
+      "source": "web/storyboard_import_assets.mjs",
+      "destination": "frontend/src/features/storyboard/storyboard_import_assets.mjs",
+      "sourceSha256": "4413febd8ff630933372e76c3fbdd95d4c134178fbdd786148de8d1fb6f3471e",
+      "destinationSha256": "2f5e89a4acc8ea1ea0de896a0e881e4917b8088e10938bee810da1fa34eea817",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/storyboard_table_adapter.mjs",
+      "destination": "frontend/src/features/storyboard/storyboard_table_adapter.mjs",
+      "sourceSha256": "a21eea20123b9adb8aab837c84bfab0d0223b06ff980ab2843676651483c1d9b",
+      "destinationSha256": "e24086e716dd6614e507f4ed22a58d46f43954dfb6ce7b59501082054b40bf1e",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/storyboard_task_state.mjs",
+      "destination": "frontend/src/features/storyboard/storyboard_task_state.mjs",
+      "sourceSha256": "63e2b240947f42246839b9224d88199fad15f2cd40286a821eb99a333e8ff3b4",
+      "destinationSha256": "88cac519e0654f82d03f39b39c64a84fffb419b87ed45dd3f16dd401fc14d396",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/daelab_studio_theme.mjs",
+      "destination": "frontend/src/features/table/daelab_studio_theme.mjs",
+      "sourceSha256": "db76f9311dc1242a562be7428345d722ee663575797c237bc93cee8d0caa41d7",
+      "destinationSha256": "ea3c4832dc1bd6c9763bae35cb9e555c3ac830e0b3ddc7b45c87f731ccf79ff8",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/data_table_editor.mjs",
+      "destination": "frontend/src/features/table/data_table_editor.mjs",
+      "sourceSha256": "5294f268a05f00fb6b0135b91596ce1bddf3d8efe640e12da2b1ed6d6a017d7f",
+      "destinationSha256": "a1c99bc0be120a1abcb9bb7e2321c54a30acc50851d07c9f7b6afd268ead5957",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
+        "Actual-host keyboard follow-up: native keyboard history dispatches once from host capture; retain pending-review invalidation, direct toolbar restore, standalone local history and text/IME guards.",
+        "Skip only unused whole-table equality encodings in the native afterWrite path; preserve all validated snapshots, native history, rollback, per-target revisions and fallback ordering. Count and semantic regressions pass; actual performance acceptance pending.",
+        "Limit row-state DOM refresh only for editor-owned content-cell edits under an explicit constant-empty provider capability. Recheck field/configuration metadata, ordered row identities and current render/cell lifetime after native writes and observers; unknown, structural, configured, derived, ticket and full-render paths retain full refresh. Validation, native history, rollback and revision observation remain unchanged. Real editor 500x10 traversal checks pass; actual latency and UI acceptance remain pending.",
+        "Reuse only the encoded JSON of editor-owned local cell edits to construct detached previous and next snapshots. Preserve width-sync fallback, validated native rollback/replacement snapshots, unknown data and all history/save behavior. Isolated semantic/count tests pass; actual latency and UI acceptance remain pending.",
+        "Use optional DocumentController prepared transactions for local synchronous non-rendering cell changes: one validated current encoding supplies isolated rollback, previous and draft objects; retain final draft validation, width/state preparation, legacy fallback, native history and all serialization boundaries. Actual latency and UI reacceptance remain pending."
+      ]
+    },
+    {
+      "source": "web/data_table_groups.mjs",
+      "destination": "frontend/src/features/table/data_table_groups.mjs",
+      "sourceSha256": "53f535d1c56c177957af27d88abb3d8fac8fb33e91f19eb2d66ad60ebb6efbb1",
+      "destinationSha256": "5ba90daa6e70afc4e40f53ba4375a3f153baa8bc663e1b11a58dfc0368e09677",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md."
+      ]
+    },
+    {
+      "source": "web/data_table_model.mjs",
+      "destination": "frontend/src/features/table/data_table_model.mjs",
+      "sourceSha256": "ba6709c6b3494aa7da6a372c9744cb111e9a263a3ac26341f0e0d58ce0d7c59a",
+      "destinationSha256": "80e6548168407b9943e734c41e795225693af0e1e1132666f705cb6d82c70b73",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/list_editor_controls.mjs",
+      "destination": "frontend/src/features/table/list_editor_controls.mjs",
+      "sourceSha256": "7fe0bd0bf0c979b240b35f255f8cfe68cc64437158ff1537fd7843c2c229ac9a",
+      "destinationSha256": "25a713ca84cea033b22b6eb684b34abd04c1c69e44239259eb1587c309595eec",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
+        "Allow host save through nested prompt/editor controls while retaining IME and text editing key ownership.",
+        "Extract unchanged stopCanvasPropagation to shared ui/creative_events.mjs; retain original public re-export and internal button listeners."
+      ]
+    },
+    {
+      "source": "web/badge_image_drop_87.mjs",
+      "destination": "frontend/src/features/table/local_image_drop.mjs",
+      "sourceSha256": "11b79ddf4412dcf741e063bade5f906b72370320979bb51c1f252f897a5aa105",
+      "destinationSha256": "128924abc15306e8ed9a132cdfbdcbd5e6a0a44c5e0cde78224af39af3b7c3c9",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Extract only two generic same-origin native /view drag helpers from the badge source; no badge registration or UI."
+      ]
+    },
+    {
+      "source": "web/app_mode_bypass_model.mjs",
+      "destination": "frontend/src/features/table/node_availability.mjs",
+      "sourceSha256": "8c4873633e14ffc181b735be36fbb17adaf5bbb62987e98abc6a514bc8f7be04",
+      "kind": "extracted-pure-rule",
+      "changes": [
+        "Extract only MODE_ALWAYS and isNodeAvailableInAppMode to prevent feature modules depending on host integration."
+      ],
+      "destinationSha256": "e155a7588a4e96b52d998b96104853fd740e14a61bfb40df8777b3e046363d36"
+    },
+    {
+      "source": "web/table_cell_choice.mjs",
+      "destination": "frontend/src/features/table/table_cell_choice.mjs",
+      "sourceSha256": "579a039f8c52bf2bc637cee7695c5d8a7505c8560c090b0134fe86072ecbda7d",
+      "destinationSha256": "4091de21e716aa43b307a7969e5f83043e370bde0672d10465a25d5662df368a",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/table_cell_selection.mjs",
+      "destination": "frontend/src/features/table/table_cell_selection.mjs",
+      "sourceSha256": "eca5ccf6fe6127b5d49c547c72279ad53f25b33d1c10a47a9b34b0060929842c",
+      "destinationSha256": "35d78770492a4ceb671b1d6edbb4d92859bf56b8adee615bc5bbac8706327ac7",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/table_column_splitters.mjs",
+      "destination": "frontend/src/features/table/table_column_splitters.mjs",
+      "sourceSha256": "e8700d33cfebf2bc50034b302cbea89591d83c32e009585f760cd9e2511ed9ff",
+      "destinationSha256": "0c7ea2c3b4b070b10a41b62f45b602b9794f4e0e698bca608ac32eafe2a912de",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Batch divider header and shell geometry reads within one geometry pass before divider writes; retain fluid/layer ordering, scheduling, model, and lifecycle."
+      ]
+    },
+    {
+      "source": "web/table_content_view.mjs",
+      "destination": "frontend/src/features/table/table_content_view.mjs",
+      "sourceSha256": "6f83b0c4964dab7ec13613005b2940c25b0a6c1a2ed5c2b90a0cfeeed93ab31e",
+      "destinationSha256": "9fecc5e0c7b63726944f843875707a9b3b13b0b62dee06ae774cc5d4fb8587d3",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
+        "Actual-host nested keyboard follow-up: shared save propagation in nested panel/popover; keep local editor keys and IME/229 ownership.",
+        "Preserve a sole matching nonempty Text node when text display classes already match and no media cleanup is pending; retain all other normalization and inline editing lifecycle paths. Pure DOM identity/mutation regressions do not establish browser performance acceptance."
+      ]
+    },
+    {
+      "source": "web/table_context_menu.mjs",
+      "destination": "frontend/src/features/table/table_context_menu.mjs",
+      "sourceSha256": "cc63812489f5b7c457a034d3322a96ed41bc3a86b770cd91a88776ea284408f6",
+      "destinationSha256": "de22a9ae9f03014f0c7ac7c1a28d57c247956be2af6cdc96dda63c6b93b20aec",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Inline editing clears only true column-selection markers; retain false markers to avoid whole-table attribute mutations. Keep selection, ARIA, per-instance and lifecycle behavior; actual latency and product acceptance remain unverified."
+      ]
+    },
+    {
+      "source": "web/table_controls.mjs",
+      "destination": "frontend/src/features/table/table_controls.mjs",
+      "sourceSha256": "b75b0ccda90fd207d4df74e5c3c188086fcaddca7752e56f93bbba35a6083539",
+      "destinationSha256": "b545d93fb69c264755db391eb9d7c63c2093dd8f3d4b3b14b27c08688427b63d",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Replace fallback controls/theme/history with unique shared UI/design and typed host history port."
+      ]
+    },
+    {
+      "source": "web/table_empty_node.mjs",
+      "destination": "frontend/src/features/table/table_empty_node.mjs",
+      "sourceSha256": "1fd14f31068592a66a43a16332217541704e717a5fc3b4fe2dcb6a10a8727892",
+      "destinationSha256": "1fd14f31068592a66a43a16332217541704e717a5fc3b4fe2dcb6a10a8727892",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/table_exchange.mjs",
+      "destination": "frontend/src/features/table/table_exchange.mjs",
+      "sourceSha256": "97ceb3e16f932c13623680533c519f7e14b70e22d7355f5c6d89adeb6b15bdfe",
+      "destinationSha256": "fecbc5161cac6de1d983d953960b76dfb585ef816fe45c037cf4677101dc3826",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Move node creation/enumeration/add/focus behind BusinessHostPort; native graph remains authoritative."
+      ]
+    },
+    {
+      "source": "web/table_inline_editor.mjs",
+      "destination": "frontend/src/features/table/table_inline_editor.mjs",
+      "sourceSha256": "99f52423125d99656cabfd274a1895f4b0bb84a60aa080a39dedfa0a37ea8709",
+      "destinationSha256": "751a1ea27b10b83386a0665d4fec78784622e8ca008966cd4215ba1ae9d7f8f4",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Allow host save through nested prompt/editor controls while retaining IME and text editing key ownership.",
+        "Allow Enter to reopen only the inactive owning cell or exact preview; retain composition guards, active multiline editing and descendant control ownership."
+      ]
+    },
+    {
+      "source": null,
+      "destination": "tests/migrated_business/table_inline_preview_enter.test.mjs",
+      "sourceSha256": null,
+      "destinationSha256": "1a8afba9c7258d4415a77bb0a81db2cd6b52b830c240c53caa6306678250d435",
+      "kind": "authored-test",
+      "changes": [
+        "Execute the real inline handler lifecycle and box-to-cell bubbling with bounded DOM doubles: Tab blur/preview re-entry, two owners, exact-target exclusion, IME, active newline and disposal. Actual browser focus, IME and layout acceptance remain separate."
+      ]
+    },
+    {
+      "source": "web/table_material_columns.mjs",
+      "destination": "frontend/src/features/table/table_material_columns.mjs",
+      "sourceSha256": "d530541fbf7fcc04068f177984b6bd05fda2aa567f7263a42904a4e4774165c4",
+      "destinationSha256": "3a1c7da8736b5effe91d0c066755199992b09b7cfe5f5f24d9f318cf03ac8ac5",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/table_material_item.mjs",
+      "destination": "frontend/src/features/table/table_material_item.mjs",
+      "sourceSha256": "e84bab600f961c40090a130891af8700d1f5cc5602262d3a4a12bcaae45ee177",
+      "destinationSha256": "e84bab600f961c40090a130891af8700d1f5cc5602262d3a4a12bcaae45ee177",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/table_material_output.mjs",
+      "destination": "frontend/src/features/table/table_material_output.mjs",
+      "sourceSha256": "986cb805cd4d989d4f2d87b67f88005f0ef78f774579d30643bfd96d4ea277a8",
+      "destinationSha256": "2b51fcc4cb05897323a749922a34d9ac18bd1bcc2723cc3c6710a7e88a65e302",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/table_node_install.mjs",
+      "destination": "frontend/src/features/table/table_node_install.mjs",
+      "sourceSha256": "74998fbc1bc4803be1bc52e8d9b8458ef657209455ee2bc6074d0150105c7c97",
+      "destinationSha256": "c7bd7a96d7a3ece0e47a6bbbbfc7708b0ffa2a433f225d16857511fc56c9eb71",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/table_panel_views.mjs",
+      "destination": "frontend/src/features/table/table_panel_views.mjs",
+      "sourceSha256": "963785442eaa2ec3475cae7372d5fd645d24c707a3782cf22095ef88d3bb6510",
+      "destinationSha256": "963785442eaa2ec3475cae7372d5fd645d24c707a3782cf22095ef88d3bb6510",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/table_reference_menu.mjs",
+      "destination": "frontend/src/features/table/table_reference_menu.mjs",
+      "sourceSha256": "220ee739aee74b2e85f0b6a1dabeb43f063b22fc959e635f627624b1affd7f34",
+      "destinationSha256": "20ca4c89cad5bb8af11c131a10a0ce3da7b6fc26e3dd9ccbfbfde3e60be7d987",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/table_source_model.mjs",
+      "destination": "frontend/src/features/table/table_source_model.mjs",
+      "sourceSha256": "36a25688ef242918ea3aefd0cdaa3f1f529a214fefdcb886c3ee7cfac055ad54",
+      "destinationSha256": "61d6de152261c55eb334cc5fa2db36bc27cd994aa7d59eca3ec5af7f0def499a",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/table_structure.mjs",
+      "destination": "frontend/src/features/table/table_structure.mjs",
+      "sourceSha256": "c33ebda46986c7f79d6a8a5740de652964205f02ea0ec2ac962c26bec421202f",
+      "destinationSha256": "3b163841eb5d449e96e0e88cd328d26c69604c952eefeb2ecd333f4da5e88f5d",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Actual-host nested keyboard follow-up: shared save propagation in nested panel/popover; keep local editor keys and IME/229 ownership."
+      ]
+    },
+    {
+      "source": "web/table_structure_model.mjs",
+      "destination": "frontend/src/features/table/table_structure_model.mjs",
+      "sourceSha256": "88a5ad82aa48877bd70ef05f7cb6df4ef8781084f3889232e65ad39920984131",
+      "destinationSha256": "f4682e88d61af7b1596c9222261ca892ca1a1357b2bc4667d8bf5b6c02e0afe9",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/table_text_side.mjs",
+      "destination": "frontend/src/features/table/table_text_side.mjs",
+      "sourceSha256": "53d8b5b4ef89e18e5cf53170d51c2a12c2f7c354d0afb6444e02d77c27460abe",
+      "destinationSha256": "0270ed5641859cfc475a9a682056b7db4f27b9523db6614c239c32d88ddbf0e6",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Allow host save through nested prompt/editor controls while retaining IME and text editing key ownership."
+      ]
+    },
+    {
+      "source": "web/table_ui.css",
+      "destination": "frontend/src/features/table/table_ui.css",
+      "sourceSha256": "bc0453f9322d52be6e7a6d8c718d64c0819293acdf6c6f29ea148b8fdede6555",
+      "destinationSha256": "6654069124652ea54bfeb53505d7bf00a96cf75426d6d41c2a46c1f91111efcd",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Limit unused canvas zoom custom-property inheritance to owned content data cells; retain public root values and live screen-size chrome/row-gutter consumers. Performance benefit requires real-host measurement."
+      ]
+    },
+    {
+      "source": "web/table_video_references.mjs",
+      "destination": "frontend/src/features/table/table_video_references.mjs",
+      "sourceSha256": "dc1922591e8f5c139630a29701d3f9ef6d77ac4a1749bf5ffeb057fadf0fa009",
+      "destinationSha256": "b32a1aa71e53a5054e24e9c0cbd07f60b691eb8c047b70c3e613d438f05b7ab7",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/table_workbench.mjs",
+      "destination": "frontend/src/features/table/table_workbench.mjs",
+      "sourceSha256": "4f4182467ca7298a4bca0ca35a1478e3c282413a991ed8bda1ba8b0dfd382dc4",
+      "destinationSha256": "0589a3c7d61e9b01ba57950f3083976124d6e663e884e4ed6b8f59c31d4d6d73",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Use pure node_availability helper, not integration-owned App Mode module."
+      ]
+    },
+    {
+      "source": "web/table_workbench_theme.mjs",
+      "destination": "frontend/src/features/table/table_workbench_theme.mjs",
+      "sourceSha256": "8dc29ea5dc8a9a6a57ec38f3d0f57662d7eb07001baf4cc3b5dca36f04d07a85",
+      "destinationSha256": "1d5bb09bf4bc786e10184c6daec2327d85c2c73314c602dba64c9137a2b19440",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/app_mode_bypass.js",
+      "destination": "frontend/src/integrations/comfyui/business/app_mode_bypass.js",
+      "sourceSha256": "efd78e96ddc861b2a3b64d804821237b508a5682082863d60ffad480847d061b",
+      "destinationSha256": "6eac81971879e04809561d7fb00a03452d1874890c4e743554f5c7c1499907fc",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Limit inspector mutation and mode polling to five formal business types; native private DOM remains in integrations."
+      ]
+    },
+    {
+      "source": "web/app_mode_bypass_model.mjs",
+      "destination": "frontend/src/integrations/comfyui/business/app_mode_bypass_model.mjs",
+      "sourceSha256": "8c4873633e14ffc181b735be36fbb17adaf5bbb62987e98abc6a514bc8f7be04",
+      "destinationSha256": "dc6ffa709e96c63771b2d1df97d685e701c7af7b3976b859bc7c5f67b0d7e3ab",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Formal-node ownership replaces the entire historic business node inventory."
+      ]
+    },
+    {
+      "source": null,
+      "destination": "frontend/src/integrations/comfyui/business/business_bootstrap.js",
+      "sourceSha256": null,
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "New typed port, explicit HTTP assembly, focused migration regression or sanitized evidence; no copied upstream source claimed.",
+        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending."
+      ],
+      "destinationSha256": "09d61bacaa411ad6594e5be606e3140bdecb78465716213dbf64c055a2f0373a"
+    },
+    {
+      "source": null,
+      "destination": "frontend/src/integrations/comfyui/business/business_http.ts",
+      "sourceSha256": null,
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "New typed port, explicit HTTP assembly, focused migration regression or sanitized evidence; no copied upstream source claimed.",
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+      ],
+      "destinationSha256": "ccb6965a5eb8a4617788eba9d0f311b5695adda7730ed7d3b7a4d7ab824a22f0"
+    },
+    {
+      "source": "web/creative_canvas_adapter.js",
+      "destination": "frontend/src/integrations/comfyui/business/creative_canvas_adapter.js",
+      "sourceSha256": "87d4a3ec66de9d84f4be88202779471a416ba4046a820ef1ce83780d3711f9b1",
+      "destinationSha256": "8ede6b05484005a17704e45a5a9fd014ba17a59d35bdcfb7601101ed464201a9",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Register only formal table/storyboard/video adapters; exclude GPT legacy menu and execution hooks.",
+        "Expose optional projectedMaterialTargets using the existing grid/cellsRevision cache and shared column descriptor objects; retain the full materialTargets API, row/cell drop capabilities and non-table provider fallback. Two 500x10 owners snapshot 10 projected descriptors each rather than 5510; this is a mechanism count, not measured latency improvement.",
+        "Resolve generation material output controls from the current owned table header on every query; preserve live descriptors and column order without scanning body cells. No browser timing or acceptance claim.",
+        "Candidate source a52e896881b920a35a192e03f9601dd4191d2d8cc76e7f6a6e49063d002fa9db differs from the LF destination only by one CRLF; retained record: .local/validation/table-material-sources-header-fullcheck-first/lf-normalization.json. Upstream source hash is unchanged."
+      ]
+    },
+    {
+      "source": "web/daelab_comfytv_storyboard.js",
+      "destination": "frontend/src/integrations/comfyui/business/daelab_comfytv_storyboard.js",
+      "sourceSha256": "335763faf2cf6cd0faef74daf6fa2f28b99caca572d603cf88f959aed41bfa15",
+      "destinationSha256": "d03912075814701606709e08d00a1ec01d7aca0e9bcbc0f96ea7d736c9f2840c",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/data_table_nodes.mjs",
+      "destination": "frontend/src/integrations/comfyui/business/data_table_nodes.mjs",
+      "sourceSha256": "6febb9bb7cf7a2530fa4fcd4b483fc93d56e3dd6f09cb1274a12145210f7f3fd",
+      "destinationSha256": "6ae87c8e42386ddebc61d57f25849ad1b692b02a541cfb44bd11fc6b22cffdef",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Formal Table/StoryboardImport only; remove old LibTV connection/batch execution UI and legacy widget coercion; preserve explicit delete operations and historical receipt reads; inject BusinessPorts.",
+        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
+        "Route only the native Table table_data serializer through a per-install canonical immutable-string proof. Preserve the complete public readTableView and JSON encoding on misses/errors; history, public snapshots and connected projections retain their original path.",
+        "Declare the existing generic Table without prompt_config row-state branch as explicitly constant-empty, enabling scoped input state refresh only in that mode. Configured tables, storyboards and unknown/global-dependent providers retain full refresh; no row-locality assumption is made for arbitrary callbacks.",
+        "Guard the two summary-button textContent assignments and generic plain status against the current DOM string to avoid redundant child replacement. Preserve row counting, hidden/disabled computation, configured issue controls and the native write/history callback order; no summary-state cache or full-render skip."
+      ]
+    },
+    {
+      "source": "web/dynamic_widget_lifecycle.mjs",
+      "destination": "frontend/src/integrations/comfyui/business/dynamic_widget_lifecycle.mjs",
+      "sourceSha256": "aa644c24b1b8422095a66b6d1f6dd29e6ca0a55e689923389a26a7a361ae0a6e",
+      "destinationSha256": "d45b249c92efefd3adb3994c8f31f4a18cbf6674d79381b5b46b1e23181421a5",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Host widget lifecycle relocated into integrations, no feature-to-host import."
+      ]
+    },
+    {
+      "source": "web/libtv_panel.js",
+      "destination": "frontend/src/integrations/comfyui/business/libtv_panel.js",
+      "sourceSha256": "7dfd87b8a7d84ac5534aca115e14df478f8108e64c92dc261c1680b00bdebb0a",
+      "destinationSha256": "22853cda7ba2432611dd5695c922300ce019f053d503364bd8c95af246c3fb49",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Keep only VideoGenerate panel lifecycle and native slots; remove connection and batch UI imports and old service channel; polling starts in setup, not module import."
+      ]
+    },
+    {
+      "source": "web/llm_style_preview.js",
+      "destination": "frontend/src/integrations/comfyui/business/llm_style_preview.js",
+      "sourceSha256": "129748850824e58beac56b81431a838d3591acf958606fcb62a097ea9398abdd",
+      "destinationSha256": "5f4caa87db1cf7e1aeef0f08d4ac7429aa3d0bc18c99cf889d45623e2f6ba9d0",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Only B is registered or matched by the adapter; preserve its native input/output slot sequence and saved applied widgets.",
+        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md."
+      ]
+    },
+    {
+      "source": "web/prompt_optimization_lifecycle.js",
+      "destination": "frontend/src/integrations/comfyui/business/prompt_optimization_lifecycle.js",
+      "sourceSha256": "05c240a42fb047efc8a9cb4f04b30c6fff638097d015bcfcbb49b7a212b36fb7",
+      "destinationSha256": "4769b9728ab510eae506cc4026d456230e1053660f60365105215e0176ccdf7f",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+      ]
+    },
+    {
+      "source": "web/prompt_optimization_workflow_history.mjs",
+      "destination": "frontend/src/integrations/comfyui/business/prompt_optimization_workflow_history.mjs",
+      "sourceSha256": "e9e0a234f6525a3d317521d7b2df3d7e36a0c1b4a4bb83b619d570e2d66398fd",
+      "destinationSha256": "1aa4a5171bb7f1655c1cf35eedf1202ac071e3afa1967578bbd6d81a6a8e1fd6",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Exclude GPT legacy payload from live editable-table history overlay."
+      ]
+    },
+    {
+      "source": "web/script_parser.js",
+      "destination": "frontend/src/integrations/comfyui/business/script_parser.js",
+      "sourceSha256": "7920d6861d96d764a89c4bee1ff714cab3558857e854111146f240bc06b04fb0",
+      "destinationSha256": "3cf2e5b23fc42657c782453badcfe4d4bb6ff4d2312bb537b04409866992a760",
+      "kind": "production-source",
+      "changes": [
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "Use public BusinessPorts for document/prompt requests; retain source slots and lifecycle.",
+        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md."
+      ]
+    },
+    {
+      "source": "tests/app_mode_bypass_model.test.mjs",
+      "destination": "tests/migrated_business/app_mode_bypass_model.test.mjs",
+      "sourceSha256": "421a41af40bb7729ab3a14b33168de9799d00eace9313692ab0fefe546ddaf21",
+      "destinationSha256": "d3d85c8ba95603ec606fd22668ded6a612e9d66adb206be0e7911a1dbacb56b7",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/badge_image_drop_87.test.mjs",
+      "destination": "tests/migrated_business/badge_image_drop_87.test.mjs",
+      "sourceSha256": "bbad5f1ac5d4bb57ec43bb6ce2d146f1b8ed477c34534b8146e69a436acee4cf",
+      "destinationSha256": "82c29abbbc3ad48c25aba4e0d480b23e9ad47aa0e98529740fc06cfa2616a9d8",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": null,
+      "destination": "tests/migrated_business/business_entrypoints.test.mjs",
+      "sourceSha256": null,
+      "kind": "authored-test",
+      "changes": [
+        "New typed port, explicit HTTP assembly, focused migration regression or sanitized evidence; no copied upstream source claimed."
+      ],
+      "destinationSha256": "18be8c1fb3cc60d66f7d3332ff633dd516d47d2dda15fbbd8e4a7c3c3cb098a4"
+    },
+    {
+      "source": null,
+      "destination": "tests/migrated_business/business_ports.test.mjs",
+      "sourceSha256": null,
+      "kind": "authored-test",
+      "changes": [
+        "New typed port, explicit HTTP assembly, focused migration regression or sanitized evidence; no copied upstream source claimed.",
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending."
+      ],
+      "destinationSha256": "12c4e6bd913f6411309bc9f3fd354f28da84322d83cfd1fd8ee0149ffb65efbe"
+    },
+    {
+      "source": "tests/column_optimization.test.mjs",
+      "destination": "tests/migrated_business/column_optimization.test.mjs",
+      "sourceSha256": "39d61add667cc9503442717fd26950ff5bd545cc9d88a1e645a0476a7deb1c15",
+      "destinationSha256": "8c813560edd1849c090c53d87b606a9a4b9a65e7e20aca28be2befbd2aa9a441",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/daelab_storyboard_import.test.mjs",
+      "destination": "tests/migrated_business/daelab_storyboard_import.test.mjs",
+      "sourceSha256": "ac3743e255562f1489c061355db0d784e913c542cfe432a907d8e86d4226fc80",
+      "destinationSha256": "cf8c26110c2df9c5d54ef57257a088d6419ff060557d4f234bb05feca6ace62e",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/daelab_storyboard_model.test.mjs",
+      "destination": "tests/migrated_business/daelab_storyboard_model.test.mjs",
+      "sourceSha256": "965fa2d6c87685d147378997f91bb794198ba8b0ec92f0f9633d0e43ab9fa715",
+      "destinationSha256": "86df91b7d6240b299419498f0edee6ceb3ef158d039575dd117ce4da98976f91",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/data_table.test.mjs",
+      "destination": "tests/migrated_business/data_table.test.mjs",
+      "sourceSha256": "617e5e1d2cebbca5e7a9fa3c2a256442fd98d4d845e34d5d3f2ac6c00e554c0f",
+      "destinationSha256": "452efddec2def698ab468e71250a973d3b4d3e0e392175076262b1cf97ace303",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/dynamic_widget_lifecycle.test.mjs",
+      "destination": "tests/migrated_business/dynamic_widget_lifecycle.test.mjs",
+      "sourceSha256": "49fedf0f922bb6491af9e74b60b3c8c1b42d60ea8b24268734f3b5724c0b51ce",
+      "destinationSha256": "94b00362b93d67df773fd70d09b2ecf41a809f9cd5a4ca5dcf383aa172360a2c",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": null,
+      "destination": "tests/migrated_business/evidence/README.md",
+      "sourceSha256": null,
+      "kind": "authored-test",
+      "changes": [
+        "New typed port, explicit HTTP assembly, focused migration regression or sanitized evidence; no copied upstream source claimed."
+      ],
+      "destinationSha256": "0840736053232e8cdbbfcf631f17042dec46064230f0668e50160ed9fd07fd18"
+    },
+    {
+      "source": "tests/fixtures/prompt-optimization/context-copy-cases.json",
+      "destination": "tests/migrated_business/fixtures/prompt-optimization/context-copy-cases.json",
+      "sourceSha256": "0888c0a776ef4b0fcbdd14648803d0491af1db3aaca8a23b749ce3f55a0367c1",
+      "destinationSha256": "0888c0a776ef4b0fcbdd14648803d0491af1db3aaca8a23b749ce3f55a0367c1",
+      "kind": "rule-fixture",
+      "changes": [
+        "Unmodified public prompt contract fixture.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/fixtures/prompt-optimization/requests.json",
+      "destination": "tests/migrated_business/fixtures/prompt-optimization/requests.json",
+      "sourceSha256": "f9b4ebc30d26de6198998c352b82787f3df9cfb1df78afb3d3336eb8b0a71314",
+      "destinationSha256": "f9b4ebc30d26de6198998c352b82787f3df9cfb1df78afb3d3336eb8b0a71314",
+      "kind": "rule-fixture",
+      "changes": [
+        "Unmodified public prompt contract fixture.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/generation_input_regression.test.mjs",
+      "destination": "tests/migrated_business/generation_input_regression.test.mjs",
+      "sourceSha256": "29767c8a7a6cfba097488fdebc645a22ea0e0b47d93301cb50aff7716e36f816",
+      "destinationSha256": "ed253ef708d73acb4db3f7554cf9050e645e92bc4b02c65ee9de38b5b7d59bbd",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/generation_parameters.test.mjs",
+      "destination": "tests/migrated_business/generation_parameters.test.mjs",
+      "sourceSha256": "a0a571d5104a647e742dbc3526407dcece0455699935dbe553f020d48bf9ae8f",
+      "destinationSha256": "040dcbb0619ce43b10a1495b525f72b2ac103bc986a367fbf8937fb96a3d37ae",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/libtv_video_model.test.mjs",
+      "destination": "tests/migrated_business/libtv_video_model.test.mjs",
+      "sourceSha256": "a224d2b66e6cc4c60ecfb5bb45bf0408d0252571f42c3add5d51b9ac59695aa2",
+      "destinationSha256": "7d9835e22e18112f430307406612cc0eacf580d578844908c0e57a035f341b5a",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/live_chain.test.mjs",
+      "destination": "tests/migrated_business/live_chain.test.mjs",
+      "sourceSha256": "c89d15ad2f21479fb145ba140ffd7389f296f9014b41dc8b09292e4620a5654b",
+      "destinationSha256": "f5aec4b65e9b78ce765e3f0294f1ce1bdeb5c4b66fe3ddd8ddd9d4b1098a755f",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/llm_local_provider.test.mjs",
+      "destination": "tests/migrated_business/llm_local_provider.test.mjs",
+      "sourceSha256": "40de2894e52fbbaa4913d809ef554a7d9c5e3cdc4c0dc2904db1593006b1a011",
+      "destinationSha256": "28d675b39eab9373bc7397526bf57c72440382158bd5c222be0140baf31a02f7",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/llm_provider_transport.test.mjs",
+      "destination": "tests/migrated_business/llm_provider_transport.test.mjs",
+      "sourceSha256": "7e48d4862ab5f67a7c70d14f7a44a614b3433b0ab65f018797b7ca93bb27bd0d",
+      "destinationSha256": "c641e13100f253a932f27576af2d7925baf7401aa688dcc3c2cf356704056214",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/llm_slot_model.test.mjs",
+      "destination": "tests/migrated_business/llm_slot_model.test.mjs",
+      "sourceSha256": "baf6ee39931ab6549068baaa65338f07afaafbf7f3791b0950e782ca035e58b7",
+      "destinationSha256": "54b619cea3b8bdc59bf3d40259580086e4965ae4134cb63decf63c8040d516c1",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/llm_task_model.test.mjs",
+      "destination": "tests/migrated_business/llm_task_model.test.mjs",
+      "sourceSha256": "4397f2267f798b3683d184294288a152cf388cd6c96a42d533effc506d85ef0e",
+      "destinationSha256": "97f3fa25e71b9e5b882f8eeae4426aa4c2d37e4daa34d0cdbde72c25696e64f3",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/prompt_identity_proxy.test.mjs",
+      "destination": "tests/migrated_business/prompt_identity_proxy.test.mjs",
+      "sourceSha256": "6d3dfc28c95f105aa9d3bea675517c31b8a040f43d7b7d82d9694e3fc5815024",
+      "destinationSha256": "8379d75cdfc3b25400e953a453d7018fa88a9fd8804b6d2a2b62a9bffcc0acb3",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/prompt_optimization_composer.test.mjs",
+      "destination": "tests/migrated_business/prompt_optimization_composer.test.mjs",
+      "sourceSha256": "0589183397e708cbc5d2b11decdc22d64d0b8c556b9ef130a933ee8b2aff99fb",
+      "destinationSha256": "d60224ad3351458790ed676dc798ba176dce09fcf1a40b8ca2b4c00a5cf283b8",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+      ]
+    },
+    {
+      "source": "tests/prompt_optimization_context_copy.test.mjs",
+      "destination": "tests/migrated_business/prompt_optimization_context_copy.test.mjs",
+      "sourceSha256": "d6e1935692cdbd018aff5b348ff7a5595a94704729925447cbc5710ab73c3571",
+      "destinationSha256": "ac4320fb4a44ae49a842d96cdff5b7d3eebeb37d271760e7bb643d0bffde7429",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/prompt_optimization_controller.test.mjs",
+      "destination": "tests/migrated_business/prompt_optimization_controller.test.mjs",
+      "sourceSha256": "7640063fe92e7948fb3b0e3a7d75f999ce132d2cddf24ce0eece8c0f241fa71e",
+      "destinationSha256": "07b3f01fa2e6bbd0377a64da557984e0cf6263a86c88c617191830c2b53021f0",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+      ]
+    },
+    {
+      "source": "tests/prompt_optimization_dom.mjs",
+      "destination": "tests/migrated_business/prompt_optimization_dom.mjs",
+      "sourceSha256": "182a5e6aaa7b57521315a96e2c838db27a93b7da7d6eab4ed50871576a096fb4",
+      "destinationSha256": "8656e8c445c092f8b85fd25225f10d88b51d928dcbfd304ef0a2efc66f24a714",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/prompt_optimization_history_review.test.mjs",
+      "destination": "tests/migrated_business/prompt_optimization_history_review.test.mjs",
+      "sourceSha256": "5c83e46dce17f591ae53e1c0c65509d4771c2c26637378a852ea572c6326ea05",
+      "destinationSha256": "6e712bb1cf147b771a80e6ddab34131000f9bd8fd4a45f1b71af2cdc909ec71d",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/prompt_optimization_model.test.mjs",
+      "destination": "tests/migrated_business/prompt_optimization_model.test.mjs",
+      "sourceSha256": "afa9b411f4741810a52d24eba05958669d8a97df9379bd2d154b42c78cb11311",
+      "destinationSha256": "85dc6b65125e09175cb3acad7d4bea8c917a0d0cc212a4711dbd3482203a9266",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/prompt_optimization_panel.test.mjs",
+      "destination": "tests/migrated_business/prompt_optimization_panel.test.mjs",
+      "sourceSha256": "ae874bd48c37aec1e150ad2c33141043e45a5ebf0514cf33a1ee39ed227ab6a3",
+      "destinationSha256": "900a08d0242e0b1111878f2e2217a1193b21c5e6b47eb52d95fe718f92e6225c",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/prompt_optimization_status.test.mjs",
+      "destination": "tests/migrated_business/prompt_optimization_status.test.mjs",
+      "sourceSha256": "72e6c26e2a32761140243755b4970bccb58fcf41b75cf75e36e8d917ce6ac749",
+      "destinationSha256": "da1b6dfebac686d0b915c593c8805af52c1536a94e01c4a6dffb3586235ecb46",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/prompt_optimization_workflow_history.test.mjs",
+      "destination": "tests/migrated_business/prompt_optimization_workflow_history.test.mjs",
+      "sourceSha256": "9bb89ff7dccedd6c8d670871da6e3b05896b6be81848a21d7a5aa71941e0515c",
+      "destinationSha256": "86ccd4e254a1eea24ff3f5f4839fa05f5a061f61f1722387667a738a1e12bb39",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": null,
+      "destination": "tests/migrated_business/register.mjs",
+      "sourceSha256": null,
+      "kind": "authored-test",
+      "changes": [
+        "New typed port, explicit HTTP assembly, focused migration regression or sanitized evidence; no copied upstream source claimed."
+      ],
+      "destinationSha256": "30c713eb08d2382129403f21091f28378eaa3cc430edb82897aea89417e8d611"
+    },
+    {
+      "source": "tests/script_parser.test.mjs",
+      "destination": "tests/migrated_business/script_parser.test.mjs",
+      "sourceSha256": "a7eb99816227e9c5340230d518985d862d294805e53c5985a49f70bd6b2cb7db",
+      "destinationSha256": "91f7e3e569412b7251c5931a095bb8ac2e414c3c34a13fb78f578cbe9d35f3f7",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/storyboard_import_assets.test.mjs",
+      "destination": "tests/migrated_business/storyboard_import_assets.test.mjs",
+      "sourceSha256": "8494823d44b97a98ef2e794b9cdf0eef7092c004e492872201e44f2946ff0da8",
+      "destinationSha256": "f3d5cde6946ca5813756202f7928625e91c1c494407cf16a1e87ffe653ad7c74",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/storyboard_task_state.test.mjs",
+      "destination": "tests/migrated_business/storyboard_task_state.test.mjs",
+      "sourceSha256": "772ab3cef817fde57adaff8708bec0340aec64eb3350168918ad6a6368c88f9a",
+      "destinationSha256": "e48e939ead2235b4dccf51f8c4cfcaf28109c315985f085369ab2cb4b10899a6",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/table_column_splitters.test.mjs",
+      "destination": "tests/migrated_business/table_column_splitters.test.mjs",
+      "sourceSha256": "1f00747d905394047362a3fe5cde949653f07e99ff2a55800a24d4759d041bd1",
+      "destinationSha256": "f1164642e595467707e2042d634324373bd05e91b24ceeb42fec66753fdcb98e",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
+        "Add actual attachColumnSplitters DOM-port regression coverage for read-before-write order, projected geometry at three zooms, two-instance scroll/resize/disposal, and fresh fluid measurements."
+      ]
+    },
+    {
+      "source": "tests/table_empty_node.test.mjs",
+      "destination": "tests/migrated_business/table_empty_node.test.mjs",
+      "sourceSha256": "9d4bb229f7e689f1babe0626a3892184a1337f05b286c97e244ddadfdf295b82",
+      "destinationSha256": "2546540be814613433bd0b4b62cfc236d12034b206170dd399131cb114c22982",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/table_exchange.test.mjs",
+      "destination": "tests/migrated_business/table_exchange.test.mjs",
+      "sourceSha256": "e2c523d0935cc760c2405d7f3ae8b29d82685971e96ce37fca9ebc288d307fde",
+      "destinationSha256": "6db6a13782adf6f0fd49cc14fbc87fc150f95aec56f3de6484981baaa90485d7",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/table_generation.test.mjs",
+      "destination": "tests/migrated_business/table_generation.test.mjs",
+      "sourceSha256": "78eb6032829c7037049535c553287ee2b53cd0de5cc194fa2c135c58b2f0acb0",
+      "destinationSha256": "242ebb42004bea099f5d417dd13aad8a8628370cd98293f95951926f8dc8484b",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/table_generation_history.test.mjs",
+      "destination": "tests/migrated_business/table_generation_history.test.mjs",
+      "sourceSha256": "16a2d0ba5c4923cab75369f90b683672b9011a6cccba96c76f3f1a5773d04770",
+      "destinationSha256": "74c1197caf55e89d4663bf220ac8fbf0fff6631f9ed13d6f50db048b4f0353f0",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/table_generation_polling.test.mjs",
+      "destination": "tests/migrated_business/table_generation_polling.test.mjs",
+      "sourceSha256": "8b82ec32823c6be374a980659ce5ea0e7e3b0d99421433f96a17af7d5e82b754",
+      "destinationSha256": "738ee7d6e9a412f9d9b4715f2c4a7141930e822096d57b1cb4596be890aa1f8a",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending."
+      ]
+    },
+    {
+      "source": "tests/table_generation_request.test.mjs",
+      "destination": "tests/migrated_business/table_generation_request.test.mjs",
+      "sourceSha256": "e0eb8dc31acd453535e52c72cc484f8343aa40ab7ef7827cf5d802bb206f2958",
+      "destinationSha256": "b4456668a95eb1efd182649e8a0331b23769a68006243ffcf4430ab08b8f9955",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending."
+      ]
+    },
+    {
+      "source": "tests/table_local_qwen.test.mjs",
+      "destination": "tests/migrated_business/table_local_qwen.test.mjs",
+      "sourceSha256": "bcd9ed797e697fe3189a9de697bcd53322fe8b94fd3ee9d0a179aa3d175c2087",
+      "destinationSha256": "580c5416203f78d3e33e7bb2b11d875f274ce0302aa9ef333d3039bebb3738d8",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/table_material_columns.test.mjs",
+      "destination": "tests/migrated_business/table_material_columns.test.mjs",
+      "sourceSha256": "87ff24a3c0eae088088a7c489a92ae76ee2f5ad70771ee75ac27b4c134d5ffea",
+      "destinationSha256": "d71f5614864bd9c9526a8fd55fe65b3a59f3c3c3709de9121b86d9fdacfaa880",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/table_material_output.test.mjs",
+      "destination": "tests/migrated_business/table_material_output.test.mjs",
+      "sourceSha256": "da114359f1e3c5feb7e24c8f9576f233ceba8416ffe1de57fa9049672f221a37",
+      "destinationSha256": "2d72793aededdf4ac2c4227bd2b195fab77c0dfbc650eb68013910c298c85a4c",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/table_node_install.test.mjs",
+      "destination": "tests/migrated_business/table_node_install.test.mjs",
+      "sourceSha256": "8d37a8616fa29f2b3c6a3533cffcebe952f6848dfadf2ddadf39f267719d4390",
+      "destinationSha256": "ebe94d28c63afbaae7f5e600787504f1317d487a0025e2e2eb03d68e9201802e",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/table_panel_views.test.mjs",
+      "destination": "tests/migrated_business/table_panel_views.test.mjs",
+      "sourceSha256": "8606cf3ac5a9f99093727deffd7aa4ac61adb568022c4e0f13835f3f0130e5d9",
+      "destinationSha256": "e6bf905860568b4592334f92c31ec7c1753a929ac06894cf2abc4b61f3d4233a",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/table_parse_feedback.test.mjs",
+      "destination": "tests/migrated_business/table_parse_feedback.test.mjs",
+      "sourceSha256": "c749af04fe8dbf98d7c12705b578e6b0cbe39027875a3025f91a6ba4d2108543",
+      "destinationSha256": "dfe3f7c1e5426b72a8dd060abbcd695b9100c6acd29ed023f3a7b1b014b87ffb",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/table_prompt.test.mjs",
+      "destination": "tests/migrated_business/table_prompt.test.mjs",
+      "sourceSha256": "8b61c42f99943c3bb42770d4ed64c2bcc1c1d88beb2e448b1563f8f2e4cacef9",
+      "destinationSha256": "c74b506e6e7499b9214da75985304874d294bda046a21b9181fbc888cb87241d",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/table_prompt_source.test.mjs",
+      "destination": "tests/migrated_business/table_prompt_source.test.mjs",
+      "sourceSha256": "a4b79750f191d5c0ec0f39fe2d518eb3785e6e9b7e6afc02b273a0c2f33ccafc",
+      "destinationSha256": "6d0a126503d12c4ab59e4d932baeef3ec1d6f5edb8325e8f45841c3c8710087f",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/table_prompt_template.test.mjs",
+      "destination": "tests/migrated_business/table_prompt_template.test.mjs",
+      "sourceSha256": "cfa3335c359aa73b209557f2987494204f69c500aa568ab94950589acda59d48",
+      "destinationSha256": "b60e394b05f55773f906b75e79927e4c6ce19af8a11ba9ecf1804383110475e7",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/table_structure.test.mjs",
+      "destination": "tests/migrated_business/table_structure.test.mjs",
+      "sourceSha256": "0141812c04ba573f63461a3a5db5713352aa62f4af18faaffb308fa9979704be",
+      "destinationSha256": "8aa47b45c2f0af4af8f166c469baefdda139b7592bb86ec8b42637ebd81ae83c",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/table_text_side.test.mjs",
+      "destination": "tests/migrated_business/table_text_side.test.mjs",
+      "sourceSha256": "9943ce607131b720e9fd926f2f17fffef82274f7139ced08284d80a661bfb888",
+      "destinationSha256": "5690f47202a7a8de544b9973908725344542a35e618d8d529e44271404d1a591",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/table_video_references.test.mjs",
+      "destination": "tests/migrated_business/table_video_references.test.mjs",
+      "sourceSha256": "548d54b0710b64a6144f4f6b076d7955c125de105ed5bc05f8dd0d8cee93468f",
+      "destinationSha256": "c03507315241d160ffe67f5b7dc29d44248045633217bb5571ddb096c768e837",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/table_workbench_height.test.mjs",
+      "destination": "tests/migrated_business/table_workbench_height.test.mjs",
+      "sourceSha256": "865f6b7d4f7d15450730c39c594458bf554216c5f267b585d444832c0928dbb3",
+      "destinationSha256": "28862af579c9f7fff5f555e136cc2f194dea7aa4981f84f789d673056657e909",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": "tests/video_task_linked_prompt.test.mjs",
+      "destination": "tests/migrated_business/video_task_linked_prompt.test.mjs",
+      "sourceSha256": "0cb5fbadac77612bb72cf8e69ca83f4c3747112d5a9c1fd028a4e678368162be",
+      "destinationSha256": "f1d95a1b248eb6dfcc217dcd5ef12ed97324c2ce52a061642a6fc59989b44cb4",
+      "kind": "rule-test",
+      "changes": [
+        "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+      ]
+    },
+    {
+      "source": null,
+      "destination": "frontend/src/application/business_document.ts",
+      "sourceSha256": null,
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
+        "Native reactive JSON boundary: detach nested host proxies for document transactions and LLM load/proposal/apply; preserve all unknown JSON keys and identities, reject unsavable edits before history, and verify source-bound edit/recovery/undo with no submit. Real UI acceptance remains separate.",
+        "Skip only unused whole-table equality encodings in the native afterWrite path; preserve all validated snapshots, native history, rollback, per-target revisions and fallback ordering. Count and semantic regressions pass; actual performance acceptance pending.",
+        "Add optional typed native replacement through DocumentController: ordinary same-container JSON replacements retain isolated before/next snapshots while sharing unchanged history, no-op, rollback and observation logic. Preserve unlike-root descriptor behavior and the asynchronous review mutation path. Two-snapshot mechanism and focused checks pass; actual performance acceptance remains pending.",
+        "Expose cheap isCurrent using the existing disposed/options.current lifetime predicate without document reads, serialization or history access. Existing host current/ready semantics, transactions, revisions and undo remain unchanged."
+      ],
+      "destinationSha256": "8559ee9251854f69395dd5ca82d3f881c4880fa72bd1d80748492c0539d04043"
+    },
+    {
+      "source": null,
+      "destination": "frontend/src/integrations/comfyui/business/business_document_host.ts",
+      "sourceSha256": null,
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
+        "Use a typed comparison-only native history stamp that excludes valid known v1 Canvas x/y/zoom navigation; preserve native/saved snapshots, unknown fields, other business revisions and all existing ownership/history checks. Actual host grouping and input latency require retest."
+      ],
+      "destinationSha256": "d6fac788cef9e86206d5292fb0b4a244ad71da00ff6db7306ad957f75ecc1128"
+    },
+    {
+      "source": null,
+      "destination": "frontend/src/integrations/comfyui/business/video_generate.js",
+      "sourceSha256": null,
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending."
+      ],
+      "destinationSha256": "013b839d793ccd293879c768800883cb80c626867ae5d661732ddff33db6373d"
+    },
+    {
+      "source": null,
+      "destination": "frontend/src/features/generation/generation_session.ts",
+      "sourceSha256": null,
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
+        "Post-snapshot hardblock review: immutable receipt digest, exact missing-task recovery, no automatic replay; tests include original-scope and storage-unavailable rejection.",
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+      ],
+      "destinationSha256": "8c7ca9105b9e0ecf76be047042e88a872f10ebb219e92bae334e2c5033c83ff1"
+    },
+    {
+      "source": null,
+      "destination": "docs/architecture/EDITING.md",
+      "sourceSha256": null,
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
+        "Post-snapshot hardblock review: immutable receipt digest, exact missing-task recovery, no automatic replay; tests include original-scope and storage-unavailable rejection.",
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
+        "Native reactive JSON boundary: detach nested host proxies for document transactions and LLM load/proposal/apply; preserve all unknown JSON keys and identities, reject unsavable edits before history, and verify source-bound edit/recovery/undo with no submit. Real UI acceptance remains separate."
+      ],
+      "destinationSha256": "fd1c9f21dd348bfa4ac2314d6ee72cefce9cddbdedd45b92837c20b8234fc5fd"
+    },
+    {
+      "source": null,
+      "destination": "tests/generation_frontend/optimization_flow.test.mjs",
+      "sourceSha256": null,
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
+        "Post-snapshot hardblock review: immutable receipt digest, exact missing-task recovery, no automatic replay; tests include original-scope and storage-unavailable rejection.",
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+      ],
+      "destinationSha256": "17ee16500ab52f0a836c69592e758fbb6262698dd30e372322c5d87e9b7345a1"
+    },
+    {
+      "source": null,
+      "destination": "tests/generation_frontend/qwen_contract.test.mjs",
+      "sourceSha256": null,
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
+        "Post-snapshot hardblock review: immutable receipt digest, exact missing-task recovery, no automatic replay; tests include original-scope and storage-unavailable rejection."
+      ],
+      "destinationSha256": "6fceb8e5ba78a141cf391ef40105ac5bcd399acf77a8006cf1f9d3f254706f99"
+    },
+    {
+      "source": null,
+      "destination": "tests/generation_frontend/session.test.mjs",
+      "sourceSha256": null,
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
+        "Post-snapshot hardblock review: immutable receipt digest, exact missing-task recovery, no automatic replay; tests include original-scope and storage-unavailable rejection.",
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+      ],
+      "destinationSha256": "a606a9499ae214bff11c102fffcf0f792c4d700fa2d7b72161731022c8b030e0"
+    },
+    {
+      "source": null,
+      "destination": "tests/generation_frontend/table_flow.test.mjs",
+      "sourceSha256": null,
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
+        "Post-snapshot hardblock review: immutable receipt digest, exact missing-task recovery, no automatic replay; tests include original-scope and storage-unavailable rejection.",
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+      ],
+      "destinationSha256": "d268cba3d1efc062179d38889b522bba535e494ddb5a445f1b91db7be26b54a5"
+    },
+    {
+      "source": null,
+      "destination": "frontend/src/contracts/json_snapshot.ts",
+      "sourceSha256": null,
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "Native reactive JSON boundary: detach nested host proxies for document transactions and LLM load/proposal/apply; preserve all unknown JSON keys and identities, reject unsavable edits before history, and verify source-bound edit/recovery/undo with no submit. Real UI acceptance remains separate."
+      ],
+      "destinationSha256": "bb8060e3f46723df837acdc147a9a0e6405525d3cb239a1109c88b81feb44705"
+    },
+    {
+      "source": null,
+      "destination": "tests/migrated_business/native_json_boundaries.test.mjs",
+      "sourceSha256": null,
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "Native reactive JSON boundary: detach nested host proxies for document transactions and LLM load/proposal/apply; preserve all unknown JSON keys and identities, reject unsavable edits before history, and verify source-bound edit/recovery/undo with no submit. Real UI acceptance remains separate.",
+        "Extend the existing inert DOM with standard class membership and attribute presence operations for actual-control reconciliation; retain proxy, recovery and native history assertions."
+      ],
+      "destinationSha256": "55f3072c30f7ad26997baca5f3defd5feff0ee01734092fcad3b31eb022e5824"
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "frontend/src/integrations/comfyui/business/table_serializer.ts",
+      "destinationSha256": "00cd51d23c97f998aac3481320f0a82520f1d5b8309f64aa10d496fb5951c857",
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "Authored strict TypeScript integration helper: cache one exact primitive string only after the full old output equals that string, mode0/unlinked/no liveSource, with node/graph/native lookup, first widget/slot and current hook/connectivity guards. Known native customtext getValue is read anew on every hit; unknown accessors delegate. A supported miss adds one public getter read; arbitrary side-effectful third-party getters are outside the fixed native contract. No mutable table, graph or history cache."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "tests/migrated_business/table_widget_serializer.test.mjs",
+      "destinationSha256": "1c3ec15b23147b18a3418f5e6d4e84e03ec4b840c9bc34ca541cf6f8d397ac25",
+      "kind": "rule-regression",
+      "changes": [
+        "Authored owning-module regressions: two 500x10 tables, complete-delegate counters, unknown JSON and public snapshot isolation, real install/save/hideNative scheduling, native customtext getter/store and inherited slot.link, identity/hook/raw changes, fallback/error behavior and native history serialization oracle. Counter reductions are not runtime latency or product acceptance."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "frontend/src/features/table/empty_row_state_scope.ts",
+      "destinationSha256": "17ea67cc7e0a97ba48d856e123dc9e234fabe516baabaa50b215a07df82e5be3",
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "Authored strict TypeScript proof for the optional constant-empty row-state capability. Compare field/configuration metadata, view and ordered stable row IDs before and after a private single-cell edit; never read or serialize cell values, whole tables, native graphs or task facts. No row-state cache, background observer or parallel editing truth."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "tests/migrated_business/table_prompt_passive_observation.test.mjs",
+      "destinationSha256": "f6708fe1a33ac1dac843fea36dfc166e8529918cc2d4e4d70f72fd0a482c2ecf",
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "Authored real owning-editor/document and two-instance 500x10 request-observation regressions: initial scan, first current begin, ABA/deletion-reinsert, retained comparison, rich-sidebar second begin, late/close/failed request and peer isolation. Additional native tickets are disabled to expose PromptRequests rejection; bounded DOM is not real browser performance."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "frontend/src/ui/unfocused_history_guard.ts",
+      "destinationSha256": "0eee581b79b29fa35b0e8c5ce85fe862a685d1da1eb3d6f4a2f26a2fe01a438e",
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "Authored typed field-local helper: cancel only exact connected editable unfocused fields with cancelable historyUndo/historyRedo and valid current owner outside composition. No global key listener, propagation stop, value/history write or synthetic graph undo; disposal removes exact listeners. Actual browser cancelability remains unverified."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "tests/migrated_business/unfocused_history_guard.test.mjs",
+      "destinationSha256": "cee2ef962d1ea52677f68f853a2a837bda654d9847996bfee61cecc2b265c3c2",
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "Authored full owning-panel and actual BusinessDocument regressions with unrelated IO/buttons injected: two source/instruction owners, preserved focused/local input, cheap lifetime, composition/shadow focus/noncancelable/read-only/inactive exclusions and disposal. Models browser default action; does not prove real Chromium event delivery."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "frontend/src/integrations/comfyui/business/native_edit_history_stamp.ts",
+      "destinationSha256": "3ad059348af01a95eb7579445290fdad6c0884ec4badb9f9991604a0f8b56074",
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "Authored comparison helper: accept only own-data plain/null-prototype known v1 paths with finite supported viewport coordinates, shallow-copy four descriptor layers and stringify once. Preserve unknown keys/metadata and native ds/business/card/link changes; unsupported paths fall back to original stringification. No cache, saved-state change or performance claim."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "tests/migrated_business/native_edit_history_stamp.test.mjs",
+      "destinationSha256": "4bab25c9f16a92d30b650f38d12ead767b4188c9b036b8aede221acf777b8638",
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "Authored real binding/controller/native-history integration regressions with a modeled host tracker: navigation-only grouping, undo/redo, two instances, unknown/known business revision breaks, null prototypes/descriptors, aliases, malformed fallback, serialization errors and stale/disposed ownership. Does not prove real host timing or the observed first-split cause."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "tests/migrated_business/prompt_optimization_observe_pass_local.test.mjs",
+      "destinationSha256": "38df86948c50cde6aafbef4d2d16c590b761d436ab2c3ce5478155e9a279ae13",
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "Authored exact-output regressions against the fixed a0fb1d9 model oracle: all 5000 targets, per-pass field encoding count, revisions/request sequencing/ABA/deletion, mixed templates/references/configs/invalid content, public uncached calls, accessor/nonplain fallback and field changes during a pass. Mechanism counts do not establish actual UI latency improvement."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "tests/migrated_business/table_input_snapshot_encoding.test.mjs",
+      "destinationSha256": "26c6527c6a56692c1f556f345e1780683db9ce9a94490b9d0869fffe03a58c9c",
+      "kind": "test-source",
+      "changes": [
+        "Authored local cell snapshot isolation, rollback, unknown JSON, width/derived/ticket fallback and encoding-count contracts. These do not establish actual latency or UI acceptance."
+      ]
+    }
+  ],
+  "testExclusions": {
+    "native-auth-old-transport": [
+      "prompt_optimization_api.test.mjs",
+      "table_comfy_transport.test.mjs"
+    ],
+    "removed-product-simulator": [
+      "llm_io_model.test.mjs",
+      "llm_style_preview_interaction.test.mjs"
+    ],
+    "reason": "Old direct-host auth/transport and product mock execution are not migrated. New BusinessPorts contract tests cover fail-closed capability behavior; LLM input/apply rules receive replacement focused coverage."
+  },
+  "sourceContentPolicy": "sourceSha256 identifies exact read-only source workspace bytes; sourceCommit records the audited baseline and does not assert an otherwise clean workspace.",
+  "providedNodeTypes": [
+    "DAELAB.Table",
+    "DAELAB.StoryboardImport",
+    "DAELAB.ScriptParser",
+    "DAELAB.LLMStylePreviewB",
+    "DAELAB.LibTV.VideoGenerate"
+  ],
+  "legacyTypesExcludedFromNormalRegistration": [
+    "DAELAB.LLMStylePreviewA",
+    "DAELAB.LLMStylePreviewC",
+    "DAELAB.LLMStylePreviewD",
+    "DAELAB.LLMStylePreviewE",
+    "DAELAB.GPTImageStoryboardStage",
+    "DAELAB.LibTV.StoryboardBatch"
+  ],
+  "sharedOwnership": "design/vendor resources are shared package assets copied by root. This manifest records their business provenance but does not duplicate resources or own shared ui/design implementations.",
+  "verification": {
+    "ruleTests": 322,
+    "ruleFailures": 0,
+    "entrypointLoad": "8 entrypoints; no early graph access or import-time polling",
+    "javascriptSyntaxFiles": 81,
+    "typescript": "strict tsc --noEmit passed",
+    "architectureModules": 123,
+    "evidence": "tests/migrated_business/evidence/README.md",
+    "command": "node --import ./tests/migrated_business/register.mjs --test tests/migrated_business/*.test.mjs",
+    "liveProductAcceptance": "pending; automated checks are not M3 acceptance"
+  },
+  "generationWiringValidation": {
+    "command": "npm run check",
+    "productFiles": 204,
+    "architectureModules": 134,
+    "mainTests": null,
+    "businessTests": 323,
+    "generationFrontendTests": 18,
+    "evidence": ".local/validation/generation-recovery-hardblock-first.log",
+    "liveAcceptance": false,
+    "scope": "Only hashes for this wiring task were updated; other owners and vendor entries retain their own evidence.",
+    "combinedCheck": "Previous release check passed; latest aggregate check was interrupted by concurrent Canvas import/hash changes, recorded in generation-hardblock-check-final.log."
+  },
+  "localExecutionEvidence": {
+    "publication": "ignored local artifacts; public summaries only",
+    "files": [
+      {
+        "path": "tests/migrated_business/evidence/final-rule-run.tap",
+        "sha256": "697f9c51079cf6b4277135093177a2932020fc0ae9ee924096f752e76675fe7f"
+      },
+      {
+        "path": "tests/migrated_business/evidence/first-failing-run.tap",
+        "sha256": "0cd26a21778b5c88ba05aea87b37e597034b3ced6800dc14ab05132aaeb2c190"
+      },
+      {
+        "path": "tests/migrated_business/evidence/second-run.tap",
+        "sha256": "56690eeba408086c334bdc0bb474baeb96d2f24b1e6623daab2d4862dfd6051a"
+      },
+      {
+        "path": "tests/migrated_business/evidence/third-run.tap",
+        "sha256": "73e97c60151ad0c0e007617f45c5a8f620ab2e3d9c98af1cce6d3f1e2c4ff7aa"
+      }
+    ]
+  },
+  "preflightFenceValidation": {
+    "pythonRuntime": "comfy-python-3.12",
+    "generationTests": 70,
+    "fixtureTests": 16,
+    "sourceFrontendTests": 22,
+    "businessTests": 324,
+    "typecheck": "passed",
+    "liveInferenceExecuted": false,
+    "hostUI": "pending unified build; older snapshots predate this correction"
+  }
+}

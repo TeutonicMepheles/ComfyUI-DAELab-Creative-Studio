@@ -1,0 +1,6 @@
+/* Host-owned DOM visibility while Creative Canvas is active. */
+.dae-creative{--dae-host-sidebar-width:var(--sidebar-width,56px)}
+body[data-daelab-creative=true] #graph-canvas{visibility:hidden}
+body[data-daelab-creative=true] [data-testid="minimap-container"]{display:none!important}
+body[data-daelab-creative=true] [data-testid="selection-toolbox"]{display:none!important}
+body[data-daelab-creative=true] [role="toolbar"]:has(> [data-testid="zoom-controls-button"]){display:none!important}

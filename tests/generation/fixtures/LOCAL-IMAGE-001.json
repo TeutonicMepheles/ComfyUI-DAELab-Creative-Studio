@@ -1,0 +1,115 @@
+{
+  "sampleId": "LOCAL-IMAGE-001",
+  "sourceCommit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+  "captureKind": "offline-pinned-source-construction",
+  "transportSubmitted": false,
+  "inferenceExecuted": false,
+  "normalizations": [
+    "output prefix",
+    "LoadImage rooted input location"
+  ],
+  "finalRequest": {
+    "model": {
+      "class_type": "UNETLoader",
+      "inputs": {
+        "unet_name": "qwen_image_2.1_turbo_int8_convrot.safetensors",
+        "weight_dtype": "default"
+      }
+    },
+    "clip": {
+      "class_type": "CLIPLoaderGGUF",
+      "inputs": {
+        "clip_name": "Qwen-Image-2.1-Turbo-Abliterated-Uncensored-Q8_0.gguf",
+        "type": "qwen_image"
+      }
+    },
+    "condition": {
+      "class_type": "TextEncodeQwenImage21",
+      "inputs": {
+        "clip": [
+          "clip",
+          0
+        ],
+        "prompt": "白色背景上的静物画，两只蓝色陶瓷杯并排放在浅色木桌上，左杯高、右杯矮，两只杯柄都朝右。柔和自然光，无人物、无文字。",
+        "negative_prompt": "",
+        "resolution": 1024,
+        "images": {}
+      }
+    },
+    "vae": {
+      "class_type": "VAELoader",
+      "inputs": {
+        "vae_name": "qwen_image_2.1_vae_bf16.safetensors"
+      }
+    },
+    "latent": {
+      "class_type": "EmptyLatentImage",
+      "inputs": {
+        "width": 1024,
+        "height": 1024,
+        "batch_size": 1
+      }
+    },
+    "cache": {
+      "class_type": "QwenImage21Cache",
+      "inputs": {
+        "model": [
+          "model",
+          0
+        ],
+        "device": "auto",
+        "dtype": "default"
+      }
+    },
+    "sample": {
+      "class_type": "KSampler",
+      "inputs": {
+        "seed": 20261013,
+        "steps": 8,
+        "cfg": 1,
+        "sampler_name": "euler",
+        "scheduler": "simple",
+        "denoise": 1,
+        "model": [
+          "cache",
+          0
+        ],
+        "positive": [
+          "condition",
+          0
+        ],
+        "negative": [
+          "condition",
+          1
+        ],
+        "latent_image": [
+          "latent",
+          0
+        ]
+      }
+    },
+    "decode": {
+      "class_type": "VAEDecode",
+      "inputs": {
+        "samples": [
+          "sample",
+          0
+        ],
+        "vae": [
+          "vae",
+          0
+        ]
+      }
+    },
+    "save": {
+      "class_type": "SaveImage",
+      "inputs": {
+        "images": [
+          "decode",
+          0
+        ],
+        "filename_prefix": "<allowed-output-prefix>"
+      }
+    }
+  }
+}

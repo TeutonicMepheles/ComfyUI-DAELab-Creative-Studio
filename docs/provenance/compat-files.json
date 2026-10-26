@@ -1,0 +1,163 @@
+{
+  "version": 1,
+  "sourceRepository": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library",
+  "sourceCommit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+  "sources": [
+    {
+      "path": "nodes/daelab_comfytv_storyboard/node.py",
+      "sha256": "2428ebb7a8a038e69a504b211976ddb9b1db2ed19e72df0a4526d5e27608220e",
+      "url": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/node.py"
+    },
+    {
+      "path": "nodes/libtv_bridge/node.py",
+      "sha256": "3d83aa64c9766bd0e8c515bd5aeb1c507cf7f5e183d2a9e96bf09f0d8570f921",
+      "url": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/libtv_bridge/node.py"
+    },
+    {
+      "path": "nodes/libtv_bridge/batch_node.py",
+      "sha256": "711d02d3ba08c7c99dd1f769a12465672480bb76eaac7ce8ee5f686be22ed76a",
+      "url": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/libtv_bridge/batch_node.py"
+    },
+    {
+      "path": "nodes/libtv_bridge/runtime.py",
+      "sha256": "549941f7a2388e19df02e1e63c31872be352b4c9d8e4a7dffe9cbc5b472c20eb",
+      "url": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/libtv_bridge/runtime.py"
+    },
+    {
+      "path": "web/llm_style_preview.js",
+      "sha256": "129748850824e58beac56b81431a838d3591acf958606fcb62a097ea9398abdd",
+      "url": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/llm_style_preview.js"
+    },
+    {
+      "path": "web/llm_style_preview_panel.mjs",
+      "sha256": "4746ca264162db7c6316a229813d6c83d5a349ea46bb313d6072b9dc278df5cd",
+      "url": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/llm_style_preview_panel.mjs"
+    },
+    {
+      "path": "web/storyboard_legacy_widgets.mjs",
+      "sha256": "881b125400312d8d19122364026a68131ea3e65322dec3228b58d9d9ae31c939",
+      "url": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/storyboard_legacy_widgets.mjs"
+    },
+    {
+      "path": "user/default/workflows/ComfyTV-StoryBoard-GPT-Image2-完整工作流.json",
+      "sha256": "6a529f6f73edcfb287f7b8f811ea008e1405056d7c0aa17f1d4dbd39783f4b93",
+      "url": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/user/default/workflows/ComfyTV-StoryBoard-GPT-Image2-完整工作流.json"
+    }
+  ],
+  "license": "Source ownership retained; no new code license inferred from source without repository LICENSE.",
+  "status": "Exact historical schema extraction and synthetic contract tests; actual host compatibility and M6 migration acceptance pending.",
+  "files": [
+    {
+      "destination": "compat/workflows/__init__.py",
+      "destinationSha256": "ace3a596616edf768f7d0158e98eb337b552d38d00e1531cc4e7e5d844130a76",
+      "kind": "new-readonly-integration",
+      "changes": [
+        "Preserve historical data; exclude old provider execution and auth hooks; no automatic conversion or submission."
+      ]
+    },
+    {
+      "destination": "compat/workflows/reader.py",
+      "destinationSha256": "bb0082564f76d83ce8b09e0ada6e799f8099ecd9dd36ef6846281e6af70cb6c9",
+      "kind": "new-readonly-integration",
+      "changes": [
+        "Preserve historical data; exclude old provider execution and auth hooks; no automatic conversion or submission."
+      ]
+    },
+    {
+      "destination": "compat/workflows/node_schemas.py",
+      "destinationSha256": "d97958b0aa9b01496d4e3c761e2b1d07ef913b1cabc36c5e8a1fa42384febceb",
+      "kind": "source-derived-schema",
+      "changes": [
+        "Preserve historical data; exclude old provider execution and auth hooks; no automatic conversion or submission."
+      ]
+    },
+    {
+      "destination": "frontend/src/compat/readonly_nodes.ts",
+      "destinationSha256": "f350d577680e4acdba4b1d18096047dfb9fb8d7b888f45657d18cc433457abd4",
+      "kind": "new-readonly-integration",
+      "changes": [
+        "Preserve historical data; exclude old provider execution and auth hooks; no automatic conversion or submission.",
+        "Validate pinned historical slot names, indexes and types before base host hydration; preserve unknown workflow envelope locations without cloning native graph payloads.",
+        "Preserve nested graph, node, slot and link extension fields by current native object identity; release bridges on native graph removal without resurrecting deleted entities."
+      ]
+    },
+    {
+      "destination": "frontend/src/integrations/comfyui/compat_readonly.js",
+      "destinationSha256": "b3f2527021cb989f21d98bcdf87b8a8cad4317cea7e18d792064382429d06560",
+      "kind": "new-readonly-integration",
+      "changes": [
+        "Preserve historical data; exclude old provider execution and auth hooks; no automatic conversion or submission.",
+        "Allow host save shortcut through the read-only panel using the existing editor event contract.",
+        "Import the shared ui/creative_events.mjs propagation contract directly without depending on the table feature.",
+        "Use base LGraphNode.configure for readonly historical schemas; preserve root unknown fields through configure/serialize/asSerialisable/clear with disposal and workflow isolation.",
+        "Preserve nested graph, node, slot and link extension fields by current native object identity; release bridges on native graph removal without resurrecting deleted entities."
+      ]
+    },
+    {
+      "destination": "tests/migration/build_legacy_fixture.py",
+      "destinationSha256": "6fd15bac91e88c4bd9fd206db7051f3fb6fd973f08f0730a0b487a32ea31c454",
+      "kind": "new-readonly-integration",
+      "changes": [
+        "Preserve historical data; exclude old provider execution and auth hooks; no automatic conversion or submission."
+      ]
+    },
+    {
+      "destination": "tests/migration/fixtures/legacy-source-contract.json",
+      "destinationSha256": "c9d04b3be8f665a9f7e0bc21c92ab4c771000910e7a37dfced6e416943e76edf",
+      "kind": "source-derived-schema",
+      "changes": [
+        "Preserve historical data; exclude old provider execution and auth hooks; no automatic conversion or submission."
+      ]
+    },
+    {
+      "destination": "tests/migration/fixtures/legacy-readonly-workflow.json",
+      "destinationSha256": "2f0ec7b3252a563d9fa5d942468a125d7246d9657a4ee924342fbc46a2ca913e",
+      "kind": "source-derived-schema",
+      "changes": [
+        "Preserve historical data; exclude old provider execution and auth hooks; no automatic conversion or submission."
+      ]
+    },
+    {
+      "destination": "tests/migration/readonly_nodes.test.mjs",
+      "destinationSha256": "36d7e1fdc2118c15a57e2c335cd90be8d96f5a8fb9243b8380424ae6f9a924ad",
+      "kind": "new-host-contract-regression",
+      "changes": [
+        "Pinned 1.53.10 constructor/serialization transformation regression; no host bundle or private data included.",
+        "Map the real json_snapshot TypeScript dependency into the existing data-URL test loader for DocumentController; preserve production code and all readonly compatibility assertions. The first combined-check loader failure is retained; focused and combined checks pass after the test-only dependency mapping.",
+        "Load the existing source TypeScript resolution hook before dynamically importing history; compatibility assertions unchanged."
+      ]
+    },
+    {
+      "destination": "tests/migration/fixtures/host-1.53.10-contract.json",
+      "destinationSha256": "cfa418105e827b7348046da5a38435f38fd29c1d8b8b778ab664f2731baa1e76",
+      "kind": "new-host-contract-regression",
+      "changes": [
+        "Pinned 1.53.10 constructor/serialization transformation regression; no host bundle or private data included."
+      ]
+    },
+    {
+      "destination": "tests/migration/HOST_COMPATIBILITY.md",
+      "destinationSha256": "18589c9b77ece57c494bd049dc2e67fc0f904bd4dff1bd4aace0761230ec9286",
+      "kind": "new-host-contract-regression",
+      "changes": [
+        "Pinned 1.53.10 constructor/serialization transformation regression; no host bundle or private data included."
+      ]
+    },
+    {
+      "destination": "tests/migration/build_nested_fixture.py",
+      "destinationSha256": "d60d2494391f0ad472af0b37376de0adc48d1654528c3891d32cc2d8c35f3efb",
+      "kind": "new-host-contract-regression",
+      "changes": [
+        "Public deterministic nested fixture with stable graph/node/link identities; no runtime or user data."
+      ]
+    },
+    {
+      "destination": "tests/migration/fixtures/nested-readonly-workflow.json",
+      "destinationSha256": "d4fc460f69958bb9e0bb49d844d9ea2adec49ac318d05d20ebe7ff32ac95cabe",
+      "kind": "new-host-contract-regression",
+      "changes": [
+        "Public deterministic nested fixture with stable graph/node/link identities; no runtime or user data."
+      ]
+    }
+  ]
+}

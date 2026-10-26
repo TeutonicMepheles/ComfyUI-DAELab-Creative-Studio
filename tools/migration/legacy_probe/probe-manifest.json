@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "kind": "legacy-runtime-probe-package",
+  "coverageVersion": "legacy-memory-v1",
+  "files": [
+    {
+      "path": "__init__.py",
+      "sha256": "5452376c61ea6ecf5131f92c6c176ab08c64e247f96bd8ed575717140a752529",
+      "bytes": 923
+    },
+    {
+      "path": "probe.py",
+      "sha256": "2a5dbae90d86f3a326ebd9935f039607ab283127d27c80a4525f653701f13836",
+      "bytes": 45540
+    },
+    {
+      "path": "README.md",
+      "sha256": "32f34f8322fb2a64eeab193a753376117b4114a86a74272595628dcabc8e73f5",
+      "bytes": 1070
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "07bd6a9dc67ebd3d6b2125c1af8b9d75516a66e3d25bd69b4abb717ec728e761",
+      "bytes": 518
+    }
+  ],
+  "probeSourceSha256": "94b793837c1a2ee5da0291713e2682c855ca32418f35cf653f04ee948cf8e8dc"
+}

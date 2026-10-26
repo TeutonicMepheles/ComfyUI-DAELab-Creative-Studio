@@ -1,0 +1,2116 @@
+# 2026-10-25 实际性能观察
+
+这些是指定构建上的原始观察，不代表阶段通过。所有首次失败和后续运行均保留；相关实现变化后须重测。
+
+## 066ddc纯产品九组回归与暂停恢复点
+
+2026-10-26，用户要求完成最近阶段性目标后暂停。本阶段完成纯产品8264的焦点回归执行、独立复核与证据归档；不启动下一阶段诊断，不宣布M6通过。产品仍为未提交的`066ddcb26aefeb0d238c31792c57a3672141325c248ca2137b8b252df5edabfd`，纯产品宿主未加载诊断浮层。
+
+原始F6三倍率夹具未改：50% `6c106d11…`、100% `65ae4671…`、150% `f88b13c5…`。在680×720、1280×720、1920×1080各执行50/100/150%画布缩放，实际DPR `1.7500000521540642`。18个两表预览重入/稳定Tab子项与36个两LLM焦点往返/两表CtrlEnd子项完成；八字段及线3/4保持。九组原件逐组冻结于`.local/performance-actual/four-owner-066ddc-pure-matrix-first/`；1920-z100首次装载尚未形成四owner时守卫中止，失败JSON/图不覆盖，成功另存`1920-z100-after-load-complete`。部分`00-loaded`为过早观察，仅operator.before用于准入。v5和remainder可分会话，不称同一连续操作链。
+
+1920/150%独审为89检查0失败、49合格DOM端点及14原图，报告`.local/validation/four-owner-066ddc-pure-1920-z150-independent-first/review.json`，SHA `c44555b84be8c1171e5de55665e5713f929dc139db877b1651876b18677e4fb5`。其余八组独审193份原文件hash匹配、384准入快照、824结构检查0失败、112原图实际查看，held最短1112ms；报告`.local/validation/four-owner-066ddc-pure-matrix-independent-first/review.json`，SHA `4e5d99f79fc9aa0a2f3b461cb39a0c31ac0ea2556713a801d0a3a133d35111b1`。100/150%目标有局部caret或完整控件像素支持；50%三组共12个caret-only端点不可可靠判读，另12张textarea焦点图仅支持控件轮廓，不能确认插入点像素。1920截图实际高1035，受检目标在图内，但底部45px无图证。CtrlEnd只证明尾部光标，不能推广为完整提示词可见，也不能称全矩阵视觉通过。
+
+纯产品模式/保存链另冻结18原件于`.local/performance-actual/four-owner-066ddc-pure-mode-save-first/`：Graph模式画布0卡片且root隐藏，返回Canvas八值/两线恢复。两次菜单控制未达预期已保留；SaveAs原生文件13,087字节、SHA `1a4ce13dce218add600e77ab29e58a755204cc91ce7fd6cbf97f3fa2f4091512`，全JSON19差异为5个身份标量分叉、12个revision对象清空及2个viewport值。普通Save后文件逐字相同，但旧tab标题仍dirty。新建tab97经历Loading初始化后恢复保存名、八值/两线及clean标题；实际731×411/DPR2.625，只计新document恢复，不计九组几何，也不关闭旧tab保存状态差异。未用reload命令返回成功推定新document。
+
+100ms问题仍未解决：最近同原M/834d四键诊断8/8 editing/display端点超预算，中位174.45/139.9ms，正式DPR1条件未满足。新增单次行扫描工具只计匹配查询次数和不同预读行，不命名调用者或推算CPU/延迟；候选与独立定向测试各17/17通过，全部首次失败保留。源码独审`.local/validation/table-row-scan-diagnostic-independent-first/review.json` SHA `9424380d98d3a76c853c857a85ce18e78e9bfa8cff5e2701e0f8036faf8f6608`。8265准备材料`.local/validation/table-row-scan-8265-preparation/handoff.json` SHA `5087a5d61a77bebd376b0f3c5c15f49e36ac538f61f05dc465422594da8e0f87`，复用066产品并保留旧21诊断文件、另加2文件；runner独立静审及check-only/prepare/start均未进行。恢复工作时先完成这些准入，再在原M上单独诊断，不与834d/5278/LoAF混跑。
+
+8263已按精确进程身份核验后退休，端口关闭、文件/marker/user JSON保留；报告`.local/validation/owned-host-stop-8263-first/report.json` SHA `150e93a6444ef96881e51a46033a4ede27d4941bde99ac46ed95dfb16b536132`。8264和8000未被该清理操作修改，保存页tab97留作恢复点，临时视口覆盖已重置。用户要求暂停后不再开展新验收；真实OS IME待用户手动配合、真实推理仍0/44、M6未通过，不发布、不推送。以下记录均保留历史时点，不替代本节状态。
+
+截至本次追加，8237为固定`671b792 / 78b180ea…`。新同原M/834d非正式N4的editing中位174.8ms、blur→display中位131.25ms，8/8端点仍超过100ms；名义DPR1.75不构成因果对照。完整33原件与保存/重开的有限结果见[本轮记录](#78b180部署与非正式n4仍未达到100ms参考值)。8252新IME宿主已启动并通过独立运行时审计，但记录器实际首次Start失败，真实IME尚未执行；下文“尚未部署”等表述保留其历史时点。
+
+## 旧版 S 场景
+
+固定 Canvas `3176b5a67dbcd0b66f795976e5a81bcdfe346093` 与业务库
+`7ff56cb51ef6f7fc3bcf5707792d655037c61b30` 在独立 CPU 宿主运行。
+原源码归档未改；仅显式安装零节点的被动观测包。
+使用 `FX-PERF-S-no-video.json`、1920×1080、实际 DPR
+`1.0000000298023224`（数值舍入，原值保留）、50% 画布起始缩放。
+
+两组均先预热10秒，再采集五段各30秒；没有隐藏页面、缺段或删掉离群值。
+
+| 操作 | 五段帧间隔 p95（ms） | 各段最大值（ms） | 数值观察 |
+| --- | --- | --- | --- |
+| 节点标题实际往返拖动150×100屏幕像素 | 13.4 / 13.4 / 13.4 / 13.4 / 13.4 | 40.0 / 40.0 / 53.4 / 40.0 / 40.1 | 此拖动子场景在预算内 |
+| 实际工具栏连续放大、缩小 | 93.3 / 93.4 / 93.3 / 93.3 / 93.4 | 120.1 / 133.3 / 120.0 / 133.4 / 120.1 | 超过PERF-01的20ms预算 |
+
+第一组是节点拖动观察，不能代替空白画布平移的全部协议。第二组记录了旧版已有的缩放性能问题；尚无对应新版数据，不能据此判断迁移退化。
+新版首次加载同一工作流遇到LLM面板克隆宿主响应式对象的`DataCloneError`，导入被中止。该失败已留证，修复及重开核对完成后才能测量新版。
+
+### JSON边界修复后的新版复测
+
+`748e5c7`产品实现、前端指纹`c7a5aaac2d541a4a52c321b78f7855f34015203828c69e5e35c6d8d790fcfe3c`
+已在8226实际重新导入同一S夹具，保存重开后100节点/100连线、稳定ID/类型、连线原始数组一致，
+表格100行10列、34个LLM面板、两张320×180预览存在。两个LLM实例完成独立要求编辑、
+撤销/重做、图形/创作画布/应用模式往返及保存重开；这仍不替代完整缩放/视口矩阵。
+
+在相同1920×1080/DPR/50%起点、无视频场景，工具栏连续放大/缩小再次执行10秒预热与五段30秒。
+五段交互帧间隔p95分别为106.7 / 93.4 / 93.4 / 93.4 / 93.4ms，最大值146.7 / 120 / 160 / 133.3 / 133.2ms。
+全部段均无隐藏页面、缺样本或删点；**未达到20ms预算**。保留首段较高值，不选取最好段。
+按钮倍率为×1.25/×0.8，实际50%与62.5%往返；旧版使用同一按钮轨迹。
+热点归因仍需浏览器脚本/样式布局观察，不能仅由帧时间推定某个函数是根因。
+
+本地报告：`.local/performance-actual/new-S-no-video-zoom-c7a5aa-raw.json`。
+SHA-256：`b0a9b50b60f02e5d3e7577dcb9e333f2ef1cb21ea8904a391cb75e25e99e1532`。
+
+本地原始报告：`.local/performance-actual/old-S-no-video-drag-and-zoom-raw.json`。
+SHA-256：`7ba8331be66ad6e8aa83b4e21120e4a94d7bac55cef2a98a03eda5f2b9eda05f`。
+操作说明及实际输入轨迹随本地报告保留，没有执行模型。
+
+## 实际 ComfyUI 混合调度
+
+新建的独立CPU宿主8236加载产品和显式v3测试包，正式菜单没有新增测试节点。
+产品前端指纹为`17b2511c00cd5ee2065d6adae3d9c334f5db555d7b2f696d490413245291f30e`；
+完整产品文件哈希、宿主身份和任务事件在原报告中。
+测试使用真实GenerationService、SQLite、资产服务和共享资源门，以及确定性提供方替身。
+fake-transcode执行有界PNG文件读写、哈希和资产回执验证，不执行视频编码或模型。
+
+预热10秒后五轮各至少30秒，每轮100个新身份，共500个任务。
+
+| 轮次 | 健康查询p95（ms） | 忙碌期p95（ms） | 最大值（ms） | GPU / cloud / transcode峰值 |
+| --- | ---: | ---: | ---: | --- |
+| 1 | 2.08 | 2.33 | 5.96 | 1 / 3 / 2 |
+| 2 | 2.15 | 2.28 | 179.98 | 1 / 3 / 2 |
+| 3 | 2.10 | 2.27 | 3.06 | 1 / 3 / 2 |
+| 4 | 2.06 | 2.23 | 13.97 | 1 / 3 / 2 |
+| 5 | 2.06 | 2.31 | 4.04 | 1 / 3 / 2 |
+
+五轮全部调度检查通过，包含三种资源的真实排队取消、未知提交保留名额直到原身份恢复、无重复创建、无饥饿、结束名额归零及服务重建后只查询不创建。
+服务重建不等同进程重启；本观察也不代替原生剪辑导出的实际验证。
+追踪范围：F-SYS-010 → AC-SYS-010-001 → UC-SYS-008 → TC-SYS-019 / PERF-06。
+
+本地原始报告：`.local/performance-scheduler-evidence/first-comfyui-run.json`。
+SHA-256：`4c79acebbfd05e8b126ffb0ae63e006c10062ea96b88ac16687ada7702909246`。
+
+另一次CI在同系列实现中发现取消确认与并发状态观察的版本竞争；同身份有界CAS重读已修复。
+重启资源恢复也改用单次SQLite快照，避免任务从unknown变为running时被分状态扫描遗漏。
+独立事件测试已覆盖这两条竞态，实际宿主重测尚待执行。
+该变化影响GenerationService，所以上述结果保留为历史构建观察，修复后必须重新执行受影响检查，不能直接作为最终M4/M5退出证据。
+
+### 取消/恢复修复后的实际复测
+
+固定`748e5c707d0029d56515f930ed842061e93e432b`产品及同一不可变v3测试包，刷新8236后重复完整五轮500任务。
+所有19类检查在五轮均为true：无重复创建、资源峰值1/3/2、排队取消不执行、未知任务保留名额至查询恢复、结束资源归零。
+健康查询p95分别为2.10 / 2.07 / 2.08 / 1.99 / 2.01ms；各轮最大值4.93 / 196.05 / 16.58 / 27.94 / 12.90ms，均保留。
+HTTP健康检查与真实原子资源计数覆盖恢复过程；共享资源门内部恢复SQL不经过分段计时代理，不能声称已测其单独SQL耗时。
+这仍是假提供方/服务重建范围，不代替模型、进程重启或原生视频编码验收。
+
+本地报告：`.local/performance-scheduler-evidence/cas-snapshot-comfyui-run.json`。
+SHA-256：`2de4710b0ec86756fb2bd084ba2e80dab77d80ae17e080183aaba56d1f59abf3`。
+
+## 连线帧测量候选与浏览器缓存复核
+
+`94d1d8f0ef8b7a2afe06b687fe5b649487083472`将本帧磁吸和连线几何读放到样式写入前，
+保留普通端口同帧位移、旧端口归零和合并端口固定锚点。规则回归通过不等于性能收益。
+前端指纹为`513c6ebd416784711df4727ffc3189be05089c75de0f557a1604af6a575691db`。
+
+第一次新标签页仍使用旧缓存模块：服务器文件SHA为新候选，浏览器长帧的sync源码位置仍为旧版47144。
+该轮五段原件保留在`new-S-no-video-zoom-513c6e-raw.json`（SHA-256
+`8aa1db593a90faebc6ff7cbc9021d196375bd04d2b7b1e1ef9d2843cccc2c424`），**构建身份未证实，不计候选成绩**。
+在独立localhost来源重新载入后，sync位置47766与新源对应；该核验不是完整运行时源码哈希证明，
+结合独立来源和服务器逐文件哈希消除了本次已发现的旧缓存证据。
+
+确认新来源后重复同一S夹具、1920×1080、50%↔62.5%、10秒预热及五段30秒：
+五段活动帧p95均106.7ms；最大值133.2 / 120 / 133.3 / 120 / 133.4ms。
+无隐藏页面、缺段或删点，**仍未通过20ms预算，未证实此候选有性能收益**。
+原件为`.local/performance-actual/new-S-no-video-zoom-513c6e-fresh-origin-raw.json`，
+SHA-256 `6bc1efa95667736c0808a4a4eba7bf3a16df68c80fdb9e3e4cbe7a49147a275c`。
+
+独立15秒诊断记录90个长帧，animateWires中25条脚本合计1934.4ms，其中1902.0ms为强制样式/布局，
+两者不能相加。该数据只定位到回调，不能区分样式和布局的具体耗时，也不能代替五段预算。
+下一步以显式测试样式逐项隔离缩放变量失效范围；任何改变标题补偿的诊断模式均不能算产品成绩。
+
+## 表格正文缩放变量隔离候选
+
+`c413bdcce74566ca683fa4dd72164d72977c61d3`只在拥有的表格正文数据格停止继承两项未消费的缩放变量；标题、行号栏、行调整柄和列接口保持原合同。
+新端口8237首载确认实际100节点、两张320×180图像已加载、正文变量为空、行号栏仍为0.5；服务器CSS SHA与候选一致，代码响应禁止缓存。
+前端指纹`7fd2630c1e2abed00e7f5eae287ef1e41a5c7007d6153842935dacd59418a678`。
+
+同一公开S无视频夹具、1920×1080、50%↔62.5%、10秒预热及五段30秒，活动帧p95为
+53.3 / 53.3 / 53.3 / 53.3 / 53.5ms，最大值106.7 / 106.7 / 80.1 / 80.1 / 119.9ms。
+五段完整、无隐藏页面，较上一候选106.7ms有改善，**仍未通过20ms预算**。
+原件`.local/performance-actual/new-S-no-video-zoom-7fd263-raw.json`，SHA-256
+`6ae260ee983a74f44b1228c48b3c8431c322c0ebfbef3740338d7b5c47b2f455`。
+另15秒热点诊断只用于剩余问题定位，不代替五段预算或双表交互验收。
+
+后续CI又发现提交ACK落库前取消意图改变版本时丢失原task ID的竞态。
+`467d4f9`保留同一ACK、延迟执行原任务取消；早先500任务结果保留为历史观察，修复后的首次复测与再次复测状态见下文。
+
+## 行号栏候选回退与891c76复测
+
+`1baeb8124ce9db54bd08eac26f661bfd16fd9100`的行号栏隔离候选，前端指纹
+`7b6e5c3fb3da8596033805c60d905cf47d84bccc71bb8b058c1b1c28175173a7`，
+在同一S无视频夹具、1920×1080、50%↔62.5%、10秒预热和五段各30秒下，
+活动帧p95为66.7 / 79.9 / 53.4 / 79.9 / 66.7ms；最大值120.0 / 93.4 / 120.1 / 106.7 / 106.6ms。
+五段完整且无隐藏页面，**FAIL：未达20ms预算，未证实行号栏候选收益**。
+候选已由`92e12f79f41b16e879117cb4d8f35860c2aa1737`回退，失败数据仍保留。
+原件`.local/performance-actual/new-S-no-video-zoom-7b6e5c-raw.json`，SHA-256
+`4b4994df30814d48bb11dec0c429c048ba24c6f0b5deeee43c28c1795b918dc1`。
+
+后续`8369c205fe1f2e0a9fb746d1b9e3daf368e85b58`，前端指纹
+`891c76378b8d130639bf327c4bcff30dc277a4e7a671f1a4dbd990224217b2b2`，
+同协议五段活动帧p95为40.1 / 40.0 / 40.1 / 40.1 / 40.1ms；
+最大值93.4 / 80.1 / 106.6 / 66.7 / 93.4ms。五段完整且无隐藏页面，
+数值较前次降低，**仍为FAIL：全部高于20ms，不能宣布PERF-01或阶段通过**。
+原件`.local/performance-actual/new-S-no-video-zoom-891c76-raw.json`，SHA-256
+`6e25ad270d5d4145248b68d77fb8710e4be25cdfebc741a683985ad928b197a3`。
+两份summary均绑定上述原件哈希；短时热点诊断不计入这五段结果，也不替代语义完成、RSS或GPU测量。
+
+## 891c76正文视口矩阵的证据边界
+
+`.local/validation/body-zoom-891-actual/viewport-focus-matrix.json`共有36条记录，
+逐条核对`viewport`后，**36条全部为1920×1080**，没有1280或680宽度样本。
+不同分组或文件名不能替代实际视口尺寸；这些记录只能支持其已记录的1920×1080焦点/面板状态，
+不能算1280/680响应式矩阵通过。此处记录时窄屏仍待补测；后续真实24条补测与限制见STATUS，原36条不改写。
+该矩阵SHA-256为`6ca7483cadc667b8dd0c8290685cc88abf3c30d9b60ddce3db8015e083d69f58`。
+
+## SVG候选复测与回退
+
+`853c857d3044ff069b2cdf47d22ae7f6af0fddbc`的SVG候选，前端指纹
+`cd21ec56cabd64ce14fe896a24c191158d5f621fb2b6dd1af553ca6433d47ddc`，
+在同一S无视频夹具、1920×1080、50%↔62.5%、10秒预热和五段各30秒下，
+活动帧p95为40.1 / 53.3 / 40.1 / 40.0 / 40.0ms；最大值106.6 / 93.4 / 106.7 / 93.3 / 93.3ms。
+五段完整、无隐藏页面、无observer错误；**仍为FAIL：全部高于20ms，未证实SVG候选的明确收益**。
+已由`c3d79aeb1f05375adea4a5963e049e8059fe10c9`回退，保留`891c76`的表格正文修复。
+
+环境注记：采样期间另一个代理运行过0.846秒的定向测试。这是已知的并行负载干扰，不能据本轮差值
+断言确定性能回归，也不能据此删点、删段或把失败改为通过；全部原始样本保留。
+原件`.local/performance-actual/new-S-no-video-zoom-cd21ec-raw.json`，SHA-256
+`017966be9499d85556b90ba929c11fb4e1448367555deebf0cb6e7350f688ed7`；
+摘要`new-S-no-video-zoom-cd21ec-summary.json`（同目录），SHA-256
+`882a5131b8cf469801290442a09151916635abe1d01a3124418ba287337d26b4`。
+五段活动帧p95已由原始frame记录重新计算，未扣除并行测试期间的任何样本。
+
+## 467d4f9后端的首次调度复测失败与再次复测
+
+8236首次复测固定后端字节基线`467d4f94af23be6198986b05703d9598618227c4`，
+五轮500个假任务已经执行，第一轮19项检查中`fixedOutcomes`失败；后四轮通过不能覆盖第一轮失败。
+运行器从较早的pending快照选中取消目标，但实际`control_cancel`时该项已为running，
+已有一次create和一次attempt，随后按原任务身份完成执行中取消。
+旧运行器未把这一实际取消边界纳入预期分类，仍预期succeeded。此解释定位的是驱动分类错误，
+**首次报告继续保留FAILED，不回填PASS，也不能当作排队取消的成功证据**。
+
+原件`.local/performance-scheduler-evidence/early-cancel-ack-comfyui-run.json`，SHA-256
+`59e3593ca27354fdfed44d90f3be3ae7cb4075204d60ec401f3851f96a10821c`；
+事件分析`early-cancel-ack-first-failure-analysis.json`（同目录），SHA-256
+`9283f369c0687c6fae7cf4c1d8b714eb9f69eb57b2ff5454f55305397fe463d2`。
+
+驱动`ebae02188baffd265d5ae4426b0078bfb5682f11`改为依据实际原子取消边界、
+预登记控制意图以及独立账本/提供方事件区分排队与执行中取消；不通过最终状态反推预期。
+第二次完整复测已完成五轮500任务，每轮21/21检查通过：430成功、25预设失败、45排队取消，
+提供方create共455次。各轮GPU/cloud/transcode资源峰值为1/3/2，结束时active、queued、retained及worker均归零。
+健康查询2528次全部HTTP 200，合并p95为2.0701ms、最大226.6007ms；p95指标不能抹去这个单次最大值。
+**本轮执行中取消样本为0**；`runningCancellationConfirmed=true`是对已出现样本的条件断言，
+不能读成该边界已经实际覆盖。该边界另有确定性回归及前次失败留证，不能补作本轮样本。
+自动报告仍为`requires_review`、`productAcceptance=false`；这是实际CPU隔离宿主上的确定性提供方替身，
+不代表真实模型、GPU、云调用、进程重启或原生转码验收。
+
+原件`.local/performance-scheduler-evidence/cancellation-boundary-comfyui-run.json`，SHA-256
+`f1a92a99aa324e8d7555c087656aaca133e4940c30f6e6ce268301a8e99cbf5b`；
+摘要`cancellation-boundary-summary.json`（同目录），SHA-256
+`7082219daa0a65e95a8df14e2ca83f34241377dde4b41a7cbf79e452f4ca87de`。
+启动证据`cancellation-boundary-start.json`（同目录），SHA-256
+`66cadc4198f50d3fefdf31a273c46857d1f044ee608a327b7c333977c4751b12`。
+宿主仍为8236的`1baeb81`候选、前端`7b6e5c`，后端字节对应`467d4f9`；只替换驱动，未把后来的前端成绩归给本次调度。
+
+## M6离线准备边界
+
+固定候选`2c7429ec4d571b31da31ae64fe2a29a7ff15351a`已完成独立旧/新安装的离线准备，
+预检无阻断，migrate和prepare-profiles各重复一次成功；source/backup/working原字节相同，
+离线准备记录当时两profile均READY且未激活，迁移自动回归97/97通过。
+随后已选中round1-old并启动8244，完成旧版副本保存与重开演练；这不构成新旧切换或回滚通过。
+实际probe在已激活fence且旧UI页关闭后仍报告`legacy-work-active`，只有legacyStacks线程计数为1，
+其他工作登记和队列均为0。已定位探针自身堆栈归因缺陷，`observe-profile`真实失败原件保留，
+**未获得clear observation、未seal，8245新版切换和回滚尚未执行**。修复后的新候选必须重新固定并演练；
+随后根代理执行本试验专用abort：私有console成员与精确进程身份通过核验后仅发送一次CTRL_C，
+两自有PID均已退出、8244无listener、无WAL/SHM/journal；这是失败试验的真实中止，
+**未seal、未switch，不充当迁移通过证据**。原试验安装、数据与首失败证据均保留。
+候选前端为`2d6ced4`，不能把后来`891c76`的测量归给这个候选。
+
+准备证据`.local/m6-e5-ff079df-20261025/next-2c7429e/READY-OFFLINE.json`，SHA-256
+`9f79250f2c215e7ed55de32c93fa69682763d157e0ea5d730d694da204f851a0`；
+97项日志`.local/m6-e5-ff079df-20261025/identity-order-full-migration.log`，SHA-256
+`d78382ebe05b7af52bf6b82db42766a70e4dba112acecf3abaa9299eb169c464`。
+首次发行包探针依赖、Windows清单排序失败与私有交接脚本错误均留证，不能用离线准备替代M6验收。
+
+旧版启动证据`next-2c7429e/actual/1792878734227191700-round1-old.ready.json`（同试验根），SHA-256
+`efda3c2f71e8397744b772f8c544cf4e059a90ff8faea04452976fb31c02b4d9`；
+fence调用记录`actual/1792879023150542300-fence-profile.json`，SHA-256
+`20237a77928d3459a56f4f110d512ea9b0e7613c825f948a9913eeb177d294a9`；
+首次observe拒绝`actual/1792879032102810400-observe-profile.json`，SHA-256
+`292aa0edd37a6d31aaeb10320ecd18d9994831277a3f9a86aa85583f038f7f2b`。
+
+失败中止记录`actual/old-abort-signal-result.log`，SHA-256
+`474469a43920e518226929d59983c431a04309ece51c587cfa77d04a5fc0f135`；
+独立退出检查`actual/old-abort-exit-check.json`，SHA-256
+`d00beffc39e895ba15a14e2b3831985d899df1993314a92a50f65bba54fb2ce6`。
+后续独立试验须保全本次旧profile的全部user/input/output数据，包括已保存副本和上传文件，
+不能以最初seed覆盖实际编辑；待修复探针与候选固定后重新取得完整观察和正常停机seal。
+
+## 77be887修复候选的冷保全与离线交接
+
+失败试验停止后，完整保全原round1-old的user/input/output到新目录
+`.local/m6-e5-77be887-20261025/cold/data`：8文件、12目录、307121字节，含实际保存副本、上传PNG和宿主DB。
+复制前后原PID birth已退出、8244无listener、无进程绑定三个数据根、无SQLite sidecar；
+源前后与副本完整文件/目录清单一致。原2c安装、原profile和所有失败证据未修改。
+包含目录的清单SHA为`031fa1e12ea2bf1a963a48b2a45b9e7bcf0264cf782aee7cc17e986b029afb85`；
+冷备份记录`cold/COLD-READY.json`，SHA-256
+`37cc315fc538df447a81b2b23ff87b58110875cb145388df118ede5592355ce9`。
+owner、原profile marker、退出和失败证据单独保存在`cold/provenance`，没有作为新profile身份导入。
+
+固定修复候选`77be887aad74a51196ba45b5426e1262560f2166`、前端`891c76`和探针bundle
+`9950e6c8b69c6dddb194ab8a40ed66ecfbda17126c1b33738b79d100d51bd84a`已建立全新旧/新安装。
+发行包SHA-256为`0a92aea3a6f46c60dd8c54443d755ed9c5bc64a4d56c75b009fab73e565babd8`。
+从候选发行树运行公开init/preflight/migrate两次/prepare-profiles两次均成功，预检blockers和safetyErrors为空。
+`referenceRoots`明确绑定实际旧profile的三个根；8个文件全部映射，两目标的非DB文件与冷源字节相同，
+各DB仅变换4个path/loader_path值，非路径metadata哈希前后相等。
+
+离线交接时active=null、hostStarts=0、activations=0、fenceRequests=0；
+没有调用缺少旧seal的capture，也没有把失败试验abort当作seal。该结果仅表明冷保全和离线装配完成，
+这份记录截至离线交接；后续旧版实际演练与round2准备进展见下节，仍不构成M6通过。
+同试验根`READY-OFFLINE.json`，SHA-256
+`cc719e4e1bb046dcd9d45fa016fe229ce8f8353940179905a2494fb37aa2b06b`；
+最终只读复核`POSTCHECK.json`，SHA-256
+`da317bf7f0f9ac6ac6bbd6dd22abe6f6de0ee31d323fee0053462115a03ebdd3`。
+
+## 77be887旧版实际停机与round2正式capture
+
+在修复探针的独立旧宿主8244，round1-old已实际重新编辑并追加`RETRY-OLD-77`，
+保存到磁盘后重新打开，文本保留；上传图片320×180可读。重开DOM记录
+`actual/old-ui-reopened.txt`（本节均相对`.local/m6-e5-77be887-20261025/`），SHA-256
+`d77b1af2c19e2af9440adf4a1cf8db5fa2de2949016b6026049aa0309a84cd9e`。
+原始`M6-synthetic.json`未被本次编辑覆盖，包含unknown字段的原件SHA仍为
+`bf10cf4b6d5fd7751ffc4f2f1ba557ce17be2759feb074a5f9870d7c9d308b6f`。
+
+实际fence取得clear，epoch为`0415541996c04bdaad14aca0206a281a`，
+observe ID为`c247bec6250f4d2d88e4ceba75e28f31`，native queue为空。
+经精确私有console身份核验后正常发送一次Ctrl+C，宿主日志记录`Stopped server`。
+发送返回只表示信号请求，不能直接表示进程已经退出：第一次过早调用seal、当时进程尚未退出，
+被守卫拒绝；**该失败原件继续保留，不补填成功**。
+等待launcher 154076与listener 24624实际退出、确认无SQLite sidecar后，第二次seal成功：
+`ce579d4cc58358d6c9aa207ebc65b7454c7d81284e0743ee9dfe7dd4fededb72`。
+seal绑定inventory `13c93f518e8f3e529205bb9c759fda9fa0b6b6614396cc9baa85af85c472d051`。
+
+关键原件及SHA-256：
+
+- 正常信号请求`actual/round1-old-normal-stop.log`：`dfd9b97945e8b756c82a2cfc05041a2a23f160802c4bc5cad7f8fc2206d6d8eb`。
+- 第一次seal拒绝`actual/1792879845522053000-seal-profile.json`：`1a9c4e4c0a8c3dcfa29b2128b1bc5fa4e702d0fe8e38434e503cf326ce26ff71`。
+- 第二次seal成功`actual/1792879863215234100-seal-profile.json`：`452b87d976a9d66c18fb339e4a8cc523f62c45d900a3c181d4142439c7eae274`。
+
+此后按真实seal正式capture到`captured-round2`，从候选发行树执行preflight、migrate两次、
+prepare-profiles两次均成功；预检blockers/safetyErrors为空。8个源文件前后不变，capture/backup/working
+字节相同；两个round2 profile的非DB文件与源相同，`RETRY-OLD-77`及unknown原始夹具均保留。
+数据库各只变换4个path/loader_path值，非路径metadata哈希相同。
+
+round2离线交接时active仍为round1-old、sequence仍为1，没有激活或启动round2。
+该次交接只完成旧版正常停机和正式capture，尚未运行新版switch及rollback；后续实际结果见下一节，不能据离线READY宣布M6通过。
+`captured-round2/READY-OFFLINE.json` SHA-256为
+`9f57fcbf9c5be96373a6ae7b2c5074b82b99c641bed5bf27b987e14447675499`；
+`captured-round2/HANDOFF.json` SHA-256为
+`e840f348911850895e7103d4ed987cd56f7cc363c566ac2e0b45804e37c185f1`。
+
+## 77be887实际切换、回滚与资产列表阻断
+
+后续已在sequence 2显式切换到round2-new并启动8245，实际重开旧编辑`RETRY-OLD-77`，
+320×180上传图可读；在原unknown夹具上编辑`NEW-UI-77`并另存为`M6-new-ui-edit.json`，磁盘重开保留。
+原`M6-synthetic.json`字节未变；新保存副本的`unknownWorkflow`、`extensions`及两个节点的
+`futureNodeMetadata`均与原值相同。这只覆盖该合成夹具，不扩展为所有未知节点兼容通过。
+比较记录`actual/new-ui-unknown-preservation.json`，SHA-256
+`ba408ebfe536c8582e1f321dfb629cb4e526db98d1d8a40e0c54b77a9e10429e`。
+
+旧3项收藏实际导入后已持久化，重复导入UI显示“处理3项，拒绝0项”；文本过滤能显示旧文本与新文本。
+独立数据库采集确认assets=4、favorites=4、favorite_origins=3、asset_provenance=3，
+jobs/attempts/events均0，导入来源身份未重复。但是混合媒体收藏列表GET实际HTTP 500，
+宿主栈明确`KeyError: 'byte_size'`；**持久化成功不能代替列表功能通过**。
+失败宿主stderr SHA-256为`64447ba7eb0a49b454b262e3f13a52064aeb062ef5b20ed70c100a80216ea0c9`，
+对应`actual/1792880219661302900-round2-new.stderr.log`，初次失败截图/DOM原件均保留。
+`3782d230b7022779a086c0d75f596ab75f33f83a`已提交查询字段与HTTP回归修复，但该77be887演练未安装此修复，
+**仍待固定修复候选的真实UI复验，不把源码修复或自动测试回填为本轮通过**。
+
+round2-new实际fence/observe、正常停止并确认进程退出和无sidecar后，取得新seal
+`d498f09dd8c691e6396b9ae68c03cc7716aa10744d9edbdd0c2e61e2a223c6cb`。
+`rollback-new-to-old`先保全实际新user/input/output，再发布sequence 3到round2-old；
+重复调用返回完全相同的记录和sequence，没有重复切换。
+新数据保全manifest的canonical SHA为
+`ee4ea4c81f6db78ba7b58b2ae244aaf430904b30d1b49af7658e5df13e689976`。
+独立逐文件核对10个文件：preservation/data、新profile、新seal及保全manifest中的路径/大小/字节SHA完全相同，
+包含新studio.sqlite3与M6-new-ui-edit.json；原round1旧源和capture源仍完全不变。
+
+回滚后8244实际启动round2-old，从磁盘重开`RETRY-OLD-77`和320×180图片；
+再正常停止，确认两PID退出、无listener/SQLite sidecar，取得旧profile最终seal
+`974fa57a020fbdf029da05b4148a44603c84dba66de3bb1842a85867d536c49e`，
+raw inventory `004f42da1a89db4ef3d6b852e55ae2fefcc75ddfec615e7c544303be7743e946`与启动前相同。
+合法新增的profile层runtime/seals证据不当作用户数据变动。
+**本轮隔离的旧编辑→新编辑→保全→回滚→旧重开链条已实际跑完；资产列表缺陷仍阻断，未完成全产品或M6验收。**
+
+本节证据均位于`.local/m6-e5-77be887-20261025/`：
+
+- `actual/new-ui-disk-facts.json`：`c502b443dcc77b3799feb520286850500b83258425a3d9a1c75160417f80eb61`。
+- `actual/rollback-preservation-independent-review.json`：`cd58cc9f3a820834cec7f26c5d0fe2245faec81cad9ac6e7c1bd972418367bee`。
+- 最终旧seal调用`actual/1792880490519581200-seal-profile.json`：`a76314151ffdf82c78dbca717d3697ca8ef8ad9b3d7622935ec973a31cb54fa8`。
+
+审查工具副作用单独留证：SQLite URI mode=ro/query_only读取已停机WAL数据库仍生成了空WAL和SHM。
+主数据库字节未变；核对无绑定进程后，仅将这两个精确文件原样移入actual/read-only-inspection-sidecars独立目录，
+未删除文件。随后新profile恢复10文件与seal完全相同；原因、完整path/stat/hash及移存前后事实保留在
+`actual/new-ui-disk-sidecar-repair.json`，SHA-256
+`2fbbecc110b44a087424df4a8f60c3b4e1e53cfe5f279dfe4af6d0d8ca192ef6`。
+此后数据库审查只使用独立副本或内存快照，避免给被观察原件再建立SQLite连接。
+
+## 3782d23固定候选的实际迁移链复验
+
+本次独立试验根为`.local/m6-e5-3782d23-20261025/`，固定候选
+`3782d230b7022779a086c0d75f596ab75f33f83a`，归档SHA-256
+`d363bd5968c416ef673b00cca494c199694e0a4134e0d0afbc4ebb0ec6cc274c`。
+前端仍为`891c76378b8d130639bf327c4bcff30dc277a4e7a671f1a4dbd990224217b2b2`。
+旧包仍为指定Canvas/业务双基线，两个新安装和数据根独立；77试验和首次失败原件保留。
+
+round1-old在8244真实从磁盘打开旧编辑及图像，本轮未编辑，正常Ctrl+C停止后取得seal
+`721097fba688a8af97069cab6d9c03073d3bdc5c83ab6bab9c2d61530f61192f`。
+旧8文件与prepared完全相同，因此复用已物化的round1-new；sequence2切换到新版8245。
+新版真实导入3条旧收藏后，图像、视频、文本均在混合列表可见；重复导入未增加来源条数。
+视频预览记录到readyState=4、320×180、3秒、error=null；此记录不等于全帧解码或生成质量验收。
+三类素材通过UI复用到画布，另存`M6-new-reuse-378.json`并从磁盘重开，
+资产ID、文件引用ID和内容SHA与原目录记录一致。另从原合成工作流编辑NEW-UI-378，
+收藏、另存`M6-new-unknown-378.json`并重开后，混合收藏列表正常显示4项。
+
+独立内存数据库核对为assets=4、favorites=4、favorite_origins=3、asset_provenance=6、
+asset_references=2；jobs/job_attempts/job_events均为0。两份原工作流字节未变，
+新编辑副本保留unknownWorkflow、extensions及两节点futureNodeMetadata；输入/输出3文件与capture相同。
+所采新版stdout/stderr未记录HTTP 500、Error handling request、Traceback或KeyError，
+结合实际混合列表和重开记录，闭合本次旧收藏列表`byte_size`缺项复验；日志无错误不扩大为所有接口通过。
+
+新版fence/observe后正常停止，取得seal
+`1f189cbb814209a2762a865e197d233d51ad797ce781ec4ff9edd273c8ee397b`，
+raw inventory为`d2b7c3e849a5d7059b577305e8df49ac6d0ef38f7728caa1d1a5aeaa4a3e6302`。
+`rollback-new-to-old`使用目标旧seal，先保全新版user/input/output，再发布sequence3。
+重复调用的JSON记录、operation及sequence完全相同；原始stdout排版不同，不声称响应字符串逐字节一致。
+保全manifest的canonical SHA为`abb7c59608b008c62cc72bdaa23c797fd0dce518898ec2574701cb88094ad7eb`，
+manifest文件字节SHA为`259decc579e5d02a8e21ffde31ed7aff8a5f8c4ff7b204a0bcb1b54c8833c304`。
+独立核对保全data、新profile、新seal和manifest的11文件路径、大小与SHA完全一致。
+
+回滚后8244实际从磁盘重开RETRY-OLD-77及320×180图像；再次正常停止，
+退出记录确认182504/56556两PID不存在、无listener/SQLite sidecar，最终旧seal为
+`182a233fa9dd7d184e720230a24cc650729b33ba07d2431e2793ebb6ecf9d803`。
+其raw inventory `39973c75a88495c34e32541fc897a5d25ff05f683ab0862511759e0b9825cc1c`
+与首次seal及prepared完全相同；独立复核旧8文件、capture源8文件与原77试验旧profile均未变。
+两份原工作流SHA分别为：M6-synthetic.json的
+`bf10cf4b6d5fd7751ffc4f2f1ba557ce17be2759feb074a5f9870d7c9d308b6f`，
+M6-old-ui-edit.json的`65f87ef783570b9bee487e2ccfe6a76c5055f1d47567ab0db6a69999ceae1f24`。
+
+本次独立采集只普通读取字节，数据库解析在私有内存连接中完成；原DB连接、源写入、新增sidecar均0，
+前后全文件哈希一致。首条采集断言曾误要求两次CLI stdout字符串完全相同，
+`actual/rollback-review-first-diagnostic.json`保留失败诊断；实际解析后的JSON记录完全相同，未修改产品。
+UI与退出证据由根代理实际采集，独立审查负责磁盘/数据库副本/保全比对，范围分别记录。
+
+- `actual/new-ui-independent-review.json`，SHA-256 `1dd4071a0c69bfb1547e7ddcd054103953b7dd32b75158888b3d9a9f8d9a2e71`。
+- `actual/rollback-independent-review.json`，SHA-256 `9f818ac3af398244089dfc1b1dda83cdf347ea5904e0ff1595f6d94fd8d78347`。
+- `actual/new-reuse-reopened-dom.json`，SHA-256 `8f99a3fc653c5b3dd2c8dfdf8688b63b19ca6032aa7185a1f714fa0893fd3338`。
+
+**此结果仅支持本次合成数据的M6迁移链子项，不代表所有TC、M6阶段或完整产品验收通过。**
+正式前端891c76的五段缩放p95仍为40.1/40.0/40.1/40.1/40.1ms，仍FAIL20；
+本轮真实GPU/模型推理为0，生成质量、完整性能门禁和发布未完成。
+
+## Header变量隔离候选的正式失败与回退
+
+候选`8f65023b46db46d53bf3e54d129495ef603ae9fd`，前端指纹
+`9817235d336fe5f0e08b1ba28d6d396f36bae562b5f8bec4c003f5a6422958fc`，
+在固定S无视频夹具、1920×1080、DPR约1、10秒预热和五段各30秒下正式采样。
+独立从全部活动帧重新计算，五段p50均13.4ms，p95均40.0ms；
+各段最大值80.0/106.7/80.0/80.1/93.3ms。五段完整、原始时间线连续、无隐藏页面、无observer错误。
+选择的夹具SHA与`FX-PERF-S-no-video.json`一致；真实加载由操作记录声明，文件复核未读取宿主图。
+操作记录为固定导航中心的真实指针放大/缩小；采样前记录无诊断样式覆盖。
+
+**仍为FAIL：五段全部超过20ms预算。** 相比891构建40.1/40.0/40.1/40.1/40.1ms，
+约0.1ms差值不足以证明实质收益；不筛选最好运行、不改预算或删除失败段。
+候选已由`c758fd6f4482bed8478828276e032934600635b1`回退。
+本次只记录缩放性能，**未完成标题UI验收**，不能据此声称标题交互或完整阶段通过。
+
+原件位于`.local/performance-actual/new-S-no-video-zoom-981723-{raw,summary,operator,before}.json`：
+
+- raw SHA-256：`ecea565cdd66186bd9de242f78d048f72693b3ade6830aa41ec2ca6322fb3e9c`。
+- summary SHA-256：`cad419aeddbc696d77f0aa08485d8925f874cb859b0f6abbcc31a469bbdea4f4`。
+- 独立核对`.local/validation/header-981723-independent-review.json`，SHA-256：
+  `9a51eb78bf274e5aed6df3b3ea05634db7b1dc7f471dddbac36bbe1d7f5260b1`。
+
+响应式证据另有后续实际平移：680×720下，150%的B页脚按钮和100%的A页脚按钮可移入画布并可见。
+只闭合这两个样例先前“尚未证明平移可达”的缺项；不推广到所有控件或视口，
+不从此推断此前截图位置、焦点或CSS候选的成因。
+平移原件`.local/validation/body-zoom-891-actual/pan-680-actual.json`，SHA-256
+`6e3a528c1a8b36c41b499217c7037d4bdfd52de6382444cd9309715b9635ff0b`；
+独立`.local/validation/body-zoom-891-responsive-pan-followup.json`，SHA-256
+`ba537e1cab4796ab69efab5fe7afa2a335ff847c44931b53d4526eb74acbfedf`。
+
+## M场景保存/加载五轮与行高候选比较
+
+此前M初查之后，891基线与初始行高批量读取候选各完成五轮原生保存、重开观察。
+固定工作流为300节点/400连线、两张各500行×10列的表格，无视频；
+`Studio-PERF-M-two-table-891.json`为2400456字节，当前只读复核SHA-256仍为
+`72c75a4f2c2c3818590632b8c8e8cc25f2ddd159ccd49520ee6a53db366ea1bc`。
+这确认当前文件与先前固定原件一致，不补称每轮加载时均单独采集了文件哈希。
+基线前端为`891c76378b8d130639bf327c4bcff30dc277a4e7a671f1a4dbd990224217b2b2`，
+候选`e91ef9138bdc987b9d3ec0e550b6e2bac89976b8`的前端为
+`2e7b7d57da4ffd1b6075174daf3d2baf70fcfaf274f954433845b33ca7c5a97c`；
+两组使用同一测试observer包`3080434958c50d4735cda2c0eed486ca04813ae42e3ede51bd9150d7e074392b`。
+
+每轮各有1次save、1次精确路径关联的HTTP 200存储确认、1次load，以及9次独立serialize，
+共每组60条调用，全部成功完成，停止后observer hooks均为0。每项save/storage/load每轮仅N=1，
+下表是五轮全部样本的描述统计，不据此建立稳定p95或性能通过结论。单位均为ms。
+
+| 边界/版本 | 第1～5轮 | 中位数 | 均值 | 最大值 |
+| --- | --- | ---: | ---: | ---: |
+| save / 891 | 924.2 / 1476.5 / 1700.6 / 1063.0 / 1229.7 | 1229.7 | 1278.80 | 1700.6 |
+| save / 2e7 | 1544.0 / 1372.9 / 1751.7 / 1394.2 / 1370.9 | 1394.2 | 1486.74 | 1751.7 |
+| storage / 891 | 98.7 / 214.2 / 116.7 / 100.2 / 182.4 | 116.7 | 142.44 | 214.2 |
+| storage / 2e7 | 110.7 / 172.4 / 141.6 / 87.3 / 121.5 | 121.5 | 126.70 | 172.4 |
+| load / 891 | 5500.1 / 5533.6 / 5083.0 / 5548.9 / 5600.5 | 5533.6 | 5453.22 | 5600.5 |
+| load / 2e7 | 5739.0 / 5915.8 / 5927.1 / 5846.0 / 6126.8 | 5915.8 | 5910.94 | 6126.8 |
+
+save是`saveWorkflow` Promise结束，storage是其HTTP响应，两者不可相加。
+load仅为`loadGraphData` Promise结束，不含其调用前的文件选择/解析，也不证明后续布局、焦点或输入已就绪。
+两组各45次serialize的中位数为11.7/12.4ms、均值15.39/36.31ms、最大值40.5/385.9ms；
+候选保留272.4/365.9/385.9ms三次长调用。所有serialize的saveCorrelation均为null，
+不能将其全部归入保存成本或当作额外保存样本，也不能据此归因GC或具体代码。
+
+候选load中位数比基线高6.91%，均值高8.39%，**没有展示加载收益**。
+但操作记录明确：两组之间新增空闲CPU宿主8246用于资产夹具，导入/采集在候选正式运行前结束，
+候选期间未使用其浏览器；其他固定端口保留，操作视口仍为1920×1080。
+这项环境变化未被CPU测量排除，不能将差异归因为候选造成的性能回退。
+多数逐轮DOM未独立记录viewport/DPR/visibility，亦不补称环境完全相同。
+候选已由`b83a9da584064fbe4e61ce6660301ee00fc59f10`回退，两组全部样本保留。
+
+十份DOM均记录300 cards、1000 rows及两条预期首格文字保留；仅基线第1轮同时记录行ID，
+其余九份不能独立证明同一行身份。十轮的load.editableCompleteMs、report.unmeasured.reopenToEditableMs与
+DOM.strictEditableMs全部为null，**PERF-03仍未通过，不能将约5～6秒load称为重开可编辑时间**。
+基线/候选observer会话分别为66.4～123.8秒/53.4～73.7秒，save结束至load开始间隔为
+7.3～17.3秒/6.6～22.3秒；这些包括操作者与工具等待，不是产品加载时延。
+基线DOM保留7条AX/CDP等工具失败记录，候选DOM没有toolFailures字段不等于证明无工具错误。
+原始记录未提供performance.timeOrigin，无法把工具wall-clock期限精确换算为页面加载或可编辑延迟。
+
+本地完整原始记录与独立分析（后者含十份DOM、两张完成截图和所有输入文件哈希）：
+
+- `.local/performance-actual/M-baseline-891-five-rounds-raw.json`，SHA-256
+  `ff3499502c741fb930130b171508c074e5075c632edbd7ce435ab26343d53fbe`。
+- `.local/performance-actual/M-candidate-2e7-five-rounds-raw.json`，SHA-256
+  `580420f394cf567731ea2854a18743f1721aacef2c8195230c0d4a0d7491d0e4`。
+- `.local/validation/M-891-2e7-five-rounds-independent-comparison.json`，SHA-256
+  `4f58c0289f3ae5bd55d6df3637d0fa519f130427658bb62ab8818be2d92fec6f`。
+
+## 2000条文本收藏的五轮搜索与分页补测
+
+独立CPU隔离宿主8246按预先声明的固定查询顺序完成五轮：
+`合成收藏 0001`、`分组 3`、`黄色圆柱`、`1999`、`不存在的合成词`、清空。
+预期总数依次为1/200/2000/1/0/2000，分页大小48。
+首次探针保留在累计报告`reports[0]`且预先排除；正式轮次为`reports[1..5]`。
+每轮29条可信输入记录，共145条（140条逐字符输入及5条清空）；
+30次预定最终查询全部完成，115条中间输入均以superseded保留。
+另有115条迟到rejected记录，逐一对应被替代输入；原始记录没有拒绝原因，不能全部称为AbortError。
+最终查询无缺失、超时、unbound请求或stale完成，不将中间输入当作零延迟样本。
+
+下表每轮N=6，全部最终查询纳入统计，单位ms。
+R7为线性插值；nearest-rank在N=6时等于最大值，两种口径均明确保留。
+
+| 正式轮次 | p50 | p95（R7） | p95（nearest-rank）/最大值 | 会话秒数 |
+| --- | ---: | ---: | ---: | ---: |
+| 1 | 38.60 | 50.450 | 52.90 | 54.56 |
+| 2 | 32.60 | 40.950 | 42.80 | 37.75 |
+| 3 | 33.60 | 38.725 | 39.40 | 33.30 |
+| 4 | 36.90 | 39.925 | 40.30 | 41.25 |
+| 5 | 34.75 | 46.975 | 49.10 | 39.79 |
+
+五轮会话均超过30秒，但部分首输入至末次完成跨度不足30秒，会话包含等待。
+10秒预热属于操作者协议，未单独埋点；同页时钟中首次探针最后完成至正式首轮开始相隔78.833秒，
+这只能证明间隔，不能补称已独立测得预热活动。每轮记录1920×1080、DPR `1.0000000298023224`，
+比较1时采用`1e-6`浮点容差，保留原读数。
+
+独立分析从固定夹具内容计算资产身份，并依已采集oracle逐项核对响应和DOM的ID、顺序、总数、分页。
+30次最终结果均匹配，显示文字/新结果子树校验标记均为true；原始报告并未另存完整DOM文字快照。
+多结果页面渲染48项、视口可见11项，不称48项同时可见。
+分页额外会话`reports[6]`单列：下一页offset48为31.7ms，顺序1952～1905；
+上一页offset0为33.1ms，顺序2000～1953；均48项且与oracle一致，无缺失或超时。
+这两次按钮观察未混入正式五轮，也不算第六轮。
+
+操作辅助闭包在第三轮下载后仍使用第二轮目标名，独占写入拒绝覆盖；第三轮下载随后另存。
+保留该事件及原operator元数据，轮号/空ops不能替代原始报告顺序和时间。
+第1～4轮累计原件均为最终报告的精确JSON前缀；分页报告也保全此前六个会话。
+
+运行前端为`2e7b7d57da4ffd1b6075174daf3d2baf70fcfaf274f954433845b33ca7c5a97c`。
+宿主仍含后来回退的表格行高候选；本次只记录资产搜索。
+已安装资产库面板、样式、服务桥、资产API及仓储五文件与回退后当前源码逐字节相同。
+安装快照SHA-256为`5d02a53c921ec3821addb3d198d3527d389f09bc8fe840097cc8df14b1434fb1`，
+测试包为`3080434958c50d4735cda2c0eed486ca04813ae42e3ede51bd9150d7e074392b`，
+观察器为`b97280cd54ba3659c306248824f7276ebea98ff2a9fcfcf185a27d4a0578539d`。
+报告中的buildIdentity仍是operator-supplied；磁盘安装哈希不冒充浏览器运行模块哈希。
+
+这些实测最终查询均低于200ms，但只有文本收藏，不能覆盖混合媒体的解码限制。
+完成边界是正确结果后的两次可见rAF机会，包含观察器开销，并非物理呈现证明。
+**仅支持固定文本搜索数值子项；不判完整PERF-08、TC-CAN-041或阶段通过。**
+
+保留的本地证据及SHA-256：
+
+- 预声明计划`asset-search-ui-five-round-plan.json`：`5ca83879ac190291e2a133fe34c34be3a42a0f8db3d7ec7fd391dd9393ee8903`。
+- 固定文本夹具：`5854d91c89f51b78fb23704b349f611516b8f9584b0365e8b20e5209fae611bc`；
+  完整排序oracle：`75730f17385969339b29a273a77a384102c0e5d17cec681ca804ff385bee116e`。
+- `.local/performance-actual/asset-2000-five-rounds-cumulative-raw.json`：
+  `8402f1ace6b22a419b91c30c7ac434a47f47e503cd830582a1155b4c360d2163`。
+- `.local/validation/asset-2000-five-rounds-independent-analysis.json`：
+  `00dc733eebb81104f1f823935c490835ea1d1e015aceb6b4fc33ab14c7226560`。
+- 分页补测`asset-2000-pagination-supplement-cumulative-raw.json`：
+  `612448e410f65bc4f7372bd884aae7efc65a1654f33223c5cb58c0c41b5e0a88`。
+- 操作事件`asset-2000-operator-closure-incident.json`：
+  `887f62473130c28818a5749c47ecce064f64b7963fda8b790eb4c2f4f84d2b9d`。
+
+
+## M场景1c166任务投影快路径的五轮观察
+
+前端`1c1660936e05f9ed5d998ade82a08f65f7c5496957cf629c8e08c2485410fa62`
+在隔离宿主8237完成预登记的五轮原生保存/重开；候选`9149225`跳过无生成列表格的完整任务投影。
+工作流仍为同一300节点/400连线、两张500×10表格的无视频原件，复核SHA-256仍为`72c75a4f2c2c3818590632b8c8e8cc25f2ddd159ccd49520ee6a53db366ea1bc`。
+测试包仍为`3080434958c50d4735cda2c0eed486ca04813ae42e3ede51bd9150d7e074392b`；
+磁盘安装快照`b24358d1e89bf5dbc30a0f0680b8ea4160991993a935fb9a32dce66c09452a98`已另行核对，
+它不替代浏览器每个运行模块的身份验证。
+
+每轮1次save、1次精确关联的HTTP 200存储确认、1次load及9次serialize，共60条调用均完成，
+停止后hooks均为0。第1～4轮累计原件逐项等于最终报告前缀，没有替换轮次。
+每个save/storage/load边界每轮仅N=1，以下五样本描述统计不构成稳定尾延迟判定，单位ms。
+
+| 边界 | 第1～5轮 | 中位数 | 均值 | 最大值 |
+| --- | --- | ---: | ---: | ---: |
+| save | 1524.8 / 987.6 / 1124.6 / 1310.2 / 1457.3 | 1310.2 | 1280.90 | 1524.8 |
+| storage | 133.1 / 112.5 / 80.7 / 142.6 / 317.7 | 133.1 | 157.32 | 317.7 |
+| load | 5438.6 / 5705.6 / 5094.3 / 5654.5 / 5746.8 | 5654.5 | 5527.96 | 5746.8 |
+
+45次独立serialize中位数11.4ms、均值13.17ms、最大值29.8ms，saveCorrelation仍全部为null。
+save与storage嵌套，不相加；load只到`loadGraphData` Promise结束，不包括文件选择/预解析或可编辑就绪。
+相比历史891，load中位数高2.18%、均值高1.37%，没有展示整体加载收益；
+此总时长也不能单独否定局部任务投影快路径。891之后新增空闲CPU宿主8246，背景负载差异未排除，
+不能作因果回退判断；已回退的2e7行高候选只作历史参考。
+
+五轮DOM均为300 cards、1000 rows，两个节点ID及预期首格文字保持；实际viewport均1920×1080，
+DPR均为`1.0000000298023224`（与1比较容差`1e-6`），页面visible。
+五份DOM都未记录recordId/fieldId，不能独立证明稳定行/列身份。全部严格可编辑指标仍为null，**PERF-03未通过**。
+会话为67.8～76.5秒；save结束至load开始为7.6～12.0秒，包含操作等待。
+10秒预热为操作者协议，未独立埋点；设置及前两轮的FrameTree/CDP超时保留，不能直接计为产品加载时延。
+原始报告未提供performance.timeOrigin，不能将操作wall-clock补算成严格可编辑时间。
+
+本地证据及SHA-256：
+
+- 预登记`M-1c166-five-round-plan.json`：`2d07d9f1a497f16e627bbdf2ecb1e84bc155a2425575f362d91ba0d277fa56af`。
+- 原始`M-candidate-1c166-five-rounds-raw.json`：`b9471efabd1769117cc5c48100675bb2ddc1f3b45d8bb2596ae006cb8221e4be`。
+- 分析`M-1c166-five-rounds-independent-analysis.json`：`4274b464a30c19139330e9e4ce9e22eba46274312a4a363a4af5585d511a9277`。
+- 独立复核`M-1c166-five-rounds-review.json`：`4ca5c997c0d5686c73bbae8646c4bff60946f3b3f8ed9dca875d30cca2ad8c1b`，含四个累计前缀和五份DOM哈希。
+
+
+## M场景50次普通输入的语义观察
+
+同一1c166前端在50%画布、1920×1080下，使用原始无视频M夹具
+`79ecd59cf5bbd3022abda73c2368e3e45e3b9fed824494f813cd6109e381cc79`，完成预登记五轮各10次ASCII输入。
+A/B分别绑定节点1/2、记录`M-table-00-row-0001`/`M-table-01-row-0001`及`field-00`；
+全部50次目标、字符和顺序匹配。预备探针`p`的editing为317.9ms，按预声明单列排除；
+正式样本ID为2～51，未把探针ID1或重试混入。
+
+主指标为普通`insertText`事件的`event.timeStamp`至同一编辑目标精确文本经两次可见rAF校验后的机会，
+50次均使用事件时钟，没有handler fallback或IME。所有editing检查在实际blur之前完成。
+这是paint opportunity，包含观察器开销，不是物理像素呈现时间；进入编辑器动作不在此计时边界内。
+操作日志的startedAt/typedAt是控制调用时刻，不能替代input事件时刻。
+
+| 轮次 | editing p50 / ms | editing p95（nearest-rank）/最大值 / ms | 会话秒数 |
+| --- | ---: | ---: | ---: |
+| 1 | 359.45 | 512.6 | 93.52 |
+| 2 | 374.00 | 582.7 | 55.34 |
+| 3 | 257.75 | 381.5 | 60.76 |
+| 4 | 269.40 | 391.4 | 61.35 |
+| 5 | 339.05 | 409.5 | 65.05 |
+
+每轮整体N=10、每个实例N=5，nearest-rank p95在两种样本量下均等于最大值，属于小样本描述统计。
+但**50次editing全部超过100ms**（最小250.4、最大582.7ms），本次普通文本输入子项失败。
+所有注册动作均完成，无缺失、超时、superseded或失效目标的正式完成；
+另有116条outside-supported-identity拒绝计数原样保留，缺逐事件关联，不能全部解释为无害blur。
+第一轮发送字符前的编辑态检查错误；实际属性确认已进入编辑且尚无input，修正检查后继续，未重跑输入。
+
+display-exit从实际blur计至显示态两帧机会，独立50次中位601.15ms、最大702.3ms。
+输入至blur的停留为621.0～1672.7ms；display.inputToPaintOpportunityMs包含这段停留，未混入editing指标。
+轮次长度使用stoppedAt-startedAt，五轮均超过30秒；预热仍为操作者协议。
+各轮结束的稳定node/record/field及最后文本吻合，最终另存文件含300节点/400连线、两张各500行表格，
+实际保存重开后同两目标仍为`O`/`y`。此内容保全结果不消除输入延迟失败。
+
+本轮没有视频、M拖动/缩放或实际IME覆盖，**不判完整PERF-02通过**；
+没有匹配的891语义输入对照，也不据此判断快路径收益或具体耗时原因。
+另一次LoAF诊断在进入编辑器时遇控制期限，实际发送0个计划字符，原始记录已保留；
+它是观察器开启时的空闲/控制诊断，不能作为这50次输入的归因。
+
+本地formal分析`M-table-semantic-1c166-formal-analysis.json`的SHA-256为
+`ddfc97b2e50893afbd663b72e1f79e458492aba49068547f28a6297384e9936a`；
+独立复核`M-table-semantic-1c166-formal-independent-review.json`为
+`a863829c6b81bf6dd44c6785eee99489c23d1451b88619a227ef5cd46790e5a2`，包含五份raw/context哈希和全部样本复算。
+最终保存原件SHA-256为`c2c6d69d526661223af8b4ced0bc984658bf3d17ead113c7be4a08b693fc247c`，
+重开DOM原件`M-table-semantic-1c166-reloaded-final.json`为`d1785826a506dd1da2815f395c325e8a2cb91c7e370c7d80e70bb1a5c5287394`。
+
+## a956与d599同夹具普通输入正式失败
+
+后续两个固定候选继续使用原始M无视频夹具`79ecd59cf5bbd3022abda73c2368e3e45e3b9fed824494f813cd6109e381cc79`，
+即300节点、400连线、两张500×10表格；目标仍为节点1/2的`M-table-00-row-0001`/`M-table-01-row-0001`、`field-00`。
+实际视口1920×1080、画布50%、DPR约1；主指标仍为普通input的event.timeStamp至精确编辑态两帧机会，
+不是控制调用耗时或物理呈现时间。两次各五轮、每轮N=10，nearest-rank p95等于该轮最大值。
+
+| 固定候选 | 第1～5轮editing p95 / ms | 超过100ms | display完成 | 结果 |
+| --- | --- | ---: | ---: | --- |
+| `e35592c` / `a9561917…` | 274.0 / 233.1 / 248.1 / 235.6 / 240.1 | 50/50 | 44/50 | failed |
+| `67e692b` / `d5990507…` | 316.6 / 214.6 / 207.0 / 210.8 / 202.5 | 50/50 | 50/50 | failed |
+
+a956保留六次display超时（第一轮样本1、2、6、8、10；第二轮样本11），没有用0或后续成功样本替换。
+前11次动作的分离控制调用曾超过观察器5秒display窗口，之后改为同次调用内输入、读取、600ms停留和Tab；
+该节奏变化及首次分析exit 2均保留，不能把六次超时单独归因为产品显示缺陷。后三轮完整，但整组仍不完整。
+
+d599从首键起使用同次调用内600ms停留，五轮会话分别约36.46/31.04/31.02/31.04/31.02秒。
+50次输入身份、顺序、值及editing/display均完整，无正式完成缺失或超时；115条outside-supported-identity拒绝计数保留，
+没有逐事件来源，不能改称115次无害blur或迟到任务。600ms停留与display-exit分开，未计入editing指标。
+首次设置、文件选择和重开控制错误仍保留，不折算成产品加载耗时。分析exit 0只说明本次数据协议完整，
+**50次editing仍全部超出100ms，不能判PERF-02通过**。
+
+两组末值`O`/`y`均经实际另存和重开保留。a956保存文件SHA-256为
+`c2c6d69d526661223af8b4ced0bc984658bf3d17ead113c7be4a08b693fc247c`；d599为
+`bbd50009c1a59da37ab60ad374edad419255c795b802ada282d1d421b6e4b186`，二者仅优化文档documentId不同，
+节点、连线和表格内容相同。与原始夹具相比10000个表格值中9998个不变，仅两目标变为`O`/`y`；
+原始夹具保留，未以保存副本冒充原始输入。该数据保全核对不替代任意旧Slot迁移验收。
+
+两个正式失败都绑定`TC-SYS-024 / F-SYS-012 / AC-SYS-012-001 / UC-SYS-010 / EV-PERF`：
+AS-SYS-024-001为failed，视频分支AS-SYS-024-002为not-executed；不覆盖此前1c166失败。
+尚无M拖动/缩放、可见视频、IME或完整视口矩阵的本轮证明。背景进程身份与首尾队列快照已保留，
+但没有连续CPU/GC/网络/推理审计；相关telemetry保持null，不从CPU/offline启动标记推导0。
+不同时间段、控制节奏和背景条件不足以将数值变化归因于某项修复，也没有达标的性能复测。
+
+正式记录及SHA-256：
+
+- `.local/evidence/TC-SYS-024-M-table-a956-20261025-ascii-5x10-first.json`：
+  `eeb71c6480abfe71d8c74dad8bfba6234f49c2aea2eb400f621d7cf3c896ba1e`，37份附件哈希已逐项复核。
+- `.local/evidence/TC-SYS-024-M-table-d599-20261025-ascii-5x10-first.json`：
+  `b5be9c1a8c50b6ee4ce0caa71a357f32e1fd51c13ef81b6668d68da24f4ec642`，43份附件哈希已逐项复核。
+- d599独立复核`.local/validation/M-table-semantic-d599-independent-review.json`：
+  `5da8e86d11678c13046606a4ee77932f1828df9ad83fc23651966708d98721c2`。
+
+## 两表两LLM交互范围与撤销显示缺陷
+
+独立的小夹具含无生成列Table A、真实生成列但不提交的Table B，以及各自连接的两个LLM节点。
+d599在1920×1080、50%画布完成四节点各Mute→Active→Bypass→Active共16个模式状态，
+保存数据的mode与被操作节点一致、其他节点保持Active，最后全为Active。
+Table output0→LLM input3的两条STRING连线分别断开/重连，再经Graph/Canvas往返保留对应输入和要求。
+A断线后的旧文本曾延迟消失，稳定读取已为空；保留该时序记录，不将其描述为永久失效。
+另已执行B生成列删除→撤销→重做→恢复和A第三行内容撤销/重做，另一实例未串改。
+
+两个LLM各追加要求文字、停留1100ms后caret仍为[6,6]；随后原生撤销使两份保存instruction回到旧值，
+但可见文本框仍有`D599-LLM-A/B`后缀，构成真实UI同步失败，不能说原生历史没有撤销。
+修复现已让render读取最新已保存instruction，仅值不同时写DOM；23项定向回归通过且独立代码审查无阻断。
+首轮三条新回归失败日志保留；当时实际复验仍待进行，后续f6实测范围见下文。
+本小夹具未提交生成，也未完成三视口×50/100/150%矩阵、IME或整个前端验收。
+
+本地交互证据位于`.local/performance-actual/prompt-llm-d599-ui/`：
+
+- `05-modes.json`：`897b816f3f4e054c98d62c31105d493897fcfbb99b348f317d8a8418b81df8f5`。
+- `04-connections-roundtrip.json`：`048cdbf9c59e0e75f95250461ad8ab6be5f0f6069e76d2dc83151a823d9699a0`。
+- `06-llm-edit-focus.json`：`e3fdb846756b1a9cd0f1655d92c73a094547ff8fc5bcea0402b68ce3e5d4c021`。
+- `06-after-undo-save.json`：`f56ca55eba2ebd3a7c757dd0d70855cc7df4077c0b8b2b278da1fe57221e6867`；
+  与撤销前原值文件`05-modes-restored-save.json`字节完全相同，和最后DOM形成数据/显示不一致证据。
+
+## d599四键持久化方法分段诊断
+
+另在8226的d599候选、原始M夹具上采集A:P、B:z、A:O、B:y四键，两目标各两次，
+实际1920×1080/50%画布；其他观察器关闭。方法wrapper仅在目标input事件同步派发期间记录，
+四次均精确恢复八个方法描述符、无冲突或截断。前后约2秒无输入窗口没有包装方法，不能当空后台性能基线。
+
+DocumentController.edit的同步含子调用时长为88.1/86.2/89.7/88.0ms；
+其中OptimizationRevisions.observe为23.2/21.4/24.0/21.6ms，每次另观察到三次rootGraph.serialize，
+同标签区间合计27.3/27.1/28.9/27.8ms。serialize中两次嵌在history内，所有这些边界又包含在edit内，
+**跨标签不可相加，也不是CPU、自身耗时、完整input回调或输入至显示完成时间**。
+两个table_data widget边界可安装但零span，只能写未观察到，不能断言没有执行。
+原型方法receiver只与本次输入派发关联，不捏造其具体A/B归属。
+
+这四键只用于缩小后续审查范围，不混入正式五轮、不生成正式百分位、不判100ms预算达标；
+也不能据此把某次JSON拷贝、序列化或扫描确认为全部瓶颈。缓存模块字节未独立证明等限制继续保留。
+原始`.local/performance-actual/M-input-stages-d599-first-raw.json` SHA-256为
+`4bee84c1358a2ef850ca4c2833c1bcca45d6ce4bc6a83dd3b2b2cc7fcdafad15`；
+独立分析`.local/validation/M-input-stages-d599-first-analysis.json`为
+`1bac6ca274a701eb899e3f37e6c574233795f391d41c53f26d9a0e8fe1c6c926`。
+以上失败和诊断不改变M6未达、完整性能未通过、44次真实本地推理未启动及不发布的状态。
+
+## f6的LLM指令显示修复实际复验
+
+固定`3f8437b1889baa2279876c03e14ddef16384ab7b`、前端
+`f6e57c9bd4122d9f15d1188e725c348bc590721a1a5e76577cad5d72d19296bd`，
+继续同一两Table、两LLM小夹具，在真实1920×1080、Canvas50%执行；不提交生成。
+两LLM真实追加独立后缀，停留1111/1126ms后仍获焦且caret为[6,6]，另一实例未串改。
+原生历史以可见render检查点逐步执行undo-B、undo-A、redo-A、redo-B，
+每步即时及稳定DOM的两份instruction均符合目标历史状态，修复了d599中“数据撤销而显示未同步”的已知样例。
+这不是周期延迟预算测量，也不声称即时快照代表零延迟。
+
+分别删除LLM B、Table B时，仅目标节点及相连边从原生保存中消失；撤销后两份文件均与
+`08-before-lifecycle-saved.json`的18781字节完全相同，四节点及两条Table output0→LLM input3连线恢复。
+Table B删除时宿主曾重算存活LLM B的order，已单独记录，不混同原生slot索引改变。
+随后在Table A与LLM B嵌套编辑控件内Ctrl+S，新增文本保留到磁盘；原生文件重开、整页重载后DOM与保存一致。
+`12-nested-LLM-save.json`、`14-final-saved.json`和`15-post-reload-saved.json`逐字节相同，
+均为18817字节、SHA-256 `2eabe9d89664f154a37730dd12f201b97397fce9a72cda89a110df5080043144`。
+
+首次模式按钮Ctrl+Z没有改变保存数据，快速连续历史读取曾观察到中间状态；后续有独立render检查点的成功
+不覆盖这些原件。Save As快捷键/菜单定位、原生Open控件失败也保留，未把未确认操作记作成功。
+整页重载及其后DOM仍带dirty-star，而再次保存字节不变；此观察只支持该次未发现序列化内容变化，
+不能推断所有dirty状态或快捷键行为都正确。f6记录仍限一个视口/倍率，不替代完整焦点/溢出、IME或模式矩阵。
+
+本地原件在`.local/performance-actual/prompt-llm-f6e57-ui/`，关键SHA-256：
+
+- `01-instruction-focus.json`：`5904fa31c96884d955c474b77735bff72a6cfedcb24791f86227d0041b023562`。
+- `06-history-with-render-checkpoint.json`：`69c6722bd688cc561bd84315d62a5faae372312ea54b88177d50c76dc1f71d1a`。
+- `08-before-lifecycle-saved.json`及两份删除后恢复文件：`859f611c261e2276addb83d498af993263419bb61d57de8c9d194ce76df22b82`。
+- `13-reopened.json`：`8ff5ef50d9dbe96d2df824167e42a9f280052d42e732213df4626de5879abd57`。
+- `14-reloaded.json`：`c5d50e380320d71f455879a5f42f12211375be45c946279119b5e0fcd64d778b`。
+- 本轮独立文件/DOM复核`f6-cfc8-public-progress-review.json`：`82ef67de51df93046bde40753fed91cf9a05cc802c6d1886558c7137c47d0c98`。
+
+## cfc8正式五轮输入失败与缺测保留
+
+固定提交`d5dbe17be7181b7f8f13206a86c823ad82fc6492`，前端
+`cfc8aaeb5a2c28d4ca9f25f710b196722a42183dcf5df02909ea558b5b32c0be`包含LLM显示修复、
+普通字符串快照冗余拷贝消除与Canvas同值DOM写入guard。使用同一原始M无视频夹具79ecd，
+同A/B稳定目标、1920×1080/DPR约1/Canvas50%，预登记五轮各10键，未重载或替换正式样本。
+计划SHA-256为`4352e4bc4af019c03906e9de7b0171af43a63417c59254b23693e649d55bfc52`，冻结先于首轮Start。
+
+| 轮次 | editing已测/计划 | 已测editing p95 / ms | display完成 | 会话秒数 | 状态 |
+| --- | ---: | ---: | ---: | ---: | --- |
+| 1 | 10/10 | 284.2 | 10/10 | 46.492 | 超过100ms |
+| 2 | 10/10 | 306.8 | 10/10 | 31.429 | 超过100ms；另留599ms操作偏差 |
+| 3 | 10/10 | 271.6 | 10/10 | 31.340 | 超过100ms |
+| 4 | 10/10 | 278.4 | 10/10 | 31.165 | 超过100ms |
+| 5 | 5/10 | 1012.7（仅N=5描述值） | 10/10 | 30.648 | 缺5个editing观测，不能替代N=10 |
+
+全部45个可测editing值均超过100ms。第五轮ID45/46/47/48/50为
+`not-observed-before-display`，没有editing第二帧时间，不填0、不插值、不用display值代替；
+ID49的1012.7ms保留，不剔作异常。全部50动作的目标/值/顺序和display完成相符，
+但**动作完成不等于editing测量完整**。冻结分析器首次退出码2，`fiveRoundsComplete=false`，
+`PERF02Passed=false`；前四轮完整但超预算，整组仍失败。
+
+原始预热记录10005ms；操作者从首键起安排同次控制调用内600ms停留再Tab。
+第二轮第10动作B=`j`的Date.now停留差为599ms，保留为操作协议偏差，不能据timer意图改成600或事后加容差。
+其余停留记录保留，未混入editing主指标。每轮23条、共115条outside-supported-identity拒绝未给逐事件归因；
+无IME组合事件，不能把它们全部归作无害blur。观察器检查开销最大约0.8ms，未从结果扣除。
+
+后台比d599多了独立CPU宿主8247，测试包由17文件308变为19文件0f589，新增两个未启动的方法诊断模块。
+这些环境差异明确保留。六个已归属宿主的前后PID/birth、命令和listener匹配，首尾队列快照为空；
+八个服务文件前后与安装字节相同，冻结时511产品文件对固定Git、19夹具文件核验一致。
+端点证据不能证明持续CPU/GC/网络负载等价；浏览器缓存模块字节也未独立证明，不作候选因果收益或回退结论。
+
+实际保存重开保留300节点/400连线与O/y，9998个未编辑表格值保持。保存文件
+`83759b4c61a24d15dfea693296fa52740851b932b5005657f1e991dde8d2c7a3`
+与d599保存文件仅优化文档documentId不同；原始夹具及所有历史失败不变。
+最终重开两次控制读取错误后，一次已打开文件的有限读取确认内容；没有补做Open或正式输入，
+不由工具超时推算产品加载耗时。
+
+本轮绑定`TC-SYS-024 / F-SYS-012 / AC-SYS-012-001 / UC-SYS-010 / EV-PERF`，
+AS-SYS-024-001为failed，AS-SYS-024-002可见视频分支为not-executed。
+经独立窄审后，主代理已正式追加不可覆写记录；55份附件保全、格式与哈希校验通过。network/inference仍为null，
+M拖动/缩放、视频、IME及其他未测分支不被该失败运行覆盖。
+
+- 首次分析`cfc8-table-semantic-preparation/candidate-analysis-first.json`：
+  `7630de87442ded97e4572c4be5cf5b0549e24a9fa1ec0cc931f4d109d55bda42`。
+- 首次退出记录`analysis-first-execution.json`：`5f25957256f157e03a915e1c38f89014f5cac519a4b26b10278d3a19ffce6a21`。
+- 独立原始数据复核`M-table-semantic-cfc8-independent-review.json`：
+  `ec8f81476544745591240f5b6df901a88a9d07dcc3ec5a83c9500002f5f8d14c`。
+- 正式记录`.local/evidence/TC-SYS-024-M-table-cfc8-20261025-ascii-5x10-first.json`：
+  `91a0f75a94d2fcd1ccaf46647805ad0341ef49b31e0295575e1019295f5b22c0`，与保留的原草案
+  `M-table-semantic-cfc8-failed-record-v1/failed-evidence.draft.json`逐字节相同。
+  记录内最初的“LOCAL DRAFT ONLY”备注作为原始编制历史保留；本段记录后续审核和正式追加事实，未改写原件。
+- 草案独立窄审`cfc8-failed-draft-independent-review.json`：
+  `f2eaf2c091af8a5bc66b99f1aeb60dc8c87f30d365a5c96e54a9648176788558`，55附件与52原件/副本核对一致，无阻断。
+
+当前干净8247宿主的四节点×三视口×三倍率36项交互矩阵正在执行，尚不计通过；IME仍待真实输入。
+本地自动检查237项中234通过、3跳过，业务383项通过；d5dbe17的PR CI run40164647495成功。
+CI与纯检查不替代上述实际性能失败，四键方法诊断也不是达标复测。
+真实本地模型推理仍为0/44，M6未通过，不发布。
+
+### 6469候选已构建，真实复测待执行
+
+新候选`1e5a19df6b9067fd48c03c5589264c3e580b88f9`的前端指纹为
+`6469dd8a8069415fbc7753354fd8c8a55b0d51997deb5575971df88395993eb8`。
+可选`projectedMaterialTargets`让表格Slot投影复用同一缓存中的列目标；完整元素拖放目标、原生槽位、
+无该能力的adapter路径及输出投影顺序保持。两个500×10合成表的计数检查从每表5510次目标快照变为10次，
+这只证明重复快照减少，不能换算CPU时间、输入延迟或正式性能收益。
+
+独立读取完整`material-projection-capability-full-check-first.log`确认244项检查中241通过、3跳过、0失败，
+业务383通过、0失败；类型检查、构建、架构及字体/许可证检查完成。
+日志SHA为`4674fbd8e93f03f59c0e79a637371fef9edf35addba205e64a9e02dc411bf6e7`。
+工作区构建清单与该提交相同，209份列出文件逐字节哈希匹配；清单SHA为
+`84a29dc3c78fcc166afe328e7ecb6abafa6a8d5ea5cb268da811f510e53eeff8`。
+本候选尚无实际M五轮复测结论，独立/组合安装和受影响Slot交互仍待实际核验；不能沿用cfc8为新候选通过。
+后续只读查询确认1e5a19d的PR CI `Pure checks`成功（[run 40166157195](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Studio/actions/runs/40166157195)）。
+6469独立性能页已加载原始M夹具，尚无新正式输入分析结论；此前d5dbe17的CI仍保留为历史事实。
+
+### cfc8交互矩阵的部分证据与异常
+
+8247上的四节点×三视口×三倍率矩阵仍未完成最终验证。中间快照
+`four-owner-matrix-cfc8/partial-raw-snapshot-01/minimum-gaps.json`
+（SHA `a6d9a52033dc363ea256429c1d6c74f56177719bc3fe2b868500c1dd3e12f960`）
+仅涵盖当时23项焦点观察、66份JSON；目录后续追加不能被该中间数代表。
+早期表格采集用DIV的`.value`得到空值，缺实际正文、recordId、fieldId、connected；这是采集不完整，
+不证明产品文本为空。页面/构建/原生加载关联及逐张截图可达性、溢出判断也须按实际记录补充，不能从模板推造。
+
+680×720、50%的A菜单首次查找改写要求失败，记录焦点在A第二行。随后空改写要求的重试截图原样保留；
+清除旧选择、重新选择并核对A第一行后得到其已保存草稿。
+`table-keyboard-toolbar-cfc8-readonly-review.json`指出源码已有td focus选择、inline编辑清选区和focusin更新；
+工具栏固定定位可能遮挡其他格，点击工具栏本身不会切换目标。当前缺首次pointer命中证据，
+尚不能区分遮挡、操作目标或工具栏同步问题，不认定Enter失效，也不将恢复后的正确草稿回填首次成功。
+
+1280×720、150%的A菜单操作又出现目标缺失，随后DOM显示新增空白`Unsaved Workflow (2)`；
+`1280x720-z150-A-menu-first-error.json`及截图保留，JSON SHA为
+`0bcd76bfa18bcc69e1ddf26b1cb9c73ce12a29c798cd7006bb516a160b211c83`。
+原因尚未建立，不能计该次菜单通过，不能推断工作流数据丢失。上述矩阵仍为部分证据，IME仍待真实输入；
+cfc8正式输入失败不变，0/44、M6未通过和不发布的门禁不变。
+
+### cfc8焦点终局复核与85c5根滚动候选
+
+后续复核覆盖36组最新焦点记录，67次焦点尝试原件全部保留。
+两表实际正文/recordId/fieldId、两LLM指令、owner、connected、各自选区6/6及四路peer值在1111–1128ms停留前后相符。
+`cfc8-matrix-final/focus-image-review.json`（SHA `39507daee1022dc45a05a9dfb27a9556898b94eeaf7708dc3f742c2bd54723f0`）
+记录逐图检查：100/150%可辨caret，50%的caret线太小，视觉判定保留不确定，不能把DOM选区等同像素可辨。
+
+12张报告1920×1080的焦点图和12张菜单图均实际1791×1080像素，未建立截取或缩放映射；
+不由这些图片推出完整视口/右侧控件可见。680×720、150%的Table A编辑区DOM right约897.26，超过680，
+该裁切由实际矩形支持；1280×720、150%的LLM B截图可见根覆盖控件左移。
+`root-scroll-first-observed.json`（SHA `ae450cfe2eca51f575b41ac366a1c59e69c8887b8068f81a8794d0b012b605c6`）
+记录根rect为58/96/622/624、clientWidth621、scrollWidth1818、`overflow:hidden`、scrollLeft约42.67。
+36个菜单图路径及SHA全匹配，但root视觉结论仅针对菜单，native select popup矩形仍为null；
+1920×1080、50%的A stable截图没有同名stable JSON，不把早期JSON回填为后续状态。
+
+独立复核`cfc8-matrix-final/workflow-menu-independent-review-v2.json`
+（SHA `0cc185a4c3d3ef816dced1856df2d38c4a2191fa75ac175fdd57e8e888d46c0f`）确认：
+保存前相对f6原件只改Canvas viewport x/y；fit后只改x/y/zoom，页面重载后文件与fit后逐字节相同
+（SHA `ce5b5b3619220fc22a6c7eb58b448aea993240238563d655140e70e242ab0400`）。
+四节点、序列化槽位、两条output0→input3连线、业务值、extra.ds及所有其他JSON字段均相同。
+递归比较未忽略未知键，但该小夹具没有专门注入的未知字段测试，不能据此宣布完整未知字段/迁移验收。
+根滚动失败和编辑区裁切仍阻断完整矩阵通过；首次错选、空白工作流异常及早期采集缺口不被补充记录抹去。
+
+修复提交`7e30994e9301c6ddad6cb943b411023c6bb719ab`构建指纹为
+`85c5f071533bf7db2161438e2d6fcdce7d5251b25a3a5f2dea8bef6a2714914f`。
+仅根画布增加`overflow:clip`来禁止焦点驱动的根滚动，保留旧引擎hidden fallback、内部auto滚动和world transform。
+针对性首失败保留；完整`canvas-scroll-boundary-full-check-first.log`退出0，247项中244通过/3跳过/0失败，业务383通过，
+209份构建文件哈希匹配。该提交PR CI [run 40166616781](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Studio/actions/runs/40166616781)
+首次查询仍在运行，文档冻结前再次只读核验已完成并成功；clip实际两实例焦点、Tab、内部滚动、覆盖控件、模式与保存重载仍待主代理部署后验证。
+6469正式性能候选与85c5界面修复候选分开记录，未以新构建替换已部署6469；纯检查、36组数据稳定均不改变PERF失败、IME待测、0/44和M6未通过。
+
+
+## 6469 同一 M 夹具：输入仍失败，首轮控制偏差保留
+
+固定提交`1e5a19df6b9067fd48c03c5589264c3e580b88f9`，前端指纹
+`6469dd8a8069415fbc7753354fd8c8a55b0d51997deb5575971df88395993eb8`，安装包SHA
+`d58cb60b8169aa7fc4f6f91f26ea18dfc0996394ed6b2f879fcf116141571826`。本轮继续原始
+`FX-PERF-M-no-video.json`（`79ecd59cf5bbd3022abda73c2368e3e45e3b9fed824494f813cd6109e381cc79`），
+8237、1920×1080、DPR`1.0000000298023224`、预检及后态Canvas50%，不修改原件。
+测试包仍为19文件`0f589b53989d4e0225b6bbb47b863f8b55992c2e1c1610cac890afdae358f646`；
+只启用同一`834d0668…`表格语义observer。冻结计划SHA为
+`196789569e2888aba835b87c48e8be2e8fe5c9872efbea0054422219e54cde3d`，实际明确预热10012ms。
+
+| 轮次 | 会话秒数 | editing / display观察数 | editing p95（ms） | display退出p95（ms） | editing超过100ms |
+| --- | ---: | --- | ---: | ---: | ---: |
+| 1 | 297.826 | 10 / 10 | 281.2 | 566.6 | 10 / 10 |
+| 2 | 31.088 | 10 / 10 | 241.3 | 608.4 | 10 / 10 |
+| 3 | 31.058 | 10 / 10 | 239.1 | 534.6 | 10 / 10 |
+| 4 | 31.108 | 10 / 10 | 266.9 | 618.5 | 10 / 10 |
+| 5 | 31.101 | 10 / 10 | 225.6 | 489.1 | 10 / 10 |
+
+每轮最近秩p95以N=10计算；全部50个editing超过100ms，**PERF-02输入分支仍为失败**。
+50个editing、50个display均observed，各有4次身份/值正确的可见语义检查，没有缺失或超时；
+全部为`insertText / event.timeStamp`，没有fallback时钟或IME样本。115个`outside-supported-identity`
+拒绝完整保留，不猜其原因。display退出指标只描述blur之后；输入到display包含人为停留，不作为纯渲染耗时。
+两个rAF只证明绘制机会，不是物理显示或完整性能验收。
+
+首次原冻结分析器输出exit 0、`fiveRoundsComplete=true`，只说明原始数据中50次注册动作与两个阶段完整，
+**不说明干净五轮协议或性能通过**。R1 A1使用原locator键盘路径；B1的Ctrl+A locator两次超时，
+当时B仍为原文、observer仍只有1个输入。随后原生Ctrl+A确认只选中B，再唯一输入a；之后48键改为原生键盘，
+Enter仍使用精确td定位。R1第一/第二输入间隔约257秒，会话297.826秒；恢复B1跨工具调用，
+因此原同调用/同路由执行条件有明确偏差。R2–5为约31.1秒，全部50键实际dwell600–615ms。
+保留长中断和路径变化，`cleanFiveRounds=false`；不补采、不改冻结计划、不从后来样本推断优化收益。
+
+计划列出的独立round-context文件没有生成，实际保留累计roundN-operator与各轮raw。各轮raw记录视口/DPR；
+Canvas50%与其他observer停用的DOM上下文只在预热前后、postflight和重开有快照。
+此缺口不能回填为逐轮独立UI核验。加载/文件选择的控制错误、最终重开的两次CDP读取失败全部保留，
+不能从工具deadline推出产品加载时间或根因。
+
+实际CtrlS保存后，原生CtrlO重新打开宿主磁盘文件，最终DOM为300cards、两张500×10表、A=O/B=y、
+干净标题和原视口；截图随记录保存。保存件SHA
+`83759b4c61a24d15dfea693296fa52740851b932b5005657f1e991dde8d2c7a3`与cfc8最终保存件逐字节相同，
+对d599只变化`extra.daelabPromptOptimizationV1.documentId`。300节点ID顺序及400条连线一致，
+10000个表格值中只两目标变为O/y，9998个未编辑值精确保留；原始工作流经宿主规范化的其他差异完整列出，
+没有据普通合成夹具声称未知字段的全部迁移覆盖。保存重开是输入计时之外的后续检查。
+
+前后9份服务文件（原协议8份及补充adapter1份）与安装字节一致，6个已有宿主PID/生日/参数/安装/fixture/
+listener及点时空队列一致。这不是连续idle、CPU/GC、浏览器缓存模块字节或零外连审计；
+网络/推理遥测保持null，不能写成已测0。只覆盖ASCII无视频输入；M拖动/缩放、视频比较、IME及完整UI矩阵仍未完成。
+
+本地首次结果与保全：
+
+- 原始5份：`.local/performance-actual/M-table-semantic-6469-round{1..5}-raw.json`。
+  `M-table-semantic-6469-round1-raw.json` SHA `c72065bacd6cbf400ec5459e00eb155db17a0c2990b9624b5e9e3a492545c18d`。
+  `M-table-semantic-6469-round2-raw.json` SHA `b056825574e8f57d5002ef1f326471357cbb48196f1708a897691dde0554162f`。
+  `M-table-semantic-6469-round3-raw.json` SHA `20b5934419c4a24da27cc897beac9b2d3fb91acdade3ffd6c1e151fa32e1903d`。
+  `M-table-semantic-6469-round4-raw.json` SHA `5495516c31125ccfaf4a416708b5436804097c68ce92fffe3ea42119483d0cf3`。
+  `M-table-semantic-6469-round5-raw.json` SHA `e2b50b60348f8c6bf52be4420bb7b6406b393254de28365188ecaf52755a3ffc`。
+- 首次分析：`.local/validation/6469-table-semantic-preparation/candidate-analysis-first.json`，
+  SHA `7f2627c20e4449d61d22c3d77506ea93cb558b7f8c023a2f6d7300ca0a6ec037`；
+  首执行记录`analysis-first-execution.json` SHA `821f7c303a81962b4fa8c4af81b44182f21a4a75d0908004ce8590897f497763`，
+  首exit 0与原raw前后哈希不变均保留。
+- 独立离线核验：`.local/validation/M-table-semantic-6469-independent-review.json`，
+  SHA `3e9fa63bf20087073a19f675b2c43677f07b30642196d5b8728c4a12d71e3efa`。
+- 失败草稿：`.local/validation/M-table-semantic-6469-failed-record-v1/failed-evidence.draft.json`，
+  SHA `4018795f7536ad2239a4d908007a28430004f613b346ffe89885cb627c582607`，61份原附件独立窄审无阻断，草稿原件不改。
+- 独立窄审：`.local/validation/6469-failed-draft-independent-review.json`，
+  SHA `3b28e1ba863c26a10eb0a5c0371d60abb4a8ed82888db0ebaba8b91d8d871d5f`。
+  按root授权将该审查及截图覆盖附注附入63份附件后，通过schema/catalog与字节校验并不可覆盖追加。
+  正式记录`.local/evidence/TC-SYS-024-M-table-6469-20261025-ascii-5x10-first.json`，
+  SHA `b6e489b1ef9e78664ef901c93f3c8b4bf477a6d71fdec66ad96f5118794e9f73`；首append exit 0。
+  AS-SYS-024-001 failed，AS-SYS-024-002 not-executed；正式追加只留存真实失败，不等于退出门禁通过。
+
+此前1c166/a956/d599/cfc8原始失败不覆盖、不supersede。当前85c5 clip候选已在8247开始真实回归：1920×1080/50%的两表两LLM前4组焦点/root与Tab滚动0已核，
+其余视口/倍率/完整矩阵进行中，不能由前4组或构建/CI成功宣布完整修复；
+cfc8根滚动、680×720/150%编辑区裁切及1920DOM/1791截图覆盖限制继续保留。真实推理0/44，M6未通过，不发布。
+
+
+6469重开截图的格式/覆盖附注：`M-table-semantic-6469-native-reopened.png`实际为JPEG、1791×1080，
+DOM报告视口1920×1080；保留原名和字节，不当作完整右边界视觉证据。它仅作补充，保存数据以完整JSON及DOM为依据。
+85c5本轮另已取得显式请求1920×1080的完整截图；这不追溯填补此前1791宽原图。
+
+## 85c5 四实例界面矩阵：根滚动观察正常，尾部编辑仍失败
+
+独立干净CPU宿主8247固定`7e30994e9301c6ddad6cb943b411023c6bb719ab`，前端
+`85c5f071533bf7db2161438e2d6fcdce7d5251b25a3a5f2dea8bef6a2714914f`，包SHA
+`d4fa2844d215648125b02f36e86c33274d398ffc4e03016fa0d724c048dab5e1`，未安装测试fixture或observer面板。
+以同一final15四节点文件及仅改变Canvas zoom的三个副本，完成1920×1080、1280×720、680×720，
+各50%/100%/150%，两表提示词和两LLM要求共36组焦点及36组菜单观察；这些是功能取证，不是输入性能样本。
+
+36组实际正文、逻辑owner、connected、选区6/6及四路peer值在1102–1116ms停留前后相符。
+每组焦点前后及Tab后根scrollLeft/scrollTop均为0、overflow为clip，固定缩放/资产控件矩形未变化。
+这支持本次采样端点未复现cfc8根滚动，不代表全程监控、跨调用DOM对象身份或所有滚动路径通过。
+独立逐图查看36张完整焦点图与36张菜单图：18个表格composer及18个原生LLM选项弹层均在视口内；
+原生弹层依据实际像素，不以select控件矩形替代。100/150%的caret可辨，50%的线太小，仍保留图像判定不确定。
+首个A菜单原记录缺selected，后来独立补图/DOM确认第一行与正确草稿；原缺测不被倒填。
+
+首4张焦点图实际JPEG1791×1080，其中两张虽名为.png且原记录误按PNG头读取尺寸，原文件及错误读数均保留。
+随后4份明确1920×1080截图补全对应静态焦点画面；它们不替换先前停留样本，也不重写原图。
+其余32张焦点图及36张菜单图均按当时DOM视口显式截图、实际像素尺寸匹配；完整右边缘结论仅用于这些对应图。
+
+**680×720、150%的Table A尾部编辑仍失败。** 活动编辑框right约946.59，超过680；真实End后
+caret=50/文本长度50，但caret x=791.8125仍在视口外。随后空白区域平移的即时DOM得到x=648、正文不变，
+实际后续截图未能确认完整尾部与caret持续可见，再次Tab定位失败时active为BODY。不能用即时坐标替代持续可编辑证据，
+也不从跨调用时间差猜具体失焦根因。该首失败保留，矩阵不判整体通过；真实IME仍未执行。
+
+另完成四节点各Mute→Active→Bypass→Active共16状态，逐图及DOM复核：只目标面板折叠，
+8个恢复端点的四卡正文和控件均与参考Active端点精确相同。表格停用时对应LLM输入清空并提示不可用，
+其要求保留，另一路不受影响；最终四节点全部Active。原生模式动作和面板恢复不等于生成执行验证。
+
+NativeSaveAs、原生CtrlO、页面重载、App Mode欢迎页进入后返回Graph/Creative Canvas并CtrlS，
+最终文件`saved-after-reload-app-return.json`与`saved-before-reopen.json`及f6的`15-post-reload-saved.json`
+三者18817字节完全相同，SHA
+`2eabe9d89664f154a37730dd12f201b97397fce9a72cda89a110df5080043144`。
+四节点ID、mode=0、表格2入1出、LLM5入2出、原槽位、两条output0→input3连线及全部业务/现有未知字段均未变化。
+没有专门注入的未知字段夹具，不扩大为任意未知字段或迁移验收。最终DOM标题无星、四路值保留、根滚动0，随后tab53关闭。
+
+App Mode只观察欢迎页及返回，**没有构建或执行应用**。进入时DOM确认rootHidden，但三次显式完整截图失败，
+成功的默认图仅JPEG1791×1080，不能证明1920完整右边界；返回后的图为完整1920×1080且四卡恢复。
+页面重载首次截图失败、派生初始化dirty-star及后续CtrlS clean均按时间保留，不用最终成功抹去中间状态。
+
+本地独立记录（原件目录`.local/performance-actual/prompt-llm-85c5-clean-matrix/`）：
+
+- 完整36组复核`85c5-matrix-readonly/full36-focus-menu-review-v2.json`，SHA `bfd743cb7452d1fe0b744f30eb1da4dfe071c4e7b3b4a1a7d143d311aadf8237`。
+- 首格式纠正`85c5-matrix-readonly/first-image-format-correction.json`，SHA `a91767cba77983a045ce6835db957c1e76ce92533ea15bfe9d80f2f8549d34d0`。
+- 尾部首失败独审`85c5-matrix-readonly/tail-first-independent-review.json`，SHA `109943eacbae0cc4bbb6a6acb4f07c95b2493b331da1c0b640cd84cdbc7564c6`。
+- 16状态/初次保存附录v1，SHA `2775a2b01d686739d020754653400916c9da685a00c8175c6ece0159706af926`；
+  后续`85c5-matrix-readonly/mode-save-appendix-v2.json`，SHA `e0abbc67b604574db3d2772f1a5f57f657815d7790fe24d316633d65d1e5cae4`，v1保留不覆盖。
+- 累计`operator-all-final.json`，SHA `2f4c0f0451cbea8f3ec87fd74df8d5609db90cd338de01e6a04797afcc88347e`；
+  `final-dom-before-close.json`，SHA `d85c594af86303c0c7b6599c667036daaab60f647213c322954189e8b6f1357b`。
+
+### 5105端口投影候选仅完成构建与自动检查
+
+后续提交`72aaf06cc0006b353714bc664350b823db1e6722`，构建
+`510538aaa7878945ca242282fc9236ea8106bcc9216216389caf7af026c8f6c3`，只对已有、唯一、归属受限的输入端口
+先读几何再写样式；首次端口、输出端口及不满足边界的adapter沿用原顺序。完整检查250通过/3跳过、业务383通过，
+209份构建产物校验一致，首机制失败保留。主代理已核[PR CI 40168001794](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Studio/actions/runs/40168001794)
+及[push CI 40167999036](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Studio/actions/runs/40167999036)成功。
+这些结果不把85c5界面观察归给5105，也不证明性能收益；该候选尚无正式性能通过证据，后续分段诊断不能替代五轮测量。
+既有PERF失败、尾部编辑失败、IME待测、真实推理0/44及M6未通过仍保留，不发布。
+
+### 5105四键分段诊断，未作为正式性能样本
+
+在同一原始M夹具、1920×1080/50%、8237固定5105安装上，预登记执行A:P、B:z、A:O、B:y。
+方法观察器和LoAF同时启用，其他观察器停止；四次操作停留为606/612/601/602ms。
+四个输入的被观察方法区间并集为98.4/101.9/96.2/87.5ms，capture到方法租约恢复为
+208.4/195.3/189.2/175.7ms。两者之差是未归属的经过时间，不能当作CPU或绘制耗时。
+八个方法租约均按原描述符恢复；前后约两秒无输入对照仍有3/2个长帧，不是零后台工作。
+
+共保留24个LoAF、55个脚本记录。四个input回调包络合计518.8ms，其中88.4ms被浏览器标为
+强制样式/布局；四个Tab-keydown回调包络合计783.0ms，其中731.8ms为强制样式/布局。
+强制样式/布局已包含在脚本时长内，不能相加；源位置仅定位回调及其子调用，不能认作函数self-time。
+本次同时开启的观察器与旧方法单独诊断不同，不能把差异全部归因于5105产品修复。
+
+原始方法报告SHA `6cdec47a54d22d4537e559996d7ca07a1a404e3a66c86f0f00eb9d5b9f86fdff`，
+LoAF报告SHA `63b2e27e298a3a1fb31166483539d7d0ea3d410a3a0cf540e57f98a08f34493f`；
+独立分析`.local/validation/M-input-stages-5105-first-analysis.json`，SHA
+`2d56594879459ca78bcce273c550d1a2e5796889d57ce68932af344959feda39`。
+停止观察后保存文件与6469最终文件字节相同。随后为正式测试重新打开原始M时遇到多次浏览器控制超时，
+没有发出正式输入；错误与未执行决定保留。5105未执行正式五轮，四键诊断不用于100ms预算判定。
+后续候选减少普通替换的重复验证快照并增加光标视口揭示，须在最终构建上重新执行完整协议。
+
+### a2da四实例复验与正式输入失败
+
+固定提交`cdeead8c9f15d1a1279c35a20fe6fae004fd9a23`及来源补充`2974711d46c63998303e13c765ccbf047d765295`，
+构建`a2da4e1a97e1294f6d9f8c5d0659acfaf99114c51bc6f3274a4ca0516b930061`。
+完整检查268通过/3跳过，业务395通过；只读节点测试的data-URL加载器首次失败保留后修正。
+PR CI `40169108432`和push CI `40169105002`均成功；这些检查不证明实际性能改善。
+
+8247干净安装在相同final15四实例夹具完成三视口×三倍率的36焦点/36菜单、16模式状态、
+保存重开、页面刷新和App欢迎页返回。36焦点正文/owner/选区6及peer值保持，根滚动为0；
+100/150%截图可辨caret，50%细线判定仍有限。680×720/150% A尾部End后caret在x=664，
+手动平移24px后的约10秒端点保持当前编辑者、选区与正文；未复现85c5的尾部不可见现象。
+这里的平移幅度与85c5不同，不能宣称所有旧失焦路径已排除。
+模式、保存与App独审`a2da-modes-save-app-independent-review.json` SHA
+`9947afe75f6e3adfd549d32aeecfc1a70a68eb50389ee7a1018accf8fa8db6a4`，
+三份18817字节工作流均为`2eabe9d89664f154a37730dd12f201b97397fce9a72cda89a110df5080043144`。
+本轮未修改四实例正文，不扩展为普通替换编辑/撤销验收。
+
+**完整键盘交互仍失败。** 独审Tab后态发现9个表格TD和2个LLM按钮完全在屏幕外，另2个按钮部分越界；
+`a2da-post-tab-focus-gap-readonly-review.json` SHA
+`5f50f9e08b9919fea7059315bdd84f2427020b0539ef36170df78088b0140bdf`。
+caret显露只覆盖编辑者，不能替代非编辑焦点可见性。最小Tab候选已保留旧源码首红并通过25项回归；
+后续与同值文本节点复用合并为`70a56c6c6ca10be091ca98010afb5c0a71941c81`，构建
+`7b5e90f99f27bfceb80c4e35bf58fbff3f850b180747a38d5f7f163bd5d9d702`。
+完整检查275项通过、3项跳过，业务401项通过，两次来源清单校验失败及修正日志保留。
+该候选尚未部署或实际复验，不继承a2da的CI、交互或性能结论。
+真实中文IME也未完成：Chrome恢复并打开隔离8247后，Windows电脑控制
+仍因无法可靠验证当前网址而结束当轮；未用粘贴或合成composition事件替代真实输入法。
+
+8237正式输入计划SHA`e55508b589a593705d093b6502dbd9610975f8ef13a3724424def0b4570d454c`，
+使用原始M SHA`79ecd59cf5bbd3022abda73c2368e3e45e3b9fed824494f813cd6109e381cc79`，
+300节点/400连线、两张500×10表，1920×1080/50%、DPR约1；仅语义观测器启用。
+32秒实际预热后执行预登记五轮、每轮十次A/B交替ASCII替换；从首键采用相同原生Ctrl+A/key/Tab路线。
+每次600–616ms编辑态停留在单次控制调用内完成；50次无输入错误或重试，各轮前后实际DOM上下文保留。
+只读DOM环境未暴露performance.timeOrigin，context诚实保留null；五份raw提供相同timeOrigin，
+上下文依靠同页URL和操作记录关联，不能称独立DOM时钟证明。
+
+| 轮次 | editing样本 | editing p95 / ms |
+| --- | ---: | ---: |
+| 1 | 10 | 505.5 |
+| 2 | 10 | 440.3 |
+| 3 | 10 | 411.8 |
+| 4 | 10 | 397.6 |
+| 5 | 10 | 356.4 |
+
+50个editing与50个display均observed；editing最小298.2ms，全部超过100ms，PERF-02失败。
+原分析首次exit 0只表示样本完整。独立协议审计
+`replacement-caret-table-semantic-preparation/protocol-audit-first.json` SHA
+`09113cf4a5c493af8828db22d33303b29bc0fd81a43312c4424a2cb5e055dea5`；
+五轮原始SHA依次为`c51dc372e8ed7511a767b67c2091f56bfd899979331fe585e5a7350d12fbeea9`、
+`fab2b37b5113cfa2f161a17a8063a2721e65213d7ca8808c7f0d7a69f117daf6`、
+`b175d2f864eed92034b714a5fe2b9b849b42283041f6be88f4a41ae7e9090e07`、
+`1709d9423d049b7ee3d72a68ada79d3cc9a377dbea988ee9efeef8342100c2fc`、
+`78bca1d74335468e9d71584d84721ef8481a71aa5a83fe3ceccb5fb7297a59e4`。
+六个既有隔离CPU宿主前后身份/marker相符且采集时queue0，11份服务文件及health前后相同；
+这不是连续系统负载监控，不能把相较6469的增长直接归因于单一函数。
+
+最终保存文件2400204字节、SHA`83759b4c61a24d15dfea693296fa52740851b932b5005657f1e991dde8d2c7a3`，
+与6469/5105最终值文件完整字节相同。独立比较10,000个cell值仅A=O、B=y两处预期变化，9998格不变，
+行列身份/顺序及300节点/400连线保留；派生元数据规范化不被误称为全JSON仅两leaf变化。
+原生重开后实际DOM再次确认O/y、两表各500行、300卡和clean标题。
+准备/重开控制超时、显式截图失败以及首次焦点留在测试summary导致Ctrl+S/Ctrl+O未触发均原样留存；
+首次保存副本不冒充最终文件。返回工作流按钮焦点后保存与文件选择成功。
+此次更慢的正式失败、Tab缺口及WindowsIME阻塞继续保留；M6未通过，不发布。
+
+独立审核原86份附件后，追加审核报告作为第87份附件，正式失败记录已写入
+`.local/evidence/TC-SYS-024-M-table-a2da-20261025-ascii-5x10-first.json`，SHA
+`19636df14f41b67c6aef2c1f8121923a2884e59cd10b6a5154b36455eb79f45d`。
+原草案SHA`67f40edb5d8190e58ddef5bffc6449fb0cd753cfd69a697c0b56fed74f4e0465`保持不变。
+AS-SYS-024-001为failed，AS-SYS-024-002为not-executed；首追加脚本在写入前因导入路径错误失败，
+保留首次错误后修正，第二次追加成功。文件验证成功不改变性能失败结论。
+
+### a2da四键LoAF诊断与观察器干扰
+
+同一原始M、8237/a2da、1920×1080/50%预登记执行P/z/O/y四键，仅启用LoAF；
+停留613/607/609/601ms，前后无输入窗口2011/2013ms。原始报告SHA
+`916e237c308c09d40dfbe1c1d0a5770b36c362fc3c041fc074c6833dc017e648`，
+首次分析SHA`ac63ac6ba4b67e01f2cfffd2dc82c344be7964d5ca68c1cf77d854bdd6986fe1`。
+21.3155秒内125个长帧、300个脚本记录；脚本区间并集6755.8ms，强制样式/布局1692.9ms已包含在内。
+Start/Stop约束的时钟偏移范围仍有465ms宽度；在该不确定性内，前后无输入窗口仍确定完整包含16/19长帧。
+
+观察器每批报告改写body中的输出文本，可能触发Canvas菜单MutationObserver与syncMenu；
+源码独审确认可触发链，原始数据没有逐条MutationRecord因果归属。不能把125长帧直接认作产品退化，
+也不能与5105同时启用方法观察器的24长帧作单变量比较。Tab回调包络938.7ms中含强制样式/布局842.2ms，
+是回调及子调用归属，不是函数self-time。实际无caret模块归属不证明它零调用或零成本。
+只读DOM控制的开销未被量化，不能从正式输入延迟中扣除；原正式50次失败继续有效。
+
+### 7b5首次实际Tab复验仍失败
+
+固定代码`70a56c6`及构建`7b5e90f9…`部署到干净8247，513份产品文件与Git一致，12份服务文件匹配，fixture为空。
+ready记录SHA`ac5526dde58a29cb7b3758f30d171720f558679367550ad12b77b5dad946b026`。
+沿用final15四实例及仅改变zoom的副本，已执行1920×1080/50%、680×720/150%的8组焦点/Tab/Shift+Tab。
+**Table A的下一行行头在Tab后仍完全屏外**，另行1100ms保持观察未恢复。
+剩余28个焦点组合、全部36个菜单组合及本候选的模式、编辑历史、保存重开尚未执行；停止重复扩展失败矩阵，待修正后重新完整复验。
+
+150%补证显示行头left=-636.890625，内部滚动容器left=-637.890625、宽1710，CSS宽1140、边框0.666667px。
+现实现使用整数clientLeft=1乘1.5，将左内边界算为-636.390625，误判约0.5px的内部裁切。
+CSS浮点边框及矩形序列化精度仍需在修复中处理，不采用任意像素容差掩盖真正裁切。
+
+首收集器对非表单元素误用了value优先读取，active.text空值不是数据丢失证据；peer正文读取保留。
+行头的行ID位于TR而非TD，已另存祖先记录，未回填原记录。Tab即时坐标也可能先于rAF平移；
+680×720/150%的LLM B追加保持观察确认“恢复原结果”按钮x=510.67..664、反向textarea x=74..556可见，
+不能把先前即时屏外坐标直接判为稳定失败。截图均为真实JPEG，尺寸为1920×1080或680×720。
+63个原始及补充文件清单`.local/validation/7b5-partial-focus-files-first.json`，SHA
+`48c6bd9ae7dd7b500e2f8ae06ed6d0b5dbcbef8d020645440efe0526fc9ab5f1`。
+
+### a2da延后显式DOM读取的四键诊断未证明改善
+
+原始M、a2da和834d语义观察器保持不变，输入P/z/O/y；把第一次按键后DOM读取移动到600ms停留之后。
+新页实际DPR1.5，与旧正式系列不同；输入前补充登记SHA
+`7a9ff71c091b8f42936062e68857ae2bffa0671a43cb5636a104b9695513cf7f`，原计划SHA`e6111f07…`保留不改。
+这是N=4诊断，不是单变量实验或正式五轮；浏览器控制内部开销仍未知。
+原始报告SHA`37f3e811bf371533fe35492f3488ed8e2ec58584a33204a512eb8331158e9f89`，自报DPR1.5。
+四次停留为608/607/615/613ms，第一次显式读取均在停留之后，四个editing全部为not-observed-before-display；
+首rAF间隔597.6/837.0/763.2/772.0ms不能冒充完成延迟。四个display完整，退出至第二帧为
+1673.5/1864.1/1845.8/1832.6ms。缺测和更慢的结果全部保留，不证明时序调整改善，也不据此猜测CPU或节流原因。
+最终DOM的document.hidden为false、visibilityState为visible；这不证明持续负载稳定。
+原生CtrlS后clean标题及O/y已核；保存后态不补足缺失的editing观测。正式100ms预算仍未通过，M6未通过，不发布。
+
+首次分析exit2，`.local/validation/M-table-delayed-dom-a2da-first-analysis.json` SHA
+`e291bf6ba074c7c23b9a85480e0b6643b47e9027d85916f927f2e7b9e2131629`；
+独立保存副本2400204字节、SHA`83759b4c61a24d15dfea693296fa52740851b932b5005657f1e991dde8d2c7a3`，
+与旧最终保存件字节相同，9998个未编辑值和行列身份/顺序均保留。新页面准备中的两次CDP超时、DPR调整未生效、
+预检对8227既有启动包装器的首次误拒均保留，后续补采不覆盖首记录。
+
+### 41a8候选仅完成自动检查
+
+提交`f616d281ce714f4d51312b5f7b22831960f87c6c`，构建
+`41a8e1a2cfb2237d9579afce45a68372defde5c681556c69f1e9b15b0abd35dd`。
+表格serializeValue只在完整旧路径证明当前不可变字符串已规范化后复用；每次重新读取当前值并核对节点、图、widget、
+输入槽及实时link，连接、liveSource、非规范值或所有权改变均回旧路径。固定宿主customtext公开getter的miss额外读取一次，
+不承诺任意第三方副作用getter等价；不缓存公开可变快照，不更改历史调用链。
+两张500×10表各连续六次序列化，完整解析调用计数由6降为1，仅是机制测试，尚无实际浏览器命中率或延迟收益结论。
+
+焦点修正只用于支持条件下的左/上浮点边界，使用CSS数字及矩形浮点精度界，保留右/下原始限制；
+不是固定像素容差。当前几何的0.001px/0.01px真裁切回归通过，不扩展到任意大坐标或亚数值精度的保证。
+两候选独审无阻断；完整检查一次通过：282通过/3跳过、业务413通过、211个构建产物、141个架构模块。
+检查首日志SHA`11f9e4ed107a244dfc29f6323d62be635accac4a646854f8e617c421be64ab28`。
+检查后打印摘要的GBK终端编码错误另行保存，没有重跑npm或把该包装器错误藏去。
+完整产品515文件SHA`d9da878c38c20d41d7df466c8ad2d0ac153cba355b459d45ad97594c1efcfc9c`，19文件fixture仍为`0f589b53…`。
+本候选尚未部署实际复验；不能继承7b5/a2da的运行结果，100ms、真实IME、0/44及M6门禁均未闭合。
+
+### 41a8部署后的两例焦点复验仍失败
+
+固定`f616d281 / 41a8e1a2…`已刷新8237与干净8247，两边均为515文件包`d9da878c…`；
+8237保留19文件测试夹具，8247无夹具。首次就绪、服务文件核对与备份见
+`.local/validation/refresh-41a8-execution-handoff.json`。文档提交`d218524`的CI `40174732280`成功，
+与固定产品提交仅两份验证文档不同；就绪和CI不证明交互、性能或持续空闲。
+
+实际仅执行Table A的1920×1080/50%与680×720/150%两组focus/Tab/Shift+Tab。
+两组编辑焦点的正文、owner、6/6选区及peer值在保持观察前后相同；前向Tab的任务2行头现已可见，根滚动为0。
+**680×720/150%反向Shift+Tab仍失败**：目标为`contenteditable=false`的prompt DIV，
+宽838.59px超过安全可用590px，left840.89..right1679.48全部在680px视口外；
+1127ms保持后及距首次18.501秒的补读均未恢复。源码的wholeControl超大矩形拒绝足以阻止平移，
+与已修正的左/上边框误判分开；这不是将编辑caret可见等同整个控件可见。
+21份原件（6张case图及1张预备图均为真实JPEG）清单SHA
+`3ed860b8e501cefb21e10a3cded91ff2176fe7a95fb86fc31a9aca8992e27ef3`；独审SHA
+`ea2bf72082be41c3af07d33ea7eaf1df5f2e7db825d350b49fbaedceb68a4a3b`。
+对应`.local/validation/41a8-partial-focus-files-first.json`及`41a8-partial-focus-independent-review.json`。
+剩余34组焦点、全部36组菜单、模式/编辑历史/保存重开/App等未执行，矩阵不通过。
+
+后续oversized非编辑控件修正只在可信Tab路径显露起始区域，完整原矩形仍用于内部裁切检查；
+源码`50cfbf29…`及focused 38/38首红/最终记录均保留。已提交`8910bd207ab8419d8943ba9113a6ee7510be77dd`，
+构建`8965454852e269b1fb1989e4e08c50bd977739d070aea9522cb9e098c2d18f4e`，完整检查首次288通过/3跳过、业务413通过；
+515文件包SHA`61efb02006d1777c26d58d9953ed843324453f236cd811fb694774837697e906`。
+构建交接`.local/validation/tab-oversized-combined-check/combined-handoff.json` SHA`ef608b7f…`。
+截至本次更新新候选未部署或实际复验，8237/8247仍为41a8；不承诺整个超大控件可见或性能改善。
+
+### 41a8正式五轮失败与显隐对照未生效
+
+原M夹具`79ecd59c…`、834d观察器、1920×1080/DPR约1、Canvas50%和固定50键计划保持。
+50个真实输入顺序/目标/值全部匹配，动作错误0，实际停留600–615ms；50个display完成。
+**editing仅9个可测、41个not-observed-before-display，9个均超过1000ms，正式性能失败且测量不完整。**
+五轮可测N=3/2/1/1/2，最近秩p95分别1130.5/1123.1/1004.6/1074.7/1105.7ms；
+这些是可测子集描述，不替代每轮N=10，也不为缺测填值。冻结分析首次exit2，
+`.local/validation/41a8-table-semantic-preparation/candidate-analysis-first.json` SHA
+`180ea4449cb35518b19e9d02d31a751c931bca9e1ecbaa31b720c2c80ab6c684`。
+R5首动作DOM记录edited.at比operator dwellStart晚1ms，首次严格时序断言失败保留；未加容差或假定两时钟同域。
+六宿主/17服务文件前后核验相同、队列点时为空，不代表全程负载或浏览器调度原因已知。
+
+保存件SHA`83759b4c61a24d15dfea693296fa52740851b932b5005657f1e991dde8d2c7a3`，300节点/400连线、
+两表行列身份与9998个未编辑值保留，仅两目标值为O/y；不是宣称完整JSON仅两leaf变化。
+`M-table-semantic-41a8-reopen-context.json`与实际1920×1080 JPEG `M-table-semantic-41a8-reopen-final.jpg`支持原生重开后300卡、
+两表各500行、O/y和clean标题。DOM列数采集仍为0，10列来自保存数据；重开成功不消除缺测。
+
+另按计划SHA`116ca7deb4a1bf15b67cf0622761a9f45187fd7a14720ab43d3a16bf6d21e762`执行12键显隐ABA诊断，
+三段原始文件为`M-table-41a8-visibility-{hidden-before,visible,hidden-after}-raw.json`，均保留。
+工具请求visible=true后实际get仍false，三段observedBrowserVisibility均false；各段DOM端点仍报告hidden=false/visible，
+两种可见性作用域不能混同。editing可测数1/1/0，其余10次缺测，display12次完整；目标可见干预未生效，
+不能形成显隐对照或证明浏览器节流是根因。`open_in_codex`显示tab60仅返回queued，主代理已请用户切回本任务并保持Codex前台，
+尚不以此推定实际前台状态。此诊断不替代正式失败；先前a2da50次失败和N4全缺记录不改。
+真实IME待验、推理0/44、M6未通过，不发布。
+
+### 8965部分矩阵与菜单首个裁切失败
+
+干净8247已按固定`8910bd2 / 8965454852…`刷新，515文件包`61efb020…`、无测试夹具；
+就绪原件`.local/validation/refresh-8247-8965-first/ready-first.json` SHA`de5e9b39…`。
+同一四实例夹具`2eabe9d8…`已完成1920×1080/50%的Table A和680×720/150%的四实例，共5组focus/Tab/Shift+Tab。
+每组有至少1100ms稳定观察，owner、四路值、6/6选区和root滚动保持。
+窄视口Table A反向Tab现在显露左端，原完整矩形为x74..912.59；仅是超宽控件起始区域恢复，不承诺完整可见。
+
+四个菜单key都已执行，但首批B/LLMA/LLMB截图过早，缺少展开菜单的视觉证明；首图保留，另存补图。
+B补图确认完整composer；LLMA第一次展开补图的选项x−33.3949、左侧文字真实截断，属于保留的失败。
+随后LLMA/LLMB经真实Tab导航到可见select再展开，选项完整，Qwen仍选中；这些不同条件补测不覆盖首次裁切。
+实际样式为`appearance:base-select`，UA三个fallback都依赖锚点两端。候选共享CSS追加全横向区域回退，尚未实际部署验收。
+这组补件DPR变为1.1，DOM680×720与JPEG680×720同时记录，但截图内容存在缩放和padding，不能按像素一比一推断CSS几何。
+显示截图时一次相对路径ENOENT、视口guard失败及缩放调整记录也保留。
+
+目录`.local/performance-actual/prompt-llm-8965-clean-matrix/`共62原件（23 JPEG、39 JSON），
+冻结清单`.local/validation/8965-partial-matrix-final/originals-first.json` SHA`58b25797…`，
+独审`review-first.json` SHA`1e44c8ac…`。覆盖仍为5焦点/4菜单，不因补图增加唯一key；
+剩余31焦点、32菜单、尾部光标、模式、编辑历史、保存重载/App及序列化连线补充未完成。矩阵未通过。
+
+### 41a8用户确认前台后的12键补充诊断
+
+41a8正式失败已仅一次追加至`.local/evidence/TC-SYS-024-M-table-41a8-20261025-ascii-5x10-first.json`，
+SHA`94cdbbad19cdbd3e932d15940143aa99d13075c4b1d1d77b747c12d46751ff63`，186附件；
+AS-SYS-024-001为failed、002为not-executed，原185附件草稿未改，旧显隐ABA不混入正式数据。
+
+用户确认本任务及右侧8237已前台后，首次工具仍返回false/queued，DOM为visible；
+浏览器缩放复位后1920×1080、DPR1，后续工具读数true。这些不同时间与作用域原件全部保留。
+预登记`.local/validation/41a8-user-foreground-supplement-plan.json` SHA`a3248b60…`，
+继续同41a8/834d、同原始M身份与当前已重开O/y状态，无reload；三块各预热10秒、A:P/B:z/A:O/B:y，
+仍为立即DOM读取、600ms停留后原生Tab，不改变观察器时限。背景8247已经8965，是明确记录的环境差异。
+
+12次editing/display均observed，editing范围255.6–388ms、中位306.15ms，**全部超过100ms**；
+三块N4最近秩p95为388/338.4/346.3ms，只作描述，不替代正式50次或声明预算通过。
+退出编辑至display完成为469.1–675.2ms、中位631.05ms；实际停留601–614ms，0动作错误，33次outside拒绝原因不猜。
+六次前后环境端点均为1920×1080/DPR1/50%、DOM visible和工具true，最终值仍O/y；不证明连续前台或因果。
+首次setup字符串代码生成被拒在计时前、0输入，已保留；随后显式函数定义未重发任何已发送键。
+
+原始系列`.local/performance-actual/M-table-41a8-user-foreground-supplement-*`；
+分析`.local/validation/41a8-user-foreground-supplement-analysis-first/analysis-first.json` SHA`d11a91ab…`，
+57份原件归档清单SHA`61999951…`，独审`.local/validation/41a8-user-foreground-supplement-independent-review.json`
+SHA`6a29bca1…`。旧正式失败、旧ABA缺测和全部历史候选不变。
+
+只读审计定位普通单格输入后的`updateFooter→refreshStates`会扫描500行/5000格，但尚未量化其占用；
+测试分段观察器原先只包`DocumentController.edit`，实际输入使用`replace`，空edit记录不等于持久化成本为0。
+新增测试专用replace边界保留原事件lease与身份检查，34项相关检查通过；既有wrapper的DOM身份检查成本未扣除。
+这些源码与机制事实不构成性能收益证明。Chrome扩展新建8247页另报HTTP响应失败，拥有的错误页已关闭，
+本机HTTP200不等同Chrome可达；真实Windows中文输入法仍未执行。M6未通过，不发布。
+
+### 读取时序ABA与同步持久化分段
+
+固定旧41a8/834d/0f589夹具，在同页1920×1080/DPR1/50%追加预登记12键A1/B/A2。
+A在按键后立即读编辑态再停留600ms；B在按键返回后602–609ms内无显式页面读取，再读编辑态并Tab；A2恢复。
+三块各四个editing/display均完整，全部editing超100ms；中位235.70/295.95/284.30ms，N4 p95为256.2/372.2/345.4ms。
+B没有显示一致改善；不能因此证明工具读取有或没有因果影响。原生按键API内部行为未知，被动834d读取仍在，
+实际key→Tab时长也不完全相同。原始系列`M-table-41a8-tool-dom-ABA-*`、30原件归档与独审均保留；
+独审`.local/validation/41a8-tool-dom-ABA-independent-review.json` SHA`4adc850e…`，不作正式追加。
+
+随后仅8237测试夹具更新到19文件`3663cd47…`，产品仍固定41a8/515/d9da；新方法观察器`52780a9d…`只补replace边界，
+语义观察器834d未改。严格停机刷新保留原生保存件、SQLite逻辑备份、停止后的数据库/sidecars及旧夹具原字节，
+v2显式关闭SQLite备份连接；首次ready SHA`2bcd4d12…`。这不是M6一致性封存。
+真实页面重载后只开启方法观察器，按同M身份及O/y执行P/z/O/y四键，实际停留603/612/611/604ms；
+4样本complete、9边界available，每次恢复exact且无冲突。replace包含时间104.7/82.7/82.3/86.0ms，
+等于已记录区间union；history组union38.1/38.1/37.6/41.1ms，13次graph.serialize单次8.4–10.2ms均嵌套其中，不能相加。
+这些是同步方法包络，既有身份检查扰动未扣除，不是CPU自耗时、输入延迟或100ms通过。
+
+方法原始报告`M-input-replace-stages-41a8-first-raw.json` SHA`b5d0bfec…`，
+独审`.local/validation/input-replace-stages-41a8-independent-review.json` SHA`e7882a12…`。
+五项准备首错包括重载读取超时、重叠面板、选择器失配，全部保留；前控结束至首动作41.117秒空隙明确记录，不能充作CPU基线。
+最终原生保存件仍与旧O/y文件逐字相同`83759b4c…`；8965四实例另存件`53507064…`保留原4个ID、2条连线及四份widgets_values。
+
+### e9ea候选部署与四实例复验
+
+代码提交`cd0cff8ed1de83c8a3d62c6494b7aa2da049cd4c`，构建`e9ea44f50e332962bae419775d0aae5e338f616b493442bda2e8135b225fe6e8`。
+单格状态刷新只在内建generic/no-prompt_config明确恒空状态、编辑器私有content-cell路径及结构/配置/DOM身份不变时处理目标行；
+未知或全表依赖、结构配置变化、派生和异步结果保持原全刷新。没有新增MutationObserver或状态值缓存。
+真实编辑器机制测试从500行/5000格状态扫描降为0行查询/10格访问，未据此换算毫秒收益；整表快照、历史和revision观察仍在。
+共享base-select保留原生主位置和已有候选，另加全横向区域候选；是否解决实际裁切仍待同边界复验。
+
+完整检查首轮291通过/3跳过、业务421通过，212构建文件、142架构模块；方法观察器另有34项相关检查通过。
+固定Git产品517文件SHA`09f2f04204fdc31373a858d29fc2d2fb11e857b9ffcdeac9bd729fce36d467c9`，
+交接`.local/validation/row-state-picker-combined-check/combined-handoff.json` SHA`bf6107ee…`。
+8237与干净8247按固定Git产品分别首次刷新成功，517产品文件及16个产品served响应一致；8237另核19文件测试夹具及3个served脚本。
+刷新保留原生保存工作流和SQLite备份，ready SHA分别为`9f866dc0…`和`16ffa306…`；这些仍不是M6一致性封存或浏览器模块执行证明。
+精确`cd0cff8`的PR/push CI `40181227559` / `40181223893`均completed/success。
+旧测试页保存并关闭后，新8237页面仍实测DPR1.1、1745×982；工具快捷键未恢复登记的1920×1080/DPR1条件，正式50键尚未开始。
+新页首次读取/原始夹具加载后的读取超时均保留；不重复发加载、不把工具超时当作产品加载计时。
+原始M已通过原生文件选择加载并另存为本轮独立文件：300节点身份、400条完整连线、10000个表格值与原79ecd一致，仍为原始中文值。
+初始保存件`d2efa268…`与此前41a8初始保存逐字节相同；原始夹具至宿主保存表示的slot metadata变化另记，不称原slot JSON逐字节等价。
+用户手动复位后，性能页又实测DPR1.71、1123×631，显示请求一度queued；后续工具快捷键未恢复条件。
+正式计划未冻结、正式输入0，所有准备原件在`M-table-semantic-e9ea-*`，不能用缺失数据宣称预算通过。
+
+另一个干净8247页面63的四实例主矩阵实际DPR1，三视口×三倍率×四owner共36组焦点、36次Tab、36次反向Tab及36组菜单均已采集。
+108阶段记录/216端点的正文、归属、connected、选区6/6、四peer和固定控件位置一致，停留1112–1151ms，根滚动均0。
+全部36个Tab目标在根视口内；35个反向Tab目标完整包含，680×720/150% A返回目标宽837.16px、left74/right911.16，按已登记超宽左侧显露记录，不能称整个控件可见。
+初始编辑态680×720/100% A、150% A/B共3处右侧局部越界仍保留；当前6位caret可见，不推定尾部或完整内容可见。
+焦点独审`e9ea-focus-tab-back-independent-review.json` SHA`4e15602c…`核验108图hash/真实JPEG尺寸，实际逐图查看30张关键图，未声称已看其他78图。
+后续独立报告`e9ea-focus-remaining-visual-review.json` SHA`2777bd91…`实际逐张查看其余78图，两集合互斥补齐108张。
+未见新增完全不可见目标；1280×720/100% A的Tab单元格底部被固定快捷键提示条局部遮挡，标签/checkbox仍可见，不能称整个焦点轮廓无遮挡。
+50%细光标和单帧闪烁仍有视觉不确定性，不用DOM选区替代像素判断。原始报告/全部图片未改。
+
+36张实际展开菜单均逐图检查：18个表格对话框、18个原生LLM列表未见菜单边界/选项文字被视口裁切，图片尺寸与实际viewport一致。
+每次即刻DOM→无输入停留1112–1155ms→稳定DOM/截图→Escape→关闭/peer核验均保留。
+表格dialog没有内置owner属性，关联依据真实操作路由和唯一COMPOSER-A/B内容，不伪造直接owner字段。
+菜单独审`e9ea-menu-visual36-independent-review.json` SHA`94e174de…`；348份主矩阵原件清单`e9ea-mainmatrix-raw-manifest.json` SHA`459d7feb…`。
+这是DPR1主矩阵结果，不能追溯填补8965提前截图缺口，也不证明DPR1.1、部分屏外anchor的旧左侧裁切已按同条件修复。
+
+尾部检查另存`prompt-llm-e9ea-tail-functional/`，不改冻结主矩阵。A/B End光标实测在视口内，正文与owner保持。
+B平移前后world x相差24px，停留10秒后仍编辑原单元格。A首次意图24px但实际16px；另次补充实际36px，期间DPR由1变为约1，原因未建立。
+两次A偏差均保留，不称A的24px协议通过；Home首个即时屏外读数和后续独立稳定可见记录也分别保留。
+尾部独审SHA`66e5873e…`已实际查看五张680×720原图，13原件清单SHA`2695234f…`；主矩阵348文件重哈希仍一致。
+A补充退出的两次DOM读取相隔约10ms且几何改变，只保留即时观察，不据此作稳定Tab通过或失败结论。
+用户Esc停止期间没有继续界面采样，之后用户明确允许恢复。模式切换、编辑历史、保存重载/App、原生表间连线专项、真实IME和正式性能仍待完成。
+M6未通过，不发布。
+
+### 7f7196后续候选：无设置条时避免整表扫描
+
+代码`085084f19f8a321be73a704731242eee651b6744`，build`7f7196fb5420dbb28986c0206d823f74d752f373523778b0bff4d3a36c13926c`。
+generation panel只有在当前无生成列且该实例从未创建设置条时跳过row map和全TD扫描，仍先调用onRefresh并清理header。
+曾创建过bar的实例始终保持原扫描，保留删列和分离后重插入cell的WeakMap清理。
+同M真实editor机制首红中为500行映射/5000格扫描，修复为0；这只是回调遍历计数，没有换算实际延迟。
+首轮完整检查291通过/3跳过、业务426通过，517产品文件`b14dee40…`，交接SHA`7ab0213c…`。
+已推送草稿分支但未部署，e9ea主矩阵不替代此候选的受影响实际复验。全部旧失败与100ms门禁不变。
+
+### 07c934输入链候选：资格扫描与同值文字赋值
+
+在085084f之后合并两个限定变化：对已规范化且无生成列的表，私有syncFrameTags和syncPromptChanges入口只检查字段描述后返回；
+不再先执行没有后续业务作用的prompt-column资格扫描。未知外层/字段形状回原路，公开model API与配置表的同步保持原行为。
+updateSummary的两个按钮和普通状态文字在实际textContent相同时不赋值；选中行计算、禁用/隐藏状态以及配置表的问题定位控件仍按原路径更新。
+只有parseButton位于generation childList观察范围内，不能把三次setter都称为三个实际观察器回调。
+
+同M机制首红分别测得refresh及pre-save入口各5010次字段值读取，新候选均为0；同值summary的3次setter变为0。
+真实editor/document/input链与有界DOM替身回归覆盖两owner、历史、配置帧同步、删列/重插清理和外部文字变化；不是浏览器布局、CPU或延迟测试。
+首次测试替身递归遍历中止、后续替身修正和有效首红日志都保留在`.local/validation/generation-input-empty-chain/`。
+72项相关检查通过；单次完整检查291通过/3跳过、业务430通过，142模块/212构建文件，日志SHA`b7797b47…`。
+提交`3afdf061baa902087ed84e7d788bfaf9a94fb3c6`，构建`07c9345536f526b4da004de8ee4d92271c266f89923d8b2cef111eb04ba258aa`，517产品文件SHA`4ca9959998021646ff6917b22d3122733b917805fd31cca89ed9d58b3caacb2d`。
+独审SHA`5dd75b05…`、完整交接SHA`66887f51…`。上述构建交接时未部署、未执行新的正式50键；后续实际结果见下文，不从旧replace时间中扣除估算收益。
+Canvas全卡同步、历史快照/序列化、引用revision等剩余路径没有足够等价证明，因此本候选未跳过这些行为。M6与发布门禁不变。
+固定Git归档SHA`73c30d62…`与517文件完整manifest逐项相等，归档准备handoff SHA`bfd50bfc…`；原e9ea包未变。
+下一次正式采样优先最新07c934，e9ea保持未冻结/0正式输入/未执行，全部前态、首错和计划保留；原M、834d、50动作、100ms和环境合同不放宽。
+此决策独立记录SHA`68913f64…`，不把准备文件当作实际运行证据。
+
+### 07c934实际矩阵、尾部与历史失败
+
+8237和干净8247已部署固定`3afdf061baa902087ed84e7d788bfaf9a94fb3c6`，构建`07c9345536f526b4da004de8ee4d92271c266f89923d8b2cef111eb04ba258aa`，
+517产品文件包`4ca9959998021646ff6917b22d3122733b917805fd31cca89ed9d58b3caacb2d`；8237测试夹具仍为3663/19文件，语义观察器834d未改。
+部署、291通过/3跳过及业务430通过均不构成产品或性能通过。
+
+主矩阵`.local/performance-actual/prompt-llm-07c934-clean-matrix/`共349原件，清单`07c934-menu-independent-input-manifest.json` SHA`e740caa8…`已固定。
+三视口×三倍率×四owner的36组焦点、Tab、反向Tab共108张原图均已逐图查看；216个DOM端点的owner、connected、正文、四peer和rootScroll=0一致，36组初始选区均为6/6。
+稳定几何仍保留680/100% A、680/150% A/B三处编辑框部分越界，以及680/150% A反向Tab超宽控件仅左侧显露，不能声称整个输入框包含。
+另在1280×720及680×720的100%/150%共4个A-Tab图中，固定键盘提示条覆盖任务2单元格下缘及部分焦点轮廓；标签仍可见，不称整个目标不可见。
+collector没有hint rect，遮挡结论来自实际图审；50%细光标和闪烁仍有像素不确定性，不能用DOM选区替代视觉证明。
+焦点独审`07c934-focus-tab-back-independent-review-v2.json` SHA`0df13bc0…`；提示条修正尚未部署或实际复验。
+
+36张展开菜单原图也全部实际查看：18个表格composer、18个LLM选项列表未见菜单或选项文字被视口裁切，稳定/关闭/peer端点保留。
+表格dialog没有直接owner字段，归属由操作前owner、唯一COMPOSER-A/B内容及关闭后的单元格身份共同支持。
+菜单独审`07c934-menu-independent-review.json` SHA`66e4fe8a…`；截图capturedAt均为null，仅有275–357ms调用bracket，未补造精确拍摄时刻。
+priority2要求第二项执行的680/150% A实际到第33项，另有collector角色/选区方向/内部滚动/可见性等缺项；`execution-deviations-first.json` SHA`4ee7f13d…`保留偏差。
+这些记录不等于完整协议通过；手写build多一个字符的原注记及更正`3e72604e…`也分别保留，实际固定plan/安装身份未改。
+
+尾部独审`07c934-tail-independent-review.json` SHA`db571718…`实际查看8图并核18个端点。
+A/B的End、Home稳定caret均在根视口安全边界内，Home后Left仍为offset0，只覆盖起始边界no-op；超宽或部分越界的完整编辑框没有因此通过。
+两实例手动平移后world和编辑框实测x均变化−24px，10028/10030ms后端点保持，正文、owner和选区不变。
+A保持后的caret x50比画布左界x58更靠左8px，首字亦有裁切；B仍可见。这里证明手动导航端点保留，不能称A平移后caret持续可见，也没有后续按键重新显露的样本。
+
+功能独审`07c934-edit-save-through17-independent-review.json` SHA`df276ffc…`核对两表编辑→原生Undo→Redo→Undo的正文端点，另一实例保持不变。
+但两LLM首次Undo仍保留EDIT后缀，`08-after-history-saved-first.json` SHA`d9bb55d0…`也保存了这些后缀。
+LLM A另次分段检查在编辑后1130ms稳定，再Undo并等待1203ms，DIAG后缀仍在；`11-LLMA-undo-failed-saved.json` SHA`3b071b35…`证实保存数据也未撤回。
+后续显式恢复与Undo失败分开记录，不能算Undo修复或通过；不把端点结果推断成命令顺序或根因结论。
+六份保存副本的table_data原字符串/解码值、节点ID/slots/links相同；13至15读到的文件逐字节相同`de607879…`，17原生重开四peer一致、标题clean。
+这些副本相同不能证明各次Ctrl+S均成功；后续400独审及早读错位纠正见下，原件不改。
+表格revision/stamp有明确变化，不能称全部properties回到原字节；本夹具未见其他静默字段删除，不代表未知schema专项覆盖。
+本段实际环境为1097×617/DPR1.7500000521540642/100%，只作行为诊断，不替代登记的1920×1080功能条件；独审截至17，不扩展为后续模式、页面重载/App或全流程通过。
+
+07c正式性能仍为0样本，未冻结正式计划、没有五轮raw。性能页初读DPR1.881，工具Reset后DPR1.1/1745×982，用户应用复位后DPR1.75/1097×617；均不符合1920×1080/DPR1。
+准备独审`07c934-page-setup-audit.json` SHA`0db9f30e…`与后续`M-table-semantic-07c934-user-app-reset-followup.json` SHA`4e15f356…`分开保留，工具首错和中间变化不改写为产品性能数据。
+原41a8正式FAILED、用户前台12键及读取时序ABA全部超100ms、a2da及更早失败保持有效；不宣称新候选解决100ms、真实IME或0/44已完成。M6未通过，不发布。
+
+### 07c模式诊断补齐、保存400与历史v2定位
+
+模式诊断目录`prompt-llm-07c934-mode-diagnostic/`冻结71份原件，清单SHA`15cd74241a84eb3bcd38b99d97740110631d5835f25d084c414612e472f90832`。
+独审实际查看17张JPEG，并核16个DOM状态和15份保存副本；四owner的Mute/Bypass及Active恢复操作已有证据，两LLM另以原生Ctrl+B补齐4→0。
+12个纠正后的延迟读取步骤均符合目标模式，全部保存副本的节点字段除目标mode外、table_data原字符串、LLM属性、槽位及连线与此前22号副本精确相同。
+A首次Bypass/Active的两个副本与当时UI错位，不能算干净的即时保存检查；两LLM原生菜单缺Bypass未被快捷键补测消除。
+最终25号原生重开四卡Active，但标题仍带星号，没有新的重开后干净保存证明。05恢复后的旧错误提示仍可见，不与新文件状态混淆。
+该轮实际1097×617/DPR1.75，起初100%后fit约29%；不是登记的三视口/倍率验收，也未提交生成。
+独审`07c934-mode-diagnostic-final-independent-review.json` SHA`d5b122fbacdf1d321347f36ce14d37b0114c7664a174fc7d73239ca2805bc7e6`。
+
+保存400独审确认，宿主`user_manager.py`写临时文件后调用`os.replace`时返回WinError5 Access denied，随后被统一映射为“Invalid filename”400。
+这不证明文件名非法、某个特定进程持锁或所有先前保存失败。首次01副本仍是Active，02副本已是前一Bypass；紧随异步保存立即读取可能参与竞态，但没有句柄证据建立原因。
+05/08/11/13四份不同内容支持相应状态已落盘；14/15/22均与13字节相同，只证明读取时文件稳定，不能据此宣布三次独立写入成功。
+重开、reload和App返回的DOM是可见状态端点，不补造HTTP200回执；原LLMA稳定Undo失败及11号不同保存件仍有效。
+独审`07c934-save400-investigation-first/review.json` SHA`be82327b3bc77e4ae35d60bb9a722d42cc0c12dd168f8405a276adf83c674711`；原日志、错位副本和早先报告全部保留。
+
+独立8250测试宿主的history v2仅作行为定位：原始记录有860个顺序快照、32个事件、19个状态转换，未包装原生方法。
+Ctrl+Z前唯一undo尾部含原始instruction，当前值含完整后缀；随后，已blur的LLMA textarea收到可信`historyUndo`输入，先去掉末尾一个字母并新增第二个undo条目。
+之后节点token改变，完整后缀恢复，而短一字状态进入redo；从该恢复状态的采样端点至停止，导出状态不再变化。
+这与图撤销撤回刚新增的文字历史事务一致，不支持“起初保存了错误快照”的解释；未采到“先恢复原文再被后缀覆写”的状态，也不能排除采样间的瞬态。
+原生Undo调用次数、beforeinput的cancelable/defaultPrevented边界均未观测；全部restoringState=false不等于没有恢复执行。
+顺序读数非原子快照，观察器自身有调度扰动，不提供性能结论。其余三个owner的已导出投影稳定，但raw没有完整表格行值，不能扩大成全数据相等。
+该轮同样1097×617/DPR1.75；诊断未修产品，也不清除原Undo失败。
+原始`08-raw-history-first.json` SHA`546d40a146d7c95dcdddadd8b41567887e6b14e7467871db286e05bfb919ea66`，
+独审`llm-history-observer-07c934-v2-first-independent-analysis.json` SHA`5416fc36222d26e8a374f279fee6bc30b9d1fcbcecc1a52219e4b80435156e86`。
+最终11份原件冻结附录SHA`30c56a9deb22458535766f3ec822ca4be11a5f570d4a8d9a7b9bdf85b78104e8`保留后续图/DOM：图中可见DIAG后缀，但提示条覆盖部分正文，完整文字以该次DOM为限，标题仍带星号。
+
+### 两个后续源码候选：尚未构建或实际复验
+
+固定提示条避让仅补充可信Tab目标的可见区域，普通caret/input路径没有新增提示条几何读取；状态错误没有被隐藏。
+旧源首红保留，46项定向检查和单模块严格类型检查通过，两份独立源码审查无阻断；实际4个遮挡端点仍待复验。
+交接`canvas-status-hint-focus-reveal/handoff.json` SHA`3fb1d22cbeec21df40fdb4f114bedfa8a83785f1984ae6128199fe5a2db0f5e9`。
+
+never-requested观察候选仅修改私有提示词编辑器：保留初始化observe；首次任一begin尝试前，跳过后续被动请求扫描；两个begin均先单调置位，之后永久保持原完整观察。
+它不等同于“所有idle都可跳过”，不跳渲染、OptimizationRevisions或公共请求校验；完成、失败、比较弹框留存、关闭后均不复位。
+旧源8项中7过1红，修后8项及相关回归共36/36；真实owning editor的两张500×10表验证写回/历史保留，并覆盖首请求当前基线、ABA、删除重插、比较、侧栏第二入口及延迟返回。
+这些使用有界DOM替身，仅证明机制和请求生命周期；没有浏览器布局或实际输入耗时收益证据。
+交接`prompt-never-requested-observation/handoff.json` SHA`e847b2c4ad4ece3b262a14e3a58ded74ac6ae98854b8f1337ed997a1b8f9ec02`。
+独立源码审查`migration-inventory-independent-review.json` SHA`6a79414659f9bc8bda1b1626b2be3f8b139d331c0da6cd465fa41c4e5d760768`未发现阻断，不替代实际复验。
+记录当时两候选均未生成新web或部署；07c正式性能0样本，旧41a8及更早失败、真实IME、真实推理0/44、M6未通过和不发布门禁不变。
+
+### 457995合并源码候选
+
+提示条避让与never-requested请求观察已与LLM失焦历史输入保护合并，构建`457995bd47edbfc7b822fe9ee4770bded712042c61522202f3402f4f7f4739c1`。
+LLM原文/处理要求的绑定只取消仍有效、已失焦、连接中且可编辑字段的可取消historyUndo/historyRedo；聚焦文本、组合输入、只读/禁用及失效字段沿用原行为，不额外调用宿主撤销。
+新只读isCurrent查询不序列化图；默认共享字段合同不变。guard首红1通过/4失败保留，相关25项及独立复核通过，真实浏览器可取消性仍待验。
+一次完整npm检查主测试299通过/3跳过、业务443通过，143模块/213构建产物，冻结源码未变化；完整日志SHA`3869debd5a0cbe17ea95238c358130ab481bb4c518e4ec684665217288ad2978`。
+记录该次构建时尚未部署；后续8250部署与实测见下一节，不能继承07c的界面结果或推断100ms收益。Chrome另开8247首次返回403，隔离服务health读取200；根因及真实IME未证实。
+07c失败现场已通过原生另存保存，工作流副本SHA`c97c75554e8f8ba1aebb88e0189b6d72f9ee912b913fba8d62defb1d4648a55a`，原始history目录11份记录仍冻结。
+所有既有失败、正式性能环境门槛、本地推理0/44、M6未通过和不发布要求不变。
+
+### 457995部署及LLM分组诊断：首轮仍失败
+
+固定提交`b1040310af3f648d30abe6c721c9a1700784a3d2`仅刷新8250，519产品文件包SHA`d3203df9d7225cd130ea45bc4c494497387e81771a780a81e23363ce9e92d712`，v3观察器4文件SHA`474522f4772e4621d3decdd5be2aa9ff7d53bb5a8c378a1a5ac4898e3961195f`。
+旧产品、夹具、保存工作流与关闭后的SQLite备份保留；独审核对安装字节、CPU/offline启动参数及served文件，queue0仅为点时读数。8237/8247未刷新。
+
+首轮731×411/DPR2.625的LLMA输入后形成两条事务，首次空格与后续字符分开；原生Undo只撤回后者，残留一个空格。
+该状态采样保持约39.5秒，未继续Redo，原始`llm-history-457995-first/10-A-raw-first.json` SHA`43023f5d2ded56d375f8aabc8bce5b78a674f3ed2e614e1b1b574f09ab1d6613`，11份原件冻结。
+取消边界已有cancelable=true的beforeinput historyUndo，之后未记录input historyUndo；旧版“失焦文字事务再被图撤销恢复后缀”的序列未重现。
+capture阶段微任务记录的defaultPreventedAfterDispatch=false不能证明target保护无效，也没有直接记录保护函数调用次数。
+
+恢复到1097×617/DPR1.75后的A/B分别输入一个后缀，均仅新增一个事务，原生Undo→Redo→Undo的正文正确，另一实例的导出投影不变。
+A原始SHA`2fef2c08e76856b6066742f2164ddeddbfd3a8a84e2fc010d393f5c345d97e20`；B原始SHA`8e2b5b6794b2832872c98232a825158f284a954e743c44b83d105772865f4a8a`。
+两轮初始均已有undo1/redo1，不能称重新打开原件清空了历史；A首次Undo至Redo前采样保持约21.2秒，B最终Undo后约30.1秒。
+原生另存件的四节点widgets_values、inputs/outputs及两连线精确保留。完整JSON另有Canvas viewport x/y及Table A首行优化stamp/revision四叶变化：夹具中旧stamp缺少已存在的SAVE-F6-A，保存时revision1→2。
+这是业务元数据变化，未被抹除或归为纯导航；没有本轮保存后再次原生重开的通过证据。
+zoom100派生文件的原始字节身份与底层四节点夹具SHA`2eabe9d8…`分开记录，后者不是该派生文件的字节哈希。
+
+新源码候选修正历史比较与导航合同的不一致：只对已知v1、有限合法viewport的x/y/zoom作比较投影，原生保存仍保留视角；未知字段、布局、业务revision与另一实例的修改仍切断分组。
+首红8通过/4失败保留，最终13新增及相关测试30/30、定向严格检查通过。实现只有一次stringify和四层descriptor浅拷贝，没有整图parse/深拷贝或新缓存；宿主全图serialize开销仍在。
+这不能证明首次分组由导航引起，原raw未记录比较stamp；Table A派生revision也是候选干扰因素。实际窄视口失败仍未关闭。
+独审通过后一次完整检查exit0，冻结输入在运行中未变；主测试299通过/3跳过、业务456通过，144模块/214产物。
+构建`590a1e7c5b9d3294c2b704df521672eecf646f8eb1307625c8e1c42169cabb97`，完整日志SHA`7a2496f3ef7676d54bbd7ef7795825a113bed26b069019532432ae3ed31f9498`；该次构建记录不代表部署或实际复验，后续部署与诊断见下一节。
+
+旧07c方法诊断计划保留原M、九个方法边界与P/z/O/y四键；当前页实际997×561/DPR1.925，不用于100ms正式验收。
+在原页reload后读取状态超时，独立恢复页同样超时；恢复页可取得截图，四实例8250页仍可读取，因此不把工具超时直接归因为产品耗时或服务故障。
+原生打开M、Start及四键均未执行，raw尚未产生；控制失败记录和恢复图保留于`M-input-replace-stages-07c934-dpr-diagnostic-*`。
+既有失败、真实IME、正式1920×1080/DPR1性能门槛、本地推理0/44和M6不发布要求继续保留。
+
+### 590a部署与有限诊断
+
+固定提交`a0fb1d9c39c1de6dab00a17d59dd04d14c6d59be`已分别部署8250与8237，均为上述590a构建；521产品文件包SHA`5ff2f57cb6db771ab33e88a42bee90edf93d9ef288cbc3d1ee128cadd5d36794`逐字核对。
+8250使用四文件history v3夹具`c02f57c4…`；8237保留19文件`3663…`、semantic `834d…`与method `5278…`，不能混用两宿主的观测合同。
+进程出生时间/父子关系、CPU/offline完整参数、listener、marker与关键served字节经只读独审核对，queue0仅为点时状态；没有从这些检查推导浏览器缓存字节或持续空闲。
+8250运行时报告SHA`038d65bda5cab22a5283e25f38bdc7ab5c717e7eb421000e3d62b6dd7096bb8f`；8237报告SHA`955adbd15520c7c3be22e181b8272413108244228614c18cf76459d9be6af553`。干净8247仍为07c。
+
+LLM诊断冻结53份原件，分别在731×411/DPR2.625与1097×617/DPR1.75对A/B执行真实输入、Undo→Redo→Undo。
+四轮均观察到输入期间新增一条undo队列项，首次Undo回到原文并有超过10秒的稳定DOM/raw支持，Redo恢复完整后缀，最终Undo再回原文；另一LLM的导出投影保持。
+这是采样历史状态推断，不是原生事务调用次数证明。首轮初始undo/redo为0/0，后三轮为0/1，与旧457的初态不同，不能当作受控因果比较或擦除旧首次残留空格失败。
+四轮都有可取消的可信beforeinput historyUndo，未导出input historyUndo；phase1的微任务defaultPrevented读数不能证明target取消无效或确切保护调用次数。
+B在Start前发生filechooser超时，恢复后才开始该轮输入；首次控制失败及前一轮已停止的计数保留，不称整套协议无偏差。
+
+原生保存`05-saved-native.json`为18859字节，SHA`f127573e1597e1e97ef65323636cc9cf89b49812ee721a3dcada99cd34f6ce93`，与此前457保存件逐字相同。
+相对实际打开的zoom100派生输入`65ae4671…`，四节点widgets_values、inputs/outputs、两连线及documentId精确保留；完整JSON仅四叶不同：viewport x/y与Table A旧优化revision1→2及stamp补入已存在的SAVE-F6-A。
+这两项业务元数据不属于导航，不能称全部properties相同或判定其更新时间/分组因果。原生重开后四owner、两路原文/要求与保存前端点相符、标题clean；重开DOM没有完整投影所有表格行值。
+五张原图均实际查看；窄图及部分较大图的正文被观察器、提示条或资产入口遮挡，不能用图替代完整DOM文字、焦点/溢出或正式三视口验收。底层夹具`2eabe9d8…`也不是实际派生输入的字节哈希。
+独审`.local/validation/llm-history-590a-first-independent-review/review.json` SHA`6174540589b4dec79f6ed1429b1c0e2511cb7a262fdb1a2bc5d18f24c03604bc`；53件清单SHA`45155b77f6da720a5d589403a332daab88e0283d4482f728a2af6ceda9f1c3bd`，全部归档成员逐字核对。
+
+M四键方法诊断使用原79ecd夹具、两格各45字初值，P/z/O/y顺序；最初误用41a8保存O/y条件的pending计划已拒绝并保留，实际按v2计划执行。
+实际1132×638/DPR2.8875，四样本complete、九个边界安装/恢复均精确；dwell为601/604/612/614ms。可见性端点不代表连续前台，工具capability readback为null，六个面板收起也不能独立证明全部观察器停止。
+四个replace包含区间为84.5/82.1/91.9/82.1ms，observe为23.4/20.9/25.1/21.3ms，history区间并集40.5/40.9/43.9/39.6ms，graph.serialize区间并集31.4/31.6/34.5/30.4ms。
+这些区间嵌套在replace中，不相加、不相减成CPU/self time，也不是输入到下一帧或100ms预算结果。DocumentController.edit、history.amend及两个widget序列化边界均为已安装但没有记录到调用，耗时为null，不能当成产品零成本。
+prototype receiver仅关联本次dispatch，不能独立证明具体业务owner；身份检查和观察器扰动未扣除，已有缓存模块字节也未由raw独立证明。
+五项Start前设置失败、暖机/等待的长间隔及后续SaveAs控制超时均保留；无输入区间没有方法样本不能当作后台CPU基线，没有在Start后补发测试键。
+
+M的原生SaveAs副本为2400204字节，SHA`83759b4c61a24d15dfea693296fa52740851b932b5005657f1e991dde8d2c7a3`；10000表格值仅两格由45字改为O/y、9998不变，300节点和400连线保留，本轮明确未重开。
+完整比较共有972条序列化路径差异，含默认元数据、尺寸/order及两Table输入从table_data/source_table重排为source_table/table_data；原400连线没有涉及这两Table，links相同不证明其输入槽连线兼容。
+该保存件与旧41a8结果逐字相同，不能将这些差异归因于590a；槽位细节另见独审的`native-serialization-details.json`，不把整个工作流表述为仅两格变化。
+SaveAs首次确认超时、标题短暂星号和后来clean读取分别留存。最终1132×638图已实际查看，可见50%画布，但正文很小且固定观察器覆盖内容，不能证明全部值、焦点或无溢出。
+独审交接`.local/validation/M-input-replace-stages-590a-dpr-independent-first/handoff.json` SHA`c77d5d401a049c1689e27d1e444ccde7eda6337da0cb54d534d36ea184e38fa4`；23件最终原件清单SHA`da73757a8e2f2b7ab34c6e1796d31a9ded6c2541383b4de1c22dae54fcf55c89`，原件未改。
+
+上述LLM四轮和M四键均为有限诊断，不替代正式五轮/1920×1080/DPR1或100ms结论。该时点的pass-local候选后续已完成下述构建与8237部署；其独立诊断不改变固定590a证据。
+旧07c/457首次失败、41a8及更早正式FAILED、真实IME、本地推理0/44、M6未通过和不发布门禁全部保留。
+
+### pass-local候选完整检查
+
+构建`04480fa95508dd5f462fbd600a6c119d16025e9ad66da0df7b4fcfebb9793948`的一次完整检查exit0，期间登记输入未变：主测试299通过/3跳过、业务463通过，144模块/214产物。
+结果`.local/validation/prompt-optimization-observe-pass-local-fullcheck/result-first.json` SHA`7b0325d6d6448c45972691b2cb42e5ef18cbfade0be67df30d2762da8628afd8`；首日志SHA`c50100553d8169c1a8cd136d8c8fad2ced84100683fc74631384a01af6497760`，无自动重试。
+候选只在每次observe内部复用纯文本的固定字段canonical片段；仍完整观察5000目标，保持原stamp、revision/requestSeq、删除/ABA与公共inspect/current/begin校验，不作跨编辑缓存。
+原a0fb oracle首红的固定字段编码为5000次，候选同机制为10次；旧首红保留，独审7个新测试及7个补充边界检查通过，报告SHA`f76068f2caca94dd4960a7fab3ee9e8acae6db6c0486e75f8fd43bc1a2891d0a`。
+完整观察和额外shape/descriptor检查仍有成本，机制计数不证明毫秒收益；任意可变Proxy副作用不在已验证JSON数据边界内。后续仅8237部署0448，8250仍固定590a；没有新的正式100ms结论。
+固定提交`c9c90bdadf6271ad0109dd98c6666d3d858f2706`的[PR CI 40199285905](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Studio/actions/runs/40199285905)与[push CI 40199280794](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Studio/actions/runs/40199280794)均成功，仅证明自动检查。
+提交前staged检查首exit2及新测试原件保留；随后只移除测试末尾一个多余LF并更新provenance，提交测试SHA为`38df8694…`，产品与已构建字节未变。上述fullcheck仍绑定原`28f8021e…`测试字节，不改写为对提交后测试重新运行。
+
+### 0448部署与四键方法诊断
+
+8237已从固定c9c90bd归档部署0448，521产品包SHA`bf3361467917fee57c07ccf06c8d637058760b8f7b7ad8a106f346be982fb37f`；19夹具`3663cd47…`、semantic834d及method5278不变。
+ready SHA`1c984544070c2fd0e0a9134d5e463b03c7178cdeab02819b4f6d2c88a937b26f`，独立运行时audit SHA`4e392f37f4d57ce439c6dad313ccd6d814021244626a10d6f7226b8eaa79236d`核对521/19文件、26项served响应、marker、进程身份和16份工作流保全；实际launcher76264、listener54308。queue0是点时状态，不证明浏览器可控或持续空闲。
+首准备manifest误指旧590a archive/handoff，已拒绝且原件保留；独立runtime-v2纠正引用后才执行。首audit还因口头PID角色反写拒绝，纠正记录保留，没有据错误身份接管进程。8250仍590a、8247仍07c。
+
+登记计划SHA`469a9933cb9e3a4689d0b229405dc9c82f301c4d8cbf143c6fd0abf93dc0887c`使用原79ecd M及两格45字初值；实际1132×638/DPR2.887500047683716、Canvas50%，只启用method5278，P/z/O/y各一次。
+预热10003ms、前后无输入区间各2003ms，实际操作停留600/607/613/604ms；这些是操作时钟记录，不是CPU空闲基线。4样本complete、9边界均可用且每次exact恢复9个，rejected为空、conflicts为空、无span截断。
+
+| 记录的区间（ms） | A→P | B→z | A→O | B→y |
+| --- | ---: | ---: | ---: | ---: |
+| DocumentController.replace包含时间/全span并集 | 84.5 | 68.3 | 71.4 | 84.4 |
+| OptimizationRevisions.observe包含时间 | 11.1 | 9.3 | 11.7 | 12.5 |
+| history.begin/end区间并集 | 50.3 | 39.8 | 40.6 | 49.2 |
+| 每键3次rootGraph.serialize区间并集 | 38.3 | 31.3 | 32.2 | 38.8 |
+
+这些区间相互嵌套，不能相加、相减成self CPU或作为输入到绘制延迟。edit、amend及两个widget serializer已安装但未记录到调用，耗时保留null；恢复发生于next-task，不是dispatch结束或paint证据。
+相对590a，同所记录DPR/viewport、原始初值、四键顺序与仪器下，observe中位为22.35→11.40ms，replace中位为83.30→77.90ms。两轮各N4、不同session及历史/调度状态，只作描述性对照，不建立因果收益或正式100ms通过；身份检查与工具扰动不扣除。
+
+原生SaveAs副本2400204字节、SHA`83759b4c61a24d15dfea693296fa52740851b932b5005657f1e991dde8d2c7a3`，逐字等590a保存件；10000表格值仅两目标变O/y、9998不变，300节点/400连线保留。
+独审按raw JSON叶差异口径列948项native序列化差异，包含两Table输入顺序及默认元数据等；与590a报告的路径展开口径不同，不能由条数推断产品变化，保存字节实际相同。原Table未连线，links相同也不证明槽位连线兼容。
+原生重开后clean标题、300卡、O/y及相同环境已有DOM支持；实际JPEG为1132×638，已查看，但面板遮挡且B目标文字未能从该图独立完整辨认，不扩展为完整视觉验收。
+8份独立控制错误保留，包括准备DOM/截图/chooser超时与picker只读错误、SaveAs确认及重开初读超时；另有native Return后DOM超时及重开第二读失败，随后成功读回不能抹除首失败。计时动作本身登记errors为空，与准备/支持阶段失败分开。
+首分析误要求context-after中未采的cards字段而exit1，脚本/日志/失败SHA`40671f8c…`保留；v2只将缺项明确记null，exit0，不改raw或采样标准。重开时独立记录300卡不回填到计时后态。
+
+原始method raw SHA`a05fd27f9c1c93a78740f88e27d69d7fc71df7e4f9c2d5becfd4cba37e1e70bd`；首分析目录`.local/validation/input-replace-stages-0448-analysis-first/`中`analysis-v2-first.json` SHA`0f0eb2735bfa0d46b34170eed0eb7d41d49b9b00d7c9c579bdca973edc9690dc`，保存重开附录SHA`80329949535a8747c1c151aed0e0eba2f0c22539132ef13f193e9950ebf7c289`。
+独审冻结`.local/validation/M-input-replace-stages-0448-dpr-independent-first/handoff.json` SHA`73344ece32e0fdcc22fc3a5e4d2ff49f91aded2472e0f42c46c2717dc11e4c05`，review SHA`7448ca44b95a30bbbd7019f9941b6f50d7d461f600e9700aa061eeee3d967c8e`；22份原件及2份计划清单SHA`83ae70310bb60f20b373d5785880b1b5ad4b10b71633cfa77eba81423e9965d0`。
+
+随后单独启用原semantic834d。首轮已Start但第一目标click在发送测试键之前控制超时；停止并下载raw35636字节，SHA`c9290688fb352483b6c22b04e42790049b6a50b6a2a146d9ca666ea3e2412877`，samples为空、outside-supported-identity为2，后3动作未尝试。
+第二轮独立登记计划SHA`4e4f8d78955cc17ee782065bd111a44c020c393f3a7a66aeb65a1259beef1169`改用目标locator Enter，仍在第一测试键之前控制超时并停止；raw35635字节，SHA`f87916e8c50921cac541658466ae14829d87928e2de77a6baa6494b9a197c178`，同样0样本、outside-supported-identity为2。两次均不是0ms性能结果，原件各自保留。
+第三轮按新计划SHA`77cbdd01a60b1b9922660d0d904c7b33cc91161785aa71ac155bb4dac84b5729`使用native坐标点击加Return进入，完成A→P、B→z各一次；第三动作在`Input.dispatchMouseEvent`阶段超时，keyInvokedAt为null，第四动作未尝试，随后停止。登记errors数组为空不代表无失败：具体控制错误位于action记录。
+该轮raw40337字节，SHA`d4c48038dce9195c7992732c9c32e318736279f3a5f5e01e35c8401c1129ec75`，仅2/4计划输入、2个editing及2个display observed，outside-supported-identity为11。operator确认两次停留612/611ms；后态仍P/z，不补发O/y或补造最终恢复。
+
+| 第三轮实际输入 | event.timeStamp→editing第二rAF | blur→display第二rAF | event.timeStamp→display第二rAF |
+| --- | ---: | ---: | ---: |
+| A→P | 221.2ms | 534.5ms | 1454.1ms |
+| B→z | 226.7ms | 667.7ms | 1577.0ms |
+
+两个样本均以event.timeStamp为锚，各有4次exact/visible/invalidfalse检查，editing/display各两次；dwell与display-exit分开，不扣时、不用首rAF替代完成。两项editing高于100ms参考值，但该不完整N2诊断不能裁定正式性能失败或通过，也不能称已完成4次。
+三轮raw均记录1132×638/DPR2.887500047683716、同一timeOrigin，Canvas端点50%；用户报告Windows缩放100%不替代IAB测量。viewport请求、页面及原生Ctrl0未取得正式1920×1080/DPR1条件，期间还记录997×561/DPR1.925后回到1132×638/DPR2.8875，原因未证实。
+另开Chrome8237显示HTTP403，只有该新测试页被关闭；未绕过安全限制。上述环境调整、首DOM/截图/chooser错误及三轮入口失败全部保留。0448正式50键仍未执行。
+随后三轮33份前缀原件与3份计划经独立复制、前后重哈希及复算冻结：`.local/validation/M-table-semantic-0448-dpr-independent-first/handoff.json` SHA`8fb037ae6a9e2aa517b366d53eb32923ffed9e40edcfe68f1d46cac8169b53ba`，review SHA`013381dec3ef35832837e9871f869d9d071166e9878fb4d6a169cbdf4e142086`，manifest SHA`123d244ec189c2351e10bc02f7af7ef5987ada3784729b1462969cde585274d2`。独审确认0/0/2样本和上述时长；context未采的timeOrigin/capability等字段仍缺失，不从raw补造该次context。
+第三轮原生另存为partial-2of4，副本2400204字节、SHA`b0796b99e9fd1cc0fe4fbd39c0939d3833b5d3c178e63aa7e9e39171088c19a6`；10000表格值仅两目标改P/z、9998格及400连线保持。相对原M的948项native规范化差异保留，相对method O/y保存件只有两格的值变化（对应4个JSON string叶）。标题clean且最终JPEG已查看；本轮未重开，不能借method重开证明semantic重开。
+method5278与semantic834d分开采样，不把不同事件区间相减或配对；两rAF只是绘制机会，不是物理呈现或self CPU。原834d只记录实际DPR，不因此放宽未来正式环境，也不覆盖任何既有正式FAILED记录。
+
+### 590a的SER有限状态：连线Redo首失败保留
+
+原件位于`.local/performance-actual/prompt-table-serializer-590a-first/`；实际1097×617/DPR1.75，51份原件已冻结独审：46份JSON中含17份native保存件，另5张JPEG。以下仍是有限操作/DOM与保存端点，不登记整套通过。
+SER02中Table A追加SER-590-A1，原生Undo→Redo→Undo和相应保存件呈现目标变化，Table B及另一路保持独立。
+SER03建立原生连线5（A output0→B input0）后，首次LLMB空输入记录14保留；17号计划纠正指出，旧7ff56cb的linked-selected合同只输出显式选中的来源行，初计划漏了选行前提，空输入本身未证明产品回归。
+随后显式选择B首行，LLMB仅显示A第一行；20号保存与21号原生重开端点保留该结果，19号readonly Enter后没有editor。补测不抹除首次空输入、打开控制失败或计划偏差。
+SER04显式断线后B仍保存A2缓存；A再追加A3时B不接收新live值。建立新连线6后，30号稳定端点及保存件取得当前A2+A3。
+SER05为保留当前历史而先测Undo/Redo再重开，顺序变化已写30号备注。30→31首次Undo返回Graph模式且连线6仍在，但并非仅模式：15项native叶变化还包括A首个文本目标的优化revision/stamp及B六个只读目标的revision/deleted状态；表格字段/值不变。
+31→32第二次Undo有9项native叶变化并移除6，随后Ctrl+S、一次原生Ctrl+Shift+Z及再次Ctrl+S后的33号保存仍没有6，且33与32逐字相同；34号首失败完整保留。
+该轮没有被动history observer，redo栈内容、调用次数及保存/模式切换的因果均未知，不能据此判定根因。35号重开未改的原夹具后两路值恢复，但标题仍带星号；这是恢复操作，不是SER05通过。
+独审`.local/validation/prompt-table-serializer-590a-independent-freeze/review-v2.json` SHA`8d6b38b830ce504c9f754192a00fc00c91bd9a056bbf87e60c2a77572bfa6c3d`；51件清单SHA`d2b9ac04551f42b7e1bdb871ddb264c49e52dc52a0eb50d368d47c603397e95a`，原输入65ae未改。首报告和中间交接的分类/计数更正另存，不覆盖原件。
+为进一步观察该失败，独立wire observer v4设计首审发现两项阻断：Table output0实际为`table_json`而非`table_data`；未知metadata不能作为未审核的rawWidget整串导出，也不能将未比较状态标成相等。
+新design-v2已纠正槽位名称，并将同一metadata准入/脱敏规则用于live、active、undo、redo；已知revision/stamp保留，未知状态明确不可比较。设计独审`wire-history-observer-v4-design/traceability-review/review-v2.json` SHA`37676efedc1a03ec5e850c5c27b1c30cb273b8aff810e535ca52406338a5fdab`确认两项首错闭合。
+源码与必要测试候选已冻结，handoff SHA`0b5b71b0d81fc5bfaa3690a6b64c0ff66bae9fb1f540836bff58044753376d01`，source SHA`6cbf9fa944c929e4a6559942d4b96b91244f9515ddb764984f02970f3a7948ff`；最终25/25通过，首v3合法连线停机红、v4首18/20及console编码错误均保留。该次交接时实施独审与实际部署尚待完成，后续双支观测见下文；设计和离线测试不等于实际兼容性验证，也不能解释既有SER05根因。首设计、首审及原行为计划继续保留。
+此前所有失败、正式1920×1080/DPR1环境与100ms门槛、真实IME、本地推理0/44、M6未通过和不发布要求不变。
+
+### 728f部署与非正式四键语义诊断
+
+`table_context_menu.mjs`进入inline editing时，原路径删除所有`data-column-selected`属性，包括M表中5010个本为false的标记。候选仅清除值为true的标记；生产消费方均按true判断，保留false不改变现有选中含义。真正选中的列仍立即清理501项，原微任务仍更新列头ARIA；两表、重复进入和Escape取消/重选保持独立。
+
+新测试运行真实menu/selection控制器与原M数据，使用有界DOM替身计数，不测浏览器布局。首红3项失败、中间因替身缺window的清理失败均保留；最终针对性4/4通过。独审`.local/validation/table-context-selection-cleanup-independent-review/review.json` SHA`c39ff18c404827b867f0bdfafc90587cd270810b41c2dfa8994415f063064036`未见源码阻断。
+
+一次完整检查exit0，登记输入前后哈希一致：主299通过/3跳过、业务466通过、144模块/214产物；日志SHA`a510876ebe28cd92aad9684d1b95b6dbb3bc896294ea1558c25486c6e3d932fb`，构建`728fd98d6f707994dd24cfa2d46ae73fb25a808368ef7ffa8e6cfee6e36d7af3`。本变化在进入编辑的focus/pointer阶段，仍保留selection.clear的全表遍历；不能从删除计数推导普通input耗时或100ms通过。随后固定提交`6166aac199b46c8ef711f15d3734d41cd302eb2d`只刷新8237，521产品包`00773e6d383cc1e6c891a1f9d7a8714f68331ad7d813b89f4c5362abea98b1f2`及原19文件3663夹具逐字核验；27项served字节、owned进程及保存件保全经独审，audit SHA`31cf4bc687775c834e964b5426202183fb8a9cbf9714d4b03442ec54000deb4c`。queue0仅为点时事实，所有0448及更早证据保持原版本归属。
+
+按新计划SHA`91d3ee126b4d02f412b7fca4f64018316674dd680ccf58ad37c3e40d8810fe65`，原生打开原始79ecd M并由834d单独观测P/z/O/y；method5278及其它计时观察器未同时启用。前态精确两表各500行/5000格，预热实记10001ms；实际1132×638/DPR2.887500047683716、DOM visible，保持非正式N4，不能裁定正式100ms预算。窗口宽高能力不能设置DPR，旧环境复位首错不被本次成功输入覆盖。
+
+| 实际输入 | event.timeStamp→editing第二rAF | blur→display第二rAF | 实记操作停留 |
+| --- | ---: | ---: | ---: |
+| A→P | 243.1ms | 600.5ms | 609ms |
+| B→z | 199.1ms | 652.8ms | 613ms |
+| A→O | 184.4ms | 580.0ms | 602ms |
+| B→y | 190.3ms | 592.5ms | 600ms |
+
+raw44963字节，SHA`aa261cf43c57c8b4c90607db0795febff79f50f772d020d3b4e8fcfb2354a974`；4个普通insertText均有event.timeStamp锚点，owner/row/field、输入前完整选区、peer值及每阶段两次exact/visible/invalidfalse检查一致，无editing/display缺测。editing描述性中位194.7ms、display-exit中位596.5ms；15次outside-supported-identity拒绝及空composition数组原样保留，不猜拒绝原因。两rAF不是物理呈现，不将停留或分开的method区间扣除，不用N4或跨版本数值宣称因果改善。
+前后DPR/尺寸/DOM visibility端点一致，不证明持续前台或后台零工作；原生SaveAs名省略计划中的-first后缀这一偏差已登记。picker、build填写、原生加载FrameTree/native控制错误均保留，没有用修复后的页面抹掉首错。
+
+前两份post-input保存副本2400524字节、同SHA`d2efa268b49b2d9b00f0aadc23bb485d74fcd8ef539e0f373c6df56a2a429161`，10000格仍为原值且UI有星号。两次保存菜单locator失败后，原生坐标点击Save取得2400204字节、SHA`83759b4c61a24d15dfea693296fa52740851b932b5005657f1e991dde8d2c7a3`：仅A/B目标变O/y，9998格与400连线保持。native槽序及其它序列化差异完整另列，不称整个workflow仅两格变化，也不据星号判定先前保存的根因。
+随后原生Open该实际保存文件，保留首DOM与截图超时；稳定DOM为clean title、300卡、O/y。两张JPEG已实际查看，重开图显示Canvas50%，而DOM canvasZoom仍为空，未从截图回填该字段。观察器/提示条遮挡部分画布，不称完整无遮挡视觉通过；重开DOM也不是10000格或所有未知字段的重新遍历。
+最终25份该系列原件、4份外部准备记录、6份计划/身份及5份固定输入共40件逐字复制并前后重哈希。`.local/validation/M-table-semantic-728f-dpr-independent-first/frozen-manifest.json` SHA`5d21ba097b0847403565e58542d963edec94796d50f1018815a019c372d11984`，final-review SHA`a6bd390bef1a5b70b510bb3798fccdf28d0afe0ca16edaf78b0d6e079987cc69`，handoff SHA`efc5647829b5fab32925a3231fa40dbfdbc450a278947862980428a66764d138`。首保存分析与后续成功保存附录均保留，旧0448的0/0/2、所有正式FAILED及正式50未执行状态不变。
+
+### 590a wire v4双支观测：Redo失败与覆盖缺口
+
+wire v4实施独审25+5项通过，报告SHA`99a4ac0eb5630588571855bb1147a9623ab5046e8f1e5ed17f0d7b45de04d76f`；部署材料独审SHA`21555ec2b9a2205818c2de78f4e3a3c19a8d536b0c443c78b8395a07143c2313`。8250固定预检及刷新首次exit0，只换4文件夹具`3b64d0e2…`，产品590a/521文件不变；实际runtime独审SHA`34514cb0475b7e54d817d8f781aeabda80272dd508de2bc55907a857dabe12c3`完成。原生新基线`ef2df77c…`相对saved28有Canvas.active及Table B/LLM A两项order差异，不能简称仅模式；冷备份与基线保全不构成M6停机/迁移验收。
+
+Branch A不插入模式切换。29份原件已冻结；初始undo/redo为1/0，raw806 snapshots/16 events、SHA`ece342b81387ab114cc359f6c90353c004fa64ab2f671bc118160af0f7a1f42d`，记录Undo但在Redo前因report-byte-limit停止，complete=false。stop为15:05:22.856Z，operator Redo为15:05:29.012Z，相隔6.156秒，raw中没有可信Redo事件。原生保存件证明Undo移除、随后Redo恢复连线6，但业务revision/stamp及order另有变化，不能补成完整raw轨迹或整个工作流往返相等。独审handoff SHA`055b0d9b6137500053dd5271a252e49155889c99a245ab11bb18a5e3e5b9d834`位于`.local/validation/wire-history-v4-A-independent-20261025/`；启动控制首错及未覆盖段保留。
+
+Branch B先重走受控设置，再单独登记观察后缀，不能称与最初SER内存状态完全相同。76份原件冻结；初始undo/redo为9/0，raw514 snapshots/43 events、SHA`eb576c4283c574ee20b1277e75f381a2e03a4cf5beaf80119639430b543dc859`，含重连、模式插入、Undo1、Undo2、Redo及保存请求事件。stopReason为operator-stop而complete仍false：动作后缀被覆盖不等于完整宿主图、原子快照或方法边界。
+Undo2后连线6消失；之后Ctrl+S事件28的capture及微任务仍为undo9/redo2，事件29 keyup变为10/0，Redo没有恢复6。33-undo2与34-redo保存件逐字相同，SHA`766e5ee7585dff34d13593eb1847823fbd00b706eaf3ca498c79f88302a86ce6`。Undo2后至该保存前的112个样本中已记录live/active/tails未变，但v4没有数值node.order，fullHostGraphEqual为null；不能据投影相同断言“只因模式”“保存无条件清栈”或order就是实际原因。phase1的defaultPrevented=false也不是事件处理完成或保护失败的证明。
+B独审`.local/validation/wire-history-v4-B-independent-20261025/handoff-addendum.json` SHA`dd66c38c0b402dca66e3737aa855352354977d3bdc0f376b6d9c5f4b15a6d393`；设置偏差、取消编辑、选择控制首错和全部截图原样保留。原SER05首失败不被A有限恢复或B的新观测替代。
+
+v5是测试观察器的最小补充，仅为四个允许节点的live/active/队列尾部增加受限数值order读取与差异；不调用history方法、不改变产品。候选32项及独立4项检查通过，首v4 order测试失败保留；4文件包`2706aef4…`的独审SHA`26c9b94145dc43b3ad2fce6f95a901df2d02fb04f803d3dbcaaae6745471bd99`位于`.local/validation/wire-history-observer-v5-preparation/traceability-review/review.json`。其后8250的check-only与夹具刷新首次exit0，产品仍590a521文件，v5夹具4文件2706与26项served字节经实际独审；8个用户工作流三副本保全。runtime audit SHA`21eb465cc2579a31a507b96ae36e036be631db3a95b3f1a75742ccefb09fb122`位于`.local/validation/wire-history-observer-v5-deployment-preparation/runtime-independent-first/audit.json`；新receipt SHA`da335eaaa5a2148c980ba96130844cff4dff0bfd2eb68b21e4b98d035d083dbe`独立生成，未复用v4。
+
+### 590a wire v5：保存前实际order错位
+
+新B轮从原65ae重走A1输入/Undo/Redo/Undo、连接5、投影与原生重开、选择B首行与重开、A2、取消拖线、原生断线和A3。小视口右键未出菜单及后续放大/平移均保留；不重演v4中取消A2与额外Open副本等控制偏差，也不声称两轮内存历史完全相同。17-pre-arm保存件相对原saved28仅7个导航叶差异，全部nodes、原始widgets、metadata、slots、links及order相同；独审SHA`1672a0b1e09a9bcce4f5fa4afa72434ab4c94c6f96725cc80372f36232c28ed2`。
+
+raw为92,336,518字节、SHA`8b73a86e596aa3b7440bd9283f3309a099874dd413bacaeab8eb9d229f79d6dc`，504快照/43事件，operator-stop、failures空；complete=false不变。重连6与模式插入后，Undo1保留6、Undo2移除6；Redo仍未恢复。
+idx231–342的112份样本持续10.538秒，live、active及两队列尾部各自稳定，undo10/redo2、changeCount0。完整已观测live-vs-active递归差异精确只有`/nodes/2/order`和`/nodes/3/order`：实时A/B/LLMA/LLMB为0/1/2/3，active仍0/2/1/3。Save keyup的idx343中live完全不变，active仅这两order同步，队列变11/0；后续161份样本保持已观测live/active一致与redo0。23-Undo2和24-Redo原生保存件16101字节、逐字相同。
+
+61个原件与20个资格/源码/候选输入已前后逐字重核并冻结。独审`.local/validation/wire-history-v5-B-independent-first/review-first.json` SHA`a3e1c71a351518398627a8b89493c8db949cce32eae246d8c4ed7ad5c9e827ef`；manifest SHA`656b50f1febad617f58fad2e917e40808e0a12d3b4ba3b8b7538c604d86b1899`。证据支持在既有显式restore成功边界，对匹配的两种Studio节点同步派生order，再作产品实际复测；没有钩native capture，也不是完整宿主图或唯一因果证明。既有隔离候选及generation包装器组合回归不能替代该复测。正式性能、真实IME、本地推理0/44、M6未通过及不发布门禁保持。
+
+### eca1历史恢复候选：自动检查与恢复边界
+
+既有`installLayoutHistory`的普通Open与layout-only快路径保持，仅在显式完整restore的native load成功返回true后调用typed helper。它逐节点匹配原快照与实时图的id/type，单次读取`DAELAB.Table`、`DAELAB.LLMStylePreviewB`的非负安全整数order，全部暂存并再次验证workflow/tracker/rootGraph/节点/属性描述符后，才更新原快照对应字段。异常、初始化、异图、身份切换、缺项或非法order全部跳过；未知节点order、业务字段、实时图、native比较器和队列均不替换。任意恶意Proxy写陷阱不属于本次宿主普通JSON/透明proxy合同。
+
+产品首红6过5失败保留，新增12项通过；相关101通过/3既有跳过、业务历史32项及实际固定宿主方法合同17项通过。独审直接导入产品installer，验证真实保留native方法与generation lifecycle两种安装次序等12项首跑全通过，SHA`fe320806cacce1766f8c22492cbb34ba669333da8785942584ab3d66a3c9517c`。真实widget、unknown property、revision或link改变仍可清redo；不把这些合同替代真实ComfyUI。
+完整`npm run check`首次exit0，登记源码/测试/来源输入前后一致；主311通过/3跳过、业务466通过，145模块/215产物。日志SHA`67de9455149fbc39b7cfef05db8a56b85f348f22f9a149a0dd3dd02dd0bba602`位于`.local/validation/history-restored-order-fullcheck/`。构建`eca1b9f134b818bf07aae34a4ec7b2437c3c238fafe4ba4138f475334b7c4973`在该检查时尚未部署；后续部署和实际结果见下，不从自动检查宣布SER05或M6通过。
+
+### 728f独立LoAF诊断：输入与Tab区间
+
+按独立计划SHA`d916f7bac95278379ab7a71c08939741e533ca129786a158c1aee782190b5b8d`及phase附录`8514da69fbbdbc4de536f5d682a239ad1f10024713b2080f2f795f60a3aeec0c`，继承同M保存后的O/y初态，在固定728f、1132×638/DPR2.8875、Canvas50%上再次各输入一次P/z/O/y。仅启用既有passive LoAF；进入编辑、字符输入和Tab各留至少2秒静置并读取状态计数，刻意不同于834d的600ms路线，绝不合并两套结果。没有通过CUA读取page timeOrigin，LoAF原始记录也无该字段，因此帧计数只近似关联区间，不是精确事件边界。
+
+raw278489字节，SHA`1ea1e2caeab5defebdf9fd39d789223b1c68b5a3ab683af85bdc2886499ced40`；177长帧、operator-stop、captureValid=true、missing空，所有容量/交付/排除及null字段保留。初始约1.95秒静置已有10长帧。四个Tab区间各有一个inline keydown归因，处理168.5–177.5ms、其中强制布局167.6–176.0ms，随后context choose亦有54.0–78.3ms强制布局；未被脚本归因的间隔不补造为CPU或绘制。四个输入处理81.7–97.1ms、forced为0。script duration已含强制布局，不能二者相加或从端到端时延扣除。
+`sync`共107次、描述性中位40.6ms，但上述4个input和4个Tab事件帧均无sync归因，不能用累计sync成本解释这些事件。背景重复扫描与Tab提前finish均只是后续候选；改变归因位置不能证明实际时延达标。observer回调本身累计619.9ms包含在该不同仪器会话中，也不作性能扣减。
+11原件及10份只读HTTP源码已逐字核验冻结，owned脚本精确匹配固定728f，offset据该源码解释。独审`.local/validation/M-table-728f-LoAF-independent-first/conclusions.json` SHA`e063ea0256517ec7c31345288adce789af939a6f87ac7f153866d451e34326b3`，handoff SHA`5b3964e595a6ccc9a7dc6b7e7707de441d1e9cba3ac0db16b00e2a6e56b2a2b8`。这不提供语义两帧时延、正式p95或100ms通过结论。
+
+### eca1部署与首次回执拒绝
+
+固定提交`27e07740d67947800760813213c91a635a6ff13b`已推送；PR/push的Pure checks `40211052759` / `40211048280`均成功，PR仍为draft。8250刷新首跑成功，产品523文件包`ffc5b534161ceb8d3055799e29902c841e600740ecfd848f033114e5e26cc3d5`，fixture4文件包`36dc7209a53629d5a54859fdeabdeb7dce7572ac545f4c5d752913471ba4ded8`。独立运行核验`acaf8447d76a0080472311fa84408f2719e499fdd2f292e2793f568bd6f327ab`确认launcher179932/listener4976、27项served字节及9份workflow当前/在线/冷备份一致；SQLite及侧文件冷字节保全，queue0仅点时，不是M6正常停机或封存证明。
+
+在原28夹具上原生Open→Graph→SaveAs为`Studio-eca1-wire-A-v5`后，新的正确eca1回执被观察器拒绝为`deployment-pin-mismatch`，尚未Start或执行connect/Undo/Redo。配置已更新，但观察器源码内REVISION/BUILD仍固定590a；先前离线部署审查遗漏了该运行校验。`.local/performance-actual/wire-history-eca1-A-first/`的六个首次拒绝原件及截图保持独立，不由后续pinfix或新尝试替代，也不计为修复验收。
+
+### eca1 pinfix实际A/B：历史问题仍未闭合
+
+观察器只修正内部REVISION/BUILD两个固定字符串，所有观察、profile、limits和读取逻辑逐字保留，未放宽pin。真实`readRuntimeReceipt`首红保留，修后与既有回归共35/35；独审亦直接导入发布包验证新回执接受、旧产品回执拒绝。8250产品仍为上述523文件`ffc5b534…`，仅fixture4文件改为`85e8976dae4913fc952045e31311f79b95b550cf680379b9c7b664f0c576b087`。独立runtime audit SHA`9562d338efd9e2e99f5e0d270ada96db534751649daaa24b5a3467f91962d197`核对27项served与10份工作流当前/在线/冷备份，随后新回执实际接受。
+
+A从原28原生Open、Graph、另存后执行connect6/Save→Undo等待超过10秒/Save→Redo等待超过10秒/Save。raw为41,127,002字节、SHA`3e857f9ca1139959e35a0ccf564c82f2c404054a0022f3022c3c06c821103d18`，325快照/29事件。Undo后idx48–187的140份样本保持undo1/redo1且无6，Save未清redo；Redo恢复6。其后idx188–301共114份/10.5694秒，live与active仍仅nodes2/3.order不同；Save keyup的idx302中live不变、active两order同步，undo2→3，不能称完整历史修复。原baseline→Undo保存另有14个优化revision/stamp叶差异，connect→Redo保存有这14叶及2个order变化，不能称所有properties相等。24原件逐字冻结，独审`.local/validation/wire-history-eca1-A-pinfix-independent-first/analysis-first.json` SHA`524017e6c3445a5d0377c5769ed60ca612c29f127e7d43ae45eb78cb7bd1ce58`。
+
+B从原65ae重走完整setup，prearm全部nodes精确等原28，只差7个导航叶。raw为87,641,272字节、SHA`ebf83dc906fff105e298fd21c40c5fe3e92ddad10cf33f001e815255ae1579bb`，475快照/43事件；初始历史10/0未清空。Undo2后idx199–312共114份/10.561秒的live、active和两tail各自稳定，仅nodes2/3.order不同；Save的idx313 poll中live不变、active两order同步，10/2→11/0。随后可信Redo未恢复6，23/24保存件逐字相同。68原件逐字冻结，独审`.local/validation/wire-history-eca1-B-independent-first/analysis-first.json` SHA`5a46f909a8890c88c2428085f8158c7249f82738b914c5e6ed4373ba1a19a7c3`；独立分析的首个差异列表排序断言错误及修正均保留。
+
+两raw均operator-stop、failures空，complete=false与fullHostGraphEqual=null原样保留；事件/轮询邻接不是方法埋点或唯一完整因果证明。两支实际1132×638/DPR2.8875；A原生32%，B原生33%/Canvas fit约31%，不与旧731窄视口/15%称同条件试验。B的08/12/20保存后仍dirty-star但native副本已有当次值；拖空+Escape后菜单仍显且wire5保留，随后显式Disconnect。选择同一receipt文件未再次触发change，B复用已接受身份并成功Start，不算第二次上传验证。100ms、正式DPR1、真实IME、推理0/44与M6未通过门禁不变。
+
+### Tab实际失焦候选2f2921：浏览器生命周期与自动检查
+
+独立静态harness使用原inline函数和500×10的两表，分别对current/candidate执行A输入AP后Tab、B输入BZ后ShiftTab、A输入CANCEL后Escape。两者Tab均到A-r1-f1，反向Tab均到B-r1-f0；退出后contenteditable=false、peer值保持。Escape回到stub预设初值，不扩大成产品原生撤销或真实IME。两个控制失败（未await页句柄、label未匹配）及原13件均冻结；raw分别18073/17920字节，SHA`80819293d9525fdf3479687c8bb046816f89b58713f83978287f97e9d55907a0` / `28f5a9be6814f58313c2de055dfc6eaa8f3542acf80bd3a130905afbbd676a4f`。事件包含可信blur，但无finish埋点，退出时点结合源码解释，不冒称直接测得。
+
+产品仅令Tab keydown返回，由原blur逻辑在实际外部失焦后finish；仍由input/compositionend持久化，Escape保持owner reset。新增7项真实module生命周期测试，首红3过4失败保留，修改后与renderer回归13/13；旧renderer的合成Tab helper补实际blur语义，新测试独立要求keydown之后仍编辑。来源交接`.local/validation/tab-boundary-native-and-source-first/handoff.json` SHA`536cbd25df2f64b798dafbb7804e07eda22459a1d177ed38c9058932dc91bc89`。
+
+完整检查首exit0，311通过/3既有跳过、业务473通过，145模块/215产物；日志`.local/validation/tab-deferred-fullcheck-first/check-first.log` SHA`d01169ca8030510fbfb8a9c470d0487e0b4549628a0b3e722c63a7e7ebcf54eb`。构建`2f2921d986e4308f26f598be4cf5b6f73ea8c46eaeff5472f5b08b5b3841f245`随后以固定提交`5b6a105a93de73928fc978c2a473e2583bc0b1bf`仅部署8237：523产品文件包`044cc8041dfa366902dd202006cdf27da0060a409d2350b97b7c988b4025db9f`，原19文件3663夹具不变。独立audit `.local/validation/tab-deferred-2f29-refresh-preparation/runtime-independent-first/audit.json` SHA`21acd73f9a8e3174b6bd6523f91ff4ace65306cdd91c62a656e84db3a345e98e`核对27项served、18份工作流与1份settings JSON保全（共19份JSON、22份cold-user文件）；queue0只作点时观察，不能从部署、代码或测试推导时延改善。该次部署时输入路径整表复制成本仅形成后续方案；下述编码复用候选尚未部署。
+
+随后按原834d观察器开展首次非正式N4，实际只完成P/z两个输入。第三动作的真实entry为owner1、row0001、field-01，预期field-00的guard拒绝，在发O之前停止；第四未尝试，没有自动重试或补齐。`.local/performance-actual/M-table-semantic-2f29-dpr-diagnostic-first/first-raw.json`为40,301字节，SHA`0dc4ed7def5a13a3fed519235e431bd4163a3754508dcb5467288936212e4768`，仅2个insertText样本，两者editing/display均observed，11次outside-supported-identity保留。editing为259.1/210.9ms，display-exit为170.0/160.5ms；后者从blur计时，不与包含操作停留的input-to-display混用。
+
+前后实际1132×638、visible、DPR2.625，登记已明确不同于728f的DPR2.8875，不能称同环境speedup或正式100ms通过；两个editing仍高于100ms参考值。`20-native-saved.json`和`24-reopened-state.json`保留P/z，原生重开clean、300卡及目标值已记录，不扩大为重开后10000格遍历。完整prefix闭合，35原件（含3份嵌套action receipt）已递归逐字冻结；10000格仅P/z两值变化，400连线与槽数组逐值一致。独审`.local/validation/M-table-semantic-2f29-partial-independent-first/report.json` SHA`8f0d9797a1dc5a42111cba5cd7de75b0c1487220de13f5b4317efa3eb9537386`，原件manifest SHA`12f929df73517d65f78f4f3c329aba766d13753a436e40d31778091ca9bb5322`；最终清单`handoff-v2.json` SHA`8003663d109fcca0db13357b379be42b1c97595401ba451628f1ce2f058ec502`保留首次开放日志hash及初次漏读嵌套actions的分析错误。准备/加载/面板/字段入口/重开读取首失败与partial操作记录均保留。正式执行数仍0，1920×1080/DPR1、100ms、真实IME、推理0/44、M6与不发布门禁不变。
+
+### 2f29第二次N4：当前目标矩形定位变体
+
+原M/834d与P/z/O/y顺序保持，每次Enter前改读当前目标rect及可见交集并点击当前中点；本次4个editing/display均observed，不补齐或替换首次N2。editing为253.5/385.7/237.7/222.1ms，blur→display为151.6/150.1/158.4/150.5ms，八项均高于100ms参考值。实际1132×638/DPR2.625；四次停留603/599/612/613ms，第二次比登记≥600ms少1ms，不四舍五入或剔除。原plan遗留首次SaveAs名称、runtime pending及旧DPR措辞原样保留，registration与实际结果另列。定位方式改变、环境不满足正式DPR1，不能声称同条件speedup或正式预算通过。
+
+31原件递归冻结；raw44,979字节SHA`4123aa8f0c3a4b4e4b7bb853d0a854524ff8bd7c4e4ad1e464c38bddff3688ef`。保存件10000格仅两目标为O/y，400连线及slot引用一致；完整workflow仍有949差异路径，包含133个node.order及viewport x从24到−35.5714，未据此推断pan原因。16原生重开为clean且O/y可见、17截图保留；18导航ERR_ABORTED不视为已到空白页，19才确认tab72关闭。独审`.local/validation/M-table-semantic-2f29-current-rect-independent-second/final-report.json` SHA`2fd0fa9ded22635e2d6cdbb9fae81a0859d11a6cec6eacd03d54af2f8c3f954a`，原件manifest SHA`447dfeb164a7a2d557ef2bbb502c3fe3854bddaf51581cfc02e12beb399d8208`，final-handoff SHA`de9277cc2ea8fc6cbf5f2ed08abfd120c520ca5f15895de1f1404ec7de1b8bfa`。旧N2、全部控制失败及正式0样本/M6未通过状态不变。
+
+### 双身份lease与输入编码复用合并候选
+
+历史候选分别捕获当前active workflow handle与原生恢复参数，不再假定透明Proxy与raw对象恒等；仍要求各自绑定同一tracker，并在native成功后的stage前后复核handle、root、graph、节点及snapshot。未知字段、真实编辑、普通Open、失败恢复和layout-only路径不变。旧源新增8项首红4过4失败保留；独立focused20/20及固定native/generation合同17/17通过。独审`.local/validation/history-workflow-dual-lease-independent-first/review.json` SHA`ca6a75ba6d856ed39a0bcc1b6a96959ee85a4bfeef92a023f9155f5fce1b6baf`无可行动阻断；此前A/B raw未采两种对象身份或helper guard结果，不能将该支持边界缺口判为实际唯一原因。
+
+输入候选仅在私有changeCell、render:false、无tickets且非derived时复用当次JSON编码。previous和next仍分别parse为独立对象；需要同步canvasWidth时保留原clone路径，原生before/next校验、rollback、未知JSON、分组和widget保存编码保持。500×10合同中普通整表编码3→2、validated编码仍2，只是机制计数。拒绝的alias变体、旧源count首红、测试提取guard首错及全部修正日志保留；独立42/42通过，源码hash不变。独审`.local/validation/table-input-snapshot-encoding-independent-first/review.json` SHA`631aab54b959987ba72da649a795f76df208e678e7b6bba02dba9e762456a298`无可行动阻断；检查成功后打印日志尾的GBK编码错误另记，不改写测试exit0或重跑掩盖。
+
+两候选完整检查首次exit0：主319通过/3既有跳过、业务485通过，145模块/215产物。日志`.local/validation/dual-lease-and-input-encoding-fullcheck-first/check-first.log` SHA`ff2cd27d91045c5a72687de2e73a3a8a5ab2042e8369811f80c67888dfbcdf05`；构建`73c99412096070861615ebcd15123c66b1492d57ba8fe5584afbc4f80544387d`。该检查时尚未部署，其后固定c234的部署及有限复测见下节；原eca1失败、2f29 partial N2和环境差异全部保留，不从pure检查宣布100ms、M6或发布门禁通过。
+
+### 73c实际部署与有限复测
+
+固定`c234c73acd602f01b3b3fc517702bced65586cd0`的523文件产品包`be68468ccf079789acca3a98e0815505c535d22d8979115541cf3977d1c80d2b`已部署8237与8250。8237沿用19文件3663夹具；首次启动超时exit1未覆盖，随后只读核对进程、完整包、20份工作流当前/在线/冷备份及服务状态，未重启补跑，报告`.local/validation/dual-lease-input-73c994-refresh-preparation/runtime-startup-timeout-readonly-first/report.json` SHA`a038406942dd5ec5d832dacd5c126162a09db1708358477986e0043bf958e362`。8250夹具只换源码内部身份常量和配置pin，4文件包`e94033ec…`；27项served及12份工作流三副本保全，audit `.local/validation/dual-lease-input-73c994-8250-preparation/runtime-independent-first/audit.json` SHA`956c6e9d82f62cd41f7a953107837e71e953be3d72008ac6899a8581782d01d1`。这些是点时部署核验，不是M6停机或产品验收。
+
+同原M/834d、每次Enter前读当前rect的非正式N4取得P/z/O/y各一次：editing为247.1/185.9/219.3/220.0ms，blur→display为156.5/136.0/168.4/132.1ms，八项均高于100ms参考值。实际1132×638、DPR1.7500000521540642、Canvas50%，不同于前轮DPR2.625；暖机10008ms、四次停留616/606/614/606ms，不能合并为同环境speedup或正式预算结论。35原件冻结，raw SHA`8bf160cfc6ac1153163c326453eeda20f3cadfa70439b63576ab0a961542b372`；保存/原生重开clean O/y及300卡，10000格仅两值变化、400连线和slots一致，但完整workflow有949差异路径，含133个order。首次改绑超时、旧tab helper、读取超时及空白导航ERR_ABORTED均保留。独审`.local/validation/M-table-semantic-73c994-current-rect-independent-first/final-report.json` SHA`87dae690dcc6f8394a561a7d5071e97873c33bfde23809bc78dcd1d480335001`。
+
+wire A首次在Start前被`workflow-identity`拒绝：另存后的id已不同于固定原28，不能归因于order或放宽guard。该14件失败独立保留；随后从原28逐字复制的新临时文件开始，在首个成功SaveAs前未保存，保留固定id。两个菜单click未出dialog的控制失败亦保留。新A的32原件及raw46,261,346字节/SHA`6aa09323b5a1fcbaedc7aa68f4a00944249b54b77f6487c5df37e78991a96170`冻结，383快照/25事件、operator-stop、failures空。队列1/0→connect2/0→Undo1/1→Redo2/0；Undo后Save保留redo1，Redo恢复6且其后Save未新增观察到的队列项，所有live/active投影含order相等。baseline→Undo原生文件仍有14个优化revision/stamp叶变化，connect→Redo为这14叶加两order，不能称所有properties不变。独审`.local/validation/wire-history-73c994-A-fresh-temp-independent-first/analysis-v2/analysis-first.json` SHA`e344ce1d9f7af5d992360a50f9a8eb93b80e40517fd57d3b9b870ab671d7e8b2`；把队列不变误判为投影全不变的首分析失败也保留。
+
+wire B首轮重走完整setup，prearm全部nodes精确等原28、另有7个导航叶差异。77原件及raw100,772,467字节/SHA`77ff9f7279a2140bed469018987908686c3a765aa1924fbeea47eed849660c76`冻结，522快照/32事件在report-byte-limit停止。Undo2Save保持10/2，raw已观察到Redo恢复6及11/1，但在Redo的10秒稳定读取前3.606秒停止，末次Save事件未进入raw；原生23无6、24恢复6不能补齐该队列覆盖。独审`.local/validation/wire-history-73c994-B-fresh-temp-independent-first/analysis-first/report.json` SHA`adad36dd37006b71d501a29f190aab1e2d5044fed12cb2456599b33330fcc92a`。
+
+B第二轮保留原setup、limits、全部保存/状态检查和≥10秒恢复等待，仅将Start至Stop合并为一次受控调用以减少工具间空闲，不作为匹配因果试验。A1输入并Tab后，helper因旧输出路径EEXIST未保存before/input快照；没有重发A1或补造缺项，后续原生文件核对A1→Undo→Redo→Undo正文端点，旧首轮77原件及副本全未改变。新76原件逐字冻结，raw93,857,775字节/SHA`bd964ded534d481e7b8730a1436943623811a57eaa7b409fcf9d16c1576976f5`，最终474快照/37事件（停止前预览471/36不替代raw）。受控调用40.003秒，raw自身39.9265秒，operator-stop、failures空。队列10/0→connect11/0→mode12/0→Undo1Save11/1→Undo2Save10/2→RedoSave11/1；idx199–336的138样本保留redo2，idx337–473的137样本含最后Ctrl+S及Stop、保持11/1且6恢复。所有order相等，7份live/active差异仅为mode Save前Canvas.active；其余已观测投影相等。最终原生文件及完整未知字段差异逐项保留，不把往返文件称为字节相同。独审`.local/validation/wire-history-73c994-B-fresh-temp-independent-second/analysis-first/report.json` SHA`12cc173277d336b451ce4dcebbd27e919d19f6f9b41d7ea7922fb086ff9a7fa7`，manifest SHA`3fc85fa25bd585a866368d9c82ea3a3bb71f577ad62c4ceed2ddaebcbada50bb`。
+
+A与B第二轮只支持请求的有限历史后缀结果；三轮raw的complete=false及fullHostGraphEqual=null保持，采样邻接不是原子history方法边界，phase1 defaultPrevented=false不证明最终未取消。A没有独立重采DPR，不把同页既有读数当新测；B第二轮实际1132×638/DPR2.887500047683716。初始历史未清空，组合产品与操作差异不支持唯一因果归因，更不替代旧失败、完整交互或M6验收。
+
+### 73c的零输入LoAF与96fb后续候选
+
+另一轮LoAF只有空闲/进入编辑，0测试键；46.982秒记录213长帧/515脚本条目，input/Tab阶段统计为null。首次guard读取CUA桥未提供的属性，不能把它判为产品进入编辑失败，补充属性证据亦不回填首轮。工具capability=false与document.visible并存，不推定持续前台或延迟原因；累计sync归因也未单独测到materialSources子查询。独审`.local/validation/M-table-73c994-LoAF-original-first-independent/report-first.json` SHA`c4220754eaea5a916af72fa980f3c96b6c9ff9d7f248770281f8506053666e8f`，不提供输入耗时或100ms通过结论。
+
+后续materialSources表头范围候选完整检查首次exit0：主324通过/3既有跳过、业务485通过，145模块/215产物。构建`96fb97cbcaeb75c77ff6f387ce2743caffdd2628090c03594fe0edbd76845c3d`在该检查时尚未部署；其后部署和实际N4见下节。结果`.local/validation/table-material-sources-header-fullcheck-first/result-first.json` SHA`2bdcf6f14e9a65b8c8b008f9f0b114b05468f9a0693bdd2e7386dcda5561cad4`，完整日志SHA`4c890595635d686a3a7bc240787eb84adee2d0742e6cabebc2c7dc191ce3bf3f`；产物独审`.local/validation/table-material-sources-header-final-independent-first/review-final.json` SHA`f99b0106f7bf1b651df0082850daa5f2d052bc651fdc67003074d6dace5d396c`。自动检查和机制变化不证明收益；正式1920×1080/DPR1、100ms、真实IME、推理0/44、M6未通过与不发布门禁不变。
+
+### 96fb部署与非正式N4：仍超参考预算
+
+固定`08a4a7a3d41160d8bcdb9e02f5e6964548ac46c9 / 96fb97cb…`已仅刷新8237；产品523文件包`97bc7f81781077e44762e60a71285fd5a3d6e29e643259f5231e006e3f2b97b5`、原19文件3663夹具和备份保全经只读独审。ready SHA`859919f04a880211a82bf9aec1fed6359a194b5b0abcc606740c7b438ec36a2f`；runtime报告`.local/validation/table-material-sources-96fb-refresh-preparation/runtime-independent-first/report.json` SHA`3c333c7870e14f9c1ab60fe2a8f4a1c3b42074c6cd7af1bafb15878e55e88825`。8250仍为73c；此前wire A/B的有限结果与首失败不重标为96fb实测。
+
+同原M/834d、当前rect入口的P/z/O/y四样本均取得editing及display的两次exact/visible检查。editing为245.0/190.3/181.4/179.5ms，中位185.85ms；blur→display为141.1/132.5/143.6/136.8ms，中位138.95ms，八个端点均高于100ms参考值。暖机10011ms，停留605/606/601/606ms；实际1132×638/DPR1.7500000521540642、Canvas50%，不满足正式1920×1080/DPR1。15个outside-supported-identity拒绝保留，聚合缺少各事件类型/时间，不推断为丢失15次输入；composition为0，无IME覆盖。31原件冻结、111项证据一致性检查通过不等于性能通过，raw45,020字节SHA`b36e7cec58d55cb4d7965ea9337a2a787cf499edad14fd9f351a3f8c0db1213f`；独审`.local/validation/M-table-semantic-96fb-current-rect-independent-first/final-report.json` SHA`f67407eb882a76e1f384fb946747ba015ed7b66493a12a8ccdfe89754fb23ba8`，handoff SHA`074543d799be85d86e76979c452cac3f862fc847ffb37841d3a9157a027ed510`。同名DPR不建立因果改善，N4不补成正式五轮/p95。
+
+原生保存件2,400,219字节/SHA`6b31633e0c6eb73c9df8a646b19619fa83acd18b9039e16c33e44d6bfff7494f`与73c保存件恰同字节；相对原M，10000格仅O/y两值变化，400连线和槽引用一致，但完整workflow仍有949条metadata/结构差异，包含133个order，不能称只有两处变更。23确认原生重开clean O/y，24确认tab77已关闭。初读、native Open后读、截图session reset及两次重开读取共五个控制首失败均保留。新的`.local/performance-actual/M-table-96fb-LoAF-corrected-first/`本节记录时仅准备、未Start，不写成已有输入归因或诊断结果。旧73c零输入LoAF、所有性能失败、真实IME、推理0/44、M6与不发布门禁保持。
+
+### 96fb后续长帧与输出Slot功能检查
+
+随后独立`M-table-96fb-LoAF-corrected-first`完成原M的P/z/O/y四键，各Enter/input/Tab阶段均保留至少2秒静默，仅启用原92031 LoAF，834d和方法观察器未启用。原始307,248字节SHA`d6d7f081151c56a838ebb8c794f7ed41bc989b4da124d2c6550c173ca77e9a9c`含183长帧、459脚本归因，captureValid=true、drop=0、边界排除3；27原件冻结。四次input归因93.6/81.2/76.7/82.2ms，forced均0，对应长帧内无sync或layout-event rAF归因。较宽的2秒阶段另含周期同步，不能将其总和当作输入端点阻塞；入口选中回调的强制布局亦不等于已证输入根因。无timeOrigin的LoAF不能按猜测换算Date.now；包含耗时、forced和render尾段互相重叠，不相加、不与834d或旧方法采样相减。交接`.local/validation/M-table-96fb-LoAF-corrected-first-independent/handoff.json` SHA`701c888f51de900740ba6d8633dfe5f022742998dc8daf2ce59f90b55ecb5e09`；输入阶段附注SHA`725065794facfc9211661449321a51b657cd217b8b20017217f895a31f95b966`。
+
+LoAF首次Save后复制过早：冻结的16副本仍是两目标原中文，17时title仍dirty，首审的saved-byteexact及10000value-diff两项失败原样保留。后续19观察clean，但本轮未原生重开。另存的晚期实际宿主文件为2,400,219字节/`6b31633e…`，10000格仅O/y变化、400连线和slots一致；早晚副本5处native差异单列，不能用晚件覆盖早失败。late-save-addendum SHA`ee36e6aca519d6d19494d4ecd4d7348f877bf84157bf558fca821f9ddf00cd6a`。缺测style/layout汇总保持null；初版空聚合n0/sum0及修正版都保留，不把无测量解释为0。
+
+另用原65ae四节点逐字副本做96fb表头范围改动的有限功能检查。A无生成输出，B唯一`5eb08c0e-6ceb-4115-9dd0-b970f66025cb`输出；空结果菜单“跳过3行”禁用，关闭后4节点/两条线/无预览保持。B生成列重命名、prompt宽420→430/gen宽340→330、删除→一次原生Undo、Alt左右重排以及Graph→Canvas后输出同键恢复，最终表头/输出中心X差约-0.000087px。A六格正文、两LLM全部输入逐阶段保持；原生Open后clean。41原件与170项证据检查只证明这些记录一致，实际1132×638/DPR1.75、适应31%，不替代36格矩阵、正向素材输出、IME或生成。独审`.local/validation/two-table-two-llm-96fb-functional-independent-first/review-first.json` SHA`e1a5193c2032974876a359351c4c3361a5fb4b160332fdb14dc3788bfce07ceb`。
+
+功能副本的随后Reload出现dirty，1106ms静默后仍保持；Ctrl+S首读亦dirty、后读clean。27与37保存件各18,916字节/SHA`8f9c0ce328d4130fca2617dfb047d8b0029470a2c241e9cb9405e8ade0e13241`逐字相同，不能据此抹去reload异常或宣称已定位原因。相对原65ae完整native为7处差异：viewport三叶、A优化revision/stamp两叶、B两份table_data字符串；解析B表仅列名和两列宽改变，records完整保持。两LLM整node、连线3/4及slot引用相同；A优化元数据变化不被“peer未编辑”掩盖。该批次reloadCleanCriterionPassed=false。
+
+新Chrome扩展控制通道查找8247未找到对应tab，随后一次打开8237得到可见HTTP403页面；未启用采样、未改变安全设置或尝试其他主机名。记录`.local/validation/chrome-extension-96fb-admission-first/record.json`及错误截图保留，错误页已关闭。四owner真实IME没有被上述ASCII或测试合成事件替代；所有M6及不发布门禁继续生效。
+
+### 96fb方法诊断与首次优化前的惰性观察候选
+
+相同原M、原5278方法记录器独立完成P/z/O/y四键。原始19,788字节SHA`28a09241a99faaa74bb87fcf8adfe1d016399d3d07b0a0c88502b6f4c96a3f5e`，四样本各7个span、9个边界均精确恢复，conflicts/rejected为空。replace为71.1/68.8/70.8/65.9ms；history begin/end区间并集40.4/42.5/41.9/39.5ms；三个serialize区间并集29.7/33.6/30.6/30.9ms；OptimizationRevisions.observe为11.4/7.8/11.0/8.0ms。各family嵌套重叠，不能相加、相减得self CPU，不能和独立LoAF/834d样本配对。实际1132×638/DPR1.75、Canvas50%，不提供正式100ms结论。
+
+28原件已冻结；Start前误点重叠asset面板、首读超时和SaveAs提前执行的预采样amendment全部保留，不把历史/缓存初态称为完全相同。Stop后Save首读dirty，等实际clean后才复制2,400,219字节/SHA`7e68bab454eac62068a40332f57a1127c091dd66d7f463bb2b5edaf7c7a5192d`。相对原M完整949处native差异、10000值仅O/y变化、400连线及slots保持；相对96fb semantic保存件完整JSON仅优化documentId不同，所有nodes字节相同。本轮没有NativeReopen，tab80已关闭。独审`.local/validation/M-input-stages-96fb-current-rect-independent-first/final-report.json` SHA`dd3e2fc4ee9c44aaebe0ad3575282d7c63e0ac7f3f327dac62461080465d694f`，1031项证据检查支持上述边界，handoff SHA`f9e8c6b0664879863776ee2a5f90781173e0eb8417c650e61ed848b0072fefa8`。
+
+后续候选仅给attach私有空registry增加首次obtain前的被动观察门禁，首次尝试开始即永久启用；constructor完整observe、晚账本恢复、独立estimate临时registry、BusinessDocument/native history和公共请求校验未改变。两个500×10实例、首次打开、同步constructor失败、晚恢复/销毁、估算当前值及提交后目标/引用A→B→A的新8例有效首红4/8、候选8/8；更早含两项测试等待错误的首跑也保留。相关128/128，交接`.local/validation/optimization-attach-passive-observation/handoff.json` SHA`bea6fce530540f5a91b69cd97c46ceed3f0d662f9307a80d509c87bdeb7cf418`。独立估算的revision1是新临时registry行为，不是已恢复请求的身份。
+
+候选构建`78b180ea8663ae2e4a50aa81b3fc30492878abb52157a37b4eff4ed53cd94e96`完整检查首次exit0：主324通过/3既有跳过、业务493通过、145模块/215产物；日志`.local/validation/prompt-optimization-lazy-observe-fullcheck-first/check-first.log` SHA`d9aaa2d199834ad31da10cd0df88ce61ccc40d56b029a2598fde8d2c860eb2b2`。此记录时尚未部署/实测，不从省去扫描的机制推导毫秒收益。独立IME观察器16/16定向、22/22独审和8252 fresh-only部署静态独审仅是准备；8252未创建或启动，四owner真实IME仍未执行。正式DPR1、100ms、真实推理0/44、M6未通过及不发布门禁保持。
+
+
+### 78b180部署与非正式N4：仍未达到100ms参考值
+
+固定提交`671b79284da3d940e6547ebabc0c95d379278747`、构建`78b180ea8663ae2e4a50aa81b3fc30492878abb52157a37b4eff4ed53cd94e96`已实际刷新8237；首次check-only和refresh均exit0。523文件产品包`eb9b620496dce19cd894199e84b6f956936330a03c19f6b78c1b5d424d140ae1`、215构建输出、原19文件3663夹具及28个served文件逐字核准，实际launcher51696→listener72968在审计前后身份稳定。26份工作流当前/在线/冷备份一致，cold-user30项含SQLite/wal/shm、cold-fixture23项全部保全；队列仅两点为空，不是持续入口封锁。独审`.local/validation/optimization-attach-passive-refresh-preparation/runtime-independent-first/report.json` SHA`83aab2dd9d20f402d1b803b57c5c15a984cd05b972e34ca8552e2f5b7953d9d5`；未由独审执行SQLite连接、UI或宿主变更。
+
+仅启用原semantic834d、原M文件79ecd、每次Enter前按当前目标rect定位，P/z/O/y四样本的编辑态和退出态各有两次exact/visible检查。实际1132×638、DPR1.7500000521540642、Canvas50%，300卡与两表各500×10；暖机10002ms、前后静默2011/2015ms，四次停留611/611/607/601ms，原600ms和100ms口径均未改变。
+
+| 端点 | P / z / O / y（ms） | 中位数（ms） | 100ms参考值 |
+| --- | --- | --- | --- |
+| trusted input时间戳→编辑态第二次rAF | 173.7 / 166.9 / 178.8 / 175.9 | 174.8 | 4/4超出 |
+| blur→显示态第二次rAF | 142.7 / 126.1 / 134.1 / 128.4 | 131.25 | 4/4超出 |
+
+八个端点全部observed、没有缺端点，仍未达到100ms参考值；15个outside-supported-identity聚合拒绝和0 composition原样保留，不能解释为丢失15次输入或IME通过。同名义环境下96fb的中位185.85/138.95ms仅作描述性参照：本轮Start前是带星号的原FX工作流，Stop后才SaveAs；96fb在Start前已SaveAs，历史/缓存与会话状态并未匹配。两轮不作单次因果、self CPU或p95推断，也不与独立方法/LoAF区间相减；正式1920×1080/DPR1及50样本仍未执行。
+
+原始45,019字节SHA`65b59b35cc61b1832fb22a35058c47ed4465b38c64876d45e966246bda99d986`及完整prefix共33个实际文件递归冻结，包含1,797,652字符的完整AX。7份失败/控制异常文件分别保留初页读、viewport操作前读、NativeOpen后读、截图kernel reset、文件picker locator、首次SaveAs未出对话框及NativeReopen首读超时；这是文件数，不推断底层失败调用次数，也不把缺编号当成缺执行。独审`.local/validation/M-table-semantic-78b180-current-rect-independent-first/final-report.json` SHA`f4c561c03bfd442a7b3c775dbe6f6f969e29dd946f3c40e5bee3c421f4fdc254`，measurement82项与final1036项证据检查首跑通过；handoff SHA`b0f5c273ec9fc08e3cb478381ab4cb1243ff3511cc464f61f14c844b2878403f`。一致性检查不改变性能未达标结论。
+
+SaveAs即时读取仍dirty，等待实际clean后才复制21保存件：2,400,219字节/SHA`7e68bab454eac62068a40332f57a1127c091dd66d7f463bb2b5edaf7c7a5192d`，与96fb method保存件逐字相同；对96fb semantic完整JSON仅优化`documentId`一项不同，不能由相等文件推导原因。相对原M，10000值仅O/y两目标变化，400连线与全部endpoint slots一致，但完整native仍有949项差异（含133个order），解析每表另有字段/元数据规范化。NativeOpen同源只发送一次，首读超时保留；随后精准DOM确认clean O/y、300卡、两500×10及同环境，tab81关闭。该有限保存/重开结果不替代全部交互、真实IME、生成或M6验收。
+
+另一个全新8252 IME宿主沿用固定78b180的523文件产品包及独立2文件fixture`bcde6d3f…`；root首次check-only、prepare、start均成功，start结果`.local/validation/four-owner-ime-78b180-8252-preparation/start-8252-first/result.json` SHA`d00bfcb5d63915a2b71d3162d2348b8b67da11c5adb3bde1a14efe2bd3447ec7`。独立运行时审计`.local/validation/four-owner-ime-78b180-8252-preparation/runtime-independent-first/report.json` SHA`f8b0ebb52698d4f14c02f02482d00acda6af9b55545b5d11443f957f5ce67cb5`确认523产品/2fixture/215outputs/10served一致、角色前后稳定、queue两点为空。
+
+实际首次Start返回`DOM-qualification-failed`、0事件/0检查点：固定提示词格使用`.dae-prompt-cell > .dae-prompt-preview`，记录器误用普通文本格的`.content-display`选择器及父层约束。失败DOM和截图见`.local/performance-actual/four-owner-ime-78b180-preparation-first/07-first-start-DOM-qualification-failed.json`及`08-first-start-DOM-qualification-failed.png`；首次单击/Enter/Tab的09–11结构记录保留。更早05只读快照也因选择器错误缺少表格值并产生错误辅助计数0，06已明确纠正，未覆盖原件。真实IME未做，不将runner自检或旧22/22离线测试称为实际IME完成。此前候选阶段“尚未部署/8252未启动”记录不回写。真实推理0/44、M6未通过及不发布门禁不变。
+
+### 78b180有限焦点菜单与待部署候选
+
+固定78b180、8252四owner风险批次共111份焦点原件，清单SHA`4bcdffd2127b45a115530d9c33402a999439cee6173dfafa7588715a4718495f`全部重核一致；22张截图已逐张查看。8组中最初A1920/50和A1280/100只记录有限Tab/反向Tab尾部，缺Home+6和初始稳定焦点；其后3组A与1组B采用v2、两LLM采用v3。v2闭包仍绑定旧capture，缺失的overlay/TR字段没有补写；15号仅保留A680/150反向Tab的实际另次HUD读取。主DOM、几何、overlay与textarea选区均为分次读取，不是原子快照。22图实际均JPEG，16份仍用.png扩展；首两张1920图实际1920×1035，不能用DOM1920×1080代替截图尺寸。独审`.local/validation/four-owner-78b180-focus-risk-independent-first/final-review.json` SHA`07e41f72b7b9970d8521af051cfab24995e80575bbe29c56319da77f6f64b4c8`。
+
+A1280/150、A680/150与B680/150的反向Tab正文/轮廓被产品缩放HUD遮挡，3例失败保持。A的相关Tab下缘与底部提示条约16px间距是窄成功，不消除HUD或仪器面板的另一处遮挡。B初始编辑区域也部分位于HUD下/视口外，但未采精确caret矩形，不能仅从控件矩形判定光标被挡。两LLM六个稳定端点的处理要求/恢复原结果按钮可见；native textarea选区为67/67，Home+6是视觉行内按键序列，不等于绝对offset6。受检六格提示词、两段处理要求及两条线保持，不扩大成全原生schema、保存或36格通过。用户确认Windows100%，此批IAB实测DPR1.7500000521540642；环境、首次加载失败、helper闭包错误和仪器遮挡均保留。
+
+另38份菜单原件仅包括680×720/150%两LLM模型菜单、1920×1080/100%两表首次优化对话框及关闭/重开，清单SHA`7d68c095be2d3e3f73aa96b1ec28fc90c8e6472df62055a71adc29c6117eb9d5`。Table B首locator失败后才使用真实可见交集入口；未改模型、未生成，界面显示provider未装配。独审确认两LLM真实展开/关闭后仍为qwen，两表首次打开/关闭/重开/关闭保持原composer与四peer值；6张菜单原图均逐张查看。合计焦点/菜单28图均为JPEG，其中6张1920截图实际为1920×1035。联合独审`.local/validation/four-owner-78b180-focus-menu-traceability-first/review.json` SHA`69cef7bb08c8798ab04d0417f469016ff52c28c1d69390e77bb686c037c12931`核准111+38清单；它不把有限菜单端点升级为完整36格、后端运行能力或性能通过。
+
+首次IME Start误选择器失败仍是0事件/0检查点。修正版只改固定提示词DOM资格与实例生命周期校验，源码SHA`954189ce086a3e7a13ff88abd5f3a969080fabd347d426cf5122d6e3d8cb76be`；旧源新测试首红4/20，候选20/20，独立24/24。交接`.local/validation/four-owner-ime-prompt-dom-correction-first/handoff.json` SHA`c47735d2fd7542217b15c7e4822ecb72cc4ed1e9c563fd917b84bbb9aafba42b`，独审`.local/validation/four-owner-ime-prompt-dom-correction-independent-first/corrected/review.json` SHA`e9a8c14073132e2ad6fbe2e4b2350833ceef0fa78d4cc3baacfd16bf97e486e7`。该离线交接时尚未部署；随后沿用原78b180的523文件产品包，在全新8253完成首次check-only/prepare/start，2文件fixture为`93bc0d3d…`、served记录器源码为同一`954189ce…`。启动结果`.local/validation/four-owner-ime-prompt-dom-78b180-8253-preparation/start-8253-first/result.json` SHA`6a4e0adcded31f71619bda21d4c3222a76a9e403cc69a7ccfbc8b609c381af6e`；随后独立运行时审计首跑exit0：523产品/215产物、修正2文件夹具和10个served一致，launcher159416→listener105880前后稳定、queue仅两点为空；报告`.local/validation/four-owner-ime-prompt-dom-78b180-8253-preparation/runtime-independent-first/report.json` SHA`42064e29eb75c1aec913ab7068691fa566731cc6214353d127cb5ff38520e490`。此运行时审计时尚未实际Start或真实IME。随后实际观察器资格复验见下；合成事件/DOM double及宿主启动均不等于中文IME实际候选窗、提交或取消。
+
+独立HUD候选只在可信Tab的非编辑控件投影与自有缩放HUD相交时，临时将可用上界移至HUD下缘；普通caret/input/textarea不增加HUD读取，保留完整目标内部裁剪、owner lease及底部提示条检查，不避让仪器面板。旧源新测试49/54，候选54/54及strict TypeScript通过；交接`.local/validation/canvas-zoom-hud-focus-reveal/handoff.json` SHA`2863a6a0ece5d4d8a12f46dcb8eae309d89c7da90e0f13125e908852c4c85245`，独立54/54审查`.local/validation/canvas-zoom-hud-focus-reveal-traceability-first/review.json` SHA`5ea5a333e756c0af809df825c8974bf85fe130cd0f1105d12e87c6bb0d3ec2c8`。上述focused交接时尚未完整构建；随后完整检查见下段，候选仍未部署或实机复测。不声称已解决B初始普通编辑区域遮挡，也不从测试推出性能收益。78的8/8性能端点超100ms、真实IME未执行、推理0/44、M6未通过与不发布状态不变。
+
+HUD候选随后完整检查两次首先因迁移清单未同步而失败：`canvas-zoom-hud-fullcheck-first`缺view目的hash更新，`canvas-zoom-hud-fullcheck-after-manifest-first`仍缺focus/test目的hash更新，原日志与exit1均保留。只同步已审3项destinationSha和变换说明，来源指纹未改；第三次完整检查exit0，主332通过/3既有跳过、业务493通过，145模块/215产物。新构建`1269e52fda4371fbe43748b4d2eb4f7cbeec41c9ccc4e5f172254a4c33dc01b2`；结果`.local/validation/canvas-zoom-hud-fullcheck-complete-manifest-first/result-first.json`，日志`check-first.log` SHA`165d4add2f45a82e15823326e7722efdf1caef9f03b7b789d06b32ffd7b9bda1`。当前新产品尚未提交或部署，8253运行的仍是原78产品加修正版IME夹具；HUD实际3例失败和性能/IME/M6门禁没有因构建通过而关闭。
+
+8253随后实际Start/读取四字段/Stop/下载首次成功，使用原65ae、原78产品和修正版夹具；仅验证观察器DOM资格。9份原件冻结于`.local/performance-actual/four-owner-ime-prompt-dom-78b180-qualification-first/`，清单SHA`424d8a9a95f5367851524de90a12171440669a1ba776280ecfa62a31d9a274a6`。原始记录5,618字节SHA`5a28c7795d999ce1e9d8dd74ddc8a23b38b04aba786ba1b0e7a00e918572ddd3`：0事件/0检查点、1份手动快照、6个outside-scope聚合拒绝，四字段原值和租约身份保持，operator-stop，complete/productAcceptance/formalBudgetEvaluated均false。开始时实际1920×1080/DPR1.75；新页最初默认731×411/DPR2.625也保留。没有输入文本、composition、任务或保存/重开，不是中文IME提交/取消验收。
+
+### 1269实际焦点模式与保存重载复测
+
+固定`c47dca264087809a52042f49303394857ee61c71 / 1269e52f…`在全新纯产品8254完成check-only、prepare、start。独审确认523产品文件、215产物及9个served文件一致，无测试面板；运行时报告SHA`df2609e229ac48acb220c47dc64d191c733bcda04a2ab048fdf060ecb5025eda`。PR仍Draft，发布门禁关闭。
+
+原50/100/150夹具逐字副本用于8组焦点序列，另补B原风险几何位置。104原件冻结于`.local/performance-actual/four-owner-1269-pure-focus-risk-first/`，清单SHA`97f0da970f1c8017b6e47da14655a793eba503f94156224b9287f24787f609f1`。27个稳定端点均至少1100ms，六提示词、两处理要求及线3/4保持。A1280/150、A680/150与B补测反向Tab稳定后与HUD相隔16px；B补测初始位置相对旧失败差x−0.6393/y+0.2429px，但新开文档和旧连续操作历史不同，不写成完全相同会话。B初始编辑区域仍局部被HUD遮挡；超宽A只确认起始区显露。两LLM native selection为67/67，往返保持。首次采集器调用不支持的performance.now错误保留，修正后的每次DOM采集只有一个callback，但不声称原子绘制或跨调用对象身份。独审SHA`d496acfdcd3dc8720496940f6eaceca9e3af816a551004c44c682b4f46307ec8`。
+
+模式/生命周期批次另有166原件，目录`.local/performance-actual/four-owner-1269-mode-lifecycle-first/`，清单SHA`7686f17bbaaef3e93c9561a7b4dc23dd62469d7f908690493a2eb9b76563a7a1`。四owner各完成Mute、Active、Bypass、Active；两表停用仅使对应下游输入不可用，恢复后原输入返回。LLM的原生右键菜单没有绕过项，首失败保留，后用实际原生工具栏完成旁路。App隐藏Canvas后返回Graph，显式回Canvas恢复四值/两线。两表在Canvas内删除/Undo恢复目标及对应线；另一次Graph删除A后切Canvas再Undo返回快照的Graph模式，显式回Canvas数据恢复。现有合同明确保持viewport，未把该跨模式行为认定为数据丢失或已证模式缺陷。01–44有限独审SHA`8a67b86c1f90f86eeed5201985532c94ec34e0acde5a60540b6585c147704d6b`。
+
+首保存49与导入/刷新后的另存56逐字相同，18,827字节/SHA`a7f6d194e989db218837076ab48a8e341def3b4ade2b26590c6cc3960bce1e1c`。对原夹具完整JSON仅A首prompt的legacy revision/stamp两叶校准；两表15格、六prompt、两LLM处理要求、14inputs/6outputs/两线以及其它未知字段均核对，没有宽泛排除。49收据曾错误读取active.title，50明确纠正，真实48的document.title为clean。导入的未保存副本在Reload前后都dirty；另存后的clean文档在58/59刷新后仍clean，这两个情形分别记录。
+
+随后对已保存文档再次SaveAs产生61：13,054字节/SHA`49b71fd954b1d5bd6ebc7f906278c63124c0b16e3a295b99cee9f33053632823`。对49/56共有17结构变化，展开41叶：5个graph/document/table身份标量变化及12项legacy revision条目删除（36叶）。这些变化与新工作流身份分叉合同相容，其它完整数据保持；不是仅documentId差异。61/62持续dirty，后续Ctrl+S及明确原生Save菜单后64/66仍dirty，磁盘字节同61。保存全链独审首报告SHA`0c48131b2955255e455cb7edfa141cfab0619a7640b3cedce6228896639de48f`；dirty原因仍待调查，不能宣布保存验收闭合。
+
+上述实测DPR仍1.75。18张焦点图均JPEG，首两张实际1920×1035，其余为1280/680×720；生命周期1920截图也裁掉底部45px。截图缺失区域不以DOM尺寸补证。没有真实IME、生成或正式100ms采样，不替代36格矩阵和M6门禁。
+
+### 原生隐藏画布暂停诊断候选
+
+新增test-only模块默认不挂载、不暂停、不监听；只有显式准入后才对固定旧canvas对象设置pause_rendering，并在停止、模式/图切换、隐藏或到期时恢复。只接受固定78产品及实际独审的新宿主收据，严格要求原生_maximumFrameGap===0，避免正限帧间隔下暂停导致短计时器循环；不调用stopRendering/startRendering、不改FPS、graph、历史或834d。定向25项、固定原生方法4项及独立补充5项通过，首红和中间失败保留。独审`.local/validation/native-canvas-pause-diagnostic-independent-first/review.json` SHA`135e44ce5b1498bff701551d0e28e03f2ae5cbd6f291e1354cfd81069b036d58`。尚未实际启用，后续基线—暂停—恢复对照只是诊断，不是产品优化或100ms通过；78的8/8超预算结果继续有效。
+
+### 保存标题补证与8255首次诊断拒绝
+
+8254保存标题的补充8份原件位于`.local/performance-actual/1269-saveas-dirty-public-dom-first/`，清单SHA`e4e6d59867b6c1f4df7469e6bf348acca9aaffdb4cf5fe9d71538de1178b506b`。同一次公开DOM读取显示，verified-first窗口标题带星，该标签却没有dirty指示。按预登记点击另一已保存标签再返回后，verified-first标题clean，四值和两线保持；第一保存标签此时dirty，未清除或隐藏该观察。原生标签切换会加载/重置图，不能把这次恢复单独归因于computed缓存。
+
+离线复现使用本地真实Vue/Pinia及17段原生AST函数体，运行实际saveAs、saveWorkflow、UserFile/ComfyWorkflow保存和标题computed；文件/草稿与useTitle是明确的内存端口。3/3场景确认：raw目标保存后isPersisted/isModified已clean，但已缓存标题仍可能带星；之后经proxy重复写入相同状态仍可不刷新；首次就通过canonical proxy保存的控制组会清星。未执行完整open/load/prepareForSave、HTTP、实际图归一化或8254内部状态采集，因此只证明充分机制，不确定现场唯一原因。首CRLF源校验失败脚本和日志保留，后续直接从source-map原文抽取。交接SHA`233397be38a126b255a769c955ca12f08589f96040e875142701a2723e91826a`；独审`.local/validation/1269-saveas-title-offline-independent-first/review.json` SHA`9958925e5ae310bdd030191a527b1633c4e7845ad17ff7803430347db9fef835`，独立3/3及17处原生抽取/编译字节一致。没有清dirty、改标题或修改宿主。
+
+8255实际运行固定671b792/78b180产品与原19文件加暂停模块/收据绑定器的21文件夹具；运行时独审1361项无失败，报告SHA`2475af7c7706a33e260b014016c05eabb535b11ded435410ad9fca53b8ee9cce`。已将真实启动结果SHA`afe23254f6d2e079ac40fa570b9906887b2c835e7e5e4177950fef93c9473237`通过文件控件绑定，原M分别原生打开及选择于两记录器，原生SaveAs后标题clean。实际1132×638/DPR1.7500000521540642、Canvas50%，原始目标值已由公开DOM确认；拒绝后的公开DOM另记录300个Canvas卡片DOM、每表500行/5000格。这不表示300张卡片都在视口内，也不证明完整准入通过。
+
+首次启用baseline返回拒绝，原始干预记录的armedAt=null、stopReason=admission-failed、failureStage=registration、cleanup.complete=true，未暂停、未Start语义观测、0测试键，paused/restored未执行。该阶段同时涵盖registrationOf和capture，首raw没有保留具体原因，不能由阶段名推断唯一故障。24份首次原件冻结于`.local/performance-actual/native-hidden-draw-78b180-8255-first/`，清单SHA`0a2b39428d7dcb967d3ad39a29a653114bc7bf93f622c8a12b1bc863eb6f8a01`；原生AX超帧、DOM超时、文件控件超时及REPL恢复、指纹fill失败、只读选择器错误均保留，均发生在采样前。未自动重试Arm或放宽资格。此失败不提供任何输入耗时或暂停收益；此前8/8超100ms、正式环境和M6门禁继续有效。
+
+后续test-only候选只拆分capture-initial/lifetime-setup/capture-repeat阶段并记录内部品牌的有限失败码，未知异常统一unexpected-error，不读取或导出外部异常message/stack。没有增加宿主读取或改变准入、暂停、恢复流程；registration/capture/runtimeProof函数原文保持。首红25/31、首绿31/31及独立31/31保留；源码SHA`f5ea3a0886d2c05c4580d54eb840072fa419e3a521eb5b75fe411c6569c465ca`，独审`.local/validation/native-canvas-pause-observability-independent-first/review.json` SHA`dda41788056c46214942b6bd8fd701db36dd633ddfa73262c3fe6890f0a843a6`。独审报告解析首次误期待TAP而实际为spec的错误另存，随后只重读同次绿日志，没有补造通过。当前候选尚未实际启用，不回填8255首raw缺失的具体原因。
+
+8255在零输入时保存的基线另做全文件比较：原件与保存件的逐字副本固定，10,000值、1,000完整记录、400条link tuple及实际双端引用/槽名保持；完整JSON有948个路径差异，完整diff回放精确重建保存件。节点order/size、named widget、槽位索引及新增元数据均逐项保留，没有宽泛排除。两表输入槽有重排，但本M夹具两表均无输入/输出连线，不能据此证明任意表格连线迁移。磁盘独审交接SHA`647e850f60be2f2f5db59209ac1452e0ed9e7b47e6ab01af824e62e4a4686228`，未发现比较范围内意外丢失，不宣称完整工作流相同或解释准入拒绝。
+
+### 8256准备阶段控制中断
+
+固定671b792/78产品、原19文件及新f5ea诊断/8256绑定器的21文件准备通过，root首次prepare/start均exit0。实际独审1361项通过，launcher30460→listener102604前后身份、523产品/215产物/21夹具/27served及两点空队列保持；报告`.local/validation/native-canvas-pause-78b180-8256-preparation/runtime-independent-first/report.json` SHA`96b092fb40a63e03ac6941b55fa3f0ed06bb3bfc28a48b49d0d230641295570f`。真实receipt SHA`40f195b600f7622860c89c104535ad010b43ccc04fbd511dd31b24962bf60128`已通过实际文件控件绑定，空图阶段设置原M文件和构建指纹，没有Start任何观测器。
+
+执行前发现当前模块的recoveryFrameObserved固定为false，原21文件没有可见的旧captured canvas恢复后计数检查入口。下一次start的两帧准入不能替代上一次Stop的恢复证据，也不能通过私读app或截图推定计数。因此本轮另行预登记为仅baseline准入、0输入、若启用则立即Stop/下载，不执行原三臂N4或paused。
+
+NativeOpen原M后的首公开DOM同时出现两原始目标值、0卡片和Unsaved标题，仍是加载中间态；之后菜单click、DOM调度、截图、控制重连和关闭均出现超时。尚未Arm、SaveAs、语义Start或输入；原始M资格和关闭均未确认。旧8255页在完整冻结及保存副本核对后已关闭，8255宿主和原件保留；新8256页的关闭操作未成功，已明确请求用户只关闭该测试页。12原件冻结于`.local/performance-actual/native-pause-8256-admission-only-first/`，清单SHA`f1cb0c7828e83730d43c55cec5ef3a53ff4c49e35070d7dfcf3bb64f6e0e467b`。独审`.local/validation/native-pause-8256-admission-only-independent-first/review.json` SHA`5a696033231fbea885f5ce816987f90ca52bf9f7114b47127e48df3367d7205e`确认7项控制错误保留；这属于准备阶段控制中断，不是baseline准入拒绝、帧恢复失败或100ms产品性能结果。不能归因于产品、先选文件的操作顺序或某个宿主状态。
+
+另一个仅在本地目录的事务准备合并原型使用真实owning change函数体、BusinessDocument/DocumentController及snapshot模块，对照现有路径。首轮9项为5过4失败：校验回调中live A→B、draft仍为A时，原路径使票据revision=2且不可应用，直接集中到现有edit的原型却revision=0且仍可应用；getter回滚取值为原2/原型1；read/current/validate顺序和NaN/validator异常优先级也改变。原型因此停止，未进入产品，没有弱化校验、复用提前编码或延迟原生写入。原M两张500×10的成功对照虽通过，不能覆盖4个反例；反例确认测试的绿色也不代表修复绿色。首红、witness、源码pins及成功对照都保留，交接`.local/validation/table-cell-preparation-prototype-first/handoff.json` SHA`f088282d99b4c302ef0c2151f33ce088c7c502cd07454ee2ea234eb13e061540`。它否定当前直接集中路线，不证明所有未来专用事务设计都不可行，也不提供实际性能结果。
+
+### 1269的1920宽度矩阵续测
+
+沿用纯产品8254、固定c47/1269构建及原50/100/150三份夹具，继续原焦点、Tab、反向Tab和菜单协议；没有输入新正文、切换模型或提交生成。100%批次71原件冻结于`.local/performance-actual/four-owner-1269-matrix-continuation-first/`，清单SHA`eb3bf1b61dfb8884926c671a4bc31b35014eac6a786a72639ba23dab82e7dffc`。四owner新增12对焦点端点，间隔1139–1151ms；44份合格DOM保留六段提示词、两段要求及线3/4。B初始编辑框right约2115.74，caret约1811仍可见，不能将其记为全框可见。A的Tab端点缺截图，DOM仍保留。四个菜单实际打开/关闭，但该批缺配对的至少1100ms菜单稳定采样；两表另有关闭/重开记录。17张JPEG均1920×1035，底部45px未覆盖。独审630项证据一致性检查通过，报告SHA`4bdaf032e7a3eea1c21e35f92e7d90d522455d228d2b91115f6411ab9d908fcd`；采集器误选择器、原生加载中间态和错误可访问名称的首次失败均保留，不将一致性检查当作产品通过。
+
+50%批次59原件冻结于`.local/performance-actual/four-owner-1269-1920-z50-continuation-first/`，清单SHA`e9b61d55c20fff35c59a0e704a47f4bdf25740484238c524877ab1b5f5d4c93c`。新增B表和两LLM的9对焦点端点，1137–1147ms；A焦点沿用先前批次，没有重采。四菜单均有即时/稳定端点及稳定截图，间隔1149–1160ms，Escape后值保持。35份合格DOM保留八字段和两线；两表原优化要求不变，界面仍报告本地文本provider未装配。两LLM实际选区为31/31；B编辑选区原件为38/38，独审初稿摘要误写6/6，原稿保留并另附勘误。14张JPEG均1920×1035，其中一张是100%准备状态，不能算50%证据。独审538项一致性检查通过，报告SHA`7e2fbbd80b8ede6b53fbcf366f79c4618fbc9d3073b303ab668b13c6919099bd`。两次Ctrl+O超时、文件菜单ArrowRight失败及加载中间态均保留。
+
+150%批次65原件冻结于`.local/performance-actual/four-owner-1269-1920-z150-continuation-first/`，清单SHA`7f7119b9775a3bbaecc639fd60a1780a2a4da301c248ea8c99114c7e5c68acbf`。四owner新增12对焦点端点，1137–1150ms；四菜单稳定对1145–1152ms，均有真实展开截图和关闭端点。44份合格DOM保留八字段和线3/4；A/B编辑Range为6/6，反向Tab是非编辑DIV的0/0，不能称编辑光标；两LLM为67/67。全部受检active目标在采样端点位于根范围内且不与HUD或提示条相交，A的Tab下缘与提示条间隔16px。17张JPEG逐图核对，其中16张为本批焦点/菜单，另一张为文件菜单准备状态；均1920×1035。独审671项一致性检查无异常，报告SHA`2b31f4c35809d171239e4ea2e5085d45c40eb80f4a4b68f6157d6e6a130ba456`。50%选区勘误另见`.local/validation/four-owner-1269-z50-selection-correction-first/correction.json`，SHA`78a43468b4951becf97822a9adcae3d14547933ce3c165ee94ae4e692e03ea4f`；原报告字节未变。
+
+累计当前构建焦点覆盖19/36，尚余17组；菜单记录12/36，其中8组有成对稳定计时，100%的4组仍有限，另24组未执行。这是覆盖计数，不是通过计数。1920×1080是上述DOM实测尺寸；IAB DPR仍约1.75，不能由用户确认的Windows 100%推导为DPR1。首次设置窄视口超时后，再尝试清除覆盖尺寸也超时并重置控制连接；恢复只读连接后仍为1920×1080/150%、四卡片。后一次原件单独保存在`.local/performance-actual/four-owner-1269-viewport-recovery-second/`，没有登记1280或680的新覆盖。不得把菜单、DOM字段保持或工具超时作为100ms、真实IME、全序列化数据或M6验收结论。
+
+100%菜单随后单独补采，22原件冻结于`.local/performance-actual/four-owner-1269-1920-z100-menu-stable-first/`，清单SHA`cd993cb2924603a83880c2b59fdb01db431d00e184e7cf7b59770bc8c55d8cd3`。通过原生标签回切到先前从原65ae导入的100%工作流，不是本次重新NativeOpen；八字段、两线及实际100%状态经公开DOM核对。两LLM菜单、A表和B表菜单分别记录1152/1147/1159/1152ms稳定对及关闭后态；四张JPEG均1920×1035，实际弹层边界完整可见，底部45px依然无截图覆盖。两表原始dialogCount为2→0，不解释为两个可见对话框；原composer及qwen选择保持，provider未装配错误仍可见。独审248项一致性检查无异常，16份合格快照保留八字段/两线，报告SHA`0a14cc4dcc3b14e89284097a99292084f1050040c4ea8fbdeb881b4fac71780a`。旧菜单原件及其计时缺口不改写；唯一菜单覆盖仍是12/36，现在这12组均有稳定计时，未执行24组，焦点仍19/36。没有增加正文输入、模型选择、生成或保存验收。
+
+### 同提交CI失败及导出测试同步修正
+
+提交`4b20c57b68428fa5b0c3dc6c69e275a0439b8735`的PR运行40239939318通过，但push运行40239936186的job121309364770在npm test失败：331通过、1失败、3跳过，后续步骤均跳过。唯一失败为`tests/application/media_export.test.mjs`的SaveAs/跨节点副本用例，copiedOutput尚为undefined。该提交没有修改产品导出源码或这个测试；不能仅凭一过一败就把现场唯一原因确定为调度。原job日志80,627字节/SHA`38f1e9c5c0e12ecf90f12b3cd9486c5ce4c51f00db6ce6becdfe677d2d1bfd8d`及源码对照保存在`.local/validation/recovery-matrix-4b20c57-ci-first/`，分析SHA`b9cd734ea08daa495f0c6c24539fb10ded75ffac24d379e94d1df559d63460ca`，未重跑原CI。
+
+确定性补充反例保持真实摘要计算，暂挂唯一GET，推进旧helper的零延时timer后确认helper已提前返回；首红0/1保留。只修测试的完成条件：通过既有host.changed等待非busy且有report或error的结案状态，之后仍逐项断言绑定、一次GET、零原生历史及原数据。等待不以期望copiedOutput为成功条件，错误仍由原断言拒绝，也不增加查询。相同缺口的已存副本重载和损坏绑定场景采用同一等待；stale lookup场景保持。修正后27旧+1新共28/28首次通过，交接`.local/validation/media-export-readiness-ci-first/handoff.json` SHA`d911b344f5e744756613d51acd6e97d01e35a23d29feab3cebc073a268b0291c`。产品/生成物未改，没有将此修复当作输入性能、实际导出或M6通过。
+
+测试修正的独审48项证据一致性检查通过，报告`.local/validation/media-export-readiness-independent-first/review.json` SHA`aa9059559be0701f09e5816b0a1c2f5e998bba6a7cac2665ccba9347eeb38337`。等待器的同步检查与通知安装之间没有await空隙；保留原host.changed，条件清理不覆盖后续替换的callback。Node定时器mock仅用于受控反例，真实摘要和下一事件循环仍参与。独审没有重复全文件运行，也没有把它升级为原CI唯一成因证明。
+
+修正提交`cb3f612ce89ec1f4d954c755643b94f4fe6f69e8`的push运行40240985406/job121312492548及PR运行40240988338/job121312501913随后均完成成功；原失败运行没有重跑。当前CI元数据与收据保存在`.local/validation/recovery-matrix-cb3f612-ci-first/`，收据SHA`11c62827570e5488e0da0595351b2dd7b3226534ffb38deb3a0153aeecfb5277`。这些是同代码提交的检查结果，不关闭实际产品门禁。
+
+### 私有单格原型与固定CPU筛选未进入产品
+
+与此前失败的通用事务合并不同，新原型只在本地拥有校验与空行策略、稳定行列ID和字符串操作的条件下，省去第二次editor整表parse及确定无结构变化的删列扫描。原getTable/context/validate顺序、最新native回滚前态、严格next快照、版本观察及同步历史/写入保留；未知或替换回调、宽度同步、结构化值、tickets、derived与结构操作都走旧路径。原型尚未实现产品中的私有策略绑定，完整挂载的refreshStates也未执行，不能由本地构造器推定公共编辑器已安全接入。
+
+原M、78 N4实际保存件及8255基线保存件均通过真实renderContentCell和导入的bindInlineEditor进入原型，12次P/z/O/y输入的整表parse均5→4，两次严格编码不变。两份保存件的view为table且没有canvasWidth/prompt_config/storyboard；测试明确提供非空resizeWidth context，未通过空context绕过宽度门禁。21个唯一用例分阶段16/3/2首绿，原四个失败反例、初版实现及所有记录保持。交接`.local/validation/table-intrinsic-scalar-prototype-first/handoff.json` SHA`a3303932128708e984efb69a9eeb1e12da650cdb6e981a3a7551dfedcd88fd35`，报告SHA`bb6821d835a5f29b31ba80ca4965a4cebe1d0766cd8a32f2d0d501ed5e58455a`。DOM与native history仍为明确的有界测试端口，合成composition不算真实IME。
+
+另一次CPU筛选先固定2个暖机block和12个测量block，奇偶交替baseline/intrinsic，每组原M两表P/z/O/y；每路径48个测量样本，共96，另保留16个暖机样本，不挑选或重跑。仅测同步input emit，局部中位4.63405→4.38845ms，差0.2456ms（约5.3%）；12个固定block中2个候选更慢。它不包含真实300节点历史、浏览器layout/paint或实际输入到显示端点，不能减算实际174.8ms或作为100ms结论。计划SHA`49ddb4935525fbe7adb7c7f55aade61edfa77b6b8721eff31009c1ad8562dde1`，结果SHA`86bf21a5c8e0c25143144c4442fb8def3c3dae767df1e8e708061cbb3a35b85b`，CPU交接`.local/validation/table-intrinsic-scalar-cpu-screen-first/handoff.json` SHA`b9b906da69002f57e45682134b0cc37f5fdf625011d3a95a734536c8a133943f`。基于收益很小且需要跨模块新合同，决定暂不生产化；源码、全部样本和旧失败留存，不增加包装器或重复等价测试。下一验证仍为具备恢复证据的受控native渲染诊断。
+
+两份独立只读审查支持上述局部删减和不生产化决定：原型报告SHA`4781408a828606527dadad3554bae41600b9d56d05f6ee97400de6099eaa3589`，CPU复算附录SHA`5064bb26b7fb9a25de5b96791803b525d794676418db9669f7b48d40c067f57c`；另一份追溯审查`.local/validation/table-intrinsic-scalar-traceability-independent-first/review-v2.json` SHA`c60de1a7d486f9ab0da8a6bbab9c85db052cfe941117763cefb64669c2099e32`。没有新增测试或重跑基准。第二份审计的首次脚本因求和、reset语法及直接owner/renderer计数口径产生5项错误断言，exit1原样保留，v2只修审计逻辑；不把审计脚本失败算作产品失败。实际公共选项、策略品牌、可变released闭包及完整挂载状态刷新仍未证明。
+
+### A100的Tab图片补采与控制重验
+
+继续现有8254/c47/1269的原100%四owner工作流，另存`.local/performance-actual/four-owner-1269-A100-tab-picture-supplement-first/`；起始平移位置与旧100批不同，没有宣称重新NativeOpen或重现旧批的确切像素位置。三对编辑焦点、Tab、反向Tab端点相隔1126/1128/1125ms；八份合格DOM的六段提示词、两段要求、线3/4及1920×1080/DPR1.75/100%保持。编辑选区为实际6/6，Tab落在A第二行table-choice，左边距16px；反向Tab返回非编辑DIV的0/0，不能当作编辑光标恢复。三张原生截图实际查看，Tab焦点轮廓与任务2文字可见。14份原件清单SHA`8f3aeb6fc4787398b217bbb9b7813a9b54b31db0bd52ff565a72e165982a4a4a`。这是旧案例的独立补证，唯一焦点19/36、菜单12/36不增加，旧批缺图事实不改写；没有正文输入、模型更改、生成、保存或性能采样。
+
+本轮首次尝试文档化的fullPage截图接口，返回JPEG1097×617，未覆盖登记的1920×1080；原件保留，不将它当完整视口。三张原生JPEG均1920×1035，底部45px仍未审。独审实际查看四图并核对260项证据，无不符；报告`.local/validation/four-owner-1269-A100-tab-picture-independent-first/review.json` SHA`dfa6e2d199d1db68d560e0124ba585e4dd39ee5370a8ac5ffe0c44aabb3b4d29`。所有快照标题仍带星，不作保存clean声明。8256同一tab86的两次有界只读重验分别保存在`.local/validation/goal-resume-46329-environment-first/`和`goal-resume-46329-environment-second/`，仍在命令派发前超时；第二轮8254读取正常且仍为1920×1080/DPR1.75。它们是控制状态证据，不是产品加载耗时、根因、性能或恢复样本；仍等待8256关闭。
+
+提交`46329cedbbd3c4d926a3ec15746376205fbf2ff1`的PR运行40242285489/job121316453485及push运行40242281526/job121316440224均为completed/success，各33步成功，原失败没有重跑。完整元数据和156项只读核对收据保存在`.local/validation/recovery-matrix-46329-ci-first/receipt-first.json`，SHA`fa6eb88b7849d8225284f6befab99aeef52dfe7edad75a085469e5b180ac955c`。CI不关闭实际产品门禁。
+
+### 8257仅完成静态准备
+
+新版恢复诊断的8257材料保留固定671b/78产品及原19文件，只替换诊断模块和新端口绑定器。首次check-only通过，21文件夹具SHA`510bc45f01fa200b1ae52bcbf7a31162e2d7f8255d1c107c821dd24df26389cb`，交接SHA`f8acfa4500474707987efeb3f698e33efee5ceba8d49b9532bc509cbc8212475`。111项静态独审无失败，报告SHA`2abcab0992108c74df6b29c8706c93ed1348c9b870457cab6368fd8db9ef22e7`；计划中的旧8256目录误引另存勘误SHA`c057a3a150b368b04f77965bef788c5bf9952149083cac151ec97d4c1c409007`，冻结计划不改。没有prepare/start、实际Arm或输入。
+
+首阶段限定原M的baseline零输入准入、Stop、停止后空队列、本次旧captured canvas显式计数检查及Graph/Canvas可见恢复；完成这些才考虑暂停对照。下一次Arm不能补证上一次Stop。8256页关闭仍待用户确认；这些材料不构成运行时通过、性能改善或自动执行暂停对照的依据。
+
+### 恢复计数器检查与截止时间首红
+
+test-only模块新增显式“检查恢复计数器”入口。只有正常Stop、原暂停标志恢复、清理完成及停止后队列为空时才可检查；等待点击期间只保留六个旧实例WeakRef和标量描述，不保留监听或计时器。点击后复核捕获实例及原生循环字段，在两帧、1000ms界限内读取旧canvas计数器；不改绑新canvas，不调用draw、setDirty或HTTP，也不修改graph、历史、FPS或834d。新Arm、Stop、销毁及生命周期失效均取消检查；成功、失败和清理情况进入原始记录。计数前进只证明本次显式窗口，不证明Stop到点击间连续身份、即时恢复、自动循环来源或可见像素。捕获准入的复合条件拆成有限原因码，条件顺序及门禁不变。
+
+首候选45/45通过后，独立反例发现读取跨过截止时间仍记录observed：startedAt32、endedAt1065，实际1033ms。首红报告`.local/validation/native-canvas-recovery-checkpoint-independent-first/review-first.json` SHA`1568c162d6f6ae45acb825d307ae2027331b982b8531e7a21fe92ea202f76d72`保留；随后新增两边界在旧源0/2、仅读后修正1/2，均保留。最终修正同时检查读后时间与记录自身的endedAt，达到或超过1000ms一律不能通过；实际frameAfter和时间不截断、不回填。最终47/47通过，源码SHA`0abca7e609afdb05d491fc2da906894b7bb72c465770266783571480c02686e8`；独立增量复跑原反例1/1和边界2/2通过，报告`.local/validation/native-canvas-recovery-deadline-independent-first/review.json` SHA`82be90992451dfd1592e7a4d2a45ed245cbe29d7c336329aceee87cae550396d`。未重新部署任何宿主，8255/8256原失败不归因于此边界，也不由离线检查宣布实际恢复或性能通过。
+
+### 1269续测矩阵执行覆盖与遮挡失败
+
+用户关闭8256后，8254固定c47/1269继续原三倍率四owner工作流。1280/100的66原件独审（`.local/validation/four-owner-1269-1280-z100-resumed-independent-first/review.json`，SHA`be76bb5eb92ac1e731a9ccc8e0a0c5a979533081e4a48eea26afe9888b7344b3`）将唯一执行覆盖推进至焦点22/36、菜单16/36；随后680/100、680/50、1280/50、1280/150及680/150菜单五批共313个冻结原件、63张实际逐图审查图片，累计为焦点36/36、菜单36/36**执行覆盖**。汇总`.local/validation/four-owner-1269-resumed-matrix-final-index-first/index.json` SHA`5a70d1cac9332814530b97a2ef9bbf55d7b29f62f469fa382258503f9b89a87f`逐项连接报告、清单、稳定端点和首错，不能写成36格通过。
+
+LLMA1280/150的初始与反向textarea均被底部hint遮挡，重叠高31.1905px，67/67选区不证明光标可见；后续人工平移后的菜单成功不修复这两个端点。B同格初始编辑框右超画布54.362px，实际Range38/38仍可见，反向才完整显露；至多35格未出现该项已确认遮挡，不能称35格全控件可见。各批六段提示词、两段要求和DOM线3/4保持，但只重新核验现有原生标签的有限DOM投影，没有全native/未知schema身份结论。新DPR为1.9250000891586152，旧批约1.75；680×720、1280×720的JPEG内应用内容约618×655、1164×655并带右/底空边，不声称像素一比一或一致环境的全矩阵验收。
+
+首错不删除：闭包误将一份50%快照追加到旧680/100目录，旧64件清单未变，该额外文件不计任何采样；680/150首次A菜单落在非登记行、composer为空，保留后明确选中首行再测，不能当作首行数据丢失。四个有效菜单均有独立稳定展开/关闭证据，Table的一可见、一zeroRect对话框及Provider未装配提示保留，LLM真实菜单选择qwen；不代表生成或后端通过。680/50首审过严要求immediate已出现Provider错误、汇总脚本首遇旧报告字段名差异，也分别保留勘误。既有A100补图与旧有限尾部均未重写。
+
+针对已确认遮挡的候选只复用owned hint/HUD避让于可测编辑目标，保留原裁剪、实例lease和无法容纳时的保守返回；59/59专项与独审无源码阻断，独审`.local/validation/canvas-editor-overlay-focus-reveal-independent-first/report.json` SHA`f07ba902109d50732e5a98545109da67779561e08bd5317441d193fea0876f43`。旧源首红53/59保留，随后完整检查首次exit0：主338通过/3既有跳过、业务493通过，145模块/215产物。构建`39a47263d03548d6f936a756c404356bdcfabb3932e4a598f3191f6cdc6e1676`、523文件候选包`0f22b3d6d7162d9ff7cece9279175d1dbd0f8073a486f5991279a78dc764c7cb`尚未提交、部署或实测；交接`.local/validation/canvas-editor-overlay-fullcheck-first/handoff.json` SHA`a23c9e6b6064cb60ba9abcde2c68fd42da877a96b8732fe98856e97dcc67261b`，首结果SHA`1eff0a442dd24c6d972a8097984f81e6fab63ddf183adbbb1e4bd61776b5f04d`。新增编辑态owned overlay几何读取的实际成本未测，不能由检查关闭遮挡、IME或性能门禁。
+
+### 8257首次拒绝与8258有限baseline准入
+
+8257已执行首次baseline准入，原静态准备记录保留。42原件冻结清单SHA`7aa399e401c75029a59dbf180c9f6354bd9d3fa87098a8961312c6cfb4396f3a`；raw在`capture-initial / M-link-projection`拒绝、`armedAt:null`，清理完成但`restore:null`、`postQueue:null`，不等于恢复成功或停止后队列已空。一次NativeOpen后的工具超时与同handle恢复、SaveAs先dirty后clean、控件确认失败及关闭87全部保留；确认文本/checkbox不是M输入，同页恢复读取不是重试Arm。独审`.local/validation/native-pause-8257-admission-artifact-independent-first/review.json` SHA`36ceaa87f7d33be81f158981c62b4b0bd7a1e6296ee936e5aa35157ef3dfaa8e`，955项证据检查无不符，仍是0成功Arm/0测试键/0语义样本/0暂停。
+
+保存件另做4650项磁盘核验：两表1000条完整记录、10000值、300节点ID/type及400条完整连线和已连接slot端点保持；全native JSON仍有948项差异，包含133项order、尺寸、命名widget与元数据。两张未连接表的input顺序变化也保留，不能据本M验证该槽兼容性，更不能用磁盘连线元组证明运行时对象表示一致。结论`.local/validation/native-pause-8257-baseline-saved-first/conclusion-first.json` SHA`a9949b584cfb812b7b61ed0becc0ccef677898c814bb16af61e2c2a1f30be6b7`，不是完整保存/准入通过声明。
+
+test-only修正`b0fb3987…`以真实固定LLink/LinkMap离线复现端点string与序列化number表示差异，仅在本地比较元组归一规范整数端点，不放松数量、slot、类型、重复、环境或生命周期守卫；产品仍为78b180。六项新例旧源3过3败、修后6/6，相关53/53及独审保留首红。新8258运行时root复核646项无失败，报告`.local/validation/native-canvas-pause-78b180-8258-preparation/root-runtime-review-v2-first/review.json` SHA`fc0413c9ccea0e10c3ad10f8c83f2fd3c225a7e917630f3abbb495fee0e36200`；覆盖523产品、21夹具（原19字节保持）、served/PID/CPU与两点空队列，不证明浏览器缓存、实际Arm或恢复。
+
+8258随后一次baseline Arm成功并立即Stop；`restore.flag=not-written`，没有实际暂停。目录`.local/performance-actual/native-hidden-draw-78b180-8258-first/baseline-admission-first/`随后闭合为45原件，清单SHA`dab4dde5217c80a90a461cca65093cc9b9fc57c147c63e5dccc1b9726c4599d8`：`27-pre-checkpoint-intervention-raw.json` SHA`a56f55cb0324e26d74a58f7a38a0c485fe734bc0d5a12a5284928bf042947318`保留尚无恢复计数观察的状态；后续`first-intervention-raw.json` SHA`7276847b748210947b7dbfd0618a63a54fb7e06acb5f991de9d86e35e0b19f7b`记录旧captured实例在显式7.4ms窗口从4181到4183，清理完成，Stop后queue读取为空。`28-first-checkpoint-ui.json` SHA`4c4d8559cedfc858427777e88b4f44078e3646315843a285e92d52afb8f24390`同时声明这不是可见恢复或产品验收。该检查不证明Stop至点击间连续身份、自动循环来源或即时恢复；可见恢复的模式控制超时全部保留；其后32原生Graph图、37创作画布图及38/39两表独立cell focus/原值保持已由root目检。40-stage-conclusion.json（SHA`1885da0d71d3d8e1619e684dddac017ff5934de31b54f1ef78376726a4677ff4`）记录这次有限baseline链完成，后续独审15项raw/UI及4650项磁盘核验无不符，交接`.local/validation/native-pause-8258-baseline-zero-independent-first/final-handoff.json` SHA`cca20e7dc898ae4fa1979ffe938ec168e49f4fda72041bca54397b2c608c2bef`；完整native差异仍保留，模式切换后dirty，不声称保存clean或暂停后的恢复。总计0测试键、0语义采样、0paused臂，不提供性能结果。
+
+正式DPR1/100ms协议未变。既有78非正式N4仍是editing中位174.8ms、display中位131.25ms且8/8高于100ms；上述矩阵、离线修正、baseline准入与计数检查都不能替代它。真实IME仍0、推理0/44、M6阻塞、不发布，所有先前失败、尚未闭合的保存门禁及未执行的暂停后恢复验证保留。
+
+### 8258完整baseline计时前中止与新环境登记
+
+后续完整baseline并未开始计时：`.local/performance-actual/native-hidden-draw-78b180-8258-first/baseline-first/`保留13原件，实际清单名为`freeze.json`，SHA`fddbc17bb32f1080fe6e3a9c60c3719be9a19be6293d0136ba0e23bfdb11e1eb`。语义文本框选择器及隐藏binder操作首错后，Arm前读到CSS1029×580、DPR1.9250000891586152，已不同于原1.75。再次设置视口及一次原生Ctrl+0均无效；随后设置物理2180×1229，实际DOM才为1132×638、DPR1.925、Canvas50%。登记明确旧完整baseline在计时前中止，0Arm、0语义Start、0测试键、0暂停；不得与此前成功的零输入baseline准入混为一轮。
+
+为新环境一次NativeOpen原M后，06–08三次CDP/派发超时全部保留；09原生截图已显示载入，同tab88重绑定后10恢复读取300卡片。11另存菜单role选择器首错后，新基线`M-native-pause-78b180-8258-baseline-dpr1925-first`记录为clean；这不是旧轮补样，也不把工具超时当产品载入耗时。12结论明确06–11包含新环境准备，原始时间顺序不改。未来v4 baseline/paused/restored三臂须独立登记和核验同一新环境，不能并入旧DPR1.75结果；当前仍无实际暂停臂或新增延迟数据。
+
+39a472候选产物终审`.local/validation/canvas-editor-overlay-final-product-independent-first/report.json` SHA`21e06ac551c210998a8d5e783a7eb3b256c4131281d68e25115f93d4ce6090a3`核对1813项、0失败，确认固定523文件/215产物与已报完整检查；没有重跑测试或实际部署。它不替代遮挡实测、IME、100ms或M6门禁，候选仍未提交/部署/验收；上述新失败、旧失败与环境差异全部保留。
+
+### 39a472实际四owner有限复测
+
+此前未提交的39a472候选随后在纯产品8259部署；523文件/215产物、0fixture、9served及角色/CPU/两点空队列经独审，报告`.local/validation/canvas-editor-overlay-39a472-pure-8259-preparation/runtime-independent-first/report.json` SHA`c337d9ad0cda380dc83d55efffeb80b06dbffd1277b381251efebd2f53bd4253`。这是候选运行时身份核验，不是新Git提交、浏览器缓存或产品验收结论；上文“未部署/实测”保留为当时状态。
+
+首批`.local/performance-actual/four-owner-39a472-1280-z150-first/`冻结46原件。1280×720/150%、DPR约1.75下完成两LLM及B的有限焦点往返；A操作前环境变为1163×654/DPR约1.925，A未执行。LLMA首个stable DOM已显示避让，但对应截图仍在旧位置，后续独立截图才显示在hint上方；不能声称即时可见或绘制时延通过。B光标可见但编辑框仍右裁切，首批没有保存/重开。独审219项证据核对无不符，报告`.local/validation/four-owner-39a472-1280-z150-independent-first/review.json` SHA`972ca256823c70e073ccc35d0130e1676d0772a3dd57c8e2dc5b3bde41cf7fa5`；环境漂移、首图与几何不同步及未执行项全部保留。
+
+另行登记的`.local/performance-actual/four-owner-39a472-1280-z150-dpr1925-first/`冻结59原件，清单SHA`90c1483e0001e81fc6c2625354766f52675f9f724009a53bdfea29be5c9f54c3`。实际1280×720/150%、DPR1.9250000715255735，原150%夹具保持；四owner焦点/Tab/反向Tab、Graph→Canvas及保存/重开均有有限端点。两LLM初始底边约695.58px，稳定后约596.30px，与hint相隔约16px，67/67选区往返保持。A/B编辑光标分别为实际6/38且可见，但初始编辑框右超视口约210.89/49.10px；反向Tab才完整显露非编辑预览，不能写成编辑光标恢复或两表整体可见。截图含缩小内容与空边，不宣称CSS像素一比一、物理绘制即时完成或全36格复验。
+
+38份DOM记录核验八个固定值与线3/4；Graph隐藏Canvas时0owner另作模式状态，不计丢失。等Save标题clean后复制18,851字节原生文件，SHA`49e178c7eaabade8358ebb4a2f6382dfc847187c89d4ac99c1ccf5d03d49546a`；与原夹具完整无忽略JSON比较仅`viewport.x/y`两处变化，四节点全部未知字段、15个表格值、完整两条线及indexed slots保持。随后原生打开该副本，八值及两线仍在，但标题为`*native-saved - ComfyUI`，不作clean重开声明。独审242项证据核对无不符，报告`.local/validation/four-owner-39a472-1280-z150-dpr1925-independent-first/review.json` SHA`7053b3b88589a8502e345a55837c31feb51d8a11fd330a624da54174b5e972a3`。未进行真实IME、生成、100ms验收或全M6验收；旧1269遮挡失败及该候选仍有的裁切/保存边界不删除。
+
+### 8258 v4 baseline部分N2失败
+
+新环境下的`.local/performance-actual/native-hidden-draw-78b180-8258-first/baseline-dpr1925-first/`实际开始baseline及语义观察，41原件冻结，清单SHA`e59c263ffffc6ee3189ee9fb97af41431b1980778fb15028c1e4d899ea69ad34`；它与此前零输入准入、计时前环境中止分别保留。实际1132×638/DPR1.925、Canvas50%，仅P/z两键。两样本均未取得完整editing端点：P首检查已是display，z只有一次editing检查后转display，不把单次观察补成两帧端点。blur→display分别1487.4/1347.5ms，中位1417.45ms，均超100ms参考值；这是部分N2，不能计算完整N4通过率、与旧DPR1.75混组或推断恶化原因。
+
+第三键预读后目标/表格容器横移约−59.567px，实际进入field01，editor guard在发O前拒绝，第四键y未尝试；缺少该移动的完整运行时因果证据。baseline没有写暂停标志，Stop后清理完成及队列为空；本次显式恢复计数检查在1019.7ms截止、`frameAfter:null`，结果`not-proven/deadline`。此前另一次零输入检查成功不能替代它；paused和restored两臂均未执行，实际暂停0次，三臂试验停止。11次outside-supported-identity为聚合拒绝计数，没有逐事件证据，不能称11次合格输入丢失。
+
+保存件4650项磁盘核验确认10000格仅P/z两值变化、其它9998值及400条完整连线保持；无忽略native JSON仍有949项差异，包含slots表示、order、尺寸和元数据，不能写成完整workflow仅两处变化。原生重开后P/z及表格形状有有限DOM证据，标题仍dirty；末图仅显示A焦点框，不补B轮廓或clean重开。38项raw/UI证据核对及4650项磁盘核验均无不符，独审`.local/validation/native-pause-8258-baseline-dpr1925-independent-first/review-final.json` SHA`ebc77fcafcc6e3b020e5f725fbf47404302b45fd3c35720676098988ba533d98`，交接`final-handoff.json` SHA`b0d035bebb28df9d06db282c82ae34b1acebcb405a6736b9c884a80d3c3a028b`。初始选择器误配、key3拒绝、模式/重开工具超时、恢复截止及审计脚本首错全部保留；检查无不符不是产品通过。没有同轮LoAF可据以归因，正式DPR1/100ms、真实IME0、推理0/44、M6阻塞与不发布门禁不变。
+
+### Computer Use停止与续轮页面约束
+
+上一轮本机Chrome CUA不能可靠确认当前browser URL以执行访问策略，工具明确要求停止本轮所有Computer Use并结束回复；已按要求停止，不能把这一控制层拒绝当成ComfyUI故障或IME结论。该事项依本轮操作记录和用户续轮授权记载，不将此前HTTP403或旧IME预检替代为其唯一成因。续轮所有UI仅限内建浏览器中的当前授权测试页面；真实IME由用户手动完成，未完成前仍记0。不得借换浏览器、访问未授权页面或放宽安全设置绕过限制。本次补记仅离线读取既有证据并修改这两份文档，没有新浏览器/宿主操作或测试结果。
+
+### 39a472窄屏尾部与页面级LoAF补测
+
+仅使用当前授权页面的后续两批均已冻结：`.local/performance-actual/four-owner-39a472-680-z150-page-only-first/`55原件（清单SHA`28b37a5ccdf47dd34c1b799c0b25f7f64cefd545ba731253e62858553276617d`），以及`.local/performance-actual/M-table-78b180-8258-LoAF-page-only-first/`30原件（清单SHA`c634ab1e4c6904c8ea22b6e6e717f9ed984a21088d126e4f3e80f2bfe42a4cd9`）。一次简洁核验确认所有清单字节一致、无清单外追加；报告`.local/validation/page-only-78-loaf-39a-interaction-review-first/report.json` SHA`b600a84d2d38a99280357affa914f4d079b5df646a1a9f9af34c476845cf8b25`。两批产品、输入和观察范围不同，不能合并成性能或全M6验收。
+
+39a472沿同f88原150%四owner夹具，实际680×720/DPR1.75。42份Canvas快照均保持六段提示词、两段要求及DOM线3/4；Graph模式隐藏Canvas时0卡片/0 DOM线是预期模式状态，不证明原生图丢失。两表Home+6后Tab/反向Tab返回非编辑预览，不声称编辑光标恢复。A End实际offset50，稳定光标x≈664；Home实际0，光标x≈74，随后Left只检验起点边界。手动左移约24px，10025ms后位移保持，但A光标x≈50低于根左界x≈58而裁8px；Right一次到offset1后才回x≈74显露。B End实际38、Home0，手动左移约24px并保持10028ms后光标x≈76仍可见。这些端点与8张实际查看的JPEG680×720相符，不把A手动平移后的裁切隐去。
+
+两LLM要求框从left≈425/top530的半屏位置，稳定显露至hint上方16px；Home+6及Tab/ShiftTab稳定选区均为6/6。反向Tab稳定对等待1129/1120ms，但即时态仍可在屏外，未测100ms或物理绘制即时完成。Graph→Canvas后四owner/八值/两线保持。Save等clean后复制18,850字节文件SHA`a7f58579a155fb267e170f9967b9eb118cdb45cc9b220beb885eda1c38f646df`；与原f88夹具完整无忽略JSON比较仅`viewport.x/y`两处变化，四节点全部字段、未知数据及完整原生links/slots一致。原生重开仍为`*native-saved (2) - ComfyUI`，不能写成clean重开。该批不增加真实IME、生成、全矩阵或M6通过数。
+
+LoAF批使用固定78b180、原M79ecd、1132×638/DPR1.75，仅一次P后Tab，语义观察器未启动，pause binder未绑定，无实际暂停或全局输入。原始374,516字节/SHA`bf089c91fe14a4ba44c49edd79babd1b3319850d6f105293d64b567cefe95f98`在78.6806秒窗口交付237长帧/547脚本，operator-stop；独审`.local/validation/M-table-78b180-8258-LoAF-page-only-independent-first/analysis.json` SHA`641b106fbf98139d543db6b0b8ac20a5247fbaa8a8514fe50b56bf0f6f8a3a6a`。唯一input回调106.8ms、forced为0；selection关联帧755.7ms，其中card pointerdown和startCellSelection分别包含366.3/255.2ms，已含各自强制样式/布局349.8/230.5ms，不可重复相加。周期sync共160次、包含5636.5ms（中位33.75ms）；layout事件rAF共161次、包含1512.3ms，不能从外层分配给某个未单列监听器。没有导出timeOrigin，工具读写和空闲间隔也在窗口内，这些是来源及动作顺序关联，不是精确事件配对、CPU占比、input-to-paint或正式100ms端点。
+
+LoAF批的DOM、文件控件、菜单、截图等所有首失败保留；Save后两次标题仍dirty，后续明确菜单Save才clean，未原生重开。它不覆盖8258此前DPR1.925的失败N2，也不证明暂停原生绘制有效。两批原件禁止追加，既有缺失端点、裁切、重开dirty、正式DPR1/100ms未通过、真实IME0及推理0/44继续保留；M6不通过、不发布。
+
+### 39a472已保存工作流刷新与身份分叉
+
+继续同一39a472实际链，点击原本已保存的`F6-39a472-680-z150-page-only-first`标签，标题clean；页面reload后同名标题dirty，仍有四owner、八个固定值及DOM线3/4。这次不是Ctrl+O导入新文件。`.local/performance-actual/four-owner-39a472-saved-workflow-reload-page-only-first/`冻结6原件，清单SHA`4ea5df0097d5e231d260a5693e86c6109f60642e5e69ea433555237f3cfdc3c1`，导出下载等待15000ms首失败保留。导出文件相对此前native保存有7差异：四个localized_name、两张表的未连接widget输入项删除，以及extra.frontendVersion新增；widgets正文与links保持。导出走graphToPrompt，与原生保存写入路径不同，不能仅由这7项把reload认定为静默数据丢失。
+
+从已保存工作流再次SaveAs到新名称，文件实际写入而标题持续dirty；`.local/performance-actual/four-owner-39a472-saved-workflow-roundtrip-page-only-first/`冻结5原件，清单SHA`98fe717ae2a9f808077a467e8a8413dc27f939fecff3f0d8d4b4654679e02e0e`。与上一份同写入路径native文件完整无忽略比较，恰为graph.id、documentId/nativeWorkflowId及两个tableId共5个标量变化，另12个revision对象删除；新nativeWorkflowId等于新graph.id、两个revisions为空，正文、widgets、slots、links及其他未知字段无额外差异。固定39a的`prompt_optimization_model.mjs:41–48`和`prompt_optimization_lifecycle.js:7–8`明确按native工作流ID变化分叉身份；既有原生SaveAs源码先生成新ID，再打开新工作流并保存。该17项与身份分叉合同相容，不证明reload丢失，也不解释持续dirty的唯一原因。
+
+对该新名称执行普通Save，再reload，标题仍dirty。`.local/performance-actual/four-owner-39a472-normal-save-reload-page-only-first/`冻结5原件，清单SHA`deff20f4b8efdf07dc7e5a1591f907462a8408d08aba984cbf76896d7788b1ef`。其中`before-reload-native-saved.json`与上一SaveAs文件逐字相同：13,089字节/SHA`973ab3fe8752fdaacb42be083781e3d2e51230d73a01117c601477fa71552052`，完整JSON差异为0，不是本次又发生revision初始化。三批全部16原件哈希核对一致，8份DOM均保留四owner/八值/两线；SaveAs及普通Save批已回到731×411/DPR1.75，不能当680功能矩阵同条件复测。
+
+当前仅确认数据保持与dirty标题持续并存，未读取私有tracker状态，未确定是修改标志、标题缓存还是其他机制；不以清标志掩盖，也不因dirty推断数据丢失。保存clean/reload验收尚未闭合，旧首错、旧SaveAs与导出差异分别保留；没有新增UI重试、产品修复、性能样本或真实IME。正式100ms、真实推理0/44、M6阻塞及不发布门禁不变。
+
+
+### 185215候选与页面级四键复测
+
+本次组合候选保留39a472编辑器显露修正，另加入两个窄改动：`paintSelection`按当前DOM同值跳过写入，不跳过卡片遍历、分组或选择计算；列分隔线`geometry()`保持既有fluid/layer写入顺序，在写分隔线前一次读取本pass所需表头几何，不跨pass缓存。对应首红分别5通过/3失败及5通过/2失败，修后8/8与7/7；这些是合同与调用计数证据，不能换算实际毫秒收益。完整`npm run check`首轮退出0：主测试341通过、3既有跳过，业务497通过，145模块/215产物。完整交接`.local/validation/canvas-selection-paint-guard-first/04-fullcheck-handoff.json` SHA`304273a19c31a79a1b13829dec9d3b7a5b9fd59f05fa6be524a088b38acde4da`，日志SHA`80fdfa561fa4f82eb2a009da00b0df24e7a48fe8d46abb9cff3cf79715a2bd09`。
+
+build为`1852153686fc59a7d263e7e0b4ab0f5f7467e7c5d0d56a3b046607a73c88266d`，固定523产品聚合SHA`7a8220759160974306fc0646efe0c8e4a75971da7ed50aeb6d66f99e5d48bff1`。这是基于46329的未提交候选包，不称新Git归档。独立8262首次启动已完成，launcher132408/listener54188，CPU/offline/loopback；首运行记录核523/215、原21夹具及28served（含原生asset），见`.local/validation/input-paint-splitter-8262-preparation/start-8262-first/result.json` SHA`a5b334aea397fb33027db32e878b57038465a8445d93f46272663031ede98881`。后续最小独审38检查0失败，核进程身份、marker、四个关键served、21夹具与两点空queue，不重复声称其重哈希全部523文件：`runtime-independent-minimal-first/report.json` SHA`25f3c56fda92fffdf5027645c266e6b85743fe8a633b0cb99f83a7e8cc24a9bf`。旧pause binder仍固定8258/78身份，本宿主不绑定、不Arm；未改观察器阈值。
+
+三批均保留原M79ecd、834d语义观察器、v4页面级操作、1132×638/DPR1.75/Canvas50。完整四键顺序P/z/O/y，分别在owner1/2的row0001、field00采样；两组均4个editing与4个display端点完整，compositions为0。下表display专指blur→显示完成机会，不能与含编辑停留的input→display混用；两rAF边界不是物理呈现证明。
+
+| 冻结批次 | editing（ms，P/z/O/y） | blur→display（ms，P/z/O/y） | 限界 |
+| --- | --- | --- | --- |
+| `M-78b180-page-only-semantic-four-first` | 305.4 / 236.7 / 201.6 / 255.1 | 215.9 / 179.5 / 180.1 / 167.0 | 21原件，8/8超100ms |
+| `M-185215-page-only-semantic-four-first` | 无样本 | 无样本 | 15原件，首次click在命令派发前超时，0输入，非性能样本 |
+| `M-185215-page-only-semantic-four-after-control-rebind-first` | 313.8 / 210.7 / 266.3 / 211.2 | 184.4 / 164.9 / 191.5 / 178.4 | 16原件，独立重绑后四键，8/8超100ms |
+
+上述目录均位于`.local/performance-actual/`，三份freeze的21+15+16原件哈希已逐项核对，无失配；清单SHA依次`509b7f708d3431d55a6359e6fe2446a409703d5fd327de2c8c65d797a1bf4e99`、`a6ccf4ec7f49eaa5ee6e3946dfd02117c95bfb272096ab96c521c743b6e7a1c0`、`506207d3c3d7dbce0a87c0d7be02e4023585aff2fdccd403404e553eb5479d78`。三份raw SHA依次`807d9603879181599dc20df84c69be9156aca91404cae1f54d0775cd59ff91c5`、`5889e9840baa6c9e36314c7aa9c416730184b66338f806950bd4d27908733b4e`、`132febc661744f5ba156b4f25cea869fed146f94082474315e0cb1b06e9ada4b`；outside-supported-identity拒绝计数依次15/5/15，不能当丢失的目标输入。所有加载、菜单、控制超时保持，不把第二候选批补入第一次失败。
+
+候选第二批Save控件首失败及最终即时dirty标题均保留；冻结的首份`native-saved.json`为早副本，2,400,524字节/SHA`39e8b164c775d3f554895388a91d1d63d48a38085262aff0882ab18fa5303a2d`，两目标仍原45字而非O/y，不能由raw四键完成推断该副本已保存。另目录`M-185215-page-only-semantic-four-after-control-rebind-first-save-completion/`冻结3原件，清单SHA`0a7bd8d9c57392e3848b75a77cd551dcfde721cb15912862b104a4990ac2272e`；02:42:57.825Z后读标题clean，2,400,218字节磁盘副本SHA`9979c3da78c330c19d18b7fb2d97281c39adf3a9d5933243c361e754f767d391`才确认两目标O/y、其余9998格不变。早副本是异步保存尚未完成时的捕获，原件不覆盖；本次没有原生重开。补件独审`.local/validation/M-185215-page-only-semantic-four-independent-first/save-completion-addendum.json` SHA`7e73f24f86e31b3f5b7c62721fb2985b2784b3c7408326d9065d1e426a90e301`。两组独立语义分析各51项一致性检查通过，分别见`.local/validation/M-78b180-page-only-semantic-four-independent-first/analysis.json` SHA`1a8524a61826f7673c823d4625f67a5b4641e9ea11d982958cbb8805db891a00`、`.local/validation/M-185215-page-only-semantic-four-independent-first/analysis.json` SHA`2337ca3c43c42f4a89fb175c584787b5160224350618b32adea11b5786d43fdb`；它们核证样本而不代表预算通过。两组仅N4非正式诊断，不是原DPR1/正式50协议，不合并既往不同环境，不声称统计或因果改善；无实际IME、GPU或生成验证，推理0/44，100ms与M6仍未通过、不发布。
+
+
+### 185215分段与交互补证
+
+同候选的独立5278方法系列冻结17原件，63项一致性核验无不符：四键P/z/O/y、每键9个边界均精确恢复、0冲突。`DocumentController.replace`包含时间依次68.6/64.6/69.6/66.2ms；其中`history.begin/end`区间并集44.4/42.8/46.6/45.5ms，三次`rootGraph.serialize`区间并集33.3/34.2/38.9/32.3ms。每键结构均为`replace → begin[serialize] → end[serialize] → serialize`，末次在end返回后耗时11.1/12.0/13.5/9.9ms。这些是同一嵌套同步区间的不同视角，不相加、不作CPU差值，也不与另一轮语义或LoAF事件配对；未记录参数/结果，不能证明三次快照等价或冗余。`edit/amend/OptimizationRevisions.observe/widget.serializeValue`没有观测调用，不等于对应全部底层成本为0。菜单、文件控件和面板重叠首失败保留；见`.local/validation/M-185215-page-only-input-stages-four-independent-first/analysis.json` SHA`0da5b12bbde8b1da0350e87437f88a8e1038d3e1564e38bd149c5bd4b947a404`。该系列无语义观察、不是正式100ms验收。
+
+另一次680×720/150%/DPR1.75四owner批冻结45原件，独审逐项核哈希并实际查看6图。八个固定值、两条线及Graph→Canvas恢复保持；原生保存18,851字节/SHA`3327cbfed827cde799cb575d390ada1b91cd65945398706f09fafd5cf706d293`与原f88完整无忽略JSON仅viewport x/y不同，全部nodes、slots和未知字段保持。41保存完成及43页面reload采样标题clean；这不抹去旧39a保存dirty链。A End实际50、Home后6；B End及标作Home+6的快照实际均38，不能写成6。两表反向Tab回非编辑预览，不是编辑光标恢复；B追加Return后仍未编辑，是保留的重入缺口。两LLM稳定选择6/6、距hint16px；正向Tab仅有即时屏外按钮快照，未留稳定端点，不判延迟显露通过。仪器面板遮挡和全部控制首失败另列，不称纯产品完整矩阵。见`.local/validation/four-owner-185215-680-z150-independent-first/review.json` SHA`e6395e64922820905490166e6dffdac131ae7576176661c19a8c5b5742e5177c`。
+
+重入源码定位到`table_inline_editor.mjs`：原cell键盘监听仅接受`event.target===cell`，而Tab返回的是独立preview DIV；既非ARIA文字匹配失败，也非finish移除监听器。候选只允许未编辑、未composition时所属TD或精确preview响应Enter，后代按钮/引用、其他实例和活动Enter换行不扩展。真实绑定监听器的8个新回归在旧源首轮3通过/5失败；修后连原Tab生命周期及键盘合同首次18/18。源码、测试及自有provenance已冻结交独审，完整检查由主代理协调，尚无新候选实际浏览器验收；见`.local/validation/table-inline-preview-enter-first/handoff.json` SHA`93ebadd4a2b0f405db716d5b0c9d2121cfff11af1098f3e7cbdf5bb03d27083f`。不把有界DOM模型当真实Tab/IME、两实例布局或保存重开通过。
+
+原生隐藏绘制仅完成只读可行性核查，报告`.local/validation/native-hidden-render-lifecycle-current185-readonly-first/report.json` SHA`f2551d3ea793c7005c39a47d0daf24c9c3d8ece863750db27b9f52d2198ca8f6`。当前Canvas主要由CSS覆盖原生图；`stopRendering`不取消已排队rAF/timeout，直接stop/start存在旧链残留风险；`pause_rendering`又不能覆盖直接draw，手动FPS与替换canvas的连续生命周期亦未证明。draw同时更新可见节点、slot/widget位置与禁用状态、预览和DOMWidget回调，不能按纯像素工作整体停掉。237帧LoAF中具名native render回调36.1ms仅是该帧包含时间；本地asset/source-map匹配也不是该历史页面缓存证明。尚无可安全产品化的协作所有权/恢复合同，不实施暂停或声称其能解决100ms。所有方法、交互和只读结论均不增加真实IME、推理0/44或M6通过数，仍不发布。
+
+
+### 066ddc重入与四键限定复测
+
+前述Enter候选随后完成独审和一次完整检查，主测试341通过/3既有跳过、业务505通过，145模块/215产物，build `066ddcb26aefeb0d238c31792c57a3672141325c248ca2137b8b252df5edabfd`；交接`.local/validation/table-inline-preview-enter-independent-first/handoff.json` SHA`f8d226107ee66bb61ad9bd5e21136d1e3fe8f743041bc5562ffa607e9fbae9a2`。8263已运行该未提交候选，523产品/215产物及原21诊断夹具沿用固定包；最小运行时独审55项无不符，不重复声称全包重哈希，见`.local/validation/inline-enter-8263-preparation/runtime-independent-minimal-first/report.json` SHA`6dc879b14facd33b428ffa42516d9fb40fb7fdca72fd3279e58cb2be2b2ed508`。旧pause binder不适用于新宿主，没有据此暂停原生绘制。
+
+`.local/performance-actual/four-owner-066ddc-680-z150-preview-reentry-first/`冻结21原件；680×720/150%/DPR1.75下，两表从非编辑preview按Enter重入后均稳定编辑并取得实际6/6，等待1126/1114ms；两LLM稳定及反向返回也为6/6、距hint约16px。但两表稳定图的文字/光标区域被测试诊断条遮挡，DOM几何不能补成无遮挡视觉通过；正向Tab只有即时屏外端点，不判持续失败或显露通过。八固定值/两线保持，原生保存与f88完整JSON仅viewport x/y不同。独审`.local/validation/four-owner-066ddc-preview-reentry-independent-first/review.json` SHA`a371e87902fcfd57fb0b0b42d716edd0212b3496b2cfe6800425971089b2d5fa`支持限定重入合同，不关闭完整矩阵。
+
+该批另建独立tab95，看到加载页、空build输入及未开始的两观察器，随后恢复同名保存工作流、八值/两线和clean标题，支持新document恢复；新页实际731×411/DPR2.625，不与680×720/DPR1.75混组。对旧185批，两次reload工具返回后仍保留此前observer状态，不能证明创建新document：撤回该推论，但43快照clean、八值/两线及原生文件比较仍成立。修订附录`.local/validation/four-owner-185215-680-z150-independent-first/reload-document-identity-limit-addendum.json` SHA`eab069e455f80350990f327cd13a7791834686e4e6d59d46903a945c16725e85`，旧43/44及所有首错不改。066的新证据也不消除39a先前dirty现象。
+
+原M79ecd/834d的另批四键P/z/O/y均完成，实际1132×638/DPR1.7500000521540642、Canvas50%；editing为217.4/163.8/176.8/172.1ms（中位174.45），blur→display为143.8/134.6/148.0/136.0ms（中位139.9），8/8仍超100ms、无缺测或IME。独审`.local/validation/M-066ddc-page-only-semantic-four-independent-first/analysis-first.json` SHA`322f366a1b4cd05c14a379df79429a931044f36befaa1d32d4c734428f311b31`；最终21原件冻结及保存补件`freeze-and-save-addendum.json` SHA`a795332939bdc1c209cfd495f63360d11ba294c59978d258cbbd8505650ffb50`。clean保存的2,400,219字节文件SHA`5d4efee04447c21e556b6215b4794f18823c20fab5a50bc035da793cc306fafb`中10000格仅目标O/y两值变、其余9998不变；完整原生JSON仍有949差异，含规范化、slots表示、order及元数据等，全部另存，不能写成全图只有两处变化。本M系列没有重开。
+
+8258/8259及8262按精确owned身份已停止，日志、失败原件和保存文件未删除，见`.local/validation/owned-host-stop-8258-8259-first/report.json`与`owned-host-stop-8262-first/report.json`。退休与非随机执行顺序改变资源条件，不能把066数值下降归因于Enter修复，亦不作统计改善、正式DPR1/50键或100ms通过。纯产品8264目前仅准备，用于补无遮挡视觉，尚未启动或取得结果；真实IME仍0、真实推理0/44、M6阻塞、不发布。
+
+### 8265准入与首次行扫描诊断
+
+用户授权恢复下一阶段后，冻结的8265准备包只执行一次check-only、prepare、start，分别通过fresh-preflight、prepared-not-started及runtime-readonly-audit；未另跑audit phase或覆盖目录。`table-row-scan-8265-root-admission-first/review.md`记录root手工准入，manifest不改。独立静态报告`table-row-scan-8265-admission-independent-first/report.json` SHA`68c4c3c4b452286d7a793300aedff090f198c0b0bf5541cbf9880ca674e34aad`核固定pins、523产品/215产物/23夹具/29served；运行时独审`table-row-scan-8265-runtime-independent-first/report.json` SHA`1495146f889fec10acf26662d4eacfd1ea5edee067f53d3ffe89504365a929ad`实际核父子进程出生身份、marker、前后文件哈希、34次只读GET、CPU及两点空队列，0失败。所有目录位于`.local/validation/`。这不是浏览器缓存、原生图内容或产品性能通过。
+
+内建浏览器tab98原生Ctrl+O载入同一原M79ecd，进入创作画布，SaveAs `M-row-scan-8265-first`后title clean。固定066ddc产品，实际731×411/DPR2.625、Canvas50%，不是旧1132×638/DPR1.75 N4或正式1920×1080/DPR1/50键。两表各500×10、300卡及原始目标已核，所有旧观察器待机，native pause从未绑定或Arm。只启动新行扫描一次，A目标Enter→Ctrl+A核对原文→单个P；未使用全局鼠标键盘、合成input或真实IME。
+
+原始下载`row-scan-raw.json` SHA`c10d9daba2102140d31a18afcdb3743e1bf6853792fd93652c22bc9fde4f6fbc`：owner1，complete true，A calls1/uniqueRows1，B calls0/uniqueRows0，rejected空、failureReason null，post-dispatch-task自动结束，restoration.exact true且conflict null。它仅支持本次dispatch内被截获的精确`td[data-field]`查询分布较窄，不识别refreshStates或调用者、不证明返回单元格数、不排除其他选择器/遍历，也不测CPU/输入延迟。不据此删除fallback、缓存或减少live serialize，更不宣称100ms收益。
+
+证据目录`.local/performance-actual/table-row-scan-8265-first/`保留冻结plan、before/ready/selection/input/save DOM、原生前后JSON、原始下载、全比较、截图、operator-journal及点时postflight。原生before SHA`dd2c84370e1d0f200a52920f24f8a956c085df073cc610ef3510a30fe21cce79`，after SHA`9f67e044f81710f6e98e872c543ec5ce64b4c8f29657abd86a4a3a41743e7117`。原M→before10000值无差；before→after完整JSON仅两处table_data字符串变化（位置及具名表示），各自解码均是A预定值变P，9999格及其余节点/连线/元数据不变。Save后title clean；本批没有重开，不能据此关闭历史dirty问题。postflight仅8265 queue/system_stats两次GET，200、CPU、空队列，不证明全程空闲。
+
+所有首次控制失败保留：加载DOM超时、角色按钮定位失败、菜单动作后的dialog超时和误展开旧面板、文件Enter等候超时并重置工具、file click等候超时、document.getSelection不可用。后续DOM显示固定面板重叠，不能把此前误点唯一归因于坐标/DPR；页面Tab/Space后成功选文件，未重复Start或P。错误文档路径/可选报告读取亦记于operator-journal。截图原名`.png`实际JPEG、731×411，有诊断条遮挡且B不在画面内，只作有限操作证明，不算全界面验收。
+
+没有新增产品补丁。下一最小定位对象是同一输入事件内persist入口到DocumentController.replace的边界，以及handler返回后的帧阶段；不同批次包含时间不能相减拼出剩余成本。按用户要求完成此最近阶段后暂停，后续同夹具计时、两表两LLM剩余视觉/保存、手动真实IME、真实本地推理与M6仍待完成。旧066八端点全部超过100ms的失败不被本次结构计数替代；真实IME0、推理0/44、M6未通过，不发布。
+
+阶段独审已完成：`.local/validation/table-row-scan-8265-evidence-independent-first/report.json` SHA`dbf9587f30aa788e30fd2003c23193f85f18c53162d43be3ee67f3d1628a4f16`，40项证据一致性检查无失败；独立完整JSON比对确认上述数据范围。原始目录20份文件冻结清单SHA`7ca6fec886e7a1c191829022c9e082a10c2cc91dff71851b3cad509b61e3d672`。审核只核截图格式尺寸、不计完整视觉通过；其自身只读路径误查与一次wait工具未派发亦保留。observed/footer/refreshStates属于replace.afterWrite内，后续分段不得将其重复当作外层遗漏时间。此处40项不是产品用例或M6通过数；本阶段结束后暂停。
+
+
+### 1752 prepared 输入候选与性能暂缓
+
+Deepseek 批次离线交付已收尾：58 项核验无不符，13 个登记 CLI PID 均未运行；未完成产品验收交回当前模型，未再启动 Deepseek。报告：`B:/GithubProject/CreativeStudio-CLI-Review-20261026-130048/current-model-closeout-20261026-first/report.json`。
+
+prepared 输入候选完整检查退出 0：主测试 356 通过、3 既有跳过，业务 507 通过（`.local/validation/table-prepared-input-first/03-full-check-first.log`）。随后仅合同注释改变源指纹，8266 首次 prepare 因源/build 不一致拒绝，失败保留于 `.local/validation/prepared-input-8266-first/prepare-failure.json`；重建含类型检查通过，指纹由 56c7 变为 1752，215 产物仅入口身份变化，其余 214 个产物字节不变，未重复完整套件（`.local/validation/table-prepared-input-comment-rebuild-first/`）。8266 CPU 隔离宿主只读准入 133 项无不符，核 523 产品、23 夹具、215 产物及 42 次 GET；报告 `.local/validation/prepared-input-8266-runtime-independent-first/report.json`。
+
+三轮同 M/834d 观察器证据分别位于 `.local/performance-actual/prepared-input-paired-first/`、`.local/performance-actual/prepared-input-paired-second/`、`.local/performance-actual/prepared-input-paired-third/`。前两轮首控制失败，均 0 输入、0 端点；第三轮两组各 4 输入，editing/blur→display 独立中位如下，全部 16 端点仍超 100 ms。
+
+| 独立诊断 | DPR | editing 中位 ms | blur→display 中位 ms |
+| --- | --- | --- | --- |
+| 066 baseline | 1.925000089 | 200.80 | 162.50 |
+| 1752 candidate | 1.750000052 | 190.50 | 148.60 |
+
+DPR 不同，不作配对差值或因果提速结论；两 rAF 边界仅表示绘制机会。保存前后仅两表目标 O/y 的位置/具名表示及 viewport.x 共 5 处外层差异，不能据此判重开或全视觉通过。85 份原件及首轮离线审计 6 项错误假设全部保留；修正审计 297 项无不符，见 `.local/validation/prepared-input-evidence-closeout-first/second/report.json`。用户明确性能暂缓、转入两表两 LLM 剩余交互验收；继续仅用内建浏览器，真实 IME 待手动配合，M6 未通过，不发布。
+
+<a id="interaction-1752-history-save"></a>
+## 1752 纯产品四实例历史、保存与重开
+
+2026-10-26 按用户最新指示暂缓性能，推进下一交互阶段。纯产品8267固定1752ede4…，523产品/215产物、CPU/offline/loopback、0诊断fixture经运行准入；使用原F6 100%夹具（65ae4671b8fc4fb4079fe27283cd400803106a708d348927fa1921eeaf432566），主交互条件1280×720/DPR1.75、Canvas100%。没有生成或真实IME操作，全部UI仅用内建浏览器。
+
+- 两表首行prompt与两个LLM处理要求分别追加ASCII后缀；四owner均完成失焦后原生Ctrl+Z/Ctrl+Y，一段连续输入可一步撤销/重做。A另完成Undo→新编辑→Redo，旧分支未复活。最终后缀IA2/IB/IC/ID、其余四字段、两LLM输入来源与线3/4均保持。
+- Graph模式下创作画布hidden且display:none，返回Canvas后八字段/两线恢复；此不等于四owner Mute/Bypass、删除Undo和完整生命周期通过。
+- 首次普通保存title clean。最终SaveAs和后续Save的旧tab99 document.title持续留星，但工作流标签显示close图标且磁盘保存件相同；内部dirty模型未测，不称数据丢失。新tab100经过显式原生打开保存件、Save和真实reload，八值/来源/两线保持且title clean。新页成功不覆盖旧页标题失败。
+- 完整native比较保留所有字段：before→首次保存12个raw路径差异，对应预定正文、表格revision/stamp及viewport；另存为17项身份/版本分叉，表格内容不变。最终SaveAs、Save、修正后的重开保存及reload后文件逐字相同，SHA256为0be96ab8cd812f2113a3e7218d86b2f12a4adba6bb49f7dd9a5e3cb7bab8ea73；四节点、槽位、两条完整原生连接与B表空生成结果保留。
+- 首次键盘另存为意外到覆盖确认，取消后通过页面点击完成；未确认覆盖。独审发现5份重开采集仍被旧tab闭包绑定，原件保留并排除；随后采集显式传tab100、记录tabId/URL，reload初态0cards+splash证明重新初始化。
+- 视觉范围有限：B退出编辑后的截图仅显示提示词字段的一部分，部分LLM底部控件与已有提示条相交；不关闭完整溢出/菜单/九组视口或IME门禁。
+
+原始目录：`.local/interaction-actual/four-owner-1752-history-save-first/`；107件原件清单freeze SHA256为b42816fecfba21f4913f46d502f33d97e302f5c929430fbe41c693e4a36698a4。独立核验位于`.local/validation/four-owner-1752-history-save-independent-first/`，不得把核验检查数量当产品用例通过数。性能宿主8265/8266精确归属、空队列确认后退休；8267保留复查，旧99及新100保留，临时视口已重置。
+
+该有限阶段完成归档后按用户要求暂停。下一优先为旧页标题同步及余下模式/删除/菜单交互；性能按用户要求暂缓、真实IME待人工、推理0/44、M6未通过，不发布。
+
+<a id="interaction-1752-delete-rebuild"></a>
+## 1752 删除撤销与重建后编辑
+
+继续推进时暂缓100 ms排查，不更改性能预算或抹去失败。当前候选仍为1752ede43647b125b6ebac4368569bdb3f69ce21048421cff26f90c2765534d6，产品源码与构建未修改。8267的新鲜只读核验确认进程身份、523文件聚合398080…、215输出及宿主指纹保持，健康兼容且队列为空；生产8000未操作。
+
+本轮IAB tab101原生打开同一F6文件，SHA256为65ae4671b8fc4fb4079fe27283cd400803106a708d348927fa1921eeaf432566。实际1280×720、DPR约1.75。A表在Canvas100%删除后，只剩2/3/4与线4，LLM A来源随后为空；Undo恢复八字段及两线。B表屏外标题点击失败保留，随后使用页面“适应”得到37%，再删除B，仅剩1/3/4与线3，稳定后LLM B来源为空；保存件完整原生连接与目标input3同步移除，Undo恢复。该37%子组不替代100%或九组视口验收。
+
+两表重建后，分别在首行提示词连续键入独立ASCII后缀LIFEA/LIFEB并Tab提交，另一表及两LLM指令保持。失焦后的原生Ctrl+Z稳定端点分别恢复原八字段。随后Graph/Canvas往返、原生保存和实际reload恢复四owner、八字段、两个原始LLM来源及两条线；31初始化采集title为ComfyUI且零卡片，32/33为稳定恢复。最终标题clean，不能据此关闭旧tab99的留星失败。
+
+完整native比较不只比正文：08基线→27恢复件有5个标量差异，3项为适应视图的viewport，另2项为A提示词的revision从1到2及stamp.original加入已有SAVE-F6-A正文。原夹具和08已存在正文/stamp不一致；变化与OptimizationRevisions.observe及workflow_history恢复观察投影规则相容，但没有现场调用trace证明具体触发原因，保留开放差异，不声明全量JSON完全回滚。27、30、33文件逐字相同，SHA256为33cf6173b67e814ff6e4ddab970f219838604c0acabf7b86aa7c1ec982d561cd。其余正文、未知字段、完整槽位与线3/4保持，生成结果为空。
+
+当前候选的Mute/Bypass仍未执行：Canvas卡片右键不提供该菜单，原生节点列表的定位仅居中；点击原生DOM内层表格标题未建立唯一原生选中态。当前页面接口没有可用的坐标指针入口，未使用全局鼠标键盘、未写浏览器运行时状态、未在选中态未知时发送模式键。历史1269模式证据单独保留，不能冒充本候选通过。
+
+旧tab99标题差异经只读源审登记upstream-limited。宿主1.53.10的SaveAs保存raw对象，标题依赖reactive proxy缓存；同版本、不加载产品的真实Vue/Pinia离线三场景支持该机制，17份旧证据hash及7份native源码匹配。现场DOM不证明内部dirty或唯一根因，未找到安全公开API修复入口，因此不直接改title、清dirty或修改宿主。详见`.local/validation/title-star-readonly-first/`，report JSON SHA256为9d6183ff64c9d59c31cc560406870561135bf4e2a96360000d659edebc21477c。
+
+首次落盘前复制ENOENT、B屏外点击、A即时Undo断言失败均保留；A的下一稳定采集恢复正确，不能用它删除首失败。09删除截图仍显示旧合成帧，与同次DOM不同，10稳定图另存；17的B来源暂未清空，18稳定来源为空。最终34截图可见四owner，但底部提示条仍与LLM下部边缘相交，不作完整溢出通过。原始目录`.local/interaction-actual/four-owner-1752-lifecycle-first/`冻结45件，清单SHA256为92acc24b4b145636a27b4afda29c06ac3756fac1ec06bfbda74ae835f086adbe；独审目录`.local/validation/four-owner-1752-lifecycle-independent-first/`。运行与模式路径核验在`.local/validation/four-owner-lifecycle-scope-first/`。
+
+独审125项证据一致性检查通过，45原件及冻结清单保持；这不是125个产品用例通过。独审report JSON SHA256为801f0fc83e3e335ed2a007099a04625ac8539bd732ea2b0013b6c421222d24ce，保留metadata开放差异及全部即时失败。此次仅补齐已执行子项，不是完整生命周期或M6通过。待完成项仍包括上述metadata差异定位、四owner模式、菜单边缘/手动pan与视觉缺口、人工真实IME、联合安装、本地44次推理及其余累计门禁。性能仍未通过但暂缓，未发布。
+
+### 后续派生元数据解释与固定本地推理准备
+
+固定 1752 源码及原 65ae F6 的离线实验表明：A 提示词正文已经包含 SAVE-F6-A，而旧 stamp 未包含；真实 OptimizationRevisions.observe 恰好生成上述 revision 1→2 和当前 stamp，再次 observe 幂等。真实 workflow history 包装器在 ready、同 document、clean=false、restoreView=false、live A 存在的受控模型下，恰好复现 native08→27 的两项派生差异；clean load 或 live A 缺失时不走同一路径。因此将该差异登记为已验证条件下的派生元数据校正，不需要产品补丁。没有现场 trace，具体浏览器触发链仍未证明，原五差异和全部失败继续保留。报告 `.local/validation/lifecycle-revision-causal-first/report.md`，result JSON SHA256 `ed109bcf562c86cdd7da027d6c58ed09af780b53692fb31e553cc820bde5af98`。
+
+本地阶段提交 c02faf52f6bd4375c576770f756ee30b65a15c7a 保存此前 35 文件的输入、历史和焦点修复，没有 push/PR/release。以该 commit 创建 `.local/eval-c02faf-first` 固定旧/新独立目录和端口 8240/8241；prepared.json SHA256 `99d0801761574c7a6ad4863fddbf0fc34d8be6c8ab7f2d259e0c59737fce95ce`。十组旧/新请求及八份公开 PNG 已按模型请求、内容哈希和精确媒体路径差异完成工程审核，固定 44-slot run `.local/local-run-c02faf-first/run.json` SHA256 `ea100a48e66eeff71d1b74aa0d32bd26bea6764ab0af547f630964de87bf6edc`；20 次 smoke 包含其中，不另加次数。首次素材目录已存在拒绝保留，未覆盖文件。Ollama 仅准备独立 launcher，GPU/Ollama/推理均未启动。当前 GPU 显存占用约 9.2/16.3 GB 且存在 Unity 使用者，测试窗口等待用户答复；未关闭用户程序，0/44 不变。
+
+<a id="interaction-dock-55d647"></a>
+## LLM 模型选择框的资产库遮挡
+
+1752 / 8267 的原 F6 100% 菜单边缘复测在 1280×720、DPR 约 1.75 下，分别从两 LLM 的处理要求经 Tab 到模型选择框，Alt+ArrowDown 展开并 Escape 关闭。模型仍为本地 Qwen，八字段保持，菜单向上展开。LLM B 关闭后的选择框虽然持有焦点，但其左侧/中心实际命中资产库 NAV/按钮；记录 15 的 select 为 [613.286,664.077,853.286,704.000]，dock 为 [586.310,653.792,749.690,705.238]，稳定截图 16 证实遮挡。原件冻结于 `.local/interaction-actual/four-owner-1752-menu-edge-first/`，manifest SHA256 `14e133487b3c30d69d753ef3fe113284e3a8904aa722801459a79b3001eb9d9f`；未执行两表菜单，不计四 owner 菜单矩阵通过。
+
+窄修复读取现有 assetLibrary.dock 的有效直接子节点矩形，将 dock 与 status 分别按 top 降序避让，并在 HUD 调整后的同一临时视口中重算底部遮挡。保留每帧单读、16px 间距、严格 editor 全容纳、可信 Tab 的 oversized leading-region、IME/手动导航取消、内部裁切与读后 lease 检查；不写焦点、文本或历史。旧源码 68 项定向为 60 通过/8 失败，原 59 项全通过；候选 68 项全过，首红不覆盖。完整 npm run check 首轮退出 0，构建 `55d647679114bd42c4223a047cef2495fab86aa2a285e224eec9e77a1bff177a`，独立源码审查无阻断。日志 `.local/validation/dock-focus-first/`，独审 `.local/validation/dock-focus-independent-first/`。此处仍是构建/代码证据，实际同夹具复测另记，100ms 不测、不宣布通过。
+
+实际候选复测：纯产品 8268 首次准备/启动后，独审63项核验固定523文件、215产物、4个实际 served 模块、CPU和两点空队列，报告 `.local/validation/dock-8268-runtime-first/report.json` SHA256 `c639066ff68dc531f1a75f8d00c83ec3c03146d32d709485d14bacd6927b07c3`。IAB103 原生打开相同65ae夹具；初始01为731×411/DPR2.625，保留且不纳入同环境比较；页面 Ctrl+0 与已登记视口恢复后02起为1280×720/DPR1.750000052、Canvas100%。沿同顺序分别对两LLM执行Ctrl+End、两次Tab、Alt+ArrowDown、Escape；08/14截图菜单向上展开，09/15/17关闭后焦点回对应SELECT、qwen不变。16记录原B三横向点均命中SELECT；17稳定截图可见选择框完整，距status约15.9999886px、dock约57.7499886px。八字段、两LLM来源及线3/4保持，仅支持这一环境的有限交互结果，不外推九组矩阵。
+
+后续两表菜单准备的18首次Ctrl+O未取得filechooser，pending promise超时导致工具会话重置；原件保留。重绑同103、切到非编辑控件后原生chooser成功，19/20/21八字段仍相同；22读取owner1为空，下一新鲜AX为about:blank，原因未知，不推断数据丢失。未继续操作空页，两表菜单及55d647保存/重开尚未完成。`.local/interaction-actual/four-owner-55d647-menu-edge-first/`冻结29原件，manifest SHA256 `9dbaca5fa28597bff341bda3972f820977f095eb213db76385669ba14c2420aa`；独审 `.local/validation/dock-menu-evidence-first/report.json` SHA256 `fd4c8455019552465e95bd106da4dba1a21bdf75cc691a67d675ef292d2fd073`。完整检查为主365通过/3既有跳过，业务507通过，不是产品或M6用例通过数。
+
+用户随后确认GPU测试窗口。重新读取RTX5080状态和桌面驻留见 `.local/validation/local-eval-window-confirmed-first/`；deviceUsed包含其它进程，WDDM进程显存为N/A，不称显存独占，不修改配对阈值。独立审查发现原Ollama启动可能清理共享模型根，因此v1准备保留且未执行；v2在 `.local/validation/ollama-local-eval-c02faf5-second/` 真实复制六blob和manifest，共6,550,826,638 bytes，源/副本重哈希一致、非hardlink/junction，并配置NOPRUNE=1。v2首次check-only和明确启动均exit0，独立18268空驻留服务归属已核；原模型根及runtime/prepared/run保持。到本条记录时尚未推理，0/44及M6门禁不变。
+
+### GPU 窗口确认后的启动失败与 instrumentation 修正
+
+固定 c02 的首次启动误将非 LISTEN 的对外连接视为端口占用，第二次在启动子进程的版本校验阶段因隔离 PATH 缺 Git 退出，第三次进入真实宿主导入后，被隔离器对 Triton 可选 `rocm-sdk path --root` 探测的异常类型中断。三次均未提交推理；14 个启动原件清单为 `.local/validation/local-eval-c02faf5-launch-first/three-startup-failures.json`，SHA256 `7300aad5330cfb6bbbca0dc7912995f3a40f18b80d3fc61e25d9def61e74aa28`。8240 独占 loopback bind 成功，8241 实际 WinError10013 单列保留，没有终止用户的连接或修改原定义。
+
+本地提交 `b763aaf6e804d3196f0440388a520fe379c5392b` 仅修改 runtime hooks 和对应测试：限定 Windows 精确探测参数、固定 Triton 文件/函数/源码哈希，并证明所有相关搜索目录均无该程序后，以 FileNotFoundError 表达缺失；始终不执行子进程，其余请求仍拒绝。新增首红保留，定向文件29/29通过。独立进程实际导入 cuda_malloc、comfy.utils、execution、server、nodes、model_management、model_patcher 成功，只有一次已核验缺失探测、0未审拒绝，没有构造服务或加载模型；报告 `.local/validation/rocm-audit-import-first/report.json` SHA256 `8a43fcb2bae2396d4bc72a378a631b624a766146c38f2119c2a243c35f678497`。这不是完整启动或产品验收通过。
+
+新的 `.local/eval-rocm-fix-first` / 8270、8271 准备成功，40项实际捕获依赖未变，20份捕获及 cases 原字节保持，44槽顺序不变；新ID单列，不把首次20次 smoke 另加进44次。8270 实际启动服务器后准入超时：固定宿主将 `--temp-directory` 追加 `temp`，但测试器仍期望旧的单层目录；旧表格 QwenTransport 又由 service.local_transport 延迟导入，测试器提前要求其 hook 已安装。真实 identity 的 root=null、temp/temp、缺 old_table 和首次超时全部保留于 `.local/validation/local-eval-rocm-fix-first/host-slot-01-first/` 与该 eval 的 baseline/evidence。修正仅涉及测试器，不修改业务、模型或请求参数。
+
+复核该宿主没有 slot、arm、dispatch 或输出，原生队列和 owned Ollama 均空后，明确退役其 listener27132和launcher129056；conhost44392仅等待自然退出。三者退出、8270可绑定后，备份并清理精确死 owner 锁，未删除日志或终止 Ollama/8000/用户进程；记录 `.local/validation/local-eval-rocm-fix-zero-retire-first/retire-first/`。用户手动恢复8000后只读确认队列0/0；当次GPU为10486/16303 MiB、3%，不据此宣称显存独占。到此仍0/44，后续新快照单列；100ms继续暂缓、IME待人工、M6未通过、不发布。
+
+### 原夹具的首次真实配对采集
+
+本地提交 `60a86bfea4a3bf258bfca400699387170ccbd8dc` 仅修正上述测试准入及对应反例，完整定向34/34通过。新 `.local/eval-admission-fix-first` 的8272/8273实际准入成功，prepared SHA256 `738eff616ea2358267edfcc3e5b8324c33a67b0cb11130f33b1aef02c7f00128`，固定 run `.local/local-run-admission-fix-first/run.json` SHA256 `0c512630e066a07813fce8517438e566b00cf53a8bff260a3dccb397e5cb4121`。40项捕获依赖、20份捕获、cases原字节及44槽顺序不变，只有测试器、隔离目录/端口与新请求身份改变。
+
+首对 LOCAL-TEXT-001 的旧/新结果均 captured、blocks=[]、dispatches=1、非ledger reuse，实际模型请求一致。Slot1/2 result SHA256分别为 `beaf4b11cb196599c1a3f1950164097da18e52e996dda8cc30f3e69cc80d33af`、`f903bc65ec9afb3f339845e350bd375c55e17924d6ab88c6e8906a8c937041d5`。旧输出122字节，新输出81字节；Agent初审均保留蓝色陶瓷杯、木桌中央、杯柄朝右、无人限制并消除重复。旧输出英语、新输出中文，未增设语言硬阈值，也不冒充人工盲评。质量分数与人工签名仍null。
+
+首对独审报告 `.local/validation/local-eval-first-pair-review/pair-independent-corrected.json` SHA256 `78ae08be0ce0af79a5e5cd086c9431310558a3f94896452baadb184453806205`：82项记录核验通过，18个登记artifact、20份原件哈希保持。首次审计自身将文件数误计为22而失败，其报告及更正依据保留，不将其作为产品故障。两次记录耗时68009.0917/16489.1619ms，差异主要在模型加载和prefill；cold只证明Ollama `/api/ps`为空，不证明系统/编译缓存等价。所有GPU process byte为null，device-wide峰值包含其他进程，不作为模型独占内存或单对产品收益结论。
+
+两个已完成宿主均退役并保留锁原件。Slot2首次退役在任何终止前拒绝：PowerShell把未加引号的 `1793012265.2066016` 传成 `1793012265.2066`。原失败SHA256 `7729f2f2e5d9fb8c2940b9fa0f669274fe9279de7d4df14ae13d59a43428ff99` 保留；相同脚本与plan复制至独立second目录，精确字符串参数重新核验后成功，没有放宽身份比较。后续命令使用参数数组及 `repr(createTime)`，防止shell数值转换。Slot3 LOCAL-TEXT-002旧版随后也captured并退役，当前3/44，继续固定20次smoke；产品/人工质量/M6未通过，未发布。

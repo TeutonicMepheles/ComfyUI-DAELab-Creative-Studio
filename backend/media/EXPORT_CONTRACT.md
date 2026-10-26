@@ -1,0 +1,50 @@
+# CPU export integration contract
+
+This is M5 implementation preparation for F-CAN-032/033/034 and TC-CAN-036/037/038. Synthetic tests do not establish real host or full TC-SYS-032 acceptance.
+
+## Assembly
+
+Create one `ExportService(core.jobs, core.assets, native_queue=queue)` with the existing shared CoreServices and ComfyNativeQueue. Pass it to `canvas_nodes.register_routes(server, export_service=service)`. `register_nodes()` stays unchanged. Importing modules registers nothing. A different second service is refused; repeated registration of the same service is idempotent. Missing injection raises an explicit unavailable error from VideoEdit, rather than bypassing the ledger.
+
+The queue is the existing adapter with asynchronous `validate(task_id, graph)`, `enqueue(task_id, graph, owner=request_id)`, `query(task_id, owner=request_id, kind='video')`, and `cancel(task_id, owner=request_id)`. No new executor, worker or scheduler is created. CPU render is performed only by the native VideoEdit node. Core assets must configure input/output/temp and frozen storage; MKV and M4V remain accepted alongside the original formats.
+
+## HTTP DTO
+
+All writes require `Origin` exactly matching the current service origin, JSON content type and a maximum 2 MiB body; credentials and caller-supplied output paths are rejected.
+
+- `POST /daelab/studio/media-exports`: `{requestId, edit_data, connections?, source?}`. `edit_data` is the original version 1 edit object or its JSON string. `connections` contains only the original `assets`, `videos`, `images`, `groups` values. `source` accepts `documentId`, `nodeId`, `tableId`, `inputDigest`. The optional client `inputDigest` must be 64 lowercase hex characters and is immutable correlation, separate from the server's frozen-input fingerprint. HTTP only freezes inputs and enqueues one native VideoEdit task; it returns HTTP 202 with the task DTO, not a completed video.
+- `GET /daelab/studio/media-exports/{request_id}`: read SQLite facts only.
+- `POST .../{request_id}/cancel`: `{expectedVersion}`. Pending cancellation is final. Active cancellation first records intent; only proven owned queue removal or the stopped owned renderer/history confirms cancellation.
+- `POST .../{request_id}/recover`: `{}`. Observe the original task or verify the durable fetching receipt. This endpoint never enqueues or renders and never accepts replacement inputs.
+
+The task DTO is `{schemaVersion:1, requestId, state, version, fingerprint, editFingerprint, native:{promptId,nodeId,listIndex}, providerTaskId, cancelRequested, result, errorCode, source, attempt, output, recoveryAction}`. `result` is the common ledger asset receipt with stable `asset_id`, `reference_id`, SHA-256 and byte count; `output` is a normal `{filename,subfolder,type:'output'}` descriptor only on success. There is no task-state localStorage or secondary JSON ledger. Preview/progress remains transient; the durable state is SQLite.
+
+The caller generates one request ID for one deliberate export operation and reuses it for duplicate clicks and transport retries. A new deliberate retry/rerender uses a new ID. Reusing an ID with changed editing inputs returns conflict; reusing it after input files change retains the already-frozen input bytes. `fingerprint` covers the actual frozen inputs and source; clients must bind the response to their captured edit revision and owning view instance, then recheck current editing data before exposing a current result. This backend does not mutate native workflow data or revive an obsolete result.
+
+Prepared snapshots carry `preparation:'ready'`. After a preparation failure, only requests with validated document/node scope and client input digest may reserve a `preparation:'rejected'` snapshot. It contains only correlation digests, owner/native identity and the fixed `export_input_rejected` code, with no executable clips or copied error body. Atomic create-or-get reserves the identity; only that call's newly created pending rejection is cancelled by optimistic version check. A concurrent normal snapshot always wins over the rejected writer, without cancellation or replacement. If rejection wins first, every later prepared writer observes it and must not enqueue.
+
+A rejected POST response may be lost: querying/recovering the same ID returns the persisted terminal rejection without execution, after which a new export remains an explicit user action. An interruption between creating the rejected record and cancelling it leaves a non-executable pending rejection; ordinary query/recovery never finishes or replays it. The owning user must explicitly cancel that original record before beginning another operation. Malformed scope/credentials are rejected before any such fact is written. Native validation failure after a normal snapshot exists does not replace or cancel that snapshot; it requires inspecting or explicitly cancelling the original identity.
+
+## Native node lifecycle
+
+Five serialized inputs (`edit_data`, `assets`, `videos`, `images`, `groups`) and two outputs (`video`, `video_ref`) are unchanged. Full edit/material data, including unknown fields, is retained in the snapshot. Direct legacy UI native execution derives an identity from the pinned host's ExecutionContext `(prompt_id,node_id,list_index)`; nested nodes and list items therefore remain distinct. HTTP queues use one `save` node at list index 0 and a reserved `__creativeStudioExport` marker in `edit_data`, verified against that exact context and ledger fingerprint. Caller changes or foreign execution contexts are refused.
+
+Native execution still returns `VideoFromFile`, the same `/view` reference, `ui.videos` and the exact `ui.edit_data` value; `ui.creative_studio_export` adds the ledger DTO. The pinned host only includes node ID for `not_idempotent`; `fingerprint_inputs` also returns NaN so a new native prompt cannot silently reuse a previous render. Redelivery of the same completed native identity reads its verified original asset.
+
+Input files are frozen before execution. Rendering writes an owned unique partial file. A completed render is installed without overwriting any existing final file, registered with request/fingerprint/native provenance, and recorded as fetching with its receipt. Success requires the common full-media-decode validator. Failure removes only the owned partial file; an already published output is retained for inspection. A restart with a fetching receipt can verify and finish the original result without encoding again. Lost queue/history evidence is marked `needs_recovery`; an uncertain submission remains blocked from automatic replay.
+
+Legacy direct native prompts lack the HTTP queue ownership tag. Their renderer still supports request-scoped cooperative cancellation and durable receipt recovery. Active direct prompt recovery without a receipt returns `manual_reconciliation`; it cannot infer queue ownership or automatically interrupt/requeue a whole user workflow. A host-wide `jobs.reconcile_restart()` is permitted only after the host has independently proved all former workers stopped.
+
+## Verification boundary
+
+`tests/media_export` uses temporary SQLite, fake native queue ports and real CPU PyAV output. It covers immutable snapshots, duplicate claims/execution, uncertain submission, cancellation isolation, failure preservation, restart receipt recovery, native identity, HTTP origin/credentials/path guards and event-loop responsiveness. `tests/migrated_canvas_backend` preserves the native schema, unknown fields, output/reference and renderer regression tests. Real two-instance UI, stale revision behavior, native cache behavior across actual prompts and host cancellation/restart remain separate acceptance evidence owned by the main task.
+
+## Frontend lifecycle
+
+`MediaExportService` and `ExportSession` are typed application/view boundaries. The Comfy integration injects only `api.fetchApi`; it no longer composes native execution graphs, calls queuePrompt, polls native history or calls generic host cancellation. Sources are captured through the existing adapter `assets`/`preview` contract, preserving group member identities and native input names.
+
+Each explicit export creates one request identity and an immutable input snapshot. A DocumentController ticket captures workflow session, load epoch and input revision before asynchronous hashing/submission. The workflow stores only `daelabEditExport` (request ID, client input digest, source owner) and `daelabEditBinding` (matching reference, server fingerprint, verified asset receipt and output file). Task states stay as read-only server projections. Editing hides the old projection immediately while retaining historical file/binding evidence and all existing wires. Undo changes workflow bindings, not ledger facts.
+
+Reload queries the saved identity without submitting. A previously saved matching binding can be displayed again after checking the current digest and returned receipt. An unbound completed result requires the visible “采用已完成成片” action. Applying requires current local digest = saved reference digest = immutable report.source.inputDigest, exact document/node ownership, an intact native edit ticket and a complete asset receipt. The client digest is computed entirely in JavaScript over its serialized immutable input; it is not compared to Python's JSON float formatting. The backend separately fingerprints actual frozen bytes and all parameters.
+
+Mode/workflow replacement, load epochs and node disposal invalidate tickets and stop observations. Disposal never cancels a backend task. Explicit cancellation uses only the matching request ID and last observed version. Copies cannot take ownership of another node's request; task references are removed from node copies while an already verified historical media reference may be retained through the legacy copy contract. Direct whole-workflow native results without a client digest remain read-only history and are not silently applied to the current HTTP editing session.

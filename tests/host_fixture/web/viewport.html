@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<title>Creative Studio 隔离视口验收</title>
+<style>
+html,body{margin:0;background:#191919;color:#eee;font:14px sans-serif}header{height:44px;display:flex;align-items:center;gap:12px;padding:0 12px;box-sizing:border-box}select,button{font:inherit}main{overflow:auto;height:calc(100vh - 44px)}iframe{border:0;display:block;transform-origin:0 0}output{margin-left:auto}
+</style>
+<header><label>ComfyUI 视口 <select id="size"><option value="1920,1080">1920 × 1080</option><option value="1280,720" selected>1280 × 720</option><option value="680,720">680 × 720</option></select></label><label><input id="fit" type="checkbox" checked>缩放验收窗口以完整显示</label><output id="metrics"></output></header>
+<main><iframe title="真实隔离 ComfyUI" src="/"></iframe></main>
+<script type="module">
+// Only a test viewport container: the actual host UI runs unchanged in its own
+// browsing context. This never reads or changes its graph, state, or private APIs.
+const frame=document.querySelector('iframe'),size=document.querySelector('#size'),fit=document.querySelector('#fit'),main=document.querySelector('main');
+function layout(){const [w,h]=size.value.split(',').map(Number);frame.style.width=w+'px';frame.style.height=h+'px';const scale=fit.checked?Math.min(1,main.clientWidth/w,main.clientHeight/h):1;frame.style.transform=`scale(${scale})`;document.querySelector('#metrics').textContent=`布局 ${w} × ${h}；显示倍率 ${Math.round(scale*100)}%`;}
+size.addEventListener('change',layout);fit.addEventListener('change',layout);new ResizeObserver(layout).observe(main);layout();
+</script>
+</html>

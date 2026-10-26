@@ -1,0 +1,1179 @@
+{
+  "version": 1,
+  "sourceRepository": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Canvas",
+  "sourceCommit": "3176b5a67dbcd0b66f795976e5a81bcdfe346093",
+  "status": "migrated; automatic rules only; isolated ComfyUI acceptance pending",
+  "excluded": [
+    "web/creative_field_gallery.mjs",
+    "frontend/ auxiliary gallery",
+    "tools/ browser runners and historical artifacts",
+    "examples/ test workflows"
+  ],
+  "files": [
+    {
+      "source": "web/creative_theme.css",
+      "destination": "frontend/src/design/creative_theme.css",
+      "sourceSha256": "eb35668cbdf400db5d3ed873258de5019f19ceae9f66daee876136615c3970f3",
+      "destinationSha256": "48319649b032d5246757596a354a5c4181a5dc219dcc5ce21237841aacf0cbc6",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "Scoped base-select picker fallback preserves native anchor alternatives and adds viewport-wide inline choices; real edge-menu acceptance pending."
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/creative_button.mjs",
+      "destination": "frontend/src/ui/creative_button.mjs",
+      "sourceSha256": "50ffeb1e81c66af397f788e6d289a8bfefeb98a579bc2a5e7d03be36f12e3dd7",
+      "destinationSha256": "ca08b343af9464ccf81dd0154a053b1946f1ed13385af65571a8775bbf69338f",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "Actual-host follow-up: preserve async pagination disabled eligibility and propagate native save before field focus guards."
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/creative_field.mjs",
+      "destination": "frontend/src/ui/creative_field.mjs",
+      "sourceSha256": "1a1a669faa1cbb565cc103479e9310694ec9589d658648008ac07f04ac83d7aa",
+      "destinationSha256": "cc5bd0f8f84c34423c72ddc088c9a570efaf2c4601c6e07cc2b782b90016c3fb",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/creative_panel_context.mjs",
+      "destination": "frontend/src/ui/creative_panel_context.mjs",
+      "sourceSha256": "5773dce635cafc3ce9c6486a1857b39c26924e7e6566e4c9f31a94de9175d651",
+      "destinationSha256": "b9d1d871bf077af726f6b70eb8a61b335f99471bf248ad72ad66ddf0aee3b38c",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/creative_panel_state.mjs",
+      "destination": "frontend/src/ui/creative_panel_state.mjs",
+      "sourceSha256": "236f7084fd19566a0b8da69b01e0053d1065bf9d329afefe921eee6890061df0",
+      "destinationSha256": "236f7084fd19566a0b8da69b01e0053d1065bf9d329afefe921eee6890061df0",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/creative_canvas_catalog.mjs",
+      "destination": "frontend/src/canvas/creative_canvas_catalog.mjs",
+      "sourceSha256": "a007b85a24f0a6b45262cbf4dc401bc5e8bd3fba6ba4e005b9e2f189f74168b4",
+      "destinationSha256": "b73faa734b5332c9f78cae723a687d153d4da175db9f3923e9c56c3efb641627",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/creative_canvas_model.mjs",
+      "destination": "frontend/src/canvas/creative_canvas_model.mjs",
+      "sourceSha256": "c530f4b6e14c9b4ef2e08dd7cf130ce8bcdb46fc5ca17792f0a01bbee98089de",
+      "destinationSha256": "c530f4b6e14c9b4ef2e08dd7cf130ce8bcdb46fc5ca17792f0a01bbee98089de",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/creative_canvas_view.mjs",
+      "destination": "frontend/src/canvas/creative_canvas_view.mjs",
+      "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
+      "destinationSha256": "254fa1ec55697d67ced13768cc23b1740e79b2f77d0e265e998eddbfa963445d",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "remove opt-in test gallery rendering; retain unrelated graph.extra data",
+        "inject existing host history port at integration assembly boundary",
+        "Inject typed CanvasHostPort; delegate native graph/registry/widget/action/asset commands; preserve borrowed graph identity, adapter v1 API and original node/slot data.",
+        "Actual-host follow-up: preserve async pagination disabled eligibility and propagate native save before field focus guards.",
+        "Actual-host connection undo follow-up: let the native capture listener dispatch keyboard undo/redo once; Canvas only prepares the explicit history port.",
+        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources.",
+        "PERF-01 candidate from actual c7a5aa long-animation-frame trace: collect magnetic/receiving-wire/card geometry before style writes; preserve ordinary port same-frame endpoint translation/reset and unified card-edge anchors; skip unchanged magnetic attributes. Browser performance reacceptance pending.",
+        "PERF-02 candidate: compare live serialized DOM/IDL values before card update assignments; retain every adapter/task/port/layout callback, polling and geometry read order. Two-owner state/focus/resize write-count checks pass; actual input/performance reacceptance pending.",
+        "Add opt-in projectedMaterialTargets adapter capability for visual Slot projection; preserve the complete legacy target snapshot/source order when absent, native slot indices, unknown own fields, geometry and callbacks. Mechanism and compatibility tests pass; actual performance acceptance pending.",
+        "Stable input-port projection candidate: measure existing independent body-local anchors/clips before guarded DOM paint; preserve creation/output/duplicate or external-geometry fallback order, live inline/priority repair, geometry failure partial updates, focus, native slots and source callback sequence. No geometry cache or decimal rounding; focused mechanism checks are not latency acceptance.",
+        "Add transient caret reveal through the existing viewport navigation: creation-time native lookup and exact card/panel leases, composition/manual-navigation cancellation, no focus/scroll/business or undo-entry writes. Actual two-instance viewport acceptance remains pending.",
+        "Inject only the current direct-child status hint bounds for trusted Tab reveal; ordinary caret/input never reads status geometry. Preserve error/status visibility, viewport navigation and exact panel lifetime. Actual occlusion acceptance pending.",
+        "Inject current direct-child zoom HUD bounds for trusted Tab whole-control reveal; reserve its top band only when the projected visible control intersects it, then preserve bottom-hint avoidance. Ordinary caret/input adds no HUD read; live owner, internal clipping and post-read lease checks remain. Actual 78 reverse-Tab failures are retained; new candidate browser acceptance pending.",
+        "PERF selection-paint candidate: compare current selected/slotsSuppressed attributes and selection-surface class before writes; preserve every select/raise/focus/layout and per-card group projection call. Real closure tests cover 300-card selection, live group mutations and outside DOM repair; actual latency acceptance remains pending.",
+        "Expose only the existing connected, visible direct-child asset dock bounds to focus reveal; retain native focus, owner leases and viewport-only navigation. The 1752 LLM B dock interception failure is retained; candidate browser reacceptance follows."
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/creative_canvas.css",
+      "destination": "frontend/src/canvas/creative_canvas.css",
+      "sourceSha256": "a858f0328a4f03c28c98a9d6742cbfc615e4ce1a4db8f50f50b2a3e0bca420ee",
+      "destinationSha256": "53ce6981c324c2c5320097dba8dd24b498f4c35b04859cb98cd9d5a240b6c0d3",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "Move host-private DOM selectors unchanged to integration CSS and map host sidebar variable through an explicit integration variable.",
+        "PERF-01 candidate: stop unused inherited Canvas zoom variables only at the owned leased TextInput body; preserve public root, headings, Slots, widths, native lease return and geometry. Actual browser/performance reacceptance pending.",
+        "Prevent focus-driven root scrolling with overflow:clip after the legacy hidden fallback; preserve transform-owned world navigation and nested text/panel scrolling. Actual two-instance focus/overflow and save/reload verification pending."
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/creative_connections.mjs",
+      "destination": "frontend/src/canvas/creative_connections.mjs",
+      "sourceSha256": "6fdd4d42b650b787533ebdb7692bebcb8182e8309370dbde844fda81eb4a6bfe",
+      "destinationSha256": "0ebf64d812146f68030a7144a05822333c3efca4ad25171cc53632120973d2c5",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/creative_contract.mjs",
+      "destination": "frontend/src/canvas/creative_contract.mjs",
+      "sourceSha256": "ff1e340622b67aa5d4ffcf2138e8da5a1660a4b9343bfae3a12a3ee67de4a01e",
+      "destinationSha256": "c51ad7454f9fe3c3d57ee6591143e21de415893b94cf3c612a13ce10fb8848aa",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "move mature inputSnapshot into registry owner; exchange re-exports same function to remove circular dependency"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/creative_input_exchange.mjs",
+      "destination": "frontend/src/canvas/creative_input_exchange.mjs",
+      "sourceSha256": "46a9fdf46a7a957b962ad780bf77692d1ace60a7a61533d4bc3db3c82d1b694f",
+      "destinationSha256": "52534b9c7c0625bb84c9a24d4679cae8fcf0868f9e3f82e8ebbf9c01d96358ed",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "move mature inputSnapshot into registry owner; exchange re-exports same function to remove circular dependency"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/creative_material_drop.mjs",
+      "destination": "frontend/src/canvas/creative_material_drop.mjs",
+      "sourceSha256": "439cd2040a60c8a931f217a70c53cbc53485a9bd067110cce684728be5263894",
+      "destinationSha256": "2ca224e96ae27dc6457fe55d73e79e3a6b48154067e160152320edc33358e2be",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/creative_navigation.mjs",
+      "destination": "frontend/src/canvas/creative_navigation.mjs",
+      "sourceSha256": "795f510d8fb6bde4b6bba99297818595bb4ae4070491607ab7d16d49b49e2a2f",
+      "destinationSha256": "795f510d8fb6bde4b6bba99297818595bb4ae4070491607ab7d16d49b49e2a2f",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/creative_output.mjs",
+      "destination": "frontend/src/canvas/creative_output.mjs",
+      "sourceSha256": "7e3fbc2bb73548d3c855665caaac2e71ffb056971937a2dde9052fa0ff9b8173",
+      "destinationSha256": "7e3fbc2bb73548d3c855665caaac2e71ffb056971937a2dde9052fa0ff9b8173",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/creative_canvas.js",
+      "destination": "frontend/src/integrations/comfyui/canvas/creative_canvas.js",
+      "sourceSha256": "ce343c31cd8378d4d156e62ce21d9542da6e240576b7949a8bdc8253081b95fe",
+      "destinationSha256": "fc367cd818c72d9b9586e8f7685faff2fd70400df590147a8030564882bd0ee8",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "inject existing host history port at integration assembly boundary",
+        "Assemble typed CanvasHostPort and groups controller; load host CSS; diagnose missing host mode/history/serialization before unsafe operations.",
+        "restore saved Canvas at native afterLoadGraph after workflow activation, not afterConfigureGraph; cancel stale async overlay entries on load or newer mode choices"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/creative_history.mjs",
+      "destination": "frontend/src/integrations/comfyui/canvas/creative_history.mjs",
+      "sourceSha256": "688668a804afd5a0d4ea4748e2b29e9d616688c9102dd23f8eb55ca5f7a4d829",
+      "destinationSha256": "f205d18dfdf1598273089a377ecbd8eb4c24dd47f40e27adacaf051e4b52e247",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "Reject untracked edits when history/serialization capability is missing; close original tracker after workflow switch; avoid reading graph during ordinary startup/load; preserve layout-only restore and navigation redo behavior.",
+        "honor native isGraphReady before history graph reads; preserve regular load delegation and layout-only undo behavior",
+        "Actual-host connection undo follow-up: prepareNativeShortcut flushes pending native squash without calling undo/redo a second time after the native window capture listener already scheduled it.",
+        "After successful explicit native history restore, reconcile only validated owned numeric execution orders in the original restore snapshot; keep layout fast path, native graph, queues and comparator unchanged.",
+        "Capture the active workflow handle separately from the native restore argument; preserve both identities across the awaited native restore and reject changed owners."
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/media_upload.js",
+      "destination": "frontend/src/integrations/comfyui/canvas/media_upload.js",
+      "sourceSha256": "652756732af498a98eee22908cf26904d2c786c03bc9b0057eb956bc0b53b7d3",
+      "destinationSha256": "93c63be487e472f4d9b80835a7b5adf9b833e93345bbbcb89cb2e4171d360091",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "Actual-host nested keyboard follow-up: shared save propagation in nested panel/popover; keep local editor keys and IME/229 ownership.",
+        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources."
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/material_group.js",
+      "destination": "frontend/src/integrations/comfyui/canvas/material_group.js",
+      "sourceSha256": "67d2b8989a842b69688415f7f5f18fd748c3839a1856393507d52149377049f2",
+      "destinationSha256": "02902c36a873515da5500d6d0c48373cfe3ade91c6f63f961fe83f616789bab6",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "remove implicit destructive prototype migration on graph load",
+        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources."
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/text_input.js",
+      "destination": "frontend/src/integrations/comfyui/canvas/text_input.js",
+      "sourceSha256": "635fdff2f9c16011f0797bc947222b0ea7ba127e31cf82b7bc9c50fa57567bfa",
+      "destinationSha256": "99bc0a3b7b4db969500a2c43b02857c905050b75901909710217de25391971d1",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "Actual-host nested keyboard follow-up: shared save propagation in nested panel/popover; keep local editor keys and IME/229 ownership.",
+        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources."
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/video_edit.js",
+      "destination": "frontend/src/integrations/comfyui/canvas/video_edit.js",
+      "sourceSha256": "cff552275a3cdcc69a505a353801c0a9d781d82b7cef4ecc017ca35ca9f87aa6",
+      "destinationSha256": "16f9952e01007273c49ffbbba5f55160338eb5242d1200099586511fe6f7beff",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "Traceability agent M5 HTTP export-service integration in progress; hash synchronized for asset-focused checks, final host freeze waits for that owner handoff.",
+        "Unify native export-reference loading; preserve damaged raw properties, diagnose once per load, and hold an unresolved submission lock until reference identity is verified. Normal native/proxy JSON behavior retained.",
+        "Save As owner rebinding and verified copied-output projection preserve original source/request/asset provenance; explicit copy export establishes a new owner identity; legacy prepareCopy/remapCopy behavior remains unchanged."
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/asset_favorite.mjs",
+      "destination": "frontend/src/features/assets/asset_favorite.mjs",
+      "sourceSha256": "b66d2bcda457795bfdbf397b176e969241c2a68e382c0fb027c430dd1baab757",
+      "destinationSha256": "f859c9ee43425807001abc5cff048fa27f7a623842e9da4ac244fee54184995d",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "server-backed favorite state and mutations; per-instance stale response and disposal guards"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/asset_library_model.mjs",
+      "destination": "frontend/src/features/assets/asset_library_model.mjs",
+      "sourceSha256": "a0e1a09b60f78556a1f54f78301be6681acd5da0cd64cddfe16a062926487fa4",
+      "destinationSha256": "aaebe0a5298a586a711b9350a3e3d609cdaae8c9ff8dd03741462b8d55f2286a",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "replace browser-writable directory with injected typed server port; preserve read-only legacy original document",
+        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources."
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/asset_library.css",
+      "destination": "frontend/src/features/assets/asset_library.css",
+      "sourceSha256": "a29f80d5fff8c620c39a87796375db6caa2af6b133d47990defbeec16365c279",
+      "destinationSha256": "a29f80d5fff8c620c39a87796375db6caa2af6b133d47990defbeec16365c279",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/asset_library.mjs",
+      "destination": "frontend/src/features/assets/asset_library.mjs",
+      "sourceSha256": "9562dfc7481576ac6b5546c3eb9b100536dcfe6e4d8dbbfa38745b3588e6230e",
+      "destinationSha256": "ee0c1d6f4eaf3eb6c80997fb4673447cd381eaf6a5116f518e681cb63f3caa34",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "asynchronous per-instance 48-entry server pagination, explicit original-preserving legacy imports and no video thumbnail preload; validate server asset identity before reuse",
+        "Actual-host follow-up: preserve async pagination disabled eligibility and propagate native save before field focus guards.",
+        "Actual-host nested keyboard follow-up: shared save propagation in nested panel/popover; keep local editor keys and IME/229 ownership."
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/media_upload_model.mjs",
+      "destination": "frontend/src/features/assets/media_upload_model.mjs",
+      "sourceSha256": "9f4ad7ac0464a0007cca10d981ff319114fb106aaabfcf0395fb699fbc87e71a",
+      "destinationSha256": "9f4ad7ac0464a0007cca10d981ff319114fb106aaabfcf0395fb699fbc87e71a",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/media_upload.css",
+      "destination": "frontend/src/features/assets/media_upload.css",
+      "sourceSha256": "ac81ffd3b14def4fc96a587442dc45ee76f44fb84fd45c2b79f41da2bfa83c53",
+      "destinationSha256": "b893013b4f4106d9e73cff636f7e320eb6c1618acdf3f06dafb764746630d793",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/text_input_model.mjs",
+      "destination": "frontend/src/features/assets/text_input_model.mjs",
+      "sourceSha256": "4c81e02f87c236bcf89cf03d653b888d3bda220bc4cccd8c6d6ae6a1ddea1616",
+      "destinationSha256": "4c81e02f87c236bcf89cf03d653b888d3bda220bc4cccd8c6d6ae6a1ddea1616",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/upload_video_controls.mjs",
+      "destination": "frontend/src/features/assets/upload_video_controls.mjs",
+      "sourceSha256": "6683e4ac1bb4a695b2305383ec5f4732d0223c5fea3e5b514e236ff3dfb301e4",
+      "destinationSha256": "458029e52f3ab2b68087aa683740e262a127a53eab5d3572d66fb16a4ba19622",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/material_group_model.mjs",
+      "destination": "frontend/src/features/groups/material_group_model.mjs",
+      "sourceSha256": "72c88b9a74a3ee7e8963e5ee711bb0780591110ad4ca9225c0201c67b650dc33",
+      "destinationSha256": "85502838074baca6dd2e2451284fb7494dc55800077f3751274a155ed1427a82",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "remove implicit prototype converter; explicit workflow migration belongs to compat",
+        "Receive explicit native-node lists for selection identity and Slot suppression instead of reading private graph._nodes."
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/material_groups.css",
+      "destination": "frontend/src/features/groups/material_groups.css",
+      "sourceSha256": "8080b8c2d5cbba4ef167a79a54b16f64b6cbe7108728501c5c5acd1606f526c3",
+      "destinationSha256": "8080b8c2d5cbba4ef167a79a54b16f64b6cbe7108728501c5c5acd1606f526c3",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/material_groups.mjs",
+      "destination": "frontend/src/features/groups/material_groups.mjs",
+      "sourceSha256": "91c47c4439efda72218a2749e00030e570bf1731a3eb100282347aecc463e144",
+      "destinationSha256": "f160c651579cf8542de7581ead1dae45996b6313b56c6fd63be5548d8a3deadd",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "inject existing host history port at integration assembly boundary",
+        "Inject CanvasHostPort plus view; delegate native graph commands; return controller for integration-owned registration; retain UI/layout behavior."
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/video_edit_model.mjs",
+      "destination": "frontend/src/features/editor/video_edit_model.mjs",
+      "sourceSha256": "33b21e462fcdb261c4a915d26b85af2a29749cf3ad0beea484140df608b0a033",
+      "destinationSha256": "33b21e462fcdb261c4a915d26b85af2a29749cf3ad0beea484140df608b0a033",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/video_edit_panel.mjs",
+      "destination": "frontend/src/features/editor/video_edit_panel.mjs",
+      "sourceSha256": "bd2db748565ba29cd09dddfa682146c1a7cb9335d7fd0aaebc3718a2703bc132",
+      "destinationSha256": "26b901628c4877023e43ae57b8a5bf05ec0d753a64a3ca1dc5e0892c7831aafa",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "Actual-host keyboard follow-up: reuse shared save propagation for root and clip menu; preserve existing timeline/editor shortcuts and IME ownership.",
+        "Expose explicit copy-export action and original-source read-only preview/download labels; shared asynchronous disabled rule and keyboard behavior retained."
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/video_edit.css",
+      "destination": "frontend/src/features/editor/video_edit.css",
+      "sourceSha256": "dc64bb9e685a7460dd04e8815b65bc3ddc7221bf3d8f9283bdda023252434073",
+      "destinationSha256": "898a32093201fb2f614228e889fbdd4cbfbba0138498799d44ab89bf88e46118",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/creative_tasks_model.mjs",
+      "destination": "frontend/src/features/tasks/creative_tasks_model.mjs",
+      "sourceSha256": "cfaff075a49e84877b4cf47e2e82f7fb341bf19edbbd6d844f9de67d8e8c32df",
+      "destinationSha256": "cfaff075a49e84877b4cf47e2e82f7fb341bf19edbbd6d844f9de67d8e8c32df",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/creative_tasks.css",
+      "destination": "frontend/src/features/tasks/creative_tasks.css",
+      "sourceSha256": "05fa49eef2d346892c0be25e973e0f63a3c43359b5a087a84e0c93b9fcd1c7b6",
+      "destinationSha256": "d152b3deba5203a64905f14a5beb7b340f47a0184f04c0c926fa390340d9ca46",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/creative_tasks.mjs",
+      "destination": "frontend/src/features/tasks/creative_tasks.mjs",
+      "sourceSha256": "89c52e2d9a2451b7fbf7d2d4a2f64e6502af671b173a136fcfe1d5ffdcf656a2",
+      "destinationSha256": "89c52e2d9a2451b7fbf7d2d4a2f64e6502af671b173a136fcfe1d5ffdcf656a2",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/adapters/upload.mjs",
+      "destination": "frontend/src/integrations/comfyui/canvas/adapters/upload.mjs",
+      "sourceSha256": "d7f056a0370ab81a251090b665d6481c337534a28e94fcd0ebf684a4e73c27c4",
+      "destinationSha256": "805d2e782257e42296dca8bc72ef98a44eb657d2b90fbd7a3443ee7bb63b4b19",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/adapters/comfytv.mjs",
+      "destination": "frontend/src/integrations/comfyui/canvas/adapters/comfytv.mjs",
+      "sourceSha256": "146cbb005379d203a7df91f26ee658721f82deb9bc6f049ba3cbb92c3706e0b8",
+      "destinationSha256": "fc09594805c5cffd224f85899a3c1ef7d39a370449813320d8e668b54d8a1942",
+      "changes": [
+        "relocate into owner layer; rewrite relative module/style/resource paths"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": "web/vendor/alibaba-puhuiti-3/AlibabaPuHuiTi-3-55-Regular.woff2",
+      "destination": "frontend/src/design/vendor/alibaba-puhuiti-3/AlibabaPuHuiTi-3-55-Regular.woff2",
+      "sourceSha256": "1cb8418d80b01ec08cb6f2d64b6244aaaf1bb80dc35491b66ddba16c5e24f444",
+      "destinationSha256": "1cb8418d80b01ec08cb6f2d64b6244aaaf1bb80dc35491b66ddba16c5e24f444",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/alibaba-puhuiti-3/AlibabaPuHuiTi-3-65-Medium.woff2",
+      "destination": "frontend/src/design/vendor/alibaba-puhuiti-3/AlibabaPuHuiTi-3-65-Medium.woff2",
+      "sourceSha256": "628a0d5be684bae0e7a8e3ad15b7c4f623fd15b3375082624f778326e343467a",
+      "destinationSha256": "628a0d5be684bae0e7a8e3ad15b7c4f623fd15b3375082624f778326e343467a",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/alibaba-puhuiti-3/AlibabaPuHuiTi-3-75-SemiBold.woff2",
+      "destination": "frontend/src/design/vendor/alibaba-puhuiti-3/AlibabaPuHuiTi-3-75-SemiBold.woff2",
+      "sourceSha256": "75e2ba042e1c8ad8cf3dd5bf26f25984ffeca6c4ebb86977c8f8e1abeeb2652f",
+      "destinationSha256": "75e2ba042e1c8ad8cf3dd5bf26f25984ffeca6c4ebb86977c8f8e1abeeb2652f",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/alibaba-puhuiti-3/LICENSE.txt",
+      "destination": "frontend/src/design/vendor/alibaba-puhuiti-3/LICENSE.txt",
+      "sourceSha256": "4443eec7a8820517b3aab0e60cfb02116c2f874a05009f0af938c4aeadd61990",
+      "destinationSha256": "4443eec7a8820517b3aab0e60cfb02116c2f874a05009f0af938c4aeadd61990",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/alibaba-puhuiti-3/manifest.json",
+      "destination": "frontend/src/design/vendor/alibaba-puhuiti-3/manifest.json",
+      "sourceSha256": "9951a279617ec32c5933507532b4858d21e939569d63045f932cdf3ce14a6221",
+      "destinationSha256": "9951a279617ec32c5933507532b4858d21e939569d63045f932cdf3ce14a6221",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/alibaba-puhuiti-3/README.md",
+      "destination": "frontend/src/design/vendor/alibaba-puhuiti-3/README.md",
+      "sourceSha256": "8551a30f65933320235c1e54b3deded10e3aed3eb10dbc7d535ff869e4fdb4ec",
+      "destinationSha256": "8551a30f65933320235c1e54b3deded10e3aed3eb10dbc7d535ff869e4fdb4ec",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/add-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/add-line.svg",
+      "sourceSha256": "b03a98dbb2f1d4c1aed7987ce4be58b6af4b4be8af47b08aadb77c4a35d6a645",
+      "destinationSha256": "b03a98dbb2f1d4c1aed7987ce4be58b6af4b4be8af47b08aadb77c4a35d6a645",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/archive-stack-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/archive-stack-line.svg",
+      "sourceSha256": "560a8527107f2cab7b4cd5be2845446a0071f364bd4c8d3760d61efa85f5037e",
+      "destinationSha256": "560a8527107f2cab7b4cd5be2845446a0071f364bd4c8d3760d61efa85f5037e",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/arrow-down-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/arrow-down-line.svg",
+      "sourceSha256": "b1b1432f71a0ac7fbd3b1a114101edeb6406efc33c13c5957d2f17facf6875e7",
+      "destinationSha256": "b1b1432f71a0ac7fbd3b1a114101edeb6406efc33c13c5957d2f17facf6875e7",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/arrow-left-right-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/arrow-left-right-line.svg",
+      "sourceSha256": "3623ad961089552c31c0a91991a84bcc04f90da9463f4f63077d7baf74ce2275",
+      "destinationSha256": "3623ad961089552c31c0a91991a84bcc04f90da9463f4f63077d7baf74ce2275",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/arrow-up-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/arrow-up-line.svg",
+      "sourceSha256": "047242b33db3e4a7c2aa9bfd0786c5c6e4a5dd6c3742770e7500cc7923a17554",
+      "destinationSha256": "047242b33db3e4a7c2aa9bfd0786c5c6e4a5dd6c3742770e7500cc7923a17554",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/artboard-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/artboard-line.svg",
+      "sourceSha256": "deda639f35c81767e5391157129db39019fabd8c16ef885d2fc7557767679cca",
+      "destinationSha256": "deda639f35c81767e5391157129db39019fabd8c16ef885d2fc7557767679cca",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/check-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/check-line.svg",
+      "sourceSha256": "b83a64bf881169d5edeaa6134a7ba37192f0ddc80c2e2a890578ae0f2f8f9169",
+      "destinationSha256": "b83a64bf881169d5edeaa6134a7ba37192f0ddc80c2e2a890578ae0f2f8f9169",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/delete-bin-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/delete-bin-line.svg",
+      "sourceSha256": "a3484fc34454104f58430d605047d353c6f9669fd037b2b30a98d4f58ad66a3e",
+      "destinationSha256": "a3484fc34454104f58430d605047d353c6f9669fd037b2b30a98d4f58ad66a3e",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/download-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/download-line.svg",
+      "sourceSha256": "ad83ac7dc9d4c6af651a53068e928d82f9402cfd05a924742388549846032f43",
+      "destinationSha256": "ad83ac7dc9d4c6af651a53068e928d82f9402cfd05a924742388549846032f43",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/edit-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/edit-line.svg",
+      "sourceSha256": "78c5dcafc5a57e67a277a466e73ecfb0779cda99becfe90bf62977471024c609",
+      "destinationSha256": "78c5dcafc5a57e67a277a466e73ecfb0779cda99becfe90bf62977471024c609",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/error-warning-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/error-warning-line.svg",
+      "sourceSha256": "f79d26575a711980651d8aa10d70c3c6942051729ea968dfb929ecfc65dac86f",
+      "destinationSha256": "f79d26575a711980651d8aa10d70c3c6942051729ea968dfb929ecfc65dac86f",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/file-copy-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/file-copy-line.svg",
+      "sourceSha256": "6146b833e109330b7f0d7cd6cf9b3d0eabf309459f5743de5dfc499872f74a0d",
+      "destinationSha256": "6146b833e109330b7f0d7cd6cf9b3d0eabf309459f5743de5dfc499872f74a0d",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/file-text-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/file-text-line.svg",
+      "sourceSha256": "203b98694bd41ccb979a4d71ba24b66a3581cb3087d5ce6973e8d203afc90dc6",
+      "destinationSha256": "203b98694bd41ccb979a4d71ba24b66a3581cb3087d5ce6973e8d203afc90dc6",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/folder-image-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/folder-image-line.svg",
+      "sourceSha256": "5a9e8b9baf4d9a26f55683d922142109a5caa68a9c3f8542248c713c82c44a72",
+      "destinationSha256": "5a9e8b9baf4d9a26f55683d922142109a5caa68a9c3f8542248c713c82c44a72",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/fullscreen-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/fullscreen-line.svg",
+      "sourceSha256": "4c98301c55d2d8fadc57a0d2cfc06005ef285d48b5d9aec64bfe3023f6429528",
+      "destinationSha256": "4c98301c55d2d8fadc57a0d2cfc06005ef285d48b5d9aec64bfe3023f6429528",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/image-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/image-line.svg",
+      "sourceSha256": "da8ec323a5f37d6e7feacce550f2ba25c3f6e0fd37b94b4ac652dbd809130d4e",
+      "destinationSha256": "da8ec323a5f37d6e7feacce550f2ba25c3f6e0fd37b94b4ac652dbd809130d4e",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/layout-grid-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/layout-grid-line.svg",
+      "sourceSha256": "246bd15d3c8246db8463f1854515fd0a3ba1b84a0cab2cd22ccf43d724ffd1b1",
+      "destinationSha256": "246bd15d3c8246db8463f1854515fd0a3ba1b84a0cab2cd22ccf43d724ffd1b1",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/LICENSE",
+      "destination": "frontend/src/design/vendor/remixicon/LICENSE",
+      "sourceSha256": "6f2f21c5f8db34635d31848e9ff831d5dc421bb83ffc9d37f82651364047ae58",
+      "destinationSha256": "6f2f21c5f8db34635d31848e9ff831d5dc421bb83ffc9d37f82651364047ae58",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/list-ordered.svg",
+      "destination": "frontend/src/design/vendor/remixicon/list-ordered.svg",
+      "sourceSha256": "810b83aa35f62b5873274832d9449b369a760d3c38f5224318b1a6e2a92a79f3",
+      "destinationSha256": "810b83aa35f62b5873274832d9449b369a760d3c38f5224318b1a6e2a92a79f3",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/lock-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/lock-line.svg",
+      "sourceSha256": "389ddb87b7b773e165ca30bf7ba4c9974fd56bb6c579e34b0ff6adb3d66d4a00",
+      "destinationSha256": "389ddb87b7b773e165ca30bf7ba4c9974fd56bb6c579e34b0ff6adb3d66d4a00",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/lock-unlock-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/lock-unlock-line.svg",
+      "sourceSha256": "724da7e8c7a7774fbd499dfc42f64f5763f226e5d1ff39494b5f2bb914fe3cab",
+      "destinationSha256": "724da7e8c7a7774fbd499dfc42f64f5763f226e5d1ff39494b5f2bb914fe3cab",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/palette-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/palette-line.svg",
+      "sourceSha256": "3164a6d63a937f7331d0d596b007c7879150aa9e252ead9acc9ccf760220907f",
+      "destinationSha256": "3164a6d63a937f7331d0d596b007c7879150aa9e252ead9acc9ccf760220907f",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/pause-fill.svg",
+      "destination": "frontend/src/design/vendor/remixicon/pause-fill.svg",
+      "sourceSha256": "82bfb45bf5b77f055ce984fca319d551c4319036520fd8a0719f41e656431953",
+      "destinationSha256": "82bfb45bf5b77f055ce984fca319d551c4319036520fd8a0719f41e656431953",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/play-fill.svg",
+      "destination": "frontend/src/design/vendor/remixicon/play-fill.svg",
+      "sourceSha256": "ac35d2ee814f73004c748273aabbddb57d0e5c1eead3788b889276781876a7c5",
+      "destinationSha256": "ac35d2ee814f73004c748273aabbddb57d0e5c1eead3788b889276781876a7c5",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/README.md",
+      "destination": "frontend/src/design/vendor/remixicon/README.md",
+      "sourceSha256": "e095d13c968717d73293af269d1ebe6ac3db7dae05631775759a15ad0a809350",
+      "destinationSha256": "e095d13c968717d73293af269d1ebe6ac3db7dae05631775759a15ad0a809350",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/scissors-cut-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/scissors-cut-line.svg",
+      "sourceSha256": "b0b226e42092680fcc1f952496c3f3466bf67b1507346ca4c0c5785c500cef12",
+      "destinationSha256": "b0b226e42092680fcc1f952496c3f3466bf67b1507346ca4c0c5785c500cef12",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/sparkling-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/sparkling-line.svg",
+      "sourceSha256": "1bd9942ade4b0955f83ab20ec31fe28c7949c40a00417e9257fe87f0310d07fe",
+      "destinationSha256": "1bd9942ade4b0955f83ab20ec31fe28c7949c40a00417e9257fe87f0310d07fe",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/star-fill.svg",
+      "destination": "frontend/src/design/vendor/remixicon/star-fill.svg",
+      "sourceSha256": "f770ca9f38ea6432b5959a731025aebd4224ce802b0935d6a4eb73cfc0b4c5c1",
+      "destinationSha256": "f770ca9f38ea6432b5959a731025aebd4224ce802b0935d6a4eb73cfc0b4c5c1",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/star-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/star-line.svg",
+      "sourceSha256": "bf10036893a04a9a68d69be5c5150d856f1aab34b771f7d49a3bf9c39688c5e7",
+      "destinationSha256": "bf10036893a04a9a68d69be5c5150d856f1aab34b771f7d49a3bf9c39688c5e7",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/upload-2-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/upload-2-line.svg",
+      "sourceSha256": "88bddea91a61b492722478caa1a70429dbd62515cba54c3f3d249e265142a765",
+      "destinationSha256": "88bddea91a61b492722478caa1a70429dbd62515cba54c3f3d249e265142a765",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "web/vendor/remixicon/video-line.svg",
+      "destination": "frontend/src/design/vendor/remixicon/video-line.svg",
+      "sourceSha256": "641200dc6b3f97f79938deef08c8a78cf267d9ec9831ca772721e69fdb67e202",
+      "destinationSha256": "641200dc6b3f97f79938deef08c8a78cf267d9ec9831ca772721e69fdb67e202",
+      "changes": [],
+      "kind": "third-party-resource"
+    },
+    {
+      "source": "tests/asset_library.test.mjs",
+      "destination": "tests/migrated_canvas/asset_library.test.mjs",
+      "sourceSha256": "0fbd0a092a3e90bdbcd21dc9bbb2123f7f3b34dd760186f169d13548d83dd3fa",
+      "destinationSha256": "4fd461d45285b3d3147a94723ec6c78439ba8ad10bfbbd86621176124f2de5b9",
+      "changes": [
+        "point existing rule regression tests at migrated production modules",
+        "retain normalization/source-preservation contracts and replace local writes with injected authoritative server interface tests"
+      ],
+      "kind": "rule-regression"
+    },
+    {
+      "source": "tests/comfytv_adapter.test.mjs",
+      "destination": "tests/migrated_canvas/comfytv_adapter.test.mjs",
+      "sourceSha256": "0e7198cdcbbcaa8eb1950c10bc637fa6236ef08258559ce17a77ed73dedbbbaa",
+      "destinationSha256": "76a151d42f7a8df38546f52a22d239aebf39863426f9fa1c3723d59fc13ffba3",
+      "changes": [
+        "point existing rule regression tests at migrated production modules"
+      ],
+      "kind": "rule-regression"
+    },
+    {
+      "source": "tests/creative_canvas_catalog.test.mjs",
+      "destination": "tests/migrated_canvas/creative_canvas_catalog.test.mjs",
+      "sourceSha256": "90e2a99186f6a9aa6488bd1d904a9c29433aecedbda121b6ac058c0186caa062",
+      "destinationSha256": "c87afac0ebf2a631e4836adfdb26488f62c7d231258fe2d0cce24e45c6254b7d",
+      "changes": [
+        "point existing rule regression tests at migrated production modules"
+      ],
+      "kind": "rule-regression"
+    },
+    {
+      "source": "tests/creative_canvas_model.test.mjs",
+      "destination": "tests/migrated_canvas/creative_canvas_model.test.mjs",
+      "sourceSha256": "f70af54f8a476f17e69aec156793dfee1e80e75d9cd13b9edd3ee9b7b123bf5c",
+      "destinationSha256": "432e61a82282d7d872a8d4b81f29269940bafefe499e5aa2e11a4771dcdbcbfc",
+      "changes": [
+        "point existing rule regression tests at migrated production modules"
+      ],
+      "kind": "rule-regression"
+    },
+    {
+      "source": "tests/creative_connections.test.mjs",
+      "destination": "tests/migrated_canvas/creative_connections.test.mjs",
+      "sourceSha256": "690df3067bf71bd36c95bb507ef38e1cfd93c4c0d5c2da877f3b51eddd8c07c6",
+      "destinationSha256": "036fd9808e39a02ab32669d596f3a5712dd2059130d07bd271836a8454a04f23",
+      "changes": [
+        "point existing rule regression tests at migrated production modules"
+      ],
+      "kind": "rule-regression"
+    },
+    {
+      "source": "tests/creative_contract.test.mjs",
+      "destination": "tests/migrated_canvas/creative_contract.test.mjs",
+      "sourceSha256": "1d17aa5f1a834b8d49fab590b9a1f747019b4c034bc460b238a45e4403195a20",
+      "destinationSha256": "93afa974bc48fd015db36854055872b496a074b5b33efd97b1aa2161f4d1004b",
+      "changes": [
+        "point existing rule regression tests at migrated production modules"
+      ],
+      "kind": "rule-regression"
+    },
+    {
+      "source": "tests/creative_material_drop.test.mjs",
+      "destination": "tests/migrated_canvas/creative_material_drop.test.mjs",
+      "sourceSha256": "d3382eddb02db5638506384078461152b011474cd105c23c8a5ffc4980496c6c",
+      "destinationSha256": "d378707c60a0c17d367760a0f6024e1300c45daa5837a863f34d08da0fa6c0fd",
+      "changes": [
+        "point existing rule regression tests at migrated production modules"
+      ],
+      "kind": "rule-regression"
+    },
+    {
+      "source": "tests/creative_navigation.test.mjs",
+      "destination": "tests/migrated_canvas/creative_navigation.test.mjs",
+      "sourceSha256": "b1a9fc23980bb527d3788cb0456c4b8eadbb70e11fa8b745084f292c8aa81f9d",
+      "destinationSha256": "d62550ee2cf564a579c3ab80850b111a04eaa4a06b461b34e64341e5cc2600de",
+      "changes": [
+        "point existing rule regression tests at migrated production modules"
+      ],
+      "kind": "rule-regression"
+    },
+    {
+      "source": "tests/creative_output.test.mjs",
+      "destination": "tests/migrated_canvas/creative_output.test.mjs",
+      "sourceSha256": "47f9d462140c0626d17571619f22e7d9ce2d53d6b8b5a43650b78bea466726a0",
+      "destinationSha256": "0504eaded27fe8cc828f314042df84e0ade7567b1fbe6234d433ede1ab72a84b",
+      "changes": [
+        "point existing rule regression tests at migrated production modules"
+      ],
+      "kind": "rule-regression"
+    },
+    {
+      "source": "tests/creative_panel_lease.test.mjs",
+      "destination": "tests/migrated_canvas/creative_panel_lease.test.mjs",
+      "sourceSha256": "9ba5fbadc748dcbeb2b9d7ddf59cdf8d22b7007ba6e37b837dcc7f47c25c761d",
+      "destinationSha256": "552ef4194ac789612e81cb05bfe2d2dc065eca184b05dea9a300de45a74de687",
+      "changes": [
+        "point existing rule regression tests at migrated production modules"
+      ],
+      "kind": "rule-regression"
+    },
+    {
+      "source": "tests/creative_panel_state.test.mjs",
+      "destination": "tests/migrated_canvas/creative_panel_state.test.mjs",
+      "sourceSha256": "0b771ff06143102d9c7ac01a4d8125a2f331a9bbb37e6024c4434a856f33aa46",
+      "destinationSha256": "2cb129b2021c11fd13acaafd51c8fbd5e651a7cd796c8af30943b577ae5212a7",
+      "changes": [
+        "point existing rule regression tests at migrated production modules"
+      ],
+      "kind": "rule-regression"
+    },
+    {
+      "source": "tests/creative_tasks.test.mjs",
+      "destination": "tests/migrated_canvas/creative_tasks.test.mjs",
+      "sourceSha256": "caafd9fe40a8500c6fac0648e3791ef52068ba7f1e213d4b904ca0293abc3dac",
+      "destinationSha256": "41b8176ae0fe043959d09dbf41040d5139aba657a4229c32a5a631418b95b933",
+      "changes": [
+        "point existing rule regression tests at migrated production modules"
+      ],
+      "kind": "rule-regression"
+    },
+    {
+      "source": "tests/material_groups.test.mjs",
+      "destination": "tests/migrated_canvas/material_groups.test.mjs",
+      "sourceSha256": "ad6489ea79bb78ca890d5ebb860c62ea79a7cf9e63888771599122f8e161c0b6",
+      "destinationSha256": "8e752a4189f83c550a8a8cf045da2bda1d8140d2ad45f2745db6b0b8341dd928",
+      "changes": [
+        "point existing rule regression tests at migrated production modules",
+        "old implicit destructive prototype migration test superseded by production-boundary preservation test",
+        "Pass explicit native nodes to mixed-ID group selection rules."
+      ],
+      "kind": "rule-regression"
+    },
+    {
+      "source": "tests/mixed_group.test.mjs",
+      "destination": "tests/migrated_canvas/mixed_group.test.mjs",
+      "sourceSha256": "372fd748b0fd2946777059145520c7ae5793ca9623247751f9dae6e12c828adf",
+      "destinationSha256": "53253dda3f36ca5cd6d4bd720d2f63585fac36cdd6ff4d634caeb6811532e3d2",
+      "changes": [
+        "point existing rule regression tests at migrated production modules"
+      ],
+      "kind": "rule-regression"
+    },
+    {
+      "source": "tests/video_edit_model.test.mjs",
+      "destination": "tests/migrated_canvas/video_edit_model.test.mjs",
+      "sourceSha256": "67e0a87354fb3c6389a55e81c522d42902037961d8c9279d18da276a14c8f9b1",
+      "destinationSha256": "ae3ed0201439dabbbc27106606bbed9a95430730f1620690fdfd03858cc6fb06",
+      "changes": [
+        "point existing rule regression tests at migrated production modules"
+      ],
+      "kind": "rule-regression"
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "destination": "frontend/src/contracts/canvas_host.ts",
+      "sourceSha256": null,
+      "destinationSha256": "d1cd923b2f54ef86f405cdf4f34c444e3a49701f7245fd1c69b618fdfe4a52f8",
+      "changes": [
+        "Typed native-graph and host history contract; native references remain the sole editable authority.",
+        "Declare typed prepareNativeShortcut for sole native keyboard history ownership; preserve programmatic history commands and native graph authority."
+      ],
+      "kind": "production-source"
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "destination": "frontend/src/integrations/comfyui/canvas/canvas_host.ts",
+      "sourceSha256": null,
+      "destinationSha256": "1bdf9ccd4f4c1797f85798cb407786f3842c991145973920fe0ecc2dec9c01cc",
+      "changes": [
+        "Typed integration bridge, command guards, mode capability diagnostics; no graph copy/cache.",
+        "Accept native null workflow mode as graph per pinned frontend getWorkflowMode; reject unsupported values",
+        "follow native activeMode/initialMode nullish semantics only after recognizing the mode capability; reject unknown modes and verify native toggle outcome"
+      ],
+      "kind": "production-source"
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "destination": "tests/migrated_canvas/canvas_host.test.mjs",
+      "sourceSha256": null,
+      "destinationSha256": "8505787ba2bd367f29cc0fa8d6ef55e07b6577218c69abb9b5081085c23bb839",
+      "changes": [
+        "Execute real typed adapter and mature history with capability removal, stale workflow, startup, native identity, mode and private-access boundary regressions.",
+        "cover native afterLoadGraph activation order, absent initialMode, no-op/failed native toggles, workflow races and safe isGraphReady history guards",
+        "Load the existing source TypeScript resolution hook before dynamically importing the history integration; assertions unchanged."
+      ],
+      "kind": "rule-test"
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "destination": "tests/migrated_canvas/production_boundary.test.mjs",
+      "sourceSha256": null,
+      "destinationSha256": "596d565705b2769e5756b135d99a34c8fd379087e33b9e5c5668809baf78ab55",
+      "changes": [
+        "Production source/resource SHA-256, package URL resolution, original font identity, unknown workflow preservation and gallery exclusion checks."
+      ],
+      "kind": "rule-test"
+    },
+    {
+      "source": "web/creative_canvas.css",
+      "destination": "frontend/src/integrations/comfyui/canvas/canvas_host.css",
+      "sourceSha256": "a858f0328a4f03c28c98a9d6742cbfc615e4ce1a4db8f50f50b2a3e0bca420ee",
+      "destinationSha256": "73c091e6d5b2a76ef075fab703bede82ae1e69c7c4f0c724f87f8e94a2aaea4b",
+      "changes": [
+        "Extract original host DOM visibility selectors into integration; explicit mapping for native sidebar width."
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": null,
+      "sourceSha256": null,
+      "destination": "frontend/src/contracts/assets.ts",
+      "origin": "authored",
+      "kind": "production-source",
+      "changes": [
+        "authored typed asset DTO and service port",
+        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources."
+      ],
+      "destinationSha256": "a0b39bc9a51446fec2aac45e3ebe668308337ce68e5f97355ea3e753beab38b5"
+    },
+    {
+      "source": null,
+      "sourceSha256": null,
+      "destination": "frontend/src/application/asset_library_service.ts",
+      "origin": "authored",
+      "kind": "production-source",
+      "changes": [
+        "authored injected service and per-view cancellable async lifetime guard; no catalog cache or browser persistence",
+        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources."
+      ],
+      "destinationSha256": "e00a4237fefb7f06c6b0485d4d7632487157cbf4e25f3e7fa2aa1e5ce67ac06b"
+    },
+    {
+      "source": null,
+      "sourceSha256": null,
+      "destination": "frontend/src/integrations/comfyui/asset_services.js",
+      "origin": "authored",
+      "kind": "production-source",
+      "changes": [
+        "authored ComfyUI HTTP composition adapter; explicit installAssetServices() assembly",
+        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources."
+      ],
+      "destinationSha256": "d2eb433991d1f0241fca2afc2c5861d578c24501d49c0ddf3f6f4f01701db198"
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "destination": "frontend/src/ui/creative_events.mjs",
+      "sourceSha256": null,
+      "destinationSha256": "9f7930e5a3e15c665bb920798652e79ddaf2db3613c77c8eb3076b7bcd391ff3",
+      "changes": [
+        "Extract the existing migrated table stopCanvasPropagation implementation, including reviewed native-save/IME behavior, into the shared UI layer; no host imports or editor state."
+      ],
+      "kind": "production-source",
+      "derivedFrom": "frontend/src/features/table/list_editor_controls.mjs"
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "frontend/src/application/asset_registration.ts",
+      "destinationSha256": "56ab0ca4568947bfc6bbb5458bef3c7f3172f1b6ec3a876a239209f7fa16359a",
+      "kind": "production-source",
+      "changes": [
+        "Explicit registration lifetime/binding; no secondary editable document or import-time service side effects."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "frontend/src/features/editor/export_session.ts",
+      "kind": "production-source",
+      "changes": [
+        "Separate own currentOutput from GET-verified copiedOutput; compare original-owner digest with current edit/connections, prohibit foreign task control/default start, fence asynchronous observations by captured owner, and preserve native history/ledger facts."
+      ],
+      "destinationSha256": "8e2468a20ccbc6f8c7439364666c843554be791845607ad47006eb6481c6219f"
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "tests/migrated_canvas/panel_zoom_scope.test.mjs",
+      "destinationSha256": "cc2ca5f7163cf1bbb001ae297c98c4aac358dec24c612124f823c2bb82ec0316",
+      "kind": "rule-regression",
+      "changes": [
+        "Guard the two exact owned body scopes, actual root constructor/lease identity, preserved public sibling controls, and exhaustive CSS/JS zoom dependencies; no browser layout or performance pass claimed."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "frontend/src/canvas/creative_focus_reveal.ts",
+      "destinationSha256": "9a284416d1ce38b583d146ebda5e390d983f76341740270d8444597af9ad05aa",
+      "kind": "production-source",
+      "changes": [
+        "Authored strict TypeScript focus coordinator: one coalesced frame reads a collapsed Range and root viewport; visible caret skips ancestor clipping checks. Only needed translations inspect inner clipping. Native text controls use whole-control bounds only when they fit; oversized controls and noncollapsed selections are deliberately not guessed.",
+        "Trusted Tab/Shift+Tab keeps native focus order and may reveal the actual fit-sized noneditor focus target through a one-frame origin intent and current origin/target ownership leases. Pending intent expires or cancels on manual navigation, unrelated keys, IME, mode/lifecycle changes and disposal; no focus, scroll, business or history writes are introduced.",
+        "Correct only rejected left/top clipping checks in the supported fractional-border domain using floating used box geometry and bounded CSS serialization/float-coordinate intervals. Unknown styles/transforms/gutters retain the old conservative path; right/bottom limits, Tab/owner/IME/navigation lifecycle and visible-caret fast return are unchanged. Sub-measurement clipping and other engines remain explicit limits pending real UI validation.",
+        "Extend only trusted Tab/Shift+Tab noneditor whole-control requests: fit-sized targets retain exact revealDelta behavior; oversized axes expose the physical left/top leading region sized to the available viewport. Full original bounds still enforce ancestor clipping. Public revealDelta, caret/textarea, focus/selection, owner leases, IME and cancellation remain unchanged; no complete visibility of oversized controls or performance result is claimed.",
+        "For trusted Tab only, test the baseline-projected focus region against the current status hint and choose a bounded additional translation when possible. Preserve original full-target clipping, oversized leading-region limits, owner recheck, IME/manual-navigation cancellation and ordinary caret fast path. Actual UI acceptance pending.",
+        "For trusted Tab whole-control requests only, avoid the current owned zoom HUD after the status-adjusted projection intersects it; reuse a temporary top bound and reapply bottom-status avoidance. Preserve ordinary caret/input/textarea paths, original full-control clipping, live geometry and post-read identity checks. Actual narrow 150% reverse-Tab failures remain until new candidate UI verification.",
+        "Extend owned bottom-status/top-HUD avoidance to measurable editors using strict full-fit geometry; noneditor trusted Tab retains leading-only behavior. Reuse existing target/root measurements and read each owned overlay at most once per eligible coalesced frame, including clear editors. Preserve IME, leases, cancellation, full original clipping and native history; added layout cost and actual UI acceptance remain unmeasured.",
+        "Avoid current status and asset dock separately in descending top order, then reapply both inside the temporary below-HUD viewport. Each overlay is read at most once per eligible frame. Preserve strict editor fit, trusted-Tab leading-region limits, clipping, IME/manual cancellation and post-read ownership. No latency acceptance claimed."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "tests/migrated_canvas/creative_focus_reveal.test.mjs",
+      "destinationSha256": "68a7a645c0977a7f1e59cce47383e7788a27fad0ffdba71758f27a20faf67b06",
+      "kind": "rule-regression",
+      "changes": [
+        "Execute actual core and view lease binding with two owners and native viewport history; cover stale identity, composition/229, manual navigation, geometry and read/write boundaries. Synthetic DOM does not prove browser geometry, IME or latency.",
+        "Adds seven focused trusted-Tab regressions for recorded offscreen TD/button geometry, exact origin/target lease handoff, inline exit, expiry and cancellation, IME, disabled/hidden/clipped controls, current geometry and teardown. Existing caret/owner tests remain; pure tests do not establish actual browser or performance acceptance.",
+        "Adds seven focused fractional-leading-edge cases using recorded 50/150 geometry, genuine .001/.01 clipping in those cases, exact legacy right/bottom limits, unsupported styles/ancestor transforms, floating top/content-box scale and ownership recheck. Synthetic supported-domain inputs are distinguished from captured fields; no live visibility or performance claim.",
+        "Adds six focused oversized-Tab regressions including recorded 838px Shift+Tab DIV, single/both-axis leading regions, fractional root/visual viewport and invalid geometry, complete-control clipping, non-Tab/pointer/IME/text-control exclusions, two owners, post-read lease validation and unchanged native history. First old-source run failed three cases; final 38 cases pass. Pure geometry is not live UI acceptance.",
+        "Add status-hint overlap, baseline projection, oversized/unsafe bounds, stale owner and zero ordinary-caret status-geometry-read regressions. First red retained; 46 focused checks and strict typing do not establish browser layout or input latency.",
+        "Dynamically import history after the existing TypeScript resolution hook; focus assertions unchanged.",
+        "Add owned top-right HUD overlap, status/HUD combination, oversized leading region, current two-owner geometry, unsupported HUD and post-read cancellation regressions. Retain old-source five failures and candidate/independent 54-pass results; synthetic geometry does not establish live focus or input latency acceptance.",
+        "Add five editor-overlay cases including recorded 1269 LLMA textarea focus/reverse-Tab geometry, caret Range versus editor-box distinction, two owner leases, strict native fit, internal clipping, current overlay bounds and IME cancellation. Replace two previous zero-overlay-read assertions with bounded per-frame read/reuse checks. First old-source run 53/59; candidate 59/59. No browser or latency acceptance claim.",
+        "Add nine dock regression groups with recorded select geometry for both owners, dock/status order, HUD reapplication, disjoint rectangles, missing/hidden/reparented dock, stale leases and IME/manual cancellation. First old-source 60/68 (all 59 previous pass), candidate 68/68; actual UI remains separate."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "frontend/src/integrations/comfyui/canvas/restored_node_order.ts",
+      "destinationSha256": "657c58fc115e83ba0e7e1aa88f914202df7b7e41e5af8522468960392427ba71",
+      "kind": "production-source",
+      "changes": [
+        "Authored strict native restore boundary: stage one order read per owned node, revalidate workflow/root/node identity, preserve all non-order data.",
+        "Validate the active workflow handle and tracker workflow argument as independent leases, supporting transparent reactive handles without weakening root, tracker, snapshot, node or data guards."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "tests/migrated_canvas/history_restored_order.test.mjs",
+      "destinationSha256": "145820e6163503bd456833275c0da7548b60d6fe7661961b4bb7283b2b799f5f",
+      "kind": "rule-regression",
+      "changes": [
+        "Authored synthetic native history contract tests for order-only restoration, both real generation wrapper orders, real edit detection, failed/ordinary loads and identity/getter boundaries."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "tests/migrated_canvas/history_workflow_lease.test.mjs",
+      "destinationSha256": "0daa3534f94a47496e84a22c4e23b6127f56ce7b77abd3704706663e672233cc",
+      "kind": "test-source",
+      "changes": [
+        "Authored raw/proxy workflow lease, failed restore, changed-owner and real-edit contracts; actual isolated history acceptance remains pending."
+      ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "tests/migrated_canvas/material_sources_header_scope.test.mjs",
+      "destinationSha256": "b481d2b756236170d6dfca6b38d68db22c29b07a39a0853367c8ca58b60e72bd",
+      "kind": "rule-regression",
+      "changes": [
+        "Execute the actual materialSources property and generation decorator against two independent table DOM trees; cover current-header identity, column changes/replacement, empty and zero-row tables, and bounded body-search counts. Offline counts are not browser performance acceptance."
+      ]
+    }
+  ],
+  "hostBoundary": {
+    "contract": "frontend/src/contracts/canvas_host.ts",
+    "integration": "frontend/src/integrations/comfyui/canvas/canvas_host.ts",
+    "nativeGraph": "Borrowed native graph/node references; no parallel writable graph.",
+    "scope": "Mature Canvas view/groups host boundary and history fail-closed behavior only. Full DocumentController command migration is tracked separately.",
+    "automaticTests": "Passed: all 67 migrated Canvas rule/contract tests, including 16 new host-boundary cases; strict TypeScript and 40-module architecture scan passed. These are not live product acceptance.",
+    "hostAcceptance": "Actual ComfyUI two-instance/overflow/focus/mode/save-reload/viewport validation remains required after rebuilding; not claimed by these tests.",
+    "startupFinding": "Mature history wrapper read app.graph on ordinary first load. Normal loads now delegate before graph access; throwing-getter regression passes. Actual console recheck pending."
+  },
+  "checkoutNormalization": "Product source uses LF; original third-party vendor bytes are preserved. Source hashes continue to identify the original source bytes.",
+  "assetCatalogValidation": {
+    "status": "local contracts checked; actual UI and stage acceptance pending",
+    "schemaVersion": 3,
+    "firstRun": {
+      "backendCases": 35,
+      "errors": 1,
+      "reason": "Existing migration test forged schema v1 by downgrading PRAGMA on the newest schema, leaving the v3 column/index. Replaced the fixture with an actual _MIGRATIONS[1] database while retaining rollback and preserved-job assertions."
+    },
+    "latestCompleted": {
+      "backendCases": 37,
+      "backendPassed": 37,
+      "storageReviewCases": 6,
+      "storageReviewPassed": 6,
+      "frontendAssetCases": 12,
+      "frontendAssetPassed": 12,
+      "combinedCanvasAndAssetsCases": 79,
+      "combinedCanvasAndAssetsPassed": 79,
+      "typescript": "passed --noEmit",
+      "architecture": "passed for 126 modules"
+    },
+    "unexecuted": [
+      "real browser asset-library integration",
+      "two real instances, focus/overflow, mode switch, save/reload",
+      "cross-origin browser negative test and actual legacy-site user migration"
+    ],
+    "noModelCalls": true,
+    "additionalFailure": {
+      "command": "node --test tests/migrated_canvas/*.test.mjs tests/migrated_assets/*.test.mjs",
+      "passed": 75,
+      "failed": 1,
+      "reason": "Source-only panel-lease test imported a .js URL now produced from TypeScript. Test loader now transpiles the actual typed service and loads the actual source modules; original three panel assertions unchanged."
+    }
+  }
+}

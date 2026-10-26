@@ -1,0 +1,9 @@
+* text=auto eol=lf
+*.woff2 -text
+*.png -text
+*.jpg -text
+*.jpeg -text
+*.mp4 -text
+*.zip -text
+frontend/src/design/vendor/** -text
+web/design/vendor/** -text

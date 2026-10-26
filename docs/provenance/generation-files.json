@@ -1,0 +1,814 @@
+{
+  "version": 1,
+  "sourceRepository": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library",
+  "sourceCommit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+  "status": "implementation and offline tests complete; live provider, GPU, browser and full M4 acceptance pending",
+  "uniquePersistence": [
+    "backend.jobs.JobLedger",
+    "backend.assets.AssetCatalog"
+  ],
+  "nativeNodeId": "DAELAB.LibTV.VideoGenerate",
+  "nativeSlots": {
+    "inputs": 17,
+    "outputs": 5
+  },
+  "coverageReferences": [
+    "F-BIZ-023",
+    "F-BIZ-024",
+    "F-BIZ-026",
+    "F-BIZ-027",
+    "F-BIZ-030",
+    "F-BIZ-031",
+    "F-BIZ-034",
+    "F-BIZ-042",
+    "F-SYS-007",
+    "F-SYS-010",
+    "F-SYS-019"
+  ],
+  "testResults": [
+    {
+      "runtime": "comfy-python-3.12",
+      "testsExitCode": 0,
+      "compileExitCode": 0,
+      "testCount": 54
+    },
+    {
+      "runtime": "system-python-3.14",
+      "testsExitCode": 0,
+      "compileExitCode": 0,
+      "testCount": 54
+    }
+  ],
+  "liveInferenceExecuted": false,
+  "files": [
+    {
+      "destination": "backend/generation/__init__.py",
+      "destinationSha256": "ff4c6094d07a298171f3ff6b402c8cb11ef4accfb2419fe095b41c874dfed1a2",
+      "kind": "authored-production-adapter",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "Explicit package boundary without import-time work."
+      ]
+    },
+    {
+      "destination": "backend/generation/admission.py",
+      "destinationSha256": "e00e9c3866243c457f7e4b9faf1c58273c0967efea30d2d4c130bfe9b2f6f24d",
+      "kind": "authored-production-adapter",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [
+        {
+          "path": "nodes/prompt_optimization/local_qwen.py",
+          "sourceSha256": "8f764358a3a1e2a88c1514bd3f1ee5919fb3249b7a9f5512ee22ba3c02d3a343",
+          "worktreeSourceSha256": "8f764358a3a1e2a88c1514bd3f1ee5919fb3249b7a9f5512ee22ba3c02d3a343"
+        }
+      ],
+      "changes": [
+        "Explicit process-shared admission lock and quarantine; no startup IO or inferred healthy state; native queue stays execution authority.",
+        "Shared CoreServices resource admission (GPU 1/cloud 3/transcode 2), retained uncertain executions, and off-loop persistence where asynchronous; existing native queue and JobLedger remain authoritative.",
+        "Serialize terminal recovery release with restart reservation commit so stale scanned facts cannot resurrect capacity; ordered real-SQLite regression preserves the initial failure.",
+        "Cancellation-safe blocking completion holds capacity through repeated caller cancellation; async native VideoEdit captures host context before entering its synchronous renderer. Ordered regressions retain initial failure evidence.",
+        "Fresh same-provider/task CAS cancellation confirmation preserves winning terminal facts; resource restoration consumes one consistent SQLite snapshot and preserves terminal-release ordering. Fixture restoration adapts only owned historical labels."
+      ]
+    },
+    {
+      "destination": "backend/generation/assembly.py",
+      "destinationSha256": "7b5e83134bce51ae7facaf8feeac9591a4ecb50d1218e8837991a6d91ca2d68e",
+      "kind": "authored-production-adapter",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "Explicit package boundary without import-time work.",
+        "Accept an explicit qwen_binding; missing binding makes Qwen unavailable without startup work.",
+        "Shared CoreServices resource admission (GPU 1/cloud 3/transcode 2), retained uncertain executions, and off-loop persistence where asynchronous; existing native queue and JobLedger remain authoritative."
+      ]
+    },
+    {
+      "destination": "backend/generation/http.py",
+      "destinationSha256": "613caf2e9d2e08205a34db2ca37687102de657f74d1858bfdb56f7498512009d",
+      "kind": "authored-production-adapter",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [
+        {
+          "path": "nodes/prompt_optimization/api.py",
+          "sourceSha256": "b986b63a971eebd5f029db1a207bc8a376079c19ab150d5ac88aee22ee03dfd3",
+          "worktreeSourceSha256": "b986b63a971eebd5f029db1a207bc8a376079c19ab150d5ac88aee22ee03dfd3"
+        },
+        {
+          "path": "nodes/libtv_bridge/table_generation.py",
+          "sourceSha256": "0a79d391377741187a91f0a7aa641c13d5bd7c70837b21ad25752b7a376e1ca0",
+          "worktreeSourceSha256": "0a79d391377741187a91f0a7aa641c13d5bd7c70837b21ad25752b7a376e1ca0"
+        }
+      ],
+      "changes": [
+        "Explicit 21-route binding and injected provider capabilities; preserve table/canvas optimization DTOs; no retired LibTV routes.",
+        "Freeze optional polish sourceScope and return scoped ledger receipt/report without changing prior result DTO fields.",
+        "Read-only status discovery requires exact document/table/node scope, rejects empty/unknown scopes and uses bounded scan pagination; no reconcile/create/provider query.",
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+      ]
+    },
+    {
+      "destination": "backend/generation/media.py",
+      "destinationSha256": "e84dc3cb08a9cb0cd39ccf5daa05b1ccdf95a5e259ffed502afb2b643827e118",
+      "kind": "authored-production-adapter",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [
+        {
+          "path": "nodes/libtv_bridge/table_local_execution.py",
+          "sourceSha256": "73be6634eafa75f2d5bb208f204e691ef3bca4e4da50c3bf1508c674f83a2216",
+          "worktreeSourceSha256": "73be6634eafa75f2d5bb208f204e691ef3bca4e4da50c3bf1508c674f83a2216"
+        },
+        {
+          "path": "nodes/prompt_optimization/canvas.py",
+          "sourceSha256": "dab18cc14060d8b3df3956a22fa04f188ac653e99951fdf5f3c302d3b34dec9d",
+          "worktreeSourceSha256": "dab18cc14060d8b3df3956a22fa04f188ac653e99951fdf5f3c302d3b34dec9d"
+        }
+      ],
+      "changes": [
+        "Freeze through existing AssetCatalog, validate local URLs, stage content-addressed native input atomically, reject path/format/hash changes."
+      ]
+    },
+    {
+      "destination": "backend/generation/optimization.py",
+      "destinationSha256": "a5c048a71035ce22836e15cbd87c44f70c1378882eaa3bb9e654813be19585c2",
+      "kind": "authored-production-adapter",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [
+        {
+          "path": "nodes/prompt_optimization/api.py",
+          "sourceSha256": "b986b63a971eebd5f029db1a207bc8a376079c19ab150d5ac88aee22ee03dfd3",
+          "worktreeSourceSha256": "b986b63a971eebd5f029db1a207bc8a376079c19ab150d5ac88aee22ee03dfd3"
+        },
+        {
+          "path": "nodes/prompt_optimization/service.py",
+          "sourceSha256": "71f434b4f883eaa6224b6345141d252959b5414800899c6dfdbe34c08de5aec9",
+          "worktreeSourceSha256": "71f434b4f883eaa6224b6345141d252959b5414800899c6dfdbe34c08de5aec9"
+        },
+        {
+          "path": "nodes/prompt_optimization/pricing.py",
+          "sourceSha256": "65f6e68e26f96376ffc7b7a09fdb2d561c7979bb6f97707144d801ab9008c41e",
+          "worktreeSourceSha256": "65f6e68e26f96376ffc7b7a09fdb2d561c7979bb6f97707144d801ab9008c41e"
+        }
+      ],
+      "changes": [
+        "Reimplement mature UI DTOs over the unique JobLedger; immutable batch source and ephemeral quotes/leases/permits; restart paused; query/recovery never create.",
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
+        "Shared CoreServices resource admission (GPU 1/cloud 3/transcode 2), retained uncertain executions, and off-loop persistence where asynchronous; existing native queue and JobLedger remain authoritative."
+      ]
+    },
+    {
+      "destination": "backend/generation/service.py",
+      "destinationSha256": "cfb319d3ac57be2fb9c3462b02c431d1c400a5c1c65a7e73202e16c8370e7e7e",
+      "kind": "authored-production-adapter",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [
+        {
+          "path": "nodes/libtv_bridge/table_generation.py",
+          "sourceSha256": "0a79d391377741187a91f0a7aa641c13d5bd7c70837b21ad25752b7a376e1ca0",
+          "worktreeSourceSha256": "0a79d391377741187a91f0a7aa641c13d5bd7c70837b21ad25752b7a376e1ca0"
+        },
+        {
+          "path": "nodes/prompt_optimization/service.py",
+          "sourceSha256": "71f434b4f883eaa6224b6345141d252959b5414800899c6dfdbe34c08de5aec9",
+          "worktreeSourceSha256": "71f434b4f883eaa6224b6345141d252959b5414800899c6dfdbe34c08de5aec9"
+        }
+      ],
+      "changes": [
+        "New application orchestration over existing jobs/assets/result validator, one atomic submission claim, bounded query-only recovery, explicit owned cancellation and result receipts; no second engine/store.",
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
+        "Shared CoreServices resource admission (GPU 1/cloud 3/transcode 2), retained uncertain executions, and off-loop persistence where asynchronous; existing native queue and JobLedger remain authoritative.",
+        "Cancellation-safe blocking completion holds capacity through repeated caller cancellation; async native VideoEdit captures host context before entering its synchronous renderer. Ordered regressions retain initial failure evidence.",
+        "Fresh same-provider/task CAS cancellation confirmation preserves winning terminal facts; resource restoration consumes one consistent SQLite snapshot and preserves terminal-release ordering. Fixture restoration adapts only owned historical labels."
+      ]
+    },
+    {
+      "destination": "backend/integrations/comfyui/generation_nodes/__init__.py",
+      "destinationSha256": "676ccd8621c55b1f7838a58f373e229c0c48780d1c07805457906763156055c8",
+      "kind": "authored-production-adapter",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "Explicit package boundary without import-time work."
+      ]
+    },
+    {
+      "destination": "backend/integrations/comfyui/generation_nodes/native_host.py",
+      "destinationSha256": "abf8e2ce98d493bb489d05616b85e02efabfbe1a7c126071d2aaa77631328eb0",
+      "kind": "authored-production-adapter",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [
+        {
+          "path": "nodes/libtv_bridge/table_local_execution.py",
+          "sourceSha256": "73be6634eafa75f2d5bb208f204e691ef3bca4e4da50c3bf1508c674f83a2216",
+          "worktreeSourceSha256": "73be6634eafa75f2d5bb208f204e691ef3bca4e4da50c3bf1508c674f83a2216"
+        }
+      ],
+      "changes": [
+        "Confine prompt validation/queue/history/interruption to integration; verify request and native identity, atomic owned interrupt, explicit middleware installation."
+      ]
+    },
+    {
+      "destination": "backend/integrations/comfyui/generation_nodes/node.py",
+      "destinationSha256": "099fe0292d6aca2cbf02a2a01c569ba227ce3348aeb8e0baabbf4e5bcc7ee5f4",
+      "kind": "authored-production-adapter",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [
+        {
+          "path": "nodes/libtv_bridge/node.py",
+          "sourceSha256": "3d83aa64c9766bd0e8c515bd5aeb1c507cf7f5e183d2a9e96bf09f0d8570f921",
+          "worktreeSourceSha256": "a435a880d7d44c825dd432b43a206b9fb915ee1bfebba90e2929da095244c066",
+          "sourceDifference": "CRLF/LF only; normalized bytes equal fixed commit"
+        },
+        {
+          "path": "nodes/libtv_bridge/runtime.py",
+          "sourceSha256": "549941f7a2388e19df02e1e63c31872be352b4c9d8e4a7dffe9cbc5b472c20eb",
+          "worktreeSourceSha256": "539a0fef4cf536b1349e798fad63fb0c1fe1ee0f8ecdba71668acaa8b2600b4d",
+          "sourceDifference": "CRLF/LF only; normalized bytes equal fixed commit"
+        }
+      ],
+      "changes": [
+        "Retain DAELAB.LibTV.VideoGenerate ID and 17/5 slots; read only fully validated saved current results; no legacy generation execution.",
+        "Read new minimal current task reference only when stable document/table/node/row/field and immutable receipt agree; keep no-reference history read-only.",
+        "Select immutable new receipt by displayed asset provenance.requestId, enforce source digest and exact scope; legacy package IDs remain read-only local-media compatibility."
+      ]
+    },
+    {
+      "destination": "backend/providers/__init__.py",
+      "destinationSha256": "4ec10b151a9bff10380ab3ff543b483d898f7ebf37602377e33e211675ebde5a",
+      "kind": "authored-production-adapter",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "Explicit package boundary without import-time work."
+      ]
+    },
+    {
+      "destination": "backend/providers/canvas_instructions.py",
+      "destinationSha256": "b0bb08127a8fa1ef1d37c64dd7b2df9a4e87a6403744d4fa2662f47ef3bd4fef",
+      "kind": "migrated-pure-rule",
+      "source": "nodes/prompt_optimization/canvas.py",
+      "sourceSha256": "dab18cc14060d8b3df3956a22fa04f188ac653e99951fdf5f3c302d3b34dec9d",
+      "sourceReferences": [
+        {
+          "path": "nodes/prompt_optimization/canvas.py",
+          "sourceSha256": "dab18cc14060d8b3df3956a22fa04f188ac653e99951fdf5f3c302d3b34dec9d",
+          "worktreeSourceSha256": "dab18cc14060d8b3df3956a22fa04f188ac653e99951fdf5f3c302d3b34dec9d"
+        }
+      ],
+      "changes": [
+        "Extract INSTRUCTIONS and REVERSE_INSTRUCTIONS constants only; exclude old transport/process helpers."
+      ]
+    },
+    {
+      "destination": "backend/providers/context_copy.py",
+      "destinationSha256": "414d2351a0bcf299dc177b6c4acdd328663771cb71a908400266522417557a7e",
+      "kind": "migrated-pure-rule",
+      "source": "nodes/prompt_optimization/context_copy.py",
+      "sourceSha256": "414d2351a0bcf299dc177b6c4acdd328663771cb71a908400266522417557a7e",
+      "sourceReferences": [
+        {
+          "path": "nodes/prompt_optimization/context_copy.py",
+          "sourceSha256": "414d2351a0bcf299dc177b6c4acdd328663771cb71a908400266522417557a7e",
+          "worktreeSourceSha256": "414d2351a0bcf299dc177b6c4acdd328663771cb71a908400266522417557a7e"
+        }
+      ],
+      "changes": [
+        "Preserve pure protected-reference context-leakage validation."
+      ]
+    },
+    {
+      "destination": "backend/providers/contracts.py",
+      "destinationSha256": "dbc1a15748b06cfa9863786be045732215242ef347bc482e8c3ccaf0b1162ee1",
+      "kind": "authored-production-adapter",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "Explicit package boundary without import-time work."
+      ]
+    },
+    {
+      "destination": "backend/providers/native.py",
+      "destinationSha256": "3fa9e65a6566deddc8318be844fe89557314038bfa0b9fb9ff71de0c728e1a71",
+      "kind": "authored-production-adapter",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [
+        {
+          "path": "nodes/libtv_bridge/table_local_image.py",
+          "sourceSha256": "00a16523605ad6ab5232424c3f195ea2bb3d8684140d96c1cd8f5e3c58ef042f",
+          "worktreeSourceSha256": "00a16523605ad6ab5232424c3f195ea2bb3d8684140d96c1cd8f5e3c58ef042f"
+        },
+        {
+          "path": "nodes/libtv_bridge/table_local_video.py",
+          "sourceSha256": "e0b091f3f605278661b3e3fbc38b853c0e8d185389c5dca34536228d5dab65d8",
+          "worktreeSourceSha256": "e0b091f3f605278661b3e3fbc38b853c0e8d185389c5dca34536228d5dab65d8"
+        }
+      ],
+      "changes": [
+        "Explicit inventory/queue/media ports; hash and actual host-resolution validation; deterministic original native identity; preserved UI capabilities; no host singleton import."
+      ]
+    },
+    {
+      "destination": "backend/providers/optimization_contract.py",
+      "destinationSha256": "400e15c329539257b54ac117f5ecdbbcf6b9838fdc006b9075021ba9e99e52d4",
+      "kind": "migrated-pure-rule",
+      "source": "nodes/prompt_optimization/service.py",
+      "sourceSha256": "71f434b4f883eaa6224b6345141d252959b5414800899c6dfdbe34c08de5aec9",
+      "sourceReferences": [
+        {
+          "path": "nodes/prompt_optimization/service.py",
+          "sourceSha256": "71f434b4f883eaa6224b6345141d252959b5414800899c6dfdbe34c08de5aec9",
+          "worktreeSourceSha256": "71f434b4f883eaa6224b6345141d252959b5414800899c6dfdbe34c08de5aec9"
+        }
+      ],
+      "changes": [
+        "Extract only snapshot validation and suggestion rules; restrict live model catalog to explicitly allowed local Qwen; exclude old Ledger and Service."
+      ]
+    },
+    {
+      "destination": "backend/providers/optimization_instructions.py",
+      "destinationSha256": "7e21cea606d66edec45062e043259030bdc1fa07c3309e108a4f65bf303d7124",
+      "kind": "migrated-pure-rule",
+      "source": "nodes/prompt_optimization/instructions.py",
+      "sourceSha256": "7e21cea606d66edec45062e043259030bdc1fa07c3309e108a4f65bf303d7124",
+      "sourceReferences": [
+        {
+          "path": "nodes/prompt_optimization/instructions.py",
+          "sourceSha256": "7e21cea606d66edec45062e043259030bdc1fa07c3309e108a4f65bf303d7124",
+          "worktreeSourceSha256": "7e21cea606d66edec45062e043259030bdc1fa07c3309e108a4f65bf303d7124"
+        }
+      ],
+      "changes": [
+        "Preserve source instructions and contract digests without executing a transport."
+      ]
+    },
+    {
+      "destination": "backend/providers/parameters.py",
+      "destinationSha256": "e7b2a088f30fd9c51f9cf0ea93e59b65b12e67589998f8a63848ec2e79c52f6c",
+      "kind": "migrated-pure-rule",
+      "source": "nodes/libtv_bridge/table_generation.py",
+      "sourceSha256": "0a79d391377741187a91f0a7aa641c13d5bd7c70837b21ad25752b7a376e1ca0",
+      "sourceReferences": [
+        {
+          "path": "nodes/libtv_bridge/table_generation.py",
+          "sourceSha256": "0a79d391377741187a91f0a7aa641c13d5bd7c70837b21ad25752b7a376e1ca0",
+          "worktreeSourceSha256": "0a79d391377741187a91f0a7aa641c13d5bd7c70837b21ad25752b7a376e1ca0"
+        },
+        {
+          "path": "nodes/libtv_bridge/table_local_image.py",
+          "sourceSha256": "00a16523605ad6ab5232424c3f195ea2bb3d8684140d96c1cd8f5e3c58ef042f",
+          "worktreeSourceSha256": "00a16523605ad6ab5232424c3f195ea2bb3d8684140d96c1cd8f5e3c58ef042f"
+        },
+        {
+          "path": "nodes/libtv_bridge/table_local_video.py",
+          "sourceSha256": "e0b091f3f605278661b3e3fbc38b853c0e8d185389c5dca34536228d5dab65d8",
+          "worktreeSourceSha256": "e0b091f3f605278661b3e3fbc38b853c0e8d185389c5dca34536228d5dab65d8"
+        }
+      ],
+      "changes": [
+        "Extract only pure structured references, parameter validation and Qwen/H3 graph builders; accept explicit pinned model names; no discovery, fallback, native execution or old persistence."
+      ]
+    },
+    {
+      "destination": "backend/providers/qwen.py",
+      "destinationSha256": "5a8a06f2115c3cb0409c5b093a164ace3c0a4d2e8dc78abb5ad4246cae47a5d8",
+      "kind": "authored-production-adapter",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [
+        {
+          "path": "nodes/prompt_optimization/local_qwen.py",
+          "sourceSha256": "8f764358a3a1e2a88c1514bd3f1ee5919fb3249b7a9f5512ee22ba3c02d3a343",
+          "worktreeSourceSha256": "8f764358a3a1e2a88c1514bd3f1ee5919fb3249b7a9f5512ee22ba3c02d3a343"
+        },
+        {
+          "path": "nodes/prompt_optimization/qwen.py",
+          "sourceSha256": "b40a311a6d2fa8dd87a433bed72bbac1d19ce4ef4049cf5249c39b7a10de1dcf",
+          "worktreeSourceSha256": "b40a311a6d2fa8dd87a433bed72bbac1d19ce4ef4049cf5249c39b7a10de1dcf"
+        },
+        {
+          "path": "nodes/prompt_optimization/canvas.py",
+          "sourceSha256": "dab18cc14060d8b3df3956a22fa04f188ac653e99951fdf5f3c302d3b34dec9d",
+          "worktreeSourceSha256": "dab18cc14060d8b3df3956a22fa04f188ac653e99951fdf5f3c302d3b34dec9d"
+        }
+      ],
+      "changes": [
+        "Preserve frozen Qwen wire body and image transform; inject existing loopback service; no auto-start, download, retry or cloud fallback; uncertainty retains original identity.",
+        "Require frozen verified manifest/blob metadata and matching service digest; refuse resident work; replace global unload with read-only ps verification."
+      ]
+    },
+    {
+      "destination": "backend/providers/qwen_binding.py",
+      "destinationSha256": "f8388b9b76ca8b4335e5771068a7bbab3b49c1025b02e00afa977ca791ca78d1",
+      "kind": "authored-production-adapter",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "Explicit read-only fixed Qwen registry and six-blob binding; no startup IO, name-only acceptance or unowned unload."
+      ]
+    },
+    {
+      "destination": "tests/generation/evidence/README.md",
+      "destinationSha256": "5dab70bee6f373d78b17431dd40ddb1b630b1f036bf88757c639896336ec09a9",
+      "kind": "offline-test-evidence",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "Deterministic public synthetic validation; no live inference or product acceptance claim.",
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+      ]
+    },
+    {
+      "destination": "tests/generation/fixtures/LOCAL-H3-001.json",
+      "destinationSha256": "5ec321b370f6af6f16573b1fb71bfb24a8cbba479e2cbd2c0d4d33efc39f4587",
+      "kind": "offline-test-evidence",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "Deterministic public synthetic validation; no live inference or product acceptance claim."
+      ],
+      "captureSource": {
+        "kind": "offline-pinned-source-construction",
+        "sha256": "49e16e680b8d35af841febd70187465fa444bf3e666330ae9f4d01c61010523b",
+        "normalizations": [
+          "output prefix",
+          "rooted LoadImage input location"
+        ]
+      }
+    },
+    {
+      "destination": "tests/generation/fixtures/LOCAL-H3-002.json",
+      "destinationSha256": "2e8aeb433c6bbee4eb7e8067429ff58c7f633855da8db2791e434768dbf560d4",
+      "kind": "offline-test-evidence",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "Deterministic public synthetic validation; no live inference or product acceptance claim."
+      ],
+      "captureSource": {
+        "kind": "offline-pinned-source-construction",
+        "sha256": "c387daeef33a13ce0ee34a9470ba7203cd947a19ebe13a8421226d352b8c335f",
+        "normalizations": [
+          "output prefix",
+          "rooted LoadImage input location"
+        ]
+      }
+    },
+    {
+      "destination": "tests/generation/fixtures/LOCAL-H3-003.json",
+      "destinationSha256": "8745fa4f63cc4d5523d508289677c180699d45606a0406d58cab3ea0af4be05e",
+      "kind": "offline-test-evidence",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "Deterministic public synthetic validation; no live inference or product acceptance claim."
+      ],
+      "captureSource": {
+        "kind": "offline-pinned-source-construction",
+        "sha256": "c764f46db45aaeff9e2cf8782c215dd840c797b460e11ad10d7a547c6a07d92d",
+        "normalizations": [
+          "output prefix",
+          "rooted LoadImage input location"
+        ]
+      }
+    },
+    {
+      "destination": "tests/generation/fixtures/LOCAL-IMAGE-001.json",
+      "destinationSha256": "33e4135d78373935eccb80d7a963a9ada4dc07b117d4f13edf461525de14cad2",
+      "kind": "offline-test-evidence",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "Deterministic public synthetic validation; no live inference or product acceptance claim."
+      ],
+      "captureSource": {
+        "kind": "offline-pinned-source-construction",
+        "sha256": "d1f615441f40ebd8882f87f558de043b911395d6b1f1e73e84d7c3993ed29e10",
+        "normalizations": [
+          "output prefix",
+          "rooted LoadImage input location"
+        ]
+      }
+    },
+    {
+      "destination": "tests/generation/fixtures/LOCAL-IMAGE-002.json",
+      "destinationSha256": "7d9730c252e50e93a8b65b79467826d86671100cda2bfc9e7afa04f9d6fd7c83",
+      "kind": "offline-test-evidence",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "Deterministic public synthetic validation; no live inference or product acceptance claim."
+      ],
+      "captureSource": {
+        "kind": "offline-pinned-source-construction",
+        "sha256": "ca10efe6b5e64beec5ed8f02546273b3c5cd72e5eb212f4e107fffc818858a5b",
+        "normalizations": [
+          "output prefix",
+          "rooted LoadImage input location"
+        ]
+      }
+    },
+    {
+      "destination": "tests/generation/fixtures/LOCAL-TEXT-001.json",
+      "destinationSha256": "98005252e8a6fcc1dcb36e0a3d082702a5d391c70571c10895b2a611dab1d86d",
+      "kind": "offline-test-evidence",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "Deterministic public synthetic validation; no live inference or product acceptance claim."
+      ],
+      "captureSource": {
+        "kind": "offline-pinned-source-construction",
+        "sha256": "3cdaadcdcd2a1277e07a1c99e427388155609f021f5ae5e33f1c56fada5e2f43",
+        "normalizations": [
+          "output prefix",
+          "rooted LoadImage input location"
+        ]
+      }
+    },
+    {
+      "destination": "tests/generation/fixtures/LOCAL-TEXT-002.json",
+      "destinationSha256": "b679627c83812979a34c19fa0a4b27ae9235db76cf6a1e05ab60962a4f5fd48e",
+      "kind": "offline-test-evidence",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "Deterministic public synthetic validation; no live inference or product acceptance claim."
+      ],
+      "captureSource": {
+        "kind": "offline-pinned-source-construction",
+        "sha256": "e33c058999c362b69a8a2ac607db2ac4cefb958b2618a4095600856896702939",
+        "normalizations": [
+          "output prefix",
+          "rooted LoadImage input location"
+        ]
+      }
+    },
+    {
+      "destination": "tests/generation/fixtures/LOCAL-TEXT-003.json",
+      "destinationSha256": "245b8832cd96e865c6f7cc4507966a783fee904ffaade9bf0ff0fa3a06465c43",
+      "kind": "offline-test-evidence",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "Deterministic public synthetic validation; no live inference or product acceptance claim."
+      ],
+      "captureSource": {
+        "kind": "offline-pinned-source-construction",
+        "sha256": "6f1782c5484d457e8926bf6b5ff03b27cda15cdff1bbe5978368c97e85e92189",
+        "normalizations": [
+          "output prefix",
+          "rooted LoadImage input location"
+        ]
+      }
+    },
+    {
+      "destination": "tests/generation/fixtures/LOCAL-VISION-001.json",
+      "destinationSha256": "d5b0430548bc3ae734742b857b0de68914f03d77e81beac6888fd6e90eb3f656",
+      "kind": "offline-test-evidence",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "Deterministic public synthetic validation; no live inference or product acceptance claim."
+      ],
+      "captureSource": {
+        "kind": "offline-pinned-source-construction",
+        "sha256": "fa06c284e0ce96244f469742990b648d83a4c49be34d34d270dc4a2e9281b8c4",
+        "normalizations": [
+          "output prefix",
+          "rooted LoadImage input location"
+        ]
+      }
+    },
+    {
+      "destination": "tests/generation/fixtures/LOCAL-VISION-002.json",
+      "destinationSha256": "67c48cd5bf6cfb213b19156a9caccf98c6e6b1f816abe8e7f5c62cc114566e23",
+      "kind": "offline-test-evidence",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "Deterministic public synthetic validation; no live inference or product acceptance claim."
+      ],
+      "captureSource": {
+        "kind": "offline-pinned-source-construction",
+        "sha256": "94f67496dad4427b63c450c38beb63a87c6c5fad06a358a8abf763bd99bd4df3",
+        "normalizations": [
+          "output prefix",
+          "rooted LoadImage input location"
+        ]
+      }
+    },
+    {
+      "destination": "tests/generation/qwen_test_binding.py",
+      "destinationSha256": "e7e5011a3c9bef591f80d1fe304862529bc304e5210b2979d491c000670d7869",
+      "kind": "offline-test-evidence",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "Synthetic registry tests verify fixed manifest/blob identity and read-only release; no inference."
+      ]
+    },
+    {
+      "destination": "tests/generation/test_integration.py",
+      "destinationSha256": "3019d11461eaa798ee7242fc57ab06f6e59e6170a122d4a6fbc3fad281245c2a",
+      "kind": "offline-test-evidence",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "Deterministic public synthetic validation; no live inference or product acceptance claim.",
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+      ]
+    },
+    {
+      "destination": "tests/generation/test_native_and_admission.py",
+      "destinationSha256": "212fc85ebd18897f86c8f36e9976eb07889bbe4c4700273169c996e3ac322fac",
+      "kind": "offline-test-evidence",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "Deterministic public synthetic validation; no live inference or product acceptance claim."
+      ]
+    },
+    {
+      "destination": "tests/generation/test_optimization.py",
+      "destinationSha256": "253f461f056973b502d7d62c78e71878d736a6d5cb676a0ea3d209d3d3a56460",
+      "kind": "offline-test-evidence",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "Deterministic public synthetic validation; no live inference or product acceptance claim."
+      ]
+    },
+    {
+      "destination": "tests/generation/test_parameters.py",
+      "destinationSha256": "de0a1f2e6894e7ae2be911c2ff46d9eca9fb7d909fd0128affb5cef2e274fb2b",
+      "kind": "offline-test-evidence",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "Deterministic public synthetic validation; no live inference or product acceptance claim."
+      ]
+    },
+    {
+      "destination": "tests/generation/test_qwen_binding.py",
+      "destinationSha256": "acc0fdd03d1bde24a73e8f94218a0830c15d62c89ec342f6a3a36a9fe04f199d",
+      "kind": "offline-test-evidence",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "Synthetic registry tests verify fixed manifest/blob identity and read-only release; no inference."
+      ]
+    },
+    {
+      "destination": "tests/generation/test_service.py",
+      "destinationSha256": "b63604b9adaa879a926c78c0c2dd893a6297e2e0b1d88506d4c9e4f0f6e1544c",
+      "kind": "offline-test-evidence",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "Deterministic public synthetic validation; no live inference or product acceptance claim."
+      ]
+    },
+    {
+      "destination": "tests/generation/test_submission_fence.py",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "kind": "offline-test-evidence",
+      "changes": [
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+      ],
+      "destinationSha256": "c03e5578c33fcb2080eef8bfd48dfc3b60c45c53903d0679afb7ee2bf7a38146"
+    },
+    {
+      "destination": "tests/generation/test_optimization_fence.py",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "kind": "offline-test-evidence",
+      "changes": [
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+      ],
+      "destinationSha256": "4c67369bf45aad926a43672ca1b1ab3240a14259d91eea7dbe317e83fdac8c67"
+    },
+    {
+      "destination": "tests/host_fixture/generation_fixture.py",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "kind": "offline-test-evidence",
+      "changes": [
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
+        "Explicit fake cloud resource shares core.resources. Test-only read-only restoration projection maps owned legacy fixture-no-gpu snapshots without mutating ledger facts or adding a production alias; foreign aliases remain rejected.",
+        "Fresh same-provider/task CAS cancellation confirmation preserves winning terminal facts; resource restoration consumes one consistent SQLite snapshot and preserves terminal-release ordering. Fixture restoration adapts only owned historical labels."
+      ],
+      "destinationSha256": "9e0591b7b388d880b7697cd1f46c0c36e9721f8ea38af1a847dd05ee4868e9c6"
+    },
+    {
+      "destination": "tests/host_fixture_tests/test_generation_fixture.py",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "kind": "offline-test-evidence",
+      "changes": [
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
+        "Explicit fake cloud resource shares core.resources. Test-only read-only restoration projection maps owned legacy fixture-no-gpu snapshots without mutating ledger facts or adding a production alias; foreign aliases remain rejected."
+      ],
+      "destinationSha256": "92e8ff8a6dc3d84e1d486672bf55730841acbfab0a3ee0f706510fdd8a666df5"
+    },
+    {
+      "destination": "docs/validation/DETERMINISTIC_GENERATION_FIXTURE.md",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "kind": "offline-test-evidence",
+      "changes": [
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+      ],
+      "destinationSha256": "75ef2f6c35e079accb5ad25fc669b7904a3586b7b69767d55b0e5e99cd3a5369"
+    },
+    {
+      "destination": "tests/generation/test_resource_admission.py",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "kind": "offline-test-evidence",
+      "changes": [
+        "Product FIFO capacity, mixed native/async transcode ownership, cancellation, durable unknown retention/restart, and off-loop claim stop regression; no models invoked.",
+        "Serialize terminal recovery release with restart reservation commit so stale scanned facts cannot resurrect capacity; ordered real-SQLite regression preserves the initial failure.",
+        "Fresh same-provider/task CAS cancellation confirmation preserves winning terminal facts; resource restoration consumes one consistent SQLite snapshot and preserves terminal-release ordering. Fixture restoration adapts only owned historical labels."
+      ],
+      "destinationSha256": "46ddcfcd14e72b900d15444316c326c55ab3f89e7b319f188bc377b7fb911c5d"
+    }
+  ],
+  "qwenWeightBinding": {
+    "manifestSha256": "56671c2ab9385f9cfcb404638e32cd62d88e3501d44822208363c010179a3c90",
+    "runtimeBaselineSha256": "812d21f8ca5d5ccbab8a7b75ae1546c742395d8a028cf749632faec64311dc8e",
+    "realManifestAndInstalledBytesCompared": true,
+    "realBlobsRehashedThisFollowup": false,
+    "syntheticSixBlobValidation": true,
+    "unloadRequests": 0
+  },
+  "localExecutionEvidence": {
+    "publication": "ignored local artifacts; public summaries only",
+    "files": [
+      {
+        "path": "tests/generation/evidence/comfy-python-3.12.txt",
+        "sha256": "c3d46408e2a73de30311b84f78e8370c8e49e1593815ae9d0f3feb2ade80f3fa"
+      },
+      {
+        "path": "tests/generation/evidence/first-failure.txt",
+        "sha256": "c60dad3f2a965a3fdf015100142b44da162c95922d507cbd40b080439c3a72a3"
+      },
+      {
+        "path": "tests/generation/evidence/system-python-3.14.txt",
+        "sha256": "5bb1a82ca30dbe98c3af9f337733cd8f1dbf0703b47d05982bd4e7273c3d6a6e"
+      },
+      {
+        "path": "tests/generation/evidence/validation.json",
+        "sha256": "2e439b2bd54bf3a5304513c5a94dd49f3d9f8989ca271ca30667b607cecd0ec4"
+      }
+    ]
+  },
+  "preflightFenceValidation": {
+    "pythonRuntime": "comfy-python-3.12",
+    "generationTests": 70,
+    "fixtureTests": 16,
+    "sourceFrontendTests": 22,
+    "businessTests": 324,
+    "typecheck": "passed",
+    "liveInferenceExecuted": false,
+    "hostUI": "pending unified build; older snapshots predate this correction"
+  }
+}

@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "kind": "input-preparation-only",
+  "planSha256": "ad0550453adef80c532baecde2183dbad2084b947c457debc9edf3faa96749df",
+  "samplesSha256": "d9d1796956d30ed7ce4cc60c71f4b9a6dba416235bdbd4c5bdd17037040bc1a6",
+  "samples": [
+    {
+      "id": "LOCAL-TEXT-001",
+      "inputSha256": "d1cf7010d8c10837a09891902150a61a5ae81217e866ce4176aa97422fd35e3c"
+    },
+    {
+      "id": "LOCAL-TEXT-002",
+      "inputSha256": "e056c8312b9df4ed733b032609d0bf55e7b925d6b2d9936f0b7de142cd5c866d"
+    },
+    {
+      "id": "LOCAL-TEXT-003",
+      "inputSha256": "f2675042a6b24c2ef1e49e3cc1ab3b20c742c754e06c4f2eb2b72f2a5f8fb69a"
+    },
+    {
+      "id": "LOCAL-VISION-001",
+      "inputSha256": "79d96baf3d087ba92fc76f8073663faad7e9cc22d3b058f1cf40be153a38cf4d"
+    },
+    {
+      "id": "LOCAL-VISION-002",
+      "inputSha256": "317b657a0afe0ab19d3234f7e1eb32d5102cfff692ea0344c018df111a8c6be7"
+    },
+    {
+      "id": "LOCAL-IMAGE-001",
+      "inputSha256": "95c1c0680884683a0d7fb236c5481281f409bf2b5d7b5053064a118a9d2ca69f"
+    },
+    {
+      "id": "LOCAL-IMAGE-002",
+      "inputSha256": "e07b0241fc47b08e03f630c23535c36a27cbe97674e955071c4f6471c0458672"
+    },
+    {
+      "id": "LOCAL-H3-001",
+      "inputSha256": "a1b196bcfd4b0336c6ce81cbb16b7cd0c55259c4f600705114bfd04704cf7b21"
+    },
+    {
+      "id": "LOCAL-H3-002",
+      "inputSha256": "137a34a4021d47865b12c63561dfa7ca8c691c10c698dfacbf2b3b4d902a7f9b"
+    },
+    {
+      "id": "LOCAL-H3-003",
+      "inputSha256": "308917e53c20b745657f2d7234ac824836464a5698b498c965781a4735fe2e5a"
+    }
+  ],
+  "media": [
+    {
+      "path": "images/vision-counts.png",
+      "sha256": "8b65ed167e82a7a6afedbcab87506f015639f4c2ba76e5c2bad465c83f79cb8d",
+      "bytes": 7255,
+      "width": 1536,
+      "height": 1024,
+      "origin": "deterministic synthetic RGB geometry; no metadata or historical media"
+    },
+    {
+      "path": "images/vision-relations.png",
+      "sha256": "b645e71a1adc15408bf6141e4881afaacef71bba4eef4206cf69b6e2a7885b51",
+      "bytes": 2515,
+      "width": 768,
+      "height": 512,
+      "origin": "deterministic synthetic RGB geometry; no metadata or historical media"
+    },
+    {
+      "path": "images/motion-first.png",
+      "sha256": "52b94cd93f793d284f0b6bbad3c3de53d7b9ec008d7dd10a6c5f0a7e6b654401",
+      "bytes": 1462,
+      "width": 640,
+      "height": 360,
+      "origin": "deterministic synthetic RGB geometry; no metadata or historical media"
+    },
+    {
+      "path": "images/motion-last.png",
+      "sha256": "fb3a32a9bba4fb5cec0736b58c0d6d12543660ca808dbcbe1b54baf8aebd9deb",
+      "bytes": 2249,
+      "width": 768,
+      "height": 512,
+      "origin": "deterministic synthetic RGB geometry; no metadata or historical media"
+    }
+  ],
+  "sourceFiles": {
+    "web/prompt_optimization_model.mjs": {
+      "commit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+      "sha256": "44fcd380d73784d2942bed1cb85284f6bacf18f28ec3ffeafb197c5de94b26e3"
+    },
+    "web/table_prompt_template.mjs": {
+      "commit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+      "sha256": "743ca197bb412f6d2718d64ffbcfd1e60b5784de84113c9f2b9be255672a6498"
+    },
+    "web/table_prompt_source.mjs": {
+      "commit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+      "sha256": "f2e667e35a4f6623e4b3a2cbc2303ba768246d49e68b68cdd030d42cc595b5c3"
+    },
+    "web/table_prompt_model.mjs": {
+      "commit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+      "sha256": "554b71c9f03d0505243352e66204c3af3c230c8fa92eca60e6ede9d8ed87d50b"
+    },
+    "web/table_video_references.mjs": {
+      "commit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+      "sha256": "dc1922591e8f5c139630a29701d3f9ef6d77ac4a1749bf5ffeb057fadf0fa009"
+    },
+    "web/table_generation_model.mjs": {
+      "commit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+      "sha256": "eee30572bc581bfd1c90925935d73227ee29578d0dbfb8779bd6e763912b532d"
+    },
+    "web/data_table_model.mjs": {
+      "commit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+      "sha256": "ba6709c6b3494aa7da6a372c9744cb111e9a263a3ac26341f0e0d58ce0d7c59a"
+    },
+    "web/prompt_optimization_context_copy.mjs": {
+      "commit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+      "sha256": "fdbdd0c165a7267c46e6305b36237708d8e12c2b6e495117c29cb19a47a66312"
+    },
+    "nodes/prompt_optimization/local_qwen.py": {
+      "commit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+      "sha256": "8f764358a3a1e2a88c1514bd3f1ee5919fb3249b7a9f5512ee22ba3c02d3a343"
+    },
+    "nodes/prompt_optimization/canvas.py": {
+      "commit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+      "sha256": "dab18cc14060d8b3df3956a22fa04f188ac653e99951fdf5f3c302d3b34dec9d"
+    },
+    "nodes/prompt_optimization/pricing.py": {
+      "commit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+      "sha256": "65f6e68e26f96376ffc7b7a09fdb2d561c7979bb6f97707144d801ab9008c41e"
+    },
+    "nodes/prompt_optimization/instructions.py": {
+      "commit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+      "sha256": "7e21cea606d66edec45062e043259030bdc1fa07c3309e108a4f65bf303d7124"
+    },
+    "nodes/prompt_optimization/qwen.py": {
+      "commit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+      "sha256": "b40a311a6d2fa8dd87a433bed72bbac1d19ce4ef4049cf5249c39b7a10de1dcf"
+    },
+    "nodes/libtv_bridge/table_local_image.py": {
+      "commit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+      "sha256": "00a16523605ad6ab5232424c3f195ea2bb3d8684140d96c1cd8f5e3c58ef042f"
+    },
+    "nodes/libtv_bridge/table_local_video.py": {
+      "commit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+      "sha256": "e0b091f3f605278661b3e3fbc38b853c0e8d185389c5dca34536228d5dab65d8"
+    },
+    "nodes/libtv_bridge/table_generation.py": {
+      "commit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+      "sha256": "0a79d391377741187a91f0a7aa641c13d5bd7c70837b21ad25752b7a376e1ca0"
+    },
+    "nodes/libtv_bridge/table_local_execution.py": {
+      "commit": "7ff56cb51ef6f7fc3bcf5707792d655037c61b30",
+      "sha256": "73be6634eafa75f2d5bb208f204e691ef3bca4e4da50c3bf1508c674f83a2216"
+    }
+  },
+  "hostSourceFiles": {
+    "nodes.py": {
+      "commit": "3c1b7a17fdf239d35ce98cc777756f572d089795",
+      "sha256": "5eeea34944e282a362adfcad4d8eeae5de6aeeff0bdac06d8e694378001d5f12"
+    },
+    "comfy_extras/nodes_minimax_h3.py": {
+      "commit": "3c1b7a17fdf239d35ce98cc777756f572d089795",
+      "sha256": "5999ed8c22b13c8251084c0629fd82137d2fb52b55106abfc73bf5cafc73841d"
+    },
+    "comfy/utils.py": {
+      "commit": "3c1b7a17fdf239d35ce98cc777756f572d089795",
+      "sha256": "9320cf5c624e96acc1d9ec92ff120ed6387a2142707f3194cb21dd0d11ac2500"
+    },
+    "comfy_api/latest/_input_impl/video_types.py": {
+      "commit": "3c1b7a17fdf239d35ce98cc777756f572d089795",
+      "sha256": "c215749f55f4248cd606c46338894656534f60d4fc03feaf679fad1cf4243e1f"
+    }
+  },
+  "historicalSourceHashes": [
+    {
+      "id": "historical-source-1",
+      "sha256": "4952a9319e2f66fa3de9be4b21b0792d5dbc4cb96c826364f2336528f8e6011e",
+      "role": "private historical source only; no old output/request/cache imported"
+    },
+    {
+      "id": "historical-source-2",
+      "sha256": "59896e63c4b02d418d1e282b2d646ffd3c5816461cc9882c8a33c9924291ad12",
+      "role": "private historical source only; no old output/request/cache imported"
+    },
+    {
+      "id": "historical-source-3",
+      "sha256": "0abd6966ee78180f0337809482682f0e3952b48c86228e0306c4b7aeba5fe760",
+      "role": "private historical source only; no old output/request/cache imported"
+    },
+    {
+      "id": "historical-source-4",
+      "sha256": "f122e235b0e2c72921d14d6b634f2ad7c0b4006a958e346e9ed3f5865fdc1d44",
+      "role": "private historical source only; no old output/request/cache imported"
+    },
+    {
+      "id": "historical-source-5",
+      "sha256": "dfe242140080cd9fbb9935b981d1f42129f7d9308b3bb3be509c12d597e09a30",
+      "role": "private historical source only; no old output/request/cache imported"
+    },
+    {
+      "id": "historical-source-6",
+      "sha256": "e2e4ec189fcfec389911b0d3ba6c053a5887a75f8ba1a690d8d821e469f11f7d",
+      "role": "private historical source only; no old output/request/cache imported"
+    },
+    {
+      "id": "historical-source-7",
+      "sha256": "76812042ec17406eb6162af5dff091ca23f2489be04b75282951d842908c0a38",
+      "role": "private historical source only; no old output/request/cache imported"
+    }
+  ],
+  "knownBaselineDefect": "Historical H3 expansion contains numeric camera wording. Original private sources remain unchanged. No cleanup of expanded prompt text is allowed during request comparison. These synthetic fixtures do not reproduce or claim to repair every historical defect.",
+  "preprocessing": {
+    "qwenVision": "Exact old image_payload: EXIF transpose → RGB → thumbnail(1024,1024) → JPEG quality 90; captured bytes hashed.",
+    "h3": "Pending actual LoadImage and MiniMaxH3ImageToVideo.execute: first frame lanczos/stretch; last frame lanczos/center-crop. Hash contiguous CPU float32 tensor shape+bytes at both tokenize/vae boundaries before inference."
+  }
+}

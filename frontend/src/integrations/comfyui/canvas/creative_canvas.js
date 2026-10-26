@@ -1,0 +1,92 @@
+import {app} from '/scripts/app.js';
+import {createCanvasHostPort,enterCanvasGraphMode} from './canvas_host.js';
+import {createCreativeCanvas} from '../../../canvas/creative_canvas_view.mjs?v=20261023-column-fill';
+import {STATE_KEY} from '../../../canvas/creative_canvas_model.mjs';
+import {installLayoutHistory,canvasHistory} from './creative_history.mjs?v=20261012-client-workflow-r8';
+import {installMaterialGroups} from '../../../features/groups/material_groups.mjs?v=20261022-favorite1';
+
+import {publishAPI} from '../../../canvas/creative_contract.mjs';
+import {publishInputExchange} from '../../../canvas/creative_input_exchange.mjs';
+import {publishPanelContext} from '../../../ui/creative_panel_context.mjs?v=20260930-public-layout4';
+import './adapters/upload.mjs?v=20261012-client-workflow-r8';
+import {installComfyTVAdapter} from './adapters/comfytv.mjs?v=20261021-parser-menu';
+publishAPI();
+publishPanelContext();
+publishInputExchange();
+installComfyTVAdapter(app);
+
+const iconURL=new URL('../../../design/vendor/remixicon/artboard-line.svg',import.meta.url).href;
+function icon(){const i=document.createElement('i');i.className='dae-creative-icon';i.style.setProperty('--dae-icon',`url("${iconURL}")`);i.setAttribute('aria-hidden','true');return i;}
+let view,observer,scheduled=false,modeRevision=0;
+const labels=new Map();
+const diagnose=diagnostic=>{
+    console.error('[Creative Studio]',diagnostic.code,diagnostic.capability);
+    app.extensionManager?.toast?.add?.({severity:'error',summary:'创作画布宿主能力缺失',detail:diagnostic.message,life:8000});
+};
+async function switchMode(creative){
+    const revision=++modeRevision,workflow=app.extensionManager?.workflow?.activeWorkflow;
+    try{await enterCanvasGraphMode(app,diagnose);}
+    catch{return false;} // The host bridge already emitted an explicit diagnostic.
+    if(revision!==modeRevision||workflow!==app.extensionManager?.workflow?.activeWorkflow||!view)return false;
+    if(creative)view.show();else view.hide();updateLabel();return true;
+}
+function restoreLabels(){for(const [button,saved] of labels){saved.badge.remove();for(const [child,display] of saved.children)child.style.display=display;if(saved.label===null)button.removeAttribute('aria-label');else button.setAttribute('aria-label',saved.label);}labels.clear();}
+function updateLabel(){
+    if(!view?.active){restoreLabels();return;}
+    const button=document.querySelector('[data-testid="view-mode-toggle"] button[aria-haspopup="menu"]');
+    if(!button||labels.has(button))return;
+    restoreLabels();const badge=document.createElement('span');badge.className='dae-creative-mode-label';badge.append(icon(),document.createTextNode('创作画布 ▾'));
+    const children=[...button.children].map(child=>[child,child.style.display]);for(const [child] of children)child.style.display='none';
+    labels.set(button,{children,badge,label:button.getAttribute('aria-label')});button.append(badge);button.setAttribute('aria-label','创作画布模式，工作流操作');
+}
+function closeMenu(menu){menu.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',code:'Escape',bubbles:true}));}
+// Compatibility boundary: this ComfyUI version has no workflow-actions menu contribution API.
+// Scope by the host's stable test ID + aria-labelledby, never by translated menu text.
+function syncMenu(){
+    scheduled=false;updateLabel();
+    const toggle=document.querySelector('[data-testid="view-mode-toggle"]');if(!toggle)return;
+    for(const menu of document.querySelectorAll('[role="menu"][aria-labelledby]')){
+        const trigger=document.getElementById(menu.getAttribute('aria-labelledby'));
+        if(!trigger||!(toggle===trigger||toggle.contains(trigger)||trigger.contains(toggle)))continue;
+        if(menu.querySelector('[data-daelab-creative-entry]'))continue;
+        const group=document.createElement('div');group.dataset.daelabCreativeEntry='true';
+        for(const [name,active] of [['创作画布',true],['图形',false]]){
+            const b=document.createElement('button');b.type='button';b.className='dae-creative-menu-item';b.setAttribute('role','menuitem');b.tabIndex=0;
+            b.append(icon(),document.createTextNode(name));b.setAttribute('aria-label',`切换到${name}`);
+            b.onclick=e=>{e.stopPropagation();closeMenu(menu);void switchMode(active);};
+            b.onkeydown=e=>{if(['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();e.stopPropagation();const items=[...menu.querySelectorAll('[role=menuitem]:not([aria-disabled=true])')];const i=items.indexOf(b);items[(i+(e.key==='ArrowDown'?1:-1)+items.length)%items.length]?.focus();}};
+            group.append(b);
+        }
+        const separator=document.createElement('div');separator.setAttribute('role','separator');separator.style.cssText='border-top:1px solid #ffffff18;margin:6px 0';group.append(separator);menu.prepend(group);
+    }
+}
+app.registerExtension({
+    name:'DAELAB.CreativeCanvas',
+    commands:[{id:'DAELAB.CreativeCanvas.Toggle',label:'切换创作画布',function:()=>switchMode(!view?.active)}],
+    setup(){
+        if(document.getElementById('daelab-creative-css'))return;
+        installLayoutHistory(app);
+        const css=document.createElement('link');css.id='daelab-creative-css';css.rel='stylesheet';css.href=new URL('../../../canvas/creative_canvas.css?v=20261023-narrow-edge',import.meta.url).href;document.head.append(css);
+        const hostCSS=document.createElement('link');hostCSS.rel='stylesheet';hostCSS.href=new URL('./canvas_host.css',import.meta.url).href;document.head.append(hostCSS);
+        const history=canvasHistory(app,{diagnose});
+        const host=createCanvasHostPort(app,globalThis.LiteGraph,history,diagnose);
+        view=createCreativeCanvas(host,{onExit:updateLabel});
+        observer=new MutationObserver(records=>{if(records.every(r=>r.target instanceof Element&&r.target.closest('.dae-creative')))return;if(!scheduled){scheduled=true;requestAnimationFrame(syncMenu);}});
+        observer.observe(document.body,{childList:true,subtree:true});
+        document.addEventListener('click',event=>{
+            if(view.active&&event.target.closest?.('[data-testid="view-mode-toggle"] button:not([aria-haspopup])')){view.hide();updateLabel();}
+        },true);
+        // Diagnostics + integration surface for the DAELab extension, not an upstream patch.
+        app.daelabCreativeCanvas=view;
+        app.daelabMaterialGroups=installMaterialGroups(host,view);
+        syncMenu();
+    },
+    beforeLoadGraph(){++modeRevision;view?.hide(false);restoreLabels();},
+    // In the native loader afterConfigureGraph precedes workflow activation.
+    // afterLoadGraph runs after afterLoadNewGraph has installed the new tracker
+    // and resolved its initial mode. Never toggle the previous workflow here.
+    afterLoadGraph(){
+        if(view&&app.isGraphReady!==false&&app.graph?.extra?.[STATE_KEY]?.active)return switchMode(true);
+        updateLabel();
+    },
+});
