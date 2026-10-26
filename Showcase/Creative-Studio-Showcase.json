@@ -1,0 +1,1444 @@
+{
+  "id": "b52b0f3f-f096-5e73-a67f-81eae8899efa",
+  "revision": 0,
+  "last_node_id": 16,
+  "last_link_id": 5,
+  "nodes": [
+    {
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "slot_index": 0,
+          "links": []
+        }
+      ],
+      "id": 1,
+      "type": "DAELAB.TextInput",
+      "title": "00 · 从这里开始",
+      "pos": [
+        0,
+        0
+      ],
+      "size": [
+        730,
+        340
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "DAELAB.TextInput"
+      },
+      "widgets_values": [
+        "CREATIVE STUDIO · 功能确认工程\n\n从左向右：素材与文稿 → 两表 / 两 LLM → 生成配置 → 剪辑。\n图片和视频为随工程提供的合成演示素材。\n点击底部「适应」看全图；Ctrl + 滚轮缩放。\n可编辑、复制、撤销和另存为。详细确认清单在 Showcase/README.md。\n生成、LLM 请求需另行装配本地模型；本工程没有生成成功记录。"
+      ],
+      "widgets_values_named": {
+        "text": "CREATIVE STUDIO · 功能确认工程\n\n从左向右：素材与文稿 → 两表 / 两 LLM → 生成配置 → 剪辑。\n图片和视频为随工程提供的合成演示素材。\n点击底部「适应」看全图；Ctrl + 滚轮缩放。\n可编辑、复制、撤销和另存为。详细确认清单在 Showcase/README.md。\n生成、LLM 请求需另行装配本地模型；本工程没有生成成功记录。"
+      }
+    },
+    {
+      "inputs": [
+        {
+          "name": "asset_data",
+          "type": "STRING",
+          "widget": {
+            "name": "asset_data"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image_ref",
+          "type": "COMFYTV_IMAGE",
+          "slot_index": 0,
+          "links": []
+        },
+        {
+          "name": "image_refs",
+          "type": "COMFYTV_IMAGES",
+          "slot_index": 1,
+          "links": []
+        },
+        {
+          "name": "video_ref",
+          "type": "COMFYTV_VIDEO",
+          "slot_index": 2,
+          "links": []
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "slot_index": 3,
+          "links": [
+            4
+          ]
+        },
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "slot_index": 4,
+          "links": []
+        }
+      ],
+      "id": 2,
+      "type": "DAELAB.MediaUpload",
+      "title": "镜头 01 · 合成演示图",
+      "pos": [
+        16,
+        500
+      ],
+      "size": [
+        350,
+        197
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "DAELAB.MediaUpload"
+      },
+      "widgets_values": [
+        "{\"version\":1,\"id\":\"studio-showcase-scene-01\",\"kind\":\"image\",\"name\":\"镜头 01 · 合成演示图\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\"}"
+      ],
+      "widgets_values_named": {
+        "asset_data": "{\"version\":1,\"id\":\"studio-showcase-scene-01\",\"kind\":\"image\",\"name\":\"镜头 01 · 合成演示图\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\"}"
+      }
+    },
+    {
+      "inputs": [
+        {
+          "name": "asset_data",
+          "type": "STRING",
+          "widget": {
+            "name": "asset_data"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image_ref",
+          "type": "COMFYTV_IMAGE",
+          "slot_index": 0,
+          "links": []
+        },
+        {
+          "name": "image_refs",
+          "type": "COMFYTV_IMAGES",
+          "slot_index": 1,
+          "links": []
+        },
+        {
+          "name": "video_ref",
+          "type": "COMFYTV_VIDEO",
+          "slot_index": 2,
+          "links": []
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "slot_index": 3,
+          "links": []
+        },
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "slot_index": 4,
+          "links": []
+        }
+      ],
+      "id": 3,
+      "type": "DAELAB.MediaUpload",
+      "title": "镜头 02 · 合成演示图",
+      "pos": [
+        372,
+        500
+      ],
+      "size": [
+        350,
+        197
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "DAELAB.MediaUpload"
+      },
+      "widgets_values": [
+        "{\"version\":1,\"id\":\"studio-showcase-scene-02\",\"kind\":\"image\",\"name\":\"镜头 02 · 合成演示图\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\"}"
+      ],
+      "widgets_values_named": {
+        "asset_data": "{\"version\":1,\"id\":\"studio-showcase-scene-02\",\"kind\":\"image\",\"name\":\"镜头 02 · 合成演示图\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\"}"
+      }
+    },
+    {
+      "inputs": [
+        {
+          "name": "asset_data",
+          "type": "STRING",
+          "widget": {
+            "name": "asset_data"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image_ref",
+          "type": "COMFYTV_IMAGE",
+          "slot_index": 0,
+          "links": []
+        },
+        {
+          "name": "image_refs",
+          "type": "COMFYTV_IMAGES",
+          "slot_index": 1,
+          "links": []
+        },
+        {
+          "name": "video_ref",
+          "type": "COMFYTV_VIDEO",
+          "slot_index": 2,
+          "links": []
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "slot_index": 3,
+          "links": [
+            5
+          ]
+        },
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "slot_index": 4,
+          "links": []
+        }
+      ],
+      "id": 4,
+      "type": "DAELAB.MediaUpload",
+      "title": "镜头 03 · 合成演示图",
+      "pos": [
+        16,
+        725
+      ],
+      "size": [
+        350,
+        197
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "DAELAB.MediaUpload"
+      },
+      "widgets_values": [
+        "{\"version\":1,\"id\":\"studio-showcase-scene-03\",\"kind\":\"image\",\"name\":\"镜头 03 · 合成演示图\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\"}"
+      ],
+      "widgets_values_named": {
+        "asset_data": "{\"version\":1,\"id\":\"studio-showcase-scene-03\",\"kind\":\"image\",\"name\":\"镜头 03 · 合成演示图\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\"}"
+      }
+    },
+    {
+      "inputs": [
+        {
+          "name": "collection_data",
+          "type": "STRING",
+          "widget": {
+            "name": "collection_data"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "assets",
+          "type": "DAELAB_ASSETS",
+          "slot_index": 0,
+          "links": [
+            2
+          ]
+        }
+      ],
+      "id": 5,
+      "type": "DAELAB.MaterialGroup",
+      "title": "01 · 参考素材组（可排序 / 收藏 / 复用）",
+      "pos": [
+        0,
+        1900
+      ],
+      "size": [
+        730,
+        500
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "DAELAB.MaterialGroup",
+        "members": [
+          2,
+          3,
+          4
+        ],
+        "layout": "grid",
+        "collapsed": false,
+        "locked": false,
+        "showNumbers": true,
+        "reviewColor": "#72c6c2"
+      },
+      "widgets_values": [
+        "{\"version\":1,\"assets\":[{\"version\":1,\"id\":\"studio-showcase-scene-01\",\"kind\":\"image\",\"name\":\"镜头 01 · 合成演示图\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\",\"nodeId\":\"2\"},{\"version\":1,\"id\":\"studio-showcase-scene-02\",\"kind\":\"image\",\"name\":\"镜头 02 · 合成演示图\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\",\"nodeId\":\"3\"},{\"version\":1,\"id\":\"studio-showcase-scene-03\",\"kind\":\"image\",\"name\":\"镜头 03 · 合成演示图\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\",\"nodeId\":\"4\"}],\"texts\":[],\"textSources\":[]}"
+      ],
+      "widgets_values_named": {
+        "collection_data": "{\"version\":1,\"assets\":[{\"version\":1,\"id\":\"studio-showcase-scene-01\",\"kind\":\"image\",\"name\":\"镜头 01 · 合成演示图\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\",\"nodeId\":\"2\"},{\"version\":1,\"id\":\"studio-showcase-scene-02\",\"kind\":\"image\",\"name\":\"镜头 02 · 合成演示图\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\",\"nodeId\":\"3\"},{\"version\":1,\"id\":\"studio-showcase-scene-03\",\"kind\":\"image\",\"name\":\"镜头 03 · 合成演示图\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\",\"nodeId\":\"4\"}],\"texts\":[],\"textSources\":[]}"
+      }
+    },
+    {
+      "inputs": [
+        {
+          "name": "asset_data",
+          "type": "STRING",
+          "widget": {
+            "name": "asset_data"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image_ref",
+          "type": "COMFYTV_IMAGE",
+          "slot_index": 0,
+          "links": []
+        },
+        {
+          "name": "image_refs",
+          "type": "COMFYTV_IMAGES",
+          "slot_index": 1,
+          "links": []
+        },
+        {
+          "name": "video_ref",
+          "type": "COMFYTV_VIDEO",
+          "slot_index": 2,
+          "links": []
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "slot_index": 3,
+          "links": []
+        },
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "slot_index": 4,
+          "links": []
+        }
+      ],
+      "id": 6,
+      "type": "DAELAB.MediaUpload",
+      "title": "演示视频 · 可播放并拖入剪辑",
+      "pos": [
+        0,
+        1100
+      ],
+      "size": [
+        480,
+        270
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "DAELAB.MediaUpload"
+      },
+      "widgets_values": [
+        "{\"version\":1,\"id\":\"studio-showcase-motion\",\"kind\":\"video\",\"name\":\"4 秒合成演示片段\",\"filename\":\"preview-motion.mp4\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"duration\":4,\"fps\":24,\"has_audio\":false,\"url\":\"/view?filename=preview-motion.mp4&subfolder=CreativeStudioShowcase&type=input\"}"
+      ],
+      "widgets_values_named": {
+        "asset_data": "{\"version\":1,\"id\":\"studio-showcase-motion\",\"kind\":\"video\",\"name\":\"4 秒合成演示片段\",\"filename\":\"preview-motion.mp4\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"duration\":4,\"fps\":24,\"has_audio\":false,\"url\":\"/view?filename=preview-motion.mp4&subfolder=CreativeStudioShowcase&type=input\"}"
+      }
+    },
+    {
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "slot_index": 0,
+          "links": [
+            3
+          ]
+        }
+      ],
+      "id": 7,
+      "type": "DAELAB.TextInput",
+      "title": "文字素材 · 可收藏与打组",
+      "pos": [
+        0,
+        1500
+      ],
+      "size": [
+        730,
+        250
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "DAELAB.TextInput"
+      },
+      "widgets_values": [
+        "保留三个镜头的叙事顺序。清晨柔光、克制配色、稳定构图。客舱座椅与舷窗结构保持一致；镜头运动缓慢平稳。"
+      ],
+      "widgets_values_named": {
+        "text": "保留三个镜头的叙事顺序。清晨柔光、克制配色、稳定构图。客舱座椅与舷窗结构保持一致；镜头运动缓慢平稳。"
+      }
+    },
+    {
+      "inputs": [
+        {
+          "name": "table_data",
+          "type": "STRING",
+          "widget": {
+            "name": "table_data"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "table_json",
+          "type": "STRING",
+          "slot_index": 0,
+          "links": []
+        },
+        {
+          "name": "storyboard_json",
+          "type": "STRING",
+          "slot_index": 1,
+          "links": []
+        }
+      ],
+      "id": 8,
+      "type": "DAELAB.ScriptParser",
+      "title": "02 · 文稿导入 / 映射 / 来源追踪",
+      "pos": [
+        900,
+        0
+      ],
+      "size": [
+        780,
+        620
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "DAELAB.ScriptParser"
+      },
+      "widgets_values": [
+        "{\"version\":1,\"fields\":[{\"id\":\"sp-shot_no\",\"name\":\"镜号\",\"type\":\"text\",\"width\":180,\"hidden\":false},{\"id\":\"sp-time_range\",\"name\":\"时间\",\"type\":\"text\",\"width\":180,\"hidden\":false},{\"id\":\"sp-scene\",\"name\":\"画面\",\"type\":\"longtext\",\"width\":360,\"hidden\":false},{\"id\":\"sp-notes\",\"name\":\"备注\",\"type\":\"longtext\",\"width\":180,\"hidden\":false},{\"id\":\"sp-chapter\",\"name\":\"章节\",\"type\":\"text\",\"width\":180,\"hidden\":false},{\"id\":\"3572aedd-2e75-47f9-91d7-c29896fef544\",\"name\":\"参考图\",\"type\":\"content\",\"video_reference\":false,\"width\":300}],\"records\":[{\"id\":\"c8eec7ee-85ce-4f35-9da3-918daa88c8e5\",\"selected\":false,\"values\":{\"sp-shot_no\":\"01\",\"sp-time_range\":\"4秒\",\"sp-scene\":\"清晨的民航客舱，暖白色座椅沿中央过道延伸；柔和自然光透过舷窗，蓝灰色织物与浅木饰面形成舒适的层次。\",\"sp-notes\":\"镜头沿中央过道缓慢向前推进，保持稳定构图。\",\"sp-chapter\":\"客舱设计提案\",\"3572aedd-2e75-47f9-91d7-c29896fef544\":[{\"id\":\"dee6a8a2-c94c-4b1e-8e83-979bac0e05ab\",\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\",\"kind\":\"image\",\"name\":\"scene-1 · 参考 1\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"provenance\":{\"document_id\":\"showcase-synthetic-cabin-v1\",\"occurrence_id\":\"synthetic-image-1\",\"source_cell\":\"synthetic-scene-1\",\"asset_id\":\"scene-1\"}}]},\"meta\":{\"script_source\":{\"source_key\":\"showcase-synthetic-cabin-v1:scene-1\",\"document_id\":\"showcase-synthetic-cabin-v1\",\"filename\":\"Showcase 内置示例（非文档导入记录）\",\"row_id\":\"scene-1\",\"table_id\":\"synthetic\",\"issues\":[],\"sources\":{},\"context\":[]},\"script_original\":[],\"script_import_values\":{\"sp-shot_no\":\"01\",\"sp-time_range\":\"4秒\",\"sp-scene\":\"清晨的民航客舱，暖白色座椅沿中央过道延伸；柔和自然光透过舷窗，蓝灰色织物与浅木饰面形成舒适的层次。\",\"sp-notes\":\"镜头沿中央过道缓慢向前推进，保持稳定构图。\",\"sp-chapter\":\"客舱设计提案\",\"3572aedd-2e75-47f9-91d7-c29896fef544\":[{\"id\":\"dee6a8a2-c94c-4b1e-8e83-979bac0e05ab\",\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\",\"kind\":\"image\",\"name\":\"scene-1 · 参考 1\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"provenance\":{\"document_id\":\"showcase-synthetic-cabin-v1\",\"occurrence_id\":\"synthetic-image-1\",\"source_cell\":\"synthetic-scene-1\",\"asset_id\":\"scene-1\"}}]}}},{\"id\":\"d3876af8-c065-49e6-ba7d-5d3bf7b52344\",\"selected\":false,\"values\":{\"sp-shot_no\":\"02\",\"sp-time_range\":\"4秒\",\"sp-scene\":\"客舱设计工作室里的材质样板台，蓝灰色织物、浅木饰面、磨砂金属样片整齐并列，侧光展现纹理与质感。\",\"sp-notes\":\"近景缓慢横移，对焦织物与木纹边缘。\",\"sp-chapter\":\"客舱设计提案\",\"3572aedd-2e75-47f9-91d7-c29896fef544\":[{\"id\":\"fc52767d-2f09-43b7-98a9-7ab457e2b86f\",\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\",\"kind\":\"image\",\"name\":\"scene-2 · 参考 1\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"provenance\":{\"document_id\":\"showcase-synthetic-cabin-v1\",\"occurrence_id\":\"synthetic-image-2\",\"source_cell\":\"synthetic-scene-2\",\"asset_id\":\"scene-2\"}}]},\"meta\":{\"script_source\":{\"source_key\":\"showcase-synthetic-cabin-v1:scene-2\",\"document_id\":\"showcase-synthetic-cabin-v1\",\"filename\":\"Showcase 内置示例（非文档导入记录）\",\"row_id\":\"scene-2\",\"table_id\":\"synthetic\",\"issues\":[],\"sources\":{},\"context\":[]},\"script_original\":[],\"script_import_values\":{\"sp-shot_no\":\"02\",\"sp-time_range\":\"4秒\",\"sp-scene\":\"客舱设计工作室里的材质样板台，蓝灰色织物、浅木饰面、磨砂金属样片整齐并列，侧光展现纹理与质感。\",\"sp-notes\":\"近景缓慢横移，对焦织物与木纹边缘。\",\"sp-chapter\":\"客舱设计提案\",\"3572aedd-2e75-47f9-91d7-c29896fef544\":[{\"id\":\"fc52767d-2f09-43b7-98a9-7ab457e2b86f\",\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\",\"kind\":\"image\",\"name\":\"scene-2 · 参考 1\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"provenance\":{\"document_id\":\"showcase-synthetic-cabin-v1\",\"occurrence_id\":\"synthetic-image-2\",\"source_cell\":\"synthetic-scene-2\",\"asset_id\":\"scene-2\"}}]}}},{\"id\":\"3a34292b-723c-415f-84f2-aa55d6e006f9\",\"selected\":false,\"values\":{\"sp-shot_no\":\"03\",\"sp-time_range\":\"4秒\",\"sp-scene\":\"设计团队围绕客舱概念模型协同评审，桌面摆放色卡与草图，大屏呈现同一套客舱方案，空间明亮、秩序清晰。\",\"sp-notes\":\"从桌面模型缓慢拉远，展示完整工作室。\",\"sp-chapter\":\"客舱设计提案\",\"3572aedd-2e75-47f9-91d7-c29896fef544\":[{\"id\":\"bc2f209d-3740-4ca4-b5ad-9fd17ceca602\",\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\",\"kind\":\"image\",\"name\":\"scene-3 · 参考 1\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"provenance\":{\"document_id\":\"showcase-synthetic-cabin-v1\",\"occurrence_id\":\"synthetic-image-3\",\"source_cell\":\"synthetic-scene-3\",\"asset_id\":\"scene-3\"}}]},\"meta\":{\"script_source\":{\"source_key\":\"showcase-synthetic-cabin-v1:scene-3\",\"document_id\":\"showcase-synthetic-cabin-v1\",\"filename\":\"Showcase 内置示例（非文档导入记录）\",\"row_id\":\"scene-3\",\"table_id\":\"synthetic\",\"issues\":[],\"sources\":{},\"context\":[]},\"script_original\":[],\"script_import_values\":{\"sp-shot_no\":\"03\",\"sp-time_range\":\"4秒\",\"sp-scene\":\"设计团队围绕客舱概念模型协同评审，桌面摆放色卡与草图，大屏呈现同一套客舱方案，空间明亮、秩序清晰。\",\"sp-notes\":\"从桌面模型缓慢拉远，展示完整工作室。\",\"sp-chapter\":\"客舱设计提案\",\"3572aedd-2e75-47f9-91d7-c29896fef544\":[{\"id\":\"bc2f209d-3740-4ca4-b5ad-9fd17ceca602\",\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\",\"kind\":\"image\",\"name\":\"scene-3 · 参考 1\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"provenance\":{\"document_id\":\"showcase-synthetic-cabin-v1\",\"occurrence_id\":\"synthetic-image-3\",\"source_cell\":\"synthetic-scene-3\",\"asset_id\":\"scene-3\"}}]}}}],\"view\":\"table\",\"meta\":{\"material_columns\":true,\"video_reference_version\":1,\"script_parser\":{\"version\":1,\"field_policy\":\"nonempty\",\"created_roles\":[\"shot_no\",\"time_range\",\"scene\",\"notes\",\"chapter\"],\"bindings\":{\"shot_no\":\"sp-shot_no\",\"time_range\":\"sp-time_range\",\"scene\":\"sp-scene\",\"narration\":\"sp-narration\",\"subtitle\":\"sp-subtitle\",\"notes\":\"sp-notes\",\"chapter\":\"sp-chapter\",\"reference\":\"sp-reference\",\"other\":\"sp-other\",\"source\":\"sp-source\",\"original\":\"sp-original\",\"issues\":\"sp-issues\"},\"reference_fields\":[\"3572aedd-2e75-47f9-91d7-c29896fef544\"],\"documents\":[{\"document_id\":\"showcase-synthetic-cabin-v1\",\"filename\":\"Showcase 内置示例（非文档导入记录）\",\"audit\":[],\"paragraphs\":[],\"tables\":[],\"assets\":{\"scene-1\":{\"id\":\"scene-1\",\"kind\":\"image\",\"name\":\"01 · 清晨客舱\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\"},\"scene-2\":{\"id\":\"scene-2\",\"kind\":\"image\",\"name\":\"02 · 材质细节\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\"},\"scene-3\":{\"id\":\"scene-3\",\"kind\":\"image\",\"name\":\"03 · 协同评审\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\"}},\"unassigned\":[]}]},\"showcase\":{\"synthetic\":true,\"note\":\"内置编辑示例，不代表真实文档解析或模型生成验收\"}}}"
+      ],
+      "widgets_values_named": {
+        "table_data": "{\"version\":1,\"fields\":[{\"id\":\"sp-shot_no\",\"name\":\"镜号\",\"type\":\"text\",\"width\":180,\"hidden\":false},{\"id\":\"sp-time_range\",\"name\":\"时间\",\"type\":\"text\",\"width\":180,\"hidden\":false},{\"id\":\"sp-scene\",\"name\":\"画面\",\"type\":\"longtext\",\"width\":360,\"hidden\":false},{\"id\":\"sp-notes\",\"name\":\"备注\",\"type\":\"longtext\",\"width\":180,\"hidden\":false},{\"id\":\"sp-chapter\",\"name\":\"章节\",\"type\":\"text\",\"width\":180,\"hidden\":false},{\"id\":\"3572aedd-2e75-47f9-91d7-c29896fef544\",\"name\":\"参考图\",\"type\":\"content\",\"video_reference\":false,\"width\":300}],\"records\":[{\"id\":\"c8eec7ee-85ce-4f35-9da3-918daa88c8e5\",\"selected\":false,\"values\":{\"sp-shot_no\":\"01\",\"sp-time_range\":\"4秒\",\"sp-scene\":\"清晨的民航客舱，暖白色座椅沿中央过道延伸；柔和自然光透过舷窗，蓝灰色织物与浅木饰面形成舒适的层次。\",\"sp-notes\":\"镜头沿中央过道缓慢向前推进，保持稳定构图。\",\"sp-chapter\":\"客舱设计提案\",\"3572aedd-2e75-47f9-91d7-c29896fef544\":[{\"id\":\"dee6a8a2-c94c-4b1e-8e83-979bac0e05ab\",\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\",\"kind\":\"image\",\"name\":\"scene-1 · 参考 1\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"provenance\":{\"document_id\":\"showcase-synthetic-cabin-v1\",\"occurrence_id\":\"synthetic-image-1\",\"source_cell\":\"synthetic-scene-1\",\"asset_id\":\"scene-1\"}}]},\"meta\":{\"script_source\":{\"source_key\":\"showcase-synthetic-cabin-v1:scene-1\",\"document_id\":\"showcase-synthetic-cabin-v1\",\"filename\":\"Showcase 内置示例（非文档导入记录）\",\"row_id\":\"scene-1\",\"table_id\":\"synthetic\",\"issues\":[],\"sources\":{},\"context\":[]},\"script_original\":[],\"script_import_values\":{\"sp-shot_no\":\"01\",\"sp-time_range\":\"4秒\",\"sp-scene\":\"清晨的民航客舱，暖白色座椅沿中央过道延伸；柔和自然光透过舷窗，蓝灰色织物与浅木饰面形成舒适的层次。\",\"sp-notes\":\"镜头沿中央过道缓慢向前推进，保持稳定构图。\",\"sp-chapter\":\"客舱设计提案\",\"3572aedd-2e75-47f9-91d7-c29896fef544\":[{\"id\":\"dee6a8a2-c94c-4b1e-8e83-979bac0e05ab\",\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\",\"kind\":\"image\",\"name\":\"scene-1 · 参考 1\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"provenance\":{\"document_id\":\"showcase-synthetic-cabin-v1\",\"occurrence_id\":\"synthetic-image-1\",\"source_cell\":\"synthetic-scene-1\",\"asset_id\":\"scene-1\"}}]}}},{\"id\":\"d3876af8-c065-49e6-ba7d-5d3bf7b52344\",\"selected\":false,\"values\":{\"sp-shot_no\":\"02\",\"sp-time_range\":\"4秒\",\"sp-scene\":\"客舱设计工作室里的材质样板台，蓝灰色织物、浅木饰面、磨砂金属样片整齐并列，侧光展现纹理与质感。\",\"sp-notes\":\"近景缓慢横移，对焦织物与木纹边缘。\",\"sp-chapter\":\"客舱设计提案\",\"3572aedd-2e75-47f9-91d7-c29896fef544\":[{\"id\":\"fc52767d-2f09-43b7-98a9-7ab457e2b86f\",\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\",\"kind\":\"image\",\"name\":\"scene-2 · 参考 1\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"provenance\":{\"document_id\":\"showcase-synthetic-cabin-v1\",\"occurrence_id\":\"synthetic-image-2\",\"source_cell\":\"synthetic-scene-2\",\"asset_id\":\"scene-2\"}}]},\"meta\":{\"script_source\":{\"source_key\":\"showcase-synthetic-cabin-v1:scene-2\",\"document_id\":\"showcase-synthetic-cabin-v1\",\"filename\":\"Showcase 内置示例（非文档导入记录）\",\"row_id\":\"scene-2\",\"table_id\":\"synthetic\",\"issues\":[],\"sources\":{},\"context\":[]},\"script_original\":[],\"script_import_values\":{\"sp-shot_no\":\"02\",\"sp-time_range\":\"4秒\",\"sp-scene\":\"客舱设计工作室里的材质样板台，蓝灰色织物、浅木饰面、磨砂金属样片整齐并列，侧光展现纹理与质感。\",\"sp-notes\":\"近景缓慢横移，对焦织物与木纹边缘。\",\"sp-chapter\":\"客舱设计提案\",\"3572aedd-2e75-47f9-91d7-c29896fef544\":[{\"id\":\"fc52767d-2f09-43b7-98a9-7ab457e2b86f\",\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\",\"kind\":\"image\",\"name\":\"scene-2 · 参考 1\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"provenance\":{\"document_id\":\"showcase-synthetic-cabin-v1\",\"occurrence_id\":\"synthetic-image-2\",\"source_cell\":\"synthetic-scene-2\",\"asset_id\":\"scene-2\"}}]}}},{\"id\":\"3a34292b-723c-415f-84f2-aa55d6e006f9\",\"selected\":false,\"values\":{\"sp-shot_no\":\"03\",\"sp-time_range\":\"4秒\",\"sp-scene\":\"设计团队围绕客舱概念模型协同评审，桌面摆放色卡与草图，大屏呈现同一套客舱方案，空间明亮、秩序清晰。\",\"sp-notes\":\"从桌面模型缓慢拉远，展示完整工作室。\",\"sp-chapter\":\"客舱设计提案\",\"3572aedd-2e75-47f9-91d7-c29896fef544\":[{\"id\":\"bc2f209d-3740-4ca4-b5ad-9fd17ceca602\",\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\",\"kind\":\"image\",\"name\":\"scene-3 · 参考 1\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"provenance\":{\"document_id\":\"showcase-synthetic-cabin-v1\",\"occurrence_id\":\"synthetic-image-3\",\"source_cell\":\"synthetic-scene-3\",\"asset_id\":\"scene-3\"}}]},\"meta\":{\"script_source\":{\"source_key\":\"showcase-synthetic-cabin-v1:scene-3\",\"document_id\":\"showcase-synthetic-cabin-v1\",\"filename\":\"Showcase 内置示例（非文档导入记录）\",\"row_id\":\"scene-3\",\"table_id\":\"synthetic\",\"issues\":[],\"sources\":{},\"context\":[]},\"script_original\":[],\"script_import_values\":{\"sp-shot_no\":\"03\",\"sp-time_range\":\"4秒\",\"sp-scene\":\"设计团队围绕客舱概念模型协同评审，桌面摆放色卡与草图，大屏呈现同一套客舱方案，空间明亮、秩序清晰。\",\"sp-notes\":\"从桌面模型缓慢拉远，展示完整工作室。\",\"sp-chapter\":\"客舱设计提案\",\"3572aedd-2e75-47f9-91d7-c29896fef544\":[{\"id\":\"bc2f209d-3740-4ca4-b5ad-9fd17ceca602\",\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\",\"kind\":\"image\",\"name\":\"scene-3 · 参考 1\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"provenance\":{\"document_id\":\"showcase-synthetic-cabin-v1\",\"occurrence_id\":\"synthetic-image-3\",\"source_cell\":\"synthetic-scene-3\",\"asset_id\":\"scene-3\"}}]}}}],\"view\":\"table\",\"meta\":{\"material_columns\":true,\"video_reference_version\":1,\"script_parser\":{\"version\":1,\"field_policy\":\"nonempty\",\"created_roles\":[\"shot_no\",\"time_range\",\"scene\",\"notes\",\"chapter\"],\"bindings\":{\"shot_no\":\"sp-shot_no\",\"time_range\":\"sp-time_range\",\"scene\":\"sp-scene\",\"narration\":\"sp-narration\",\"subtitle\":\"sp-subtitle\",\"notes\":\"sp-notes\",\"chapter\":\"sp-chapter\",\"reference\":\"sp-reference\",\"other\":\"sp-other\",\"source\":\"sp-source\",\"original\":\"sp-original\",\"issues\":\"sp-issues\"},\"reference_fields\":[\"3572aedd-2e75-47f9-91d7-c29896fef544\"],\"documents\":[{\"document_id\":\"showcase-synthetic-cabin-v1\",\"filename\":\"Showcase 内置示例（非文档导入记录）\",\"audit\":[],\"paragraphs\":[],\"tables\":[],\"assets\":{\"scene-1\":{\"id\":\"scene-1\",\"kind\":\"image\",\"name\":\"01 · 清晨客舱\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\"},\"scene-2\":{\"id\":\"scene-2\",\"kind\":\"image\",\"name\":\"02 · 材质细节\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\"},\"scene-3\":{\"id\":\"scene-3\",\"kind\":\"image\",\"name\":\"03 · 协同评审\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\"}},\"unassigned\":[]}]},\"showcase\":{\"synthetic\":true,\"note\":\"内置编辑示例，不代表真实文档解析或模型生成验收\"}}}"
+      }
+    },
+    {
+      "inputs": [
+        {
+          "name": "storyboard_data",
+          "type": "STRING",
+          "widget": {
+            "name": "storyboard_data"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "storyboard_json",
+          "type": "STRING",
+          "slot_index": 0,
+          "links": []
+        }
+      ],
+      "id": 9,
+      "type": "DAELAB.StoryboardImport",
+      "title": "03 · 分镜导入 / 镜头编辑",
+      "pos": [
+        900,
+        850
+      ],
+      "size": [
+        780,
+        620
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "DAELAB.StoryboardImport"
+      },
+      "widgets_values": [
+        "{\"schema_version\":4,\"document_title\":\"客舱设计提案 · 三镜头\",\"source_filename\":\"\",\"asset_groups\":[],\"column_order\":[\"shot_no\",\"time_range\",\"image_prompt\",\"camera_notes\",\"image_url\",\"source\",\"original_fields\",\"generation_status\",\"video_result\"],\"shots\":[{\"id\":\"showcase-story-1\",\"selected\":false,\"input_changed\":false,\"shot_no\":\"01\",\"time_range\":\"4秒\",\"duration\":4,\"prompt\":\"清晨的民航客舱，暖白色座椅沿中央过道延伸；柔和自然光透过舷窗，蓝灰色织物与浅木饰面形成舒适的层次。\",\"image_prompt\":\"清晨的民航客舱，暖白色座椅沿中央过道延伸；柔和自然光透过舷窗，蓝灰色织物与浅木饰面形成舒适的层次。\",\"camera_notes\":\"镜头沿中央过道缓慢向前推进，保持稳定构图。\",\"image_url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\",\"reference_assets\":[{\"id\":\"showcase-scene-1\",\"kind\":\"image\",\"name\":\"01 · 清晨客舱\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\"}],\"additional_reference_images\":[],\"generation_duration\":null,\"generation_mode\":\"\",\"source\":null,\"original_fields\":[],\"group_refs\":{}},{\"id\":\"showcase-story-2\",\"selected\":false,\"input_changed\":false,\"shot_no\":\"02\",\"time_range\":\"4秒\",\"duration\":4,\"prompt\":\"客舱设计工作室里的材质样板台，蓝灰色织物、浅木饰面、磨砂金属样片整齐并列，侧光展现纹理与质感。\",\"image_prompt\":\"客舱设计工作室里的材质样板台，蓝灰色织物、浅木饰面、磨砂金属样片整齐并列，侧光展现纹理与质感。\",\"camera_notes\":\"近景缓慢横移，对焦织物与木纹边缘。\",\"image_url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\",\"reference_assets\":[{\"id\":\"showcase-scene-2\",\"kind\":\"image\",\"name\":\"02 · 材质细节\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\"}],\"additional_reference_images\":[],\"generation_duration\":null,\"generation_mode\":\"\",\"source\":null,\"original_fields\":[],\"group_refs\":{}},{\"id\":\"showcase-story-3\",\"selected\":false,\"input_changed\":false,\"shot_no\":\"03\",\"time_range\":\"4秒\",\"duration\":4,\"prompt\":\"设计团队围绕客舱概念模型协同评审，桌面摆放色卡与草图，大屏呈现同一套客舱方案，空间明亮、秩序清晰。\",\"image_prompt\":\"设计团队围绕客舱概念模型协同评审，桌面摆放色卡与草图，大屏呈现同一套客舱方案，空间明亮、秩序清晰。\",\"camera_notes\":\"从桌面模型缓慢拉远，展示完整工作室。\",\"image_url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\",\"reference_assets\":[{\"id\":\"showcase-scene-3\",\"kind\":\"image\",\"name\":\"03 · 协同评审\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\"}],\"additional_reference_images\":[],\"generation_duration\":null,\"generation_mode\":\"\",\"source\":null,\"original_fields\":[],\"group_refs\":{}}],\"table\":{\"version\":1,\"fields\":[{\"id\":\"shot_no\",\"name\":\"镜号\",\"type\":\"text\",\"width\":100,\"hidden\":false,\"readonly\":false},{\"id\":\"time_range\",\"name\":\"剧本时长\",\"type\":\"text\",\"width\":120,\"hidden\":false,\"readonly\":false},{\"id\":\"image_prompt\",\"name\":\"画面描述\",\"type\":\"longtext\",\"width\":300,\"hidden\":false,\"readonly\":false},{\"id\":\"camera_notes\",\"name\":\"镜头备注\",\"type\":\"longtext\",\"width\":230,\"hidden\":false,\"readonly\":false},{\"id\":\"image_url\",\"name\":\"参考素材\",\"type\":\"assets\",\"width\":170,\"hidden\":false,\"readonly\":false,\"video_reference\":true},{\"id\":\"source\",\"name\":\"导入来源\",\"type\":\"json\",\"width\":240,\"hidden\":true,\"readonly\":true},{\"id\":\"original_fields\",\"name\":\"原文字段\",\"type\":\"json\",\"width\":260,\"hidden\":true,\"readonly\":true},{\"id\":\"generation_status\",\"name\":\"生成状态\",\"type\":\"text\",\"width\":130,\"hidden\":false,\"readonly\":true},{\"id\":\"video_result\",\"name\":\"视频结果\",\"type\":\"assets\",\"width\":180,\"hidden\":false,\"readonly\":true,\"video_reference\":false}],\"records\":[{\"id\":\"showcase-story-1\",\"selected\":false,\"values\":{\"shot_no\":\"01\",\"time_range\":\"4秒\",\"image_prompt\":\"清晨的民航客舱，暖白色座椅沿中央过道延伸；柔和自然光透过舷窗，蓝灰色织物与浅木饰面形成舒适的层次。\",\"camera_notes\":\"镜头沿中央过道缓慢向前推进，保持稳定构图。\",\"image_url\":[{\"id\":\"showcase-scene-1\",\"kind\":\"image\",\"name\":\"01 · 清晨客舱\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\"}],\"source\":null,\"original_fields\":[],\"generation_status\":\"尚未提交\",\"video_result\":[]},\"meta\":{}},{\"id\":\"showcase-story-2\",\"selected\":false,\"values\":{\"shot_no\":\"02\",\"time_range\":\"4秒\",\"image_prompt\":\"客舱设计工作室里的材质样板台，蓝灰色织物、浅木饰面、磨砂金属样片整齐并列，侧光展现纹理与质感。\",\"camera_notes\":\"近景缓慢横移，对焦织物与木纹边缘。\",\"image_url\":[{\"id\":\"showcase-scene-2\",\"kind\":\"image\",\"name\":\"02 · 材质细节\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\"}],\"source\":null,\"original_fields\":[],\"generation_status\":\"尚未提交\",\"video_result\":[]},\"meta\":{}},{\"id\":\"showcase-story-3\",\"selected\":false,\"values\":{\"shot_no\":\"03\",\"time_range\":\"4秒\",\"image_prompt\":\"设计团队围绕客舱概念模型协同评审，桌面摆放色卡与草图，大屏呈现同一套客舱方案，空间明亮、秩序清晰。\",\"camera_notes\":\"从桌面模型缓慢拉远，展示完整工作室。\",\"image_url\":[{\"id\":\"showcase-scene-3\",\"kind\":\"image\",\"name\":\"03 · 协同评审\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\"}],\"source\":null,\"original_fields\":[],\"generation_status\":\"尚未提交\",\"video_result\":[]},\"meta\":{}}],\"view\":\"table\",\"meta\":{\"asset_groups\":[],\"storyboard\":{\"bindings\":{\"shot_no\":\"shot_no\",\"time_range\":\"time_range\",\"image_prompt\":\"image_prompt\",\"camera_notes\":\"camera_notes\",\"image_url\":\"image_url\",\"source\":\"source\",\"original_fields\":\"original_fields\",\"generation_status\":\"generation_status\",\"video_result\":\"video_result\"},\"asset_groups\":[],\"group_fields\":{},\"document_title\":\"客舱设计提案 · 三镜头\",\"source_filename\":\"\"},\"video_reference_version\":1,\"generationInput\":{\"version\":1,\"promptFieldId\":null},\"showcase\":{\"synthetic\":true}}}}"
+      ],
+      "widgets_values_named": {
+        "storyboard_data": "{\"schema_version\":4,\"document_title\":\"客舱设计提案 · 三镜头\",\"source_filename\":\"\",\"asset_groups\":[],\"column_order\":[\"shot_no\",\"time_range\",\"image_prompt\",\"camera_notes\",\"image_url\",\"source\",\"original_fields\",\"generation_status\",\"video_result\"],\"shots\":[{\"id\":\"showcase-story-1\",\"selected\":false,\"input_changed\":false,\"shot_no\":\"01\",\"time_range\":\"4秒\",\"duration\":4,\"prompt\":\"清晨的民航客舱，暖白色座椅沿中央过道延伸；柔和自然光透过舷窗，蓝灰色织物与浅木饰面形成舒适的层次。\",\"image_prompt\":\"清晨的民航客舱，暖白色座椅沿中央过道延伸；柔和自然光透过舷窗，蓝灰色织物与浅木饰面形成舒适的层次。\",\"camera_notes\":\"镜头沿中央过道缓慢向前推进，保持稳定构图。\",\"image_url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\",\"reference_assets\":[{\"id\":\"showcase-scene-1\",\"kind\":\"image\",\"name\":\"01 · 清晨客舱\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\"}],\"additional_reference_images\":[],\"generation_duration\":null,\"generation_mode\":\"\",\"source\":null,\"original_fields\":[],\"group_refs\":{}},{\"id\":\"showcase-story-2\",\"selected\":false,\"input_changed\":false,\"shot_no\":\"02\",\"time_range\":\"4秒\",\"duration\":4,\"prompt\":\"客舱设计工作室里的材质样板台，蓝灰色织物、浅木饰面、磨砂金属样片整齐并列，侧光展现纹理与质感。\",\"image_prompt\":\"客舱设计工作室里的材质样板台，蓝灰色织物、浅木饰面、磨砂金属样片整齐并列，侧光展现纹理与质感。\",\"camera_notes\":\"近景缓慢横移，对焦织物与木纹边缘。\",\"image_url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\",\"reference_assets\":[{\"id\":\"showcase-scene-2\",\"kind\":\"image\",\"name\":\"02 · 材质细节\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\"}],\"additional_reference_images\":[],\"generation_duration\":null,\"generation_mode\":\"\",\"source\":null,\"original_fields\":[],\"group_refs\":{}},{\"id\":\"showcase-story-3\",\"selected\":false,\"input_changed\":false,\"shot_no\":\"03\",\"time_range\":\"4秒\",\"duration\":4,\"prompt\":\"设计团队围绕客舱概念模型协同评审，桌面摆放色卡与草图，大屏呈现同一套客舱方案，空间明亮、秩序清晰。\",\"image_prompt\":\"设计团队围绕客舱概念模型协同评审，桌面摆放色卡与草图，大屏呈现同一套客舱方案，空间明亮、秩序清晰。\",\"camera_notes\":\"从桌面模型缓慢拉远，展示完整工作室。\",\"image_url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\",\"reference_assets\":[{\"id\":\"showcase-scene-3\",\"kind\":\"image\",\"name\":\"03 · 协同评审\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\"}],\"additional_reference_images\":[],\"generation_duration\":null,\"generation_mode\":\"\",\"source\":null,\"original_fields\":[],\"group_refs\":{}}],\"table\":{\"version\":1,\"fields\":[{\"id\":\"shot_no\",\"name\":\"镜号\",\"type\":\"text\",\"width\":100,\"hidden\":false,\"readonly\":false},{\"id\":\"time_range\",\"name\":\"剧本时长\",\"type\":\"text\",\"width\":120,\"hidden\":false,\"readonly\":false},{\"id\":\"image_prompt\",\"name\":\"画面描述\",\"type\":\"longtext\",\"width\":300,\"hidden\":false,\"readonly\":false},{\"id\":\"camera_notes\",\"name\":\"镜头备注\",\"type\":\"longtext\",\"width\":230,\"hidden\":false,\"readonly\":false},{\"id\":\"image_url\",\"name\":\"参考素材\",\"type\":\"assets\",\"width\":170,\"hidden\":false,\"readonly\":false,\"video_reference\":true},{\"id\":\"source\",\"name\":\"导入来源\",\"type\":\"json\",\"width\":240,\"hidden\":true,\"readonly\":true},{\"id\":\"original_fields\",\"name\":\"原文字段\",\"type\":\"json\",\"width\":260,\"hidden\":true,\"readonly\":true},{\"id\":\"generation_status\",\"name\":\"生成状态\",\"type\":\"text\",\"width\":130,\"hidden\":false,\"readonly\":true},{\"id\":\"video_result\",\"name\":\"视频结果\",\"type\":\"assets\",\"width\":180,\"hidden\":false,\"readonly\":true,\"video_reference\":false}],\"records\":[{\"id\":\"showcase-story-1\",\"selected\":false,\"values\":{\"shot_no\":\"01\",\"time_range\":\"4秒\",\"image_prompt\":\"清晨的民航客舱，暖白色座椅沿中央过道延伸；柔和自然光透过舷窗，蓝灰色织物与浅木饰面形成舒适的层次。\",\"camera_notes\":\"镜头沿中央过道缓慢向前推进，保持稳定构图。\",\"image_url\":[{\"id\":\"showcase-scene-1\",\"kind\":\"image\",\"name\":\"01 · 清晨客舱\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\"}],\"source\":null,\"original_fields\":[],\"generation_status\":\"尚未提交\",\"video_result\":[]},\"meta\":{}},{\"id\":\"showcase-story-2\",\"selected\":false,\"values\":{\"shot_no\":\"02\",\"time_range\":\"4秒\",\"image_prompt\":\"客舱设计工作室里的材质样板台，蓝灰色织物、浅木饰面、磨砂金属样片整齐并列，侧光展现纹理与质感。\",\"camera_notes\":\"近景缓慢横移，对焦织物与木纹边缘。\",\"image_url\":[{\"id\":\"showcase-scene-2\",\"kind\":\"image\",\"name\":\"02 · 材质细节\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\"}],\"source\":null,\"original_fields\":[],\"generation_status\":\"尚未提交\",\"video_result\":[]},\"meta\":{}},{\"id\":\"showcase-story-3\",\"selected\":false,\"values\":{\"shot_no\":\"03\",\"time_range\":\"4秒\",\"image_prompt\":\"设计团队围绕客舱概念模型协同评审，桌面摆放色卡与草图，大屏呈现同一套客舱方案，空间明亮、秩序清晰。\",\"camera_notes\":\"从桌面模型缓慢拉远，展示完整工作室。\",\"image_url\":[{\"id\":\"showcase-scene-3\",\"kind\":\"image\",\"name\":\"03 · 协同评审\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\"}],\"source\":null,\"original_fields\":[],\"generation_status\":\"尚未提交\",\"video_result\":[]},\"meta\":{}}],\"view\":\"table\",\"meta\":{\"asset_groups\":[],\"storyboard\":{\"bindings\":{\"shot_no\":\"shot_no\",\"time_range\":\"time_range\",\"image_prompt\":\"image_prompt\",\"camera_notes\":\"camera_notes\",\"image_url\":\"image_url\",\"source\":\"source\",\"original_fields\":\"original_fields\",\"generation_status\":\"generation_status\",\"video_result\":\"video_result\"},\"asset_groups\":[],\"group_fields\":{},\"document_title\":\"客舱设计提案 · 三镜头\",\"source_filename\":\"\"},\"video_reference_version\":1,\"generationInput\":{\"version\":1,\"promptFieldId\":null},\"showcase\":{\"synthetic\":true}}}}"
+      }
+    },
+    {
+      "id": 10,
+      "type": "DAELAB.Table",
+      "pos": [
+        1850,
+        0
+      ],
+      "size": [
+        1140,
+        700
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "source_table",
+          "name": "source_table",
+          "shape": 7,
+          "type": "STRING",
+          "link": null
+        },
+        {
+          "localized_name": "table_data",
+          "name": "table_data",
+          "type": "STRING",
+          "widget": {
+            "name": "table_data"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "table_json",
+          "name": "table_json",
+          "type": "STRING",
+          "links": [
+            1
+          ]
+        }
+      ],
+      "title": "04 A · 分镜表 / 同行引用 / 单行覆盖",
+      "properties": {
+        "Node name for S&R": "DAELAB.Table"
+      },
+      "widgets_values": [
+        "{\"version\":1,\"fields\":[{\"id\":\"scene\",\"name\":\"画面描述\",\"type\":\"content\",\"width\":300,\"hidden\":false,\"video_reference\":false},{\"id\":\"ref\",\"name\":\"参考图\",\"type\":\"content\",\"width\":230,\"hidden\":false,\"video_reference\":false},{\"id\":\"prompt\",\"name\":\"提示词模板\",\"type\":\"json\",\"width\":410,\"hidden\":false,\"video_reference\":false,\"presentation\":\"prompt\",\"generationPrompt\":true,\"promptTemplate\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"column\",\"fieldId\":\"scene\"},{\"type\":\"text\",\"text\":\"\\n统一为电影分镜构图，保持主体与场景一致。\"}]}}],\"records\":[{\"id\":\"board-a-1\",\"name\":\"镜头 01\",\"selected\":false,\"values\":{\"scene\":\"青绿色的创作工作台，参考图与材质色卡有序排列。清晨柔光，宽景构图。\",\"ref\":[{\"version\":1,\"id\":\"studio-showcase-scene-01\",\"kind\":\"image\",\"name\":\"镜头 01 · 合成演示图\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\"}],\"prompt\":\"\"}},{\"id\":\"board-a-2\",\"name\":\"镜头 02\",\"selected\":false,\"values\":{\"scene\":\"紫色客舱内，柔和光线穿过舷窗，模块化座椅整齐排列。镜头缓慢推进。\",\"ref\":[{\"version\":1,\"id\":\"studio-showcase-scene-02\",\"kind\":\"image\",\"name\":\"镜头 02 · 合成演示图\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\"}],\"prompt\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"column\",\"fieldId\":\"scene\"},{\"type\":\"text\",\"text\":\"\\n本行覆盖：强调舷窗侧光、座椅材质与景深。\"}]}}},{\"id\":\"board-a-3\",\"name\":\"镜头 03\",\"selected\":false,\"values\":{\"scene\":\"俯视琥珀色的分镜工作台，三个镜头卡片汇入剪辑时间线，收束为清晰的创作方案。\",\"ref\":[{\"version\":1,\"id\":\"studio-showcase-scene-03\",\"kind\":\"image\",\"name\":\"镜头 03 · 合成演示图\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\"}],\"prompt\":\"\"}}],\"view\":\"table\",\"meta\":{\"material_columns\":true,\"video_reference_version\":1,\"generationInput\":{\"version\":1,\"promptFieldId\":\"prompt\"}}}"
+      ],
+      "widgets_values_named": {
+        "table_data": "{\"version\":1,\"fields\":[{\"id\":\"scene\",\"name\":\"画面描述\",\"type\":\"content\",\"width\":300,\"hidden\":false,\"video_reference\":false},{\"id\":\"ref\",\"name\":\"参考图\",\"type\":\"content\",\"width\":230,\"hidden\":false,\"video_reference\":false},{\"id\":\"prompt\",\"name\":\"提示词模板\",\"type\":\"json\",\"width\":410,\"hidden\":false,\"video_reference\":false,\"presentation\":\"prompt\",\"generationPrompt\":true,\"promptTemplate\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"column\",\"fieldId\":\"scene\"},{\"type\":\"text\",\"text\":\"\\n统一为电影分镜构图，保持主体与场景一致。\"}]}}],\"records\":[{\"id\":\"board-a-1\",\"name\":\"镜头 01\",\"selected\":false,\"values\":{\"scene\":\"青绿色的创作工作台，参考图与材质色卡有序排列。清晨柔光，宽景构图。\",\"ref\":[{\"version\":1,\"id\":\"studio-showcase-scene-01\",\"kind\":\"image\",\"name\":\"镜头 01 · 合成演示图\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\"}],\"prompt\":\"\"}},{\"id\":\"board-a-2\",\"name\":\"镜头 02\",\"selected\":false,\"values\":{\"scene\":\"紫色客舱内，柔和光线穿过舷窗，模块化座椅整齐排列。镜头缓慢推进。\",\"ref\":[{\"version\":1,\"id\":\"studio-showcase-scene-02\",\"kind\":\"image\",\"name\":\"镜头 02 · 合成演示图\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\"}],\"prompt\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"column\",\"fieldId\":\"scene\"},{\"type\":\"text\",\"text\":\"\\n本行覆盖：强调舷窗侧光、座椅材质与景深。\"}]}}},{\"id\":\"board-a-3\",\"name\":\"镜头 03\",\"selected\":false,\"values\":{\"scene\":\"俯视琥珀色的分镜工作台，三个镜头卡片汇入剪辑时间线，收束为清晰的创作方案。\",\"ref\":[{\"version\":1,\"id\":\"studio-showcase-scene-03\",\"kind\":\"image\",\"name\":\"镜头 03 · 合成演示图\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\"}],\"prompt\":\"\"}}],\"view\":\"table\",\"meta\":{\"material_columns\":true,\"video_reference_version\":1,\"generationInput\":{\"version\":1,\"promptFieldId\":\"prompt\"}}}"
+      }
+    },
+    {
+      "id": 11,
+      "type": "DAELAB.Table",
+      "pos": [
+        1850,
+        950
+      ],
+      "size": [
+        1140,
+        700
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "source_table",
+          "name": "source_table",
+          "shape": 7,
+          "type": "STRING",
+          "link": null
+        },
+        {
+          "localized_name": "table_data",
+          "name": "table_data",
+          "type": "STRING",
+          "widget": {
+            "name": "table_data"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "table_json",
+          "name": "table_json",
+          "type": "STRING",
+          "links": []
+        }
+      ],
+      "title": "04 B · 多素材表 / 生成配置 / 结果复用",
+      "properties": {
+        "Node name for S&R": "DAELAB.Table"
+      },
+      "widgets_values": [
+        "{\"version\":1,\"fields\":[{\"id\":\"scene\",\"name\":\"画面描述\",\"type\":\"content\",\"width\":300,\"hidden\":false,\"video_reference\":false},{\"id\":\"ref\",\"name\":\"多素材 / 首尾帧\",\"type\":\"content\",\"width\":270,\"hidden\":false,\"video_reference\":true},{\"id\":\"prompt\",\"name\":\"提示词模板\",\"type\":\"json\",\"width\":410,\"hidden\":false,\"video_reference\":false,\"presentation\":\"prompt\",\"generationPrompt\":true,\"promptTemplate\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"column\",\"fieldId\":\"scene\"},{\"type\":\"text\",\"text\":\"\\n统一为电影分镜构图，保持主体与场景一致。\"}]},\"generationConfigFieldId\":\"generation\"},{\"id\":\"generation\",\"name\":\"图片结果\",\"type\":\"content\",\"width\":330,\"hidden\":false,\"video_reference\":false,\"presentation\":\"generation\",\"readonly\":true,\"generation\":{\"version\":1,\"kind\":\"image\",\"model\":\"Qwen-Image-2.1 Turbo（本地）\",\"promptFieldId\":\"prompt\",\"mode\":\"text2image\",\"settings\":{\"width\":1024,\"height\":1024,\"seed\":-1}}}],\"records\":[{\"id\":\"board-b-1\",\"name\":\"镜头 01\",\"selected\":false,\"values\":{\"scene\":\"青绿色的创作工作台，参考图与材质色卡有序排列。清晨柔光，宽景构图。\",\"ref\":[{\"version\":1,\"id\":\"studio-showcase-scene-01\",\"kind\":\"image\",\"name\":\"镜头 01 · 合成演示图\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\"},{\"version\":1,\"id\":\"studio-showcase-scene-02\",\"kind\":\"image\",\"name\":\"镜头 02 · 合成演示图\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\"}],\"prompt\":\"\",\"generation\":[]}},{\"id\":\"board-b-2\",\"name\":\"镜头 02\",\"selected\":false,\"values\":{\"scene\":\"紫色客舱内，柔和光线穿过舷窗，模块化座椅整齐排列。镜头缓慢推进。\",\"ref\":[{\"version\":1,\"id\":\"studio-showcase-scene-02\",\"kind\":\"image\",\"name\":\"镜头 02 · 合成演示图\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\"}],\"prompt\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"column\",\"fieldId\":\"scene\"},{\"type\":\"text\",\"text\":\"\\n本行覆盖：强调舷窗侧光、座椅材质与景深。\"}]},\"generation\":[]}},{\"id\":\"board-b-3\",\"name\":\"镜头 03\",\"selected\":false,\"values\":{\"scene\":\"俯视琥珀色的分镜工作台，三个镜头卡片汇入剪辑时间线，收束为清晰的创作方案。\",\"ref\":[{\"version\":1,\"id\":\"studio-showcase-scene-03\",\"kind\":\"image\",\"name\":\"镜头 03 · 合成演示图\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\"},{\"version\":1,\"id\":\"studio-showcase-motion\",\"kind\":\"video\",\"name\":\"4 秒合成演示片段\",\"filename\":\"preview-motion.mp4\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"duration\":4,\"fps\":24,\"has_audio\":false,\"url\":\"/view?filename=preview-motion.mp4&subfolder=CreativeStudioShowcase&type=input\"}],\"prompt\":\"\",\"generation\":[]}}],\"view\":\"table\",\"meta\":{\"material_columns\":true,\"video_reference_version\":1,\"generationInput\":{\"version\":1,\"promptFieldId\":\"prompt\"}}}"
+      ],
+      "widgets_values_named": {
+        "table_data": "{\"version\":1,\"fields\":[{\"id\":\"scene\",\"name\":\"画面描述\",\"type\":\"content\",\"width\":300,\"hidden\":false,\"video_reference\":false},{\"id\":\"ref\",\"name\":\"多素材 / 首尾帧\",\"type\":\"content\",\"width\":270,\"hidden\":false,\"video_reference\":true},{\"id\":\"prompt\",\"name\":\"提示词模板\",\"type\":\"json\",\"width\":410,\"hidden\":false,\"video_reference\":false,\"presentation\":\"prompt\",\"generationPrompt\":true,\"promptTemplate\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"column\",\"fieldId\":\"scene\"},{\"type\":\"text\",\"text\":\"\\n统一为电影分镜构图，保持主体与场景一致。\"}]},\"generationConfigFieldId\":\"generation\"},{\"id\":\"generation\",\"name\":\"图片结果\",\"type\":\"content\",\"width\":330,\"hidden\":false,\"video_reference\":false,\"presentation\":\"generation\",\"readonly\":true,\"generation\":{\"version\":1,\"kind\":\"image\",\"model\":\"Qwen-Image-2.1 Turbo（本地）\",\"promptFieldId\":\"prompt\",\"mode\":\"text2image\",\"settings\":{\"width\":1024,\"height\":1024,\"seed\":-1}}}],\"records\":[{\"id\":\"board-b-1\",\"name\":\"镜头 01\",\"selected\":false,\"values\":{\"scene\":\"青绿色的创作工作台，参考图与材质色卡有序排列。清晨柔光，宽景构图。\",\"ref\":[{\"version\":1,\"id\":\"studio-showcase-scene-01\",\"kind\":\"image\",\"name\":\"镜头 01 · 合成演示图\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\"},{\"version\":1,\"id\":\"studio-showcase-scene-02\",\"kind\":\"image\",\"name\":\"镜头 02 · 合成演示图\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\"}],\"prompt\":\"\",\"generation\":[]}},{\"id\":\"board-b-2\",\"name\":\"镜头 02\",\"selected\":false,\"values\":{\"scene\":\"紫色客舱内，柔和光线穿过舷窗，模块化座椅整齐排列。镜头缓慢推进。\",\"ref\":[{\"version\":1,\"id\":\"studio-showcase-scene-02\",\"kind\":\"image\",\"name\":\"镜头 02 · 合成演示图\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\"}],\"prompt\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"column\",\"fieldId\":\"scene\"},{\"type\":\"text\",\"text\":\"\\n本行覆盖：强调舷窗侧光、座椅材质与景深。\"}]},\"generation\":[]}},{\"id\":\"board-b-3\",\"name\":\"镜头 03\",\"selected\":false,\"values\":{\"scene\":\"俯视琥珀色的分镜工作台，三个镜头卡片汇入剪辑时间线，收束为清晰的创作方案。\",\"ref\":[{\"version\":1,\"id\":\"studio-showcase-scene-03\",\"kind\":\"image\",\"name\":\"镜头 03 · 合成演示图\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\"},{\"version\":1,\"id\":\"studio-showcase-motion\",\"kind\":\"video\",\"name\":\"4 秒合成演示片段\",\"filename\":\"preview-motion.mp4\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"duration\":4,\"fps\":24,\"has_audio\":false,\"url\":\"/view?filename=preview-motion.mp4&subfolder=CreativeStudioShowcase&type=input\"}],\"prompt\":\"\",\"generation\":[]}}],\"view\":\"table\",\"meta\":{\"material_columns\":true,\"video_reference_version\":1,\"generationInput\":{\"version\":1,\"promptFieldId\":\"prompt\"}}}"
+      }
+    },
+    {
+      "id": 12,
+      "type": "DAELAB.LLMStylePreviewB",
+      "pos": [
+        3200,
+        0
+      ],
+      "size": [
+        700,
+        650
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "原文",
+          "type": "STRING",
+          "link": null
+        },
+        {
+          "name": "参考图片",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "素材组",
+          "type": "DAELAB_ASSETS",
+          "link": null
+        },
+        {
+          "name": "多维表格",
+          "type": "STRING",
+          "link": 1
+        },
+        {
+          "name": "其他输入",
+          "type": "*",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "结果",
+          "type": "STRING",
+          "slot_index": 0,
+          "links": []
+        },
+        {
+          "name": "逐行结果",
+          "type": "STRING",
+          "slot_index": 1,
+          "links": []
+        }
+      ],
+      "title": "05 A · LLM 表格逐行润色",
+      "properties": {
+        "Node name for S&R": "DAELAB.LLMStylePreviewB",
+        "llmStylePreview": {
+          "version": 1,
+          "mode": "polish",
+          "model": "qwen",
+          "instruction": "按行保留原意，补充构图、主体和光线。不增加无关情节。输出中文。"
+        }
+      },
+      "widgets_values": [
+        "",
+        ""
+      ],
+      "widgets_values_named": {
+        "applied_text": "",
+        "applied_rows": ""
+      }
+    },
+    {
+      "id": 13,
+      "type": "DAELAB.LLMStylePreviewB",
+      "pos": [
+        900,
+        1700
+      ],
+      "size": [
+        700,
+        650
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "原文",
+          "type": "STRING",
+          "link": null
+        },
+        {
+          "name": "参考图片",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "素材组",
+          "type": "DAELAB_ASSETS",
+          "link": 2
+        },
+        {
+          "name": "多维表格",
+          "type": "STRING",
+          "link": null
+        },
+        {
+          "name": "其他输入",
+          "type": "*",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "结果",
+          "type": "STRING",
+          "slot_index": 0,
+          "links": []
+        },
+        {
+          "name": "逐行结果",
+          "type": "STRING",
+          "slot_index": 1,
+          "links": []
+        }
+      ],
+      "title": "05 B · LLM 素材组图片反推",
+      "properties": {
+        "Node name for S&R": "DAELAB.LLMStylePreviewB",
+        "llmStylePreview": {
+          "version": 1,
+          "mode": "reverse",
+          "model": "qwen",
+          "instruction": "分别描述三张合成示例图的构图、颜色和主体，输出可用于创作的中文提示词。"
+        }
+      },
+      "widgets_values": [
+        "",
+        ""
+      ],
+      "widgets_values_named": {
+        "applied_text": "",
+        "applied_rows": ""
+      }
+    },
+    {
+      "id": 14,
+      "type": "DAELAB.LibTV.VideoGenerate",
+      "pos": [
+        3200,
+        950
+      ],
+      "size": [
+        700,
+        700
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "first_frame",
+          "name": "first_frame",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "localized_name": "last_frame",
+          "name": "last_frame",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "localized_name": "reference_images",
+          "name": "reference_images",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "localized_name": "reference_video",
+          "name": "reference_video",
+          "shape": 7,
+          "type": "COMFYTV_VIDEO",
+          "link": null
+        },
+        {
+          "localized_name": "text_input",
+          "name": "text_input",
+          "shape": 7,
+          "type": "STRING",
+          "link": 3
+        },
+        {
+          "localized_name": "table_json",
+          "name": "table_json",
+          "shape": 7,
+          "type": "STRING",
+          "link": null
+        },
+        {
+          "localized_name": "project_uuid",
+          "name": "project_uuid",
+          "type": "STRING",
+          "widget": {
+            "name": "project_uuid"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "request_id",
+          "name": "request_id",
+          "type": "STRING",
+          "widget": {
+            "name": "request_id"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "COMBO",
+          "widget": {
+            "name": "model"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "mode",
+          "name": "mode",
+          "type": "COMBO",
+          "widget": {
+            "name": "mode"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "prompt",
+          "name": "prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "prompt"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "duration",
+          "name": "duration",
+          "type": "INT",
+          "widget": {
+            "name": "duration"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "resolution",
+          "name": "resolution",
+          "type": "COMBO",
+          "widget": {
+            "name": "resolution"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "ratio",
+          "name": "ratio",
+          "type": "COMBO",
+          "widget": {
+            "name": "ratio"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "sound",
+          "name": "sound",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "sound"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "reference_files",
+          "name": "reference_files",
+          "type": "STRING",
+          "widget": {
+            "name": "reference_files"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "task_data",
+          "name": "task_data",
+          "shape": 7,
+          "type": "STRING",
+          "widget": {
+            "name": "task_data"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "video",
+          "name": "video",
+          "type": "VIDEO",
+          "links": []
+        },
+        {
+          "localized_name": "comfytv_video",
+          "name": "comfytv_video",
+          "type": "COMFYTV_VIDEO",
+          "links": []
+        },
+        {
+          "localized_name": "local_path",
+          "name": "local_path",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "localized_name": "task_report",
+          "name": "task_report",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "links": []
+        }
+      ],
+      "title": "06 A · 图片生成 / 任务配置",
+      "properties": {
+        "Node name for S&R": "DAELAB.LibTV.VideoGenerate"
+      },
+      "widgets_values": [
+        "",
+        "studio-showcase-14",
+        "Seedance 2.5",
+        "text2video",
+        "",
+        4,
+        "480p",
+        "16:9",
+        false,
+        "[]",
+        "{\"version\":1,\"table\":{\"version\":1,\"fields\":[{\"id\":\"f7ecf4dd-63bc-4e91-995f-28f00d589629\",\"name\":\"图片/视频\",\"type\":\"content\",\"width\":260,\"hidden\":false,\"video_reference\":false},{\"id\":\"0530dd95-0ef5-45dd-83dc-206eae3a5128\",\"name\":\"提示词\",\"type\":\"json\",\"width\":420,\"hidden\":false,\"presentation\":\"prompt\",\"generationPrompt\":true},{\"id\":\"eaf4e4cc-65d7-4568-97a0-f27e4de32739\",\"name\":\"生成\",\"type\":\"content\",\"width\":340,\"hidden\":false,\"video_reference\":false,\"presentation\":\"generation\",\"readonly\":true,\"generation\":{\"version\":1,\"kind\":\"image\",\"model\":\"Qwen-Image-2.1 Turbo（本地）\",\"promptFieldId\":\"0530dd95-0ef5-45dd-83dc-206eae3a5128\",\"mode\":\"text2image\",\"settings\":{\"width\":1024,\"height\":1024,\"seed\":20261026}}}],\"records\":[{\"id\":\"90a697c5-9aaa-4811-b6cb-535b2679b48e\",\"selected\":false,\"values\":{\"f7ecf4dd-63bc-4e91-995f-28f00d589629\":[{\"id\":\"showcase-scene-1\",\"kind\":\"image\",\"name\":\"01 · 清晨客舱\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\"}],\"0530dd95-0ef5-45dd-83dc-206eae3a5128\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"清晨的民航客舱，暖白色座椅沿中央过道延伸；柔和自然光透过舷窗，蓝灰色织物与浅木饰面形成舒适的层次。\\n镜头沿中央过道缓慢向前推进，保持稳定构图。\"}]},\"eaf4e4cc-65d7-4568-97a0-f27e4de32739\":[]},\"name\":\"01 · 清晨客舱\",\"meta\":{}},{\"id\":\"3dcbd98d-b7c5-44e6-b641-f5708f6e6044\",\"selected\":false,\"values\":{\"0530dd95-0ef5-45dd-83dc-206eae3a5128\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"客舱设计工作室里的材质样板台，蓝灰色织物、浅木饰面、磨砂金属样片整齐并列，侧光展现纹理与质感。\\n近景缓慢横移，对焦织物与木纹边缘。\"}]},\"eaf4e4cc-65d7-4568-97a0-f27e4de32739\":[],\"f7ecf4dd-63bc-4e91-995f-28f00d589629\":[{\"id\":\"showcase-scene-2\",\"kind\":\"image\",\"name\":\"02 · 材质细节\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\"}]},\"name\":\"02 · 材质细节\",\"meta\":{}},{\"id\":\"7c738abb-17b7-44f8-b329-cf5e9d5fd7fb\",\"selected\":false,\"values\":{\"0530dd95-0ef5-45dd-83dc-206eae3a5128\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"设计团队围绕客舱概念模型协同评审，桌面摆放色卡与草图，大屏呈现同一套客舱方案，空间明亮、秩序清晰。\\n从桌面模型缓慢拉远，展示完整工作室。\"}]},\"eaf4e4cc-65d7-4568-97a0-f27e4de32739\":[],\"f7ecf4dd-63bc-4e91-995f-28f00d589629\":[{\"id\":\"showcase-scene-3\",\"kind\":\"image\",\"name\":\"03 · 协同评审\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\"}]},\"name\":\"03 · 协同评审\",\"meta\":{}}],\"view\":\"table\",\"meta\":{\"material_columns\":true,\"video_reference_version\":1,\"generationInput\":{\"version\":1,\"promptFieldId\":\"0530dd95-0ef5-45dd-83dc-206eae3a5128\"},\"generationProject\":\"\",\"showcase\":{\"synthetic\":true,\"note\":\"参数预置，尚未提交\"}}},\"fieldId\":\"eaf4e4cc-65d7-4568-97a0-f27e4de32739\",\"currentId\":\"90a697c5-9aaa-4811-b6cb-535b2679b48e\"}"
+      ],
+      "widgets_values_named": {
+        "project_uuid": "",
+        "request_id": "studio-showcase-14",
+        "model": "Seedance 2.5",
+        "mode": "text2video",
+        "prompt": "",
+        "duration": 4,
+        "resolution": "480p",
+        "ratio": "16:9",
+        "sound": false,
+        "reference_files": "[]",
+        "task_data": "{\"version\":1,\"table\":{\"version\":1,\"fields\":[{\"id\":\"f7ecf4dd-63bc-4e91-995f-28f00d589629\",\"name\":\"图片/视频\",\"type\":\"content\",\"width\":260,\"hidden\":false,\"video_reference\":false},{\"id\":\"0530dd95-0ef5-45dd-83dc-206eae3a5128\",\"name\":\"提示词\",\"type\":\"json\",\"width\":420,\"hidden\":false,\"presentation\":\"prompt\",\"generationPrompt\":true},{\"id\":\"eaf4e4cc-65d7-4568-97a0-f27e4de32739\",\"name\":\"生成\",\"type\":\"content\",\"width\":340,\"hidden\":false,\"video_reference\":false,\"presentation\":\"generation\",\"readonly\":true,\"generation\":{\"version\":1,\"kind\":\"image\",\"model\":\"Qwen-Image-2.1 Turbo（本地）\",\"promptFieldId\":\"0530dd95-0ef5-45dd-83dc-206eae3a5128\",\"mode\":\"text2image\",\"settings\":{\"width\":1024,\"height\":1024,\"seed\":20261026}}}],\"records\":[{\"id\":\"90a697c5-9aaa-4811-b6cb-535b2679b48e\",\"selected\":false,\"values\":{\"f7ecf4dd-63bc-4e91-995f-28f00d589629\":[{\"id\":\"showcase-scene-1\",\"kind\":\"image\",\"name\":\"01 · 清晨客舱\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\"}],\"0530dd95-0ef5-45dd-83dc-206eae3a5128\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"清晨的民航客舱，暖白色座椅沿中央过道延伸；柔和自然光透过舷窗，蓝灰色织物与浅木饰面形成舒适的层次。\\n镜头沿中央过道缓慢向前推进，保持稳定构图。\"}]},\"eaf4e4cc-65d7-4568-97a0-f27e4de32739\":[]},\"name\":\"01 · 清晨客舱\",\"meta\":{}},{\"id\":\"3dcbd98d-b7c5-44e6-b641-f5708f6e6044\",\"selected\":false,\"values\":{\"0530dd95-0ef5-45dd-83dc-206eae3a5128\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"客舱设计工作室里的材质样板台，蓝灰色织物、浅木饰面、磨砂金属样片整齐并列，侧光展现纹理与质感。\\n近景缓慢横移，对焦织物与木纹边缘。\"}]},\"eaf4e4cc-65d7-4568-97a0-f27e4de32739\":[],\"f7ecf4dd-63bc-4e91-995f-28f00d589629\":[{\"id\":\"showcase-scene-2\",\"kind\":\"image\",\"name\":\"02 · 材质细节\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\"}]},\"name\":\"02 · 材质细节\",\"meta\":{}},{\"id\":\"7c738abb-17b7-44f8-b329-cf5e9d5fd7fb\",\"selected\":false,\"values\":{\"0530dd95-0ef5-45dd-83dc-206eae3a5128\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"设计团队围绕客舱概念模型协同评审，桌面摆放色卡与草图，大屏呈现同一套客舱方案，空间明亮、秩序清晰。\\n从桌面模型缓慢拉远，展示完整工作室。\"}]},\"eaf4e4cc-65d7-4568-97a0-f27e4de32739\":[],\"f7ecf4dd-63bc-4e91-995f-28f00d589629\":[{\"id\":\"showcase-scene-3\",\"kind\":\"image\",\"name\":\"03 · 协同评审\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\"}]},\"name\":\"03 · 协同评审\",\"meta\":{}}],\"view\":\"table\",\"meta\":{\"material_columns\":true,\"video_reference_version\":1,\"generationInput\":{\"version\":1,\"promptFieldId\":\"0530dd95-0ef5-45dd-83dc-206eae3a5128\"},\"generationProject\":\"\",\"showcase\":{\"synthetic\":true,\"note\":\"参数预置，尚未提交\"}}},\"fieldId\":\"eaf4e4cc-65d7-4568-97a0-f27e4de32739\",\"currentId\":\"90a697c5-9aaa-4811-b6cb-535b2679b48e\"}"
+      }
+    },
+    {
+      "id": 15,
+      "type": "DAELAB.LibTV.VideoGenerate",
+      "pos": [
+        4050,
+        950
+      ],
+      "size": [
+        700,
+        700
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "localized_name": "first_frame",
+          "name": "first_frame",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 4
+        },
+        {
+          "localized_name": "last_frame",
+          "name": "last_frame",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 5
+        },
+        {
+          "localized_name": "reference_images",
+          "name": "reference_images",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "localized_name": "reference_video",
+          "name": "reference_video",
+          "shape": 7,
+          "type": "COMFYTV_VIDEO",
+          "link": null
+        },
+        {
+          "localized_name": "text_input",
+          "name": "text_input",
+          "shape": 7,
+          "type": "STRING",
+          "link": null
+        },
+        {
+          "localized_name": "table_json",
+          "name": "table_json",
+          "shape": 7,
+          "type": "STRING",
+          "link": null
+        },
+        {
+          "localized_name": "project_uuid",
+          "name": "project_uuid",
+          "type": "STRING",
+          "widget": {
+            "name": "project_uuid"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "request_id",
+          "name": "request_id",
+          "type": "STRING",
+          "widget": {
+            "name": "request_id"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "model",
+          "name": "model",
+          "type": "COMBO",
+          "widget": {
+            "name": "model"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "mode",
+          "name": "mode",
+          "type": "COMBO",
+          "widget": {
+            "name": "mode"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "prompt",
+          "name": "prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "prompt"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "duration",
+          "name": "duration",
+          "type": "INT",
+          "widget": {
+            "name": "duration"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "resolution",
+          "name": "resolution",
+          "type": "COMBO",
+          "widget": {
+            "name": "resolution"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "ratio",
+          "name": "ratio",
+          "type": "COMBO",
+          "widget": {
+            "name": "ratio"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "sound",
+          "name": "sound",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "sound"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "reference_files",
+          "name": "reference_files",
+          "type": "STRING",
+          "widget": {
+            "name": "reference_files"
+          },
+          "link": null
+        },
+        {
+          "localized_name": "task_data",
+          "name": "task_data",
+          "shape": 7,
+          "type": "STRING",
+          "widget": {
+            "name": "task_data"
+          },
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "localized_name": "video",
+          "name": "video",
+          "type": "VIDEO",
+          "links": []
+        },
+        {
+          "localized_name": "comfytv_video",
+          "name": "comfytv_video",
+          "type": "COMFYTV_VIDEO",
+          "links": []
+        },
+        {
+          "localized_name": "local_path",
+          "name": "local_path",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "localized_name": "task_report",
+          "name": "task_report",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "localized_name": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "links": []
+        }
+      ],
+      "title": "06 B · 视频生成 / 首尾帧",
+      "properties": {
+        "Node name for S&R": "DAELAB.LibTV.VideoGenerate"
+      },
+      "widgets_values": [
+        "",
+        "studio-showcase-15",
+        "Seedance 2.5",
+        "text2video",
+        "",
+        4,
+        "480p",
+        "16:9",
+        false,
+        "[]",
+        "{\"version\":1,\"table\":{\"version\":1,\"fields\":[{\"id\":\"b0098edf-188c-4988-acaf-d750080a36ef\",\"name\":\"图片/视频\",\"type\":\"content\",\"width\":260,\"hidden\":false,\"video_reference\":false},{\"id\":\"7c4cbaea-b406-403e-b007-39c045dbbce7\",\"name\":\"提示词\",\"type\":\"json\",\"width\":420,\"hidden\":false,\"presentation\":\"prompt\",\"generationPrompt\":true},{\"id\":\"94dc951b-6b7e-4fff-915a-dc127800e6f2\",\"name\":\"生成\",\"type\":\"content\",\"width\":340,\"hidden\":false,\"video_reference\":false,\"presentation\":\"generation\",\"readonly\":true,\"generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"7c4cbaea-b406-403e-b007-39c045dbbce7\",\"mode\":\"frames2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":4,\"turbo\":true,\"seed\":20261026}}}],\"records\":[{\"id\":\"7724cb79-3986-46b1-8fe3-c7566d2ab264\",\"selected\":false,\"values\":{\"b0098edf-188c-4988-acaf-d750080a36ef\":[{\"id\":\"showcase-scene-1\",\"kind\":\"image\",\"name\":\"01 · 清晨客舱\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\"}],\"7c4cbaea-b406-403e-b007-39c045dbbce7\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"清晨的民航客舱，暖白色座椅沿中央过道延伸；柔和自然光透过舷窗，蓝灰色织物与浅木饰面形成舒适的层次。\\n镜头沿中央过道缓慢向前推进，保持稳定构图。\"}]},\"94dc951b-6b7e-4fff-915a-dc127800e6f2\":[]},\"name\":\"01 · 清晨客舱\",\"meta\":{}},{\"id\":\"ae111c37-c093-4574-af1c-28890663e9b3\",\"selected\":false,\"values\":{\"7c4cbaea-b406-403e-b007-39c045dbbce7\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"客舱设计工作室里的材质样板台，蓝灰色织物、浅木饰面、磨砂金属样片整齐并列，侧光展现纹理与质感。\\n近景缓慢横移，对焦织物与木纹边缘。\"}]},\"94dc951b-6b7e-4fff-915a-dc127800e6f2\":[],\"b0098edf-188c-4988-acaf-d750080a36ef\":[{\"id\":\"showcase-scene-2\",\"kind\":\"image\",\"name\":\"02 · 材质细节\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\"}]},\"name\":\"02 · 材质细节\",\"meta\":{}},{\"id\":\"e1bb5dc4-9d9b-44b9-b8d5-d5e0bcdd8654\",\"selected\":false,\"values\":{\"7c4cbaea-b406-403e-b007-39c045dbbce7\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"设计团队围绕客舱概念模型协同评审，桌面摆放色卡与草图，大屏呈现同一套客舱方案，空间明亮、秩序清晰。\\n从桌面模型缓慢拉远，展示完整工作室。\"}]},\"94dc951b-6b7e-4fff-915a-dc127800e6f2\":[],\"b0098edf-188c-4988-acaf-d750080a36ef\":[{\"id\":\"showcase-scene-3\",\"kind\":\"image\",\"name\":\"03 · 协同评审\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\"}]},\"name\":\"03 · 协同评审\",\"meta\":{}}],\"view\":\"table\",\"meta\":{\"material_columns\":true,\"video_reference_version\":1,\"generationInput\":{\"version\":1,\"promptFieldId\":\"7c4cbaea-b406-403e-b007-39c045dbbce7\"},\"generationProject\":\"\",\"showcase\":{\"synthetic\":true,\"note\":\"参数预置，尚未提交\"}}},\"fieldId\":\"94dc951b-6b7e-4fff-915a-dc127800e6f2\",\"currentId\":\"7724cb79-3986-46b1-8fe3-c7566d2ab264\"}"
+      ],
+      "widgets_values_named": {
+        "project_uuid": "",
+        "request_id": "studio-showcase-15",
+        "model": "Seedance 2.5",
+        "mode": "text2video",
+        "prompt": "",
+        "duration": 4,
+        "resolution": "480p",
+        "ratio": "16:9",
+        "sound": false,
+        "reference_files": "[]",
+        "task_data": "{\"version\":1,\"table\":{\"version\":1,\"fields\":[{\"id\":\"b0098edf-188c-4988-acaf-d750080a36ef\",\"name\":\"图片/视频\",\"type\":\"content\",\"width\":260,\"hidden\":false,\"video_reference\":false},{\"id\":\"7c4cbaea-b406-403e-b007-39c045dbbce7\",\"name\":\"提示词\",\"type\":\"json\",\"width\":420,\"hidden\":false,\"presentation\":\"prompt\",\"generationPrompt\":true},{\"id\":\"94dc951b-6b7e-4fff-915a-dc127800e6f2\",\"name\":\"生成\",\"type\":\"content\",\"width\":340,\"hidden\":false,\"video_reference\":false,\"presentation\":\"generation\",\"readonly\":true,\"generation\":{\"version\":1,\"kind\":\"video\",\"model\":\"MiniMax H3 FL（本地）\",\"promptFieldId\":\"7c4cbaea-b406-403e-b007-39c045dbbce7\",\"mode\":\"frames2video\",\"settings\":{\"width\":512,\"height\":288,\"duration\":4,\"turbo\":true,\"seed\":20261026}}}],\"records\":[{\"id\":\"7724cb79-3986-46b1-8fe3-c7566d2ab264\",\"selected\":false,\"values\":{\"b0098edf-188c-4988-acaf-d750080a36ef\":[{\"id\":\"showcase-scene-1\",\"kind\":\"image\",\"name\":\"01 · 清晨客舱\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\"}],\"7c4cbaea-b406-403e-b007-39c045dbbce7\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"清晨的民航客舱，暖白色座椅沿中央过道延伸；柔和自然光透过舷窗，蓝灰色织物与浅木饰面形成舒适的层次。\\n镜头沿中央过道缓慢向前推进，保持稳定构图。\"}]},\"94dc951b-6b7e-4fff-915a-dc127800e6f2\":[]},\"name\":\"01 · 清晨客舱\",\"meta\":{}},{\"id\":\"ae111c37-c093-4574-af1c-28890663e9b3\",\"selected\":false,\"values\":{\"7c4cbaea-b406-403e-b007-39c045dbbce7\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"客舱设计工作室里的材质样板台，蓝灰色织物、浅木饰面、磨砂金属样片整齐并列，侧光展现纹理与质感。\\n近景缓慢横移，对焦织物与木纹边缘。\"}]},\"94dc951b-6b7e-4fff-915a-dc127800e6f2\":[],\"b0098edf-188c-4988-acaf-d750080a36ef\":[{\"id\":\"showcase-scene-2\",\"kind\":\"image\",\"name\":\"02 · 材质细节\",\"filename\":\"scene-02.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-02.png&subfolder=CreativeStudioShowcase&type=input\"}]},\"name\":\"02 · 材质细节\",\"meta\":{}},{\"id\":\"e1bb5dc4-9d9b-44b9-b8d5-d5e0bcdd8654\",\"selected\":false,\"values\":{\"7c4cbaea-b406-403e-b007-39c045dbbce7\":{\"kind\":\"column-template\",\"version\":1,\"segments\":[{\"type\":\"text\",\"text\":\"设计团队围绕客舱概念模型协同评审，桌面摆放色卡与草图，大屏呈现同一套客舱方案，空间明亮、秩序清晰。\\n从桌面模型缓慢拉远，展示完整工作室。\"}]},\"94dc951b-6b7e-4fff-915a-dc127800e6f2\":[],\"b0098edf-188c-4988-acaf-d750080a36ef\":[{\"id\":\"showcase-scene-3\",\"kind\":\"image\",\"name\":\"03 · 协同评审\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\"}]},\"name\":\"03 · 协同评审\",\"meta\":{}}],\"view\":\"table\",\"meta\":{\"material_columns\":true,\"video_reference_version\":1,\"generationInput\":{\"version\":1,\"promptFieldId\":\"7c4cbaea-b406-403e-b007-39c045dbbce7\"},\"generationProject\":\"\",\"showcase\":{\"synthetic\":true,\"note\":\"参数预置，尚未提交\"}}},\"fieldId\":\"94dc951b-6b7e-4fff-915a-dc127800e6f2\",\"currentId\":\"7724cb79-3986-46b1-8fe3-c7566d2ab264\"}"
+      }
+    },
+    {
+      "inputs": [
+        {
+          "name": "edit_data",
+          "type": "STRING",
+          "widget": {
+            "name": "edit_data"
+          },
+          "link": null
+        },
+        {
+          "name": "assets",
+          "type": "DAELAB_ASSETS",
+          "link": null
+        },
+        {
+          "name": "videos.video0",
+          "type": "COMFYTV_VIDEO",
+          "link": null
+        },
+        {
+          "name": "images.image0",
+          "type": "COMFYTV_IMAGE",
+          "link": null
+        },
+        {
+          "name": "groups.group0",
+          "type": "DAELAB_ASSETS",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "剪辑成片",
+          "type": "VIDEO",
+          "slot_index": 0,
+          "links": []
+        },
+        {
+          "name": "剪辑成片引用",
+          "type": "COMFYTV_VIDEO",
+          "slot_index": 1,
+          "links": []
+        }
+      ],
+      "id": 16,
+      "type": "DAELAB.VideoEdit",
+      "title": "07 · 剪辑 / 裁切 / 吸附 / 导出",
+      "pos": [
+        4050,
+        0
+      ],
+      "size": [
+        960,
+        800
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "properties": {
+        "Node name for S&R": "DAELAB.VideoEdit",
+        "daelabEditView": {
+          "scale": 1,
+          "zoom": 64,
+          "snap": true
+        }
+      },
+      "widgets_values": [
+        "{\"version\":1,\"fit\":\"contain\",\"resolution\":{\"width\":960,\"height\":540},\"clips\":[{\"id\":\"showcase-clip-1\",\"source\":{\"asset\":{\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\"}},\"asset\":{\"version\":1,\"id\":\"studio-showcase-scene-01\",\"kind\":\"image\",\"name\":\"镜头 01 · 合成演示图\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\"},\"start\":0,\"duration\":2,\"mute\":false,\"fit\":\"contain\"},{\"id\":\"showcase-clip-2\",\"source\":{\"asset\":{\"filename\":\"preview-motion.mp4\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\"}},\"asset\":{\"version\":1,\"id\":\"studio-showcase-motion\",\"kind\":\"video\",\"name\":\"4 秒合成演示片段\",\"filename\":\"preview-motion.mp4\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"duration\":4,\"fps\":24,\"has_audio\":false,\"url\":\"/view?filename=preview-motion.mp4&subfolder=CreativeStudioShowcase&type=input\"},\"start\":0,\"duration\":4,\"mute\":false,\"fit\":\"contain\"},{\"id\":\"showcase-clip-3\",\"source\":{\"asset\":{\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\"}},\"asset\":{\"version\":1,\"id\":\"studio-showcase-scene-03\",\"kind\":\"image\",\"name\":\"镜头 03 · 合成演示图\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\"},\"start\":0,\"duration\":2,\"mute\":false,\"fit\":\"contain\"}]}"
+      ],
+      "widgets_values_named": {
+        "edit_data": "{\"version\":1,\"fit\":\"contain\",\"resolution\":{\"width\":960,\"height\":540},\"clips\":[{\"id\":\"showcase-clip-1\",\"source\":{\"asset\":{\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\"}},\"asset\":{\"version\":1,\"id\":\"studio-showcase-scene-01\",\"kind\":\"image\",\"name\":\"镜头 01 · 合成演示图\",\"filename\":\"scene-01.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-01.png&subfolder=CreativeStudioShowcase&type=input\"},\"start\":0,\"duration\":2,\"mute\":false,\"fit\":\"contain\"},{\"id\":\"showcase-clip-2\",\"source\":{\"asset\":{\"filename\":\"preview-motion.mp4\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\"}},\"asset\":{\"version\":1,\"id\":\"studio-showcase-motion\",\"kind\":\"video\",\"name\":\"4 秒合成演示片段\",\"filename\":\"preview-motion.mp4\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"duration\":4,\"fps\":24,\"has_audio\":false,\"url\":\"/view?filename=preview-motion.mp4&subfolder=CreativeStudioShowcase&type=input\"},\"start\":0,\"duration\":4,\"mute\":false,\"fit\":\"contain\"},{\"id\":\"showcase-clip-3\",\"source\":{\"asset\":{\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\"}},\"asset\":{\"version\":1,\"id\":\"studio-showcase-scene-03\",\"kind\":\"image\",\"name\":\"镜头 03 · 合成演示图\",\"filename\":\"scene-03.png\",\"subfolder\":\"CreativeStudioShowcase\",\"type\":\"input\",\"width\":960,\"height\":540,\"url\":\"/view?filename=scene-03.png&subfolder=CreativeStudioShowcase&type=input\"},\"start\":0,\"duration\":2,\"mute\":false,\"fit\":\"contain\"}]}"
+      }
+    }
+  ],
+  "links": [
+    [
+      1,
+      10,
+      0,
+      12,
+      3,
+      "STRING"
+    ],
+    [
+      2,
+      5,
+      0,
+      13,
+      2,
+      "DAELAB_ASSETS"
+    ],
+    [
+      3,
+      7,
+      0,
+      14,
+      4,
+      "STRING"
+    ],
+    [
+      4,
+      2,
+      3,
+      15,
+      0,
+      "IMAGE"
+    ],
+    [
+      5,
+      4,
+      3,
+      15,
+      1,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "daelabCreativeCanvasV1": {
+      "version": 1,
+      "active": true,
+      "viewport": {
+        "x": 24,
+        "y": 40,
+        "zoom": 0.2
+      },
+      "cards": {
+        "1": {
+          "x": 0,
+          "y": 0,
+          "width": 730,
+          "expanded": true
+        },
+        "2": {
+          "x": 16,
+          "y": 500,
+          "width": 350,
+          "expanded": true
+        },
+        "3": {
+          "x": 372,
+          "y": 500,
+          "width": 350,
+          "expanded": true
+        },
+        "4": {
+          "x": 16,
+          "y": 725,
+          "width": 350,
+          "expanded": true
+        },
+        "5": {
+          "x": 0,
+          "y": 450,
+          "width": 730,
+          "expanded": true
+        },
+        "6": {
+          "x": 0,
+          "y": 1100,
+          "width": 480,
+          "expanded": true
+        },
+        "7": {
+          "x": 0,
+          "y": 1500,
+          "width": 730,
+          "expanded": true
+        },
+        "8": {
+          "x": 900,
+          "y": 0,
+          "width": 780,
+          "expanded": true
+        },
+        "9": {
+          "x": 900,
+          "y": 850,
+          "width": 780,
+          "expanded": true
+        },
+        "10": {
+          "x": 1850,
+          "y": 0,
+          "width": 1140,
+          "expanded": true
+        },
+        "11": {
+          "x": 1850,
+          "y": 950,
+          "width": 1140,
+          "expanded": true
+        },
+        "12": {
+          "x": 3200,
+          "y": 0,
+          "width": 700,
+          "expanded": true
+        },
+        "13": {
+          "x": 900,
+          "y": 1700,
+          "width": 700,
+          "expanded": true
+        },
+        "14": {
+          "x": 3200,
+          "y": 950,
+          "width": 700,
+          "expanded": true
+        },
+        "15": {
+          "x": 4050,
+          "y": 950,
+          "width": 700,
+          "expanded": true
+        },
+        "16": {
+          "x": 4050,
+          "y": 0,
+          "width": 960,
+          "expanded": true
+        }
+      }
+    },
+    "ds": {
+      "scale": 0.2,
+      "offset": [
+        100,
+        160
+      ]
+    }
+  },
+  "version": 0.4
+}
