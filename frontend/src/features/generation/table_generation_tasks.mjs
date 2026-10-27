@@ -1,5 +1,5 @@
 import {generationTaskSnapshots,trackTaskCompletion} from './task_snapshots.mjs';
-import {createTableButton as button,tableIcon} from '../table/table_controls.mjs';
+import {createTableButton as button,tableIcon} from '../../ui/table_controls.mjs';
 import {GenerationSession,generationInputDigest} from './generation_session.js';
 import {request,modelCapabilities} from './table_generation_api.mjs';
 import {generationReportNeedsApply,generationReceipt,recoveryJob,isLocalGenerationModel,needsGenerationProject,isGeneration,generationRows,generationInput,applyGenerationResult,appendGenerationResult} from './table_generation_model.mjs';

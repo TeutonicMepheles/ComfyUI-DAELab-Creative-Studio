@@ -1,4 +1,4 @@
-import {createTableButton as button,tableIcon} from '../table/table_controls.mjs';
+import {createTableButton as button,tableIcon} from '../../ui/table_controls.mjs';
 import {OPTIMIZATION_MODELS,optimizationProvider,DEFAULT_REQUIREMENTS} from './prompt_optimization_model.mjs';
 import {optimizationSummary} from './prompt_optimization_summary.mjs';
 

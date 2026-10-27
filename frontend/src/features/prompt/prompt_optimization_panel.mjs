@@ -1,5 +1,5 @@
 import {optimizationStatus} from './prompt_optimization_status.mjs';
-import {createTableButton as button,tableIcon} from '../table/table_controls.mjs';
+import {createTableButton as button,tableIcon} from '../../ui/table_controls.mjs';
 
 import {optimizationProvider} from './prompt_optimization_model.mjs';
 

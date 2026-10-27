@@ -1,6 +1,6 @@
 import {initializeImportAssets,materializeImportRows} from './storyboard_import_assets.mjs';
 import {draftTable, timeRangeNeedsReview} from "./daelab_storyboard_model.mjs";
-import {stopCanvasPropagation} from "../table/list_editor_controls.mjs";
+import {stopCanvasPropagation} from "../../ui/list_editor_controls.mjs";
 
 // Draft state stays outside the node until every reference upload has succeeded.
 export function previewImport(result, uploadReference) {

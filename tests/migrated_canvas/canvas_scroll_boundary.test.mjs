@@ -26,7 +26,7 @@ test('clipping belongs only to the root; text, panel, table and picker scrolling
  assert.equal(declarations(canvas,'.dae-creative-body').overflow,'auto');
  assert.equal(declarations(canvas,'.dae-creative-workspace>.dae-creative-body').overflow,'auto');
  assert.equal(declarations(canvas,'.dae-creative-picker>div').overflow,'auto');
- assert.equal(declarations(read('features/table/data_table_editor.mjs'),'.dae-table-scroll').overflow,'auto');
+ assert.equal(declarations(read('features/table/editor_runtime.mjs'),'.dae-table-scroll').overflow,'auto');
  assert.equal(declarations(read('features/table/table_ui.css'),'.dae-table-panel .dae-table td>textarea:focus').overflow,'auto');
  assert.equal(declarations(read('features/prompt/llm_style_preview.css'),'.llm-io .llm-io-comparison').overflow,'auto');
 });

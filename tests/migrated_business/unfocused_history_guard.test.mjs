@@ -9,7 +9,7 @@ const dataURL=source=>'data:text/javascript;base64,'+Buffer.from(source).toStrin
 // ordering. Only unrelated IO presentation/buttons are injected as public ports.
 const stubs=new Map([
  ['./llm_io_panel.mjs',dataURL('export function bindIOPanel(){const off=()=>{};off.sync=()=>{};return off;}')],
- ['../table/table_controls.mjs',dataURL('export function tableTheme(){} export function createTableButton(label,fn){const b=document.createElement("button");b.textContent=label;b.onclick=fn;return b;}')],
+ ['../../ui/table_controls.mjs',dataURL('export function tableTheme(){} export function createTableButton(label,fn){const b=document.createElement("button");b.textContent=label;b.onclick=fn;return b;}')],
 ]);
 const dependency=path=>{const url=new URL(path,panelURL),source=new URL(url.href.replace(/\.js$/,'.ts'));return stubs.get(path)||(!existsSync(url)&&existsSync(source)?source.href:url.href);};
 const panelSource=readFileSync(panelURL,'utf8').replace(/from\s+(['"])([^'"]+)\1/g,(_,quote,path)=>'from '+JSON.stringify(dependency(path))).replaceAll('import.meta.url',JSON.stringify(panelURL.href));

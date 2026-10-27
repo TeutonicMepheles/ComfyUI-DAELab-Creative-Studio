@@ -2,7 +2,7 @@ import {applyMaterialCellToColumn} from './table_material_columns.mjs';
 import {isGeneration,rowGenerationConfig,setRowGenerationConfig,generationConfigField} from '../generation/table_generation_model.mjs';
 import {isPrompt,promptField} from '../prompt/table_prompt_model.mjs';
 import {addField,addRecord,removeField,clone,uid,reorder,emptyValue} from './data_table_model.mjs';
-import {createTableButton as button} from './table_controls.mjs';
+import {createTableButton as button} from '../../ui/table_controls.mjs';
 import {applyPromptToColumn} from '../prompt/table_prompt_template.mjs';
 import {previewContentAsset} from './table_content_view.mjs';
 import {createPromptOptimizationEntry} from '../prompt/prompt_optimization_panel.mjs';

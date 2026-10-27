@@ -8,7 +8,7 @@ const contexts=[
   ['upload panel','integrations/comfyui/canvas/media_upload.js',"for(const event of ['pointerdown','dblclick','keydown','wheel'])root.addEventListener",'root'],
   ['text panel','integrations/comfyui/canvas/text_input.js',"for(const type of ['pointerdown','dblclick','keydown','wheel'])root.addEventListener",'root'],
   ['library drawer/dialog','features/assets/asset_library.mjs',"container.addEventListener('keydown',",'container'],
-  ['table media preview','features/table/table_content_view.mjs',"for(const type of ['pointerdown','pointerup','click','dblclick','keydown'])overlay.addEventListener",'overlay'],
+  ['table media preview','ui/material_thumbnail.mjs',"for(const type of ['pointerdown','pointerup','click','dblclick','keydown'])overlay.addEventListener",'overlay'],
   ['table new-column popup','features/table/table_structure.mjs','node.onkeydown=', 'node'],
 ];
 function handler(path,marker,binding){

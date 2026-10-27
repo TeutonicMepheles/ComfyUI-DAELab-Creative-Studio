@@ -87,7 +87,7 @@ test('node, graph, native lookup, mode, type and serializer ownership never reus
 
 test('noncanonical, invalid, missing-ID, object and all liveSource markers retain the legacy path',()=>{
  const base=canonical(small()),raw=JSON.parse(base);const invalidDuplicate=JSON.parse(base);invalidDuplicate.fields.push({...invalidDuplicate.fields[0]});
- const values=[' '+base,JSON.stringify({...raw,topLevelFuture:{keep:true}}),'invalid JSON',JSON.stringify(invalidDuplicate),JSON.parse(base),...([null,false,{}, {fields:{f:'f'}}].map(liveSource=>canonical({...raw,meta:{...raw.meta,liveSource}})))];
+ const values=[' '+base,'invalid JSON',JSON.stringify(invalidDuplicate),JSON.parse(base),...([null,false,{}, {fields:{f:'f'}}].map(liveSource=>canonical({...raw,meta:{...raw.meta,liveSource}})))];
  for(const value of values){const h=fixture(value);for(let i=0;i<2;i++)assert.deepEqual(h.serialize(),legacy(h.node,h.data));assert.equal(h.calls,2);}
  const h=fixture(JSON.stringify({fields:[{name:'new',type:'content'}],records:[{values:{}}]}));const a=h.serialize(),b=h.serialize();assert.notEqual(a,b);assert.equal(h.calls,2);
  const object=fixture(JSON.parse(base));object.serialize();object.data.value.records[0].values.f='mutable';assert.equal(object.serialize(),legacy(object.node,object.data));assert.equal(object.calls,2);

@@ -1,4 +1,4 @@
-import {createTableButton,tableIcon} from '../table/table_controls.mjs';
+import {createTableButton,tableIcon} from '../../ui/table_controls.mjs';
 import {isTextColumn,promptSourceId,setPromptSource} from './table_prompt_source.mjs';
 
 export function promptSourceHeader({table,field,header,title,change,root,notify}) {

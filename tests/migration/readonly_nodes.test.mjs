@@ -5,7 +5,7 @@ import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import ts from 'typescript';
 import {Element as BaseElement} from '../migrated_business/prompt_optimization_dom.mjs';
-import {readStoryboard} from '../../frontend/src/features/storyboard/storyboard_table_adapter.mjs';
+const {readStoryboard}=await import('../../frontend/src/features/storyboard/storyboard_table_adapter.mjs');
 const {canvasHistory}=await import('../../frontend/src/integrations/comfyui/canvas/creative_history.mjs');
 
 const root = new URL('../../frontend/src/', import.meta.url);

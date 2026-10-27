@@ -63,10 +63,10 @@ test('fixed M fixture hashes and stable identity contract match actual native fi
   for(const table of Object.values(parsed.tables)){assert.equal(table.records.length,500);assert.equal(table.fields.length,10);}
  }
  await assert.rejects(readTableSemanticFixture(new TextEncoder().encode('{}'),globalThis.crypto),/固定/);
- const editor=fs.readFileSync(new URL('../../frontend/src/features/table/data_table_editor.mjs',import.meta.url),'utf8');
+ const editor=fs.readFileSync(new URL('../../frontend/src/features/table/editor_runtime.mjs',import.meta.url),'utf8');
  assert.match(editor,/cell\.dataset\.field=f\.id;cell\.dataset\.record=r\.id/);
  assert.match(editor,/row\.dataset\.recordId=r\.id/);
- const inline=fs.readFileSync(new URL('../../frontend/src/features/table/table_inline_editor.mjs',import.meta.url),'utf8');
+ const inline=fs.readFileSync(new URL('../../frontend/src/ui/inline_editor.mjs',import.meta.url),'utf8');
  assert.match(inline,/cell\.dataset\.inlineEditing='true'/);
  assert.match(inline,/box\.contentEditable='false';delete cell\.dataset\.inlineEditing/);
  const view=fs.readFileSync(new URL('../../frontend/src/canvas/creative_canvas_view.mjs',import.meta.url),'utf8');

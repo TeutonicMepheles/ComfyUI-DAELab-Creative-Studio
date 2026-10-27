@@ -2,6 +2,8 @@
 
 提供无业务依赖的按钮、字段、事件边界、面板 lease 和失焦历史守卫。
 
+表格与提示词共用 `table_controls.mjs`、`list_editor_controls.mjs`、`inline_editor.mjs`、`reference_menu.mjs` 和 `material_thumbnail.mjs`。列引用选项由 application 提供；控件不查询生成服务或原生历史。
+
 源码入口：creative_button.mjs：异步按钮状态；creative_field.mjs：草稿与提交；creative_events.mjs：键盘传播；creative_panel_context.mjs、creative_panel_state.mjs：借用与模式；unfocused_history_guard.ts：失焦撤销边界。
 
 协作边界：业务通过回调传入能力；共享层不识别节点类型、模型、API 或业务字段。主题来自 design。

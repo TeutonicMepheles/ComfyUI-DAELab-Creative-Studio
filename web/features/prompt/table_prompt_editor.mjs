@@ -1,5 +1,5 @@
-import {bindInlineEditor,deletePromptReference} from '../table/table_inline_editor.mjs';
-import {stopCanvasPropagation} from '../table/list_editor_controls.mjs';
+import {bindInlineEditor,deletePromptReference} from '../../ui/inline_editor.mjs';
+import {stopCanvasPropagation} from '../../ui/list_editor_controls.mjs';
 import {columnReferenceOptions,createReferenceMenu,materialReferenceLabel} from '../table/table_reference_menu.mjs';
 import {isColumnPrompt,effectivePrompt,columnValue,toColumnPrompt} from './table_prompt_template.mjs';
 import {openColumnPromptEditor,readPromptSegments} from './table_prompt_template_editor.mjs';

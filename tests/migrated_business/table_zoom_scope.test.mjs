@@ -23,7 +23,7 @@ test('zoom inheritance boundary is confined to owned content data cells and rese
  assert.deepEqual(declarations[0].body.split(';').map(value=>value.trim()).filter(Boolean),[
   '--dae-canvas-zoom:initial','--dae-canvas-inverse-zoom:initial',
  ]);
- const editor=read('features/table/data_table_editor.mjs'),structure=read('features/table/table_structure.mjs');
+ const editor=read('features/table/editor_runtime.mjs'),structure=read('features/table/table_structure.mjs');
  assert.match(editor,/cell\.dataset\.field=f\.id;cell\.dataset\.record=r\.id/);
  assert.match(editor,/element\('td','table-choice',row\)/);
  assert.match(structure,/row\.querySelector\('\.table-choice'\)\.append\(handle\)/,'screen-size row handle must stay outside isolated data cells');
