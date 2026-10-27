@@ -69,7 +69,7 @@ T1/T2 的旧入口包装只负责兼容转发，不保留第二套实现。每�
 
 ## 5. 独立开发入口
 
-以下为拟议命令，尚未实现，不可作为当前使用说明：
+以下命令已在 T3 实现，环境与数据限制见 [预览说明](../dev/table/README.md)：
 
 ```text
 npm run dev:table       启动本地表格预览
@@ -129,8 +129,9 @@ npm run test:table:ui   浏览器交互测试
 | --- | --- | --- | --- |
 | T0 | 已合并 | [PR #3](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Studio/pull/3)，`71a33e2`；52 项定向测试、144 模块架构检查、当前提交两套 CI 通过；[依赖基线](validation/MODULARITY_T0_20261027.md) | 无；不代表产品验收 |
 | T1 | 已合并，[PR #4](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Studio/pull/4)，`d936b40` 当前提交两套 CI 通过 | `index.ts` / `contracts.ts`、按实例的模型扩展、application 装配及共享 UI 归属；完整检查和首失败记录位于 `.local/modularity/T1-*` | 真实宿主统一在 T4 验收；全局宿主注入属 T2 |
-| T2 | 代码及定向检查完成，待 PR 检查 | [执行记录](validation/MODULARITY_T2_20261027.md) | 浏览器与宿主检查在 T3/T4 记录 |
-| T3–T4、D1 | 待实施 | — | 按上述出口条件推进 |
+| T2 | 已合并，[PR #5](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Studio/pull/5)，`46a35d3` 两套当前提交 CI 通过 | [执行记录](validation/MODULARITY_T2_20261027.md) | 浏览器与宿主检查在 T3/T4 记录 |
+| T3 | 实现和定向检查完成，待 PR 检查 | [预览验证](validation/MODULARITY_T3_20261027.md) | 宿主验收属 T4 |
+| T4、D1 | 待实施 | — | 按上述出口条件推进 |
 
 ## 相关依据
 

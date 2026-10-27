@@ -68,11 +68,14 @@ class IsolationTests(unittest.TestCase):
         self.assertFalse(self.environment.exists())
 
     def test_snapshot_excludes_private_data_and_isolates_all_writable_paths(self):
+        (self.package / "dev").mkdir()
+        (self.package / "dev" / "preview.mjs").write_text("throw Error('dev only')")
         (self.package / ".local").mkdir()
         (self.package / ".local" / "private.txt").write_text("private")
         manifest = HOST.prepare(self.config())
         copied = self.environment / "custom_nodes" / HOST.PACKAGE_NAME
         self.assertFalse((copied / ".local").exists())
+        self.assertFalse((copied / "dev").exists())
         self.assertTrue((copied / "__init__.py").is_file())
         command = manifest["command"]
         for flag, name in (("--base-directory", ""), ("--user-directory", "user"),

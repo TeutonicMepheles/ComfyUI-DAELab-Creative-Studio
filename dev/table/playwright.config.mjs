@@ -1,0 +1,3 @@
+import {fileURLToPath} from 'node:url';
+import {defineConfig} from '@playwright/test';
+export default defineConfig({testDir:'./tests',outputDir:'../../.local/modularity/browser-results',workers:1,reporter:[['list'],['json',{outputFile:fileURLToPath(new URL('../../.local/modularity/T3-browser.json',import.meta.url))}]],use:{baseURL:'http://127.0.0.1:8293',headless:true,channel:process.env.TABLE_BROWSER||'chrome',viewport:{width:1440,height:1000},trace:'retain-on-failure',screenshot:'only-on-failure'},webServer:{cwd:fileURLToPath(new URL('../..',import.meta.url)),command:'node dev/table/server.mjs',url:'http://127.0.0.1:8293',reuseExistingServer:false,timeout:15000}});
