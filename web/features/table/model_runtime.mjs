@@ -47,7 +47,8 @@ function normalizeTable(value={}) {
         for(const f of fields)if(isColumnPrompt(values[f.id]))values[f.id]=toColumnPrompt(values[f.id],{values});
         return {...clone(r),id,selected:raw.meta?.material_columns?r.selected===true:r.selected!==false,values};
     });
-    return migratePromptSource(migrateVideoReferences({...clone(raw),version:1,fields,records,view:raw.view==='cards'?'cards':'table',meta:clone(raw.meta||{})}));
+    const {fields:_fields,records:_records,meta:_meta,...extra}=raw;
+    return migratePromptSource(migrateVideoReferences({...clone(extra),version:1,fields,records,view:raw.view==='cards'?'cards':'table',meta:clone(raw.meta||{})}));
 }
 function addField(table,spec={}) {
     if(table.fields.length>=64)throw new Error('表格最多 64 列');
