@@ -1,4 +1,4 @@
-import {createTableModel} from '../features/table/index.js';
+import {createTableModel} from '../features/table/core_model.mjs';
 import {isPrompt,validatePrompt} from '../features/prompt/table_prompt_model.mjs';
 import {isColumnPrompt,validateColumnPrompt,bindColumnAssets,toColumnPrompt} from '../features/prompt/table_prompt_template.mjs';
 import {migratePromptSource,promptSourceId,setPromptSource} from '../features/prompt/table_prompt_source.mjs';

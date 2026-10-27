@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "9d2748778f587e74feba016b0f1dd5f5f493401a2076b926db831197561fda72",
+  "sourceFingerprint": "00de26aae1122556360960d55527d935bd276acbc197274c5d7cb0f68e7f6c83",
   "files": [
     {
       "path": "AGENTS.md",
@@ -48,7 +48,7 @@
     },
     {
       "path": "application/table_model.mjs",
-      "sha256": "0bba525baf30cc1879183c8975f390d90cebee623b7c4c79bf37fe19416ada37"
+      "sha256": "27bca65e209d5956b896079657fb0975c4385c9fcfd6cef8e7fc996357042d31"
     },
     {
       "path": "application/table_reference_options.mjs",
@@ -708,7 +708,7 @@
     },
     {
       "path": "features/table/core_model.mjs",
-      "sha256": "fd8a0b75f4d9b51f42fe95c436b703fe27345cdbc454c0b733c62c2bd46b6abc"
+      "sha256": "fc306f1ef6679364a395eb24d00e35a7169ac5099b06c4da3b8728e98e4adbfa"
     },
     {
       "path": "features/table/daelab_studio_theme.mjs",
@@ -736,7 +736,7 @@
     },
     {
       "path": "features/table/index.js",
-      "sha256": "c1f93d2ef4017fc6bce9f758a84cfd51ab5d8fa08014f40b030cc300639b7e83"
+      "sha256": "18d8e1b4485ba775d950b90fa1c10ba173aa92a3084435aee3b012c6bbb214da"
     },
     {
       "path": "features/table/list_editor_controls.mjs",
@@ -1028,7 +1028,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "3579e1b83de25e02da3d68322bce7f060a7b2c0ff48ef1cd6b22af70ebbd3031"
+      "sha256": "b98007ed51f9e5f4e47dff0f8e277cd0a0c4552e9f643aa364d9749ebc2ea1c1"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
