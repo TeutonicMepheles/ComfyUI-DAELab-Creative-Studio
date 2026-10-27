@@ -1,6 +1,7 @@
 import {businessFetch} from '../../contracts/business.js';
 import {createTableEditor} from '../../application/table_editor.mjs';
-import {createTableButton as button,tableTheme,tableHistory} from '../table/table_controls.mjs';
+import {createTableButton as button,tableTheme} from '../../ui/table_controls.mjs';
+import {tableHistory} from '../../application/table_host_history.mjs';
 import {createPromptEditor} from '../prompt/table_prompt_editor.mjs';
 import {attachGenerationColumns} from '../generation/table_generation_panel.mjs';
 import {installContentPresentation} from '../../application/table_presentation.mjs';

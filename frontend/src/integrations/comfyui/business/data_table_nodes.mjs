@@ -3,9 +3,9 @@ import {bindBusinessDocument,tableInputStamp} from './business_document_host.js'
 import {businessFetch} from '../../../contracts/business.js';
 import {readTableView} from '../../../application/table_exchange.mjs';
 import {createTableWidgetSerializer} from './table_serializer.js';
-import {removeEmptyTableNode} from '../../../features/table/table_empty_node.mjs';
+import {removeEmptyTableNode} from '../../../features/table/public_helpers.mjs';
 import {preserveGenerationHistory} from '../../../features/generation/table_generation_history.mjs';
-import {scheduleTableInstall} from '../../../features/table/table_node_install.mjs';
+import {scheduleTableInstall} from '../../../features/table/public_helpers.mjs';
 import {ensureIdentity,NAMESPACE} from '../../../features/prompt/prompt_optimization_model.mjs';
 import {attachPromptOptimization} from '../../../features/prompt/prompt_optimization_controller.mjs';
 import {assertTransition} from '../../../features/storyboard/script_parser_model.mjs';
@@ -14,8 +14,9 @@ import {createMaterialTable} from '../../../application/table_material_columns.m
 import {attachGenerationColumns} from '../../../features/generation/table_generation_panel.mjs';
 import {isColumnPrompt,effectivePrompt} from '../../../features/prompt/table_prompt_template.mjs';
 import {installContentPresentation} from '../../../application/table_presentation.mjs';
-import {createTablePanelViews} from '../../../features/table/table_panel_views.mjs';
-import {tableTheme,tableHistory} from '../../../features/table/table_controls.mjs';
+import {createTablePanelViews} from '../../../features/table/public_helpers.mjs';
+import {tableTheme} from '../../../ui/table_controls.mjs';
+import {tableHistory} from '../../../application/table_host_history.mjs';
 import {createWorkbench,showExistingPanel} from '../../../application/table_workbench.mjs';
 import {workbenchTheme} from '../../../ui/table_workbench_theme.mjs';
 import {storyboardTaskState,selectedTaskSummary} from '../../../features/storyboard/storyboard_task_state.mjs';

@@ -2,7 +2,7 @@ import {app} from '/scripts/app.js';
 import {installVideoTasks} from '../../../features/generation/video_tasks_panel.mjs';
 import {ensureIdentity,NAMESPACE} from '../../../features/prompt/prompt_optimization_model.mjs';
 import {bindBusinessDocument,tableInputStamp} from './business_document_host.js';
-import {scheduleTableInstall} from '../../../features/table/table_node_install.mjs';
+import {scheduleTableInstall} from '../../../features/table/public_helpers.mjs';
 
 const TYPE='DAELAB.LibTV.VideoGenerate';
 function dispose(node){

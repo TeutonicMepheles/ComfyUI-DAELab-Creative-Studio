@@ -1,6 +1,6 @@
 import {isColumnPrompt,validateColumnPrompt,effectivePrompt,resolveColumnPrompt,columnPromptStamp,columnValue} from './table_prompt_template.mjs';
 // Pure shared contract; no ComfyUI, DOM or provider calls.
-import {videoReferenceFields,videoReferenceSpecs} from '../table/table_video_references.mjs';
+import {videoReferenceFields,videoReferenceSpecs} from '../table/public_helpers.mjs';
 const clone=v=>JSON.parse(JSON.stringify(v));
 export const promptConfig=t=>t.meta.prompt_config||t.meta.storyboard||{};
 export const promptField=t=>promptConfig(t).bindings?.final_prompt;

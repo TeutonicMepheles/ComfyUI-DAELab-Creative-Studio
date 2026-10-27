@@ -23,7 +23,7 @@ FONT_MANIFEST = 'web/design/vendor/alibaba-puhuiti-3/manifest.json'
 FONT_NAMES = {'AlibabaPuHuiTi-3-55-Regular.woff2', 'AlibabaPuHuiTi-3-65-Medium.woff2',
               'AlibabaPuHuiTi-3-75-SemiBold.woff2'}
 FORBIDDEN_PARTS = {'.git', '.local', 'node_modules', 'tests', 'test', 'test_fixtures',
-                   'frontend', '__pycache__', '.venv', 'venv', 'secrets', 'credentials'}
+                   'frontend', 'dev', '__pycache__', '.venv', 'venv', 'secrets', 'credentials'}
 FORBIDDEN_SUFFIXES = {'.safetensors', '.gguf', '.ckpt', '.pt', '.pth', '.bin', '.onnx',
                       '.pem', '.key', '.p12', '.pfx', '.env', '.sqlite', '.sqlite3', '.db', '.pyc'}
 

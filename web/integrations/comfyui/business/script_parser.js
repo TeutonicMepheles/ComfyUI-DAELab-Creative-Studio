@@ -2,7 +2,7 @@ import {tableClipboard} from './table_capabilities.js';
 import {bindBusinessDocument,tableInputStamp} from './business_document_host.js';
 import {businessFetch} from '../../../contracts/business.js';
 import {preserveGenerationHistory} from '../../../features/generation/table_generation_history.mjs';
-import {scheduleTableInstall} from '../../../features/table/table_node_install.mjs';
+import {scheduleTableInstall} from '../../../features/table/public_helpers.mjs';
 import {ensureIdentity,NAMESPACE} from '../../../features/prompt/prompt_optimization_model.mjs';
 import {attachPromptOptimization} from '../../../features/prompt/prompt_optimization_controller.mjs';
 import {app} from '/scripts/app.js';

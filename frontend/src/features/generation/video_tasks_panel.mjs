@@ -3,7 +3,8 @@ import {requirePromptSource,promptSourceId} from '../prompt/table_prompt_source.
 import {replaceLinkedTaskText,bindLinkedTaskReference} from './video_task_linked_prompt.mjs';
 import {syncApprovedTaskRows} from './video_task_rows.mjs';
 import {appliedSnapshot} from '../prompt/llm_slot_model.mjs';
-import {createTableButton as button,tableIcon,tableTheme,tableHistory} from '../table/table_controls.mjs';
+import {createTableButton as button,tableIcon,tableTheme} from '../../ui/table_controls.mjs';
+import {tableHistory} from '../../application/table_host_history.mjs';
 import {attachGenerationColumns} from './table_generation_panel.mjs';
 import {createPromptEditor} from '../prompt/table_prompt_editor.mjs';
 import {createPromptSettingsBar} from '../prompt/table_prompt_settings.mjs';

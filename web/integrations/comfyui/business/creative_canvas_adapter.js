@@ -4,7 +4,7 @@ import {generationMaterials} from '../../../application/table_material_output.mj
 // This repository alone owns knowledge of its private panel implementations.
 import {createMaterialTable,fillMaterialColumn,fillMaterialRow,fillMaterialCell,columnDropTypes,columnFillCount} from '../../../application/table_material_columns.mjs';
 import {app} from '/scripts/app.js';
-import {materialItem} from '../../../features/table/table_material_item.mjs';
+import {materialItem} from '../../../features/table/public_helpers.mjs';
 import {videoResultAssets} from '../../../features/generation/libtv_video_model.mjs';
 const key=Symbol.for('DAELAB.CreativeCanvas.API.v1');
 const tables=['DAELAB.Table','DAELAB.StoryboardImport'];

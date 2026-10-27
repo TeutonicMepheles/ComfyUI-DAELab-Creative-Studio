@@ -13,3 +13,5 @@ python -m unittest discover -s tests/host -p "test_*.py" -v
 python tools/host/prepare_isolated.py --help
 ```
 
+可选 ComfyTV 使用 `python -m tools.host.prepare_optional_comfytv --help`。`--port` 可指定空闲回环端口；生产及已保留评估端口仍被拒绝，不会终止占用者。上游必须是工具中固定的干净提交；原始目录只读归档。
+
