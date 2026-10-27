@@ -37,6 +37,17 @@ function dom(t){
 }
 
 const fixture=JSON.parse(readFileSync(new URL('../fixtures/performance/FX-PERF-M-no-video.json',import.meta.url),'utf8'));
+test('panel activity avoids geometry reads while idle or editing and follows deactivation',t=>{
+ const env=dom(t),a=table(env,0),b=table(env,1);
+ a.context.active=true;b.context.active=true;
+ a.context.getViewport=b.context.getViewport=()=>{throw new Error('unexpected layout read');};
+ env.tick();a.enter();env.flush();env.tick();
+ assert.equal(a.toolbar.hidden,true);assert.equal(b.root.dataset.contentPresentation,'true');
+ a.context.active=false;env.tick();
+ assert.equal(a.root.dataset.contentPresentation,'false');
+ assert.equal(b.root.dataset.contentPresentation,'true');
+ a.context.active=true;env.tick();assert.equal(a.root.dataset.contentPresentation,'true');
+});
 function table(env,index){
  const value=JSON.parse(fixture.nodes.filter(node=>node.type==='DAELAB.Table')[index].widgets_values[0]);
  const root=new env.Element('section'),grid=new env.Element('table'),head=new env.Element('thead'),body=new env.Element('tbody');root.append(grid);grid.append(head,body);document.body.append(root);

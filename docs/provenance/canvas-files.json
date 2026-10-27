@@ -86,7 +86,7 @@
       "source": "web/creative_canvas_view.mjs",
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
       "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
-      "destinationSha256": "254fa1ec55697d67ced13768cc23b1740e79b2f77d0e265e998eddbfa963445d",
+      "destinationSha256": "9f7dfe595e9fc4b0bf4a00b970ca868bc33ec5c727ae2a5bf85591c521507c67",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "remove opt-in test gallery rendering; retain unrelated graph.extra data",
@@ -103,7 +103,8 @@
         "Inject only the current direct-child status hint bounds for trusted Tab reveal; ordinary caret/input never reads status geometry. Preserve error/status visibility, viewport navigation and exact panel lifetime. Actual occlusion acceptance pending.",
         "Inject current direct-child zoom HUD bounds for trusted Tab whole-control reveal; reserve its top band only when the projected visible control intersects it, then preserve bottom-hint avoidance. Ordinary caret/input adds no HUD read; live owner, internal clipping and post-read lease checks remain. Actual 78 reverse-Tab failures are retained; new candidate browser acceptance pending.",
         "PERF selection-paint candidate: compare current selected/slotsSuppressed attributes and selection-surface class before writes; preserve every select/raise/focus/layout and per-card group projection call. Real closure tests cover 300-card selection, live group mutations and outside DOM repair; actual latency acceptance remains pending.",
-        "Expose only the existing connected, visible direct-child asset dock bounds to focus reveal; retain native focus, owner leases and viewport-only navigation. The 1752 LLM B dock interception failure is retained; candidate browser reacceptance follows."
+        "Expose only the existing connected, visible direct-child asset dock bounds to focus reveal; retain native focus, owner leases and viewport-only navigation. The 1752 LLM B dock interception failure is retained; candidate browser reacceptance follows.",
+        "Expose the leased panel active state without a geometry read; preserve viewport geometry and legacy adapter fallback. Two-instance table and mode checks are recorded in TABLE_PILOT_ACCEPTANCE_20261027.md; the 100 ms budget remains open."
       ],
       "kind": "production-source"
     },

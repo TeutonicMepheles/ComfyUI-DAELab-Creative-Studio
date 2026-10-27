@@ -54,3 +54,16 @@ test('structured clipboard exchange is explicit and a late upload cannot change 
  await expect(a.locator('.notice')).toContainText('模拟上传中');await a.getByRole('button',{name:'卸载',exact:true}).click();await a.getByRole('button',{name:'挂载',exact:true}).click();await page.waitForTimeout(3200);
  expect((await snapshot(a)).records[0].values[af]).toEqual(source.records[0].values[af]);
 });
+
+
+test('generation settings keep their click target when the prompt hint appears',async({page})=>{
+ for(const name of ['A','B']){
+  const panel=instance(page,name),settings=panel.locator('[data-generation-defaults]').first();
+  await settings.scrollIntoViewIfNeeded();await page.mouse.move(0,0);const before=await settings.boundingBox();expect(before).not.toBeNull();
+  await page.mouse.move(before.x+before.width/2,before.y+before.height/2);
+  const hovered=await settings.boundingBox();expect(Math.abs(hovered.x-before.x)).toBeLessThan(.5);expect(Math.abs(hovered.y-before.y)).toBeLessThan(.5);
+  await page.mouse.click(before.x+before.width/2,before.y+before.height/2);
+  await expect(page.locator('.table-text-side:not([hidden])')).toContainText('列默认配置');
+  await page.getByRole('button',{name:'关闭侧栏',exact:true}).click();
+ }
+});

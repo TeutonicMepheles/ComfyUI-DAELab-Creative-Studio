@@ -333,6 +333,7 @@
 [data-canvas-panel=true] [data-content-presentation=true] .dae-table[data-named-rows=true][data-structure] tbody .table-choice input{top:14px}
 [data-canvas-panel=true] .dae-table[data-named-rows=true][data-structure] tbody .table-choice{cursor:grab;touch-action:none;user-select:none}
 
-.dae-ui .dae-table th[data-prompt-source] .generation-header-row{padding-right:40px;min-width:0}
+/* Reserve the hint lane before hover: moving the settings target on entry lets
+   the nearby projected Slot capture the original click, especially when zoomed out. */
+.dae-ui .dae-table th[data-prompt-source] .generation-header-row{padding-right:118px;min-width:0}
 .dae-ui .dae-table th[data-prompt-source] .generation-header-row>.field-title{padding-right:0!important;min-width:0;flex:1}
-.dae-ui .dae-table th[data-prompt-source]:is(:hover,:focus-within) .generation-header-row{padding-right:118px}
