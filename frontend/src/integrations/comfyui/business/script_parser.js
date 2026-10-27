@@ -1,3 +1,4 @@
+import {tableClipboard} from './table_capabilities.js';
 import {bindBusinessDocument,tableInputStamp} from './business_document_host.js';
 import {businessFetch} from '../../../contracts/business.js';
 import {preserveGenerationHistory} from '../../../features/generation/table_generation_history.mjs';
@@ -7,7 +8,7 @@ import {attachPromptOptimization} from '../../../features/prompt/prompt_optimiza
 import {app} from '/scripts/app.js';
 import {createScriptParserPanel} from '../../../features/storyboard/script_parser_panel.mjs';
 import {readScriptTable,assertTransition} from '../../../features/storyboard/script_parser_model.mjs';
-import {generationMaterials} from '../../../features/table/table_material_output.mjs';
+import {generationMaterials} from '../../../application/table_material_output.mjs';
 const TYPE='DAELAB.ScriptParser',widget=node=>node.widgets?.find(w=>w.name==='table_data');
 const notify=(message,severity='info')=>app.extensionManager?.toast?.add?.({severity,summary:'分镜解析器',detail:message,life:8000});
 function install(node){
@@ -15,7 +16,7 @@ function install(node){
  let table;try{table=readScriptTable(data.value);if(node.__scriptTable){preserveGenerationHistory(node.__scriptTable,table);assertTransition(node.__scriptTable,table,{restoring:true});}}catch(e){notify(e.message,'error');if(node.__scriptTable)data.value=JSON.stringify(node.__scriptTable);return;}
  node.__scriptTable=table;data.value=JSON.stringify(table);data.hidden=true;data.options={...data.options,hidden:true,canvasOnly:true};data.computeSize=()=>[0,-4];data.computeLayoutSize=()=>({minHeight:0,maxHeight:0,minWidth:0});data.draw=()=>{};for(const el of [data.element,data.inputEl])if(el?.style)el.style.display='none';
  if(node.__scriptPanel){node.__scriptPanel.render();return;}
- const panel=createScriptParserPanel({node,app,documentFactory:(read,write)=>bindBusinessDocument(node,read,write,tableInputStamp),getTable:()=>node.__scriptTable,setTable:next=>{node.__scriptTable=next;data.value=JSON.stringify(next);data.callback?.(data.value,app.canvas,node);node.graph?.setDirtyCanvas?.(true,true);},notify});node.__scriptPanel=panel;
+ const panel=createScriptParserPanel({node,app,getPanelContext:root=>globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root),clipboard:tableClipboard,documentFactory:(read,write)=>bindBusinessDocument(node,read,write,tableInputStamp),getTable:()=>node.__scriptTable,setTable:next=>{node.__scriptTable=next;data.value=JSON.stringify(next);data.callback?.(data.value,app.canvas,node);node.graph?.setDirtyCanvas?.(true,true);},notify});node.__scriptPanel=panel;
  const optimization=attachPromptOptimization({node,graph:node.graph,editor:panel.editor,getTable:()=>node.__scriptTable,identity:ensureIdentity(node.graph,node),fetchApi:businessFetch});
  const parserTasks=panel.tasks;panel.tasks=()=>[...parserTasks(),...optimization.tasks()];
  for(const method of ['render','close','destroy']){const previous=panel[method];panel[method]=(...args)=>{optimization[method==='render'?'observe':method==='close'?'pause':'destroy']();return previous(...args);};}

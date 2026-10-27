@@ -13,8 +13,8 @@ function fixture({native=true}={}){
   const start=source.indexOf(" root.addEventListener('keydown',e=>{");
   const end=source.indexOf("\n for(const event of ['pointerdown'",start);
   assert.ok(start>=0&&end>start);
-  new Function('root','nativeDocument','nativeHistory','displayContent','restore','onRestore','cellSelection',source.slice(start,end))(
-    {addEventListener(type,fn){keydown=fn;}},nativeDocument,nativeHistory,()=>true,restore,onRestore,{end:null});
+  new Function('root','nativeDocument','nativeHistory','displayContent','restore','onRestore','cellSelection','viewSession',source.slice(start,end))(
+    {addEventListener(type,fn){keydown=fn;}},nativeDocument,nativeHistory,()=>true,restore,onRestore,{end:null},{signal:new AbortController().signal});
   async function press(key,options={}){
     const e={key,ctrlKey:true,metaKey:false,shiftKey:false,altKey:false,repeat:false,isComposing:false,
       target:{isContentEditable:false,matches:()=>false,closest:()=>true},preventDefault(){this.defaultPrevented=true;},...options};

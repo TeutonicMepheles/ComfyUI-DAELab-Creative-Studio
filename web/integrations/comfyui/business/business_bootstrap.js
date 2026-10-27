@@ -17,6 +17,7 @@ app.registerExtension({
         };
         installBusinessHost({history,nodes:graph=>canvas.nodes(graph),createNode:type=>canvas.createNode(type),addNode:(graph,node)=>canvas.addNode(graph,node),
             focusNode(node){app.canvas?.selectNode?.(node);app.canvas?.centerOnNode?.(node);},
+            placeNode:(node,position)=>globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.placeNode?.(node,position),
             isSelected:node=>app.canvas?.selected_nodes?.[node.id]===node,
             fetchNative:(url,options)=>url.startsWith('data:')?fetch(url,options):fetchApi(url,options),
         });

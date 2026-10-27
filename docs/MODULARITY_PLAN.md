@@ -128,8 +128,9 @@ npm run test:table:ui   浏览器交互测试
 | 批次 | 状态 | 提交/PR 与验证 | 剩余事项 |
 | --- | --- | --- | --- |
 | T0 | 已合并 | [PR #3](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Studio/pull/3)，`71a33e2`；52 项定向测试、144 模块架构检查、当前提交两套 CI 通过；[依赖基线](validation/MODULARITY_T0_20261027.md) | 无；不代表产品验收 |
-| T1 | 代码及定向检查完成，待 PR 检查 | `index.ts` / `contracts.ts`、按实例的模型扩展、application 装配及共享 UI 归属；完整检查和首失败记录位于 `.local/modularity/T1-*` | 真实宿主统一在 T4 验收；全局宿主注入属 T2 |
-| T2–T4、D1 | 待实施 | — | 按上述出口条件推进 |
+| T1 | 已合并，[PR #4](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Studio/pull/4)，`d936b40` 当前提交两套 CI 通过 | `index.ts` / `contracts.ts`、按实例的模型扩展、application 装配及共享 UI 归属；完整检查和首失败记录位于 `.local/modularity/T1-*` | 真实宿主统一在 T4 验收；全局宿主注入属 T2 |
+| T2 | 代码及定向检查完成，待 PR 检查 | [执行记录](validation/MODULARITY_T2_20261027.md) | 浏览器与宿主检查在 T3/T4 记录 |
+| T3–T4、D1 | 待实施 | — | 按上述出口条件推进 |
 
 ## 相关依据
 

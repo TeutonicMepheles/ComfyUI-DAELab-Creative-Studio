@@ -44,7 +44,7 @@ function table(env,index){
  const cells=[];for(const record of value.records){const row=new env.Element('tr');row.dataset.recordId=record.id;body.append(row);for(const field of value.fields){const cell=new env.Element('td');cell.dataset.field=field.id;cell.dataset.record=record.id;row.append(cell);cells.push(cell);}}
  const selection=attachCellSelection({root,shell:root,getTable:()=>value});
  const context={presentation:'content',selected:true,contains:node=>root.contains(node),getViewport:()=>({left:0,top:0,right:1200,bottom:800,width:1200}),getBounds:()=>root.getBoundingClientRect()};env.contexts.set(root,context);
- const editor={clearSelection:selection.clear,selectColumn:selection.selectColumn,selection:selection.selection,render(){}};
+ const editor={panelContext:()=>env.contexts.get(root),clearSelection:selection.clear,selectColumn:selection.selectColumn,selection:selection.selection,render(){}};
  const presentation=installContentPresentation({root,editor,getTable:()=>value});env.releases.push(()=>{presentation.destroy();selection.destroy();});
  const toolbar=document.body.children.at(-1);env.tick();
  return {root,headers,cells,selection,toolbar,value,context,presentation,enter(cell=cells[0]){cell.dataset.inlineEditing='true';env.emit('focusin',cell);},leave(cell=cells[0]){delete cell.dataset.inlineEditing;},selectColumn(index){env.emit('pointerdown',headers[index]);env.flush();}};

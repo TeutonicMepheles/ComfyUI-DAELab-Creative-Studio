@@ -1,19 +1,19 @@
 import {businessFetch} from '../../contracts/business.js';
-import {createTableEditor} from '../table/data_table_editor.mjs';
+import {createTableEditor} from '../../application/table_editor.mjs';
 import {createTableButton as button,tableTheme,tableHistory} from '../table/table_controls.mjs';
 import {createPromptEditor} from '../prompt/table_prompt_editor.mjs';
 import {attachGenerationColumns} from '../generation/table_generation_panel.mjs';
-import {installContentPresentation} from '../table/table_context_menu.mjs';
-import {createWorkbench} from '../table/table_workbench.mjs';
-import {workbenchTheme} from '../table/table_workbench_theme.mjs';
+import {installContentPresentation} from '../../application/table_presentation.mjs';
+import {createWorkbench} from '../../application/table_workbench.mjs';
+import {workbenchTheme} from '../../ui/table_workbench_theme.mjs';
 import {createSettingsPopover} from '../prompt/table_prompt_settings.mjs';
-import {studioTheme} from '../table/daelab_studio_theme.mjs';
+import {studioTheme} from '../../ui/studio_theme.mjs';
 import {ROLE_LABELS,KIND_LABELS,initialChoices,importTasks,reviseImport,hasActiveGeneration,assertTransition,ParserRequests} from './script_parser_model.mjs';
 
 const el=(tag,parent,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;parent?.append(e);return e;};
 function select(parent,label,options,value,onChange){const wrap=el('label',parent,label),s=el('select',wrap);s.setAttribute('aria-label',label);for(const [v,n] of options)s.add(new Option(n,v));s.value=value??'';s.onchange=()=>onChange(s.value);return s;}
 
-export function createScriptParserPanel({node,app,getTable,setTable,notify,documentFactory=null}){
+export function createScriptParserPanel({node,app,getTable,setTable,notify,documentFactory=null,getPanelContext=()=>null,clipboard=null}){
  tableTheme();workbenchTheme();studioTheme();
  if(!document.getElementById('dae-script-parser-css')){const link=el('link',document.head);link.id='dae-script-parser-css';link.rel='stylesheet';link.href=new URL('./script_parser.css',import.meta.url).href;}
  const root=el('div');root.className='dae-ui dae-table-panel script-parser';root.setAttribute('aria-label','分镜剧本解析器');
@@ -60,9 +60,9 @@ export function createScriptParserPanel({node,app,getTable,setTable,notify,docum
   const body=new FormData();body.append('image',file,crypto.randomUUID()+'.'+file.name.split('.').at(-1));body.append('type','input');body.append('subfolder','DAELAB/script-parser');
   const r=await businessFetch('/upload/image',{method:'POST',body});if(!r.ok)throw new Error('素材上传失败');const a=await r.json();return '/view?'+new URLSearchParams({filename:a.name,subfolder:a.subfolder||'',type:a.type||'input'});
  }
- const editor=createTableEditor({documentFactory,getTable,setTable:t=>{assertTransition(getTable(),t);generation?.syncPromptChanges(t,getTable());setTable(t);updatePending();promptUI?.observe();},
+ const editor=createTableEditor({getPanelContext,clipboard,documentFactory,getTable,setTable:t=>{assertTransition(getTable(),t);generation?.syncPromptChanges(t,getTable());setTable(t);updatePending();promptUI?.observe();},
   validateChange:assertTransition,textPanelHost:()=>root.closest('dialog[open]')||document.body,upload:uploadAsset,notify,nativeHistory:tableHistory(app),
-  displayContent:()=>globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root)?.presentation==='content',
+  displayContent:()=>getPanelContext(root)?.presentation==='content',
   renderCell:args=>promptUI?.renderCell(args),decorateAsset:(...args)=>promptUI?.decorateAsset(...args),
   onRestore:()=>{cancel();promptUI?.invalidate();generation?.invalidate();updatePending();message('已恢复历史版本');}});
  root.append(editor.root);

@@ -1,10 +1,10 @@
 import {bindInlineEditor,deletePromptReference} from '../../ui/inline_editor.mjs';
 import {stopCanvasPropagation} from '../../ui/list_editor_controls.mjs';
-import {columnReferenceOptions,createReferenceMenu,materialReferenceLabel} from '../table/table_reference_menu.mjs';
+import {columnReferenceOptions,createReferenceMenu,materialReferenceLabel} from '../../application/table_reference_options.mjs';
 import {isColumnPrompt,effectivePrompt,columnValue,toColumnPrompt} from './table_prompt_template.mjs';
 import {openColumnPromptEditor,readPromptSegments} from './table_prompt_template_editor.mjs';
-import {clone} from '../table/data_table_model.mjs';
-import {tableButton as button} from '../table/data_table_editor.mjs';
+import {clone} from '../../application/table_model.mjs';
+import {tableButton as button} from '../../application/table_editor.mjs';
 import {promptConfig,promptField,promptAssets,tableAssets,resolvePromptAsset,promptText,promptState,isPrompt,validatePrompt,applyPromptResults,PromptRequests} from './table_prompt_model.mjs';
 
 const el=(tag,parent,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;parent?.append(e);return e;};

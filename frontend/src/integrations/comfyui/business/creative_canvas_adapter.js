@@ -1,8 +1,8 @@
 import {NAMESPACE} from '../../../features/prompt/prompt_optimization_model.mjs';
-import {generationMaterials} from '../../../features/table/table_material_output.mjs';
+import {generationMaterials} from '../../../application/table_material_output.mjs';
 // Optional integration: business nodes work without the canvas extension.
 // This repository alone owns knowledge of its private panel implementations.
-import {createMaterialTable,fillMaterialColumn,fillMaterialRow,fillMaterialCell,columnDropTypes,columnFillCount} from '../../../features/table/table_material_columns.mjs';
+import {createMaterialTable,fillMaterialColumn,fillMaterialRow,fillMaterialCell,columnDropTypes,columnFillCount} from '../../../application/table_material_columns.mjs';
 import {app} from '/scripts/app.js';
 import {materialItem} from '../../../features/table/table_material_item.mjs';
 import {videoResultAssets} from '../../../features/generation/libtv_video_model.mjs';

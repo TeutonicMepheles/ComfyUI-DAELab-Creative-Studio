@@ -1,4 +1,6 @@
 import type { Json, NativeDocumentPort } from '../../contracts/ports.js';
+import type { createBusinessDocument } from '../../application/business_document.js';
+import type { StructuredClipboardPort } from '../../ui/structured_clipboard.js';
 
 /** Unknown saved keys are retained; these interfaces are not serialization filters. */
 export interface TableField {
@@ -50,4 +52,60 @@ export interface TableModel {
     record(before: string, after: string, group?: string | null): void;
     restore(current: string, redo?: boolean): TableData | null;
   };
+}
+
+export interface TablePanelContext {
+  presentation?: string; width?: number;
+  getViewport(): {left: number; top: number; right: number; bottom: number} | null;
+  resizeWidth?(width: number): void;
+  panBy?(x: number, y: number): void;
+  beginMaterialDrag?(key: string, transfer: DataTransfer): void;
+}
+export interface TableChangeOptions {
+  render?: boolean; group?: string | null; tickets?: readonly object[]; derived?: boolean;
+}
+export type TableChange = (edit: (table: TableData) => void, options?: TableChangeOptions) => void;
+export interface TableContentPorts {
+  getTable(): TableData; change: TableChange;
+  upload(file: File): Promise<string>; notify(message: string): void;
+  onCleanup(dispose: () => void): void;
+  beginAsync(target?: {recordId?: string; fieldId?: string}): object;
+  releaseAsync(ticket: object): void;
+  bindAssetDrag(element: HTMLElement, asset: {id: string}): void;
+}
+export interface TableColumnPresentation {
+  isPrompt(field: TableField): boolean;
+  promptText(value: Json, table: TableData, row: TableRecord): string;
+  bindColumnAssets(table: TableData, recordId: string, fieldId: string): void;
+  preserveGenerationHistory(current: TableData, restored: TableData): TableData;
+  promptSourceHeader(context: {table: TableData; field: TableField; header: HTMLElement; title: HTMLElement; root: HTMLElement; change: TableChange; notify(message: string): void}): void;
+  renderContentCell(cell: HTMLElement, row: TableRecord, field: TableField, ports: TableContentPorts): void;
+  addGenerationColumn(table: TableData, spec: Partial<TableField>): TableField;
+}
+export interface TableEditorOptions {
+  getTable(): TableData; setTable(table: TableData): void;
+  model: TableModel; columns: TableColumnPresentation;
+  upload?(file: File, options: {signal: AbortSignal}): Promise<string>;
+  notify?(message: string): void;
+  getPanelContext?(root: HTMLElement): TablePanelContext | null;
+  confirm?(message: string): boolean;
+  prompt?(message: string, value: string): string | null;
+  clipboard?: StructuredClipboardPort;
+  displayContent?(): boolean; promptColumnsOnly?: boolean;
+  documentFactory?(read: () => TableData, write: (table: TableData) => void): ReturnType<typeof createBusinessDocument<TableData>>;
+  validateChange?(previous: TableData, next: TableData): void;
+  textPanelHost?(): HTMLElement;
+  onRestore?(): void;
+}
+export interface TableEditor {
+  root: HTMLElement; change: TableChange;
+  render(): void; destroy(): void; closeDialogs(): void;
+  panelContext(): TablePanelContext | null;
+  beginAsync(target?: {recordId?: string; fieldId?: string}, requestId?: string): object;
+  canAsync(ticket: object): boolean; releaseAsync(ticket: object): void; invalidateAsync(): void;
+  applyAsync(tickets: object | object[], edit: (table: TableData) => void, options?: TableChangeOptions): void;
+  onTableChange(observer: () => void): () => void;
+  restore(redo?: boolean): unknown;
+  copySelection(): Promise<void>;
+  focusCell(recordId: string, fieldId: string): void;
 }

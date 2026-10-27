@@ -7,17 +7,17 @@ import {createTableButton as button,tableIcon,tableTheme,tableHistory} from '../
 import {attachGenerationColumns} from './table_generation_panel.mjs';
 import {createPromptEditor} from '../prompt/table_prompt_editor.mjs';
 import {createPromptSettingsBar} from '../prompt/table_prompt_settings.mjs';
-import {createTextSide} from '../table/table_text_side.mjs';
-import {isTableSource,readTableSnapshot,previewTableRow,writeTablePrompts} from '../table/table_exchange.mjs';
+import {createTextSide} from '../../ui/text_side.mjs';
+import {isTableSource,readTableSnapshot,previewTableRow,writeTablePrompts} from '../../application/table_exchange.mjs';
 import {effectivePrompt,toColumnPrompt,promptContent} from '../prompt/table_prompt_template.mjs';
 import {tableAssets,promptText} from '../prompt/table_prompt_model.mjs';
 import {rowGenerationConfig,setRowGenerationConfig,promptColumns,syncGenerationFrameTags} from './table_generation_model.mjs';
 import {videoResultAssets} from './libtv_video_model.mjs';
-import {addField,uid,normalizeTable} from '../table/data_table_model.mjs';
-import {fillMaterialCell} from '../table/table_material_columns.mjs';
+import {addField,uid,normalizeTable} from '../../application/table_model.mjs';
+import {fillMaterialCell} from '../../application/table_material_columns.mjs';
 import {createVideoTasks,importVideoTasks,addVideoTask,activeVideoTask,videoTaskAssets,selectTaskPrompt,syncVideoTaskInputs} from './video_tasks_model.mjs';
 import {stopCanvasPropagation} from '../../ui/list_editor_controls.mjs';
-import {bindMaterialThumbnail} from '../table/table_content_view.mjs';
+import {bindMaterialThumbnail} from '../../application/table_content_view.mjs';
 
 const widget=(node,name)=>node.widgets?.find(w=>w.name===name);
 const element=(tag,parent,cls,text)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;parent?.append(el);return el;};

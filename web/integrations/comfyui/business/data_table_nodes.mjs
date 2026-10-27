@@ -1,6 +1,7 @@
+import {tableClipboard} from './table_capabilities.js';
 import {bindBusinessDocument,tableInputStamp} from './business_document_host.js';
 import {businessFetch} from '../../../contracts/business.js';
-import {readTableView} from '../../../features/table/table_exchange.mjs';
+import {readTableView} from '../../../application/table_exchange.mjs';
 import {createTableWidgetSerializer} from './table_serializer.js';
 import {removeEmptyTableNode} from '../../../features/table/table_empty_node.mjs';
 import {preserveGenerationHistory} from '../../../features/generation/table_generation_history.mjs';
@@ -9,25 +10,25 @@ import {ensureIdentity,NAMESPACE} from '../../../features/prompt/prompt_optimiza
 import {attachPromptOptimization} from '../../../features/prompt/prompt_optimization_controller.mjs';
 import {assertTransition} from '../../../features/storyboard/script_parser_model.mjs';
 import {enableColumnPrompt,syncGenerationConfigOwners} from '../../../features/generation/table_generation_model.mjs';
-import {createMaterialTable} from '../../../features/table/table_material_columns.mjs';
+import {createMaterialTable} from '../../../application/table_material_columns.mjs';
 import {attachGenerationColumns} from '../../../features/generation/table_generation_panel.mjs';
 import {isColumnPrompt,effectivePrompt} from '../../../features/prompt/table_prompt_template.mjs';
-import {installContentPresentation} from '../../../features/table/table_context_menu.mjs';
+import {installContentPresentation} from '../../../application/table_presentation.mjs';
 import {createTablePanelViews} from '../../../features/table/table_panel_views.mjs';
 import {tableTheme,tableHistory} from '../../../features/table/table_controls.mjs';
-import {createWorkbench,showExistingPanel} from '../../../features/table/table_workbench.mjs';
-import {workbenchTheme} from '../../../features/table/table_workbench_theme.mjs';
+import {createWorkbench,showExistingPanel} from '../../../application/table_workbench.mjs';
+import {workbenchTheme} from '../../../ui/table_workbench_theme.mjs';
 import {storyboardTaskState,selectedTaskSummary} from '../../../features/storyboard/storyboard_task_state.mjs';
 import {app} from '/scripts/app.js';
-import {normalizeTable,clone,addField} from '../../../features/table/data_table_model.mjs';
+import {normalizeTable,clone,addField} from '../../../application/table_model.mjs';
 import {createPromptEditor} from '../../../features/prompt/table_prompt_editor.mjs';
 import {promptConfig,promptField,promptFingerprint} from '../../../features/prompt/table_prompt_model.mjs';
-import {createTableEditor,tableButton as button} from '../../../features/table/data_table_editor.mjs';
-import {createAssetGroups} from '../../../features/table/data_table_groups.mjs';
+import {createTableEditor,tableButton as button} from '../../../application/table_editor.mjs';
+import {createAssetGroups} from '../../../application/table_asset_groups.mjs';
 import {readStoryboard,projectStoryboard,serializeStoryboardTable,importRows,writeGenerationResults,addGenerationFields,STORYBOARD_ROLES} from '../../../features/storyboard/storyboard_table_adapter.mjs';
 import {previewImport} from '../../../features/storyboard/daelab_storyboard_import.mjs';
-import {studioTheme} from '../../../features/table/daelab_studio_theme.mjs';
-import {stopCanvasPropagation} from '../../../features/table/list_editor_controls.mjs';
+import {studioTheme} from '../../../ui/studio_theme.mjs';
+import {stopCanvasPropagation} from '../../../ui/list_editor_controls.mjs';
 import {removeOwnedWidgets} from './dynamic_widget_lifecycle.mjs';
 
 
@@ -78,7 +79,7 @@ function createPanel(node){
  let tools=document.createElement('div');tools.className='studio-group-head';root.append(tools);
  let updateSummary=()=>{},promptUI=null,generationUI=null;
  const widgetDocument=bindBusinessDocument(node,()=>Object.fromEntries(['main_prompt','force_run_token'].filter(name=>widget(node,name)).map(name=>[name,widget(node,name).value])),value=>{for(const [name,item] of Object.entries(value))setWidget(node,name,item);});
- const editor=createTableEditor({documentFactory:(read,write)=>bindBusinessDocument(node,read,write,tableInputStamp),removeEmptyNode:table=>removeEmptyTableNode(node,table),validateChange:assertTransition,promptColumnsOnly:isGeneric(node),nativeHistory:tableHistory(app),displayContent:()=>isGeneric(node)&&globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root)?.presentation==='content',getTable:()=>node.__dataTable,setTable:t=>{generationUI?.syncPromptChanges(t,node.__dataTable);save(node,t);updateSummary();},upload,notify,isRowStateEmpty:t=>isGeneric(node)&&!t.meta.prompt_config,getRowState:(t,r)=>isGeneric(node)&&!t.meta.prompt_config?{issues:[],hint:''}:storyboardTaskState(t,r),renderCell:args=>promptUI?.renderCell(args),decorateAsset:(...args)=>promptUI?.decorateAsset(...args),onRestore:()=>{promptUI?.invalidate();generationUI?.invalidate();}});
+ const editor=createTableEditor({getPanelContext:root=>globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root),clipboard:tableClipboard,documentFactory:(read,write)=>bindBusinessDocument(node,read,write,tableInputStamp),removeEmptyNode:table=>removeEmptyTableNode(node,table),validateChange:assertTransition,promptColumnsOnly:isGeneric(node),nativeHistory:tableHistory(app),displayContent:()=>isGeneric(node)&&globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root)?.presentation==='content',getTable:()=>node.__dataTable,setTable:t=>{generationUI?.syncPromptChanges(t,node.__dataTable);save(node,t);updateSummary();},upload,notify,isRowStateEmpty:t=>isGeneric(node)&&!t.meta.prompt_config,getRowState:(t,r)=>isGeneric(node)&&!t.meta.prompt_config?{issues:[],hint:''}:storyboardTaskState(t,r),renderCell:args=>promptUI?.renderCell(args),decorateAsset:(...args)=>promptUI?.decorateAsset(...args),onRestore:()=>{promptUI?.invalidate();generationUI?.invalidate();}});
  const optimization=attachPromptOptimization({node,graph:node.graph,editor,getTable:()=>node.__dataTable,identity:ensureIdentity(node.graph,node),fetchApi:businessFetch});
  function defaults(){return promptConfig(node.__dataTable).defaults||{};}
  function syncDefaults(){const next=defaults();if(JSON.stringify(next)!==JSON.stringify(promptConfig(node.__dataTable).defaults||{}))editor.change(t=>{t.meta.prompt_config||=clone(promptConfig(t));t.meta.prompt_config.defaults=next;});}

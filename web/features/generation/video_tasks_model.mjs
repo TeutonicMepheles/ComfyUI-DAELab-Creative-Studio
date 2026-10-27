@@ -1,8 +1,8 @@
-import {createMaterialTable} from '../table/table_material_columns.mjs';
-import {addField,addRecord,uid,normalizeTable} from '../table/data_table_model.mjs';
+import {createMaterialTable} from '../../application/table_material_columns.mjs';
+import {addField,addRecord,uid,normalizeTable} from '../../application/table_model.mjs';
 import {LOCAL_VIDEO_MODEL,GENERATION_MODELS,isGeneration,promptColumns,rowGenerationConfig,setRowGenerationConfig,generationConfigField,syncGenerationFrameTags,applyPromptContent} from './table_generation_model.mjs';
 import {effectivePrompt,toColumnPrompt,promptContent} from '../prompt/table_prompt_template.mjs';
-import {generationMaterials} from '../table/table_material_output.mjs';
+import {generationMaterials} from '../../application/table_material_output.mjs';
 import {promptSourceId,requirePromptSource,setPromptSource} from '../prompt/table_prompt_source.mjs';
 
 export const activeVideoTask=row=>Object.values(row?.meta?.generationColumns||{}).some(s=>['waiting','running','pausing'].includes(s.phase));
