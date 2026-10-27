@@ -5,7 +5,7 @@ import ts from 'typescript';
 import {createBusinessDocument} from '../../frontend/src/application/business_document.ts';
 import {clone,SnapshotHistory} from '../../frontend/src/features/table/data_table_model.mjs';
 
-const source=readFileSync(new URL('../../frontend/src/features/table/data_table_editor.mjs',import.meta.url),'utf8');
+const source=readFileSync(new URL('../../frontend/src/features/table/editor_runtime.mjs',import.meta.url),'utf8');
 const syntax=ts.createSourceFile('data_table_editor.mjs',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
 const functions=[];
 function visit(node){if(ts.isFunctionDeclaration(node)&&node.name?.text==='change')functions.push(node);ts.forEachChild(node,visit);}

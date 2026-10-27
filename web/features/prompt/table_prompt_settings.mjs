@@ -1,6 +1,6 @@
 import {LOCAL_VIDEO_MODEL,isComfyGenerationModel,isLocalGenerationModel} from '../generation/table_generation_model.mjs';
-import {createTableButton} from '../table/table_controls.mjs';
-import {stopCanvasPropagation} from '../table/list_editor_controls.mjs';
+import {createTableButton} from '../../ui/table_controls.mjs';
+import {stopCanvasPropagation} from '../../ui/list_editor_controls.mjs';
 import {generationModelIconURL,generationModelLabel} from '../generation/generation_model_icons.mjs';
 
 // The order and setting keys are the contract documented in docs/prompt-settings-template.md.

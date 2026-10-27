@@ -1,4 +1,4 @@
-import {createTableButton as button,tableIcon} from './table_controls.mjs';
+import {createTableButton as button,tableIcon} from '../../ui/table_controls.mjs';
 import {stopCanvasPropagation} from './list_editor_controls.mjs';
 
 // Instance-owned, non-modal text dock. Collapsing preserves the current draft.

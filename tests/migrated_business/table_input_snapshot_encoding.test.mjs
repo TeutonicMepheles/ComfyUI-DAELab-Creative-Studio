@@ -6,7 +6,7 @@ import {createBusinessDocument} from '../../frontend/src/application/business_do
 import {clone,SnapshotHistory,setValue} from '../../frontend/src/features/table/data_table_model.mjs';
 import {captureEmptyRowStateScope} from '../../frontend/src/features/table/empty_row_state_scope.ts';
 
-const source=fs.readFileSync(new URL('../../frontend/src/features/table/data_table_editor.mjs',import.meta.url),'utf8');
+const source=fs.readFileSync(new URL('../../frontend/src/features/table/editor_runtime.mjs',import.meta.url),'utf8');
 const syntax=ts.createSourceFile('data_table_editor.mjs',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS),found=[];
 function visit(n){if(ts.isFunctionDeclaration(n)&&['change','changeCell'].includes(n.name?.text))found.push(n);ts.forEachChild(n,visit);}visit(syntax);
 assert.equal(found.length,2);

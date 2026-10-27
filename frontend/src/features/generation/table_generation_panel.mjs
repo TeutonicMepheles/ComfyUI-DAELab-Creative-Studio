@@ -2,7 +2,7 @@ import {FIELD_TYPES} from '../table/data_table_model.mjs';
 import {setPromptSource} from '../prompt/table_prompt_source.mjs';
 import {modelCapabilities} from './table_generation_api.mjs';
 import {attachGenerationTasks,generationTaskStyle} from './table_generation_tasks.mjs';
-import {createTableButton as button,tableIcon} from '../table/table_controls.mjs';
+import {createTableButton as button,tableIcon} from '../../ui/table_controls.mjs';
 import {GENERATION_MODELS,LOCAL_VIDEO_MODEL,isLocalGenerationModel,isComfyGenerationModel,needsGenerationProject,isGeneration,rowGenerationConfig,setRowGenerationConfig,promptColumns,createGenerationPrompt,enableColumnPrompt,generationRows,generationFrameRoles,generationFrames,generationFrameTagKey,syncGenerationFrameTags,syncGenerationPromptMode,syncGenerationPromptSource,generationConfigField,syncGenerationConfigOwners} from './table_generation_model.mjs';
 import {effectivePrompt,toColumnPrompt} from '../prompt/table_prompt_template.mjs';
 import {frameReferenceOptions,createReferenceMenu,materialReferenceLabel} from '../table/table_reference_menu.mjs';

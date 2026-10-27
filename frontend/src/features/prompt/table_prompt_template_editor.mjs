@@ -1,6 +1,6 @@
-import {createTableButton as button} from '../table/table_controls.mjs';
-import {stopCanvasPropagation} from '../table/list_editor_controls.mjs';
-import {deletePromptReference} from '../table/table_inline_editor.mjs';
+import {createTableButton as button} from '../../ui/table_controls.mjs';
+import {stopCanvasPropagation} from '../../ui/list_editor_controls.mjs';
+import {deletePromptReference} from '../../ui/inline_editor.mjs';
 import {columnReferenceOptions,createReferenceMenu} from '../table/table_reference_menu.mjs';
 import {isColumnPrompt,effectivePrompt,toColumnPrompt,validateColumnPrompt,resolveColumnPrompt,setColumnTemplate} from './table_prompt_template.mjs';
 const el=(tag,parent,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;parent?.append(e);return e;};

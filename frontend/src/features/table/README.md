@@ -2,7 +2,11 @@
 
 拥有记录、字段、单元格编辑、选择、结构修改、素材单元格以及工作台视图。
 
-源码入口：data_table_model.mjs：数据结构；data_table_editor.mjs：编辑事务；table_inline_editor.mjs：输入边界；table_structure.mjs：行列操作；table_material_columns.mjs、table_exchange.mjs：素材和公开交换。
+公共模型入口为 `index.ts` 的 `createTableModel(extensions)`，类型见 `contracts.ts`。基础模型通过实例参数接收列格式扩展；原生文档端口复用 `NativeDocumentPort<TableData>`。
+
+`application/table_model.mjs` 装配现有提示词格式，`application/table_editor.mjs` 装配编辑器的提示词表头、生成历史和内容呈现。`data_table_model.mjs`、`data_table_editor.mjs` 为兼容转发，不维护第二套实现。`editor_runtime.mjs` 拥有编辑事务和视图；共享按钮、引用菜单、内联编辑和素材缩略图已归 `ui/`。
+
+尚无独立预览命令。面板宿主能力注入和其余旧入口迁移属于 T2–T4；当前类型/模型测试不代表真实 ComfyUI 验收。
 
 协作边界：原生工作流是表数据保存依据；默认素材/提示词/生成列与三行、500 行和 64 列上限保持。生成和优化功能经各自控制器接入。
 

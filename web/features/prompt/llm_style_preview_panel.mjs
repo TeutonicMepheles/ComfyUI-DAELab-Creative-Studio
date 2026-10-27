@@ -1,6 +1,6 @@
-import {stopCanvasPropagation} from '../table/list_editor_controls.mjs';
+import {stopCanvasPropagation} from '../../ui/list_editor_controls.mjs';
 import {bindIOPanel} from './llm_io_panel.mjs';
-import {createTableButton,tableTheme} from '../table/table_controls.mjs';
+import {createTableButton,tableTheme} from '../../ui/table_controls.mjs';
 import * as sharedFields from '../../ui/creative_field.mjs';
 import * as sharedPanels from '../../ui/creative_panel_state.mjs';
 import {bindUnfocusedHistoryGuard} from '../../ui/unfocused_history_guard.js';

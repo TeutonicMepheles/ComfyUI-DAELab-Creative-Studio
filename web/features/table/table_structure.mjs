@@ -1,13 +1,12 @@
-import {addGenerationColumn} from '../generation/table_generation_model.mjs';
-import {addField,addRecord,emptyValue} from './data_table_model.mjs';
-import {createTableButton as button,tableIcon} from './table_controls.mjs';
+import {addField,addRecord,emptyValue} from './core_model.mjs';
+import {createTableButton as button,tableIcon} from '../../ui/table_controls.mjs';
 import {moveRows,moveColumn} from './table_structure_model.mjs';
 import {stopCanvasPropagation} from '../../ui/creative_events.mjs';
 
 const el=(tag,cls,text)=>{const node=document.createElement(tag);node.className=cls;if(text)node.textContent=text;return node;};
 
 // Instance-owned UI; all writes go through the editor's existing transaction.
-export function attachTableStructure({root,shell,table,getTable,change,notify}) {
+export function attachTableStructure({root,shell,table,getTable,change,notify,addGenerationColumn=()=>{throw new Error('生成列能力不可用');}}) {
     root.dataset.structure='true';
     const events=new AbortController(),listen=(node,type,fn,options={})=>node.addEventListener(type,fn,{...options,signal:events.signal});
     let drag=null,frame=0,popup=null,disposed=false,rowSizing=null,heightHover=null;

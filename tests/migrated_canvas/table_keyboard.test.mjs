@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-const source=readFileSync(new URL('../../frontend/src/features/table/data_table_editor.mjs',import.meta.url),'utf8');
+const source=readFileSync(new URL('../../frontend/src/features/table/editor_runtime.mjs',import.meta.url),'utf8');
 function fixture({native=true}={}){
   const calls=[],frames=[];
   const nativeDocument=native?{undo(){calls.push('undo');},redo(){calls.push('redo');},invalidate(){calls.push('invalidate');}}:null;

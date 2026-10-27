@@ -16,7 +16,7 @@ import {videoResultAssets} from './libtv_video_model.mjs';
 import {addField,uid,normalizeTable} from '../table/data_table_model.mjs';
 import {fillMaterialCell} from '../table/table_material_columns.mjs';
 import {createVideoTasks,importVideoTasks,addVideoTask,activeVideoTask,videoTaskAssets,selectTaskPrompt,syncVideoTaskInputs} from './video_tasks_model.mjs';
-import {stopCanvasPropagation} from '../table/list_editor_controls.mjs';
+import {stopCanvasPropagation} from '../../ui/list_editor_controls.mjs';
 import {bindMaterialThumbnail} from '../table/table_content_view.mjs';
 
 const widget=(node,name)=>node.widgets?.find(w=>w.name===name);
