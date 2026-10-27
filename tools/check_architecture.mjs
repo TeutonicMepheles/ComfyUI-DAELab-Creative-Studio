@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {tableModuleErrors,tableEdgeErrors} from './table_boundary.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const source = path.join(root, 'frontend/src');
@@ -18,6 +19,7 @@ visit(source);
 for (const [file, code] of modules) {
   const edges = [];
   const relative = path.relative(source, file).replaceAll('\\', '/');
+  errors.push(...tableModuleErrors(relative,code));
   if (/\/extensions\/ComfyUI-DAELab-(?:Creative-Canvas|Custom-Nodes-Library)/.test(code)) errors.push(`${relative}: old package runtime URL`);
   if (/\b(?:eval|new Function)\s*\(/.test(code)) errors.push(`${relative}: dynamic code execution`);
   if (/\b(?:from\s*|import\s*\(?)['"]\/scripts\//.test(code) && !relative.startsWith('integrations/comfyui/')) errors.push(`${relative}: host import outside integration`);
@@ -28,6 +30,8 @@ for (const [file, code] of modules) {
     if (!target.startsWith(source + path.sep) || !fs.existsSync(target)) errors.push(`${relative}: unresolved import ${specifier}`);
     if (modules.has(target)) edges.push(target);
     const targetRelative = path.relative(source, target).replaceAll('\\', '/');
+    const line=code.slice(code.lastIndexOf('\n',match.index)+1,match.index);
+    errors.push(...tableEdgeErrors(relative,targetRelative,{typeOnly:/\bimport\s+type\b/.test(line)}));
     if (/^(design|ui|contracts)\//.test(relative) && /^(features|application|integrations)\//.test(targetRelative)) errors.push(`${relative}: shared layer depends on ${targetRelative}`);
     if (/^(canvas|features)\//.test(relative) && /^integrations\//.test(targetRelative)) errors.push(`${relative}: core depends on integration ${targetRelative}`);
   }

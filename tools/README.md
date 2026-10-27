@@ -14,3 +14,5 @@ node tools/check_architecture.mjs
 node tools/verify_assets.mjs
 ```
 
+表格公共边界由 `table_boundary.mjs` 定义，并纳入 `check_architecture.mjs`。规则回归：`node --test tests/unit/architecture.test.mjs`，包含故意违规夹具。独立预览见 [dev/table](../dev/table/README.md)。
+

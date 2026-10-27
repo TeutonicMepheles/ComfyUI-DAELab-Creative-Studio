@@ -8,4 +8,4 @@ import {addGenerationColumn} from '../features/generation/table_generation_model
 import {renderContentCell} from './table_content_view.mjs';
 export function createTableEditor(options){return createEditor({...options,model:tableModel,columns:{promptSourceHeader,preserveGenerationHistory,isPrompt,promptText,bindColumnAssets,renderContentCell,addGenerationColumn}});}
 
-export {tableDialog,tableButton,FIELD_LABELS} from '../features/table/editor_runtime.mjs';
+export {tableDialog,tableButton,FIELD_LABELS} from '../features/table/view.js';

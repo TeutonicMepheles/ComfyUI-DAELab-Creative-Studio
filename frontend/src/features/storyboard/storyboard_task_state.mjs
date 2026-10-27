@@ -1,5 +1,5 @@
 import {promptConfig,promptField,promptState,promptFingerprint} from '../prompt/table_prompt_model.mjs';
-import {videoReferenceSpecs} from '../table/table_video_references.mjs';
+import {videoReferenceSpecs} from '../table/public_helpers.mjs';
 export function taskFingerprint(table,row) {
     if(table.meta.prompt_mode==='reviewed')return promptFingerprint(table,row);
     const bindings=table.meta.storyboard?.bindings||{};

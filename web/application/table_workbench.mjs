@@ -1,5 +1,5 @@
 import {tableDialog,tableButton} from './table_editor.mjs';
-import {isNodeAvailableInAppMode} from '../features/table/node_availability.mjs';
+import {isNodeAvailableInAppMode} from '../features/table/public_helpers.mjs';
 
 // Move the existing UI, preserving its state, handlers and undo history.
 export function createWorkbench(node,surface,{title='表格工作台',triggerLabel='展开工作台',onClose=()=>{},onResize=()=>{}}={}) {

@@ -70,7 +70,7 @@ def verify_source(source):
 
 
 def optional_command(config):
-    if config.get('fixture_package') or config['port'] != PORT:
+    if config.get('fixture_package') or type(config['port']) is not int or not 1024 <= config['port'] <= 65535 or config['port'] in {8000, 8224, 8225, 8226, 11434}:
         raise ValueError('Optional validation uses only Studio/ComfyTV on its dedicated port.')
     command = isolated.command_for(config)
     command.insert(1, '-B')
@@ -78,7 +78,7 @@ def optional_command(config):
     return command
 
 
-def prepare(runtime_file, source, environment):
+def prepare(runtime_file, source, environment, port=PORT):
     runtime_file = Path(runtime_file).resolve()
     runtime = json.loads(runtime_file.read_text('utf-8'))
     source = verify_source(source)
@@ -89,7 +89,8 @@ def prepare(runtime_file, source, environment):
     if (runtime['host']['gitHead'] != HOST_COMMIT or git(host, 'rev-parse', 'HEAD').decode().strip() != HOST_COMMIT
             or git(host, 'status', '--porcelain').strip()):
         raise ValueError('The fixed clean host revision changed.')
-    config = isolated.resolve_configuration(str(host), runtime['host']['python'], str(environment), str(ROOT), PORT)
+    config = isolated.resolve_configuration(str(host), runtime['host']['python'], str(environment), str(ROOT), port)
+    optional_command(config)  # Validate the dedicated port before writing the snapshot.
     manifest = isolated.prepare(config)
     archive = environment / 'ComfyTV-fixed-source.zip'
     with archive.open('xb') as output:
@@ -117,8 +118,9 @@ def main():
     parser.add_argument('--comfytv-source', type=Path, required=True)
     parser.add_argument('--environment', type=Path, default=ROOT / '.local/host-optional-comfytv')
     parser.add_argument('--start', action='store_true')
+    parser.add_argument('--port', type=int, default=PORT, help='Free loopback port; protected production/evaluation ports remain forbidden')
     args = parser.parse_args()
-    manifest = prepare(args.runtime, args.comfytv_source, args.environment)
+    manifest = prepare(args.runtime, args.comfytv_source, args.environment, args.port)
     if args.start:
         manifest = isolated.start(manifest)
         (args.environment / MARKER).write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')

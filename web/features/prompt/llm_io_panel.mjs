@@ -2,7 +2,8 @@ import {generationInputDigest} from '../generation/generation_session.js';
 import {ensureIdentity} from './prompt_optimization_model.mjs';
 import {assertBusinessService,businessJson} from '../../contracts/business.js';
 import {snapshotJson} from '../../contracts/json_snapshot.js';
-import {createTableButton,tableIcon,tableHistory} from '../table/table_controls.mjs';
+import {createTableButton,tableIcon} from '../../ui/table_controls.mjs';
+import {tableHistory} from '../../application/table_host_history.mjs';
 
 import {availableModes,applyIOResult,undoIOResult} from './llm_io_model.mjs';
 import {slotRows,slotSignature,outputText} from './llm_slot_model.mjs';

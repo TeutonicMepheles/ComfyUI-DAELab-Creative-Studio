@@ -76,7 +76,7 @@ def make_commit(root, files):
 class CandidateContractTests(unittest.TestCase):
     def test_real_zip_extracts_exact_runtime_allowlist_and_preserves_every_hash(self):
         files = synthetic_tree()
-        extras = {'frontend/src/secret.js', 'node_modules/package/index.js', 'tests/fixture.py',
+        extras = {'dev/table/preview.mjs', 'frontend/src/secret.js', 'node_modules/package/index.js', 'tests/fixture.py',
                   '.local/session.json', 'backend/.local/session.py', 'backend/tests/fixture.py',
                   'tools/migration/legacy_probe/__init__.py', 'tools/migration/legacy_probe/probe.py',
                   'tools/migration/prepare_e5.py',

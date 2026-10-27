@@ -41,6 +41,8 @@ class OptionalComfyTVTests(unittest.TestCase):
         self.assertIn('--offline', command)
         self.assertIn('--disable-all-custom-nodes', command)
         self.assertNotIn('--extra-model-paths-config', command)
+        alternative = optional.optional_command({**config, 'port': 8297})
+        self.assertEqual(alternative[alternative.index('--port') + 1], '8297')
         for changes in ({'fixture_package': 'unexpected'}, {'port': 8000}, {'port': 8226}):
             with self.subTest(changes=changes), self.assertRaises(ValueError):
                 optional.optional_command({**config, **changes})

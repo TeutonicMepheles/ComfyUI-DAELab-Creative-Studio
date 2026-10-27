@@ -1,6 +1,6 @@
 import {addField,addRecord,clone,uid,removeField} from './table_model.mjs';
 import {tableButton as button} from './table_editor.mjs';
-import {localImageFromDrop} from '../features/table/local_image_drop.mjs';
+import {localImageFromDrop} from '../features/table/public_helpers.mjs';
 
 export function addAssetGroup(table) {
     const groups=table.meta.asset_groups ||= [],field=addField(table,{name:`素材组 ${groups.length+1}`,type:'assets',width:170});
