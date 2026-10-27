@@ -1,6 +1,6 @@
 # DAELab Creative Studio for ComfyUI
 
-单仓库、单安装包的创作画布迁移正在实施，尚未发布可替换旧包的版本。
+单仓库开发基线已合入 `main`，可在隔离 ComfyUI 中安装、使用和继续开发。正式发布验收尚未完成，当前版本不替换现用旧包。
 本项目继续使用 ComfyUI 原生工作流和执行队列。
 
 Studio 提供素材与资产库、表格和分镜、提示词、生成任务、剪辑导出及统一创作画布。安装开发版不需要旧 Canvas 或业务库；请保留现用环境，在独立 ComfyUI 中使用。
@@ -17,6 +17,14 @@ Studio 提供素材与资产库、表格和分镜、提示词、生成任务、�
 开发交接与 M6 发布验收分别记录；未完成的发布验收不阻止在隔离环境继续开发。
 
 现有功能的可编辑展示工程见 [Creative Studio Showcase](Showcase/README.md)，附示例素材与逐项确认清单。
+
+## 当前进度（2026-10-27）
+
+表格模块化 T0–T4 与开发文档已合并：公共入口、实例生命周期、依赖边界检查及独立预览已落地。实施范围和分批记录见 [模块化计划](docs/MODULARITY_PLAN.md)。
+
+[PR #9](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Studio/pull/9) 已合并 18% 缩放下的设置入口命中修复及相关输入、面板改进，当前提交 CI 通过。双实例缩放、结构与素材操作、模式切换、保存重开和人工输入法的已执行范围见 [表格补充验收](docs/validation/TABLE_PILOT_ACCEPTANCE_20261027.md)。
+
+表格试点尚未关闭：固定大表输入性能仍未达到 100 ms，余下焦点覆盖继续跟踪。大表行窗口等性能候选未合入 `main`。这不阻止开发版协作，也不代表 M6 发布验收通过；完整状态见 [执行状态](docs/validation/STATUS.md)。
 
 ## 协作入口
 
