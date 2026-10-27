@@ -1,6 +1,6 @@
 # 模块解耦与 README 实施计划
 
-日期：2026-10-27。状态：实施中。代码观察基线：`963cb6a`。
+日期：2026-10-27。状态：T0–T4 实现批次已合并，D1 收尾；试点验收未关闭。代码观察基线：`963cb6a`。
 
 本计划以表格为试点，建立公共接口、独立预览、依赖检查和模块文档，再推广到提示词、剪辑和生成配置。实现与每批验证见执行记录；未通过的产品验收不因代码合并而关闭。
 
@@ -131,8 +131,8 @@ npm run test:table:ui   浏览器交互测试
 | T1 | 已合并，[PR #4](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Studio/pull/4)，`d936b40` 当前提交两套 CI 通过 | `index.ts` / `contracts.ts`、按实例的模型扩展、application 装配及共享 UI 归属；完整检查和首失败记录位于 `.local/modularity/T1-*` | 真实宿主统一在 T4 验收；全局宿主注入属 T2 |
 | T2 | 已合并，[PR #5](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Studio/pull/5)，`46a35d3` 两套当前提交 CI 通过 | [执行记录](validation/MODULARITY_T2_20261027.md) | 浏览器与宿主检查在 T3/T4 记录 |
 | T3 | 已合并，[PR #6](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Studio/pull/6)，`236fb7b` 两套当前提交 CI 通过 | [预览验证](validation/MODULARITY_T3_20261027.md) | 宿主验收属 T4 |
-| T4 | 实现与矩阵执行完成，保留未通过项；待 PR 检查 | [宿主与边界记录](validation/MODULARITY_T4_20261027.md) | 18% 设置命中、100 ms、完整拖放/缩放、IME 未关闭；试点未完成 |
-| D1 | 待实施 | — | 文档与实际状态一致 |
+| T4 | 已合并，[PR #7](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Studio/pull/7)，`9fc565a` 两套当前提交 CI 通过；保留未通过项 | [宿主与边界记录](validation/MODULARITY_T4_20261027.md) | 18% 设置命中、100 ms、完整拖放/缩放、IME 未关闭；试点未完成 |
+| D1 | 文档与构建链接整理完成，待 PR 检查 | [文档记录](validation/MODULARITY_D1_20261027.md) | 不升级试点或 M6 验收结论 |
 
 ## 相关依据
 

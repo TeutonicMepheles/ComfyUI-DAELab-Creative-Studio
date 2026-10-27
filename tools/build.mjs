@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import {relocateMarkdownLinks} from './document_links.mjs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
@@ -32,7 +33,8 @@ function visit(directory) {
       } else {
         const target = path.join(output, relative);
         fs.mkdirSync(path.dirname(target), { recursive: true });
-        fs.copyFileSync(full, target);
+        if(relative.endsWith('.md'))fs.writeFileSync(target,relocateMarkdownLinks(fs.readFileSync(full,'utf8'),full,target));
+        else fs.copyFileSync(full, target);
         files.push(relative);
       }
     }

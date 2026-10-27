@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "0fc9489deaad783aba6082c5139f0d201d4efa08c33da56bee416cd2f3f38651",
+  "sourceFingerprint": "08e9cc7b8c62adde61022a2159d80dfe641a262228044188b26b30a30b133d9a",
   "files": [
     {
       "path": "AGENTS.md",
@@ -16,7 +16,7 @@
     },
     {
       "path": "application/README.md",
-      "sha256": "56148edcf67598abb29c228b29ca87d2514a1853c31b6720aa0ed53aa1f579b2"
+      "sha256": "c80f9cc41f85b8fc1769f56e47ad9dcc6908a64bc680b4221446c3e6b516237c"
     },
     {
       "path": "application/asset_library_service.js",
@@ -440,7 +440,7 @@
     },
     {
       "path": "features/assets/README.md",
-      "sha256": "2b39e142733c3e4a76dd70f49209f46ea04ad7af4b5035209806378a1fde7c5c"
+      "sha256": "d59e2dc94cf51c3cb6a8aa8025535be356c5a504df5f49f33acb4bdee4944666"
     },
     {
       "path": "features/assets/asset_favorite.mjs",
@@ -480,7 +480,7 @@
     },
     {
       "path": "features/editor/README.md",
-      "sha256": "885a29709d1731889b66f63f212baa163a2c9e6a74cae90d3f1bf066e9d6a25b"
+      "sha256": "d6905cb40cb1c29ddb842d8ed251d1e8d1825172f4badd583bc7e4787f1e525d"
     },
     {
       "path": "features/editor/export_session.js",
@@ -504,7 +504,7 @@
     },
     {
       "path": "features/generation/README.md",
-      "sha256": "f0a29b76bf6394ec3c414bd1cc43962d222bc2eacd38a674235d9584c93847bd"
+      "sha256": "a52dd829318ea6a1fe4fd68995125615128254cf785e2867940a9caec26139ce"
     },
     {
       "path": "features/generation/generation_model_icons.mjs",
@@ -568,7 +568,7 @@
     },
     {
       "path": "features/groups/README.md",
-      "sha256": "0b4befa798ea776f186055e3defe7ebf9e0e62cfa2e2ff03904f2b38ef6f5fc0"
+      "sha256": "4a557701740c5fc0c8c6162f38fdfdcba9660cb32144a9ca157d574df9dfb19f"
     },
     {
       "path": "features/groups/material_group_model.mjs",
@@ -588,7 +588,7 @@
     },
     {
       "path": "features/prompt/README.md",
-      "sha256": "e9312dc90bfbd1a0a66f85335796ecf15c23b1f1e772944501ac3e64da68475c"
+      "sha256": "f08d3f53d6a37e5219079ceb9b41b0247dc4d4e4ac1302ae60eff0b5226e5066"
     },
     {
       "path": "features/prompt/llm_io_model.mjs",
@@ -692,7 +692,7 @@
     },
     {
       "path": "features/storyboard/README.md",
-      "sha256": "59e173bcb6c82bec14e2c4a9361e2ee2627ab2199def304573e11dcd3f71b152"
+      "sha256": "6eacc2991a1267d8aab7fad3146227ab00ab24f40fd084e74fe6f14acc6680ff"
     },
     {
       "path": "features/storyboard/daelab_storyboard_import.mjs",
@@ -732,7 +732,7 @@
     },
     {
       "path": "features/table/README.md",
-      "sha256": "25e2e132b6b057c7d12994008f499f77bd4403986b030f7258f33f5cd90bc7ea"
+      "sha256": "5a33d2f0c50953f5b4ba2b362d29b14beebbdf6efe4bac52643fdbfe777379ab"
     },
     {
       "path": "features/table/contracts.js",
@@ -896,7 +896,7 @@
     },
     {
       "path": "features/tasks/README.md",
-      "sha256": "1507d13b99f67c19c3efc42aaac6a37613ac31d6f85ed22c4e93b610c5f52b33"
+      "sha256": "e13cc17cf05396c259433f07539e909ad7a8f91dab81933291b1bb79a211e92a"
     },
     {
       "path": "features/tasks/creative_tasks.css",
@@ -924,7 +924,7 @@
     },
     {
       "path": "integrations/comfyui/README.md",
-      "sha256": "80acddc594e93014a0f181198f81594cf8134b6cd7419438535fbbc9a3136eb8"
+      "sha256": "8ae9f3186ed9128dfeb7117299ea19140e2fbc21c8b5becb9f07273ade62e20e"
     },
     {
       "path": "integrations/comfyui/asset_services.js",
@@ -1076,7 +1076,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "88c122ae6ff99371a4bde8d2492ce074a5509045ba5859b32d321c6d93bcb0fd"
+      "sha256": "c86fe21950ca7d0f78945c227e2c893312d3c6e57a24a07b409bdaf5b9d97225"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

@@ -12,3 +12,5 @@
 node --import ./tests/migrated_business/register.mjs --test tests/generation_frontend/session.test.mjs tests/generation_frontend/table_flow.test.mjs tests/migrated_business/generation_input_regression.test.mjs tests/migrated_business/table_generation_history.test.mjs
 ```
 
+
+输入为编辑配置和稳定任务身份，输出为账本投影及经过文档票据批准的素材引用。表内外复用请求合同，模型能力由宿主绑定。尚无独立生成页面；[表格预览](../../../../dev/table/README.md) 提供真实设置界面和明确模拟结果，不调用模型。配置字段与真实验收见 [模型指南](../../../../docs/MODELS.md) 和 [状态](../../../../docs/validation/STATUS.md)。

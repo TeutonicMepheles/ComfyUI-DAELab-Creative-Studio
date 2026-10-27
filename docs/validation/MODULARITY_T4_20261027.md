@@ -34,3 +34,5 @@ Windows / Python 3.12.11 / ComfyUI `3c1b7a17` / 前端 1.53.10；CPU、独立 us
 对固定 `FX-PERF-L-no-video.json` 的同一 500×10 表，Node 模型阶段比较 `963cb6a` 与 T4，各预热 5 次、采集 30 次。编辑复制/序列化/撤销规范化 p95 分别为基线 1.21/0.67/3.43 ms，T4 1.33/0.68/4.35 ms。原样本与夹具 SHA256 位于 `T4-model-performance.json`。这些阶段不包含浏览器绘制、宿主保存和原生历史，不能判定 100 ms 端到端预算通过，也不作性能收益声明。
 
 100 ms 既有失败、真实 IME、完整拖放与所有缩放矩阵仍未关闭；18% 列设置命中失败已明确保留。本批满足计划“保留失败、不宣称试点完成”的出口，后续模块推广与正式发布仍不能据此通过。
+
+候选补充：固定提交 `9fc565a3d4a59774cc419f5854bc47b9ea0bea96` 生成 454 个内容条目及候选清单；ZIP SHA256 为 `84a5d89f09e46451cbf6790e4082e27eec16c5df399cb9b640037560cf84dcf5`。检查确认无 dev/tests/.local/node_modules，`releaseAllowed=false`；文件保留在 `.local/modularity/Creative-Studio-T4-candidate.zip`，未发布。

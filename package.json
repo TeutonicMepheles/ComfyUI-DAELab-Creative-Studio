@@ -14,7 +14,8 @@
     "check": "npm run typecheck && npm run build && node tools/check_architecture.mjs && node tools/verify_assets.mjs && npm test && npm run test:business",
     "dev:table": "npm run build && node dev/table/server.mjs",
     "test:table": "npm run build && node --import ./tests/migrated_business/register.mjs --test tests/migrated_business/data_table.test.mjs tests/migrated_business/table_public_model.test.mjs tests/migrated_business/table_view_session.test.mjs tests/migrated_business/table_transaction_serialization.test.mjs tests/migrated_business/table_exchange.test.mjs tests/generation_frontend/table_flow.test.mjs",
-    "test:table:ui": "npm run build && playwright test --config dev/table/playwright.config.mjs"
+    "test:table:ui": "npm run build && playwright test --config dev/table/playwright.config.mjs",
+    "check:docs": "npm run build && node tools/check_docs.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.64.1",

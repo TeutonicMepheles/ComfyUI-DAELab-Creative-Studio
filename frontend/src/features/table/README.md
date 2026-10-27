@@ -20,3 +20,5 @@
 node --import ./tests/migrated_business/register.mjs --test tests/migrated_business/data_table.test.mjs tests/migrated_business/table_structure.test.mjs tests/migrated_business/table_inline_tab_boundary.test.mjs tests/migrated_business/table_transaction_serialization.test.mjs
 ```
 
+
+公开辅助入口 [public_helpers.mjs](public_helpers.mjs) 提供节点安装协调、面板视图切换、素材快照与引用查询，调用方须显式传入拥有对象。架构规则见 [table_boundary.mjs](../../../../tools/table_boundary.mjs)；旧包装只转发，生产模块不得导入它们。实际验收与未通过项见 [T4 记录](../../../../docs/validation/MODULARITY_T4_20261027.md)。

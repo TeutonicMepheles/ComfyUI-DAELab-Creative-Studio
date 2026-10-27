@@ -9,3 +9,5 @@
 | [legacy](legacy/README.md) | 旧浏览器收藏规范化与幂等导入 |
 
 验证：`python -m unittest discover -s tests/migration -p 'test_*.py' -v`，以及 `node --test tests/migration/readonly_nodes.test.mjs`。
+
+输入是原始旧工作流/回执/收藏，输出是规范化视图、报告或显式导入结果；未知内容继续保留。没有独立浏览器入口，需在隔离宿主核对可见报告与原生保存；安装冲突与只读兼容是不同路径，见 [排错入口](../docs/TROUBLESHOOTING.md)。
