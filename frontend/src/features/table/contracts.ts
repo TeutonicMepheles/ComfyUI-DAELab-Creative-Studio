@@ -55,7 +55,7 @@ export interface TableModel {
 }
 
 export interface TablePanelContext {
-  presentation?: string; width?: number;
+  presentation?: string; width?: number; readonly active?: boolean;
   getViewport(): {left: number; top: number; right: number; bottom: number} | null;
   resizeWidth?(width: number): void;
   panBy?(x: number, y: number): void;

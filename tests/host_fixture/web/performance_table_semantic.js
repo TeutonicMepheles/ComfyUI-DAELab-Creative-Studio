@@ -195,7 +195,13 @@ export function mountTableSemanticObserver(document,window){
  const build=make('input','',panel);build.placeholder='实际构建 SHA256';build.maxLength=64;build.setAttribute('aria-label','构建指纹');
  const status=make('output','未开始',panel);status.style.display='block';
  let fixture=null,disposed=false,revision=0,downloadRequested=true;
- const observer=createTableSemanticObserver(document,window,{onChange:state=>{status.textContent=`${state.active?'观测中':'已停止'}；输入 ${state.samples}，待完成 ${state.pending}`;}});
+ const observer=createTableSemanticObserver(document,window,{onChange:state=>{
+  const label=`${state.active?'观测中':'已停止'}；输入 ${state.samples}，待完成 ${state.pending}`;
+  // Preserve the text node: replacing it invalidates the host's root :has()
+  // selectors during the measured input and adds observer-induced style work.
+  if(status.firstChild?.nodeType===3)status.firstChild.nodeValue=label;
+  else status.textContent=label;
+ }});
  const button=(label,action)=>{const element=make('button',label,panel);element.type='button';element.onclick=action;return element;};
  const start=button('开始语义观测',event=>{
   if(!event?.isTrusted||disposed)return;

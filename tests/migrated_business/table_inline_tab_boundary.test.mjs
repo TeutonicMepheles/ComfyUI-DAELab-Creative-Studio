@@ -4,7 +4,7 @@ import {bindInlineEditor} from '../../frontend/src/features/table/table_inline_e
 
 // Real inline lifecycle with a small DOM model; browser default focus navigation
 // and latency require separate actual validation.
-function setup(t){
+function setup(t,columns){
  const saved=new Map(),calls=[];
  const set=(key,value)=>{saved.set(key,Object.getOwnPropertyDescriptor(globalThis,key));Object.defineProperty(globalThis,key,{configurable:true,writable:true,value});};
  class Element{
@@ -21,10 +21,15 @@ function setup(t){
  set('document',doc);set('window',{removeEventListener(){}});set('getSelection',()=>selection);set('cancelAnimationFrame',()=>{});
  t.after(()=>{for(const[k,d]of saved)d?Object.defineProperty(globalThis,k,d):delete globalThis[k];});
  const cell=new Element(),box=new Element(),outside=new Element();cell.children.push(box);let model='before';
- const editor=bindInlineEditor({cell,box,label:'Synthetic',read:()=>box.value,write:v=>{calls.push(['write',v]);model=v;},reset:()=>{calls.push(['reset']);model='before';},draw:editing=>{calls.push(['draw',Boolean(editing)]);box.value=model;}});
+ const editor=bindInlineEditor({cell,box,columns,label:'Synthetic',read:()=>box.value,write:v=>{calls.push(['write',v]);model=v;},reset:()=>{calls.push(['reset']);model='before';},draw:editing=>{calls.push(['draw',Boolean(editing)]);box.value=model;}});
  const start=()=>{cell.emit('keydown',{key:'Enter'});calls.length=0;};
  return{cell,box,outside,editor,calls,start,model:()=>model};
 }
+test('plain input saves without reading layout-dependent selection; reference input retains selection lookup',t=>{
+ const e=setup(t,()=>[]);e.start();let reads=0;const selection=globalThis.getSelection;globalThis.getSelection=()=>{reads++;return selection();};
+ e.box.value=e.box.textContent='plain';e.box.emit('input');assert.equal(e.model(),'plain');assert.equal(reads,0);
+ e.box.value=e.box.textContent='plain @';e.box.emit('input');assert.equal(e.model(),'plain @');assert.equal(reads,1);
+});
 for(const shiftKey of [false,true])test(`native ${shiftKey?'Shift+Tab':'Tab'} request leaves editing intact until actual outside blur, then closes once`,t=>{
   const e=setup(t);e.start();e.box.value='saved';e.box.emit('input');const key=e.box.emit('keydown',{key:'Tab',shiftKey});
   assert.equal(key.defaultPrevented,undefined);assert.equal(e.box.contentEditable,'true');assert.equal(e.cell.dataset.inlineEditing,'true');assert.equal(e.box.getAttribute('role'),'textbox');assert.equal(e.model(),'saved');
