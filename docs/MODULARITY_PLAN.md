@@ -132,7 +132,7 @@ npm run test:table:ui   浏览器交互测试
 | T2 | 已合并，[PR #5](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Studio/pull/5)，`46a35d3` 两套当前提交 CI 通过 | [执行记录](validation/MODULARITY_T2_20261027.md) | 浏览器与宿主检查在 T3/T4 记录 |
 | T3 | 已合并，[PR #6](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Studio/pull/6)，`236fb7b` 两套当前提交 CI 通过 | [预览验证](validation/MODULARITY_T3_20261027.md) | 宿主验收属 T4 |
 | T4 | 已合并，[PR #7](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Studio/pull/7)，`9fc565a` 两套当前提交 CI 通过；保留未通过项 | [宿主与边界记录](validation/MODULARITY_T4_20261027.md) | 18% 设置命中、100 ms、完整拖放/缩放、IME 未关闭；试点未完成 |
-| T4 补充验收 | 进行中，尚未交付 PR | [补充记录](validation/TABLE_PILOT_ACCEPTANCE_20261027.md) | 18% 命中、双实例缩放/拖放、模式和人工 IME 已补充证据；100 ms 仍未达标，试点未关闭 |
+| T4 补充验收 | 已验证修复合入 [PR #9](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Studio/pull/9)，`b1844d5`；提交 CI 通过，试点验收继续 | [补充记录](validation/TABLE_PILOT_ACCEPTANCE_20261027.md) | 18% 命中、双实例缩放/拖放、模式和人工 IME 已补充证据；100 ms 仍未达标，试点未关闭 |
 | D1 | 文档与构建链接整理完成；合并与当前提交检查状态由 [PR #8](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Studio/pull/8) 维护 | [文档记录](validation/MODULARITY_D1_20261027.md)；主套件 369 通过/3 跳过，业务 515 通过，126 份文档链接检查通过 | 不升级试点或 M6 验收结论 |
 
 ## 相关依据
