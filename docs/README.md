@@ -3,6 +3,8 @@
 | 入口 | 作为何种依据 |
 | --- | --- |
 | [DEVELOPMENT.md](DEVELOPMENT.md) | 新同事与 Agent 的编辑、构建、独立宿主和协作流程 |
+| [模块解耦与 README 实施计划](MODULARITY_PLAN.md) | 表格试点、实施顺序和完成条件；计划不代表实现 |
+| [文档写作规范](WRITING.md) | 第一方文档的文风、事实表述和 README 结构 |
 | [architecture](architecture/README.md) | 当前模块所有权、原生编辑、任务资产及交互合同 |
 | [migration-blueprint](migration-blueprint/README.md) | 功能决策、用例、固定夹具和 M0–M6 规格，不代表通过 |
 | [validation](validation/README.md) | 已执行证据、首个失败、当前缺口和发布门槛 |
