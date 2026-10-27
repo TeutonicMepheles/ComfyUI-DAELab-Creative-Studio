@@ -24,6 +24,12 @@ jobs:
       - run: node tools/verify_assets.mjs
       - run: npm test
       - run: npm run test:business
+      - name: Independent table browser checks
+        env:
+          TABLE_BROWSER: chromium
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:table:ui
       - run: python -m unittest discover -s tests/unit -p 'test_*.py' -v
       - run: python -m unittest discover -s tests/host -p 'test_*.py' -v
       - run: python -m unittest discover -s tests/backend -p 'test_*.py' -v

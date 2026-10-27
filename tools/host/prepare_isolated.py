@@ -25,7 +25,7 @@ OWNER = "creative-studio-cpu-host-v1"
 PACKAGE_NAME = "ComfyUI-DAELab-Creative-Studio"
 FIXTURE_NAME = "creative_studio_test_fixture"
 EXCLUDED = {".git", ".local", ".github", ".pytest_cache", "__pycache__",
-            "node_modules", "docs", "tests", "tools", ".codex", ".agents"}
+            "node_modules", "docs", "tests", "tools", "dev", ".codex", ".agents"}
 DATA_NAMES = {"user", "input", "output", "temp", "models", "custom_nodes"}
 PRIVATE_SUFFIXES = {".pem", ".key", ".p12", ".pfx", ".jks", ".keystore"}
 RAW_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".mp4", ".mov",

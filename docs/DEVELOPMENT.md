@@ -28,6 +28,8 @@ npm run build
 npm run check
 ```
 
+表格独立开发无需启动 ComfyUI 或 GPU。`npm run dev:table` 提供双实例编辑器；`npm run test:table` 和 `npm run test:table:ui` 分别运行合同与浏览器检查。端口、模拟能力和数据生命周期见 [预览说明](../dev/table/README.md)。其他功能尚无独立页面。
+
 | 目录 | 职责 |
 | --- | --- |
 | `frontend/src/` | 前端源码；`web/` 及其文档由构建生成 |
