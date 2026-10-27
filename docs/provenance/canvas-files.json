@@ -86,7 +86,7 @@
       "source": "web/creative_canvas_view.mjs",
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
       "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
-      "destinationSha256": "29a573d7fc81ed46a2b802e501854d05570d1d3121ccd025894be4e2886d0177",
+      "destinationSha256": "9f7dfe595e9fc4b0bf4a00b970ca868bc33ec5c727ae2a5bf85591c521507c67",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "remove opt-in test gallery rendering; retain unrelated graph.extra data",
