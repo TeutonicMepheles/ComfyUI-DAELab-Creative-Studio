@@ -137,4 +137,3 @@ export function bindMaterialThumbnail(item,media,index,{cell,remove,bindDrag}={}
     media.addEventListener(video?'loadedmetadata':'load',mediaReady);if(video)media.addEventListener('resize',mediaReady);
     return ()=>{deselect();cell.removeEventListener('dae-cell-selection-change',selectionChanged);media.removeEventListener('loadedmetadata',seek);media.removeEventListener(video?'loadedmetadata':'load',mediaReady);if(video)media.removeEventListener('resize',mediaReady);item.removeEventListener('pointerenter',show);item.removeEventListener('pointermove',show);item.removeEventListener('pointerleave',leave);item.removeEventListener('click',select);item.removeEventListener('keydown',key);item.removeEventListener('pointerdown',rememberDragGrab);item.removeEventListener('dragstart',startDrag);item.removeEventListener('dragend',endDrag);};
 }
-
