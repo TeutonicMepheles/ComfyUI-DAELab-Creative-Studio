@@ -20,6 +20,7 @@ jobs:
       - run: python -m pip install -r tests/requirements.txt
       - run: npm run typecheck
       - run: npm run build
+      - run: node tools/check_docs.mjs
       - run: node tools/check_architecture.mjs
       - run: node tools/verify_assets.mjs
       - run: npm test

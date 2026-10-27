@@ -12,3 +12,5 @@
 node --import ./tests/migrated_business/register.mjs --test tests/migrated_canvas/video_edit_model.test.mjs tests/application/media_export.test.mjs tests/application/media_export_panel.test.mjs
 ```
 
+
+尚无本模块独立预览入口。模型/合同用例可从上述命令单独运行；界面、模式与保存需在独立 ComfyUI 中检查。示例使用见 [Showcase](../../../Showcase/README.md)，开发环境见 [开发指南](../../../docs/DEVELOPMENT.md)。

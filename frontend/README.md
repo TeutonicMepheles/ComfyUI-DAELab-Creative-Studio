@@ -14,3 +14,5 @@ npm run build
 node tools/check_architecture.mjs
 ```
 
+
+独立表格开发见 [dev/table](../dev/table/README.md)。运行时源码依赖从 integrations 到 application/features，再到 contracts/ui；表格私有边界由架构检查约束，其他功能仍按现有合同逐步整理。

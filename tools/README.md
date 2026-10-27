@@ -16,3 +16,5 @@ node tools/verify_assets.mjs
 
 表格公共边界由 `table_boundary.mjs` 定义，并纳入 `check_architecture.mjs`。规则回归：`node --test tests/unit/architecture.test.mjs`，包含故意违规夹具。独立预览见 [dev/table](../dev/table/README.md)。
 
+`npm run check:docs` 构建并检查第一方 README 与主要指南的本地文件链接；不抓取外网 URL 或验证标题锚点。构建中的 `document_links.mjs` 将复制到 web 的相对文档链接重定位到同一拥有源，避免目录深度变化造成断链。指定范围可执行 `node tools/check_docs.mjs path/to/document.md`。
+

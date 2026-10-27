@@ -14,3 +14,5 @@
 node --import ./tests/migrated_business/register.mjs --test tests/application/business_document.test.mjs tests/application/prepared_document_edit.test.mjs tests/application/media_export.test.mjs
 ```
 
+
+表格素材交换、工作台与面板组合集中在 table_asset_groups、table_exchange、table_material_columns、table_material_output、table_presentation、table_source_model、table_workbench。仅通过表格公开入口获取核心/视图；table_host_history 为相邻面板保留宿主历史桥接。独立装配示例见 [dev/table](../../dev/table/README.md)。

@@ -12,3 +12,5 @@
 node --import ./tests/migrated_business/register.mjs --test tests/migrated_business/prompt_optimization_controller.test.mjs tests/migrated_business/prompt_optimization_history_review.test.mjs tests/migrated_business/table_prompt_template.test.mjs tests/generation_frontend/qwen_contract.test.mjs
 ```
 
+
+表格组合经 application/table_model.mjs 和 table_editor.mjs；通用引用菜单与内联控件归 ui。提示词列保留结构化片段、模板及单格覆盖，服务只提供可审阅结果。尚无单独页面，可在 [表格预览](../../../dev/table/README.md) 检查真实提示词组件；优化服务在该页不可用，不代表两 LLM 宿主验收。

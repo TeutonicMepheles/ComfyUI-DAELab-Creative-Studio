@@ -10,7 +10,7 @@
 
 素材组合、工作台和面板装配归 `application/table_*`，共享文本侧栏与主题归 `ui/`。旧路径只转发；基础核心 `core_model.mjs` 还为直接执行 ESM 的评估工具提供入口。真实 ComfyUI 验收在 T4 记录。
 
-独立开发：`npm run dev:table` 打开双实例页面；`npm run test:table` 执行合同与扩展测试；`npm run test:table:ui` 执行浏览器检查。环境、端口、数据和模拟限制见 [预览说明](../../../../dev/table/README.md)。
+独立开发：`npm run dev:table` 打开双实例页面；`npm run test:table` 执行合同与扩展测试；`npm run test:table:ui` 执行浏览器检查。环境、端口、数据和模拟限制见 [预览说明](../../../dev/table/README.md)。
 
 协作边界：原生工作流是表数据保存依据；默认素材/提示词/生成列与三行、500 行和 64 列上限保持。生成和优化功能经各自控制器接入。
 
@@ -20,3 +20,5 @@
 node --import ./tests/migrated_business/register.mjs --test tests/migrated_business/data_table.test.mjs tests/migrated_business/table_structure.test.mjs tests/migrated_business/table_inline_tab_boundary.test.mjs tests/migrated_business/table_transaction_serialization.test.mjs
 ```
 
+
+公开辅助入口 [public_helpers.mjs](../../../frontend/src/features/table/public_helpers.mjs) 提供节点安装协调、面板视图切换、素材快照与引用查询，调用方须显式传入拥有对象。架构规则见 [table_boundary.mjs](../../../tools/table_boundary.mjs)；旧包装只转发，生产模块不得导入它们。实际验收与未通过项见 [T4 记录](../../../docs/validation/MODULARITY_T4_20261027.md)。
