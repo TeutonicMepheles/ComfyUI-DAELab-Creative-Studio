@@ -1,6 +1,6 @@
 import {taskFingerprint} from './storyboard_task_state.mjs';
 import {promptConfig} from '../prompt/table_prompt_model.mjs';
-import {normalizeTable,clone,addField,uid} from '../table/data_table_model.mjs';
+import {normalizeTable,clone,addField,uid} from '../../application/table_model.mjs';
 import {normalizeStoryboard,durationFromTimeRange} from './daelab_storyboard_model.mjs';
 
 export const STORYBOARD_ROLES={shot_no:'镜号',time_range:'剧本时长',image_prompt:'画面描述',camera_notes:'镜头备注',image_url:'参考素材',source:'导入来源',original_fields:'原文字段',generation_status:'生成状态',video_result:'视频结果'};

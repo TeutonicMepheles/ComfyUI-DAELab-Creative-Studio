@@ -22,7 +22,7 @@ function harness({value=table(),native=true,content=true,prepared=true,validate=
  if(!prepared)delete doc.editPrepared;
  const context={width:1000,getViewport:()=>({}),resizeWidth:w=>{context.width=w;events.push('resize');}},root={offsetWidth:400,getBoundingClientRect:()=>({width:800})};
  const env={released:false,canAsync:ticket=>doc.canApply(ticket),clone,getTable:()=>value,promptColumnsOnly:content,displayContent:()=>content,
-  globalThis:{[Symbol.for('DAELAB.CreativeCanvas.API.v1')]:{getPanelContext:()=>context}},root,
+  getPanelContext:()=>context,root,
   shell:{querySelectorAll:s=>s.startsWith('th')?[{dataset:{column:'a'},getBoundingClientRect:()=>({width:200})},{dataset:{column:'b'},getBoundingClientRect:()=>({width:400})}]:[{dataset:{recordId:'r'},getBoundingClientRect:()=>({height:160})}]},
   validateChange:(old,next)=>{events.push('validate');validate(old,next);},nativeDocument:native?doc:null,history:new SnapshotHistory(),nativeHistory:history,setTable:write,removeEmptyNode:()=>false,
   observed:()=>{events.push('observe');after(value);},render:()=>events.push('render'),updateFooter:scope=>{events.push('footer');scopes.push(scope);},captureEmptyRowStateScope,isRowStateEmpty:empty,stateRows:new Map(),stateTable:{}};

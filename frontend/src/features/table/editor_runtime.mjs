@@ -1,6 +1,7 @@
+import {createTableViewSession} from './view_session.js';
 import {attachCellSelection} from './table_cell_selection.mjs';
 import {attachTableStructure} from './table_structure.mjs';
-import {createTextSide} from './table_text_side.mjs';
+import {createTextSide} from '../../ui/text_side.mjs';
 import {bindMaterialThumbnail} from '../../ui/material_thumbnail.mjs';
 import {stopCanvasPropagation} from '../../ui/list_editor_controls.mjs';
 import {localImageFromDrop} from './local_image_drop.mjs';
@@ -9,7 +10,7 @@ import {attachColumnSplitters} from './table_column_splitters.mjs';
 import {videoReferenceFields,setVideoReference} from './table_video_references.mjs';
 import {captureEmptyRowStateScope,matchesEmptyRowStateScope} from './empty_row_state_scope.js';
 
-let copiedRegion=null;
+
 export const FIELD_LABELS={content:'内容',text:'文本',longtext:'多行文本',number:'数字',checkbox:'勾选',select:'单选',assets:'素材',json:'结构化原文'};
 export {createTableButton as tableButton} from '../../ui/table_controls.mjs';
 import {createTableButton as tableButton,tableTheme,tableIcon} from '../../ui/table_controls.mjs';
@@ -39,17 +40,22 @@ function styles(){
 export function tableDialog(title){tableTheme();const d=element('dialog','dae-ui dae-table-dialog');d.setAttribute('aria-label',title);const h=element('h3','',d);h.textContent=title;d.addEventListener('pointerdown',stopCanvasPropagation);d.oncancel=()=>d.remove();document.body.append(d);d.showModal();return d;}
 
 // The very same editor is used by every template. Integrations only supply data and upload I/O.
-export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRowState=null,isRowStateEmpty=null,renderCell=null,decorateAsset=null,onRestore=()=>{},displayContent=()=>false,nativeHistory=null,documentFactory=null,promptColumnsOnly=false,validateChange=()=>{},textPanelHost=undefined,removeEmptyNode=null,model,columns}) {
+export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRowState=null,isRowStateEmpty=null,renderCell=null,decorateAsset=null,onRestore=()=>{},displayContent=()=>false,nativeHistory=null,documentFactory=null,promptColumnsOnly=false,validateChange=()=>{},textPanelHost=undefined,removeEmptyNode=null,model,columns,getPanelContext=()=>null,confirm=message=>window.confirm(message),prompt=(message,value)=>window.prompt(message,value),clipboard=null}) {
+ let copiedRegion=null;
+ const viewSession=createTableViewSession();
+ const originalNotify=notify,originalUpload=upload;
+ notify=message=>{if(!viewSession.signal.aborted)originalNotify(message);};
+ upload=async file=>{viewSession.assertCurrent();if(!originalUpload)throw new Error('素材上传能力不可用');const result=await originalUpload(file,{signal:viewSession.signal});viewSession.assertCurrent();return result;};
  const {clone,uid,addField,removeField,addRecord,duplicateSelected,reorder,setValue,transferValue,parseTSV,pasteMatrix,encodeTSV,SnapshotHistory,emptyValue,convertValue,FIELD_TYPES,COLUMN_MINIMUM_WIDTH}=model;
  const {promptSourceHeader,preserveGenerationHistory,isPrompt,promptText,bindColumnAssets,renderContentCell,addGenerationColumn}=columns;
  let released=false;
  const nativeDocument=documentFactory?.(getTable,setTable);
- const beginAsync=(target={},requestId=crypto.randomUUID())=>nativeDocument?.beginRequest(requestId,target)||null;
- const canAsync=ticket=>!released&&(!nativeDocument||nativeDocument.canApply(ticket));
- const releaseAsync=ticket=>{if(ticket)nativeDocument?.releaseRequest(ticket);};
- const observers=new Set();const observed=()=>{for(const fn of observers)fn();};
+ const beginAsync=(target={},requestId=crypto.randomUUID())=>{viewSession.assertCurrent();return nativeDocument?nativeDocument.beginRequest(requestId,target):viewSession.begin(requestId);};
+ const canAsync=ticket=>!released&&(nativeDocument?nativeDocument.canApply(ticket):viewSession.canApply(ticket));
+ const releaseAsync=ticket=>{if(ticket){if(nativeDocument)nativeDocument.releaseRequest(ticket);else viewSession.release(ticket);}};
+ const observers=new Set();const observed=()=>{viewSession.invalidate();for(const fn of observers)fn();};
  const cleanups=new Set(),cellBindings=new WeakMap();const clearBindings=()=>{for(const fn of cleanups)fn();cleanups.clear();};
- const dialogs=new Set();const openDialog=title=>{const d=tableDialog(title);dialogs.add(d);return d;};const closeDialogs=()=>{textSide.closeAll();for(const d of dialogs){d.querySelectorAll('video').forEach(v=>v.pause());d.remove();}dialogs.clear();};
+ const dialogs=new Set();const openDialog=title=>{viewSession.assertCurrent();const d=tableDialog(title);dialogs.add(d);return d;};const closeDialogs=()=>{textSide.closeAll();for(const d of dialogs){d.querySelectorAll('video').forEach(v=>v.pause());d.remove();}dialogs.clear();};
  styles();const owner=uid(),history=new SnapshotHistory(),root=element('section','dae-table'),toolbar=element('nav','dae-table-toolbar',root),shell=element('div','dae-table-scroll',root),footer=element('nav','dae-table-footer',root);
  root.dataset.namedRows=String(promptColumnsOnly);if(promptColumnsOnly)root.style.setProperty('--table-choice-width','120px');
  const textSide=createTextSide({root,getHost:textPanelHost});
@@ -63,7 +69,7 @@ export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRow
     if(tickets&&!tickets.every(canAsync))throw new Error('输入或工作流已变化，结果仅供查看');
     const cellInput=rowStateEdit&&rowStateEdit.owner===changeCell&&!draw&&!tickets&&!derived;
     function prepare(previous,makeNext){
-    const context=promptColumnsOnly&&displayContent()?globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root):null;
+    const context=promptColumnsOnly&&displayContent()?getPanelContext(root):null;
     const syncCanvasWidth=!!(context?.resizeWidth&&previous.meta.canvasWidth!=null);
     if(context?.resizeWidth&&previous.meta.canvasWidth!=null)previous.meta.canvasWidth=context.width;
     const next=makeNext(previous,syncCanvasWidth);fn(next);validateChange(getTable(),next);
@@ -117,14 +123,14 @@ export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRow
  function changeCell(cell,fn,settings){return change(fn,settings,{owner:changeCell,cell});}
  function safely(fn){try{return fn();}catch(e){notify(e.message);return null;}}
  function clearCells(cells=selection().flat()){safely(()=>change(t=>{const fields=new Map(t.fields.map(f=>[f.id,f])),records=new Map(t.records.map(r=>[r.id,r]));for(const {row,field} of cells){const f=fields.get(field.id),r=records.get(row.id);if(!f||!r||f.readonly)continue;r.values[f.id]=f.promptTemplate?{kind:'column-template',version:1,segments:[]}:emptyValue(f);}}));}
- function restore(redo=false){if(nativeDocument){onRestore();return Promise.resolve(redo?nativeDocument.redo():nativeDocument.undo()).catch(error=>notify(error.message));}const pending=(redo?history.redoStack:history.undoStack).at(-1);if(pending){try{validateChange(getTable(),preserveGenerationHistory(getTable(),JSON.parse(pending)),{restoring:true});}catch(e){notify(e.message);return;}}const value=history.restore(JSON.stringify(getTable()),redo);if(value){const boundary=nativeHistory&&displayContent();if(boundary)nativeHistory.begin();try{onRestore();preserveGenerationHistory(getTable(),value);setTable(value);if(value.meta.canvasWidth!=null)globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root)?.resizeWidth?.(value.meta.canvasWidth);observed();render();}finally{if(boundary)nativeHistory.end();}}}
+ function restore(redo=false){if(nativeDocument){onRestore();return Promise.resolve(redo?nativeDocument.redo():nativeDocument.undo()).catch(error=>notify(error.message));}const pending=(redo?history.redoStack:history.undoStack).at(-1);if(pending){try{validateChange(getTable(),preserveGenerationHistory(getTable(),JSON.parse(pending)),{restoring:true});}catch(e){notify(e.message);return;}}const value=history.restore(JSON.stringify(getTable()),redo);if(value){const boundary=nativeHistory&&displayContent();if(boundary)nativeHistory.begin();try{onRestore();preserveGenerationHistory(getTable(),value);setTable(value);if(value.meta.canvasWidth!=null)getPanelContext(root)?.resizeWidth?.(value.meta.canvasWidth);observed();render();}finally{if(boundary)nativeHistory.end();}}}
  const undo=tableButton('撤销',()=>restore()),redo=tableButton('重做',()=>restore(true)),count=element('span','table-count');
  function updateFooter(stateScope=null){const table=getTable(),selected=table.records.filter(r=>r.selected).length;selectionActions.hidden=!selected;refreshStates(stateScope);undo.disabled=nativeDocument?!nativeDocument.canUndo():!history.undoStack.length;redo.disabled=nativeDocument?!nativeDocument.canRedo():!history.redoStack.length;const label=`${selected} / ${table.records.length} 行已选`;if(count.textContent!==label)count.textContent=label;}
  const cellSelection=attachCellSelection({root,shell,getTable}),{selection,choose,mark}=cellSelection;
  function clearDropHints(){shell.querySelectorAll('[data-drop],[data-material-drop-side]').forEach(e=>{delete e.dataset.drop;delete e.dataset.materialDropSide;});}
  function dragEnd(){drag=null;if(raf)cancelAnimationFrame(raf);raf=null;clearDropHints();clearMaterialSort();}
  function dragOver(e,target){e.preventDefault();e.stopPropagation();clearDropHints();target.dataset.drop='true';if(raf)cancelAnimationFrame(raf);const rect=shell.getBoundingClientRect(),dy=e.clientY<rect.top+28?-10:e.clientY>rect.bottom-28?10:0,dx=e.clientX<rect.left+28?-10:e.clientX>rect.right-28?10:0;const tick=()=>{shell.scrollBy(dx,dy);raf=requestAnimationFrame(tick);};if(dx||dy)raf=requestAnimationFrame(tick);}
- function draggable(el,data){el.draggable=true;if(data.kind==='asset')el.dataset.materialId=data.asset;el.addEventListener('dragstart',e=>{e.stopPropagation();drag={...data,owner};e.dataTransfer.setData(MIME,JSON.stringify(drag));e.dataTransfer.effectAllowed='move';if(data.kind==='asset')globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root)?.beginMaterialDrag?.(JSON.stringify([data.record,data.field,data.asset]),e.dataTransfer);});el.addEventListener('dragend',dragEnd);}
+ function draggable(el,data){el.draggable=true;if(data.kind==='asset')el.dataset.materialId=data.asset;el.addEventListener('dragstart',e=>{e.stopPropagation();drag={...data,owner};e.dataTransfer.setData(MIME,JSON.stringify(drag));e.dataTransfer.effectAllowed='move';if(data.kind==='asset')getPanelContext(root)?.beginMaterialDrag?.(JSON.stringify([data.record,data.field,data.asset]),e.dataTransfer);});el.addEventListener('dragend',dragEnd);}
  function assetDropPosition(e,record,field){
     const sorting=previewMaterialSort(e,record,field);if(sorting)return sorting;
     const item=e.target.closest('.dae-table-material[data-material-id]');if(!item)return null;
@@ -181,7 +187,7 @@ export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRow
     d.append(tableButton('取消',()=>d.remove()),tableButton('保存字段',()=>{
       try {if(!name.value.trim())throw new Error('请输入字段名称');change(t=>{const existing=t.fields.find(f=>f.id===id),spec={name:name.value.trim(),type:type.value,...(promptColumnsOnly&&type.value==='json'?{presentation:'prompt',generationPrompt:true}:{}),options:options.value.split('\n').map(v=>v.trim()).filter(Boolean),width:Math.max(100,Math.min(600,Number(width.value)||180))};if(existing&&existing.type!==spec.type)spec.video_reference=false;if(existing){if(existing.type!==spec.type || spec.type==='select')for(const r of t.records)r.values[id]=convertValue(spec,r.values[id]);Object.assign(existing,spec);}else addField(t,spec);});d.remove();}catch(e){error.textContent=e.message;}
     }));
-    if(field)d.append(tableButton('删除字段',()=>{if(window.confirm(`删除“${field.name}”及其所有单元格内容？可撤销。`)){change(t=>removeField(t,id));d.remove();}}));
+    if(field)d.append(tableButton('删除字段',()=>{if(confirm(`删除“${field.name}”及其所有单元格内容？可撤销。`)){change(t=>removeField(t,id));d.remove();}}));
  }
  function referenceButton(t,f){
     const b=t.meta.prompt_config?.bindings||t.meta.storyboard?.bindings||{};if(f.type!=='assets'||f.id===b.video_result)return null;
@@ -197,7 +203,7 @@ export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRow
  toolbar.append(tableButton('＋ 字段',()=>editField()),tableButton('显示字段',manageFields),view,density);
  const help=element('span','table-count',toolbar);help.classList.add('table-help');help.textContent='操作说明';help.tabIndex=0;help.title='Shift 选择区域 · 支持表格粘贴 · Enter 编辑 · Escape 返回单元格 · Tab 下一格';
  const selectionActions=element('div','table-selection-actions');
- selectionActions.append(tableButton('复制选中',()=>change(duplicateSelected)),tableButton('删除选中',()=>{if(getTable().records.some(r=>r.selected)&&window.confirm('删除选中的记录？可撤销。'))change(t=>t.records=t.records.filter(r=>!r.selected));}));
+ selectionActions.append(tableButton('复制选中',()=>change(duplicateSelected)),tableButton('删除选中',()=>{if(getTable().records.some(r=>r.selected)&&confirm('删除选中的记录？可撤销。'))change(t=>t.records=t.records.filter(r=>!r.selected));}));
  footer.append(tableButton('＋ 新增记录',()=>change(t=>addRecord(t))),selectionActions,undo,redo,count);
  function refreshStates(scope=null){
     if(!getRowState)return;
@@ -220,7 +226,7 @@ export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRow
         if(p.kind==='asset'){
           if(!['assets','content'].includes(field.type))throw new Error('请拖到素材字段');
           const snapshot=JSON.stringify(getTable()),value=getTable().records.find(r=>r.id===record.id)?.values[field.id];
-          if(value&&!Array.isArray(value)){busy=true;if(!(await conflictChoice(false)))return;if(!canAsync(dropTicket)||snapshot!==JSON.stringify(getTable()))throw new Error('表格已变化，请重新拖动');}
+          if(value&&!Array.isArray(value)){busy=true;if(!(await conflictChoice(false,{signal:viewSession.signal})))return;if(!canAsync(dropTicket)||snapshot!==JSON.stringify(getTable()))throw new Error('表格已变化，请重新拖动');}
           let movedId=p.asset,moved=false;const referenceCells=new Map();
           change(t=>{
             const from=t.records.find(r=>r.id===p.record),to=t.records.find(r=>r.id===record.id),source=t.fields.find(f=>f.id===p.field);if(!source||source.readonly||!from||!to)throw new Error('来源已不可编辑');
@@ -254,14 +260,14 @@ export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRow
           [...(targetCell?.querySelectorAll('.dae-table-material[data-material-id]')||[])].find(item=>item.dataset.materialId===movedId)?.click();return;
         }
         const snapshot=JSON.stringify(getTable()),target=getTable().records.find(r=>r.id===record.id)?.values[field.id],occupied=Array.isArray(target)?target.length:target!==''&&target!=null&&target!==false;
-        busy=true;const mode=occupied?await conflictChoice(true):'move';if(mode){if(!canAsync(dropTicket)||snapshot!==JSON.stringify(getTable()))throw new Error('表格已变化，请重新拖动');change(t=>transferValue(t,p,{record:record.id,field:field.id},mode));}return;
+        busy=true;const mode=occupied?await conflictChoice(true,{signal:viewSession.signal}):'move';if(mode){if(!canAsync(dropTicket)||snapshot!==JSON.stringify(getTable()))throw new Error('表格已变化，请重新拖动');change(t=>transferValue(t,p,{record:record.id,field:field.id},mode));}return;
       }
       if(e.dataTransfer.files.length){if(!['assets','content'].includes(field.type))throw new Error('请拖到素材字段');await uploadInto(record.id,field.id,[...e.dataTransfer.files]);return;}
       const ref=localImageFromDrop(e.dataTransfer,location.href);
       if(ref){if(!['assets','content'].includes(field.type))throw new Error('请拖到素材字段');change(t=>setValue(t,record.id,field.id,[...(field.maxItems===1||!Array.isArray(t.records.find(r=>r.id===record.id).values[field.id])?[]:t.records.find(r=>r.id===record.id).values[field.id]),{id:uid(),url:'/view?'+new URLSearchParams(ref),name:ref.filename}]));return;}
       const text=e.dataTransfer.getData('text/plain');if(text){
         const snapshot=JSON.stringify(getTable()),value=getTable().records.find(r=>r.id===record.id)?.values[field.id];
-        busy=true;if(value!==''&&value!=null&&!(await conflictChoice(false)))return;
+        busy=true;if(value!==''&&value!=null&&!(await conflictChoice(false,{signal:viewSession.signal})))return;
         if(!canAsync(dropTicket)||snapshot!==JSON.stringify(getTable()))throw new Error('表格已变化，请重新拖动');
         change(t=>setValue(t,record.id,field.id,text));
       }
@@ -313,7 +319,7 @@ export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRow
       }
       if(value.length>2){const more=tableButton(expandedAssets.has(assetKey)?'收起':`+${value.length-2}`,()=>{if(expandedAssets.has(assetKey))expandedAssets.delete(assetKey);else expandedAssets.add(assetKey);render();});more.title=expandedAssets.has(assetKey)?'收起素材列表':`显示全部 ${value.length} 个素材`;more.setAttribute('aria-label',more.title);more.setAttribute('aria-expanded',String(expandedAssets.has(assetKey)));assets.append(more);}
       if(!f.readonly){const picker=element('input','',cell);picker.type='file';picker.multiple=f.maxItems!==1;picker.accept='.png,.jpg,.jpeg,.webp';picker.hidden=true;picker.onchange=()=>uploadInto(r.id,f.id,[...picker.files]);const add=tableButton(value.length?'＋':'＋ 素材',()=>picker.click());add.className='asset-add';add.title='上传素材';add.setAttribute('aria-label','上传素材');assets.append(add);}
-    }else if(f.readonly || f.type==='json') {const text=element('div','readonly-value',cell);text.textContent=typeof value==='object'?JSON.stringify(value,null,2):String(value);if(!f.readonly){const edit=tableButton('编辑 JSON',()=>{const next=window.prompt('JSON 内容',JSON.stringify(value));if(next!==null)safely(()=>change(n=>setValue(n,r.id,f.id,next)));});cell.append(edit);}}
+    }else if(f.readonly || f.type==='json') {const text=element('div','readonly-value',cell);text.textContent=typeof value==='object'?JSON.stringify(value,null,2):String(value);if(!f.readonly){const edit=tableButton('编辑 JSON',()=>{const next=prompt('JSON 内容',JSON.stringify(value));if(next!==null)safely(()=>change(n=>setValue(n,r.id,f.id,next)));});cell.append(edit);}}
     else{
       const input=element(f.type==='longtext'?'textarea':f.type==='select'?'select':'input','',cell);input.setAttribute('aria-label',`${f.name} · 第 ${ri+1} 行`);if(['text','longtext','number'].includes(f.type))input.placeholder=f.readonly?'':'点击填写';
       if(f.type==='select'){input.add(new Option('',''));for(const option of f.options||[])input.add(new Option(option,option));}
@@ -325,14 +331,14 @@ export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRow
     if(isPrompt(f)||['text','longtext'].includes(f.type)||f.type==='content'&&(!Array.isArray(value)||!value.length))cell.dataset.textCell='true';
     if(!f.readonly){const grip=tableButton('⠿',()=>{});grip.className='cell-grip';grip.dataset.dragKind='cell';grip.title='拖动单元格';grip.setAttribute('aria-label','拖动单元格');draggable(grip,{kind:'cell',record:r.id,field:f.id});cell.append(grip);}
  }
- function render(){cellSelection.resetLayout();clearMaterialSort();clearBindings();
+ function render(){if(released)return;cellSelection.resetLayout();clearMaterialSort();clearBindings();
     structure?.dispose();structure=null;
     splitters?.dispose();splitters=null;
     const focused=document.activeElement?.closest?.('td[data-field]'),focus=focused&&root.contains(focused)?{record:focused.dataset.record,field:focused.dataset.field,start:document.activeElement.selectionStart,end:document.activeElement.selectionEnd,editing:document.activeElement!==focused}:null;
     const scroll=[shell.scrollLeft,shell.scrollTop],t=getTable(),fs=fields().map(f=>({...f,width:Math.max(f.width,COLUMN_MINIMUM_WIDTH)}));root.dataset.view=t.view;root.dataset.fieldCount=String(fs.length);root.style.setProperty('--dae-card-columns',String(Math.max(1,Math.min(3,fs.length))));view.value=t.view;root.dataset.density=t.meta.density||'comfortable';density.value=root.dataset.density;shell.replaceChildren();
     const table=element('table','',shell);stateTable=table;stateRows.clear();table.setAttribute('role','grid');table.setAttribute('aria-label','数据表');
     table.style.setProperty('--dae-table-width',((promptColumnsOnly?120+(displayContent()?48:0):displayContent()?116:58)+fs.reduce((sum,f)=>sum+f.width,0))+'px');
-    const fluid=Boolean(globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root)),choiceWidth=promptColumnsOnly?120:displayContent()?68:58,totalWidth=fs.reduce((sum,f)=>sum+f.width,0);table.dataset.fluid=String(fluid);table.dataset.choiceWidth=String(choiceWidth);
+    const fluid=Boolean(getPanelContext(root)),choiceWidth=promptColumnsOnly?120:displayContent()?68:58,totalWidth=fs.reduce((sum,f)=>sum+f.width,0);table.dataset.fluid=String(fluid);table.dataset.choiceWidth=String(choiceWidth);
     table.style.setProperty('--dae-table-min-width',(choiceWidth+fs.length*100+(displayContent()?48:0))+'px');
     const cols=element('colgroup','',table);element('col','',cols).style.width=choiceWidth+'px';for(const f of fs)element('col','',cols).style.width=fluid?`${100*f.width/(totalWidth+choiceWidth)}%`:f.width+'px';
     const head=element('tr','',element('thead','',table)),selectionHead=element('th','table-choice',head),all=element('input','',selectionHead);all.type='checkbox';all.setAttribute('aria-label','选择全部记录');all.checked=!!t.records.length&&t.records.every(r=>r.selected);all.indeterminate=t.records.some(r=>r.selected)&&!all.checked;all.onchange=()=>change(n=>n.records.forEach(r=>r.selected=all.checked));
@@ -350,19 +356,19 @@ export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRow
     }
     if(!t.records.length){const empty=element('div','table-empty',shell);empty.textContent='暂无记录。新增记录，或通过导入工具填入数据。';}
     shell.scrollLeft=scroll[0];shell.scrollTop=scroll[1];updateFooter();mark();
-    if(displayContent()&&t.view!=='cards')structure=attachTableStructure({root,shell,table,getTable,change,notify,addGenerationColumn});
+    if(displayContent()&&t.view!=='cards')structure=attachTableStructure({root,shell,table,getTable,change,notify,addGenerationColumn,getPanelContext});
     if(t.view!=='cards'&&fs.length>1)splitters=attachColumnSplitters({root,shell,table,fields:fs,change,button:tableButton});
     if(focus){const td=[...shell.querySelectorAll('td[data-field]')].find(e=>e.dataset.record===focus.record&&e.dataset.field===focus.field);const input=focus.editing?td?.querySelector('input:not([type=file]),textarea,select'):td;if(input){input.focus({preventScroll:true});if(focus.start!=null&&input.setSelectionRange&&input.type!=='number')input.setSelectionRange(focus.start,focus.end);}}
  }
  function previewAsset(asset){const d=openDialog(asset.name||'素材预览');d.classList.add('dae-media-dialog');const video=asset.kind==='video'||/\.(mp4|webm|mov)(?:&|$)/i.test(asset.url),media=element(video?'video':'img','',d);media.src=asset.url;if(video){media.controls=true;media.preload='metadata';media.addEventListener('dblclick',e=>{e.preventDefault();e.stopPropagation();},true);}else media.alt=asset.name||'素材';const close=()=>{if(video)media.pause();d.remove();};d.oncancel=close;d.append(tableButton('关闭预览',close));}
  function focusNext(record,field,dy,dx){const fs=fields(),rs=getTable().records,ri=rs.findIndex(r=>r.id===record),ci=fs.findIndex(f=>f.id===field),index=Math.max(0,Math.min(rs.length*fs.length-1,ri*fs.length+ci+dy*fs.length+dx)),r=rs[Math.floor(index/fs.length)],f=fs[index%fs.length];if(!r||!f)return;const td=[...shell.querySelectorAll('td[data-field]')].find(e=>e.dataset.record===r.id&&e.dataset.field===f.id);td?.focus();td?.scrollIntoView({block:'nearest',inline:'nearest'});}
- root.addEventListener('copy',e=>{if(e.target.isContentEditable||e.target.matches('input,textarea')&&e.target.selectionStart!==e.target.selectionEnd)return;const region=selection();if(!region.length)return;e.preventDefault();e.clipboardData.setData('text/plain',encodeTSV(region.map(row=>row.map(({row,field})=>isPrompt(field)?promptText(row.values[field.id],getTable(),row):row.values[field.id]??emptyValue(field)))));e.clipboardData.setData('application/x-daelab-table-cells',JSON.stringify(region.map(row=>row.map(({row,field})=>row.values[field.id]??emptyValue(field)))));});
+ root.addEventListener('copy',e=>{if(e.target.isContentEditable||e.target.matches('input,textarea')&&e.target.selectionStart!==e.target.selectionEnd)return;const region=selection();if(!region.length)return;e.preventDefault();e.clipboardData.setData('text/plain',encodeTSV(region.map(row=>row.map(({row,field})=>isPrompt(field)?promptText(row.values[field.id],getTable(),row):row.values[field.id]??emptyValue(field)))));e.clipboardData.setData('application/x-daelab-table-cells',JSON.stringify(region.map(row=>row.map(({row,field})=>row.values[field.id]??emptyValue(field)))));},{signal:viewSession.signal});
  root.addEventListener('paste',e=>{
     if(e.target.isContentEditable||e.target.matches('.content-edit'))return;
     const anchor=cellSelection.anchor,text=e.clipboardData.getData('text/plain'),structured=e.clipboardData.getData('application/x-daelab-table-cells');
     if(!anchor||e.target.matches('input,textarea')&&!/[\t\n\r]/.test(text))return;
     e.preventDefault();safely(()=>{
-      const matrix=structured?JSON.parse(structured):copiedRegion?.text===text?clone(copiedRegion.matrix):parseTSV(text);
+      const remembered=clipboard?.recall?.(text);const matrix=structured?JSON.parse(structured):remembered?clone(remembered):copiedRegion?.text===text?clone(copiedRegion.matrix):parseTSV(text);
       const region=selection(),textOnly=matrix.every(row=>row.every(value=>typeof value==='string'||Array.isArray(value?.segments)));
       change(t=>{
         if(!promptColumnsOnly||!textOnly){pasteMatrix(t,anchor.record,anchor.field,matrix);return;}
@@ -382,7 +388,7 @@ export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRow
         }));
       });
     });
- });
+ },{signal:viewSession.signal});
  root.addEventListener('keydown',e=>{
     if(e.isComposing||e.keyCode===229)return;
     if(e.target.isContentEditable||e.target.matches('input,textarea,select'))return;
@@ -403,7 +409,7 @@ export function createTableEditor({getTable,setTable,upload,notify=()=>{},getRow
     if(offsets[e.key]){e.preventDefault();focusNext(end.record,end.field,...offsets[e.key]);}
     if(e.key==='Enter'){e.preventDefault();e.target.querySelector('input:not([type=file]),textarea,select')?.focus();}
     if(['Delete','Backspace'].includes(e.key)){e.preventDefault();clearCells();}
- });
- for(const event of ['pointerdown','pointerup','mousedown','mouseup','click','dblclick','wheel','keydown'])root.addEventListener(event,e=>{if(event==='wheel'&&e.ctrlKey||event==='pointerdown'&&e.button===1||event==='mousedown'&&e.button===1)return;stopCanvasPropagation(e);});
- render();return {nativeDocument,beginAsync,canAsync,releaseAsync,invalidateAsync:()=>nativeDocument?.invalidate(),applyAsync:(tickets,fn,options={})=>change(fn,{...options,tickets:Array.isArray(tickets)?tickets:[tickets]}),onTableChange(fn){observers.add(fn);return()=>observers.delete(fn);},manageFields,addColumn:(target=null,before=false,anchor=root)=>root.dispatchEvent(new CustomEvent('dae-add-column',{detail:{target,before,anchor}})),addRow:(target=null,before=false)=>root.dispatchEvent(new CustomEvent('dae-add-row',{detail:{target,before}})),root,toolbar,selectionActions,selection,restore,copySelection:async()=>{const matrix=selection().map(cells=>cells.map(({row,field})=>clone(row.values[field.id]??emptyValue(field)))),text=encodeTSV(matrix);await navigator.clipboard.writeText(text);copiedRegion={text,matrix};},selectColumn:cellSelection.selectColumn,clearSelection:cellSelection.clear,render,refreshCells,change,clearCells,history,openDialog,closeDialogs,openTextSide:textSide.open,collapseTextSide:textSide.hide,focusCell:(record,field)=>{const cell=[...shell.querySelectorAll('td[data-field]')].find(e=>e.dataset.record===record&&e.dataset.field===field);cell?.focus();cell?.scrollIntoView({block:'nearest',inline:'nearest'});},destroy:()=>{released=true;stateRows.clear();stateTable=null;nativeDocument?.dispose();observers.clear();cellSelection.destroy();clearBindings();structure?.dispose();splitters?.dispose();dragEnd();closeDialogs();textSide.destroy();}};
+ },{signal:viewSession.signal});
+ for(const event of ['pointerdown','pointerup','mousedown','mouseup','click','dblclick','wheel','keydown'])root.addEventListener(event,e=>{if(event==='wheel'&&e.ctrlKey||event==='pointerdown'&&e.button===1||event==='mousedown'&&e.button===1)return;stopCanvasPropagation(e);},{signal:viewSession.signal});
+ render();return {nativeDocument,beginAsync,canAsync,releaseAsync,panelContext:()=>getPanelContext(root),invalidateAsync:()=>{viewSession.invalidate();nativeDocument?.invalidate();},applyAsync:(tickets,fn,options={})=>change(fn,{...options,tickets:Array.isArray(tickets)?tickets:[tickets]}),onTableChange(fn){observers.add(fn);return()=>observers.delete(fn);},manageFields,addColumn:(target=null,before=false,anchor=root)=>root.dispatchEvent(new CustomEvent('dae-add-column',{detail:{target,before,anchor}})),addRow:(target=null,before=false)=>root.dispatchEvent(new CustomEvent('dae-add-row',{detail:{target,before}})),root,toolbar,selectionActions,selection,restore,copySelection:async()=>{const matrix=selection().map(cells=>cells.map(({row,field})=>clone(row.values[field.id]??emptyValue(field)))),text=encodeTSV(matrix);viewSession.assertCurrent();await (clipboard?.writeText(text)??navigator.clipboard.writeText(text));viewSession.assertCurrent();copiedRegion={text,matrix};clipboard?.remember?.(text,matrix);},selectColumn:cellSelection.selectColumn,clearSelection:cellSelection.clear,render,refreshCells,change,clearCells,history,openDialog,closeDialogs,openTextSide:textSide.open,collapseTextSide:textSide.hide,focusCell:(record,field)=>{const cell=[...shell.querySelectorAll('td[data-field]')].find(e=>e.dataset.record===record&&e.dataset.field===field);cell?.focus();cell?.scrollIntoView({block:'nearest',inline:'nearest'});},destroy:()=>{if(released)return;released=true;viewSession.dispose();copiedRegion=null;stateRows.clear();stateTable=null;nativeDocument?.dispose();observers.clear();cellSelection.destroy();clearBindings();structure?.dispose();splitters?.dispose();dragEnd();closeDialogs();textSide.destroy();}};
 }

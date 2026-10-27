@@ -3,7 +3,7 @@ import {canonical,OptimizationRevisions,freezeSnapshot,matchesSnapshot,restoreSu
 import {createPromptOptimizationApi} from './prompt_optimization_api.mjs';
 import {createOptimizationComposer,createOptimizationSourceView} from './prompt_optimization_composer.mjs';
 import {createSettingsPopover} from './table_prompt_settings.mjs';
-import {describeTableSource,focusTableSource} from '../table/table_exchange.mjs';
+import {describeTableSource,focusTableSource} from '../../application/table_exchange.mjs';
 
 
 const activeStatuses=new Set(['submitting','submitted','polling']);

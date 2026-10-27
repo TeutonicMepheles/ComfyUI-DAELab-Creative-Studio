@@ -50,7 +50,7 @@ function harness({native=true,content=false,validate=()=>{},removeEmpty=false,pr
  // Only surrounding DOM callbacks/host history are injected; this is not a DOM
  // render, ComfyUI integration, or performance acceptance test.
  const env={released:false,canAsync:ticket=>doc.canApply(ticket),clone,getTable:()=>value,promptColumnsOnly:content,displayContent:()=>content,
-  globalThis:{[Symbol.for('DAELAB.CreativeCanvas.API.v1')]:{getPanelContext:target=>{assert.equal(target,root);return context;}}},root,shell,
+  getPanelContext:target=>{assert.equal(target,root);return context;},root,shell,
   validateChange:(old,next)=>{events.push('validate');validate(old,next);},nativeDocument:native?doc:null,history,nativeHistory,setTable:write,
   removeEmptyNode:next=>{events.push('remove-check');return removeEmpty&&!next.records.length;},
   observed:()=>events.push('observed'),render:()=>events.push('render'),updateFooter:()=>events.push('footer')};

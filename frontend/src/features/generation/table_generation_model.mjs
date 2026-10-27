@@ -1,4 +1,4 @@
-import {addField,uid} from '../table/data_table_model.mjs';
+import {addField,uid} from '../../application/table_model.mjs';
 import {isTextColumn,promptSourceId,setPromptSource,requirePromptSource} from '../prompt/table_prompt_source.mjs';
 import {effectivePrompt,isColumnPrompt,resolveColumnPrompt,columnValue,toColumnPrompt} from '../prompt/table_prompt_template.mjs';
 

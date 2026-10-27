@@ -24,7 +24,7 @@ test('borrowed tables restore their bodies after group view, detach, reattach an
     globalThis[api]={getPanelContext:root=>contexts.get(root)};
     t.after(()=>{names.forEach((name,i)=>old[i]?Object.defineProperty(globalThis,name,old[i]):delete globalThis[name]);if(oldApi)globalThis[api]=oldApi;else delete globalThis[api];});
     const fixture=()=>{
-        const root=new Element(),editor={root:new Element(),render(){this.visibleAtRender=!this.root.hidden;},clearSelection(){}},groups={root:new Element(),render(){}},tableTab=new Element(),groupTab=new Element();
+        const root=new Element(),editor={panelContext:()=>contexts.get(root),root:new Element(),render(){this.visibleAtRender=!this.root.hidden;},clearSelection(){}},groups={root:new Element(),render(){}},tableTab=new Element(),groupTab=new Element();
         const views=createTablePanelViews({editor,groups,tableTab,groupTab});
         const presentation=installContentPresentation({root,editor,getTable:()=>({fields:[],records:[]}),onPresentationChange:active=>views.setContent(active)});
         return {root,editor,groups,tableTab,groupTab,views,presentation};

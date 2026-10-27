@@ -1,7 +1,7 @@
 import {createTableButton as button} from '../../ui/table_controls.mjs';
 import {stopCanvasPropagation} from '../../ui/list_editor_controls.mjs';
 import {deletePromptReference} from '../../ui/inline_editor.mjs';
-import {columnReferenceOptions,createReferenceMenu} from '../table/table_reference_menu.mjs';
+import {columnReferenceOptions,createReferenceMenu} from '../../application/table_reference_options.mjs';
 import {isColumnPrompt,effectivePrompt,toColumnPrompt,validateColumnPrompt,resolveColumnPrompt,setColumnTemplate} from './table_prompt_template.mjs';
 const el=(tag,parent,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;parent?.append(e);return e;};
 export function readPromptSegments(box,kind='column') {

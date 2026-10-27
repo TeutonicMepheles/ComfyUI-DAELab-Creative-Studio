@@ -9,7 +9,7 @@ const canvas=syntax('../../frontend/src/canvas/creative_canvas_view.mjs');
 const projection=extract(canvas,n=>ts.isFunctionDeclaration(n)&&n.name?.text==='projectMaterialPorts');assert.equal(projection.length,1);
 const adapterSyntax=syntax('../../frontend/src/integrations/comfyui/business/creative_canvas_adapter.js');
 const methods=extract(adapterSyntax,n=>ts.isMethodDeclaration(n)&&['materialTargets','projectedMaterialTargets'].includes(n.name.getText(adapterSyntax)));
-const columnSyntax=syntax('../../frontend/src/features/table/table_material_columns.mjs');
+const columnSyntax=syntax('../../frontend/src/application/table_material_columns.mjs');
 const columnFunctions=extract(columnSyntax,n=>ts.isVariableDeclaration(n)&&['columnDropTypes','columnFillCount'].includes(n.name.getText(columnSyntax)));
 function adapter(){return new Function(`const materialTargetCache=new WeakMap();${columnFunctions.map(n=>'const '+n.getText(columnSyntax)+';').join('\n')}return {${methods.map(n=>n.getText(adapterSyntax)).join(',\n')}};`)();}
 

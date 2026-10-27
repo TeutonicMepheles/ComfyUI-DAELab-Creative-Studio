@@ -8,6 +8,7 @@ export interface BusinessHostPort {
   createNode(type: string): CanvasNode | null | undefined;
   addNode(graph: CanvasGraph, node: CanvasNode): void;
   focusNode(node: CanvasNode): void;
+  placeNode?(node: CanvasNode, position: {x: number; y: number; width: number}): void;
   isSelected(node: CanvasNode): boolean;
   fetchNative(url: string, options?: RequestInit): Promise<Response>;
 }

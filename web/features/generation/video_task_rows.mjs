@@ -1,4 +1,4 @@
-import {addField,uid} from '../table/data_table_model.mjs';
+import {addField,uid} from '../../application/table_model.mjs';
 import {rowGenerationConfig,setRowGenerationConfig,applyPromptContent} from './table_generation_model.mjs';
 
 const active=row=>Object.values(row.meta?.generationColumns||{}).some(s=>['waiting','running','queued','preparing','submitting','recovering','pausing'].includes(s.phase));

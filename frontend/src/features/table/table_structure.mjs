@@ -6,7 +6,7 @@ import {stopCanvasPropagation} from '../../ui/creative_events.mjs';
 const el=(tag,cls,text)=>{const node=document.createElement(tag);node.className=cls;if(text)node.textContent=text;return node;};
 
 // Instance-owned UI; all writes go through the editor's existing transaction.
-export function attachTableStructure({root,shell,table,getTable,change,notify,addGenerationColumn=()=>{throw new Error('生成列能力不可用');}}) {
+export function attachTableStructure({root,shell,table,getTable,change,notify,getPanelContext=()=>null,addGenerationColumn=()=>{throw new Error('生成列能力不可用');}}) {
     root.dataset.structure='true';
     const events=new AbortController(),listen=(node,type,fn,options={})=>node.addEventListener(type,fn,{...options,signal:events.signal});
     let drag=null,frame=0,popup=null,disposed=false,rowSizing=null,heightHover=null;
@@ -140,7 +140,7 @@ export function attachTableStructure({root,shell,table,getTable,change,notify,ad
         if(!root.getClientRects().length||root.closest('[inert],[hidden]')||JSON.stringify(getTable())!==drag.snapshot){finish(true);return;}
         const elapsed=Math.min(0.04,(now-drag.last)/1000);drag.last=now;
         if(drag.moving){
-            const context=globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root);
+            const context=getPanelContext(root);
             const view=context?.getViewport(),r=shell.getBoundingClientRect(),edge=36,speed=(value,low,high)=>value<low+edge?-Math.min(1,(low+edge-value)/edge):value>high-edge?Math.min(1,(value-high+edge)/edge):0;
             const dx=speed(drag.x,Math.max(view?.left||0,r.left),Math.min(view?.right||innerWidth,r.right))*elapsed*520,dy=speed(drag.y,Math.max(view?.top||0,r.top),Math.min(view?.bottom||innerHeight,r.bottom))*elapsed*520;
             if(drag.kind==='column')shell.scrollLeft+=dx;

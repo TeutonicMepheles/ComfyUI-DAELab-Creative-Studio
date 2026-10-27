@@ -6,7 +6,9 @@
 
 `application/table_model.mjs` 装配现有提示词格式，`application/table_editor.mjs` 装配编辑器的提示词表头、生成历史和内容呈现。`data_table_model.mjs`、`data_table_editor.mjs` 为兼容转发，不维护第二套实现。`editor_runtime.mjs` 拥有编辑事务和视图；共享按钮、引用菜单、内联编辑和素材缩略图已归 `ui/`。
 
-尚无独立预览命令。面板宿主能力注入和其余旧入口迁移属于 T2–T4；当前类型/模型测试不代表真实 ComfyUI 验收。
+视图公共入口为 `view.ts` 的 `createTableEditor`，也由 `index.ts` 导出。面板、上传、通知、确认、剪贴板和列呈现通过参数注入；上传接收实例 AbortSignal。视图释放会取消票据、关闭对话框并移除根监听器。跨表结构剪贴板由宿主显式共享，预览可使用独立缓存。
+
+素材组合、工作台和面板装配归 `application/table_*`，共享文本侧栏与主题归 `ui/`。旧路径只转发；基础核心 `core_model.mjs` 还为直接执行 ESM 的评估工具提供入口。尚无独立预览命令；真实 ComfyUI 验收在 T4 记录。
 
 协作边界：原生工作流是表数据保存依据；默认素材/提示词/生成列与三行、500 行和 64 列上限保持。生成和优化功能经各自控制器接入。
 
