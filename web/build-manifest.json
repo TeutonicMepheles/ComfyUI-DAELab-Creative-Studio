@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "204550ac1afc2b6dc3ec89be02af335886420efe4ec2e38c8e293c9011e3f4fd",
+  "sourceFingerprint": "593e8ab6667f1331775917b100a15af3c29a7e2b68540aecb741282358c58243",
   "files": [
     {
       "path": "AGENTS.md",
@@ -576,7 +576,7 @@
     },
     {
       "path": "features/groups/README.md",
-      "sha256": "4a557701740c5fc0c8c6162f38fdfdcba9660cb32144a9ca157d574df9dfb19f"
+      "sha256": "c53525b4dc8a1cf5a0500ccba45d9a227f2ba8f9c4d7c60b574bdcf547f94e5e"
     },
     {
       "path": "features/groups/material_group_model.mjs",
@@ -584,11 +584,11 @@
     },
     {
       "path": "features/groups/material_groups.css",
-      "sha256": "3842edf330c00fc916f0ec96e49fef0a57a671f052c57cb14acbda2dc7528948"
+      "sha256": "042c551604f91bd3a41f01d40891f2b32089fbcfa63692731953b92458b21106"
     },
     {
       "path": "features/groups/material_groups.mjs",
-      "sha256": "211c8d70630087256e37c648e43bdb591fa1c8ff66e6ce928f664fb0d4a177f1"
+      "sha256": "68839ac7a18559a834eaa428736c2b3abc9c51233ace44f6a72aa45df75f0222"
     },
     {
       "path": "features/prompt/AGENTS.md",
@@ -1100,7 +1100,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "8fa05c47da2660155bea5baa7adefd05c5ec694659801d9f6bf6a27ddc7944f8"
+      "sha256": "4686e2641e693e6b572e8d4287b87124fea7fe8a6d35a9436951732a01bfc283"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

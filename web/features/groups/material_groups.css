@@ -95,7 +95,9 @@
 @media(prefers-reduced-motion:reduce){.dae-creative[data-group-review=true] .dae-creative-wires path.gr-wire-pulse{animation:none;stroke-dasharray:none;stroke-opacity:.5}}
 .dae-creative .gr-notice[hidden]{display:none}
 
-.dae-creative .gr-create-selection{position:absolute;z-index:22;max-width:calc(100% - 24px);box-shadow:var(--dae-elevation-overlay);border-color:var(--dae-accent);background:var(--dae-primary-container);color:var(--dae-on-primary-container)}
+.dae-creative .gr-create-selection{position:absolute;z-index:22;display:flex;align-items:center;gap:4px;flex-wrap:wrap;max-width:calc(100% - 24px);padding:6px;border:1px solid var(--dae-border-control);border-radius:14px;box-shadow:var(--dae-elevation-overlay);background:var(--dae-surface-raised);color:var(--dae-text)}
+.dae-creative .gr-create-selection button{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;border-color:transparent;background:transparent;padding:7px 10px}
+.dae-creative .gr-selection-count{font-size:12px;color:var(--dae-text-muted);padding:0 8px;white-space:nowrap}
 .dae-creative .gr-create-selection[hidden]{display:none}
 .dae-creative .gr-selection-box{position:absolute;pointer-events:none;z-index:2;border:1px dashed var(--dae-accent);border-radius:8px;background:color-mix(in srgb,var(--dae-accent) 7%,transparent)}
 .dae-creative .gr-selection-box[hidden]{display:none}

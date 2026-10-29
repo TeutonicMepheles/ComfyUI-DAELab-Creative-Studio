@@ -366,11 +366,12 @@
       "source": "web/material_groups.css",
       "destination": "frontend/src/features/groups/material_groups.css",
       "sourceSha256": "8080b8c2d5cbba4ef167a79a54b16f64b6cbe7108728501c5c5acd1606f526c3",
-      "destinationSha256": "3842edf330c00fc916f0ec96e49fef0a57a671f052c57cb14acbda2dc7528948",
+      "destinationSha256": "042c551604f91bd3a41f01d40891f2b32089fbcfa63692731953b92458b21106",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "2026-10-29: anchor create-group action to visible selected materials; retain screen-sized accent selection outlines. Original source hash retained.",
-        "2026-10-29: retain a non-interactive dashed, tinted bounding box around selected materials; dispose with group controller."
+        "2026-10-29: retain a non-interactive dashed, tinted bounding box around selected materials; dispose with group controller.",
+        "2026-10-30: icon and text selection toolbar, direct reversible ungroup, and public snapshot-based batch favorites."
       ],
       "kind": "production-source"
     },
@@ -378,14 +379,15 @@
       "source": "web/material_groups.mjs",
       "destination": "frontend/src/features/groups/material_groups.mjs",
       "sourceSha256": "91c47c4439efda72218a2749e00030e570bf1731a3eb100282347aecc463e144",
-      "destinationSha256": "211c8d70630087256e37c648e43bdb591fa1c8ff66e6ce928f664fb0d4a177f1",
+      "destinationSha256": "68839ac7a18559a834eaa428736c2b3abc9c51233ace44f6a72aa45df75f0222",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "inject existing host history port at integration assembly boundary",
         "Inject CanvasHostPort plus view; delegate native graph commands; return controller for integration-owned registration; retain UI/layout behavior.",
         "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained.",
         "2026-10-29: anchor create-group action to visible selected materials; retain screen-sized accent selection outlines. Original source hash retained.",
-        "2026-10-29: retain a non-interactive dashed, tinted bounding box around selected materials; dispose with group controller."
+        "2026-10-29: retain a non-interactive dashed, tinted bounding box around selected materials; dispose with group controller.",
+        "2026-10-30: icon and text selection toolbar, direct reversible ungroup, and public snapshot-based batch favorites."
       ],
       "kind": "production-source"
     },
