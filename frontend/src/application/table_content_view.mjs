@@ -47,7 +47,7 @@ export function renderContentCell(cell,row,field,{change,upload,notify,getTable,
             read:()=>{const segments=readPromptSegments(display);return segments.some(s=>s.type==='column')?{kind:'column-template',version:1,segments}:segments.map(s=>s.text).join('');},
             write:value=>{if(JSON.stringify(current())!==expected)throw new Error('单元格已被更新，请重新编辑');change(t=>setValue(t,row.id,field.id,value),{render:false,group});expected=JSON.stringify(value);},
             reset:()=>{if(JSON.stringify(current())===expected)change(t=>setValue(t,row.id,field.id,original),{render:false,group});},
-            ...(field.type==='content'?{columns:()=>columnReferenceOptions(getTable(),currentRow()||row).filter(f=>f.id!==field.id),getColumnChip:reference}:{})
+            ...(field.type==='content'?{columns:()=>columnReferenceOptions(getTable(),currentRow()||row,field.id).filter(f=>f.id!==field.id),getColumnChip:reference}:{})
         });
     }
     if(field.type!=='content'||field.readonly)return;

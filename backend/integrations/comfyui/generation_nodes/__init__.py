@@ -8,6 +8,7 @@ def register_nodes(service=None):
 
 def register_routes(server, service):
     from ....generation.http import routes
+    from ..comfy_video import authenticated_submission
     definitions = routes(service)
     existing = {(r.method, r.path): r.handler for r in server.routes if hasattr(r, 'handler')}
     owned = getattr(server, '_creative_studio_generation_routes', {})
@@ -19,6 +20,8 @@ def register_routes(server, service):
     for method, path, handler in definitions:
         key = method, path
         if key not in existing:
+            if path == '/daelab/studio/generation/submit':
+                handler = authenticated_submission(handler)
             server.routes.route(method, path)(handler)
             owned[key] = service, handler
             added.append(path)

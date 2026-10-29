@@ -3,11 +3,12 @@ import assert from 'node:assert/strict';
 import {isTableSource,readTableSnapshot,writeTablePrompts} from '../../frontend/src/features/table/table_exchange.mjs';
 import {promptContent} from '../../frontend/src/features/prompt/table_prompt_template.mjs';
 import {importVideoTasks,syncVideoTaskInputs} from '../../frontend/src/features/generation/video_tasks_model.mjs';
-import {generationInput,LOCAL_VIDEO_MODEL,setRowGenerationConfig} from '../../frontend/src/features/generation/table_generation_model.mjs';
+import {generationInput,LOCAL_VIDEO_MODEL,setRowGenerationConfig,syncGenerationPromptMode,rowGenerationConfig} from '../../frontend/src/features/generation/table_generation_model.mjs';
 import {generationParameterModes,generationModes} from '../../frontend/src/features/prompt/table_prompt_settings.mjs';
 import {frameReferenceOptions} from '../../frontend/src/features/table/table_reference_menu.mjs';
 import {bindLinkedTaskReference} from '../../frontend/src/features/generation/video_task_linked_prompt.mjs';
 import {generationInputKind,generationInputNames} from '../../frontend/src/features/generation/generation_input.js';
+import {columnReferenceOptions} from '../../frontend/src/application/table_reference_options.mjs';
 
 test('image upload resolves its real IMAGE output for single generation, including a combined text input',()=>{
  const image={type:'DAELAB.MediaUpload',widgets:[{name:'asset_data',value:'{"kind":"image"}'}],outputs:['COMFYTV_IMAGE','COMFYTV_IMAGES','COMFYTV_VIDEO','IMAGE','VIDEO'].map(type=>({type}))};
@@ -77,6 +78,28 @@ test('frame bindings survive writeback to a source without generation column, tw
  }
 });
 
+test('table tasks follow source order after deselection, rechecking and reordering while retaining existing task state',()=>{
+ const source=readTableSnapshot(sourceNode());
+ source.records.push({...structuredClone(source.records[0]),id:'3'});
+ const state=importVideoTasks(source),kept=state.table.records[2];state.currentId=kept.id;
+ kept.values[state.fieldId]=[{id:'result',kind:'video',url:'/view?filename=result.mp4'}];
+ kept.meta.generationColumns={[state.fieldId]:{requestId:'existing-request',phase:'running'}};
+ const saved=structuredClone(kept);
+ const update=change=>{const previous=structuredClone(source);change();syncVideoTaskInputs(state,source,previous);};
+ update(()=>source.records[0].selected=false);
+ assert.deepEqual(state.table.records.map(r=>r.id),['2','3']);
+ update(()=>source.records[0].selected=true);
+ assert.deepEqual(state.table.records.map(r=>r.id),['1','2','3']);
+ assert.equal(state.currentId,'3');assert.equal(state.table.records[2],kept);assert.deepEqual(kept,saved);
+ update(()=>source.records.reverse());
+ assert.deepEqual(state.table.records.map(r=>r.id),['3','2','1']);
+ update(()=>source.records.forEach(r=>r.selected=false));assert.equal(state.currentId,'');
+ update(()=>source.records[2].selected=true);
+ update(()=>source.records[0].selected=true);
+ assert.deepEqual(state.table.records.map(r=>r.id),['3','1']);
+ assert.deepEqual(JSON.parse(JSON.stringify(state)).table.records.map(r=>r.id),['3','1']);
+});
+
 test('local FL modes remain separate and unsupported saved modes are not offered or submitted',()=>{
  const modes=['text2video','singleImage2video','frames2video'];
  const schema={properties:{modeType:{items:Object.fromEntries(modes.map(m=>[m,[]]))}},config:{strictModes:true}};
@@ -94,6 +117,44 @@ test('frame picker excludes text, video and audio while retaining image identity
  const options=frameReferenceOptions(t,row,'result');assert.equal(options.length,1);
  assert.deepEqual(options[0].children.map(o=>[o.asset.id,o.assetIndex]),[['a1',1],['b1',2]]);
  assert.deepEqual(frameReferenceOptions(t,row,'media'),[]);
+});
+
+test('frame modes keep image slots available but exclude inline media mentions and reject saved mentions before submission',()=>{
+ for(const mode of ['singleImage2video','frames2video']){
+  const state=importVideoTasks(readTableSnapshot(sourceNode())),row=state.table.records[0],field=state.table.fields.find(f=>f.id===state.fieldId);
+  setRowGenerationConfig(row,field.id,{...field.generation,model:'Seedance 2.0',mode});
+  const roles=mode==='frames2video'?['first','last']:['first'];
+  row.meta.generationFrames={[field.id]:Object.fromEntries(roles.map((role,i)=>[role,{fieldId:'media',assetId:(i?'b':'a')+'1'}]))};
+  row.values.prompt={kind:'column-template',version:1,segments:[...roles.map(role=>({type:'frame',generationFieldId:field.id,role})),{type:'column',fieldId:'scene',valueType:'text'},{type:'text',text:' literal @图片'}]};
+  const options=columnReferenceOptions(state.table,row,'prompt');
+  assert(options.some(o=>o.id==='scene'));assert(options.every(o=>o.valueType==='text'));
+  assert.equal(frameReferenceOptions(state.table,row,field.id)[0].children.length,2);
+  const input=generationInput(state.table,field.id,row.id);
+  assert.equal(input.config.mode,mode);assert.equal(input.assets.length,roles.length);
+  assert(input.segments.every(s=>s.type==='text'));
+  row.values.prompt.segments.push({type:'column',fieldId:'media',assetId:'a1'});
+  assert.throws(()=>generationInput(state.table,field.id,row.id),/首帧／首尾帧模式不能/);
+  setRowGenerationConfig(row,field.id,{...field.generation,model:'Seedance 2.0',mode:'mixed2video'});
+  assert(columnReferenceOptions(state.table,row,'prompt').some(o=>o.id==='media'));
+  assert(generationInput(state.table,field.id,row.id).segments.some(s=>s.type==='asset'));
+ }
+});
+
+test('cloud text-to-video switches on a structured media mention, not text references or literal at signs',()=>{
+ for(const model of ['Seedance 2.0 Mini','Minimax H3']){
+  const state=importVideoTasks(readTableSnapshot(sourceNode())),row=state.table.records[0],field=state.table.fields.find(f=>f.id===state.fieldId);
+  setRowGenerationConfig(row,field.id,{...field.generation,model,mode:'text2video'});
+  const before=structuredClone(state.table);
+  row.values.prompt={kind:'column-template',version:1,segments:[{type:'column',fieldId:'scene',valueType:'text'},{type:'text',text:' literal @图片'}]};
+  syncGenerationPromptMode(state.table,before,field.id,field.generation);
+  assert.equal(rowGenerationConfig(row,field.id,field.generation).mode,'text2video');
+  row.values.prompt.segments.push({type:'column',fieldId:'media',assetId:'b1'});
+  syncGenerationPromptMode(state.table,before,field.id,field.generation);
+  const input=generationInput(state.table,field.id,row.id);
+  assert.equal(input.config.mode,'mixed2video');assert.deepEqual(input.assets.map(a=>a.id),['b1']);
+  assert.deepEqual(input.segments.at(-1),{type:'asset',index:0});
+  assert.deepEqual(state.table.records[1],before.records[1]);
+ }
 });
 
 test('local FL rejects reference ports without silently assigning frames or changing the prompt',()=>{

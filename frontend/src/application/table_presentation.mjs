@@ -48,7 +48,7 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
             const recordId=selected.record;
             toolbar.append(button('重命名',rename),button('复制行',()=>mutate(t=>{
                 const source=clone(t.records.find(row=>row.id===recordId)),copy=addRecord(t,source.values,recordId);
-                Object.assign(copy,source,{id:copy.id,name:(source.name||'任务'+(t.records.findIndex(r=>r.id===recordId)+1))+' 副本',selected:false});
+                Object.assign(copy,source,{id:copy.id,name:(source.name||'任务'+(t.records.findIndex(r=>r.id===recordId)+1))+' 副本',selected:true});
                 if(copy.meta){delete copy.meta.generation;delete copy.meta.generationColumns;}
                 selected={kind:'row',record:copy.id};
             })),button('删除行',()=>mutate(t=>{t.records=t.records.filter(r=>r.id!==recordId);selected={kind:'table'};})));

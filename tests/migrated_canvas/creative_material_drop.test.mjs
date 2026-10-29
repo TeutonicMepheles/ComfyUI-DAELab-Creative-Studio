@@ -20,3 +20,13 @@ test('media snapshots preserve legacy receivers and cannot enter text-only colum
  assert.equal(acceptsMaterialDrop({},snapshot),true);assert.equal(acceptsMaterialDrop({accepts:['text']},snapshot),false);
  assert.equal(materialDropSnapshot({...node,mode:2}),null);
 });
+
+test('group drop includes ordered text members as well as media',()=>{
+ const nodes=[{id:1,type:'DAELAB.TextInput',value:'first'},{id:2,type:'DAELAB.TextInput',value:'second'},{id:3,type:'DAELAB.MediaUpload',widgets:[{name:'asset_data',value:JSON.stringify({filename:'a.png',kind:'image'})}]}];
+ const dispose=registerAdapter('drop-group-text',{matches:n=>n.type==='DAELAB.TextInput',inputSnapshot:n=>({version:1,texts:[n.value]})});
+ try{
+  const group={type:'DAELAB.MaterialGroup',properties:{members:[2,3,1]},graph:{getNodeById:id=>nodes.find(n=>n.id===id)}};
+  const snapshot=materialDropSnapshot(group);assert.deepEqual(snapshot.texts,['second','first']);assert.equal(snapshot.assets[0].nodeId,'3');
+  nodes[0].mode=2;assert.equal(materialDropSnapshot(group),null);
+ }finally{dispose();}
+});

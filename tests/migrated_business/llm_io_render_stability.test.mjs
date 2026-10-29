@@ -6,6 +6,9 @@ import {bindIOPanel} from '../../frontend/src/features/prompt/llm_io_panel.mjs';
 import {slotSignature} from '../../frontend/src/features/prompt/llm_slot_model.mjs';
 import {createBusinessDocument} from '../../frontend/src/application/business_document.js';
 import {bindBusinessService} from '../../frontend/src/contracts/business.js';
+import {createMaterialTable} from '../../frontend/src/application/table_material_columns.mjs';
+import {addField} from '../../frontend/src/application/table_model.mjs';
+import {setPromptSource} from '../../frontend/src/features/prompt/table_prompt_source.mjs';
 
 const API=Symbol.for('DAELAB.CreativeCanvas.API.v1');
 // Execute the owning field factory/write closure to retain the actual input
@@ -82,6 +85,18 @@ function panel(t,env,id,{proposal=false,nativeInstruction=false,nativeSource=fal
  const [paragraph,status,actions]=result.children,[apply,undo,regenerate,recover]=actions.children,imageSection=sourceSection.afterNode,imageBox=imageSection.children[1],[image,imageText]=imageBox.children;
  return {node,upstream,state,outputs,history,nativeDocument,root,source,instruction,select,run,paragraph,status,apply,undo,regenerate,recover,sourceSection,imageSection,imageBox,image,imageText,release};
 }
+
+test('table connections disable reverse even with one row or invalid input; disconnect restores single-image mode',t=>{
+ const env=environment(t),a=panel(t,env,30),b=panel(t,env,31),table=createMaterialTable(),field=addField(table,{name:'提示词',type:'text'});
+ setPromptSource(table,field.id);table.records=table.records.slice(0,1);table.records[0].selected=true;table.records[0].values[field.id]='表格原文';
+ a.upstream.type='DAELAB.Table';a.upstream.widgets=[{name:'table_data',value:JSON.stringify(table)}];a.state().mode='reverse';env.tick();
+ assert.equal(a.root.modes[1].disabled,true);assert.equal(a.state().mode,'polish');assert.equal(a.source.value,'表格原文');assert.equal(a.root.classList.contains('has-task-list'),true);assert.equal(b.root.modes[1].disabled,false);
+ a.state().mode='reverse';env.tick();assert.equal(a.state().mode,'polish');
+ table.meta.generationInput.promptFieldId=null;a.upstream.widgets[0].value=JSON.stringify(table);env.tick();assert.equal(a.root.modes[1].disabled,true);assert.equal(a.run.disabled,true);
+ a.upstream.type='TestSyntheticInput';a.upstream.snapshot={version:1,assets:[{kind:'image',url:'/view?filename=single.png'}]};env.tick();
+ assert.equal(a.root.modes[1].disabled,false);assert.equal(a.state().mode,'reverse');assert.equal(a.imageSection.hidden,false);
+ env.reset();env.tick();assert.equal(env.writes.length,0);
+});
 
 test('manual source persists with native history and caret, while links temporarily take precedence in independent panels',async t=>{
  const env=environment(t),a=panel(t,env,17,{nativeSource:true}),b=panel(t,env,18,{nativeSource:true});

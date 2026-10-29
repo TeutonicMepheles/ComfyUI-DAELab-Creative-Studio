@@ -46,7 +46,9 @@ register();
 | `inputSelection` | 可选值 `first-free` 或返回该值的节点函数；拖到合并输入时自动连接第一个未占用的兼容输入，不显示用途菜单、不替换已连接输入；未指定时保留原选择逻辑 |
 | `inputNames(target, source, outputSlot)` | 可选同步只读函数；返回允许连接的原生输入名称，空数组拒绝，`undefined` 保持原类型匹配；`outputSlot=-1` 表示合并输出。仅筛选候选，不修改节点或槽位。生成节点据此自动区分表格与文字／图片，并限制混接。 |
 | `outputLabel` | 可选文字，显示在合并输出的提示与可访问名称中；不改变真实输出类型和槽位 |
+| `outputTargetTypes(node)` | 可选同步只读函数，返回允许连接的目标节点类型；`undefined` 不限制，空数组拒绝。创作画布的新建菜单与已有节点连线共用此限制，仍需原生接口类型兼容。多维表格允许生成节点和 LLM 优化节点；不改写已有连线。 |
 | `defaultOutputNode` | 可选 `{type,title}`；从输出 Slot 拖到空白处时创建指定节点并建立真实类型连线。由提供者声明，不在画布内硬编码业务类型；缺少对应节点时保留原菜单。 |
+| `textGroupOutput(node)` | 可选同步只读函数；返回 `true` 时，显式确认或输出操作将 `inputSnapshot(node)` 中已就绪的有序 `texts` 创建为文本节点组。未就绪时禁止导出；单文本默认输出仍由 `defaultOutputNode` 决定。 |
 | `canConnectOutput(node)` | 可选同步回调；用户尝试从此节点建立连接时调用，返回 `false` 阻止拉线、用途选择及实际连接，业务所有者负责说明原因。未提供时保持原行为；原生节点连接限制由节点自身的 `onConnectOutput` 实现 |
 | `onCreate(node)` | 用户从画布新增节点时初始化业务状态 |
 | `upload(node, file)` | 可选，接收本地 File 并返回 Promise；画布拖入文件时调用上传节点适配器，上传节点负责请求、错误提示和取消生命周期 |

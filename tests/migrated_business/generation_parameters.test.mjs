@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {generationDurationOptions,generationParameterSpecs,generationParameterModes,generationModes,generationModeChoice,promptSettingsItems,generationParametersSummary} from '../../frontend/src/features/prompt/table_prompt_settings.mjs';
 import {generationModelIconURL} from '../../frontend/src/features/generation/generation_model_icons.mjs';
 import {LOCAL_VIDEO_MODEL} from '../../frontend/src/features/generation/table_generation_model.mjs';
+import {createVideoTasks} from '../../frontend/src/features/generation/video_tasks_model.mjs';
 import {LOCAL_VIDEO_SIZE_PRESETS,localVideoSizePresets,normalizeLocalGenerationConfig} from '../../frontend/src/features/prompt/table_prompt_settings.mjs';
 
 test('H3 ratio presets use exact 32-aligned dimensions and obey live size bounds',()=>{
@@ -34,6 +35,13 @@ test('combined video summary preserves saved values without mutating config or a
 test('image summary omits stale video duration; local dimensions remain visible',()=>{
  assert.equal(generationParametersSummary({kind:'image',mode:'text2image',settings:{width:1024,height:1024,duration:9}}),'文生图 · 1:1 · 1024×1024');
 });
+
+test('new cloud MiniMax tasks use its resolution default and preserve explicit saved values',()=>{
+ const config=values=>{const state=createVideoTasks(values);return state.table.fields.find(field=>field.id===state.fieldId).generation;};
+ assert.equal(config({model:'Minimax H3'}).settings.resolution,'768P');
+ assert.equal(config({model:'Minimax H3',resolution:'2K'}).settings.resolution,'2K');
+ assert.equal(config({model:'Seedance 2.5'}).settings.resolution,'720p');
+});
 test('combined options use mode-specific capabilities and include audio but omit advanced controls',()=>{
  const schema={properties:{ratio:{enum:['16:9']},resolution:{enum:['480p']},enableSound:{enum:['off','on']},seed:{type:'integer'}},config:{settings:{text2video:['ratio','resolution','enableSound'],frames2video:['resolution','enableSound']},advancedSettings:['seed','enableSound']}};
  assert.deepEqual(generationParameterSpecs(schema,'frames2video').map(x=>x.name),['resolution','enableSound']);
@@ -46,11 +54,11 @@ test('local and cloud model versions share their brand; unknown models keep a sa
  assert.match(generationModelIconURL('Lib Image 2.5 Pro'),/libtv\.svg$/);
  assert.match(generationModelIconURL('unrecognized'),/remixicon\/box-3-line\.svg$/);
 });
-test('unified mode choices follow capabilities while retaining an unsupported saved selection',()=>{
+test('mode choices only show declared capabilities and do not revive unsupported saved modes',()=>{
  const schema={properties:{modeType:{items:{text2video:[],singleImage2video:[],frames2video:[]}}}};
- assert.deepEqual(generationParameterModes({kind:'video',mode:'text2video'},schema),['text2video','frames2video']);
+ assert.deepEqual(generationParameterModes({kind:'video',mode:'text2video'},schema),['text2video','singleImage2video','frames2video']);
  const config={kind:'video',mode:'mixed2video'};
- assert.deepEqual(generationParameterModes(config,schema),['text2video','frames2video','mixed2video']);
+ assert.deepEqual(generationParameterModes(config,schema),['text2video','singleImage2video','frames2video']);
  assert.equal(config.mode,'mixed2video');
 });
 
@@ -65,10 +73,19 @@ test('image and mixed references share one omnireference choice without rewritin
  for(const mode of ['image2video','mixed2video']){
   const config={kind:'video',model:'Seedance 2.5',mode,settings:{duration:4}},before=structuredClone(config);
   assert.deepEqual(generationParameterModes(config,schema),['text2video','frames2video','mixed2video']);
-  assert.equal(generationModeChoice(mode),'mixed2video');
+  assert.equal(generationModeChoice(mode,schema),'mixed2video');
   assert.match(generationParametersSummary(config),/^全能参考/);
   assert.equal(promptSettingsItems(config).find(item=>item.key==='mode').text,'全能参考');
   assert.deepEqual(config,before);
  }
- assert.deepEqual(generationModes({},'video'),['text2video','frames2video','mixed2video']);
+ assert.deepEqual(generationModes({},'video'),[]);
+});
+
+test('single-frame and image-reference modes never become unsupported alternatives',()=>{
+ for(const mode of ['singleImage2video','frames2video','image2video','mixed2video','text2image']){
+  const schema={properties:{modeType:{items:{[mode]:[]}}}};
+  assert.deepEqual(generationModes(schema,mode.endsWith('image')?'image':'video'),[mode]);
+  assert.equal(generationModeChoice(mode,schema),mode);
+ }
+ assert.deepEqual(generationParameterModes({model:'unavailable',kind:'image',mode:'image2image'},{}),[]);
 });

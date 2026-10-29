@@ -22,6 +22,24 @@ function materialSnapshot(collection){
     if(assets.some(a=>a.missing||!a.filename||!['image','video'].includes(a.kind)))throw new Error('素材组中有缺失或不支持的素材，未修改表格');
     return assets.map(asset=>({id:uid(),url:'/view?'+new URLSearchParams({filename:asset.filename,subfolder:asset.subfolder||'',type:asset.type||'input'}),name:asset.name||asset.filename,kind:asset.kind,sourceNodeId:asset.nodeId}));
 }
+export function addMaterialColumns(table,collection){
+    const texts=collection?.texts||[],assets=materialSnapshot({...collection,assets:collection?.assets||[]});
+    if(collection?.ready===false||!Array.isArray(texts)||texts.some(text=>typeof text!=='string'))throw new Error('素材尚未就绪，未修改表格');
+    const count=Math.max(texts.length,assets.length);
+    if(!count)throw new Error('没有可填入的文字或图片／视频');
+    if(count>500||table.fields.length+Number(!!texts.length)+Number(!!assets.length)>64)throw new Error('表格最多 500 行、64 列');
+    while(table.records.length<count)addRecord(table);
+    if(assets.length){
+        const field=addField(table,{name:'图片/视频',type:'content',width:300});
+        for(const row of table.records)row.values[field.id]=emptyValue(field);
+        assets.forEach((asset,index)=>table.records[index].values[field.id]=[asset]);
+    }
+    if(texts.length){
+        const field=addField(table,{name:'文本',type:'json',presentation:'prompt',generationPrompt:true,width:420});
+        for(const row of table.records)row.values[field.id]=emptyValue(field);
+        texts.forEach((text,index)=>setValue(table,table.records[index].id,field.id,text));
+    }
+}
 export function fillMaterialColumn(table,fieldId,collection){
     const field=table.fields.find(f=>f.id===fieldId);
     if(collection?.texts?.length){

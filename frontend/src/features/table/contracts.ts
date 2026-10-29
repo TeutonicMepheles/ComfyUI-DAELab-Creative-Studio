@@ -89,6 +89,7 @@ export interface TableEditorOptions {
   notify?(message: string): void;
   getPanelContext?(root: HTMLElement): TablePanelContext | null;
   confirm?(message: string): boolean;
+  confirmDeselectRows?(recordIds: string[]): boolean;
   prompt?(message: string, value: string): string | null;
   clipboard?: StructuredClipboardPort;
   displayContent?(): boolean; promptColumnsOnly?: boolean;
@@ -98,6 +99,7 @@ export interface TableEditorOptions {
   onRestore?(): void;
 }
 export interface TableEditor {
+  setRowSelection(recordIds: string[], selected: boolean): boolean;
   root: HTMLElement; change: TableChange;
   render(): void; destroy(): void; closeDialogs(): void;
   panelContext(): TablePanelContext | null;

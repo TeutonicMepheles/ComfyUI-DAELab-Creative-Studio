@@ -7,7 +7,7 @@ import {isPanelActive} from '../ui/creative_panel_state.mjs?v=20261013-active-st
 import {wheelViewport,copySnapshot,readSnapshot} from './creative_navigation.mjs';
 import {createCaretReveal} from './creative_focus_reveal.js';
 import {UPLOAD_TYPE,mediaKind,readAsset} from '../features/assets/media_upload_model.mjs';
-import {MATERIAL_SLOT,uploadKind,sourceSlots,resolveOutput,targetChoices,outputSelector,inputSelector,unifiedNode,inputSlots} from './creative_connections.mjs';
+import {MATERIAL_SLOT,uploadKind,sourceSlots,resolveOutput,targetChoices,outputSelector,inputSelector,unifiedNode,inputSlots,acceptsTargetType} from './creative_connections.mjs';
 import {menuItems,canConnectDefinition,matchingSlot} from './creative_canvas_catalog.mjs';
 import {bindCreativeField} from '../ui/creative_field.mjs';
 import {createAssetLibrary} from '../features/assets/asset_library.mjs?v=20261022-favorite1';
@@ -188,7 +188,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         const source=pending;pending=null;
         if(!canConnectOutput(source.node))return;
         const output=resolveOutput(source.node,source.index,node.inputs?.[index]?.type);
-        if(source.node===node||output<0){message('素材与目标接口不兼容，未更改连线');return;}
+        if(source.node===node||output<0||!acceptsTargetType(source.node,node.type)){message('素材与目标接口不兼容，未更改连线');return;}
         // Replacement is explicit; existing connections are never silently discarded.
         if(node.inputs[index].link!=null&&!window.confirm('该输入已有连接，替换为新连接？'))return;
         const link=host.connect(graph,source.node,output,node,index);
@@ -291,6 +291,33 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
     const materialDragType='application/x-daelab-canvas-material';
     let materialDrag=null;
     function snapshotFor(context){return context.itemKey!==undefined?adapterFor(context.node)?.materialItem?.(context.node,context.itemKey):context.materialKey!==undefined?adapterFor(context.node)?.outputMaterials?.(context.node,context.materialKey):adapterFor(context.node)?.assets?.(context.node);}
+    function outputTextGroup(node,point,confirm=()=>true){
+        if(!visible||graph!==host.graph()||graph.getNodeById(node.id)!==node||node.mode)return false;
+        if(!host.nodeDefinition('DAELAB.TextInput')||!host.nodeDefinition(GROUP_TYPE))throw new Error('文本或素材组节点未加载');
+        const created=[];history.begin();
+        try{
+            if(!confirm())return false;
+            const snapshot=adapterFor(node)?.inputSnapshot?.(node);
+            if(!snapshot?.ready||!snapshot.texts?.length)throw new Error('请先生成并同意更改');
+            if(!point){
+                const position=outputPosition(cards.get(node.id).layout,[...cards.values()].map(card=>({...card.layout,height:card.element.offsetHeight})),Math.min(2,snapshot.texts.length)*356+24,Math.ceil(snapshot.texts.length/2)*260+24);
+                const v=state.viewport;point={x:position.x*v.zoom+v.x,y:position.y*v.zoom+v.y};
+            }
+            for(const [index,text] of snapshot.texts.entries()){
+                const member=createNode('DAELAB.TextInput',{x:point.x+(index%2)*356*state.viewport.zoom,y:point.y+Math.floor(index/2)*260*state.viewport.zoom});
+                if(!member)throw new Error('无法创建结果文本节点');
+                created.push(member);
+                const widget=member.widgets?.find(w=>w.name==='text');if(!widget)throw new Error('文本节点格式不兼容');
+                widget.value=text;widget.callback?.(text);member.title=`优化结果 ${index+1}`;
+                adapterFor(member)?.refresh?.(member);
+            }
+            const group=createNode(GROUP_TYPE,point);if(!group)throw new Error('无法创建文本素材组');
+            const members=created.map(member=>member.id);created.push(group);group.title='优化结果';group.properties.members=members;group.properties.collapsed=false;
+            const collection=group.widgets?.find(w=>w.name==='collection_data');if(collection)collection.value=JSON.stringify(collectionFor(group));
+            dirty();sync();host.tickGroups();select(group);message(`已输出 ${members.length} 个文本节点`);return true;
+        }catch(error){for(const member of created){host.removeNode(graph,member);delete state.cards[member.id];}throw error;}
+        finally{dirty();history.end();sync();}
+    }
     async function outputMaterials(context,point){
         if(outputPending.has(context.node))return;outputPending.add(context.node);
         const ownerGraph=graph,ownerState=state,created=[];
@@ -359,6 +386,9 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
             getViewport:()=>leased&&visible&&!c.body.hidden&&!c.body.inert?root.getBoundingClientRect():null,
             confirmOutput(confirm){
                 if(!leased||!visible||c.node.mode||graph!==host.graph()||graph.getNodeById(c.node.id)!==c.node)return false;
+                if(adapterFor(c.node)?.textGroupOutput?.(c.node)){
+                    return outputTextGroup(c.node,null,confirm);
+                }
                 const definition=adapterFor(c.node)?.defaultOutputNode;
                 if(!definition||!host.nodeDefinition(definition.type))throw new Error('结果文本节点未加载，请刷新后重试');
                 if(!canConnectOutput(c.node))return false;
@@ -666,6 +696,11 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
     }
     function choose(point,context=null){
         closePicker();if(context&&(!validConnection(context)||(context.side==='output'&&!canConnectOutput(context.node))))return;addPoint=point;pickerConnection=context;
+        if(context?.side==='output'&&adapterFor(context.node)?.textGroupOutput?.(context.node)){
+            picker=el('section','dae-creative-picker');picker.setAttribute('aria-label','添加节点');picker.append(el('h2','','引用此节点新建'));root.append(picker);
+            const output=button('输出为文本素材组',()=>{closePicker();try{outputTextGroup(context.node,point);}catch(error){message(error.message);}});
+            output.disabled=adapterFor(context.node)?.inputSnapshot?.(context.node)?.ready!==true;picker.append(output);positionPicker();return;
+        }
         const outputNode=context?.side==='output'&&adapterFor(context.node)?.defaultOutputNode;
         if(outputNode&&host.nodeDefinition(outputNode.type)){
             history.begin();
@@ -687,7 +722,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         }
         for(const item of menuItems()){
             const definition=host.nodeDefinition(item.type);if(!definition)continue;
-            const compatible=!context||(context.side==='output'?sourceSlots(context.node,context.index).some(i=>canConnectDefinition(definition?.nodeData,context.side,context.node.outputs[i].type)):(context.index===MATERIAL_SLOT?inputSlots(context.node):[context.index]).some(i=>canConnectDefinition(definition?.nodeData,context.side,context.node.inputs[i].type)));
+            const compatible=!context||(context.side==='output'?acceptsTargetType(context.node,item.type)&&sourceSlots(context.node,context.index).some(i=>canConnectDefinition(definition?.nodeData,context.side,context.node.outputs[i].type)):(context.index===MATERIAL_SLOT?inputSlots(context.node):[context.index]).some(i=>canConnectDefinition(definition?.nodeData,context.side,context.node.inputs[i].type)));
             const b=button('',()=>{
                 if(context&&!validConnection(context)){closePicker();message('来源已改变，请重新拖出连线');return;}
                 if(context?.side==='output'&&!canConnectOutput(context.node)){closePicker();return;}

@@ -29,6 +29,7 @@ export function clearLinkedTaskInput(state,name){
   }
  }
  row.values[config.promptFieldId]=doc;row.values[state.fieldId]=[];
+ row.meta||={};row.meta.generationPreviewAfter||={};row.meta.generationPreviewAfter[state.fieldId]=Date.now();
  syncGenerationFrameTags(state.table,state.fieldId,field.generation,row.id);
 }
 

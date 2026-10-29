@@ -6,7 +6,7 @@ import {createTableButton,tableIcon} from '../../ui/table_controls.mjs';
 import {tableHistory} from '../../application/table_host_history.mjs';
 
 import {availableModes,applyIOResult,undoIOResult} from './llm_io_model.mjs';
-import {slotRows,slotSignature,outputText} from './llm_slot_model.mjs';
+import {slotRows,slotSignature,outputText,hasTableInput} from './llm_slot_model.mjs';
 import {optimizeRow} from './llm_local_provider.mjs';
 import {createLLMTask} from './llm_task_model.mjs';
 // Reconcile against the actual controls, including shared-control changes. Do
@@ -34,7 +34,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
             if(node.outputs?.[1]?.links?.length){
                 const history=nativeDocument?null:tableHistory();history?.begin();
                 try{if(confirm())message='已应用 · 逐行结果通过连线传递';}finally{history?.end();}
-            }else if(context?.confirmOutput?context.confirmOutput(confirm):confirm())message=context?.confirmOutput?'已应用 · 结果文本框已连接':'已应用 · 下游通过连线读取';
+            }else if(context?.confirmOutput?context.confirmOutput(confirm):confirm())message=context?.confirmOutput?(hasTableInput(node)||slotRows(node).length>1?'已应用 · 已输出文本素材组':'已应用 · 结果文本框已连接'):'已应用 · 下游通过连线读取';
         }catch(error){message=error.message;}
         changed();
     });tableIcon(apply,'check-line','同意更改');
@@ -48,6 +48,8 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
     select.replaceChildren(new Option('Qwen3.5-9B · 本地','qwen'),new Option('DeepSeek · API','deepseek'));
     saved().model??='qwen';if(!['qwen','deepseek'].includes(saved().model)){const legacy=new Option('旧模型配置（未接入）',saved().model);legacy.disabled=true;select.add(legacy);}select.value=saved().model;
     const generationTask=createLLMTask();
+    const taskRail=make('div','llm-io-task-rail');taskRail.setAttribute('role','tablist');taskRail.setAttribute('aria-label','优化任务');root.append(taskRail);
+    let selectedId='',railStamp='';
     let busy=false,disposed=false,message='',task=[],lastInput='',proposalTicket=null,proposalState=null;
     const restoredProposal=saved().ioResult?.complete?saved().ioResult.requestId:null;
     const project=proposal=>{proposalState=snapshotJson(proposal);};
@@ -55,8 +57,24 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
     function render(){
         if(disposed)return;
         let rows=[],error='',waiting=false;try{rows=slotRows(node);}catch(e){error=e.message;waiting=!!e.waiting;}
-        const inputKey=JSON.stringify(rows),modes=availableModes(rows);
-        if(inputKey!==lastInput){
+        const tableInput=hasTableInput(node),inputKey=JSON.stringify([tableInput,rows]),modes=availableModes(rows);
+        if(tableInput)modes.reverse=false;
+        if(!rows.some(row=>row.id===selectedId))selectedId=rows[0]?.id||'';
+        const selectedRow=rows.find(row=>row.id===selectedId);
+        const displayed=proposalState||saved().ioResult||saved().appliedIO;
+        const nextRailStamp=JSON.stringify([rows.map(row=>[row.id,row.name,row.text]),selectedId,displayed?.rows.map(row=>[row.id,row.result])]);
+        const showTasks=rows.length>1||tableInput&&rows.length>0;
+        setProperty(taskRail,'hidden',!showTasks);
+        toggleClass(root,'has-task-list',showTasks);
+        if(nextRailStamp!==railStamp){
+            railStamp=nextRailStamp;taskRail.replaceChildren();
+            for(const [index,row] of rows.entries()){
+                const item=createTableButton('',()=>{selectedId=row.id;render();});item.setAttribute('role','tab');item.setAttribute('aria-selected',String(row.id===selectedId));
+                item.append(make('span','llm-io-task-number',String(index+1)),make('span','llm-io-task-text',row.name||`任务${index+1}`),make('small','llm-io-task-preview',row.text||'参考图片'));
+                item.title=row.text||row.name||'参考图片';taskRail.append(item);
+            }
+        }
+        if(inputKey!==lastInput||tableInput&&saved().mode!=='polish'){
             const next=snapshotJson(saved());
             const linkedInstructions=[...new Set(rows.map(r=>r.instruction).filter(Boolean))].join('\n\n');
             if(linkedInstructions){
@@ -65,7 +83,8 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
             }else if(next.slotInstruction!==undefined){
                 next.instruction=next.manualInstruction||'';setProperty(instruction,'value',next.instruction);delete next.slotInstruction;delete next.manualInstruction;
             }
-            if(!modes[next.mode]){if(modes.reverse)next.mode='reverse';else if(modes.polish)next.mode='polish';}
+            if(tableInput)next.mode='polish';
+            else if(!modes[next.mode]){if(modes.reverse)next.mode='reverse';else if(modes.polish)next.mode='polish';}
             try{if(JSON.stringify(next)!==JSON.stringify(saved())){if(nativeDocument)nativeDocument.replace(next,{derived:true});else Object.assign(saved(),next);}lastInput=inputKey;}catch(error){message=error.message;}
         }
         // Native history can replace saved configuration without recreating this
@@ -78,15 +97,15 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
         setProperty(sourceSection,'hidden',reverse);setProperty(imageSection,'hidden',!reverse);
         const linked=node.inputs?.some(input=>input.link!=null)||false;
         setProperty(source,'readOnly',linked);
-        setProperty(source,'value',linked?rows.map(r=>r.text).filter(Boolean).join('\n\n'):saved().source||'');
-        const first=rows.find(r=>r.image)?.image;setProperty(image,'hidden',!first);if(first&&image.getAttribute('src')!==first.url)image.src=first.url;setProperty(image,'alt',first?.name||'参考图片');setProperty(imageText,'hidden',!!first);toggleClass(imageBox,'has-image',!!first);
+        setProperty(source,'value',linked?selectedRow?.text||'':saved().source||'');
+        const first=selectedRow?.image;setProperty(image,'hidden',!first);if(first&&image.getAttribute('src')!==first.url)image.src=first.url;setProperty(image,'alt',first?.name||'参考图片');setProperty(imageText,'hidden',!!first);toggleClass(imageBox,'has-image',!!first);
         for(const control of [source,instruction,select])setProperty(control,'disabled',disabled);
         setProperty(instruction,'readOnly',saved().slotInstruction!==undefined);
-        for(const b of root.querySelectorAll('[data-mode]'))setProperty(b,'disabled',disabled);
-        const valid=availableModes(rows)[mode];
+        for(const b of root.querySelectorAll('[data-mode]')){setProperty(b,'disabled',disabled||tableInput&&b.dataset.mode==='reverse');setProperty(b,'title',tableInput&&b.dataset.mode==='reverse'?'表格输入仅支持文字优化':'');}
+        const valid=modes[mode];
         setProperty(run,'disabled',disabled||!!error||!valid);setProperty(run,'title','使用原始文字或连线输入生成建议；应用后输出');setProperty(run.lastChild,'textContent',busy?'生成中…':'生成');setAttribute(run,'aria-busy',String(busy));
-        const d=proposalState||saved().ioResult,stamp=signature(),stale=d?.signature!==stamp,isApplied=!!d?.requestId&&saved().appliedIO?.requestId===d.requestId;
-        setProperty(paragraph,'textContent',d?.rows.map(r=>r.result).filter(Boolean).join('\n\n')||'');
+        const d=displayed,stamp=signature(),stale=d?.signature!==stamp,isApplied=!!d?.requestId&&saved().appliedIO?.requestId===d.requestId;
+        setProperty(paragraph,'textContent',(d?.rows.find(row=>row.id===selectedId)||(rows.length===1?d?.rows[0]:null))?.result||'');
         setProperty(apply,'disabled',disabled||!d?.complete||stale||isApplied||!!nativeDocument&&(proposalTicket?!nativeDocument.canApply(proposalTicket):restoredProposal!==d?.requestId));setProperty(apply,'hidden',isApplied);
         setProperty(recover,'disabled',disabled||!nativeDocument);setProperty(undo,'disabled',disabled||!saved().ioUndo);setProperty(undo,'hidden',!saved().ioUndo);setProperty(regenerate,'disabled',run.disabled||!d);
         setProperty(status,'textContent',error||(d&&stale?'输入已改变，请重新生成':message|| (d?`${d.provider==='qwen'?'本地 Qwen 结果':d.provider==='deepseek'?'DeepSeek 结果':'示例结果 · 未调用模型'}${isApplied?' · 已应用':' · 待应用'}`:rows.length&&!valid?'当前输入不支持此模式':rows.length?`${rows.length} 项输入 · 等待生成`:'请输入原始文字或连接输入')));

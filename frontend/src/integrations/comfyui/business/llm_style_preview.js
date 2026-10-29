@@ -1,5 +1,5 @@
 import {bindBusinessDocument} from './business_document_host.js';
-import {appliedSnapshot,outputText,outputRows} from '../../../features/prompt/llm_slot_model.mjs';
+import {appliedSnapshot,outputText,outputRows,slotRows,hasTableInput} from '../../../features/prompt/llm_slot_model.mjs';
 import {app} from '/scripts/app.js';
 import {createLLMStylePanel, STYLE_VARIANTS} from '../../../features/prompt/llm_style_preview_panel.mjs';
 // Slot inputs and explicitly approved output; model calls remain an explicit panel action.
@@ -34,10 +34,11 @@ app.registerExtension({
                     if(this.__llmStylePanel)return;
                     const nativeDocument=bindBusinessDocument(this,()=>this.properties.llmStylePreview,value=>{this.properties.llmStylePreview=value;this.graph?.change?.();},value=>({mode:value.mode,instruction:value.instruction,model:value.model,source:value.source}));
                     const panel=createLLMStylePanel(this,variant,{nativeDocument});this.__llmStylePanel=panel;
-                    const widget=this.addDOMWidget('llm_style_preview','custom',panel.root,{serialize:false,hideOnZoom:false,getMinHeight:()=>variant.height,getHeight:()=>variant.height,getValue:()=>'',setValue:()=>panel.sync()});
+                    const panelHeight=()=>variant.height+(panel.root.classList.contains('has-task-list')?90:0);
+                    const widget=this.addDOMWidget('llm_style_preview','custom',panel.root,{serialize:false,hideOnZoom:false,getMinHeight:panelHeight,getHeight:panelHeight,getValue:()=>'',setValue:()=>panel.sync()});
                     widget.serialize=false;widget.inputEl=panel.root;
-                    widget.computeSize=width=>[width,variant.height];
-                    widget.computeLayoutSize=()=>({minHeight:variant.height,maxHeight:variant.height,minWidth:variant.width});
+                    widget.computeSize=width=>[width,panelHeight()];
+                    widget.computeLayoutSize=()=>({minHeight:panelHeight(),maxHeight:panelHeight(),minWidth:variant.width});
                 }
                 onConnectInput(){return variant.id==='B';}
                 onConnectOutput(){return variant.id==='B';}
@@ -64,6 +65,7 @@ function register(){
         inputSelection:'first-free',
         canConnectOutput:node=>node.type==='DAELAB.LLMStylePreviewB',
         defaultOutputNode:{type:'DAELAB.TextInput',title:'优化结果'},
+        textGroupOutput:node=>{try{return hasTableInput(node)||slotRows(node).length>1;}catch{return false;}},
         inputSnapshot:node=>appliedSnapshot(node),
         tasks:node=>node.__llmStylePanel?.tasks?.()||[],
         remapCopy(node,mapping){const s=node.properties?.llmStylePreview;if(s?.inputIds)s.inputIds=s.inputIds.map(id=>String(mapping.get(id)??mapping.get(Number(id))??id));if(s)delete s.ioResult;node.__llmStylePanel?.sync();},

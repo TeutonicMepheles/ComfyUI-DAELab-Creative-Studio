@@ -1,6 +1,7 @@
 import {pairInputs,tableInput} from './llm_io_model.mjs';
 import {readTableSnapshot} from '../../application/table_exchange.mjs';
 const API=Symbol.for('DAELAB.CreativeCanvas.API.v1');
+export function hasTableInput(node){return node.inputs?.some(input=>input.link!=null&&node.graph?.getNodeById(node.graph.links[input.link]?.origin_id)?.type==='DAELAB.Table')||false;}
 export function slotRows(node,seen=new Set()){
     if(seen.has(node))throw new Error('输入连线形成循环');
     seen=new Set(seen).add(node);

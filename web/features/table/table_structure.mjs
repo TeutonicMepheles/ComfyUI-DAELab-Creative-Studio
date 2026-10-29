@@ -27,7 +27,7 @@ export function attachTableStructure({root,shell,table,getTable,change,notify,ge
             if(t.records.length>=500)throw new Error('每张表最多 500 行');
             if(target&&!t.records.some(row=>row.id===target))throw new Error('目标行已变化，请重试');
             const row=addRecord(t,Object.fromEntries(t.fields.map(f=>[f.id,emptyValue(f)])));
-            row.selected=false;id=row.id;field=t.fields.find(f=>!f.hidden&&!f.readonly)?.id;
+            id=row.id;field=t.fields.find(f=>!f.hidden&&!f.readonly)?.id;
             if(target)moveRows(t,[id],target,!before);
         });focusCell(id,field);}catch(error){notify(error.message);}
     }

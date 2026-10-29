@@ -6,6 +6,26 @@ import {createTableSnapshot,readTableSnapshot,writeTablePrompts} from '../../fro
 import {promptContent,toColumnPrompt} from '../../frontend/src/features/prompt/table_prompt_template.mjs';
 import {importVideoTasks,syncVideoTaskInputs,selectTaskPrompt} from '../../frontend/src/features/generation/video_tasks_model.mjs';
 import {rowGenerationConfig,setRowGenerationConfig,generationFrames,syncGenerationFrameTags} from '../../frontend/src/features/generation/table_generation_model.mjs';
+import {createMaterialTable} from '../../frontend/src/application/table_material_columns.mjs';
+import {addRecord} from '../../frontend/src/application/table_model.mjs';
+
+test('checked rows drive task membership, including empty selection, new rows and independent instances',()=>{
+ const source=createMaterialTable();source.records[1].selected=false;
+ const a=importVideoTasks(source),b=importVideoTasks(source),kept=a.table.records[0],rowId=kept.id;
+ assert.deepEqual(a.table.records.map(r=>r.id),[source.records[0].id,source.records[2].id]);
+ kept.values[a.fieldId]=[{id:'done',url:'/view?filename=done.png'}];
+ setRowGenerationConfig(kept,a.fieldId,{...a.table.fields.find(f=>f.id===a.fieldId).generation,settings:{duration:7}});
+ let before=structuredClone(source);source.records[2].selected=false;source.records[1].selected=true;
+ for(const s of [a,b])syncVideoTaskInputs(s,source,before);
+ assert.deepEqual(a.table.records.map(r=>r.id),[rowId,source.records[1].id]);
+ assert.equal(kept.values[a.fieldId][0].id,'done');assert.equal(rowGenerationConfig(kept,a.fieldId,a.table.fields.find(f=>f.id===a.fieldId).generation).settings.duration,7);
+ assert.deepEqual(b.table.records[0].values[b.fieldId],[]);
+ before=structuredClone(source);source.records.forEach(r=>r.selected=false);syncVideoTaskInputs(a,source,before);
+ assert.deepEqual(a.table.records,[]);assert.equal(a.currentId,'');assert.equal(importVideoTasks(source).table.records.length,0);
+ before=structuredClone(source);const added=addRecord(source);assert.equal(added.selected,true);syncVideoTaskInputs(a,source,before);
+ assert.deepEqual(a.table.records.map(r=>r.id),[added.id]);assert.equal(a.currentId,added.id);
+ const saved=JSON.parse(JSON.stringify(a));syncVideoTaskInputs(saved,source,source);assert.deepEqual(saved,a);
+});
 test('output creation uses serialized table contract and avoids an existing neighbor',()=>{
     let release;
     const graph={_nodes:[{pos:[1160,0],size:[700,600]}],add(node){node.graph=this;this._nodes.push(node);},change(){}};

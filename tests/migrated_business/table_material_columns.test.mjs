@@ -48,7 +48,7 @@ test('media cannot fill text or prompt columns and rejected inputs preserve the 
  for(const type of ['content','assets'])assert.deepEqual(columnDropTypes({type}),['image','video']);
 });
 test('new tables have independent image and prompt columns without a generation column',()=>{
- const a=createMaterialTable(),b=createMaterialTable();assert.deepEqual(a.fields.map(f=>f.name),['图片/视频','提示词']);assert.equal(a.records.length,3);assert.equal(a.records.some(r=>r.selected),false);assert.equal(a.fields[1].width,420);
+ const a=createMaterialTable(),b=createMaterialTable();assert.deepEqual(a.fields.map(f=>f.name),['图片/视频','提示词']);assert.equal(a.records.length,3);assert.equal(a.records.every(r=>r.selected),true);assert.equal(a.fields[1].width,420);
  assert.equal(a.fields[1].presentation,'prompt');assert.equal(a.fields[1].type,'json');assert.equal(a.meta.generationInput.promptFieldId,a.fields[1].id);assert.equal(a.fields.some(f=>f.presentation==='generation'),false);assert.equal(a.records[0].values[a.fields[1].id],'');
  fillMaterialColumn(a,a.fields[0].id,group(3));assert.equal(b.records.length,3);assert.equal(b.records[0].values[b.fields[0].id].length,0);
  setValue(a,a.records[0].id,a.fields[0].id,[{url:'/view?a'},{url:'/view?b'}]);assert.equal(a.records[0].values[a.fields[0].id].length,2);

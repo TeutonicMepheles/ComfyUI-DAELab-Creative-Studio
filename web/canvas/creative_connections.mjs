@@ -7,6 +7,7 @@ import {adapterFor} from './creative_contract.mjs';
 export const MATERIAL_SLOT=-1;
 export const unifiedNode=node=>node.type?.startsWith('DAELAB.');
 export const inputSlots=node=>adapterFor(node)?.canConnectInput?.(node)===false?[]:(node.inputs||[]).flatMap((p,i)=>p.widget&&p.link==null?[]:[i]);
+export const acceptsTargetType=(source,type)=>adapterFor(source)?.outputTargetTypes?.(source)?.includes(type)??true;
 export function uploadKind(node){return readAsset(node.widgets?.find(w=>w.name==='asset_data')?.value)?.kind;}
 export function sourceSlots(node,index){
     if(index!==MATERIAL_SLOT)return node.outputs?.[index]?[index]:[];
@@ -18,7 +19,7 @@ export function resolveOutput(node,index,inputType){
     return slots.find(i=>node.outputs[i].type===inputType)??slots.find(i=>socketCompatible(node.outputs[i].type,inputType))??-1;
 }
 export function targetChoices(source,index,target){
-    if(source===target)return [];
+    if(source===target||!acceptsTargetType(source,target.type))return [];
     const names=adapterFor(target)?.inputNames?.(target,source,index);
     return inputSlots(target).flatMap(i=>{const input=target.inputs[i];return names&&!names.includes(input.name)?[]:
         resolveOutput(source,index,input.type)>=0?[{index:i,name:input.label||input.localized_name||input.name,type:input.type}]:[];});

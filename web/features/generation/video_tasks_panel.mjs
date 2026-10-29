@@ -1,5 +1,5 @@
 import {businessHost,businessFetch} from '../../contracts/business.js';
-import {requirePromptSource,promptSourceId} from '../prompt/table_prompt_source.mjs';
+import {requirePromptSource} from '../prompt/table_prompt_source.mjs';
 import {replaceLinkedTaskText,bindLinkedTaskReference,clearLinkedTaskInput,linkedTaskTexts} from './video_task_linked_prompt.mjs';
 import {syncApprovedTaskRows} from './video_task_rows.mjs';
 import {appliedSnapshot} from '../prompt/llm_slot_model.mjs';
@@ -9,17 +9,18 @@ import {attachGenerationColumns} from './table_generation_panel.mjs';
 import {createPromptEditor} from '../prompt/table_prompt_editor.mjs';
 import {createPromptSettingsBar} from '../prompt/table_prompt_settings.mjs';
 import {createTextSide} from '../../ui/text_side.mjs';
-import {isTableSource,readTableSnapshot,previewTableRow,writeTablePrompts} from '../../application/table_exchange.mjs';
+import {isTableSource,readTableSnapshot,previewTableRow,writeTablePrompts,deselectTableRow} from '../../application/table_exchange.mjs';
 import {effectivePrompt,toColumnPrompt,promptContent} from '../prompt/table_prompt_template.mjs';
 import {tableAssets,promptText} from '../prompt/table_prompt_model.mjs';
-import {rowGenerationConfig,setRowGenerationConfig,promptColumns,syncGenerationFrameTags,generationFrames} from './table_generation_model.mjs';
+import {rowGenerationConfig,setRowGenerationConfig,promptColumns,syncGenerationFrameTags,generationFrames,generationInput,isComfyGenerationModel} from './table_generation_model.mjs';
 import {videoResultAssets} from './libtv_video_model.mjs';
 import {addField,uid,normalizeTable} from '../../application/table_model.mjs';
 import {fillMaterialCell} from '../../application/table_material_columns.mjs';
-import {createVideoTasks,importVideoTasks,activeVideoTask,videoTaskAssets,selectTaskPrompt,syncVideoTaskInputs} from './video_tasks_model.mjs';
+import {createVideoTasks,importVideoTasks,activeVideoTask,videoTaskAssets,syncVideoTaskInputs} from './video_tasks_model.mjs';
 import {stopCanvasPropagation} from '../../ui/list_editor_controls.mjs';
 import {bindMaterialThumbnail} from '../../application/table_content_view.mjs';
 import {generationInputKind,generationInputRole} from './generation_input.js';
+import {videoTaskResultPreviews} from './video_task_results.js';
 
 const widget=(node,name)=>node.widgets?.find(w=>w.name===name);
 const element=(tag,parent,cls,text)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;parent?.append(el);return el;};
@@ -48,9 +49,8 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity}={}){
  }
  const history=tableHistory(app),root=element('div',null,'dae-ui dae-video-tasks');
  const header=element('header',root,'video-task-heading');
- const billing=element('small',header,'video-task-billing','提供方可用性由任务服务核对');billing.setAttribute('role','note');
  let changingType=false;
- const typeTabs=element('div',header,'video-task-types');typeTabs.setAttribute('role','group');typeTabs.setAttribute('aria-label','生成类型');typeTabs.after(billing);
+ const typeTabs=element('div',header,'video-task-types');typeTabs.setAttribute('role','group');typeTabs.setAttribute('aria-label','生成类型');
  const typeButtons=new Map();
  for(const [kind,label,icon] of [['image','图片','image-line'],['video','视频','film-line']]){
   const control=button('',()=>changeType(kind));control.className='video-task-type';control.title=label+'生成';typeTabs.append(control);
@@ -69,28 +69,48 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity}={}){
  picker.onchange=()=>void uploadMaterials([...picker.files],uploadTaskId);
  emptyMaterial.ondragover=event=>{if(event.dataTransfer.types.includes('Files')){event.preventDefault();event.stopPropagation();}};
  emptyMaterial.ondrop=event=>{if(event.dataTransfer.files.length){event.preventDefault();event.stopPropagation();void uploadMaterials([...event.dataTransfer.files],state.currentId);}};
- const inputBar=element('div',bodyTop,'video-task-input');inputBar.hidden=true;
- const promptSource=element('select',inputBar);promptSource.setAttribute('aria-label','表格提示词来源');promptSource.title='提示词来源由表格列头设置';
  let materialPreviews=[],materialLabels=[];
  function clearMaterialPreviews(){for(const dispose of materialPreviews)dispose();materialPreviews=[];materialLabels=[];releaseThumbnails(materials);}
  const prompt=element('div',body,'video-task-prompt');prompt.tabIndex=0;
  const bottom=element('footer',body,'video-task-bottom');
  const settings=createPromptSettingsBar((key,anchor)=>{if(current())void generation.chooseSetting(state.fieldId,state.currentId,key,anchor);},{combined:true});bottom.append(settings.root);
  const actions=element('div',bottom,'video-task-actions');
+ const estimate=element('span',actions,'video-task-credit-estimate');estimate.hidden=true;estimate.setAttribute('role','status');estimate.title='当前任务单次生成的预计积分，实际扣费以平台为准';
+ let priceStamp='';
  const run=button('运行',()=>runTask(),true);actions.append(run);
- const review=button('应用已有结果',async()=>{try{await generation.reviewResult(state.fieldId,state.currentId);schedule();}catch(error){notify(error.message);}});actions.append(review);
  const status=element('div',root,'video-task-status');status.setAttribute('role','status');
- const results=element('div',root,'video-task-results');results.setAttribute('aria-label','当前任务生成结果');
+ const results=element('div',root,'video-task-results');results.setAttribute('aria-label','当前任务生成结果与历史结果');
  const side=createTextSide({root}),dialogs=new Set();
  const getTable=()=>state.table,current=()=>state.table.records.find(r=>r.id===state.currentId),field=()=>state.table.fields.find(f=>f.id===state.fieldId);
  const config=()=>rowGenerationConfig(current(),state.fieldId,field()?.generation);
+ function renderPrice(row,cfg){
+  estimate.hidden=!row||!isComfyGenerationModel(cfg?.model);
+  if(estimate.hidden){priceStamp='';estimate.textContent='';return;}
+  let media=[];
+  if(['mixed2video','image2video'].includes(cfg.mode)){
+   try{media=generationInput(state.table,state.fieldId,row.id).assets.map(asset=>({kind:asset.kind}));}
+   catch{priceStamp='';estimate.textContent='积分暂无法估算';return;}
+  }
+  const input={model:cfg.model,kind:cfg.kind,mode:cfg.mode,settings:cfg.settings,media},stamp=JSON.stringify(input);
+  if(priceStamp===stamp)return;
+  priceStamp=stamp;estimate.textContent='积分估算中…';
+  Promise.resolve().then(()=>businessHost().estimateGenerationCredits?.(input)).then(price=>{
+   if(disposed||priceStamp!==stamp)return;
+   const format=value=>new Intl.NumberFormat('zh-CN',{maximumFractionDigits:2}).format(value);
+   estimate.textContent=price?'预计约 '+format(price.min)+(price.max!==price.min?'–'+format(price.max):'')+' 积分':'积分暂无法估算';
+  }).catch(()=>{if(!disposed&&priceStamp===stamp)estimate.textContent='积分暂无法估算';});
+ }
  function notify(message){notice=message;status.textContent=message;}
  function acceptMaterials(key,collection){
   const row=state.table.records.find(r=>r.id===key);if(!row)throw new Error('任务已删除');
   if(node.mode||generation.submitting||active(row))throw new Error('请先暂停当前任务');
   const existing=tableAssets(state.table,row),assets=collection.assets.filter(asset=>!existing.some(old=>asset.nodeId&&old.sourceNodeId===asset.nodeId||old.url==='/view?'+new URLSearchParams({filename:asset.filename,subfolder:asset.subfolder||'',type:asset.type||'input'})));
   if(!assets.length)return;
-  editor.change(t=>{const target=t.fields.find(f=>!f.readonly&&['content','assets'].includes(f.type))||addField(t,{name:'参考素材',type:'content'});fillMaterialCell(t,key,target.id,{...collection,assets});});
+  editor.change(t=>{
+   const target=t.fields.find(f=>!f.readonly&&['content','assets'].includes(f.type))||addField(t,{name:'参考素材',type:'content'});fillMaterialCell(t,key,target.id,{...collection,assets});
+   const row=t.records.find(r=>r.id===key),cfg=rowGenerationConfig(row,state.fieldId,field().generation);
+   if(cfg.kind==='video'&&cfg.mode==='text2video')bindLinkedTaskReference(t,row,state.fieldId,cfg,target);
+  });
  }
  async function uploadMaterials(files,recordId){
   const row=state.table.records.find(r=>r.id===recordId);if(!files.length||!row||disposed||node.mode||uploadController||generation.submitting||active(row))return;
@@ -155,7 +175,13 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity}={}){
   finally{changingType=false;schedule();}
  }
  function removeTask(id){
-  const row=state.table.records.find(r=>r.id===id);if(!row||active(row)||node.mode||generation.submitting)return;
+  const row=state.table.records.find(r=>r.id===id);if(!row||node.mode||generation.submitting)return;
+  if(linkedTable&&state.source?.key===linkedTable.key){
+   if(!deselectTableRow(linkedTable.node,id))return;
+   syncSource();return;
+  }
+  if(active(row)&&!window.confirm('当前任务正在进行中，确认取消吗？'))return;
+  if(active(row))void generation.pause([generation.stateFor(row,state.fieldId)]);
   binding?.finish();generation.close();
   mutate(next=>{const index=next.table.records.findIndex(r=>r.id===id);next.table.records.splice(index,1);if(next.currentId===id)next.currentId=next.table.records[Math.min(index,next.table.records.length-1)]?.id||'';});
  }
@@ -201,7 +227,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity}={}){
   const rowInputs=(node.inputs||[]).filter(input=>input.link!=null).map(input=>{const link=node.graph?.links[input.link];return {input,link,source:node.graph?.getNodeById(link?.origin_id)};}).filter(({source,link})=>source?.type==='DAELAB.LLMStylePreviewB'&&link.origin_slot===1);
   if(linked&&(node.inputs||[]).filter(input=>input.link!=null).length>1){linkedTable=null;inputError='表格与文字／图片不能混接，请断开多余连线';return;}
   if(rowInputs.length){
-   linkedTable=null;inputBar.hidden=true;importButton.hidden=true;
+   linkedTable=null;importButton.hidden=true;
    try{
     if(inputError)throw new Error(inputError);
     if(rowInputs.length!==1||linked||(node.inputs||[]).filter(i=>i.link!=null).length!==1)throw new Error('逐行结果请单独连接，提示词和参考图已按镜头配对');
@@ -215,7 +241,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity}={}){
    }catch(error){inputError=error.message;}
    return;
   }
-  linkedTable=linked;inputBar.hidden=!linked&&!state.source;importButton.hidden=!linked;
+  linkedTable=linked;importButton.hidden=!linked;
   if(!linked){sourceKey='';syncLinkedMedia();return;}
   try{requirePromptSource(readTableSnapshot(linked.node));}catch(error){inputError=error.message;}
   const sourceChanged=sourceKey!==linked.raw;sourceKey=linked.raw;
@@ -225,6 +251,9 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity}={}){
   else if(state.source?.key===linked.key&&(sourceChanged||state.source.stamp!==linked.raw)){
    try{
     const source=readTableSnapshot(linked.node),previous=JSON.parse(state.source.stamp);
+    const selected=new Set(source.records.filter(row=>row.selected).map(row=>row.id));
+    const cancelled=state.table.records.filter(row=>!selected.has(row.id)).map(row=>generation.stateFor(row,state.fieldId)).filter(task=>task&&!task.legacy&&['waiting','running','pausing','needs_recovery'].includes(task.phase));
+    if(cancelled.length)void generation.pause(cancelled);
     mutate(next=>{
      syncVideoTaskInputs(next,source,previous);next.source.stamp=linked.raw;
      if(JSON.stringify(current()?.values[config()?.promptFieldId])!==JSON.stringify(next.table.records.find(r=>r.id===next.currentId)?.values[config()?.promptFieldId]))binding?.finish();
@@ -279,14 +308,9 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity}={}){
     }
     if(next.table.records.some(r=>r.id===state.currentId))next.currentId=state.currentId;
    }
-   binding?.finish();delete prompt.dataset.inlineEditing;generation.invalidate();if(nativeDocument)nativeDocument.replace({...next,sourceScope:state.sourceScope});else{history?.begin();try{state=next;persist();}finally{history?.end();}}promptStamp='';resultsStamp='';generation.refresh();schedule();notify(`已导入 ${next.table.records.length} 个任务，一行对应一个任务`);
+   binding?.finish();delete prompt.dataset.inlineEditing;generation.invalidate();if(nativeDocument)nativeDocument.replace({...next,sourceScope:state.sourceScope});else{history?.begin();try{state=next;persist();}finally{history?.end();}}promptStamp='';resultsStamp='';generation.refresh();schedule();notify(`已导入 ${next.table.records.length} 个勾选行任务`);
    }catch(error){inputError=error.message;notify(error.message);}
  }
- promptSource.onchange=()=>{
-  const row=current(),sourceId=promptSource.value;if(!row||node.mode||generation.submitting||active(row)){schedule();return;}
-  binding?.finish();generation.close();
-  try{mutate(next=>{selectTaskPrompt(next,row.id,sourceId);if(linkedTable&&next.source?.key===linkedTable.key){const source=readTableSnapshot(linkedTable.node);syncVideoTaskInputs(next,source,source);}});generation.refresh();}catch(error){notify(error.message);schedule();}
- };
  const thumbnails=new IntersectionObserver(entries=>{for(const {target,isIntersecting} of entries)if(isIntersecting){thumbnails.unobserve(target);target.src=target.dataset.thumbnailSrc;delete target.dataset.thumbnailSrc;}});
  function videoThumb(asset,parent){
   const video=element('video',parent);video.draggable=false;video.muted=true;video.playsInline=true;video.preload='metadata';video.setAttribute('aria-label',asset.name||'视频');
@@ -318,7 +342,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity}={}){
    }
    const summary=card.querySelector('.video-task-card-prompt'),summaryText=text||'输入提示词…';if(summary.textContent!==summaryText)summary.textContent=summaryText;
    const selected=row.id===state.currentId,select=card.querySelector('[role=tab]');card.dataset.selected=String(selected);select.setAttribute('aria-selected',String(selected));select.tabIndex=selected?0:-1;select.title=row.name||`任务${index+1}`;
-   card.querySelector('.video-task-remove').disabled=active(row)||!!node.mode||generation.submitting;
+   card.querySelector('.video-task-remove').disabled=!!node.mode||generation.submitting;
    if(cards.children[index]!==card)cards.insertBefore(card,cards.children[index]||null);
   }
   for(const card of existing.values()){releaseThumbnails(card);card.remove();}
@@ -344,6 +368,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity}={}){
   if(disposed)return;
   if(!current())state.currentId=state.table.records[0]?.id||'';
   const row=current(),cfg=config(),receipt=generation.stateFor(row,state.fieldId),busy=!!row&&active(row);
+  renderPrice(row,cfg);
   if(!rail.hidden)renderCards();else if(cards.children.length){releaseThumbnails(cards);cards.replaceChildren();}
   renderPrompt();syncRowHighlight();body.hidden=!row;bodyTop.hidden=!linkedTable&&!state.source&&!materials.children.length;
   const frames=row&&cfg?generationFrames(state.table,row,state.fieldId,cfg):[];
@@ -354,16 +379,13 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity}={}){
   }
   const locked=busy||!!node.mode||generation.submitting||changingType;
   emptyMaterial.disabled=locked||!!uploadController||!row;
-  const columns=promptColumns(state.table).filter(f=>f.id===promptSourceId(state.table)),columnStamp=JSON.stringify(columns.map(f=>[f.id,f.name]));
-  if(promptSource.dataset.columns!==columnStamp){promptSource.dataset.columns=columnStamp;promptSource.replaceChildren(...columns.map(f=>new Option(f.name,f.id)));}
-  promptSource.value=cfg?.promptFieldId||'';promptSource.disabled=true;
   root.dataset.kind=cfg?.kind||'video';typeTabs.setAttribute('aria-busy',String(changingType));for(const [kind,control] of typeButtons){control.disabled=locked||!row;control.setAttribute('aria-pressed',String(cfg?.kind===kind));}
   prompt.inert=locked;
   if(cfg)settings.update(cfg,'当前任务');settings.root.hidden=!row;settings.root.inert=locked;
   const runLabel=busy?'暂停':receipt?.needsOriginalFence?'封存原请求':['needs_recovery','stopped'].includes(receipt?.phase)?'恢复原任务':receipt?'重新生成':'运行';
   if(run.title!==runLabel)tableIcon(run,busy?'pause-fill':runLabel==='重新生成'?'restart-line':'play-line',runLabel);
-  run.disabled=!row||!!node.mode||generation.submitting||changingType||!!inputError;review.hidden=receipt?.phase!=='complete'||!!row?.values[state.fieldId]?.some(asset=>asset.provenance?.requestId===receipt.requestId);review.disabled=run.disabled||busy;
-  const output=row?.values[state.fieldId]||[],stamp=JSON.stringify([row?.id,output]);
+  run.disabled=!row||!!node.mode||generation.submitting||changingType||!!inputError;
+  const output=videoTaskResultPreviews(row?.values[state.fieldId]||[],receipt,row?.meta?.generationPreviewAfter?.[state.fieldId]),stamp=JSON.stringify([row?.id,output]);
   if(resultsStamp!==stamp){resultsStamp=stamp;releaseThumbnails(results);results.replaceChildren();for(const asset of output){if(asset.kind==='image'){const media=element('img',results);media.src=asset.url;media.alt=asset.name||'生成图片';media.loading='lazy';}else{const media=videoThumb(asset,results);media.controls=true;media.muted=false;media.setAttribute('aria-label',asset.name||'生成视频');}}results.hidden=!output.length;}
   status.textContent=inputError||notice||(receipt?(phases[receipt.phase]||receipt.phase)+(receipt.error?' · '+receipt.error:''):'');
  }
@@ -373,7 +395,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity}={}){
   notice='';
   const row=current(),receipt=generation.stateFor(row,state.fieldId);
   if(!row)return;
-  if(active(row))return generation.pause([receipt]);
+  if(active(row)){if(window.confirm('当前任务正在进行中，确认取消吗？'))return generation.pause([receipt]);return;}
   if(receipt?.needsOriginalFence)return generation.fenceOriginal(state.fieldId,row.id);
   if(['needs_recovery','stopped'].includes(receipt?.phase))return generation.generate(state.fieldId,row.id,true);
   binding?.finish();return generation.generate(state.fieldId,row.id);
@@ -395,7 +417,8 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity}={}){
  }
  window.addEventListener('dae-canvas-layout',syncRowHighlight);
  persist();generation.refresh();sync();
- return {root,status,run,creativeButtons:[],creativeFields:[],tasks:generation.tasks,sync,close:()=>{side.hide();generation.close();materials.dataset.selected='false';materials.dispatchEvent(new Event('dae-cell-selection-change'));materials.dataset.selected=String(!node.mode);materials.dispatchEvent(new Event('dae-cell-selection-change'));},assets:()=>videoTaskAssets(state),
+ return {root,status,run,creativeButtons:[],creativeFields:[],tasks:generation.tasks,sync,close:()=>{side.hide();generation.close();materials.dataset.selected='false';materials.dispatchEvent(new Event('dae-cell-selection-change'));materials.dataset.selected=String(!node.mode);materials.dispatchEvent(new Event('dae-cell-selection-change'));},assets:()=>videoTaskAssets({...state,table:generation.projectedTable()}),
+  hasActiveRows:ids=>state.table.records.some(row=>ids.includes(row.id)&&active(row)),
   materialTargets:()=>current()&&!active(current())&&!generation.submitting?[{element:body,key:state.currentId,label:rail.hidden?'松开连接到生成节点':'将素材加入当前任务',dropElements:[prompt],project:false,connect:rail.hidden,...(rail.hidden?{accepts:['image','video','text']}:{})}]:[],
   acceptMaterials,
   acceptResult(message){if(message.daelab_video_task_result)return;notify('原生任务已完成；新任务请使用节点内运行按钮');},
