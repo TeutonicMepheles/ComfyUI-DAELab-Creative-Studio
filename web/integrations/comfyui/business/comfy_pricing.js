@@ -1,10 +1,11 @@
 import jsonata from '../vendor/jsonata/jsonata.mjs';
 const seedanceNodes = { text2video: 'ByteDance2TextToVideoNode', singleImage2video: 'ByteDance2FirstLastFrameNode', frames2video: 'ByteDance2FirstLastFrameNode', mixed2video: 'ByteDance2ReferenceNodeV2', image2video: 'ByteDance2ReferenceNodeV2' };
 const minimaxNodes = { text2video: 'MinimaxHailuo03TextToVideoNode', singleImage2video: 'MinimaxHailuo03FirstLastFrameNode', frames2video: 'MinimaxHailuo03FirstLastFrameNode', mixed2video: 'MinimaxHailuo03ReferenceNode', image2video: 'MinimaxHailuo03ReferenceNode' };
+const imageModels = { 'GPT Image 2': 'gpt-image-2', 'GPT Image 2.5 Flare': 'gpt-image-2.5-flare', 'GPT Image 2.5 Sunburst': 'gpt-image-2.5-sunburst' };
 export function createComfyPriceEstimator(definition) {
     return async (input) => {
-        const model = input.model === 'Minimax H3' ? 'MiniMax H3' : input.model;
-        const type = input.kind === 'video' ? (model.startsWith('Seedance ') ? seedanceNodes : model === 'MiniMax H3' ? minimaxNodes : {})[input.mode] : undefined;
+        const model = imageModels[input.model] || (input.model === 'Minimax H3' ? 'MiniMax H3' : input.model);
+        const type = input.kind === 'video' ? (model.startsWith('Seedance ') ? seedanceNodes : model === 'MiniMax H3' ? minimaxNodes : {})[input.mode] : imageModels[input.model] ? 'OpenAIGPTImageNodeV2' : undefined;
         if (!type)
             return null;
         const node = definition(type), badge = node?.price_badge;
@@ -32,7 +33,7 @@ export function createComfyPriceEstimator(definition) {
         }
         const frames = input.mode === 'singleImage2video' || input.mode === 'frames2video';
         const inputs = Object.fromEntries((badge.depends_on.inputs || []).map(name => [name, { connected: frames && (name === 'first_frame' || name === 'last_frame' && input.mode === 'frames2video') }]));
-        const inputGroups = Object.fromEntries((badge.depends_on.input_groups || []).map(name => [name, frames ? 0 : input.media.filter(media => name === 'model.reference_' + media.kind + 's').length]));
+        const inputGroups = Object.fromEntries((badge.depends_on.input_groups || []).map(name => [name, frames ? 0 : input.media.filter(media => name === 'model.reference_' + media.kind + 's' || name === 'model.images' && media.kind === 'image').length]));
         const result = await jsonata(badge.expr).evaluate({ widgets, inputs, inputGroups });
         if (!result)
             return null;

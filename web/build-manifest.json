@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "8be16547f286b67067307ff1695f6c254b2e70e3167239665133145649801444",
+  "sourceFingerprint": "e0861137b1eece19202f819eaf61c8c8a1d65f2ef65c00451f592707a7a1aeb7",
   "files": [
     {
       "path": "AGENTS.md",
@@ -504,7 +504,7 @@
     },
     {
       "path": "features/generation/README.md",
-      "sha256": "5851cf796ca2c1007913b991022c52d1319ac6403c8b8ef3321f35bd13e68778"
+      "sha256": "739daf5ace11fdeb7ee28aa40b446f439102f61c6d109bc28afc189b8f796124"
     },
     {
       "path": "features/generation/generation_input.js",
@@ -512,7 +512,7 @@
     },
     {
       "path": "features/generation/generation_model_icons.mjs",
-      "sha256": "96026d3666f6d2a2bc319c32f85fcb97161787827d8934d0735846289c23fee7"
+      "sha256": "a3a135c504429594f68bfbe24a0d03c939011554ae932e48102fe42a544fbfcd"
     },
     {
       "path": "features/generation/generation_session.js",
@@ -524,7 +524,7 @@
     },
     {
       "path": "features/generation/table_generation_api.mjs",
-      "sha256": "e8a39c468c142e371102fe7d209f094bda8b9e75e158a06a7386640ed109383d"
+      "sha256": "bce9401a42a6f33e9ad5d18dcf5f4f5dcef5d2a18609449377f6f7406b60d452"
     },
     {
       "path": "features/generation/table_generation_history.mjs",
@@ -532,7 +532,7 @@
     },
     {
       "path": "features/generation/table_generation_model.mjs",
-      "sha256": "fab5056bde8b1313b7d6994229dcd2f92ccdb4dbe9dc5fedc9ae20400fb0adf9"
+      "sha256": "4cc630318226c46a5a3207c8fb41021b6d68378565479eed4973364363888ef7"
     },
     {
       "path": "features/generation/table_generation_panel.mjs",
@@ -540,7 +540,7 @@
     },
     {
       "path": "features/generation/table_generation_tasks.mjs",
-      "sha256": "1654cbfeb4b47d4f096d0f82094554c0ca965ad5bc5f3b5b6fa64c1f1bbc40da"
+      "sha256": "986ba4e4840a8174b383d8eabdd8bc91e35d6207f6f3ad61535b4bdd599cd3af"
     },
     {
       "path": "features/generation/task_snapshots.mjs",
@@ -568,7 +568,7 @@
     },
     {
       "path": "features/generation/video_tasks_panel.mjs",
-      "sha256": "84128d3d742139bf8b21e390380e29797d0e645eeaf4ebb6869137ca78fe534b"
+      "sha256": "25bce5416ce9cb7cf063c1eb97107577990b2525846635b882ee77c21d21c9f3"
     },
     {
       "path": "features/groups/AGENTS.md",
@@ -972,7 +972,7 @@
     },
     {
       "path": "integrations/comfyui/business/comfy_pricing.js",
-      "sha256": "cc336c2a49fdd96d7bf758574e35ce47698138fde6bb5294b03465bac490ac46"
+      "sha256": "58379e2c512c397667362470027e13a5d9059b4f133fb961eadc014f79670523"
     },
     {
       "path": "integrations/comfyui/business/comfy_submission_auth.js",
@@ -1104,7 +1104,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "21a08680de50ac6f812be779c5c219075b61a762f858ea93dd652f3b4ee03743"
+      "sha256": "bd3655f9b1d41a4ea1888d61c5f87eba78dbc60baafec3a44f0cace4301f46f8"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

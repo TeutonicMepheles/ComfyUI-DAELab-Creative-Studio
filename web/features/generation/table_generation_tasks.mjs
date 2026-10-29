@@ -149,7 +149,7 @@ export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,
       const label=action==='pause'?'暂停本列生成':action==='pausing'?'正在暂停':'继续本列生成';
       const control=tableIcon(button(label,()=>action==='resume'?resume(field.id):pause(getTable().records.map(r=>stateFor(r,field.id)).filter(s=>['waiting','running'].includes(s?.phase)))),action==='resume'?'play-line':'pause-fill',label);
       control.dataset.generationControl=action;control.classList.add('generation-settings');control.disabled=action==='pausing';
-      control.title=label+'；本地当前行中断后会重新生成，云端已提交任务继续完成';
+      control.title=label+'；本地当前行中断后会重新生成，Comfy 已提交任务继续完成';
       actions.insertBefore(control,actions.querySelector('[data-generation-source]'));
      }
     }
@@ -169,7 +169,7 @@ export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,
      el('span',status,stageText(live.get(state.requestId),phase)).className='generation-stage';
     }
     else if(state){const indicator=tableIcon(button(label,()=>notify(label)),phase==='complete'?'check-line':phase==='paused'?'pause-fill':'error-warning-line',label);indicator.classList.add('generation-state-icon');status.append(indicator);}
-    if(busy&&phase!=='pausing')status.append(tableIcon(button('暂停此行',()=>pause([state])),'pause-fill','暂停此行；本地中断后从头生成，云端已提交任务继续完成'));
+    if(busy&&phase!=='pausing')status.append(tableIcon(button('暂停此行',()=>pause([state])),'pause-fill','暂停此行；本地中断后从头生成，Comfy 已提交任务继续完成'));
     if(!busy){const recover=!state?.legacy&&(phase==='needs_recovery'||phase==='stopped'||phase==='paused'),retry=Boolean(state);const actionLabel=phase==='paused'?'查询原任务':recover?'恢复原任务':retry?'重新生成':'生成此行';status.append(tableIcon(button(actionLabel,()=>generate(field.id,row.id,recover)),retry&&phase!=='paused'?'restart-line':'play-line',actionLabel));
     }
     if(state?.needsOriginalFence&&!state?.legacy)status.append(tableIcon(button('封存原请求',()=>fenceOriginal(field.id,row.id)),'stop-line','明确阻止原请求以后提交；已执行的任务不会被覆盖'));

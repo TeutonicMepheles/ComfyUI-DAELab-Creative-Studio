@@ -87,8 +87,8 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
   estimate.hidden=!row||!isComfyGenerationModel(cfg?.model);
   if(estimate.hidden){priceStamp='';estimate.textContent='';return;}
   let media=[];
-  if(['mixed2video','image2video'].includes(cfg.mode)){
-   try{media=generationInput(state.table,state.fieldId,row.id).assets.map(asset=>({kind:asset.kind}));}
+  if(cfg.kind==='image'||['mixed2video','image2video'].includes(cfg.mode)){
+   try{media=generationInput(state.table,state.fieldId,row.id,{allowEmptyPrompt:true}).assets.map(asset=>({kind:asset.kind}));}
    catch{priceStamp='';estimate.textContent='积分暂无法估算';return;}
   }
   const input={model:cfg.model,kind:cfg.kind,mode:cfg.mode,settings:cfg.settings,media},stamp=JSON.stringify(input);

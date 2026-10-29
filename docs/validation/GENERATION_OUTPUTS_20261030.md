@@ -20,3 +20,11 @@
 本机证据位于独立工作区 `.local/`：`check-first.log`、`check-second.log`、`check-third.log`、`check-final.log`、`backend-test.log`、`docs-check.log`；`ui-flow.mjs`、`ui-batch-final.mjs`、`ui-batch-optional.mjs`、`ui-video.mjs`、`ui-pause.mjs`、`ui-focus-undo.mjs`、`ui-offline.mjs`；`single-*.png`、`batch-*.png`、`optional-*.png`、`video-*.png`，以及保存的合成工作流。宿主清单在 `.local/output-host/` 与 `.local/optional-output-host/`。
 
 追踪沿用 `TASK-M4-FEATURES-GENERATION → F-BIZ-024 → AC-BIZ-024-001/002 → UC-BIZ-010 → TC-BIZ-017/028/049 → EV-ARCH/EV-JOBS`，并补充本记录的占位、回填与组输出子场景；不将累计用例整体标记为通过。
+
+## 追加：模型来源与积分展示
+
+模型显示统一为本地／Comfy，图片补充官方价格公式映射；估算允许空提示词，提交校验保持严格。`npm run check` 前端 387 项、业务 576 项通过。上述两个隔离宿主各检查两个生成实例、10 个模型来源、8 个 Comfy 价格与按钮左侧位置、无横向溢出、保存刷新重载、焦点、模式切换和 50%／100%／150% 缩放。该范围重新执行，之前占位生成证据不自动扩展为此次源码的全面回归。
+
+隔离宿主离线运行，官方 API 节点缺失时显示无法估算。价格展示检查通过浏览器拦截注入从 8000 只读获取的官方节点定义；没有提交生成或验证真实扣费，也未新增图片执行后端。首次测试暴露空模板在估算前被拒绝，修复后重测通过；首次刷新测试与宿主自动恢复竞态导致空图，等待宿主启动后重新载入通过。
+
+本机证据：`.local/model-pricing-check-first.log`、`model-pricing-check-final.log`、`model-pricing-ui-reload.log`、`model-pricing-ui-final.log`、`model-pricing-ui-optional-final.log`、`model-pricing-ui.mjs`、`model-pricing-8331*.png`、`model-pricing-8332*.png`、`official-price-definitions.json`。追踪沿用上方链路，追加来源标签、图片估算与空提示词子场景；不授予 M6 或真实模型通过状态。
