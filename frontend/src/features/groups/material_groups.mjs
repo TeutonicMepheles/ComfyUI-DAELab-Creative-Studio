@@ -181,6 +181,7 @@ export function installMaterialGroups(host,view){
                 const id=ids[i],c=card(id);if(!c)continue;
                 c.style.setProperty('--gr-number-bg',g.properties.reviewColor||'var(--dae-border-control)');
                 if(i%count===0&&ids.slice(i,i+count).some(mid=>card(mid)?.dataset.selected==='true'&&!card(mid).querySelector('.dae-upload-stage :is(img,video)')))y+=28/(canvasState(host.graph()).viewport.zoom||1);c.dataset.reviewMember=String(g.id);c.dataset.reviewIndex=String(i+1);c.dataset.reviewNumbers=String(g.properties.showNumbers!==false);const stage=c.querySelector('.dae-upload-stage');if(stage&&g.properties.showNumbers!==false)stage.dataset.reviewIndex=String(i+1);c.style.display=g.properties.collapsed&&id!==moving?'none':'';
+                const memberPort=c.querySelector('[data-side=output][data-slot]');if(memberPort){memberPort.title=`单项输出 · ${node(id)?.title||'素材'}`;memberPort.setAttribute('aria-label',memberPort.title);}
                 const cp=cards()[id];if(!cp)continue;
                 if(!drag?.ids?.includes(id))Object.assign(cp,{x:p.x+padding+(i%count)*(350+gap),y:p.y+y,width:350});
                 c.style.left=cp.x+'px';c.style.top=cp.y+'px';c.style.width=cp.width+'px';

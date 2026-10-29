@@ -86,7 +86,7 @@
       "source": "web/creative_canvas_view.mjs",
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
       "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
-      "destinationSha256": "6481fbdbd34ccc7cd2e8d3f05f8f81a1e0e2fefe654467dc1e5808f757968f52",
+      "destinationSha256": "ff0a1dc5fe5ca811dbcd90db3bd5cd1b903ba746fbfb614095ecc679b597c594",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "remove opt-in test gallery rendering; retain unrelated graph.extra data",
@@ -105,7 +105,8 @@
         "PERF selection-paint candidate: compare current selected/slotsSuppressed attributes and selection-surface class before writes; preserve every select/raise/focus/layout and per-card group projection call. Real closure tests cover 300-card selection, live group mutations and outside DOM repair; actual latency acceptance remains pending.",
         "Expose only the existing connected, visible direct-child asset dock bounds to focus reveal; retain native focus, owner leases and viewport-only navigation. The 1752 LLM B dock interception failure is retained; candidate browser reacceptance follows.",
         "Expose the leased panel active state without a geometry read; preserve viewport geometry and legacy adapter fallback. Two-instance table and mode checks are recorded in TABLE_PILOT_ACCEPTANCE_20261027.md; the 100 ms budget remains open.",
-        "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained."
+        "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained.",
+        "2026-10-30: make group/member port ownership exclusive and prioritize direct hits without style or layout changes."
       ],
       "kind": "production-source"
     },
@@ -382,7 +383,7 @@
       "source": "web/material_groups.mjs",
       "destination": "frontend/src/features/groups/material_groups.mjs",
       "sourceSha256": "91c47c4439efda72218a2749e00030e570bf1731a3eb100282347aecc463e144",
-      "destinationSha256": "4b6af0dfe2dff2e5d37860a0712840b8e25478009932db47f6306d1dd8e0c411",
+      "destinationSha256": "7a48ad18e62471f6d48af2aa677885baa8fa3e5a12005176e75ac7f8f1f6ba0f",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "inject existing host history port at integration assembly boundary",
@@ -391,7 +392,8 @@
         "2026-10-29: anchor create-group action to visible selected materials; retain screen-sized accent selection outlines. Original source hash retained.",
         "2026-10-29: retain a non-interactive dashed, tinted bounding box around selected materials; dispose with group controller.",
         "2026-10-30: icon and text selection toolbar, direct reversible ungroup, and public snapshot-based batch favorites.",
-        "2026-10-30: add whole-group ZIP download, retain three preset colors plus custom colors, and compact submenu rows."
+        "2026-10-30: add whole-group ZIP download, retain three preset colors plus custom colors, and compact submenu rows.",
+        "2026-10-30: make group/member port ownership exclusive and prioritize direct hits without style or layout changes."
       ],
       "kind": "production-source"
     },

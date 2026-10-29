@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "67673857184513b58faea5795f3b63206bbfead4e93e44ba8e190862daea569e",
+  "sourceFingerprint": "2198e6f58b1683602a44092f7c4f68c9910f0c791f9fc2cdf7c75c808277ed89",
   "files": [
     {
       "path": "AGENTS.md",
@@ -108,7 +108,7 @@
     },
     {
       "path": "canvas/creative_canvas_view.mjs",
-      "sha256": "6481fbdbd34ccc7cd2e8d3f05f8f81a1e0e2fefe654467dc1e5808f757968f52"
+      "sha256": "ff0a1dc5fe5ca811dbcd90db3bd5cd1b903ba746fbfb614095ecc679b597c594"
     },
     {
       "path": "canvas/creative_connections.mjs",
@@ -592,7 +592,7 @@
     },
     {
       "path": "features/groups/material_groups.mjs",
-      "sha256": "4b6af0dfe2dff2e5d37860a0712840b8e25478009932db47f6306d1dd8e0c411"
+      "sha256": "7a48ad18e62471f6d48af2aa677885baa8fa3e5a12005176e75ac7f8f1f6ba0f"
     },
     {
       "path": "features/prompt/AGENTS.md",
@@ -1104,7 +1104,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "c17c5f0ec71c6761dd2dcf28c1694f08c50c5d27f5e10c5b6fefae44db4d1549"
+      "sha256": "b7ef07b48bf51a0cadaa613891acd62f16f2c047ed47f16dea79f631eebbd977"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
