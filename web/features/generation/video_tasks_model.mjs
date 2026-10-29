@@ -114,3 +114,12 @@ export function syncVideoTaskInputs(state,source,previous){
   row.name=origin.name||`任务${normalized.records.indexOf(origin)+1}`;
  }
 }
+
+// Prompt writeback can derive a mode on the source table from added/removed frame tags.
+// That echo must not replace the generating node's model/settings for the edited rows.
+export function syncVideoTaskPromptWriteback(state,source,previous,recordIds){
+ const output=state.table.fields.find(field=>field.id===state.fieldId),ids=new Set(recordIds);
+ const configs=new Map(state.table.records.filter(row=>ids.has(row.id)).map(row=>[row.id,structuredClone(rowGenerationConfig(row,state.fieldId,output.generation))]));
+ syncVideoTaskInputs(state,source,previous);
+ for(const row of state.table.records)if(configs.has(row.id))setRowGenerationConfig(row,state.fieldId,configs.get(row.id));
+}

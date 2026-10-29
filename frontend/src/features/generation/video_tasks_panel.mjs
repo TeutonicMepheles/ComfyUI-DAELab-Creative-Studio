@@ -16,7 +16,7 @@ import {rowGenerationConfig,setRowGenerationConfig,promptColumns,syncGenerationF
 import {videoResultAssets} from './libtv_video_model.mjs';
 import {addField,uid,normalizeTable} from '../../application/table_model.mjs';
 import {fillMaterialCell} from '../../application/table_material_columns.mjs';
-import {createVideoTasks,importVideoTasks,activeVideoTask,videoTaskAssets,syncVideoTaskInputs} from './video_tasks_model.mjs';
+import {createVideoTasks,importVideoTasks,activeVideoTask,videoTaskAssets,syncVideoTaskInputs,syncVideoTaskPromptWriteback} from './video_tasks_model.mjs';
 import {stopCanvasPropagation} from '../../ui/list_editor_controls.mjs';
 import {bindMaterialThumbnail} from '../../application/table_content_view.mjs';
 import {generationInputKind,generationInputRole} from './generation_input.js';
@@ -153,7 +153,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
       changes.push({recordId:row.id,fieldId:field.id,segments,expected:promptContent(source,origin,field.id)});
      }
     }
-    if(changes.length){writeTablePrompts(linkedTable.node,changes,{group:group||crypto.randomUUID()});linkedTable.raw=widget(linkedTable.node,'table_data').value;syncVideoTaskInputs(next,readTableSnapshot(linkedTable.node),source);next.source.stamp=linkedTable.raw;}
+    if(changes.length){writeTablePrompts(linkedTable.node,changes,{group:group||crypto.randomUUID()});linkedTable.raw=widget(linkedTable.node,'table_data').value;syncVideoTaskPromptWriteback(next,readTableSnapshot(linkedTable.node),source,changes.map(change=>change.recordId));next.source.stamp=linkedTable.raw;}
    }
    state=next;persist();
   };
