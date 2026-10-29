@@ -682,22 +682,24 @@
       "source": "web/script_parser_model.mjs",
       "destination": "frontend/src/features/storyboard/script_parser_model.mjs",
       "sourceSha256": "8510cc481847691a1c035b9b950ad9022755f58ff2cb4adb433160eb3f5db51e",
-      "destinationSha256": "9aa110160762fa7edcc99e077d67a1ad349128cffbb28849e4e9c42bd585d4bb",
+      "destinationSha256": "69410b86d01aa74a35e61f77a94b07fb8791fdddd790277c65df7f0003b8f517",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "1029 script parsing: fixed four columns, source-identified chapters, ten-row pages and native multi-table import history."
       ]
     },
     {
       "source": "web/script_parser_panel.mjs",
       "destination": "frontend/src/features/storyboard/script_parser_panel.mjs",
       "sourceSha256": "4d89cbcdfb3b98d090bafaf0696f5022afc2e43977d0e21bca78e792a701654d",
-      "destinationSha256": "a1878af09e6b52a94740c26e03b90db9f27ea2d23787543a46872fc894531045",
+      "destinationSha256": "61c37c3d7cde53d809a24b8457ee6945c0e86d837d9bbc0ce341864814fdb780",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Use domain/native-upload HTTP port; preserve old document and normalization DTOs.",
-        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md."
+        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
+        "1029 script parsing: fixed four columns, source-identified chapters, ten-row pages and native multi-table import history."
       ]
     },
     {
@@ -1216,12 +1218,13 @@
       "source": "web/script_parser.js",
       "destination": "frontend/src/integrations/comfyui/business/script_parser.js",
       "sourceSha256": "7920d6861d96d764a89c4bee1ff714cab3558857e854111146f240bc06b04fb0",
-      "destinationSha256": "3cf2e5b23fc42657c782453badcfe4d4bb6ff4d2312bb537b04409866992a760",
+      "destinationSha256": "d872a0acfe742d5c30b6afce945b09ca66fe9ba1ce3169df5d705ebf38c284c4",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Use public BusinessPorts for document/prompt requests; retain source slots and lifecycle.",
-        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md."
+        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
+        "1029 script parsing: fixed four columns, source-identified chapters, ten-row pages and native multi-table import history."
       ]
     },
     {

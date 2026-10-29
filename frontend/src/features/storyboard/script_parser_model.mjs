@@ -1,11 +1,13 @@
 // Pure named operations. No DOM, keyboard events, network, or shared current node.
 import {clone,uid,normalizeTable} from '../../application/table_model.mjs';
+import {emptyFixedScript,validateFixedScript} from './script_partitions.js';
 
 export const ROLE_LABELS={shot_no:'镜号',time_range:'时间',scene:'画面',narration:'旁白',subtitle:'字幕',notes:'备注',chapter:'章节',reference:'参考说明',other:'其他原文'};
 export const KIND_LABELS={task:'任务',title:'标题 / 章节',header:'表头',blank:'空白',review:'待确认'};
 const ACTIVE=new Set(['waiting','running','queued','preparing','submitting','recovering','pausing']);
 export const hasActiveGeneration=table=>table.records.some(r=>Object.values(r.meta?.generationColumns||{}).some(s=>ACTIVE.has(s.phase)));
 export function assertLimits(table){
+ validateFixedScript(table);
  if(table.records.length>500||table.fields.length>64)throw new Error(`任务表 ${table.records.length} 行 / ${table.fields.length} 列，超过 500 行或 64 列限制，未提交`);
  const fields=new Set(),records=new Set();
  for(const f of table.fields){if(!f.id||fields.has(f.id))throw new Error('字段 ID 缺失或重复');fields.add(f.id);}
@@ -52,7 +54,7 @@ export function enableGeneration(table,kind){
  assertLimits(table);
 }
 export function readScriptTable(raw){
- if(!raw)return emptyScriptTable();
+ if(!raw)return emptyFixedScript();
  const table=normalizeTable(raw);
  if(table.meta.script_parser?.version!==1)throw new Error('不支持的解析器数据版本');
  // Keep existing field and media identities; only lift the old cardinality cap.

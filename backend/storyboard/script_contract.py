@@ -9,6 +9,11 @@ def confirmed_table(value):
         raise ValueError('任务表超过 500 行或 64 列，未截断')
     if table.get('meta', {}).get('script_parser', {}).get('version') != 1:
         raise ValueError('需要已确认的分镜解析表格')
+    if table['meta']['script_parser'].get('field_policy') == 'fixed-four':
+        if len(table['records']) > 10:
+            raise ValueError('每张剧本解析表最多 10 行，未截断')
+        if [f['id'] for f in table['fields']] != ['sp-shot_no', 'sp-scene', 'sp-reference', 'sp-notes']:
+            raise ValueError('剧本解析表必须保留固定四列')
     return table
 
 

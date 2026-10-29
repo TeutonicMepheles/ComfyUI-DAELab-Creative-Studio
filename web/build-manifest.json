@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "b6c45464cf54c880b7dcc520d423570081d783b7f16a0df6d421711e0bb7cd6d",
+  "sourceFingerprint": "b6f009408e81d7e512f0ea6271eb539003de82bcfadd0da1642530bf73b9eb96",
   "files": [
     {
       "path": "AGENTS.md",
@@ -704,7 +704,7 @@
     },
     {
       "path": "features/storyboard/README.md",
-      "sha256": "6eacc2991a1267d8aab7fad3146227ab00ab24f40fd084e74fe6f14acc6680ff"
+      "sha256": "747cc0e8f3a73a294ca735ce836db02558215f76ae3ee8d4b02bb36583ed3c8b"
     },
     {
       "path": "features/storyboard/daelab_storyboard_import.mjs",
@@ -720,11 +720,15 @@
     },
     {
       "path": "features/storyboard/script_parser_model.mjs",
-      "sha256": "3bae1532a51f9b95d90968c29c04c03e932754f1023276c534cf6f4f16fce2fa"
+      "sha256": "69410b86d01aa74a35e61f77a94b07fb8791fdddd790277c65df7f0003b8f517"
     },
     {
       "path": "features/storyboard/script_parser_panel.mjs",
-      "sha256": "ef350eff528a6b7a766a0d25a4f8ec7554dd89dfa33481f1918cd2cb60940a1f"
+      "sha256": "61c37c3d7cde53d809a24b8457ee6945c0e86d837d9bbc0ce341864814fdb780"
+    },
+    {
+      "path": "features/storyboard/script_partitions.js",
+      "sha256": "3c921c83cb41a5f445d704b06659c93d32ce2aa291d9260f38246eb5f18c770f"
     },
     {
       "path": "features/storyboard/storyboard_import_assets.mjs",
@@ -1016,7 +1020,7 @@
     },
     {
       "path": "integrations/comfyui/business/script_parser.js",
-      "sha256": "83eadd71a158c66afa5b6d6cfb80a91221d101f6e794918ef88438e56323bb03"
+      "sha256": "d872a0acfe742d5c30b6afce945b09ca66fe9ba1ce3169df5d705ebf38c284c4"
     },
     {
       "path": "integrations/comfyui/business/table_capabilities.js",
@@ -1104,7 +1108,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "3108896177d30667065308f27cfa2f37f33adf6b9cfa286d2318bbec1cbba959"
+      "sha256": "8c919012a9ea57dbc07b4851d11de767990bdfcb66b3166e4240bb054b0a4e64"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

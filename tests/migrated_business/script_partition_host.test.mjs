@@ -1,0 +1,31 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {registerHooks} from 'node:module';
+import {installBusinessHost} from '../../frontend/src/contracts/business.js';
+import {installBusinessDocuments} from '../../frontend/src/integrations/comfyui/business/business_document_host.js';
+import {emptyFixedScript} from '../../frontend/src/features/storyboard/script_partitions.js';
+
+test('native batch import shares one history boundary, rejects stale sibling edits, and rolls back partial creation',async t=>{
+ const app={registerExtension(){},extensionManager:{workflow:{activeWorkflow:{}}}};
+ globalThis.__scriptHostFixture=app;const previousListener=globalThis.addEventListener;globalThis.addEventListener=()=>{};
+ const hooks=registerHooks({resolve(s,c,next){return s==='/scripts/app.js'?{url:'fixture:script-host',shortCircuit:true}:next(s,c);},load(url,c,next){return url==='fixture:script-host'?{format:'module',shortCircuit:true,source:'export const app=globalThis.__scriptHostFixture;'}:next(url,c);}});
+ t.after(()=>{hooks.deregister();delete globalThis.__scriptHostFixture;globalThis.addEventListener=previousListener;});
+ const {createScriptBatchImport}=await import('../../frontend/src/integrations/comfyui/business/script_parser.js');
+ let serial=0,begins=0,ends=0,fail=false;
+ const graph={extra:{},_nodes:[],getNodeById(id){return this._nodes.find(n=>n.id===id);},remove(n){this._nodes=this._nodes.filter(x=>x!==n);n.graph=null;},setDirtyCanvas(){},serialize(){return {nodes:this._nodes.map(n=>({id:n.id,title:n.title,table:n.widgets[0].value})),extra:this.extra};}};
+ app.graph=app.rootGraph=graph;
+ const node=()=>({id:++serial,type:'DAELAB.ScriptParser',title:'解析器',pos:[0,0],widgets:[{name:'table_data',value:JSON.stringify(emptyFixedScript())}]});
+ const a=node(),b=node();a.graph=b.graph=graph;graph._nodes.push(a,b);
+ const history={begin(){begins++;},end(){ends++;},amend(fn){fn();},undo(){},redo(){}};
+ installBusinessDocuments(app,history);
+ const release=installBusinessHost({history,nodes:g=>g._nodes,createNode:node,addNode(g,n){g._nodes.push(n);n.graph=g;},placeNode(n,p){if(fail)throw new Error('placement failed');graph.extra.daelabCreativeCanvasV1.cards[n.id]=p;}});t.after(release);
+ const input={document_id:'doc',filename:'fixture.docx',assets:{},unassigned:[],audit:[],paragraphs:[],tables:[],tasks:Array.from({length:21},(_,i)=>({source_key:`r${i}`,row_id:`r${i}`,values:{scene:'original'},chapter:'甲',chapter_key:'甲',original_cells:[],images:[],issues:[]}))};
+ const batch=createScriptBatchImport(a),second=createScriptBatchImport(b);t.after(()=>{batch.dispose();second.dispose();});
+ const other=second.snapshot();batch.apply(input,'append',batch.snapshot());assert.equal(begins,1);assert.equal(ends,1);assert.equal(graph._nodes.length,4);assert.equal(second.snapshot(),other);
+ const stamp=batch.snapshot(),sibling=graph._nodes[2];sibling.__scriptTable.records[0].values['sp-scene']='manual';sibling.widgets[0].value=JSON.stringify(sibling.__scriptTable);
+ assert.throws(()=>batch.apply(input,'revise',stamp),/已变化/);assert.equal(begins,1);
+ const before=second.snapshot();fail=true;
+ assert.throws(()=>second.apply(input,'append',before),/placement failed/);
+ assert.equal(second.snapshot(),before);assert.equal(graph._nodes.length,4);assert.equal(begins,2);assert.equal(ends,2);
+ assert.equal(sibling.__scriptTable.records[0].values['sp-scene'],'manual');
+});
