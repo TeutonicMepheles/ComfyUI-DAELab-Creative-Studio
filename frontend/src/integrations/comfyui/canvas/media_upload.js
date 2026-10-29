@@ -4,6 +4,7 @@ import {createCreativeButton} from '../../../ui/creative_button.mjs';
 import {stopCanvasPropagation} from '../../../ui/creative_events.mjs';
 import {registerAsset} from '../../../application/asset_library_service.js';
 import {canvasHistory} from './creative_history.mjs';
+import {generationOutputConnected} from './generation_output_binding.js';
 import {createFavoriteButton} from '../../../features/assets/asset_favorite.mjs?v=20261015-2';
 import {createUploadVideoControls} from '../../../features/assets/upload_video_controls.mjs?v=20261001-player1';
 import {UPLOAD_TYPE,ACCEPT,mediaKind,readAsset,assetURL,slotAllowed} from '../../../features/assets/media_upload_model.mjs?v=20261001-material-references';
@@ -32,7 +33,7 @@ function install(node){
     function render(){
         if(disposed)return;
         const previousName=asset?.name;
-        asset=readAsset(data.value);favorite.sync();const savedPlaceholder=node.properties?.materialPlaceholder;const detached=node.properties?.generationOutput&&node.inputs?.find(input=>input.name==='source_report')?.link==null;const placeholder=detached&&savedPlaceholder?{phase:'stopped',label:'已断开来源',detail:'重新连接原生成节点以同步状态',busy:false}:savedPlaceholder;const next=JSON.stringify([asset,asset?null:placeholder]);if(next===signature)return;signature=next;
+        asset=readAsset(data.value);favorite.sync();const savedPlaceholder=node.properties?.materialPlaceholder;const detached=node.properties?.generationOutput&&!generationOutputConnected(node,node.properties.generationOutput.nodeId);const placeholder=detached&&savedPlaceholder?{phase:'stopped',label:'已断开来源',detail:'重新连接原生成节点以同步状态',busy:false}:savedPlaceholder;const next=JSON.stringify([asset,asset?null:placeholder]);if(next===signature)return;signature=next;
         root.dataset.hasAsset=String(!!asset);
         if(asset&&(!node.title||node.title==='上传'||node.title===UPLOAD_TYPE||node.title===previousName))node.title=asset.name;
         releasePlayer?.();releasePlayer=null;stage.querySelector('video')?.pause();stage.replaceChildren();status.textContent='';

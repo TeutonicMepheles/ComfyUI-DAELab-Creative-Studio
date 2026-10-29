@@ -89,6 +89,15 @@ class RegistrationTests(unittest.TestCase):
         self.assertIsNot(again, nodes)
         self.assertEqual(again, nodes)
 
+    def test_group_lineage_is_optional_lazy_and_preserves_collection_contract(self):
+        group = importlib.import_module("backend.integrations.comfyui.canvas_nodes.material_group").MaterialGroup
+        schema = group.define_schema()
+        self.assertEqual([slot["name"] for slot in schema.inputs], ["collection_data", "source_report"])
+        self.assertTrue(schema.inputs[1]["optional"])
+        self.assertTrue(schema.inputs[1]["lazy"])
+        self.assertEqual([slot["name"] for slot in schema.outputs], ["assets"])
+        self.assertEqual(group.check_lazy_status(collection_data="{}", source_report=None), [])
+
     def test_stable_schema_preserves_native_slot_positions(self):
         nodes, _ = self.module.register_nodes()
         schemas = {key: node.define_schema() for key, node in nodes.items()}

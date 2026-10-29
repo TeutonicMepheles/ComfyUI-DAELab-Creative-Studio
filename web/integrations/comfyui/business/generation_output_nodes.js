@@ -1,3 +1,4 @@
+import { generationOutputConnected } from '../canvas/generation_output_binding.js';
 const UPLOAD = 'DAELAB.MediaUpload', GROUP = 'DAELAB.MaterialGroup';
 const KEY = 'daelabCreativeCanvasV1';
 const names = { waiting: '排队中', running: '生成中', pausing: '暂停中', paused: '已暂停', failed: '生成失败', needs_input: '待补充', needs_recovery: '待恢复', stopped: '已停止', complete: '已完成', stale: '输入已变化' };
@@ -8,7 +9,7 @@ export function createGenerationOutputs(node, app, history, createNode, ready) {
     let disposed = false;
     const current = () => !disposed && ready() && graph === app.graph && node.graph === graph && graph.getNodeById(node.id) === node;
     const outputs = () => (graph._nodes || []).filter((item) => item.type === UPLOAD && item.properties?.generationOutput?.nodeId === String(node.id));
-    const connected = (target) => { const input = target.inputs?.find((slot) => slot.name === 'source_report'), link = graph.links?.get?.(input?.link) ?? graph.links?.[input?.link]; return !!link && String(link.origin_id) === String(node.id) && link.origin_slot === node.outputs?.findIndex((slot) => slot.name === 'task_report'); };
+    const connected = (target) => generationOutputConnected(target, String(node.id));
     const widget = (item) => item.widgets?.find((w) => w.name === 'asset_data');
     const state = () => { graph.extra ||= {}; return graph.extra[KEY] ||= { version: 1, active: false, viewport: { x: 60, y: 60, zoom: .8 }, cards: {} }; };
     const refresh = () => { graph.setDirtyCanvas?.(true, true); app.daelabCreativeCanvas?.sync?.(); app.daelabMaterialGroups?.tick?.(); };
@@ -47,7 +48,7 @@ export function createGenerationOutputs(node, app, history, createNode, ready) {
             const origin = { x: right + 100, y: source.y };
             history.amend(() => {
                 try {
-                    let group = options.batch ? (graph._nodes || []).find((item) => item.type === GROUP && item.properties?.generationOutputOwner === String(node.id) && !item.properties.locked) : null;
+                    let group = options.batch ? (graph._nodes || []).find((item) => item.type === GROUP && item.properties?.generationOutputOwner === String(node.id) && !item.properties.locked && connected(item)) : null;
                     if (group) {
                         existingGroup = group;
                         previousMembers = [...group.properties.members];
@@ -62,6 +63,9 @@ export function createGenerationOutputs(node, app, history, createNode, ready) {
                         group.pos = [origin.x, origin.y];
                         group.properties = { ...group.properties, members: [], layout: 'grid', collapsed: false, generationOutputOwner: String(node.id) };
                         canvas.cards[group.id] = { ...origin, width: 730, expanded: true };
+                        const input = group.inputs?.findIndex((slot) => slot.name === 'source_report'), output = node.outputs?.findIndex((slot) => slot.name === 'task_report');
+                        if (input == null || input < 0 || output == null || output < 0 || !node.connect(output, group, input))
+                            throw new Error('无法连接生成输出组');
                     }
                     for (const [index, job] of fresh.entries()) {
                         const target = createNode(UPLOAD);
@@ -76,10 +80,12 @@ export function createGenerationOutputs(node, app, history, createNode, ready) {
                         const order = options.rows.findIndex(row => row.id === job.input.recordId), label = options.rows[order]?.name || `任务 ${order + 1}`;
                         target.title = label + ' · 输出';
                         target.properties.generationOutput = { nodeId: String(node.id), requestId: job.requestId, source: structuredClone(job.source), order, kind: job.input.config.kind };
+                        if (group)
+                            target.properties.generationOutput.groupId = group.id;
                         target.properties.materialPlaceholder = { phase: 'waiting', label: '排队中', detail: '正在提交任务', busy: true };
                         target.pos = [origin.x + (index % 2) * 356, origin.y + Math.floor(index / 2) * 260];
                         canvas.cards[target.id] = { x: target.pos[0], y: target.pos[1], width: 350, expanded: true };
-                        if (!node.connect(output, target, input))
+                        if (!group && !node.connect(output, target, input))
                             throw new Error('无法连接生成输出');
                         group?.properties.members.push(target.id);
                         target.__mediaUpload?.reload?.();

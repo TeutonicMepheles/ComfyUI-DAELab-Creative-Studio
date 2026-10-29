@@ -22,8 +22,22 @@ test('prepare links one persistent target and updates it in place, idempotently'
 test('batch outputs share a material group and sort by phase then task order',()=>{
  const f=fixture(),a=f.job('a'),b=f.job('b','row-b');f.controller.prepare([a,b],{...f.options,batch:true});
  const [one,two]=f.outputs(),group=f.graph._nodes.find(n=>n.type==='DAELAB.MaterialGroup');
+ assert.equal(Object.keys(f.graph.links).length,1);assert.equal(f.graph.links[group.inputs[0].link].target_id,group.id);
+ assert.ok([one,two].every(n=>n.inputs[0].link===null&&n.properties.generationOutput.groupId===group.id));
  f.controller.update([f.report(a,'complete'),f.report(b)]);assert.deepEqual(group.properties.members,[two.id,one.id]);
  f.controller.prepare([f.job('retry')],{...f.options,batch:true});assert.equal(f.graph._nodes.filter(n=>n.type==='DAELAB.MaterialGroup').length,1);assert.equal(f.outputs().length,3);
+ assert.equal(Object.keys(f.graph.links).length,1);
+});
+
+test('group disconnection or membership removal stops writes without reviving the group',()=>{
+ const f=fixture(),a=f.job('a'),b=f.job('b','row-b');f.controller.prepare([a,b],{...f.options,batch:true});
+ const [one,two]=f.outputs(),group=f.graph._nodes.find(n=>n.type==='DAELAB.MaterialGroup');
+ group.properties.members=group.properties.members.filter(id=>id!==one.id);
+ f.controller.update([f.report(a,'complete'),f.report(b)]);assert.equal(one.widgets[0].value,'{}');assert.equal(two.properties.materialPlaceholder.phase,'running');
+ group.inputs[0].link=null;assert.equal(f.controller.owns(b.requestId),false);
+ f.controller.update([f.report(b,'complete')]);assert.equal(two.widgets[0].value,'{}');
+ f.controller.prepare([f.job('new')],{...f.options,batch:true});assert.equal(group.inputs[0].link,null);assert.equal(f.graph._nodes.filter(n=>n.type==='DAELAB.MaterialGroup').length,2);
+ f.graph.remove(group);f.controller.update([f.report(b,'complete')]);assert.equal(two.widgets[0].value,'{}');
 });
 test('deleted and disconnected outputs never resurrect on later reports',()=>{
  const f=fixture(),job=f.job('a');f.controller.prepare([job],f.options);const target=f.outputs()[0];target.inputs[0].link=null;assert.equal(f.controller.owns(job.requestId),false);

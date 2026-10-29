@@ -219,12 +219,13 @@
       "source": "web/media_upload.js",
       "destination": "frontend/src/integrations/comfyui/canvas/media_upload.js",
       "sourceSha256": "652756732af498a98eee22908cf26904d2c786c03bc9b0057eb956bc0b53b7d3",
-      "destinationSha256": "11ca273036e4031fcc4bb27b4d6011ab3ca0a69bb7a12534ea4a67e173a3ae84",
+      "destinationSha256": "1e7971045e1e4f48b6d14994a193cce4a8b54b0560ae76611956dd9e4affeb5f",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "Actual-host nested keyboard follow-up: shared save propagation in nested panel/popover; keep local editor keys and IME/229 ownership.",
         "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources.",
-        "2026-10-30: request-bound output placeholders, copy isolation and ready-only group material snapshots; see GENERATION_OUTPUTS_20261030 validation."
+        "2026-10-30: request-bound output placeholders, copy isolation and ready-only group material snapshots; see GENERATION_OUTPUTS_20261030 validation.",
+        "Generation batch lineage connects to the group container; members resolve their saved group binding."
       ],
       "kind": "production-source"
     },
@@ -232,12 +233,13 @@
       "source": "web/material_group.js",
       "destination": "frontend/src/integrations/comfyui/canvas/material_group.js",
       "sourceSha256": "67d2b8989a842b69688415f7f5f18fd748c3839a1856393507d52149377049f2",
-      "destinationSha256": "83980aa97747372ca792b3aa9af983bb9f1b6d3fdcebf9f7a174939ba3822b6c",
+      "destinationSha256": "8aa4f16fafd095d97f9fdf38cd6558702568fc7e72e05069485bb666a79b8864",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "remove implicit destructive prototype migration on graph load",
         "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources.",
-        "2026-10-30: request-bound output placeholders, copy isolation and ready-only group material snapshots; see GENERATION_OUTPUTS_20261030 validation."
+        "2026-10-30: request-bound output placeholders, copy isolation and ready-only group material snapshots; see GENERATION_OUTPUTS_20261030 validation.",
+        "Generation batch lineage connects to the group container; members resolve their saved group binding."
       ],
       "kind": "production-source"
     },
@@ -455,10 +457,11 @@
       "source": "web/adapters/upload.mjs",
       "destination": "frontend/src/integrations/comfyui/canvas/adapters/upload.mjs",
       "sourceSha256": "d7f056a0370ab81a251090b665d6481c337534a28e94fcd0ebf684a4e73c27c4",
-      "destinationSha256": "7fa7d5d4216657d234e021d7eb6b2f4c2b6e32f37084fb87b8b08df2f050122c",
+      "destinationSha256": "7a7b20e7b326fc9ae12409252f7b52b974299b651285063977359ade633329ff",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
-        "2026-10-30: request-bound output placeholders, copy isolation and ready-only group material snapshots; see GENERATION_OUTPUTS_20261030 validation."
+        "2026-10-30: request-bound output placeholders, copy isolation and ready-only group material snapshots; see GENERATION_OUTPUTS_20261030 validation.",
+        "Grouped generation members expose lineage only through their group container."
       ],
       "kind": "production-source"
     },
