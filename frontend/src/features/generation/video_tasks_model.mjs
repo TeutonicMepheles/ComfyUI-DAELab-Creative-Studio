@@ -66,7 +66,10 @@ export function syncVideoTaskInputs(state,source,previous){
  const output=state.table.fields.find(f=>f.id===state.fieldId);
  const owner=promptGenerationOwner(normalized,id),oldOwner=promptGenerationOwner(previous,promptSourceId(previous));
  if(owner)output.generation=taskConfig(owner.generation,id);
- const existing=new Map(state.table.records.map(row=>[row.id,row]));
+ // Selection changes membership, not the serialized task identity or receipts.
+ const existing=new Map([...(state.archivedTasks||[]),...state.table.records].map(row=>[row.id,row]));
+ const selected=new Set(normalized.records.filter(row=>row.selected).map(row=>row.id));
+ state.archivedTasks=[...existing.values()].filter(row=>!selected.has(row.id));
  state.table.records=normalized.records.filter(row=>row.selected).map(origin=>{
   if(existing.has(origin.id))return existing.get(origin.id);
   const row={...structuredClone(origin),selected:false,meta:{}};
@@ -85,15 +88,16 @@ export function syncVideoTaskInputs(state,source,previous){
  }
  if(id&&state.table.fields.some(f=>f.id===id)){
   const field=state.table.fields.find(f=>f.id===id);field.readonly=false;setPromptSource(state.table,id);
-  for(const row of state.table.records){
+  for(const row of [...state.table.records,...state.archivedTasks]){
    const config=rowGenerationConfig(row,output.id,output.generation);
    if(config.promptFieldId!==id){setRowGenerationConfig(row,output.id,{...config,promptFieldId:id});if(row.meta?.generationPromptFields)delete row.meta.generationPromptFields[output.id];}
   }
   output.generation.promptFieldId=id;
  }
  const origins=new Map(normalized.records.map(row=>[row.id,row]));
- for(const row of state.table.records){
+ for(const row of [...state.table.records,...state.archivedTasks]){
   const origin=origins.get(row.id);
+  if(!origin)continue;
   if(owner){
    const incoming=rowGenerationConfig(origin,owner.id,owner.generation),oldRow=previous.records.find(r=>r.id===row.id),oldConfig=oldOwner&&oldRow&&rowGenerationConfig(oldRow,oldOwner.id,oldOwner.generation);
    if(!existing.has(row.id)||owner.generationConfigRevision!==oldOwner?.generationConfigRevision||JSON.stringify(incoming)!==JSON.stringify(oldConfig))setRowGenerationConfig(row,state.fieldId,taskConfig(incoming,id));

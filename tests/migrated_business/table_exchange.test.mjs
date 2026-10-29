@@ -9,6 +9,38 @@ import {rowGenerationConfig,setRowGenerationConfig,generationFrames,syncGenerati
 import {createMaterialTable} from '../../frontend/src/application/table_material_columns.mjs';
 import {addRecord} from '../../frontend/src/application/table_model.mjs';
 
+test('deselection and deletion archive task receipts, results and overrides across reload and restoration',()=>{
+ const source=createMaterialTable(),state=importVideoTasks(source),peer=importVideoTasks(source),id=source.records[0].id;
+ const row=state.table.records[0],field=state.table.fields.find(f=>f.id===state.fieldId);
+ row.values[state.fieldId]=[{id:'paid-result',kind:'video',url:'/view?filename=paid.mp4&type=output'}];
+ row.meta.generationColumns={[state.fieldId]:{phase:'complete',requestId:'paid-once'}};
+ row.meta.future={opaque:true};
+ setRowGenerationConfig(row,state.fieldId,{...field.generation,settings:{duration:7}});
+ const saved=structuredClone(row),peerBefore=JSON.stringify(peer);
+ let previous=structuredClone(source);source.records.forEach(r=>r.selected=false);syncVideoTaskInputs(state,source,previous);
+ assert.deepEqual(state.table.records,[]);assert.equal(state.currentId,'');
+ assert.deepEqual(state.archivedTasks.find(r=>r.id===id).values[state.fieldId],saved.values[state.fieldId]);
+ const restored=JSON.parse(JSON.stringify(state));
+ previous=structuredClone(source);source.records.reverse();source.records.forEach(r=>r.selected=true);syncVideoTaskInputs(restored,source,previous);
+ const task=restored.table.records.find(r=>r.id===id);
+ assert.deepEqual(task.values[state.fieldId],saved.values[state.fieldId]);assert.deepEqual(task.meta,saved.meta);
+ assert.equal(rowGenerationConfig(task,state.fieldId,field.generation).settings.duration,7);
+ assert.deepEqual(restored.table.records.map(r=>r.id),source.records.map(r=>r.id));assert.deepEqual(restored.archivedTasks,[]);
+ previous=structuredClone(source);source.records=source.records.filter(r=>r.id!==id);syncVideoTaskInputs(restored,source,previous);
+ const deleted=structuredClone(source);source.records=previous.records;syncVideoTaskInputs(restored,source,deleted);
+ assert.deepEqual(restored.table.records.find(r=>r.id===id).meta,saved.meta);assert.equal(JSON.stringify(peer),peerBefore);
+});
+
+test('source configuration edits reach archived tasks without clearing their results',()=>{
+ const {table:source}=frameFixture(),state=importVideoTasks(source),id=source.records[0].id;
+ state.table.records[0].values[state.fieldId]=[{id:'result',kind:'video'}];
+ let previous=structuredClone(source);source.records[0].selected=false;syncVideoTaskInputs(state,source,previous);
+ previous=structuredClone(source);source.fields.at(-1).generation.settings.duration=9;syncVideoTaskInputs(state,source,previous);
+ const reloaded=JSON.parse(JSON.stringify(state));previous=structuredClone(source);source.records[0].selected=true;syncVideoTaskInputs(reloaded,source,previous);
+ const row=reloaded.table.records.find(r=>r.id===id),owner=reloaded.table.fields.find(f=>f.id===state.fieldId);
+ assert.equal(rowGenerationConfig(row,state.fieldId,owner.generation).settings.duration,9);assert.equal(row.values[state.fieldId][0].id,'result');
+});
+
 test('checked rows drive task membership, including empty selection, new rows and independent instances',()=>{
  const source=createMaterialTable();source.records[1].selected=false;
  const a=importVideoTasks(source),b=importVideoTasks(source),kept=a.table.records[0],rowId=kept.id;
@@ -78,7 +110,8 @@ test('table edits sync by row and column identity while preserving task settings
  assert.deepEqual(promptContent(state.table,row,'p2'),[{type:'text',text:'表格新内容'}]);
  assert.equal(row.name,'新任务名');assert.equal(row.values.m[0].id,'ref');
  assert.deepEqual(row.values[state.fieldId],saved.output);assert.deepEqual(row.meta,saved.meta);
- assert.deepEqual(promptContent(state.table,state.table.records[0],'p'),promptContent(previous,previous.records[0],'p'));
+ assert.deepEqual(promptContent(state.table,state.table.records[0],'p'),promptContent(previous,previous.records.find(r=>r.id===state.table.records[0].id),'p'));
+ assert.deepEqual(state.table.records.map(r=>r.id),source.records.map(r=>r.id));
 });
 
 test('sync preserves node-only inputs and handles cleared prompts and template changes',()=>{

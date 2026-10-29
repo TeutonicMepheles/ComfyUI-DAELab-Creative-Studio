@@ -3,9 +3,18 @@ import assert from 'node:assert/strict';
 import {slotRows,slotSignature,appliedSnapshot,outputText} from '../../frontend/src/features/prompt/llm_slot_model.mjs';
 import {applyIOResult,undoIOResult,tableInput} from '../../frontend/src/features/prompt/llm_io_model.mjs';
 import {createMaterialTable} from '../../frontend/src/application/table_material_columns.mjs';
-import {addField,addRecord} from '../../frontend/src/application/table_model.mjs';
+import {addField,addRecord,normalizeTable} from '../../frontend/src/application/table_model.mjs';
 import {setPromptSource} from '../../frontend/src/features/prompt/table_prompt_source.mjs';
 function fixture(){const upstream={id:1,title:'文字',getOutputData:()=> '湖畔展厅'},node={id:2,type:'DAELAB.LLMStylePreviewB',inputs:[{link:1}],properties:{llmStylePreview:{mode:'polish',model:'mock',instruction:''}}};node.graph={links:{1:{origin_id:1,origin_slot:0}},getNodeById:id=>id===1?upstream:node};return {node,upstream,s:node.properties.llmStylePreview};}
+test('normalized legacy scalar tables retain selected text/image inputs without mutating bindings',()=>{
+ const image={id:'legacy-image',kind:'image',url:'/view?filename=legacy.png'};
+ const table=normalizeTable({fields:[{id:'text',type:'content'},{id:'image',type:'content'}],records:[{id:'a',values:{text:'legacy',image:[image]}},{id:'b',selected:false,values:{text:'skip',image:[]}}]});
+ const before=JSON.stringify(table);assert.equal(table.meta.generationInput.promptFieldId,null);
+ assert.deepEqual(tableInput(table).rows,[{id:'a',index:1,text:'legacy',image}]);assert.equal(JSON.stringify(table),before);
+ assert.deepEqual(tableInput(JSON.parse(before)),tableInput(table));
+ table.meta.generationInput={version:2,promptFieldId:null};assert.throws(()=>tableInput(table),/版本/);
+ table.meta.generationInput={version:1,promptFieldId:'deleted'};assert.throws(()=>tableInput(table),/提示词/);
+});
 test('linked input takes precedence and disconnecting restores manual text',()=>{const {node,s}=fixture();s.source='手动文字';s.inputIds=['99'];assert.equal(slotRows(node)[0].text,'湖畔展厅');node.inputs[0].link=null;assert.equal(slotRows(node)[0].text,'手动文字');assert.equal(s.source,'手动文字');s.source=' \n ';assert.deepEqual(slotRows(node),[]);});
 test('manual input participates in approved output validation and survives serialization',()=>{
     const {node,s}=fixture();node.inputs[0].link=null;s.source='第一段\n\n第二段';

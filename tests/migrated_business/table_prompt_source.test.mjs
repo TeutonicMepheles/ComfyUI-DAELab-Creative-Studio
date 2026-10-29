@@ -139,7 +139,7 @@ test('source updates preserve submitted snapshots/results, and clearing designat
  syncVideoTaskInputs(state,changed,cancelled);assert.equal(text(generationInput(state.table,state.fieldId,row.id)),'拉远。');assert.deepEqual(row.meta.generationColumns[state.fieldId],receipt);
 });
 
-test('deleted source rows remove tasks and restored rows import current inputs',()=>{
+test('deleted source rows archive tasks and restoration keeps results with current inputs',()=>{
  const source=fixture();setPromptSource(source,'final');const state=importVideoTasks(source),row=state.table.records[0];
  const receipt={phase:'complete',input:generationInput(state.table,state.fieldId,row.id),requestId:'saved'};
  row.meta.generationColumns={[state.fieldId]:structuredClone(receipt)};row.values[state.fieldId]=[{id:'done',url:'/view?filename=done.png'}];
@@ -148,7 +148,7 @@ test('deleted source rows remove tasks and restored rows import current inputs',
  assert.equal(state.table.records.some(r=>r.id===row.id),false);
  assert.deepEqual(row.meta.generationColumns[state.fieldId],receipt);assert.equal(row.values[state.fieldId][0].id,'done');
  syncVideoTaskInputs(state,source,deleted);assert.equal(text(generationInput(state.table,state.fieldId,row.id)),'地球在左。向前推进。保持写实风格。');
- const restored=state.table.records.find(r=>r.id===row.id);assert.deepEqual(restored.values[state.fieldId],[]);assert.equal(restored.meta.generationColumns,undefined);
+ const restored=state.table.records.find(r=>r.id===row.id);assert.deepEqual(restored.values[state.fieldId],row.values[state.fieldId]);assert.deepEqual(restored.meta.generationColumns[state.fieldId],receipt);
 });
 
 test('explicit clear differs from inheriting a column template, and pasted @ stays literal',()=>{

@@ -37,7 +37,7 @@ function tableFixture(w,id,rows=500,fields=10){
  const columns=Array.from({length:fields},(_,i)=>{const e=w.element(`head-${id}-${i}`,{left:20+i*180,top:80,width:180,height:40});e.dataset.column='field-'+i;e.head=e;e.scroll=scroll;return e;});
  const cells=Array.from({length:rows*fields},(_,i)=>{const e=w.element(`cell-${id}-${i}`);e.dataset.field='field-'+i%fields;e.dataset.record='row-'+Math.floor(i/fields);e.scroll=scroll;return e;});
  const rowHeads=Array.from({length:rows},(_,i)=>{const e=w.element(`row-${id}-${i}`);e.dataset.contentRow='row-'+i;e.scroll=scroll;return e;});
- const root={querySelector:selector=>{assert.equal(selector,'table');return grid;},querySelectorAll:selector=>selector==='th[data-column]'?columns:selector==='td[data-field]'?cells:selector==='.table-choice[data-content-row]'?rowHeads:[]};
+ const root={querySelector:selector=>{if(selector==='th.table-add-column')return null;assert.equal(selector,'table');return grid;},querySelectorAll:selector=>selector==='th[data-column]'?columns:selector==='td[data-field]'?cells:selector==='.table-choice[data-content-row]'?rowHeads:[]};
  const node={id,type:'DAELAB.Table',__dataTable:{fields:columns.map(e=>({id:e.dataset.column,type:'content'}))},__dataTablePanel:{root}};
  return {node,columns,cells,rowHeads,scroll,root,get grid(){return grid;},replaceGrid(){grid={dataset:{cellsRevision:'0'}};}};
 }
