@@ -345,7 +345,7 @@
       "source": "web/video_tasks_model.mjs",
       "destination": "frontend/src/features/generation/video_tasks_model.mjs",
       "sourceSha256": "3572671a035745a74966e2cdd6e7e6f421a49938218c7d03ee2f9601f902c684",
-      "destinationSha256": "352b6cfae613caa85c52df5673104146f67d10832526633b3a315b7bff4eb44f",
+      "destinationSha256": "dea66ac511c6a9760f846de67f76504fb3e117eb832f4921c91fff6587de1420",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -1628,7 +1628,7 @@
       "source": "tests/table_exchange.test.mjs",
       "destination": "tests/migrated_business/table_exchange.test.mjs",
       "sourceSha256": "e2c523d0935cc760c2405d7f3ae8b29d82685971e96ce37fca9ebc288d307fde",
-      "destinationSha256": "a553ee07bf1c55ed8df6cbbcec1ee3eb34f8d6984fb6b09a758ffb5c450b3d98",
+      "destinationSha256": "acd4726af839597dfad80b9fed716b965bca41f4ddd53e46654dc0fb5e84ef16",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",

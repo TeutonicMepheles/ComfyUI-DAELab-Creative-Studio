@@ -41,6 +41,15 @@ test('source configuration edits reach archived tasks without clearing their res
  assert.equal(rowGenerationConfig(row,state.fieldId,owner.generation).settings.duration,9);assert.equal(row.values[state.fieldId][0].id,'result');
 });
 
+test('restoring a deleted configured source row does not mistake its absence for a settings edit',()=>{
+ const {table:source}=frameFixture(),state=importVideoTasks(source),id=source.records[0].id;
+ const field=state.table.fields.find(f=>f.id===state.fieldId);
+ setRowGenerationConfig(state.table.records[0],state.fieldId,{...field.generation,settings:{duration:7}});
+ const deleted=structuredClone(source);deleted.records.shift();syncVideoTaskInputs(state,deleted,source);
+ const reloaded=JSON.parse(JSON.stringify(state));syncVideoTaskInputs(reloaded,source,deleted);
+ assert.equal(rowGenerationConfig(reloaded.table.records.find(r=>r.id===id),state.fieldId,field.generation).settings.duration,7);
+});
+
 test('checked rows drive task membership, including empty selection, new rows and independent instances',()=>{
  const source=createMaterialTable();source.records[1].selected=false;
  const a=importVideoTasks(source),b=importVideoTasks(source),kept=a.table.records[0],rowId=kept.id;

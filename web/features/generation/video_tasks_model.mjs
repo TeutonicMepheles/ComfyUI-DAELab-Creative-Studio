@@ -100,7 +100,7 @@ export function syncVideoTaskInputs(state,source,previous){
   if(!origin)continue;
   if(owner){
    const incoming=rowGenerationConfig(origin,owner.id,owner.generation),oldRow=previous.records.find(r=>r.id===row.id),oldConfig=oldOwner&&oldRow&&rowGenerationConfig(oldRow,oldOwner.id,oldOwner.generation);
-   if(!existing.has(row.id)||owner.generationConfigRevision!==oldOwner?.generationConfigRevision||JSON.stringify(incoming)!==JSON.stringify(oldConfig))setRowGenerationConfig(row,state.fieldId,taskConfig(incoming,id));
+   if(!existing.has(row.id)||owner.generationConfigRevision!==oldOwner?.generationConfigRevision||oldRow&&JSON.stringify(incoming)!==JSON.stringify(oldConfig))setRowGenerationConfig(row,state.fieldId,taskConfig(incoming,id));
   }
   if(row.meta)delete row.meta.generationSourceMissing;
   for(const key of Object.keys(row.values))if(key!==state.fieldId&&previousIds.has(key)&&!incomingIds.has(key))delete row.values[key];
