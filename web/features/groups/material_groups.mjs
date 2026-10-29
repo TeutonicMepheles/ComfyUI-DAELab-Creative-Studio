@@ -7,7 +7,7 @@ import {UPLOAD_TYPE} from '../assets/media_upload_model.mjs';
 import {inputSnapshot} from '../../canvas/creative_contract.mjs';
 import {normalizeAsset,saveFavorite} from '../assets/asset_library_model.mjs';
 
-import {GROUP_TYPE as TYPE,isGroupMember} from './material_group_model.mjs?v=20261015-mixed1';
+import {GROUP_TYPE as TYPE,isGroupMember,selectedMaterialGroup} from './material_group_model.mjs?v=20261015-mixed1';
 const el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text)e.textContent=text;return e;};
 const copy=v=>JSON.parse(JSON.stringify(v));
 const widget=(node,name)=>node.widgets?.find(w=>w.name===name);
@@ -103,6 +103,7 @@ export function installMaterialGroups(host,view){
         finally{downloading=false;}
     }
     function ungroup(g){
+        if(selectedMaterialGroup(view.selectedIds.map(node).filter(Boolean),groups())!==g){syncToolbar();return;}
         const members=(g.properties.members||[]).map(node).filter(Boolean);
         change(()=>{for(const n of members){const c=card(n.id);if(c)c.style.display='';}host.removeNode(host.graph(),g);delete cards()[g.id];selected=null;selectionActive=false;view.sync();view.select(null);for(const n of members)view.select(n,{toggle:true});},'已解组，素材保留，可撤销。');
     }
@@ -253,8 +254,8 @@ export function installMaterialGroups(host,view){
     function syncToolbar(){
         if(disposed||!view.active){panel.hidden=true;createButton.hidden=true;selectionBox.hidden=true;closeMenu();return;}
         if(seenGraph!==host.graph().extra){seenGraph=host.graph().extra;selected=null;selectionActive=false;renderSignature='';closeMenu();}
-        const chosen=view.selectedIds.map(node).filter(Boolean);positionCreateButton(chosen);const chosenGroup=chosen.find(n=>n.type===TYPE)||groups().find(g=>chosen.some(n=>g.properties.members.includes(n.id)));
-        if(!drag){const next=chosenGroup?.id??null;if(next!==selected){selected=next;renderSignature='';}selectionActive=selected!=null;}
+        const chosen=view.selectedIds.map(node).filter(Boolean);positionCreateButton(chosen);const chosenGroup=selectedMaterialGroup(chosen,groups());
+        const next=chosenGroup?.id??null;if(next!==selected){selected=next;renderSignature='';closeMenu();}selectionActive=selected!=null;
         const g=group(),signature=JSON.stringify([selected,g?.title,g?.properties]);
         if(!colorEditing&&signature!==renderSignature){renderSignature=signature;buildPanel();}
         positionPanel();

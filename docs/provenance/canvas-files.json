@@ -355,11 +355,12 @@
       "source": "web/material_group_model.mjs",
       "destination": "frontend/src/features/groups/material_group_model.mjs",
       "sourceSha256": "72c88b9a74a3ee7e8963e5ee711bb0780591110ad4ca9225c0201c67b650dc33",
-      "destinationSha256": "85502838074baca6dd2e2451284fb7494dc55800077f3751274a155ed1427a82",
+      "destinationSha256": "625df7b543184b11000a2d90777cea2fe6d955718ca6e7f3f60c5ded87e40d19",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "remove implicit prototype converter; explicit workflow migration belongs to compat",
-        "Receive explicit native-node lists for selection identity and Slot suppression instead of reading private graph._nodes."
+        "Receive explicit native-node lists for selection identity and Slot suppression instead of reading private graph._nodes.",
+        "Require one unambiguous group owner across the complete selection; revalidate before ungroup and close stale group menus."
       ],
       "kind": "production-source"
     },
@@ -383,7 +384,7 @@
       "source": "web/material_groups.mjs",
       "destination": "frontend/src/features/groups/material_groups.mjs",
       "sourceSha256": "91c47c4439efda72218a2749e00030e570bf1731a3eb100282347aecc463e144",
-      "destinationSha256": "7a48ad18e62471f6d48af2aa677885baa8fa3e5a12005176e75ac7f8f1f6ba0f",
+      "destinationSha256": "4575da772f9f078883203057eaa3b827d3fa11808799e39585504c9dee86ca36",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "inject existing host history port at integration assembly boundary",
@@ -393,7 +394,8 @@
         "2026-10-29: retain a non-interactive dashed, tinted bounding box around selected materials; dispose with group controller.",
         "2026-10-30: icon and text selection toolbar, direct reversible ungroup, and public snapshot-based batch favorites.",
         "2026-10-30: add whole-group ZIP download, retain three preset colors plus custom colors, and compact submenu rows.",
-        "2026-10-30: make group/member port ownership exclusive and prioritize direct hits without style or layout changes."
+        "2026-10-30: make group/member port ownership exclusive and prioritize direct hits without style or layout changes.",
+        "Require one unambiguous group owner across the complete selection; revalidate before ungroup and close stale group menus."
       ],
       "kind": "production-source"
     },
@@ -902,11 +904,12 @@
       "source": "tests/material_groups.test.mjs",
       "destination": "tests/migrated_canvas/material_groups.test.mjs",
       "sourceSha256": "ad6489ea79bb78ca890d5ebb860c62ea79a7cf9e63888771599122f8e161c0b6",
-      "destinationSha256": "8e752a4189f83c550a8a8cf045da2bda1d8140d2ad45f2745db6b0b8341dd928",
+      "destinationSha256": "3c7c44dc7a48ed78feebc10fb2886ef6d0269c7485b1e2e33592a369b718f223",
       "changes": [
         "point existing rule regression tests at migrated production modules",
         "old implicit destructive prototype migration test superseded by production-boundary preservation test",
-        "Pass explicit native nodes to mixed-ID group selection rules."
+        "Pass explicit native nodes to mixed-ID group selection rules.",
+        "Cover ungroup selection ownership, mixed groups, ungrouped nodes, ambiguous ownership and restored membership."
       ],
       "kind": "rule-regression"
     },
