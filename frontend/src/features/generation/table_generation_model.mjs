@@ -3,14 +3,16 @@ import {isTextColumn,promptSourceId,setPromptSource,requirePromptSource} from '.
 import {effectivePrompt,isColumnPrompt,resolveColumnPrompt,columnValue,toColumnPrompt} from '../prompt/table_prompt_template.mjs';
 
 export const LOCAL_VIDEO_MODEL='MiniMax H3 FL（本地）';
+export const LOCAL_REFERENCE_VIDEO_MODEL='MiniMax H3 Ref（本地）';
+export const isLocalVideoModel=model=>[LOCAL_VIDEO_MODEL,LOCAL_REFERENCE_VIDEO_MODEL].includes(model);
 export const LOCAL_VIDEO_MODES=['text2video','singleImage2video','frames2video'];
 export const LOCAL_IMAGE_MODEL='Qwen-Image-2.1 Turbo（本地）';
-export const isLocalGenerationModel=model=>[LOCAL_IMAGE_MODEL,LOCAL_VIDEO_MODEL].includes(model);
+export const isLocalGenerationModel=model=>model===LOCAL_IMAGE_MODEL||isLocalVideoModel(model);
 export const COMFY_VIDEO_MODELS=['Seedance 2.0','Seedance 2.0 Fast','Seedance 2.0 Mini','Seedance 2.5','Minimax H3'];
 export const COMFY_IMAGE_MODELS=['GPT Image 2','GPT Image 2.5 Flare','GPT Image 2.5 Sunburst'];
 export const isComfyGenerationModel=model=>[...COMFY_VIDEO_MODELS,...COMFY_IMAGE_MODELS].includes(model);
 export const needsGenerationProject=()=>false;
-export const GENERATION_MODELS={image:[LOCAL_IMAGE_MODEL,...COMFY_IMAGE_MODELS],video:[...COMFY_VIDEO_MODELS,LOCAL_VIDEO_MODEL]};
+export const GENERATION_MODELS={image:[LOCAL_IMAGE_MODEL,...COMFY_IMAGE_MODELS],video:[...COMFY_VIDEO_MODELS,LOCAL_VIDEO_MODEL,LOCAL_REFERENCE_VIDEO_MODEL]};
 export const isGeneration=field=>field?.presentation==='generation';
 export function rowGenerationConfig(row,fieldId,defaults){
  const source=row?.meta?.generationPromptFields?.[fieldId]??defaults?.promptFieldId;
@@ -225,6 +227,7 @@ export function generationInput(table,fieldId,recordId){
  if(row.meta?.generationSourceMissing)throw new Error('来源表格中的任务行已删除；已有结果保留');
  const source=requirePromptSource(table),owner=generationConfigField(table,fieldId),config={...rowGenerationConfig(row,owner.id,owner.generation),promptFieldId:source.id},document=generationPrompt(table,row,source.id);
  if(config.model===LOCAL_VIDEO_MODEL&&!LOCAL_VIDEO_MODES.includes(config.mode))throw new Error('本地 H3 FL 仅支持文生视频、首帧和首尾帧，请重新选择生成方式');
+ if(config.model===LOCAL_REFERENCE_VIDEO_MODEL&&config.mode!=='image2video')throw new Error('本地 H3 Ref 仅支持图片参考，请重新选择生成方式');
  if(generationFrameRoles(config).length&&document.segments.some(s=>s.type==='ref'))throw new Error('首帧／首尾帧模式不能在提示词中 @ 素材，请移除正文素材引用，并通过帧选择入口填入图片');
  if(!document.segments.some(s=>s.type==='ref'||s.text?.trim()))throw new Error('本行提示词为空');
  const assets=[],frameBindings=row.meta?.generationFrames?.[owner.id];

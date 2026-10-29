@@ -19,7 +19,7 @@ The migration specification and decisions are in docs/migration-blueprint/.
   registrations. Compatibility preserves raw unknown data and visible reports.
 - Never enable old and new implementations together or depend on load order.
 - Real model tests ONLY use local qwen3.5:9b-q4_K_M, local Qwen-Image-2.1 Turbo,
-  and local MiniMax H3 FL. No cloud calls, fallback models or substitute downloads.
+  and local MiniMax H3 FL / Ref. No cloud calls, fallback models or substitute downloads.
   Use isolated user/input/output/temp and do not change the user's port 8000 graph.
 - Track task -> F -> AC -> UC -> TC -> EV -> evidence. Unimplemented/unexecuted/
   unavailable is not pass. Gates use applicable cumulative P0/P1 by TC.phase.

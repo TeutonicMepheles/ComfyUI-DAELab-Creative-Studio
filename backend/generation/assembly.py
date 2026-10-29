@@ -16,9 +16,10 @@ def assemble_generation(core, *, native_queue=None, model_bindings=None, node_ty
         admission = LocalAdmission(lock_path, native_busy=native_queue.busy,
                                    ensure_unloaded=transport.ensure_unloaded, release_native_models=release_native_models)
         providers['local-qwen-text'] = QwenProvider(transport=transport, binding=qwen_binding, read_frozen=lambda item: read_frozen(core.assets, item))
-        for kind in ('image', 'video'):
-            inventory = ModelInventory((model_bindings or {}).get(kind, {}), node_types, resolve_model)
+        for binding_kind in ('image', 'video', 'video_reference'):
+            kind = 'video' if binding_kind == 'video_reference' else binding_kind
+            inventory = ModelInventory((model_bindings or {}).get(binding_kind, {}), node_types, resolve_model)
             provider = NativeProvider(kind, inventory=inventory, queue=native_queue,
-                                      media_input=lambda item: stage_native_input(core.assets, item))
+                                      media_input=lambda item: stage_native_input(core.assets, item), reference=binding_kind == 'video_reference')
             providers[provider.id] = provider
     return GenerationService(core.jobs, core.assets, providers=providers, admission=admission, resources=core.resources)

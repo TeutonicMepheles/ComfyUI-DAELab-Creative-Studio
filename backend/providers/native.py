@@ -6,7 +6,7 @@ import uuid
 
 from ..contracts.errors import InvalidInput
 from .contracts import Observation, ProviderUnavailable, SubmissionRejected, SubmissionUncertain
-from .parameters import IMAGE_MODEL, VIDEO_MODEL, IMAGE_FILES, VIDEO_FILES, compile_segments, settings_for, image_graph, video_graph
+from .parameters import IMAGE_MODEL, VIDEO_MODEL, REFERENCE_VIDEO_MODEL, IMAGE_FILES, VIDEO_FILES, compile_segments, settings_for, image_graph, video_graph
 
 
 class ModelInventory:
@@ -60,12 +60,17 @@ class NativeProvider:
     supports_query = supports_lookup = supports_cancel = True
     resource = 'native'
 
-    def __init__(self, kind, *, inventory, queue, media_input):
+    def __init__(self, kind, *, inventory, queue, media_input, reference=False):
         if kind not in ('image', 'video'):
             raise InvalidInput('Unknown native output kind.')
         self.kind, self.inventory, self.queue, self.media_input = kind, inventory, queue, media_input
         self.id = 'local-qwen-image' if kind == 'image' else 'local-h3'
         self.model = IMAGE_MODEL if kind == 'image' else VIDEO_MODEL
+        self.reference = reference
+        if reference:
+            if kind != 'video':
+                raise InvalidInput('Reference conditioning requires video output.')
+            self.id, self.model = 'local-h3-reference', REFERENCE_VIDEO_MODEL
 
     async def capabilities(self, model):
         if model != self.model:
@@ -73,25 +78,41 @@ class NativeProvider:
         kind = self.kind
         settings = {'width': 1024, 'height': 1024} if kind == 'image' else {'width': 512, 'height': 288, 'duration': 2, 'turbo': False}
         data = {'config': {'model': model, 'kind': kind, 'mode': 'text2image' if kind == 'image' else 'text2video', 'settings': settings}, 'segments': [{'type': 'text', 'text': 'Capability validation only; no execution.'}]}
-        prepared = await asyncio.to_thread(self.build, data, [], 'capability-probe')
+        # Validate loaders and the reference node without staging synthetic media.
+        prepared = await asyncio.to_thread(self._prepare, data, [], 'capability-probe')
         await self.preflight({'prepared': prepared, 'media': []})
         props = {'width': {'type': 'integer', 'displayName': '宽度', 'default': settings['width'], 'min': 256 if kind == 'image' else 32, 'max': 2048 if kind == 'image' else 16384, 'step': 32},
                  'height': {'type': 'integer', 'displayName': '高度', 'default': settings['height'], 'min': 256 if kind == 'image' else 32, 'max': 2048 if kind == 'image' else 16384, 'step': 32},
                  'seed': {'type': 'integer', 'displayName': '种子（-1 为随机）', 'default': -1, 'min': -1, 'max': 9007199254740991},
                  'modeType': {'items': {'text2image': [0, 0]} if kind == 'image' else {'text2video': [0, 0], 'singleImage2video': [1, 1], 'frames2video': [2, 2]}}}
+        if self.reference:
+            props['modeType']['items'] = {'image2video': [1, 9]}
         if kind == 'video':
-            turbo = 'loras' in self.inventory.bindings
+            turbo = not self.reference and 'loras' in self.inventory.bindings
             if turbo:
                 await asyncio.to_thread(self.inventory.verify, self.inventory.descriptions(['loras']), {'turbo': {'class_type': 'LoraLoaderModelOnly'}})
             props.update(duration={'type': 'number', 'displayName': '时长（秒）', 'default': 2, 'min': .2, 'max': 15}, turbo={'type': 'boolean', 'displayName': '启用 8 步加速', 'default': turbo})
-        return {'model': model, 'kind': kind, 'local': True, 'available': True, 'schema': {'properties': props, 'config': {'strictModes': True, 'settings': ['width', 'height'] + (['duration', 'turbo'] if kind == 'video' else []), 'advancedSettings': ['seed']}}}
+            if self.reference:
+                del props['turbo']
+        return {'model': model, 'kind': kind, 'local': True, 'available': True, 'schema': {'properties': props, 'config': {'strictModes': True, 'settings': ['width', 'height'] + (['duration'] + ([] if self.reference else ['turbo']) if kind == 'video' else []), 'advancedSettings': ['seed']}}}
 
     def build(self, data, media, request_id):
         config = data['config']
         if config.get('model') != self.model or config.get('kind') != self.kind:
             raise InvalidInput('Local model identity or output kind does not match.')
+        if self.reference:
+            if config.get('mode') != 'image2video' or not 1 <= len(media) <= 9 or any(item.get('kind') != 'image' for item in media):
+                raise InvalidInput('Local H3 Ref requires between 1 and 9 reference images.')
+            if config.get('settings', {}).get('turbo', False):
+                raise InvalidInput('Local H3 Ref acceleration is not configured.')
+        return self._prepare(data, media, request_id)
+
+    def _prepare(self, data, media, request_id):
+        config = data['config']
         prompt = compile_segments(data.get('segments', []), media)
-        values = settings_for(self.kind, config.get('mode'), config.get('settings', {}), media)
+        values = settings_for(self.kind, 'text2video' if self.reference else config.get('mode'),
+                              {'turbo': False, **config.get('settings', {})} if self.reference else config.get('settings', {}),
+                              [] if self.reference else media)
         keys = set(IMAGE_FILES if self.kind == 'image' else VIDEO_FILES)
         if self.kind == 'video' and not values['turbo']:
             keys.discard('loras')
@@ -99,7 +120,7 @@ class NativeProvider:
         names = {key: info['name'] for key, info in models.items()}
         prepared_media = [{**item, 'native_input': self.media_input(item)} for item in media]
         prefix = 'daelab/creative-studio/' + hashlib.sha256(request_id.encode()).hexdigest()[:24]
-        graph = image_graph(prompt, values, names, prefix) if self.kind == 'image' else video_graph(prompt, values, prepared_media, names, prefix)
+        graph = image_graph(prompt, values, names, prefix) if self.kind == 'image' else video_graph(prompt, values, prepared_media, names, prefix, reference=self.reference)
         return {'kind': self.kind, 'model': self.model, 'models': models, 'settings': values, 'graph': graph,
                 'native_task_id': str(uuid.uuid5(uuid.NAMESPACE_URL, 'creative-studio:' + request_id))}
 

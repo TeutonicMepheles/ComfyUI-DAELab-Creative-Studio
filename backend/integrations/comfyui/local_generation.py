@@ -40,10 +40,11 @@ def read_configuration(user_directory):
     if Path(lock).suffix != '.lock' or Path(lock).is_dir():
         raise ValueError("Use a dedicated .lock file for shared local resource admission")
     bindings = config.get("modelBindings", {})
-    if not isinstance(bindings, dict) or set(bindings) - {"image", "video"}:
+    if not isinstance(bindings, dict) or set(bindings) - {"image", "video", "video_reference"}:
         raise ValueError("Only the fixed local image and video model families are supported")
     permitted = {"image": {"diffusion_models", "text_encoders", "mmproj", "vae"},
                  "video": {"diffusion_models", "text_encoders", "video_vae", "audio_vae", "loras"}}
+    permitted['video_reference'] = permitted['video'] - {'loras'}
     normalized = {}
     for kind, categories in bindings.items():
         if not isinstance(categories, dict) or set(categories) - permitted[kind]:
