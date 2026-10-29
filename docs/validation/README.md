@@ -20,3 +20,5 @@
 验证追踪：`node tools/evals/traceability.mjs --check`。该命令只检查资料结构，不授予产品通过状态。
 
 2026-10-29：[工作流历史初始化修复](HISTORY_LIFECYCLE_20261029.md) 记录已复现的加载竞态、延迟安装及隔离环境回归。
+
+2026-10-30：[生成节点 Slot 素材统一](GENERATION_SLOT_MATERIALS_20261030.md) 记录重复素材修复、首尾帧选择、独立与表格接入测试及本地模型限制。

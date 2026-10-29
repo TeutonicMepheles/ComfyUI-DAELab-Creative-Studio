@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "af74b02e469119b3ff24b08da1f1f7ed80179a942845082e1b7bf5429a92ca48",
+  "sourceFingerprint": "2a18e2b2d6be60f6a8edb2289c94ba03f958e2bf67797b301ff5e0a1ba67afcb",
   "files": [
     {
       "path": "AGENTS.md",
@@ -504,7 +504,7 @@
     },
     {
       "path": "features/generation/README.md",
-      "sha256": "1842503a21af5790604d865056d816a68d3846c156011e79468f08c6e222ab45"
+      "sha256": "a9c9fcce0fcf36f5bf5663810f549a862c1e65ad4f42d051481a5bf3fcd610bd"
     },
     {
       "path": "features/generation/generation_input.js",
@@ -532,7 +532,7 @@
     },
     {
       "path": "features/generation/table_generation_model.mjs",
-      "sha256": "fab5056bde8b1313b7d6994229dcd2f92ccdb4dbe9dc5fedc9ae20400fb0adf9"
+      "sha256": "96cbd13e231fc137c444298752b54fb9be6bc31588f9dc3f776446aa0f84c08d"
     },
     {
       "path": "features/generation/table_generation_panel.mjs",
@@ -548,7 +548,7 @@
     },
     {
       "path": "features/generation/video_task_linked_prompt.mjs",
-      "sha256": "380092e524d1a47397ac5897ef1c4e3393c90087b23451d5ffb9192dc341ccfa"
+      "sha256": "e1009045aabb97e5c610f8ad6866361f9359b5cd3b8df57076656caaf5c25f0b"
     },
     {
       "path": "features/generation/video_task_results.js",
@@ -568,7 +568,7 @@
     },
     {
       "path": "features/generation/video_tasks_panel.mjs",
-      "sha256": "341184dbd464b8a32830e6f4bbd199d8741f27512f429cd09b4f8cbcc526f231"
+      "sha256": "ab268fec2fcb09b1ced0d0f1997a13450cd5570dc8cf8f970e766c2dc87adfd5"
     },
     {
       "path": "features/groups/AGENTS.md",
@@ -948,7 +948,7 @@
     },
     {
       "path": "integrations/comfyui/business/README.md",
-      "sha256": "19830ff80f45b06072e0561f3c0b6f538e1accd4d948ba667c759fa2d444dace"
+      "sha256": "ad2c4e6d8c11074eec2a9ed0f11654d0da11b39b90c5e8d50392d5df3b4dc17f"
     },
     {
       "path": "integrations/comfyui/business/app_mode_bypass.js",
@@ -1024,7 +1024,7 @@
     },
     {
       "path": "integrations/comfyui/business/video_generate.js",
-      "sha256": "7abe4170e5c9d58a90c6acfb00f8c352b2846646ec95d806f929495c08bc307d"
+      "sha256": "297eaf0e1b2391afce3f75b4ce67b88068f8fad48c04d9eb55cb8eb2b2939dc4"
     },
     {
       "path": "integrations/comfyui/business/workflow_node_lifecycle.js",
@@ -1100,7 +1100,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "f689ee67a9c6e76425afa581f2e8cd51e611c7bccecfd467045c9416a0483b2a"
+      "sha256": "d5ef39094943025efe55db9706c58d05cd9394c7105e813ea0af7876700d71da"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

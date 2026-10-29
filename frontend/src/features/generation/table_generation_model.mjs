@@ -232,7 +232,7 @@ export function generationInput(table,fieldId,recordId){
   if(!frame.asset)throw new Error((frame.role==='first'?'首帧':'尾帧')+'：'+(frame.error||'请选择本行图片'));
   const a=frame.asset;if(a.fieldId===fieldId)throw new Error('生成列不能引用自身结果，请引用其他已完成的生成列');assets.push({id:a.id,fieldId:a.fieldId,kind:a.kind||'image',url:a.url});
  }
- if(!generationFrameRoles(config).length)for(const ref of row.meta?.generationReferences?.[owner.id]||[]){
+ if(!generationFrameRoles(config).length&&!['text2video','text2image'].includes(config.mode))for(const ref of row.meta?.generationReferences?.[owner.id]||[]){
   if(ref.fieldId===fieldId)throw new Error('生成列不能引用自身结果，请引用其他已完成的生成列');
   const {asset}=columnValue(table,row,ref.fieldId,undefined,ref.assetId);
   if(!asset)throw new Error('参考素材已不存在');
