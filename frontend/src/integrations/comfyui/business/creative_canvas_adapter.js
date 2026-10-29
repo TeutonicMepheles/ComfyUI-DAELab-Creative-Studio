@@ -2,10 +2,11 @@ import {NAMESPACE} from '../../../features/prompt/prompt_optimization_model.mjs'
 import {generationMaterials} from '../../../application/table_material_output.mjs';
 // Optional integration: business nodes work without the canvas extension.
 // This repository alone owns knowledge of its private panel implementations.
-import {createMaterialTable,fillMaterialColumn,fillMaterialRow,fillMaterialCell,columnDropTypes,columnFillCount} from '../../../application/table_material_columns.mjs';
+import {createMaterialTable,addMaterialColumns,fillMaterialColumn,fillMaterialRow,fillMaterialCell,columnDropTypes,columnFillCount} from '../../../application/table_material_columns.mjs';
 import {app} from '/scripts/app.js';
 import {materialItem} from '../../../features/table/public_helpers.mjs';
 import {videoResultAssets} from '../../../features/generation/libtv_video_model.mjs';
+import {generationInputNames} from '../../../features/generation/generation_input.js';
 const key=Symbol.for('DAELAB.CreativeCanvas.API.v1');
 const tables=['DAELAB.Table','DAELAB.StoryboardImport'];
 let registered=false;
@@ -26,7 +27,9 @@ function register(){
             const cells=[...root.querySelectorAll('td[data-field]')].filter(e=>ids.has(e.dataset.field));
             const target=(element,key,label,project=true)=>({element,key,label,project,clipElement:element.closest('.dae-table-scroll')});
             const projectedTargets=columns.map(e=>{const columnCells=[...root.querySelectorAll('td[data-field]')].filter(c=>c.dataset.field===e.dataset.column);return {...target(e,e.dataset.column,'单个素材填满整列，多个素材按序向下填充'),accepts:columnDropTypes(fields.find(f=>f.id===e.dataset.column)),previewElements:count=>[e,...columnCells.slice(0,columnFillCount(count,columnCells.length))]};});
+            const addColumn=root.querySelector('th.table-add-column');
             const targets=[...projectedTargets,
+                ...(addColumn?[{...target(addColumn,JSON.stringify(['new-column']),'松开自动新建列，按顺序从首行填入',false),accepts:['image','video','text']}]:[]),
                 ...[...root.querySelectorAll('.table-choice[data-content-row]')].map(e=>({...target(e,JSON.stringify(['row',e.dataset.contentRow]),'松开按行向右填充',false),previewElements:[e,...cells.filter(c=>c.dataset.record===e.dataset.contentRow)]})),
                 ...cells.map(e=>target(e,JSON.stringify(['cell',e.dataset.record,e.dataset.field]),'松开将全部素材加入此格',false))];
             materialTargetCache.set(node,{grid,targets,projectedTargets,cellsRevision:grid?.dataset.cellsRevision});return targets;
@@ -40,7 +43,7 @@ function register(){
         // Generation output controls belong to the current header; never cache its DOM.
         materialSources:node=>[...(node.__dataTablePanel?.root.querySelector('thead')?.querySelectorAll('[data-generation-source]')||[])].map(element=>({element,key:element.dataset.generationSource,label:'输出为素材组'})),
         outputMaterials:(node,key)=>generationMaterials(node.__dataTable,key),
-        acceptMaterials(node,key,collection){if(node.type==='DAELAB.LibTV.VideoGenerate')return node.__libtvPanel.acceptMaterials(key,collection);const editor=node.__dataTablePanel?.editor;if(!editor)throw new Error('表格尚未就绪');editor.change(t=>{if(t.fields.some(f=>f.id===key))fillMaterialColumn(t,key,collection);else{const [kind,record,field]=JSON.parse(key);if(kind==='row')fillMaterialRow(t,record,collection);else if(kind==='cell')fillMaterialCell(t,record,field,collection);else throw new Error('素材落点已失效');}});},
+        acceptMaterials(node,key,collection){if(node.type==='DAELAB.LibTV.VideoGenerate')return node.__libtvPanel.acceptMaterials(key,collection);const editor=node.__dataTablePanel?.editor;if(!editor)throw new Error('表格尚未就绪');editor.change(t=>{if(t.fields.some(f=>f.id===key))fillMaterialColumn(t,key,collection);else{const [kind,record,field]=JSON.parse(key);if(kind==='new-column')addMaterialColumns(t,collection);else if(kind==='row')fillMaterialRow(t,record,collection);else if(kind==='cell')fillMaterialCell(t,record,field,collection);else throw new Error('素材落点已失效');}});},
         tasks:node=>node.__dataTablePanel?.tasks?.()||node.__libtvPanel?.tasks?.()||[],
         matches:node=>tables.includes(node.type)||node.type==='DAELAB.LibTV.VideoGenerate',
         expanded:node=>tables.includes(node.type),
@@ -54,10 +57,15 @@ function register(){
         compactWidth:0,
         width:node=>node.type==='DAELAB.Table'?1140:tables.includes(node.type)?1060:node.type==='DAELAB.LibTV.VideoGenerate'?900:460,
         action:()=>null,
+        refresh:node=>node.__libtvPanel?.sync(),
         panel:node=>{const p=node.__dataTablePanel||node.__libtvPanel;return p?{root:p.root,buttons:p.creativeButtons,fields:p.creativeFields,close:()=>p.close?.()}:null;},
         summary:node=>tables.includes(node.type)?`${node.__dataTable?.records?.length||0} 条记录`:null,
         preview:node=>({url:node.properties?.daelabLibTVResult,kind:'video'}),
         inputLabels:{table_json:'表格任务',first_frame:'首帧',last_frame:'尾帧',reference_images:'参考图片',reference_video:'参考视频',text_input:'描述文本'},
+        canConnectInput:node=>node.type!=='DAELAB.Table',
+        outputTargetTypes:node=>node.type==='DAELAB.Table'?['DAELAB.LibTV.VideoGenerate','DAELAB.LLMStylePreviewB']:undefined,
+        inputNames:(node,source,slot)=>node.type==='DAELAB.LibTV.VideoGenerate'?generationInputNames(node,source,slot):undefined,
+        inputSelection:node=>node.type==='DAELAB.LibTV.VideoGenerate'?'first-free':undefined,
         prepareCopy(node,data){
             if(data.properties?.[NAMESPACE])delete data.properties[NAMESPACE];
             for(const [i,w] of (node.widgets||[]).entries())if(data.widgets_values){

@@ -86,7 +86,7 @@
       "source": "web/creative_canvas_view.mjs",
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
       "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
-      "destinationSha256": "9f7dfe595e9fc4b0bf4a00b970ca868bc33ec5c727ae2a5bf85591c521507c67",
+      "destinationSha256": "6481fbdbd34ccc7cd2e8d3f05f8f81a1e0e2fefe654467dc1e5808f757968f52",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "remove opt-in test gallery rendering; retain unrelated graph.extra data",
@@ -104,7 +104,8 @@
         "Inject current direct-child zoom HUD bounds for trusted Tab whole-control reveal; reserve its top band only when the projected visible control intersects it, then preserve bottom-hint avoidance. Ordinary caret/input adds no HUD read; live owner, internal clipping and post-read lease checks remain. Actual 78 reverse-Tab failures are retained; new candidate browser acceptance pending.",
         "PERF selection-paint candidate: compare current selected/slotsSuppressed attributes and selection-surface class before writes; preserve every select/raise/focus/layout and per-card group projection call. Real closure tests cover 300-card selection, live group mutations and outside DOM repair; actual latency acceptance remains pending.",
         "Expose only the existing connected, visible direct-child asset dock bounds to focus reveal; retain native focus, owner leases and viewport-only navigation. The 1752 LLM B dock interception failure is retained; candidate browser reacceptance follows.",
-        "Expose the leased panel active state without a geometry read; preserve viewport geometry and legacy adapter fallback. Two-instance table and mode checks are recorded in TABLE_PILOT_ACCEPTANCE_20261027.md; the 100 ms budget remains open."
+        "Expose the leased panel active state without a geometry read; preserve viewport geometry and legacy adapter fallback. Two-instance table and mode checks are recorded in TABLE_PILOT_ACCEPTANCE_20261027.md; the 100 ms budget remains open.",
+        "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained."
       ],
       "kind": "production-source"
     },
@@ -125,9 +126,10 @@
       "source": "web/creative_connections.mjs",
       "destination": "frontend/src/canvas/creative_connections.mjs",
       "sourceSha256": "6fdd4d42b650b787533ebdb7692bebcb8182e8309370dbde844fda81eb4a6bfe",
-      "destinationSha256": "0ebf64d812146f68030a7144a05822333c3efca4ad25171cc53632120973d2c5",
+      "destinationSha256": "46c59b3576fc428ec47d3452f41c4cf99e1b23bc588259e71fc6c213494e6b03",
       "changes": [
-        "relocate into owner layer; rewrite relative module/style/resource paths"
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained."
       ],
       "kind": "production-source"
     },
@@ -157,9 +159,10 @@
       "source": "web/creative_material_drop.mjs",
       "destination": "frontend/src/canvas/creative_material_drop.mjs",
       "sourceSha256": "439cd2040a60c8a931f217a70c53cbc53485a9bd067110cce684728be5263894",
-      "destinationSha256": "2ca224e96ae27dc6457fe55d73e79e3a6b48154067e160152320edc33358e2be",
+      "destinationSha256": "93c96b1c093cf214812b50f2d0872eb267e7d4b610c94e50f3f2206b1cc8417b",
       "changes": [
-        "relocate into owner layer; rewrite relative module/style/resource paths"
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained."
       ],
       "kind": "production-source"
     },
@@ -187,12 +190,13 @@
       "source": "web/creative_canvas.js",
       "destination": "frontend/src/integrations/comfyui/canvas/creative_canvas.js",
       "sourceSha256": "ce343c31cd8378d4d156e62ce21d9542da6e240576b7949a8bdc8253081b95fe",
-      "destinationSha256": "fc367cd818c72d9b9586e8f7685faff2fd70400df590147a8030564882bd0ee8",
+      "destinationSha256": "4f4c8bba662db86e6ac3285add1705c22af248beb3795fb426461d43c3997712",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "inject existing host history port at integration assembly boundary",
         "Assemble typed CanvasHostPort and groups controller; load host CSS; diagnose missing host mode/history/serialization before unsafe operations.",
-        "restore saved Canvas at native afterLoadGraph after workflow activation, not afterConfigureGraph; cancel stale async overlay entries on load or newer mode choices"
+        "restore saved Canvas at native afterLoadGraph after workflow activation, not afterConfigureGraph; cancel stale async overlay entries on load or newer mode choices",
+        "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained."
       ],
       "kind": "production-source"
     },
@@ -372,11 +376,12 @@
       "source": "web/material_groups.mjs",
       "destination": "frontend/src/features/groups/material_groups.mjs",
       "sourceSha256": "91c47c4439efda72218a2749e00030e570bf1731a3eb100282347aecc463e144",
-      "destinationSha256": "f160c651579cf8542de7581ead1dae45996b6313b56c6fd63be5548d8a3deadd",
+      "destinationSha256": "16b36901da1f88e1fda33780b3fdd2981459e1f5ab80ef25f9ea231f00cdcc9e",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "inject existing host history port at integration assembly boundary",
-        "Inject CanvasHostPort plus view; delegate native graph commands; return controller for integration-owned registration; retain UI/layout behavior."
+        "Inject CanvasHostPort plus view; delegate native graph commands; return controller for integration-owned registration; retain UI/layout behavior.",
+        "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained."
       ],
       "kind": "production-source"
     },
@@ -803,9 +808,10 @@
       "source": "tests/creative_connections.test.mjs",
       "destination": "tests/migrated_canvas/creative_connections.test.mjs",
       "sourceSha256": "690df3067bf71bd36c95bb507ef38e1cfd93c4c0d5c2da877f3b51eddd8c07c6",
-      "destinationSha256": "036fd9808e39a02ab32669d596f3a5712dd2059130d07bd271836a8454a04f23",
+      "destinationSha256": "93880f1bb4958a3022610210b26a48e7415138d84e36b2cd349a75d6da1baa21",
       "changes": [
-        "point existing rule regression tests at migrated production modules"
+        "point existing rule regression tests at migrated production modules",
+        "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained."
       ],
       "kind": "rule-regression"
     },
@@ -823,9 +829,10 @@
       "source": "tests/creative_material_drop.test.mjs",
       "destination": "tests/migrated_canvas/creative_material_drop.test.mjs",
       "sourceSha256": "d3382eddb02db5638506384078461152b011474cd105c23c8a5ffc4980496c6c",
-      "destinationSha256": "d378707c60a0c17d367760a0f6024e1300c45daa5837a863f34d08da0fa6c0fd",
+      "destinationSha256": "54e74b29cb26b27862692ae17f637062c69c5e4cc6db6552df47f455b3b791b5",
       "changes": [
-        "point existing rule regression tests at migrated production modules"
+        "point existing rule regression tests at migrated production modules",
+        "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained."
       ],
       "kind": "rule-regression"
     },
@@ -941,11 +948,12 @@
       "source": null,
       "destination": "tests/migrated_canvas/canvas_host.test.mjs",
       "sourceSha256": null,
-      "destinationSha256": "8505787ba2bd367f29cc0fa8d6ef55e07b6577218c69abb9b5081085c23bb839",
+      "destinationSha256": "dd3aa5573b747666829081e797516560aadba25caf518688d6148495078a49c3",
       "changes": [
         "Execute real typed adapter and mature history with capability removal, stale workflow, startup, native identity, mode and private-access boundary regressions.",
         "cover native afterLoadGraph activation order, absent initialMode, no-op/failed native toggles, workflow races and safe isGraphReady history guards",
-        "Load the existing source TypeScript resolution hook before dynamically importing the history integration; assertions unchanged."
+        "Load the existing source TypeScript resolution hook before dynamically importing the history integration; assertions unchanged.",
+        "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained."
       ],
       "kind": "rule-test"
     },

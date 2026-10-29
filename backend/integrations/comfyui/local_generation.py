@@ -7,7 +7,10 @@ import re
 
 from ...generation.assembly import assemble_generation
 from ...generation.admission import complete_blocking
+from ...generation.media import stage_native_input
 from ...providers.qwen_binding import QwenModelBinding
+from ...providers.comfy_video import SeedanceProvider, MinimaxProvider
+from .comfy_video import ComfyVideoQueue, stage_seedance_input
 
 SHA = re.compile(r"^[a-f0-9]{64}$")
 
@@ -99,8 +102,6 @@ def create_host_queue(server):
 
 def assemble_host_generation(server, core, folder_paths, *, native_queue=None):
     config = read_configuration(folder_paths.get_user_directory())
-    if config is None:
-        return assemble_generation(core)
     import nodes
     from .generation_nodes.native_host import install_native_admission
     async def release_native_models():
@@ -116,5 +117,16 @@ def assemble_host_generation(server, core, folder_paths, *, native_queue=None):
                                                node_types=lambda: nodes.NODE_CLASS_MAPPINGS,
                                                resolve_model=folder_paths.get_full_path,
                                                release_native_models=release_native_models)
-    install_native_admission(server, generation.admission)
+    if generation.admission is not None:
+        install_native_admission(server, generation.admission)
+    def schema(node_id):
+        node = nodes.NODE_CLASS_MAPPINGS.get(node_id)
+        return node.INPUT_TYPES() if node is not None else None
+    remote_queue = ComfyVideoQueue(server, queue.validate_prompt)
+    for provider_type in (SeedanceProvider, MinimaxProvider):
+        media_input = stage_seedance_input if provider_type is SeedanceProvider else stage_native_input
+        provider = provider_type(schema=schema, queue=remote_queue,
+                                 media_input=lambda item, stage=media_input: stage(core.assets, item))
+        generation.providers[provider.id] = provider
+        generation.enabled_remote_providers.add(provider.id)
     return generation

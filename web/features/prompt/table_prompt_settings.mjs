@@ -11,7 +11,7 @@ export const PROMPT_SETTINGS_TEMPLATE=Object.freeze([
  {key:'size',label:'比例／分辨率',icon:'aspect-ratio-line',settings:['ratio','resolution','width','height']},
  {key:'duration',label:'时间',icon:'time-line',settings:['duration']},
 ]);
-export const generationModeLabels={text2video:'文生视频',singleImage2video:'首帧',frames2video:'首尾帧',image2video:'多图参考',mixed2video:'混合参考',text2image:'文生图',image2image:'参考图',audio2video:'音频参考'};
+export const generationModeLabels={text2video:'文生视频',singleImage2video:'首帧',frames2video:'首尾帧',image2video:'全能参考',mixed2video:'全能参考',text2image:'文生图',image2image:'参考图',audio2video:'音频参考'};
 function sizeLabel(settings){
  const width=Number(settings.width),height=Number(settings.height),dimensions=width>0&&height>0;
  let ratio=settings.ratio;
@@ -142,12 +142,7 @@ export function generationDurationOptions(spec,current){
 }
 export function generationParameterModes(config,schema){
  if(isLocalGenerationModel(config.model))return Object.keys(schema.properties?.modeType?.items||{});
- const declared=Object.keys(schema.properties?.modeType?.items||{}).map(generationModeChoice);
- if(!declared.length)return generationModes(schema,config.kind);
- if(config.kind==='video'&&!schema.config?.strictModes)declared.unshift('text2video');
- // Retain a saved unsupported mode visibly; opening this panel must not migrate data.
- if(config.mode&&!schema.config?.strictModes)declared.push(generationModeChoice(config.mode));
- return [...new Set(declared)];
+ return generationModes(schema,config.kind);
 }
 export const LOCAL_VIDEO_SIZE_PRESETS=Object.freeze([
  {ratio:'16:9',width:512,height:288},{ratio:'9:16',width:288,height:512},
@@ -183,7 +178,7 @@ export function createGenerationParameters(config,schema,{onMode,onSetting,onSet
  const section=(name,parent=root)=>{const block=document.createElement('section'),title=document.createElement('div');block.className='generation-parameter-section';title.className='generation-parameter-title';title.textContent=name;block.append(title);parent.append(block);return block;};
  const choices=parameterChoices;
  const modes=generationParameterModes(config,schema),modeSection=section('生成方式');
- const selectedMode=isLocalGenerationModel(config.model)?config.mode:generationModeChoice(config.mode);
+ const selectedMode=isLocalGenerationModel(config.model)?config.mode:generationModeChoice(config.mode,schema);
  choices(modeSection,'生成方式',modes.map(id=>[id,generationModeLabels[id]||id||'默认']),selectedMode,id=>{if(id!==config.mode)return onMode(id);});
  if(config.mode&&!modes.includes(selectedMode)){
   const warning=document.createElement('p');warning.setAttribute('role','status');warning.textContent='当前模型不支持已保存的生成方式，请重新选择。';modeSection.append(warning);
@@ -222,11 +217,11 @@ export function createGenerationParameters(config,schema,{onMode,onSetting,onSet
  }
  return root;
 }
-export const generationModeChoice=mode=>mode==='singleImage2video'?'frames2video':mode;
+export const generationModeChoice=(mode,schema)=>mode==='image2video'&&schema?.properties?.modeType?.items?.mixed2video?'mixed2video':mode;
 export function generationModes(schema,kind){
- const modes=Object.keys(schema.properties?.modeType?.items||{}),common=kind==='video'?['text2video','singleImage2video','frames2video','image2video','mixed2video']:['text2image','image2image'];
+ const modes=Object.keys(schema.properties?.modeType?.items||{});
  if(schema.config?.strictModes)return modes;
- return [...new Set([...modes,...common,...(!modes.length&&kind==='image'?['']:[])].map(generationModeChoice))];
+ return [...new Set(modes.map(mode=>generationModeChoice(mode,schema)))];
 }
 // Use the same local preset transition in column and cell configuration.
 export function normalizeLocalGenerationConfig(config,schema){

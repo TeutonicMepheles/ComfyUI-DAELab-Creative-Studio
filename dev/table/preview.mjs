@@ -1,4 +1,5 @@
 import {createTableEditor} from '/web/application/table_editor.mjs';
+import {addGenerationColumn} from '/web/features/generation/table_generation_model.mjs';
 import {createMaterialTable} from '/web/application/table_material_columns.mjs';
 import {createBusinessDocument} from '/web/application/business_document.js';
 import {normalizeTable} from '/web/application/table_model.mjs';
@@ -27,7 +28,7 @@ bindBusinessService('generation',{async request(action,options){
  }
  return json({error:'预览未实现此模拟动作',code:'preview-unsupported',originalTaskMayExist:false},400);
 }});
-function fixture(name){const t=createMaterialTable();t.fixtureExtension={preserve:true};t.records[0].values[t.fields[0].id]=[{id:`asset-${name}`,url:'/view?filename=synthetic.png&type=input',kind:'image',name:'合成素材'}];const prompt=t.fields.find(f=>f.presentation==='prompt');t.records[0].values[prompt.id]=`实例 ${name} 的合成提示词`;t.fields.push({id:`note-${name}`,name:'备注',type:'text',width:240});for(const r of t.records)r.values[`note-${name}`]=`${name} 独立文字`;return t;}
+function fixture(name){const t=createMaterialTable();addGenerationColumn(t,{name:'模拟生成'});t.fixtureExtension={preserve:true};t.records[0].values[t.fields[0].id]=[{id:`asset-${name}`,url:'/view?filename=synthetic.png&type=input',kind:'image',name:'合成素材'}];const prompt=t.fields.find(f=>f.presentation==='prompt');t.records[0].values[prompt.id]=`实例 ${name} 的合成提示词`;t.fields.push({id:`note-${name}`,name:'备注',type:'text',width:240});for(const r of t.records)r.values[`note-${name}`]=`${name} 独立文字`;return t;}
 function button(parent,label,action){const b=document.createElement('button');b.textContent=label;b.onclick=action;parent.append(b);return b;}
 function build(name){
  const section=document.createElement('section');section.className='instance';section.dataset.instance=name;section.setAttribute('aria-label',`实例 ${name}`);section.innerHTML=`<h2>实例 ${name}</h2><div class="controls"></div><div class="mount"></div><p class="notice" role="status"></p><details><summary>当前 JSON（只读）</summary><pre class="state"></pre></details>`;document.querySelector('#instances').append(section);

@@ -1,11 +1,15 @@
-import {collectionFor,GROUP_TYPE} from '../features/groups/material_group_model.mjs';
+import {groupInputSnapshot,GROUP_TYPE} from '../features/groups/material_group_model.mjs';
 import {UPLOAD_TYPE,readAsset} from '../features/assets/media_upload_model.mjs';
 import {inputSnapshot} from './creative_input_exchange.mjs';
 
 // Snapshot transport only. Fill direction and repetition belong to consumers.
 export function materialDropSnapshot(node){
     if(!node||node.mode)return null;
-    if(node.type===GROUP_TYPE)return collectionFor(node);
+    if(node.type===GROUP_TYPE){
+        if((node.properties.members||[]).some(id=>node.graph?.getNodeById(id)?.mode))return null;
+        const snapshot=groupInputSnapshot(node);
+        return snapshot.ready===false?null:snapshot;
+    }
     if(node.type===UPLOAD_TYPE){
         const asset=readAsset(node.widgets?.find(w=>w.name==='asset_data')?.value);
         return asset?{version:1,assets:[{...asset,nodeId:String(node.id)}]}:null;

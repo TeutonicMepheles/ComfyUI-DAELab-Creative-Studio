@@ -1,4 +1,4 @@
-import {isTextColumn} from './table_prompt_source.mjs';
+import {isTextColumn,promptSourceId} from './table_prompt_source.mjs';
 // Row references bind media identity; column templates select media for each row.
 export const isColumnPrompt = doc => doc?.kind === 'column-template';
 export function validateColumnPrompt(doc) {
@@ -51,7 +51,10 @@ export function resolveColumnPrompt(doc,table,row,fieldId) {
   if(value.asset){let ref=references.find(r=>r.assetId===value.asset.id);
    if(!ref){const a=value.asset;ref={refId:'column-'+a.fieldId+(s.assetId?'-asset-'+s.assetId:s.assetIndex?'-item-'+(s.assetIndex+1):''),fieldId:a.fieldId,assetId:a.id,included:true,role:'reference'};references.push(ref);assets.push(a);}
    segments.push({type:'ref',refId:ref.refId});
-  }else segments.push({type:'text',text:value.text});
+  }else{
+   if(fieldId&&fieldId!==promptSourceId(table))throw new Error('只有列头指定的提示词列可以引用其他列的文字');
+   segments.push({type:'text',text:value.text});
+  }
  }
  return {version:1,compilerVersion:1,segments,references,assets};
 }

@@ -6,6 +6,67 @@ import {createTableSnapshot,readTableSnapshot,writeTablePrompts} from '../../fro
 import {promptContent,toColumnPrompt} from '../../frontend/src/features/prompt/table_prompt_template.mjs';
 import {importVideoTasks,syncVideoTaskInputs,selectTaskPrompt} from '../../frontend/src/features/generation/video_tasks_model.mjs';
 import {rowGenerationConfig,setRowGenerationConfig,generationFrames,syncGenerationFrameTags} from '../../frontend/src/features/generation/table_generation_model.mjs';
+import {createMaterialTable} from '../../frontend/src/application/table_material_columns.mjs';
+import {addRecord} from '../../frontend/src/application/table_model.mjs';
+
+test('deselection and deletion archive task receipts, results and overrides across reload and restoration',()=>{
+ const source=createMaterialTable(),state=importVideoTasks(source),peer=importVideoTasks(source),id=source.records[0].id;
+ const row=state.table.records[0],field=state.table.fields.find(f=>f.id===state.fieldId);
+ row.values[state.fieldId]=[{id:'paid-result',kind:'video',url:'/view?filename=paid.mp4&type=output'}];
+ row.meta.generationColumns={[state.fieldId]:{phase:'complete',requestId:'paid-once'}};
+ row.meta.future={opaque:true};
+ setRowGenerationConfig(row,state.fieldId,{...field.generation,settings:{duration:7}});
+ const saved=structuredClone(row),peerBefore=JSON.stringify(peer);
+ let previous=structuredClone(source);source.records.forEach(r=>r.selected=false);syncVideoTaskInputs(state,source,previous);
+ assert.deepEqual(state.table.records,[]);assert.equal(state.currentId,'');
+ assert.deepEqual(state.archivedTasks.find(r=>r.id===id).values[state.fieldId],saved.values[state.fieldId]);
+ const restored=JSON.parse(JSON.stringify(state));
+ previous=structuredClone(source);source.records.reverse();source.records.forEach(r=>r.selected=true);syncVideoTaskInputs(restored,source,previous);
+ const task=restored.table.records.find(r=>r.id===id);
+ assert.deepEqual(task.values[state.fieldId],saved.values[state.fieldId]);assert.deepEqual(task.meta,saved.meta);
+ assert.equal(rowGenerationConfig(task,state.fieldId,field.generation).settings.duration,7);
+ assert.deepEqual(restored.table.records.map(r=>r.id),source.records.map(r=>r.id));assert.deepEqual(restored.archivedTasks,[]);
+ previous=structuredClone(source);source.records=source.records.filter(r=>r.id!==id);syncVideoTaskInputs(restored,source,previous);
+ const deleted=structuredClone(source);source.records=previous.records;syncVideoTaskInputs(restored,source,deleted);
+ assert.deepEqual(restored.table.records.find(r=>r.id===id).meta,saved.meta);assert.equal(JSON.stringify(peer),peerBefore);
+});
+
+test('source configuration edits reach archived tasks without clearing their results',()=>{
+ const {table:source}=frameFixture(),state=importVideoTasks(source),id=source.records[0].id;
+ state.table.records[0].values[state.fieldId]=[{id:'result',kind:'video'}];
+ let previous=structuredClone(source);source.records[0].selected=false;syncVideoTaskInputs(state,source,previous);
+ previous=structuredClone(source);source.fields.at(-1).generation.settings.duration=9;syncVideoTaskInputs(state,source,previous);
+ const reloaded=JSON.parse(JSON.stringify(state));previous=structuredClone(source);source.records[0].selected=true;syncVideoTaskInputs(reloaded,source,previous);
+ const row=reloaded.table.records.find(r=>r.id===id),owner=reloaded.table.fields.find(f=>f.id===state.fieldId);
+ assert.equal(rowGenerationConfig(row,state.fieldId,owner.generation).settings.duration,9);assert.equal(row.values[state.fieldId][0].id,'result');
+});
+
+test('restoring a deleted configured source row does not mistake its absence for a settings edit',()=>{
+ const {table:source}=frameFixture(),state=importVideoTasks(source),id=source.records[0].id;
+ const field=state.table.fields.find(f=>f.id===state.fieldId);
+ setRowGenerationConfig(state.table.records[0],state.fieldId,{...field.generation,settings:{duration:7}});
+ const deleted=structuredClone(source);deleted.records.shift();syncVideoTaskInputs(state,deleted,source);
+ const reloaded=JSON.parse(JSON.stringify(state));syncVideoTaskInputs(reloaded,source,deleted);
+ assert.equal(rowGenerationConfig(reloaded.table.records.find(r=>r.id===id),state.fieldId,field.generation).settings.duration,7);
+});
+
+test('checked rows drive task membership, including empty selection, new rows and independent instances',()=>{
+ const source=createMaterialTable();source.records[1].selected=false;
+ const a=importVideoTasks(source),b=importVideoTasks(source),kept=a.table.records[0],rowId=kept.id;
+ assert.deepEqual(a.table.records.map(r=>r.id),[source.records[0].id,source.records[2].id]);
+ kept.values[a.fieldId]=[{id:'done',url:'/view?filename=done.png'}];
+ setRowGenerationConfig(kept,a.fieldId,{...a.table.fields.find(f=>f.id===a.fieldId).generation,settings:{duration:7}});
+ let before=structuredClone(source);source.records[2].selected=false;source.records[1].selected=true;
+ for(const s of [a,b])syncVideoTaskInputs(s,source,before);
+ assert.deepEqual(a.table.records.map(r=>r.id),[rowId,source.records[1].id]);
+ assert.equal(kept.values[a.fieldId][0].id,'done');assert.equal(rowGenerationConfig(kept,a.fieldId,a.table.fields.find(f=>f.id===a.fieldId).generation).settings.duration,7);
+ assert.deepEqual(b.table.records[0].values[b.fieldId],[]);
+ before=structuredClone(source);source.records.forEach(r=>r.selected=false);syncVideoTaskInputs(a,source,before);
+ assert.deepEqual(a.table.records,[]);assert.equal(a.currentId,'');assert.equal(importVideoTasks(source).table.records.length,0);
+ before=structuredClone(source);const added=addRecord(source);assert.equal(added.selected,true);syncVideoTaskInputs(a,source,before);
+ assert.deepEqual(a.table.records.map(r=>r.id),[added.id]);assert.equal(a.currentId,added.id);
+ const saved=JSON.parse(JSON.stringify(a));syncVideoTaskInputs(saved,source,source);assert.deepEqual(saved,a);
+});
 test('output creation uses serialized table contract and avoids an existing neighbor',()=>{
     let release;
     const graph={_nodes:[{pos:[1160,0],size:[700,600]}],add(node){node.graph=this;this._nodes.push(node);},change(){}};
@@ -58,7 +119,8 @@ test('table edits sync by row and column identity while preserving task settings
  assert.deepEqual(promptContent(state.table,row,'p2'),[{type:'text',text:'表格新内容'}]);
  assert.equal(row.name,'新任务名');assert.equal(row.values.m[0].id,'ref');
  assert.deepEqual(row.values[state.fieldId],saved.output);assert.deepEqual(row.meta,saved.meta);
- assert.deepEqual(promptContent(state.table,state.table.records[0],'p'),promptContent(previous,previous.records[0],'p'));
+ assert.deepEqual(promptContent(state.table,state.table.records[0],'p'),promptContent(previous,previous.records.find(r=>r.id===state.table.records[0].id),'p'));
+ assert.deepEqual(state.table.records.map(r=>r.id),source.records.map(r=>r.id));
 });
 
 test('sync preserves node-only inputs and handles cleared prompts and template changes',()=>{

@@ -59,7 +59,7 @@ function addField(table,spec={}) {
 function removeField(table,id) {if(promptSourceId(table)===id)setPromptSource(table,null);table.fields=table.fields.filter(f=>f.id!==id);for(const row of table.records)delete row.values[id];if(table.meta.asset_groups)table.meta.asset_groups=table.meta.asset_groups.filter(g=>g.field_id!==id);}
 function addRecord(table,values={},afterId=null) {
     if(table.records.length>=500)throw new Error('每张表最多 500 行');
-    const record={id:uid(),selected:!table.meta?.material_columns,values:clone(values)};
+    const record={id:uid(),selected:true,values:clone(values)};
     if(table.meta?.material_columns){let number=table.records.length+1;while(table.records.some(row=>row.name===`任务${number}`))number++;record.name=`任务${number}`;}
     const at=afterId?table.records.findIndex(r=>r.id===afterId)+1:table.records.length;
     table.records.splice(at,0,record);return record;

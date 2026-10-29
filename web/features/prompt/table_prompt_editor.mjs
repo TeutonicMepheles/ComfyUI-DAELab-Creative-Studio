@@ -117,7 +117,7 @@ export function createPromptEditor({getTable,editor,request,notify,renderFrame,g
     read:()=>({...draft,segments:readPromptSegments(preview)}),
     write:doc=>{if(!currentRow()||!getTable().fields.some(f=>f.id===field.id&&!f.readonly))throw new Error('提示词行或列已删除或不可编辑');const actual=currentRow().values[field.id]??'';if(JSON.stringify(actual)!==expected)throw new Error('提示词已被更新，请重新编辑');change(t=>{t.records.find(r=>r.id===row.id).values[field.id]=doc;t.meta.prompt_mode='reviewed';},{render:false,group});expected=JSON.stringify(doc);},
     reset:()=>{if(currentRow()&&JSON.stringify(currentRow().values[field.id]??'')===expected)change(t=>t.records.find(r=>r.id===row.id).values[field.id]=original,{render:false,group});},
-    columns:()=>columnReferenceOptions(getTable(),currentRow()||row).filter(f=>f.id!==field.id),
+    columns:()=>columnReferenceOptions(getTable(),currentRow()||row,field.id).filter(f=>f.id!==field.id),
     getColumnChip:f=>{const box=document.createElement('div');drawSegments(box,{segments:[{type:'column',fieldId:f.id,...(f.valueType?{valueType:f.valueType}:{}),...(f.assetIndex!==undefined?{assetIndex:f.assetIndex}:{}),...(f.asset?{assetId:f.asset.id}:{})}]},currentRow()||row);return box.firstChild;}
    });
    return {...binding,dispose(){binding.dispose();closeHover();}};

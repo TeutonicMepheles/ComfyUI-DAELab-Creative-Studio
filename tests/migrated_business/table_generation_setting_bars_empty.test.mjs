@@ -38,9 +38,10 @@ function dom(t){
 
 const fixture=JSON.parse(readFileSync(new URL('../fixtures/performance/FX-PERF-M-no-video.json',import.meta.url),'utf8'));
 function generationField(){return {id:'gen',name:'Image',type:'content',readonly:true,presentation:'generation',generation:{version:1,kind:'image',model:LOCAL_IMAGE_MODEL,promptFieldId:'field-00',mode:'text2image',settings:{width:1024,height:1024,seed:-1}}};}
-function harness(t,env,{index=0,small=false,generated=false,onRefresh=()=>{},onWrite=()=>{}}={}){
+function harness(t,env,{index=0,small=false,generated=false,material=true,onRefresh=()=>{},onWrite=()=>{}}={}){
  let table=JSON.parse(fixture.nodes.filter(n=>n.type==='DAELAB.Table')[index].widgets_values[0]),stamp=0,prior,countMaps=false,mapRows=0,valueReads=0,refreshes=0,panel;const errors=[],events=[],undo=[];
  if(small){table.fields=table.fields.slice(0,2);table.records=table.records.slice(0,2);for(const row of table.records)row.values=Object.fromEntries(table.fields.map(f=>[f.id,row.values[f.id]]));}
+ table.meta.material_columns=material;
  if(generated){table.fields.push(generationField());for(const row of table.records)row.values.gen=[];}
  const history={begin(){events.push('begin');prior=table;},end(){events.push('end');undo.push(prior);},amend(fn){events.push('amend');fn();},undo(){table=undo.pop();stamp++;},redo(){}};
  const editor=createTableEditor({getTable:()=>table,setTable:next=>{panel?.syncPromptChanges(next,table);table=next;stamp++;events.push('write');onWrite(next);},documentFactory:(read,write)=>createBusinessDocument({read,write,current:()=>true,identity:()=>({workflowSession:'test',epoch:0,documentId:'doc-'+index}),history,historyStamp:()=>stamp}),getRowState:()=>({issues:[],hint:''}),isRowStateEmpty:value=>!value.meta.prompt_config,promptColumnsOnly:true,upload(){throw Error('not exercised');},notify:e=>errors.push(e)});
@@ -60,6 +61,13 @@ function harness(t,env,{index=0,small=false,generated=false,onRefresh=()=>{},onW
 }
 const bar=cell=>cell.querySelector('.generation-prompt-settings-list');
 
+test('material tables keep configured headers and frame tags without cell-bottom settings or reserved height',t=>{
+ const env=dom(t),a=harness(t,env,{small:true,generated:true}),b=harness(t,env,{index:1,small:true,generated:true});
+ const before=JSON.stringify(b.table),gen=a.table.fields.find(f=>f.id==='gen');gen.generation.kind='video';gen.generation.mode='singleImage2video';a.panel.refresh();
+ assert.equal(bar(a.target()),null);assert.equal(a.target().dataset.generationSettings,undefined);assert.equal(a.target().style['--generation-settings-height'],undefined);
+ assert.ok(a.header().querySelector('.table-prompt-toggle'));assert.ok(a.table.records[0].meta.generationFrameTags.gen);assert.equal(JSON.stringify(b.table),before);
+});
+
 test('real 500x10 no-generation input skips the panel row map and full TD scan, preserving owner/history',t=>{
  const env=dom(t),a=harness(t,env),b=harness(t,env,{index:1}),box=a.enter(),peer=JSON.stringify(b.table);a.table.future={unknown:{kept:true}};
  const measured=a.input(box,'changed');
@@ -70,8 +78,8 @@ test('real 500x10 no-generation input skips the panel row map and full TD scan, 
 });
 
 test('configured inputs retain full updates; removed configuration cleans bars, markers, styles and prompt headers',t=>{
- const env=dom(t),a=harness(t,env,{small:true,generated:true}),b=harness(t,env,{index:1,small:true,generated:true}),cell=a.target(),peerBar=bar(b.target()),box=a.enter();
- assert.ok(bar(cell));assert.ok(a.header().querySelector('[data-generation-prompt-header]'));assert.equal(cell.dataset.generationSettings,'true');assert.equal(cell.style['--generation-settings-height'],'38px');
+ const env=dom(t),a=harness(t,env,{small:true,generated:true,material:false}),b=harness(t,env,{index:1,small:true,generated:true,material:false}),cell=a.target(),peerBar=bar(b.target()),box=a.enter();
+ assert.ok(bar(cell));assert.ok(a.header().querySelector('.table-prompt-toggle'));assert.equal(cell.dataset.generationSettings,'true');assert.equal(cell.style['--generation-settings-height'],'38px');
  a.table.records[0].meta??={};a.table.records[0].meta.generationSettings={'field-00':{gen:{...generationField().generation,settings:{width:512,height:512}}}};
  assert.deepEqual(a.input(box,'configured'),{mappedRows:2,scannedCells:6,refreshes:1});assert.match(bar(cell).textContent,/512/);assert.doesNotMatch(peerBar.textContent,/512/);
  a.table.fields=a.table.fields.filter(f=>f.id!=='gen');a.measure(()=>a.editor.root.emit('input'));
@@ -83,16 +91,16 @@ test('configured inputs retain full updates; removed configuration cleans bars, 
 });
 
 test('a detached old cell reinserted after configuration removal still receives original WeakMap cleanup',t=>{
- const env=dom(t),a=harness(t,env,{small:true,generated:true}),cell=a.target(),row=cell.parentNode,existing=bar(cell);cell.remove();a.table.fields=a.table.fields.filter(f=>f.id!=='gen');
+ const env=dom(t),a=harness(t,env,{small:true,generated:true,material:false}),cell=a.target(),row=cell.parentNode,existing=bar(cell);cell.remove();a.table.fields=a.table.fields.filter(f=>f.id!=='gen');
  a.measure(()=>a.editor.root.emit('input'));assert.equal(bar(cell),existing);
  row.append(cell);a.measure(()=>a.editor.root.emit('input'));assert.equal(bar(cell),null);assert.equal(cell.dataset.generationSettings,undefined);assert.equal(cell.style['--generation-settings-height'],undefined);
 });
 
-test('onRefresh stays before field inspection and may enable generation; callback/config failures remain visible',t=>{
- const env=dom(t);let enable=false,fail=false;const a=harness(t,env,{small:true,onRefresh:table=>{if(fail)throw Error('refresh rejected');if(enable&&!table.fields.some(f=>f.id==='gen'))table.fields.push(generationField());}}),box=a.enter();
+test('onRefresh stays before field inspection and may enable generation; callback failures remain visible and removed config cleans controls',t=>{
+ const env=dom(t);let enable=false,fail=false;const a=harness(t,env,{small:true,material:false,onRefresh:table=>{if(fail)throw Error('refresh rejected');if(enable&&!table.fields.some(f=>f.id==='gen'))table.fields.push(generationField());}}),box=a.enter();
  enable=true;assert.deepEqual(a.input(box,'enable'),{mappedRows:2,scannedCells:4,refreshes:1});assert.ok(bar(a.target()));
  fail=true;assert.throws(()=>a.editor.root.emit('input'),/refresh rejected/);fail=false;
- a.table.fields.find(f=>f.id==='gen').generation=undefined;assert.throws(()=>a.editor.root.emit('input'),TypeError);
+ a.table.fields.find(f=>f.id==='gen').generation=undefined;assert.doesNotThrow(()=>a.editor.root.emit('input'));assert.equal(bar(a.target()),null);
 });
 
 test('empty initial tables still clean stale prompt header wrappers and destroy removes the input listener',t=>{
@@ -141,7 +149,7 @@ test('summary guards still update changed labels/configuration and repair extern
 });
 
 test('real configured frame sync remains active, and malformed outer table/field shapes preserve failures',t=>{
- const env=dom(t),a=harness(t,env,{small:true,generated:true}),gen=a.table.fields.find(f=>f.id==='gen');gen.generation.kind='video';gen.generation.mode='singleImage2video';a.panel.refresh();assert.ok(a.table.records[0].meta?.generationFrameTags?.gen);assert.ok(a.table.records[0].values['field-00'].segments.some(s=>s.type==='frame'));
+ const env=dom(t),a=harness(t,env,{small:true,generated:true,material:false}),gen=a.table.fields.find(f=>f.id==='gen');gen.generation.kind='video';gen.generation.mode='singleImage2video';a.panel.refresh();assert.ok(a.table.records[0].meta?.generationFrameTags?.gen);assert.ok(a.table.records[0].values['field-00'].segments.some(s=>s.type==='frame'));
  const b=harness(t,env,{index:1,small:true});b.table.fields.push(null);assert.doesNotThrow(()=>b.panel.refresh());b.table.fields.pop();const fields=b.table.fields;b.table.fields={};assert.throws(()=>b.panel.refresh(),TypeError);b.table.fields=fields;
  const rows=b.table.records;b.table.records=null;assert.throws(()=>b.panel.refresh(),TypeError);assert.throws(()=>b.panel.syncPromptChanges(b.table,b.table),TypeError);b.table.records=rows;
 });

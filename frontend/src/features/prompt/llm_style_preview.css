@@ -101,3 +101,12 @@
 .llm-io .llm-io-after{color:var(--dae-text)!important}
 
 .dae-ui.llm-style-B .llm-style-result p{white-space:pre-wrap}
+.llm-io-task-rail{display:flex;order:-1;gap:8px;overflow-x:auto;flex:none;max-width:100%;padding:2px;scrollbar-width:thin}
+.llm-io-task-rail[hidden]{display:none}
+.dae-ui.llm-style-B.has-task-list{height:610px}
+.dae-ui.llm-style-B .llm-io-task-rail button{display:grid;grid-template-columns:24px minmax(0,1fr);gap:4px 8px;flex:0 0 190px;text-align:left;padding:10px;border:1px solid var(--dae-border,#444)!important;border-radius:12px!important;background:var(--dae-surface-low,#202020)!important}
+.dae-ui.llm-style-B .llm-io-task-rail button[aria-selected=true]{border-color:var(--dae-focus,#b8c4ff)!important;background:color-mix(in srgb,var(--dae-focus,#b8c4ff) 12%,var(--dae-surface,#242424))!important;box-shadow:inset 0 0 0 1px var(--dae-focus,#b8c4ff)}
+.llm-io-task-number{grid-row:span 2;align-self:center;text-align:center;background:var(--dae-surface-high,#333);border-radius:6px;padding:4px}
+.llm-io-task-rail button[aria-selected=true] .llm-io-task-number{background:var(--dae-primary,#b8c4ff);color:var(--dae-on-primary,#22243d)}
+.llm-io-task-text,.llm-io-task-preview{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.llm-io-task-preview{color:var(--dae-text-muted,#aaa)}

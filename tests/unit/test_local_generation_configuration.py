@@ -91,12 +91,14 @@ class LocalGenerationConfigurationTests(unittest.TestCase):
         management = SimpleNamespace(unload_all_models=lambda: operation('unload'), soft_empty_cache=lambda: operation('cache'))
         def compose(*args, **kwargs):
             captured.update(kwargs)
-            return SimpleNamespace(admission=object())
+            return SimpleNamespace(admission=object(), providers={}, enabled_remote_providers=set())
         with patch('backend.integrations.comfyui.local_generation.read_configuration', return_value={'explicit': True}), \
              patch('backend.integrations.comfyui.local_generation.compose_configured_generation', side_effect=compose), \
              patch('backend.integrations.comfyui.generation_nodes.native_host.install_native_admission'), \
              patch.dict(sys.modules, {'nodes': SimpleNamespace(NODE_CLASS_MAPPINGS={}), 'comfy': SimpleNamespace(model_management=management), 'comfy.model_management': management}):
-            assemble_host_generation(object(), object(), SimpleNamespace(get_user_directory=lambda: self.user, get_full_path=lambda *_: None), native_queue=object())
+            queue = SimpleNamespace(validate_prompt=lambda *_: self.fail('Assembly must not validate or submit a graph'))
+            generation = assemble_host_generation(object(), object(), SimpleNamespace(get_user_directory=lambda: self.user, get_full_path=lambda *_: None), native_queue=queue)
+            self.assertEqual(set(generation.providers), {'comfy-seedance', 'comfy-minimax'})
             self.assertEqual(events, [])  # Composition itself never releases models.
             asyncio.run(captured['release_native_models']())
         self.assertEqual(events, ['unload', 'cache'])

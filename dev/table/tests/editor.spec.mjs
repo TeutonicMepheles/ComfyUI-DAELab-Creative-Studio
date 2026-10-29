@@ -1,14 +1,16 @@
 import {test,expect} from '@playwright/test';
 const instance=(page,name)=>page.getByRole('region',{name:`实例 ${name}`,exact:true});
 const snapshot=async panel=>JSON.parse(await panel.locator('.state').textContent());
+async function editNote(panel,id,text){const cell=panel.locator(`td[data-field="note-${id}"]`).first();await cell.dblclick();await cell.locator('[contenteditable="true"]').fill(text);await cell.locator('[contenteditable="true"]').press('Tab');}
+
 test.beforeEach(async({page})=>{await page.goto('/');await expect(page.locator('.dae-table')).toHaveCount(2);});
 test('real editors preserve independent edits, history, menus and saved unknown keys',async({page})=>{
  const errors=[];page.on('pageerror',error=>errors.push(error.message));const a=instance(page,'A'),b=instance(page,'B');
- await a.locator('td[data-field="note-A"] input').first().fill('中文 A / English');
- await b.locator('td[data-field="note-B"] input').first().fill('独立 B');
+ await editNote(a,'A','中文 A / English');
+ await editNote(b,'B','独立 B');
  expect((await snapshot(a)).records[0].values['note-A']).toBe('中文 A / English');expect((await snapshot(b)).records[0].values['note-B']).toBe('独立 B');
  await a.getByRole('button',{name:'保存预览',exact:true}).click();
- await a.locator('td[data-field="note-A"] input').first().fill('临时');
+ await editNote(a,'A','临时');
  await a.getByRole('button',{name:'重载预览',exact:true}).click();
  expect((await snapshot(a)).records[0].values['note-A']).toBe('中文 A / English');expect((await snapshot(a)).fixtureExtension).toEqual({preserve:true});
  await a.getByRole('button',{name:'提示词模板',exact:true}).click();await expect(page.locator('.table-text-side:not([hidden])')).toHaveCount(1);
@@ -28,7 +30,7 @@ test('capability states preserve configuration and late simulated completion can
 });
 test('empty table, narrow viewport, focus and internal overflow remain reachable',async({page})=>{
  await page.setViewportSize({width:600,height:800});const a=instance(page,'A');
- await a.locator('td[data-field="note-A"] input').first().fill('窄视口');await page.keyboard.press('Tab');
+ await editNote(a,'A','窄视口');await page.keyboard.press('Tab');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
  expect(await a.locator('.dae-table-scroll').evaluate(e=>e.scrollWidth>e.clientWidth)).toBe(true);
  await a.getByRole('button',{name:'空表',exact:true}).click();expect((await snapshot(a)).records).toEqual([]);
@@ -58,12 +60,12 @@ test('structured clipboard exchange is explicit and a late upload cannot change 
 
 test('generation settings keep their click target when the prompt hint appears',async({page})=>{
  for(const name of ['A','B']){
-  const panel=instance(page,name),settings=panel.locator('[data-generation-defaults]').first();
+  const panel=instance(page,name),settings=panel.locator('.table-prompt-toggle[aria-pressed="true"]').first();
   await settings.scrollIntoViewIfNeeded();await page.mouse.move(0,0);const before=await settings.boundingBox();expect(before).not.toBeNull();
   await page.mouse.move(before.x+before.width/2,before.y+before.height/2);
   const hovered=await settings.boundingBox();expect(Math.abs(hovered.x-before.x)).toBeLessThan(.5);expect(Math.abs(hovered.y-before.y)).toBeLessThan(.5);
   await page.mouse.click(before.x+before.width/2,before.y+before.height/2);
-  await expect(page.locator('.table-text-side:not([hidden])')).toContainText('列默认配置');
-  await page.getByRole('button',{name:'关闭侧栏',exact:true}).click();
+  await expect(page.getByRole('button',{name:'应用全部',exact:true})).toBeVisible();
+  await page.keyboard.press('Escape');
  }
 });

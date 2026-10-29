@@ -25,7 +25,7 @@ function fixture(){
   e.append=x=>{x.owner=owner;e.children.push(x);x.parentElement=e;log('append',x.id);};e.remove=()=>{e.removed=true;if(e.parentElement)e.parentElement.children=e.parentElement.children.filter(x=>x!==e);log('remove',id);};
   e.addEventListener=(key,fn)=>{e[key]=fn;};e.focus=()=>{e.focused=true;};return e;
  }
- const api=new Function('adapterFor','button','state','portStarts','select','getComputedStyle',`let magneticPort=null;function setMagnet(value){magneticPort=value;} ${source};return {run:projectMaterialPorts,setMagnet,get magnet(){return magneticPort;}};`)(n=>n.adapter,()=>{const p=element('port'+ports.length,null);ports.push(p);return p;},state,portStarts,()=>{},()=>({overflowX:'visible'}));
+ const api=new Function('adapterFor','button','state','portStarts','select','getComputedStyle',`const visible=true,wires={getScreenCTM:()=>({a:state.viewport.zoom})};let magneticPort=null;function setMagnet(value){magneticPort=value;} ${source};return {run:projectMaterialPorts,setMagnet,get magnet(){return magneticPort;}};`)(n=>n.adapter,()=>{const p=element('port'+ports.length,null);ports.push(p);return p;},state,portStarts,()=>{},()=>({overflowX:'visible'}));
  function card(id,count=10){
   const clip=element('clip'+id,id,{left:0,top:0,width:4000,height:800}),heads=Array.from({length:count},(_,i)=>element('head'+id+'-'+i,id,{left:20+i*180,top:80,width:180,height:40}));
   const targets=heads.map((e,i)=>({element:e,key:'field-'+i,label:'列'+i,clipElement:clip,unknown:{kept:true}}));

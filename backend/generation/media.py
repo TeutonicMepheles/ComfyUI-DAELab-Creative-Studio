@@ -86,3 +86,8 @@ def stage_native_input(assets, item):
     content = read_frozen(assets, item)
     name = 'daelab/creative-studio/frozen/' + item['filename']
     return _publish(assets, name, content, kind=item['kind'], provenance={'source_reference_id': item['reference_id']})['relative_path']
+
+
+def stage_prepared_image(assets, item, content):
+    name = 'daelab/creative-studio/prepared/' + hashlib.sha256(content).hexdigest() + '.png'
+    return _publish(assets, name, content, kind='image', provenance={'source_reference_id': item['reference_id']})['relative_path']
