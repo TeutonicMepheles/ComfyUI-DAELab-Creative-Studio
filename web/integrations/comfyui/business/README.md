@@ -26,3 +26,5 @@
 node --import ./tests/migrated_business/register.mjs --test tests/migrated_business/business_entrypoints.test.mjs tests/migrated_business/generation_entrypoints.test.mjs tests/migrated_business/table_widget_serializer.test.mjs tests/migrated_business/dynamic_widget_lifecycle.test.mjs
 ```
 
+
+`generation_output_nodes.ts` 负责生成请求的自动占位、真实来源连线、状态回填与输出组排序。创建归入提交编辑，回执投影经宿主历史合并；轮询只更新已存在且仍连接原来源的目标。行为与验证见 [生成模块](../../../../frontend/src/features/generation/README.md#自动输出素材)。

@@ -39,12 +39,19 @@ class MediaUpload(io.ComfyNode):
     @classmethod
     def define_schema(cls):
         return io.Schema(node_id='DAELAB.MediaUpload', display_name='上传', category='DAELab/素材',
-            inputs=[io.String.Input('asset_data', default='{}', multiline=True)],
+            inputs=[io.String.Input('asset_data', default='{}', multiline=True),
+                    io.String.Input('source_report', optional=True, force_input=True, lazy=True)],
             outputs=[io.Custom('COMFYTV_IMAGE').Output('image_ref'), io.Custom('COMFYTV_IMAGES').Output('image_refs'),
                      io.Custom('COMFYTV_VIDEO').Output('video_ref'), io.Image.Output('image'), io.Video.Output('video')])
 
     @classmethod
-    def execute(cls, asset_data):
+    def check_lazy_status(cls, **kwargs):
+        # Lineage only. This node consumes its own saved asset, never the upstream
+        # node's currently selected task or an unfinished generation.
+        return []
+
+    @classmethod
+    def execute(cls, asset_data, source_report=None):
         path, kind, url = resolve_asset(asset_data)
         if kind == 'video':
             return io.NodeOutput(None, [], url, None, InputImpl.VideoFromFile(str(path)))

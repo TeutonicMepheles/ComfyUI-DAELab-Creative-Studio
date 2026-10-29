@@ -1,4 +1,6 @@
 import {app} from '/scripts/app.js';
+import {canvasHistory} from '../canvas/creative_history.mjs';
+import {createGenerationOutputs} from './generation_output_nodes.js';
 import {installVideoTasks} from '../../../features/generation/video_tasks_panel.mjs';
 import {ensureIdentity,NAMESPACE} from '../../../features/prompt/prompt_optimization_model.mjs';
 import {bindBusinessDocument,tableInputStamp} from './business_document_host.js';
@@ -10,6 +12,7 @@ const lifecycle=()=>installWorkflowNodeLifecycle(app);
 const schedule=node=>lifecycle().schedule(node,install);
 function dispose(node){
     lifecycle().cancel(node);
+    node.__generationOutputs?.dispose();delete node.__generationOutputs;
     node.__libtvPanel?.dispose();delete node.__libtvPanel;
     for(const widget of node.widgets||[])if(widget.__daelabLibTVPanel)widget.onRemove?.();
     node.widgets=(node.widgets||[]).filter(widget=>!widget.__daelabLibTVPanel);
@@ -19,7 +22,8 @@ function install(node){
     if(node.__libtvPanel){node.__libtvPanel.sync();return;}
     const duplicate=node.graph._nodes?.some(other=>other!==node&&other.properties?.[NAMESPACE]?.tableId===node.properties?.[NAMESPACE]?.tableId&&node.properties?.[NAMESPACE]?.tableId);
     const taskIdentity=ensureIdentity(node.graph,node,{duplicate});
-    node.__libtvPanel=installVideoTasks(node,app,{taskIdentity,isDocumentReady:()=>lifecycle().ready(node),documentFactory:(read,write)=>bindBusinessDocument(node,read,write,(value,target)=>tableInputStamp(value.table,target))});
+    node.__generationOutputs=createGenerationOutputs(node,app,canvasHistory(app),type=>globalThis.LiteGraph.createNode(type),()=>lifecycle().ready(node));
+    node.__libtvPanel=installVideoTasks(node,app,{taskIdentity,outputNodes:node.__generationOutputs,isDocumentReady:()=>lifecycle().ready(node),documentFactory:(read,write)=>bindBusinessDocument(node,read,write,(value,target)=>tableInputStamp(value.table,target))});
 }
 app.registerExtension({name:'DAELab.Studio.GenerationPanel',setup(){lifecycle();},beforeRegisterNodeDef(type,data){
     if(data.name!==TYPE)return;

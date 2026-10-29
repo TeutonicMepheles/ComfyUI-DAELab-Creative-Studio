@@ -19,7 +19,7 @@ function applyModelDefaults(config,schema){
  if(!config.mode)config.mode=Object.keys(schema.properties?.modeType?.items||{})[0]||'';
  for(const setting of generationSettingSpecs(schema,config.mode))if(config.settings[setting.name]===undefined&&setting.default!==undefined)config.settings[setting.name]=structuredClone(setting.default);
 }
-export function attachGenerationColumns({editor,getTable,notify,editPromptTemplate,observe=true,onRefresh=()=>{},canGenerate=()=>true,kinds=['video','image']}){
+export function attachGenerationColumns({editor,getTable,notify,editPromptTemplate,observe=true,onRefresh=()=>{},onPrepared,onReports,canGenerate=()=>true,kinds=['video','image']}){
  let alive=true;
  const configPanels=new Map();
  const frameStamps=new WeakMap();
@@ -70,7 +70,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
  let frameMenu=null,frameAnchor=null,settingsMenu=null,promptSourceMenu=null,promptSourceTimer=null;
  let promptSourceCells=[];
  const frameConfig=(fieldId,row,promptFieldId)=>{const owner=generationConfigField(getTable(),fieldId,promptFieldId);const defaults=configPanels.get(owner?.id)?.draft||owner?.generation;return rowGenerationConfig(row,owner?.id,promptFieldId?{...defaults,promptFieldId}:defaults);};
- const tasks=attachGenerationTasks({editor,getTable,notify,getConfig:frameConfig,onUpdate:onRefresh,canGenerate,async prepareGeneration(fieldId,recordId){
+ const tasks=attachGenerationTasks({editor,getTable,notify,getConfig:frameConfig,onUpdate:onRefresh,onPrepared,onReports,canGenerate,async prepareGeneration(fieldId,recordId){
    const owner=generationConfigField(getTable(),fieldId),panel=configPanels.get(owner.id),targets=recordId?getTable().records.filter(r=>r.id===recordId):generationRows(getTable(),fieldId);
    if(panel&&(panel.draft.promptFieldId!==owner.generation.promptFieldId||targets.some(row=>rowGenerationConfig(row,owner.id,panel.draft)===panel.draft)))await panel.apply();
  }});

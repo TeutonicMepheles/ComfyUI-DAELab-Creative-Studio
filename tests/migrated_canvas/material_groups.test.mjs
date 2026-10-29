@@ -32,3 +32,12 @@ for(const liveStrings of [true,false])test(`group copy resolves mixed member IDs
  assert.deepEqual(group.properties.members,[stored(2),stored(1),stored(99)]);
  assert.equal(mapping.size,4);
 });
+
+test('placeholder members stay visible but only ready media enters the group output',()=>{
+ const complete={id:1,type:'DAELAB.MediaUpload',properties:{materialPlaceholder:{phase:'complete'}},widgets:[{name:'asset_data',value:JSON.stringify({filename:'ready.png',kind:'image'})}]};
+ const pending={id:2,type:'DAELAB.MediaUpload',properties:{materialPlaceholder:{phase:'running'}},widgets:[{name:'asset_data',value:'{}'}]};
+ const group={properties:{members:[2,1]},graph:{getNodeById:id=>[complete,pending].find(node=>node.id===id)}};
+ assert.deepEqual(collectionFor(group).assets.map(asset=>asset.nodeId),['1']);assert.equal(collectionFor(group).ready,true);
+ group.properties.members=[2];assert.equal(collectionFor(group).ready,false);
+ delete pending.properties.materialPlaceholder;assert.equal(collectionFor(group).assets[0].missing,true);
+});

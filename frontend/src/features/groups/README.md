@@ -14,3 +14,5 @@ node --import ./tests/migrated_business/register.mjs --test tests/migrated_canva
 
 
 尚无本模块独立预览入口。模型/合同用例可从上述命令单独运行；界面、模式与保存需在独立 ComfyUI 中检查。示例使用见 [Showcase](../../../../Showcase/README.md)，开发环境见 [开发指南](../../../../docs/DEVELOPMENT.md)。
+
+含加载占位的组仅输出已就绪素材；没有已就绪素材时返回 `ready:false`。占位仍保留为可见组成员。普通丢失素材保留 `missing` 错误，不静默忽略。

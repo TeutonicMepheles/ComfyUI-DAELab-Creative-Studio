@@ -18,12 +18,15 @@ export function groupInputSnapshot(group){
     return {...collection,texts,inputMode:collection.assets.length&&texts.some(t=>t.trim())?'image-instructions':undefined};
 }
 export function collectionFor(group){
-    return {version:1,assets:(group.properties.members||[]).filter(id=>group.graph?.getNodeById(id)?.type!=='DAELAB.TextInput').map(id=>{
+    let pending=0;
+    const assets=(group.properties.members||[]).filter(id=>group.graph?.getNodeById(id)?.type!=='DAELAB.TextInput').map(id=>{
         const node=group.graph?.getNodeById(id);
         const asset=node?.type===UPLOAD_TYPE?readAsset(node.widgets?.find(w=>w.name==='asset_data')?.value):null;
+        if(!asset&&node?.properties?.materialPlaceholder){pending++;return null;}
         if(!asset)return {nodeId:String(id),missing:true};
         return {...asset,nodeId:String(id)};
-    })};
+    }).filter(Boolean);
+    return {version:1,assets,...(pending?{ready:assets.length>0}:{} )};
 }
 export function expandGroupSelection(graph,ids,nodes=[]){
     const result=new Set(ids);
