@@ -5,7 +5,9 @@ import {readdirSync} from 'node:fs';
 
 test('host-discovered generation lifecycle creates one bound panel per instance and after reload',async t=>{
  const extensions=[],installs=[],states=new Map(),adapters=new Map();let begins=0,ends=0;
- const app={isGraphReady:true,registerExtension:extension=>extensions.push(extension),extensionManager:{workflow:{activeWorkflow:{}}}};
+ let nativeLoad=async()=>true;const frames=[];
+ globalThis.requestAnimationFrame=callback=>{frames.push(callback);return frames.length;};
+ const app={loadGraphData(...args){return nativeLoad(...args);},isGraphReady:true,registerExtension:extension=>extensions.push(extension),extensionManager:{workflow:{activeWorkflow:{}}}};
  const fixture={app,install(node,_app,options={}){
   const record={node,options,disposed:false,syncedLinks:[]};installs.push(record);
   states.set(node,{table:{fields:[],records:[],meta:{}},value:'original'});
@@ -27,7 +29,7 @@ test('host-discovered generation lifecycle creates one bound panel per instance 
    return next(url,context);
   },
  });
- t.after(()=>{hooks.deregister();delete globalThis.__generationEntryFixture;delete globalThis.addEventListener;delete globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')];});
+ t.after(()=>{delete globalThis.requestAnimationFrame;hooks.deregister();delete globalThis.__generationEntryFixture;delete globalThis.addEventListener;delete globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')];});
  const directory=new URL('../../frontend/src/integrations/comfyui/business/',import.meta.url);
  for(const file of readdirSync(directory,{recursive:true}).filter(file=>/\.(?:js|ts)$/.test(file)&&!file.endsWith('.d.ts')).sort())await import(new URL(file,directory));
  const {installBusinessDocuments}=await import('../../frontend/src/integrations/comfyui/business/business_document_host.ts');
@@ -65,4 +67,23 @@ test('host-discovered generation lifecycle creates one bound panel per instance 
  installs[2].document.edit('restored edit',draft=>{draft.value='restored';});
  assert.equal(states.get(a).value,'restored');assert.equal(states.get(b).value,'original');
  a.onRemoved();b.onRemoved();assert.equal(installs[1].disposed,true);assert.equal(installs[2].disposed,true);
+ const c=new GenerationNode(22),d=new GenerationNode(23);graph._nodes.push(c,d);
+ let release;const waiting=new Promise(resolve=>{release=resolve;});
+ nativeLoad=async()=>{
+  for(const node of [c,d]){node.onAdded();node.onConfigure({});}
+  await waiting;return true;
+ };
+ const before=installs.length,loading=app.loadGraphData({nodes:[]});
+ await new Promise(resolve=>queueMicrotask(resolve));
+ assert.equal(installs.length,before,'graph configuration cannot install before workflow activation');
+ release();await loading;
+ assert.equal(installs.length,before,'native restore continuation runs before deferred installation');
+ for(const frame of frames.splice(0))frame();
+ assert.equal(installs.length,before+2);
+ for(const record of installs.slice(before))assert.equal(record.options.isDocumentReady(),true);
+ const pending=app.loadGraphData({nodes:[]});
+ assert.equal(installs[before].options.isDocumentReady(),false,'old panel cannot synchronize inside a new native load');
+ await pending;for(const frame of frames.splice(0))frame();
+ c.onRemoved();d.onRemoved();
+
 });

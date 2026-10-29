@@ -26,7 +26,7 @@ const widget=(node,name)=>node.widgets?.find(w=>w.name===name);
 const element=(tag,parent,cls,text)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;parent?.append(el);return el;};
 const phases={waiting:'排队中',running:'生成中',pausing:'暂停中',paused:'已暂停',complete:'已完成',failed:'失败',needs_input:'待补充',needs_recovery:'待恢复',stopped:'已停止',stale:'输入已变化'};
 
-export function installVideoTasks(node,app,{documentFactory,taskIdentity}={}){
+export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocumentReady=()=>true}={}){
  tableTheme();
  if(!document.getElementById('dae-video-tasks-css')){const sheet=element('link',document.head);sheet.id='dae-video-tasks-css';sheet.rel='stylesheet';sheet.href=new URL('./video_tasks.css',import.meta.url).href;}
  if(['视频生成','DAELAB · 视频生成'].includes(node.title))node.title='生成节点';
@@ -138,6 +138,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity}={}){
  state.sourceScope={...taskIdentity,nodeId:String(node.id)};
  let historyGroup=null;
  function mutate(update,{render:draw=true,group=null,writePrompts=false}={}){
+  if(!isDocumentReady())throw new Error('工作流正在切换，请加载完成后重试');
   const before=state,next=structuredClone(state);update(next);generation?.syncPromptChanges(next.table,state.table);
   if(JSON.stringify(next)===JSON.stringify(state))return;
   notice='';
@@ -165,7 +166,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity}={}){
  const editor={root,nativeDocument,taskIdentity:{...taskIdentity,nodeId:String(node.id)},beginAsync:(target={},id=crypto.randomUUID())=>nativeDocument?.beginRequest(id,target),canAsync:ticket=>nativeDocument?.canApply(ticket),releaseAsync:ticket=>nativeDocument?.releaseRequest(ticket),applyAsync:(tickets,update,options)=>nativeDocument?.controller.applyResults(tickets,'应用生成结果',draft=>update(draft.table),options),change:(update,options)=>mutate(next=>update(next.table),{...options,writePrompts:true}),
   refreshCells(){promptStamp='';schedule();},focusCell(id){selectTask(id);materials.scrollIntoView({block:'nearest'});},
   openTextSide:side.open,openDialog(title){const dialog=element('dialog',document.body,'dae-ui video-task-dialog');element('strong',dialog,'',title);dialogs.add(dialog);dialog.addEventListener('close',()=>{dialogs.delete(dialog);dialog.remove();});dialog.showModal();return dialog;}};
- generation=attachGenerationColumns({editor,getTable,notify,observe:false,onRefresh:schedule,canGenerate:()=>!disposed&&!node.mode&&!inputError,editPromptTemplate:id=>promptUI.editTemplate(id,state.currentId)});
+ generation=attachGenerationColumns({editor,getTable,notify,observe:false,onRefresh:schedule,canGenerate:()=>!disposed&&isDocumentReady()&&!node.mode&&!inputError,editPromptTemplate:id=>promptUI.editTemplate(id,state.currentId)});
  promptUI=createPromptEditor({editor,getTable,notify,renderFrame:generation.renderFrame});
  function selectTask(id){binding?.finish();generation.close();clearRowHighlight();mutate(next=>{next.currentId=id;});syncRowHighlight();}
  async function changeType(kind){
@@ -408,7 +409,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity}={}){
  const panel=node.addDOMWidget('daelab_libtv_panel','custom',root,{serialize:false,hideOnZoom:false,getValue:()=>'',setValue:()=>sync()});panel.serialize=false;panel.inputEl=root;panel.__daelabLibTVPanel=true;panel.computeSize=width=>[width,560];panel.computeLayoutSize=()=>({minHeight:560,maxHeight:560,minWidth:640});
  requestAnimationFrame(()=>{if(!disposed&&node.graph)node.setSize?.([Math.max(640,node.size[0]),node.computeSize()[1]]);});
  function sync(){
-  if(disposed)return;
+  if(disposed||!isDocumentReady())return;
   if(['视频生成','DAELAB · 视频生成'].includes(node.title))node.title='生成节点';
   const before=lastStored,previousError=inputError,previousSource=sourceKey;
   if(data.value&&data.value!==lastStored){try{const next=JSON.parse(data.value);generation.invalidate();nativeDocument?.invalidate();binding?.dispose();binding=null;delete prompt.dataset.inlineEditing;state=next;lastStored=data.value;promptStamp='';resultsStamp='';}catch(error){notify(error.message);return;}}
