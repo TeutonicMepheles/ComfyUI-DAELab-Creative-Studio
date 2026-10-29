@@ -42,6 +42,11 @@ export function readTableSnapshot(node,seen){
     const table=readTableView(node,seen);
     return table.meta.liveSource?selectedTableOutput(table):table;
 }
+export function deselectTableRow(node,recordId){
+    const editor=node.__dataTablePanel?.editor||node.__scriptPanel?.editor;
+    if(!editor||node.mode)throw new Error('多维表格不可用');
+    return editor.setRowSelection([recordId],false);
+}
 export function writeTablePrompts(node,changes,{group=null}={}){
     const table=readTableSnapshot(node),editor=node.__dataTablePanel?.editor||node.__scriptPanel?.editor;
     if(!editor)throw new Error('多维表格尚未就绪');

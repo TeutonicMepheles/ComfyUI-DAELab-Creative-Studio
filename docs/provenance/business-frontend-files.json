@@ -23,9 +23,10 @@
       "changes": [
         "New typed port, explicit HTTP assembly, focused migration regression or sanitized evidence; no copied upstream source claimed.",
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
-        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ],
-      "destinationSha256": "86edf4f5bcc01fbb6a50a4fd1a376cc6946e5bfaf92f2e2395228ab96173df24"
+      "destinationSha256": "7c6b7520a5ba5738baf652130c1b031a9389d617130003ead0945e29838febfd"
     },
     {
       "source": "web/vendor/model-icons/LICENSE",
@@ -264,23 +265,25 @@
       "source": "web/table_generation_model.mjs",
       "destination": "frontend/src/features/generation/table_generation_model.mjs",
       "sourceSha256": "eee30572bc581bfd1c90925935d73227ee29578d0dbfb8779bd6e763912b532d",
-      "destinationSha256": "e32977ef92679484e813300acd33ebe240e8b130acdca8156a29521535ab3afc",
+      "destinationSha256": "fab5056bde8b1313b7d6994229dcd2f92ccdb4dbe9dc5fedc9ae20400fb0adf9",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
       "source": "web/table_generation_panel.mjs",
       "destination": "frontend/src/features/generation/table_generation_panel.mjs",
       "sourceSha256": "547d0543ec0e6359f0146f429ca9a11f9d4cce5682e1c212f01439492b1c9a50",
-      "destinationSha256": "be8f63987e764304c731cad9b1811c53e51de1c0de39610cdbc243a4682f296b",
+      "destinationSha256": "8f1e6202728c4619a18acccd4f4d3a6887f1d0de36908cddc6fb7326aa3369d8",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
         "Skip generation settings row-map and all-TD traversal only when current fields have no generation presentation and this attachment has never created a settings bar; retain onRefresh and header cleanup, and preserve the full path forever after any bar creation for detached-cell cleanup. Actual editor/input focused regressions preserve owner/history/configuration/error/lifecycle behavior; traversal counts do not establish browser latency or product acceptance.",
-        "At the private normalized-table boundary, skip frame/source synchronization when known field descriptors contain no generation field; avoid otherwise unused prompt-column row-value qualification. Unknown outer/field shapes and generation-bearing tables retain the original path; public validation, frame-token refresh, stale metadata and configured updates are unchanged. Focused mechanism counts do not establish browser performance."
+        "At the private normalized-table boundary, skip frame/source synchronization when known field descriptors contain no generation field; avoid otherwise unused prompt-column row-value qualification. Unknown outer/field shapes and generation-bearing tables retain the original path; public validation, frame-token refresh, stale metadata and configured updates are unchanged. Focused mechanism counts do not establish browser performance.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
@@ -310,10 +313,11 @@
       "source": "web/video_task_linked_prompt.mjs",
       "destination": "frontend/src/features/generation/video_task_linked_prompt.mjs",
       "sourceSha256": "66481e0db0bc4f8e85bae00f9c14cac6dd294138f990cf1c711b8ad1f619b53b",
-      "destinationSha256": "f7b89941b71964061d2bd2322c69e531351e045284556c118710fac56bda5080",
+      "destinationSha256": "380092e524d1a47397ac5897ef1c4e3393c90087b23451d5ffb9192dc341ccfa",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
@@ -330,51 +334,55 @@
       "source": "web/video_tasks.css",
       "destination": "frontend/src/features/generation/video_tasks.css",
       "sourceSha256": "f662c345f3f44010d82961172cb0954db3b8ec2ffb086dfb65cf11c89a0cbf07",
-      "destinationSha256": "2a8090c898477a72189dd27e2a2566597723d9e9f79c34813c4f7fcd1050aea8",
+      "destinationSha256": "25d5251ac1da90d2d2b4bb294187b604894522f9e19faa3c95ec6c1c7273f0e9",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
       "source": "web/video_tasks_model.mjs",
       "destination": "frontend/src/features/generation/video_tasks_model.mjs",
       "sourceSha256": "3572671a035745a74966e2cdd6e7e6f421a49938218c7d03ee2f9601f902c684",
-      "destinationSha256": "743a9aa0c6f8a4b721262cabf4e9302a85034f69b44bd7bee8c345588043f2e1",
+      "destinationSha256": "dea66ac511c6a9760f846de67f76504fb3e117eb832f4921c91fff6587de1420",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
       "source": "web/video_tasks_panel.mjs",
       "destination": "frontend/src/features/generation/video_tasks_panel.mjs",
       "sourceSha256": "1f567635a4b88ab672b6f656d1c2ede14a5a79432592e26ccf2c39775281452d",
-      "destinationSha256": "e06ea0b3146c36846f628313dfec66762466e265b1e3ce3171c35e3cbdd9a882",
+      "destinationSha256": "b40ab9c189a9537d272e6b68ef00e89f728d12f53abd50654044fc0c36962ad8",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Native selection and upload use BusinessHostPort; legacy generation channel is unreachable.",
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
-        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
       "source": "web/llm_io_model.mjs",
       "destination": "frontend/src/features/prompt/llm_io_model.mjs",
       "sourceSha256": "28f0488fbd3a0469ff360a15037e03fc1330060e3772a37953906ece940ba321",
-      "destinationSha256": "6188343c0d1359da184a54679ec76d25955827aa3b64ec5abc66d9fa149e928a",
+      "destinationSha256": "222a314c4c3a320cfcf4ae0403d200ee8737a436abc75babb9f5f14fd1fba465",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "Remove production simulateRows export and require explicit qwen/deepseek provenance for table export; retain input/apply/undo behavior."
+        "Remove production simulateRows export and require explicit qwen/deepseek provenance for table export; retain input/apply/undo behavior.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
       "source": "web/llm_io_panel.mjs",
       "destination": "frontend/src/features/prompt/llm_io_panel.mjs",
       "sourceSha256": "62133e0e28f809abcf5b59cca42eb091cce6cbc57749f88b01f6134c4171c89e",
-      "destinationSha256": "2c79a58a7aebe0a40ea6f49df190588e9003a7a528cc751d763bc24bf73ee987",
+      "destinationSha256": "91c5f074994ddc3c4a50c7d87d24fb15d5ac38d3d81264780d1d1fb5f2cde4c5",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -383,7 +391,8 @@
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
         "Native reactive JSON boundary: detach nested host proxies for document transactions and LLM load/proposal/apply; preserve all unknown JSON keys and identities, reject unsavable edits before history, and verify source-bound edit/recovery/undo with no submit. Real UI acceptance remains separate.",
         "Guard repeated DOM writes against current control values while preserving every-render Slot validation, task/output publication, derived history and 500ms polling. Deterministic two-owner state regressions pass; actual UI/performance acceptance remains pending.",
-        "Reconcile authoritative saved instruction changes after native history/external restore with value-guarded DOM assignment; preserve focused unchanged text, actual input listener ordering, linked/manual instruction restoration and both owners. First red regressions retained; actual host undo/redo display acceptance remains pending."
+        "Reconcile authoritative saved instruction changes after native history/external restore with value-guarded DOM assignment; preserve focused unchanged text, actual input listener ordering, linked/manual instruction restoration and both owners. First red regressions retained; actual host undo/redo display acceptance remains pending.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
@@ -402,21 +411,23 @@
       "source": "web/llm_slot_model.mjs",
       "destination": "frontend/src/features/prompt/llm_slot_model.mjs",
       "sourceSha256": "6a6a558a5b9c1f8b481e726cbf4d1772390530e9732edfd24d0a58fb6e8cec9e",
-      "destinationSha256": "9062537db94c14d159c83346fedb55520d9e9520a0613c725a33574debdce95b",
+      "destinationSha256": "129b86c38ea0fe673c69a8de16936ec964a50d625ba05cfa828014ef8b40d279",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
       "source": "web/llm_style_preview.css",
       "destination": "frontend/src/features/prompt/llm_style_preview.css",
       "sourceSha256": "91ecfb9d971e13ef211a313656fdac10bb7f430b79582058f63b27224e9112d5",
-      "destinationSha256": "a4e46a46f973e7eb41d32ff6405fc89de613aca05223156497e41e908d33f3c3",
+      "destinationSha256": "76869adcd002bc581b079ac92744b6b91889a10be7599dbeb2d9772c129a263d",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "PERF-01 candidate: stop unused inherited Canvas zoom variables only at the owned leased formal LLM B body; preserve public adapter/root, floating headings, Slots and all other variants. Actual browser/performance reacceptance pending."
+        "PERF-01 candidate: stop unused inherited Canvas zoom variables only at the owned leased formal LLM B body; preserve public adapter/root, floating headings, Slots and all other variants. Actual browser/performance reacceptance pending.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
@@ -558,13 +569,14 @@
       "source": "web/table_prompt_editor.mjs",
       "destination": "frontend/src/features/prompt/table_prompt_editor.mjs",
       "sourceSha256": "3cddf1579bc49d9c39f53910d3917fcee6d7e94dfa08d7689a77f31fcd19baa2",
-      "destinationSha256": "e9c7b07ed86e866c8c99ee7aad2c5a9a35e5b5bb5cc838c8d5951acd2daa353d",
+      "destinationSha256": "6e508656936e244c97a60182b0c42895161a0bb7cb0ecb89c78450fd1dc6279d",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
         "Allow host save through nested prompt/editor controls while retaining IME and text editing key ownership.",
-        "Preserve initial request observation; skip passive scans only before either private begin has ever been attempted. Both begin sites activate permanent full observation before strict public begin, including failure, settled comparison and close. Do not skip render, OptimizationRevisions, public matches or validation. Actual performance acceptance pending."
+        "Preserve initial request observation; skip passive scans only before either private begin has ever been attempted. Both begin sites activate permanent full observation before strict public begin, including failure, settled comparison and close. Do not skip render, OptimizationRevisions, public matches or validation. Actual performance acceptance pending.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
@@ -581,53 +593,58 @@
       "source": "web/table_prompt_settings.mjs",
       "destination": "frontend/src/features/prompt/table_prompt_settings.mjs",
       "sourceSha256": "bfe4726e48470729694c7a86878e50662a3ec0fad7837a9323bbb21a022c432a",
-      "destinationSha256": "f5f3ab37b977c7c20d6a2c8177338a5cbd31f57f61c0bfadfa5026e2dd2923eb",
+      "destinationSha256": "6ec169ce4703cc97b19d05b3818a4a75711d89c277a5a0e3cfbbd8efbfd74944",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Allow host save through nested prompt/editor controls while retaining IME and text editing key ownership.",
-        "Optimization popover resolves a replacement td/th only within its original editor/root and stable field/record; requirement and intent edits retain focus, while deletion, inactive mode and lifecycle release still close. Mock regressions do not replace actual ComfyUI acceptance."
+        "Optimization popover resolves a replacement td/th only within its original editor/root and stable field/record; requirement and intent edits retain focus, while deletion, inactive mode and lifecycle release still close. Mock regressions do not replace actual ComfyUI acceptance.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
       "source": "web/table_prompt_source.mjs",
       "destination": "frontend/src/features/prompt/table_prompt_source.mjs",
       "sourceSha256": "f2e667e35a4f6623e4b3a2cbc2303ba768246d49e68b68cdd030d42cc595b5c3",
-      "destinationSha256": "4030f5b745e9cc26db5a550a4a3833ce0cc23d5479bb467342c2aa838bc0bb1b",
+      "destinationSha256": "ffd31653eed1d3e352cb5e6b2ba66a019b7f03f98b636f671ac57bf25cb9cc7b",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
       "source": "web/table_prompt_source_header.mjs",
       "destination": "frontend/src/features/prompt/table_prompt_source_header.mjs",
       "sourceSha256": "d68ded6e3a8385c2697e93f98566dd64feeb5fc57a33f645a90748fb713fe2f3",
-      "destinationSha256": "c385c88ee97a9b48ea0779ce95769db559a44fbf76ed148adde8326a3cb2950b",
+      "destinationSha256": "4b8841eea35fe8f529f25b5e8dbebcfb2ccd8b33b675f75dbd83b3153a4dcd6e",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
       "source": "web/table_prompt_template.mjs",
       "destination": "frontend/src/features/prompt/table_prompt_template.mjs",
       "sourceSha256": "743ca197bb412f6d2718d64ffbcfd1e60b5784de84113c9f2b9be255672a6498",
-      "destinationSha256": "aa5ca9fcab36be2bf72aad9607f0c2706c9da441a13fa508c0c0b2f996c79500",
+      "destinationSha256": "9ad4596291f814bc0a1494f81600e6b15d0e16a91d85e17805e11f49c47aa5ee",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
       "source": "web/table_prompt_template_editor.mjs",
       "destination": "frontend/src/features/prompt/table_prompt_template_editor.mjs",
       "sourceSha256": "39389aa7f0ec0773e1546cd0a530a302f582ecc97be74aafb2c73c5a0eeaf683",
-      "destinationSha256": "759a361790635d8980aa8edd6b394891d1afe9e654496862b48cc665392af5e0",
+      "destinationSha256": "6348222ce7fdcbfa41d650a90a51dbf65248ab823466e1d7e8f69425cf5b75ed",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "Allow host save through nested prompt/editor controls while retaining IME and text editing key ownership."
+        "Allow host save through nested prompt/editor controls while retaining IME and text editing key ownership.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
@@ -896,10 +913,11 @@
       "source": null,
       "destination": "tests/migrated_business/table_inline_preview_enter.test.mjs",
       "sourceSha256": null,
-      "destinationSha256": "1a8afba9c7258d4415a77bb0a81db2cd6b52b830c240c53caa6306678250d435",
+      "destinationSha256": "7d47095c88c90b3ea21de774efb81587bc1787ab08a91651f6db2ca91d37c0c2",
       "kind": "authored-test",
       "changes": [
-        "Execute the real inline handler lifecycle and box-to-cell bubbling with bounded DOM doubles: Tab blur/preview re-entry, two owners, exact-target exclusion, IME, active newline and disposal. Actual browser focus, IME and layout acceptance remain separate."
+        "Execute the real inline handler lifecycle and box-to-cell bubbling with bounded DOM doubles: Tab blur/preview re-entry, two owners, exact-target exclusion, IME, active newline and disposal. Actual browser focus, IME and layout acceptance remain separate.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
@@ -976,13 +994,13 @@
       "source": "web/table_structure.mjs",
       "destination": "frontend/src/features/table/table_structure.mjs",
       "sourceSha256": "c33ebda46986c7f79d6a8a5740de652964205f02ea0ec2ac962c26bec421202f",
-      "destinationSha256": "5880638a01a2b9234d5be88c2a3125aeed989d2f9ab0282345fcafee03abfd59",
+      "destinationSha256": "34c2155c4e86f8350be0b854af7eb250dab200cea28c3ba06931e5bb4a83c161",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Actual-host nested keyboard follow-up: shared save propagation in nested panel/popover; keep local editor keys and IME/229 ownership.",
-        "Batch initial row height reads before appending absolute resize handles; retain per-row values, keyboard controls, and existing native transactions.",
-        "Add view-owned row window integration for large editable plaintext tables; preserve all model rows, ID-based focus/selection/history, full-DOM mixed-field fallback, and teardown. Delegate row-height handles so offscreen cells can release their listeners."
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
+        "Table performance integration: reuse completed native history snapshots and preserve row controls across viewport remounts; original source hashes retained."
       ]
     },
     {
@@ -1010,11 +1028,12 @@
       "source": "web/table_ui.css",
       "destination": "frontend/src/features/table/table_ui.css",
       "sourceSha256": "bc0453f9322d52be6e7a6d8c718d64c0819293acdf6c6f29ea148b8fdede6555",
-      "destinationSha256": "6654069124652ea54bfeb53505d7bf00a96cf75426d6d41c2a46c1f91111efcd",
+      "destinationSha256": "a27fc7223b90292ff7fb21bd7d09d894caff29071c15045b42187cafc4a38b98",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "Limit unused canvas zoom custom-property inheritance to owned content data cells; retain public root values and live screen-size chrome/row-gutter consumers. Performance benefit requires real-host measurement."
+        "Limit unused canvas zoom custom-property inheritance to owned content data cells; retain public root values and live screen-size chrome/row-gutter consumers. Performance benefit requires real-host measurement.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
@@ -1078,9 +1097,10 @@
       "changes": [
         "New typed port, explicit HTTP assembly, focused migration regression or sanitized evidence; no copied upstream source claimed.",
         "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
-        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending."
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ],
-      "destinationSha256": "09d61bacaa411ad6594e5be606e3140bdecb78465716213dbf64c055a2f0373a"
+      "destinationSha256": "d4400285eaa09da07b6b6bc31bdebd5bcc2e789a9c5225633e6884dc62078c47"
     },
     {
       "source": null,
@@ -1098,14 +1118,15 @@
       "source": "web/creative_canvas_adapter.js",
       "destination": "frontend/src/integrations/comfyui/business/creative_canvas_adapter.js",
       "sourceSha256": "87d4a3ec66de9d84f4be88202779471a416ba4046a820ef1ce83780d3711f9b1",
-      "destinationSha256": "8ede6b05484005a17704e45a5a9fd014ba17a59d35bdcfb7601101ed464201a9",
+      "destinationSha256": "fc19e2de101e315cc8d97dca2187d9a978f70dd4286a939039508c6f366834f2",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Register only formal table/storyboard/video adapters; exclude GPT legacy menu and execution hooks.",
         "Expose optional projectedMaterialTargets using the existing grid/cellsRevision cache and shared column descriptor objects; retain the full materialTargets API, row/cell drop capabilities and non-table provider fallback. Two 500x10 owners snapshot 10 projected descriptors each rather than 5510; this is a mechanism count, not measured latency improvement.",
         "Resolve generation material output controls from the current owned table header on every query; preserve live descriptors and column order without scanning body cells. No browser timing or acceptance claim.",
-        "Candidate source a52e896881b920a35a192e03f9601dd4191d2d8cc76e7f6a6e49063d002fa9db differs from the LF destination only by one CRLF; retained record: .local/validation/table-material-sources-header-fullcheck-first/lf-normalization.json. Upstream source hash is unchanged."
+        "Candidate source a52e896881b920a35a192e03f9601dd4191d2d8cc76e7f6a6e49063d002fa9db differs from the LF destination only by one CRLF; retained record: .local/validation/table-material-sources-header-fullcheck-first/lf-normalization.json. Upstream source hash is unchanged.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
@@ -1122,7 +1143,7 @@
       "source": "web/data_table_nodes.mjs",
       "destination": "frontend/src/integrations/comfyui/business/data_table_nodes.mjs",
       "sourceSha256": "6febb9bb7cf7a2530fa4fcd4b483fc93d56e3dd6f09cb1274a12145210f7f3fd",
-      "destinationSha256": "6ae87c8e42386ddebc61d57f25849ad1b692b02a541cfb44bd11fc6b22cffdef",
+      "destinationSha256": "c2a3669dc36613daf9534ec6f13e955b1dc3225395b9110c0ea56bf143ed4774",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -1130,7 +1151,8 @@
         "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
         "Route only the native Table table_data serializer through a per-install canonical immutable-string proof. Preserve the complete public readTableView and JSON encoding on misses/errors; history, public snapshots and connected projections retain their original path.",
         "Declare the existing generic Table without prompt_config row-state branch as explicitly constant-empty, enabling scoped input state refresh only in that mode. Configured tables, storyboards and unknown/global-dependent providers retain full refresh; no row-locality assumption is made for arbitrary callbacks.",
-        "Guard the two summary-button textContent assignments and generic plain status against the current DOM string to avoid redundant child replacement. Preserve row counting, hidden/disabled computation, configured issue controls and the native write/history callback order; no summary-state cache or full-render skip."
+        "Guard the two summary-button textContent assignments and generic plain status against the current DOM string to avoid redundant child replacement. Preserve row counting, hidden/disabled computation, configured issue controls and the native write/history callback order; no summary-state cache or full-render skip.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
@@ -1159,12 +1181,13 @@
       "source": "web/llm_style_preview.js",
       "destination": "frontend/src/integrations/comfyui/business/llm_style_preview.js",
       "sourceSha256": "129748850824e58beac56b81431a838d3591acf958606fcb62a097ea9398abdd",
-      "destinationSha256": "5f4caa87db1cf7e1aeef0f08d4ac7429aa3d0bc18c99cf889d45623e2f6ba9d0",
+      "destinationSha256": "59c211eab952c4501ae782a63069e65cf58b70ca8d6c5f48a31258ba574544ba",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Only B is registered or matched by the adapter; preserve its native input/output slot sequence and saved applied widgets.",
-        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md."
+        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
@@ -1228,9 +1251,10 @@
       "sourceSha256": null,
       "kind": "authored-test",
       "changes": [
-        "New typed port, explicit HTTP assembly, focused migration regression or sanitized evidence; no copied upstream source claimed."
+        "New typed port, explicit HTTP assembly, focused migration regression or sanitized evidence; no copied upstream source claimed.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ],
-      "destinationSha256": "18be8c1fb3cc60d66f7d3332ff633dd516d47d2dda15fbbd8e4a7c3c3cb098a4"
+      "destinationSha256": "4a6c4c8b6b04b973e83bf3af6a8ec13a16f248cd99b05ae09a7f92aad356d2f6"
     },
     {
       "source": null,
@@ -1239,9 +1263,10 @@
       "kind": "authored-test",
       "changes": [
         "New typed port, explicit HTTP assembly, focused migration regression or sanitized evidence; no copied upstream source claimed.",
-        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending."
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ],
-      "destinationSha256": "12c4e6bd913f6411309bc9f3fd354f28da84322d83cfd1fd8ee0149ffb65efbe"
+      "destinationSha256": "569bbb7eaa669274ab0dac04d603b145ecf9203dfbe705e33aeb7022db61f5b6"
     },
     {
       "source": "tests/column_optimization.test.mjs",
@@ -1334,22 +1359,24 @@
       "source": "tests/generation_input_regression.test.mjs",
       "destination": "tests/migrated_business/generation_input_regression.test.mjs",
       "sourceSha256": "29767c8a7a6cfba097488fdebc645a22ea0e0b47d93301cb50aff7716e36f816",
-      "destinationSha256": "ed253ef708d73acb4db3f7554cf9050e645e92bc4b02c65ee9de38b5b7d59bbd",
+      "destinationSha256": "dd5ee661acadfb25a0805ef77f7266b290ef0c611b842d42257dc2c30de663ef",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
-        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
       "source": "tests/generation_parameters.test.mjs",
       "destination": "tests/migrated_business/generation_parameters.test.mjs",
       "sourceSha256": "a0a571d5104a647e742dbc3526407dcece0455699935dbe553f020d48bf9ae8f",
-      "destinationSha256": "040dcbb0619ce43b10a1495b525f72b2ac103bc986a367fbf8937fb96a3d37ae",
+      "destinationSha256": "603fa2e6523e4d0e551b4cf61fda3030d8414b95f6bb297d1bdad468acba5ce9",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
-        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
@@ -1400,11 +1427,12 @@
       "source": "tests/llm_slot_model.test.mjs",
       "destination": "tests/migrated_business/llm_slot_model.test.mjs",
       "sourceSha256": "baf6ee39931ab6549068baaa65338f07afaafbf7f3791b0950e782ca035e58b7",
-      "destinationSha256": "54b619cea3b8bdc59bf3d40259580086e4965ae4134cb63decf63c8040d516c1",
+      "destinationSha256": "7c4aab340de9ebd4d673331c285956b1ef6a64cb6e38022fd5751d66a50bdc40",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
-        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
@@ -1601,11 +1629,12 @@
       "source": "tests/table_exchange.test.mjs",
       "destination": "tests/migrated_business/table_exchange.test.mjs",
       "sourceSha256": "e2c523d0935cc760c2405d7f3ae8b29d82685971e96ce37fca9ebc288d307fde",
-      "destinationSha256": "6db6a13782adf6f0fd49cc14fbc87fc150f95aec56f3de6484981baaa90485d7",
+      "destinationSha256": "acd4726af839597dfad80b9fed716b965bca41f4ddd53e46654dc0fb5e84ef16",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
-        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
@@ -1669,11 +1698,12 @@
       "source": "tests/table_material_columns.test.mjs",
       "destination": "tests/migrated_business/table_material_columns.test.mjs",
       "sourceSha256": "87ff24a3c0eae088088a7c489a92ae76ee2f5ad70771ee75ac27b4c134d5ffea",
-      "destinationSha256": "d71f5614864bd9c9526a8fd55fe65b3a59f3c3c3709de9121b86d9fdacfaa880",
+      "destinationSha256": "ce71240e483f4c6fd7c645ca75ee37def9615aac7de7ef79abdd078721d12fcb",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
-        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
@@ -1735,11 +1765,12 @@
       "source": "tests/table_prompt_source.test.mjs",
       "destination": "tests/migrated_business/table_prompt_source.test.mjs",
       "sourceSha256": "a4b79750f191d5c0ec0f39fe2d518eb3785e6e9b7e6afc02b273a0c2f33ccafc",
-      "destinationSha256": "6d0a126503d12c4ab59e4d932baeef3ec1d6f5edb8325e8f45841c3c8710087f",
+      "destinationSha256": "cc4f79f851a1a9b699df8ba61ceb7d8bfe2d834c99c8e193a0dc411b9e214d16",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
-        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
@@ -1801,11 +1832,12 @@
       "source": "tests/video_task_linked_prompt.test.mjs",
       "destination": "tests/migrated_business/video_task_linked_prompt.test.mjs",
       "sourceSha256": "0cb5fbadac77612bb72cf8e69ca83f4c3747112d5a9c1fd028a4e678368162be",
-      "destinationSha256": "f1d95a1b248eb6dfcc217dcd5ef12ed97324c2ce52a061642a6fc59989b44cb4",
+      "destinationSha256": "92a4466935a9dfdca279457d1e60781ef1f6beffbe9ee0869b3d78cf52addf2d",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
-        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
@@ -1819,7 +1851,7 @@
         "Skip only unused whole-table equality encodings in the native afterWrite path; preserve all validated snapshots, native history, rollback, per-target revisions and fallback ordering. Count and semantic regressions pass; actual performance acceptance pending.",
         "Add optional typed native replacement through DocumentController: ordinary same-container JSON replacements retain isolated before/next snapshots while sharing unchanged history, no-op, rollback and observation logic. Preserve unlike-root descriptor behavior and the asynchronous review mutation path. Two-snapshot mechanism and focused checks pass; actual performance acceptance remains pending.",
         "Expose cheap isCurrent using the existing disposed/options.current lifetime predicate without document reads, serialization or history access. Existing host current/ready semantics, transactions, revisions and undo remain unchanged.",
-        "Use the completed native activeState for the post-edit grouping stamp after a balanced boundary; retain the live pre-edit check and nested/legacy fallback. No native capture, undo or serialization contract is bypassed; host acceptance is recorded separately."
+        "Table performance integration: reuse completed native history snapshots and preserve row controls across viewport remounts; original source hashes retained."
       ],
       "destinationSha256": "7bebee709d4258877b263be0ba14fa3ab34d50ffcc33a24c4155188598501331"
     },
@@ -1831,7 +1863,7 @@
       "changes": [
         "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
         "Use a typed comparison-only native history stamp that excludes valid known v1 Canvas x/y/zoom navigation; preserve native/saved snapshots, unknown fields, other business revisions and all existing ownership/history checks. Actual host grouping and input latency require retest.",
-        "Use the completed native activeState for the post-edit grouping stamp after a balanced boundary; retain the live pre-edit check and nested/legacy fallback. No native capture, undo or serialization contract is bypassed; host acceptance is recorded separately."
+        "Table performance integration: reuse completed native history snapshots and preserve row controls across viewport remounts; original source hashes retained."
       ],
       "destinationSha256": "b8c0e76a5c917f315ef0504e08741f70060f8e32203f7a0e13b7099b3fcab109"
     },
@@ -1841,9 +1873,10 @@
       "sourceSha256": null,
       "kind": "authored-contract-or-integration",
       "changes": [
-        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending."
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ],
-      "destinationSha256": "013b839d793ccd293879c768800883cb80c626867ae5d661732ddff33db6373d"
+      "destinationSha256": "f2ccff9b2c00b57a1723a8bab5e43929ad760aaa3a57637cf2f8c63530c4fafa"
     },
     {
       "source": null,
@@ -1866,9 +1899,10 @@
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
         "Post-snapshot hardblock review: immutable receipt digest, exact missing-task recovery, no automatic replay; tests include original-scope and storage-unavailable rejection.",
         "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
-        "Native reactive JSON boundary: detach nested host proxies for document transactions and LLM load/proposal/apply; preserve all unknown JSON keys and identities, reject unsavable edits before history, and verify source-bound edit/recovery/undo with no submit. Real UI acceptance remains separate."
+        "Native reactive JSON boundary: detach nested host proxies for document transactions and LLM load/proposal/apply; preserve all unknown JSON keys and identities, reject unsavable edits before history, and verify source-bound edit/recovery/undo with no submit. Real UI acceptance remains separate.",
+        "Table performance integration: reuse completed native history snapshots and preserve row controls across viewport remounts; original source hashes retained."
       ],
-      "destinationSha256": "fd1c9f21dd348bfa4ac2314d6ee72cefce9cddbdedd45b92837c20b8234fc5fd"
+      "destinationSha256": "a224c0322a1de39a278cbb61ac3dc066521b26bb97a24bbfea1af863ec8792a9"
     },
     {
       "source": null,
@@ -1913,9 +1947,10 @@
       "changes": [
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
         "Post-snapshot hardblock review: immutable receipt digest, exact missing-task recovery, no automatic replay; tests include original-scope and storage-unavailable rejection.",
-        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ],
-      "destinationSha256": "d268cba3d1efc062179d38889b522bba535e494ddb5a445f1b91db7be26b54a5"
+      "destinationSha256": "9f1bfdc06c041b6b1a2777d3c9571c7394b4bbb8e957333c688c7046a90a38ff"
     },
     {
       "source": null,
@@ -1954,10 +1989,11 @@
       "source": null,
       "sourceSha256": null,
       "destination": "tests/migrated_business/table_widget_serializer.test.mjs",
-      "destinationSha256": "1c3ec15b23147b18a3418f5e6d4e84e03ec4b840c9bc34ca541cf6f8d397ac25",
+      "destinationSha256": "686bc1918ec05743ba364b55c522a933bcc3216cb257ae6ff4d5202afef39291",
       "kind": "rule-regression",
       "changes": [
-        "Authored owning-module regressions: two 500x10 tables, complete-delegate counters, unknown JSON and public snapshot isolation, real install/save/hideNative scheduling, native customtext getter/store and inherited slot.link, identity/hook/raw changes, fallback/error behavior and native history serialization oracle. Counter reductions are not runtime latency or product acceptance."
+        "Authored owning-module regressions: two 500x10 tables, complete-delegate counters, unknown JSON and public snapshot isolation, real install/save/hideNative scheduling, native customtext getter/store and inherited slot.link, identity/hook/raw changes, fallback/error behavior and native history serialization oracle. Counter reductions are not runtime latency or product acceptance.",
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
@@ -2042,21 +2078,12 @@
       "source": null,
       "sourceSha256": null,
       "destination": "tests/migrated_business/table_input_snapshot_encoding.test.mjs",
-      "destinationSha256": "26c6527c6a56692c1f556f345e1780683db9ce9a94490b9d0869fffe03a58c9c",
+      "destinationSha256": "e6ba704749d23257a284dad331f1fcc62651109d5634f5c5fe828ea343d02b86",
       "kind": "test-source",
       "changes": [
-        "Authored local cell snapshot isolation, rollback, unknown JSON, width/derived/ticket fallback and encoding-count contracts. These do not establish actual latency or UI acceptance."
+        "Authored local cell snapshot isolation, rollback, unknown JSON, width/derived/ticket fallback and encoding-count contracts. These do not establish actual latency or UI acceptance.",
+        "Table performance integration: reuse completed native history snapshots and preserve row controls across viewport remounts; original source hashes retained."
       ]
-    },
-    {
-      "source": null,
-      "destination": "frontend/src/features/table/row_window.ts",
-      "sourceSha256": null,
-      "kind": "authored-contract-or-integration",
-      "changes": [
-        "Instance-owned visible-row DOM lifetime and measured-height spacers; no model or native history writes."
-      ],
-      "destinationSha256": "8eef0ba261a93e6a9f00957414918b1afcc2ad751a355f601f8f5fedf69afd94"
     }
   ],
   "testExclusions": {

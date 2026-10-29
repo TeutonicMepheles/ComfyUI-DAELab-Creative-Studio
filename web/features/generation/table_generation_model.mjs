@@ -28,6 +28,40 @@ export function generationConfigField(table,fieldId,promptFieldId){
  const linked=table.fields.filter(f=>isGeneration(f)&&f.generation.promptFieldId===source);
  return linked.find(f=>f.id===prompt?.generationConfigFieldId)||linked[0]||field;
 }
+export function promptGenerationOwner(table,promptFieldId){
+ const linked=table.fields.find(f=>isGeneration(f)&&f.generation.promptFieldId===promptFieldId);
+ if(linked)return generationConfigField(table,linked.id);
+ const prompt=table.fields.find(f=>f.id===promptFieldId);return prompt?.generation?prompt:null;
+}
+export function applyColumnGenerationConfig(table,promptFieldId,config){
+ const prompt=requirePromptSource(table);if(prompt.id!==promptFieldId)throw new Error('提示词列已变化，请重新打开配置');
+ const owner=promptGenerationOwner(table,promptFieldId)||prompt;
+ owner.generation={...structuredClone(config),promptFieldId};
+ owner.generationConfigRevision=(owner.generationConfigRevision||0)+1;
+ for(const row of table.records){
+  const document=toColumnPrompt(effectivePrompt(table,row,promptFieldId),row),frames=document.segments.filter(segment=>segment.type==='frame');
+  if(frames.length){
+   const bindings={};for(const tag of frames){const binding=row.meta?.generationFrames?.[tag.generationFieldId]?.[tag.role];if(binding)bindings[tag.role]=structuredClone(binding);}
+   const roles=new Set();document.segments=document.segments.filter(segment=>{if(segment.type!=='frame')return true;if(roles.has(segment.role))return false;roles.add(segment.role);segment.generationFieldId=owner.id;return true;});
+   row.values[promptFieldId]=document;row.meta||={};row.meta.generationFrames||={};row.meta.generationFrames[owner.id]=bindings;
+   row.meta.generationFrameTags||={};row.meta.generationFrameTags[owner.id]=JSON.stringify([promptFieldId,[...roles]]);
+  }
+  setRowGenerationConfig(row,owner.id,owner.generation);
+ }
+ syncGenerationFrameTags(table,owner.id,owner.generation);
+}
+export function applyColumnFrameSources(table,promptFieldId,sources){
+ const owner=promptGenerationOwner(table,promptFieldId),roles=generationFrameRoles(owner.generation);
+ for(const role of roles)if(sources[role]&&!table.fields.some(field=>field.id===sources[role]&&['content','assets'].includes(field.type)&&field.presentation!=='prompt'&&field.id!==owner.id))throw new Error('图片列已变化，请重新选择');
+ if(!roles.length)return;
+ owner.generationFrameColumns=Object.fromEntries(roles.filter(role=>sources[role]).map(role=>[role,sources[role]]));
+ for(const row of table.records)for(const role of roles){
+  const fieldId=sources[role];if(!fieldId)continue;
+  const value=row.values[fieldId],asset=Array.isArray(value)?value.find(item=>!item.kind||item.kind==='image'):null;
+  row.meta||={};row.meta.generationFrames||={};const frames=row.meta.generationFrames[owner.id]||={};
+  if(asset)frames[role]={fieldId,assetId:asset.id};else delete frames[role];
+ }
+}
 export function syncGenerationConfigOwners(table,before=table){
  for(const prompt of promptColumns(table)){
   const linked=table.fields.filter(f=>isGeneration(f)&&f.generation.promptFieldId===prompt.id);if(!linked.length)continue;
@@ -154,6 +188,12 @@ export function syncGenerationPromptMode(table,before,fieldId,defaults){
  for(const row of table.records){
   const old=oldRows.get(row.id);if(!old)continue;
   const config=rowGenerationConfig(row,fieldId,defaults),previous=rowGenerationConfig(old,fieldId,defaults);
+  if(config.kind==='video'&&config.mode==='text2video'&&COMFY_VIDEO_MODELS.includes(config.model)){
+   const doc=toColumnPrompt(effectivePrompt(table,row,config.promptFieldId),row);
+   if(doc.segments.some(s=>s.type==='column'&&(s.assetId||Array.isArray(row.values[s.fieldId])))){
+    setRowGenerationConfig(row,fieldId,{...config,mode:'mixed2video'});continue;
+   }
+  }
   if(config.kind!=='video'||generationFrameTagKey(config)!==generationFrameTagKey(previous)||row.meta?.generationFrameTags?.[fieldId]!==old.meta?.generationFrameTags?.[fieldId])continue;
   const roles=(table,row)=>(effectivePrompt(table,row,config.promptFieldId)?.segments||[]).filter(s=>s.type==='frame'&&s.generationFieldId===fieldId).map(s=>s.role);
   const oldRoles=roles(before,old),remaining=roles(table,row);
@@ -185,11 +225,18 @@ export function generationInput(table,fieldId,recordId){
  if(row.meta?.generationSourceMissing)throw new Error('来源表格中的任务行已删除；已有结果保留');
  const source=requirePromptSource(table),owner=generationConfigField(table,fieldId),config={...rowGenerationConfig(row,owner.id,owner.generation),promptFieldId:source.id},document=generationPrompt(table,row,source.id);
  if(config.model===LOCAL_VIDEO_MODEL&&!LOCAL_VIDEO_MODES.includes(config.mode))throw new Error('本地 H3 FL 仅支持文生视频、首帧和首尾帧，请重新选择生成方式');
+ if(generationFrameRoles(config).length&&document.segments.some(s=>s.type==='ref'))throw new Error('首帧／首尾帧模式不能在提示词中 @ 素材，请移除正文素材引用，并通过帧选择入口填入图片');
  if(!document.segments.some(s=>s.type==='ref'||s.text?.trim()))throw new Error('本行提示词为空');
  const assets=[],frameBindings=row.meta?.generationFrames?.[owner.id];
  if(frameBindings)for(const frame of generationFrames(table,row,owner.id,config)){
   if(!frame.asset)throw new Error((frame.role==='first'?'首帧':'尾帧')+'：'+(frame.error||'请选择本行图片'));
   const a=frame.asset;if(a.fieldId===fieldId)throw new Error('生成列不能引用自身结果，请引用其他已完成的生成列');assets.push({id:a.id,fieldId:a.fieldId,kind:a.kind||'image',url:a.url});
+ }
+ if(!generationFrameRoles(config).length)for(const ref of row.meta?.generationReferences?.[owner.id]||[]){
+  if(ref.fieldId===fieldId)throw new Error('生成列不能引用自身结果，请引用其他已完成的生成列');
+  const {asset}=columnValue(table,row,ref.fieldId,undefined,ref.assetId);
+  if(!asset)throw new Error('参考素材已不存在');
+  if(!assets.some(a=>a.id===asset.id&&a.fieldId===asset.fieldId))assets.push({id:asset.id,fieldId:asset.fieldId,kind:asset.kind||'image',url:asset.url});
  }
  const segments=document.segments.map(s=>{
   if(s.type==='text')return {type:'text',text:s.text};

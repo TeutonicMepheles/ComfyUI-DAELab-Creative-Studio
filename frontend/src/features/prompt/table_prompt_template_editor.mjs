@@ -21,7 +21,7 @@ export function openColumnPromptEditor({getTable,editor,fieldId,recordId,column=
   const box=el('div',d);box.className='dae-prompt-edit';box.contentEditable='true';box.setAttribute('role','textbox');box.setAttribute('aria-label',column?'整列提示词模板':'本行提示词模板');box.setAttribute('aria-multiline','true');drawSegments(box,draft,row);
   const remember=()=>{const selection=getSelection();if(selection.rangeCount&&box.contains(selection.anchorNode))range=selection.getRangeAt(0).cloneRange();};
   const insert=node=>{box.focus();if(!range||!box.contains(range.startContainer)){range=document.createRange();range.selectNodeContents(box);range.collapse(false);}range.deleteContents();range.insertNode(node);range.setStartAfter(node);range.collapse(true);getSelection().removeAllRanges();getSelection().addRange(range);remember();};
-  const picker=createReferenceMenu({options:columnReferenceOptions(before,row).filter(f=>f.id!==fieldId),onChoose:f=>{
+  const picker=createReferenceMenu({options:columnReferenceOptions(getTable(),row,fieldId).filter(f=>f.id!==fieldId),onChoose:f=>{
    if(range?.startContainer.nodeType===3&&range.startOffset&&range.startContainer.textContent[range.startOffset-1]==='@')range.setStart(range.startContainer,range.startOffset-1);
    const container=document.createElement('div');drawSegments(container,{kind:'column-template',version:1,segments:[{type:'column',fieldId:f.id,...(f.valueType?{valueType:f.valueType}:{}),...(f.assetIndex!==undefined?{assetIndex:f.assetIndex}:{}),...(f.asset?{assetId:f.asset.id}:{})}]},row);insert(container.firstChild);choices.hidden=true;refreshPreview();
   }});const choices=picker.root;choices.dataset.embedded='true';choices.hidden=true;d.append(choices);

@@ -1,26 +1,44 @@
 import {bindColumnAssets} from '../features/prompt/table_prompt_template.mjs';
 import {addField,addRecord,emptyValue,normalizeTable,uid,setValue} from './table_model.mjs';
-import {addGenerationColumn} from '../features/generation/table_generation_model.mjs';
+import {setPromptSource} from '../features/prompt/table_prompt_source.mjs';
 
 export function createMaterialTable(){
     const table=normalizeTable({meta:{material_columns:true}});
     addField(table,{name:'图片/视频',type:'content',width:260});
-    const generation=addGenerationColumn(table,{name:'生成'});
-    table.fields.find(f=>f.id===generation.generation.promptFieldId).width=420;
+    const prompt=addField(table,{name:'提示词',type:'json',presentation:'prompt',generationPrompt:true,width:420});
+    setPromptSource(table,prompt.id);
     for(let i=0;i<3;i++)addRecord(table,Object.fromEntries(table.fields.map(f=>[f.id,emptyValue(f)])));
     return table;
 }
 
 // An explicit drop copies an ordered snapshot. It never establishes a hidden
 // runtime graph input or changes reviewed values again when the source changes.
-const accepts=field=>field&&!field.hidden&&!field.readonly&&['assets','content'].includes(field.type);
-export const columnDropTypes=field=>!field||field.hidden||field.readonly?[]:field.presentation==='prompt'?['text']:field.type==='content'?['image','video','text']:field.type==='assets'?['image','video']:['text','longtext'].includes(field.type)?['text']:[];
+const accepts=field=>columnDropTypes(field).includes('image');
+export const columnDropTypes=field=>!field||field.hidden||field.readonly?[]:field.presentation==='prompt'?['text']:['content','assets'].includes(field.type)?['image','video']:['text','longtext'].includes(field.type)?['text']:[];
 export const columnFillCount=(itemCount,rowCount)=>itemCount===1?Math.max(1,rowCount):itemCount;
 function materialSnapshot(collection){
     const assets=collection?.assets;
     if(!Array.isArray(assets))throw new Error('素材组数据无效，未修改表格');
     if(assets.some(a=>a.missing||!a.filename||!['image','video'].includes(a.kind)))throw new Error('素材组中有缺失或不支持的素材，未修改表格');
     return assets.map(asset=>({id:uid(),url:'/view?'+new URLSearchParams({filename:asset.filename,subfolder:asset.subfolder||'',type:asset.type||'input'}),name:asset.name||asset.filename,kind:asset.kind,sourceNodeId:asset.nodeId}));
+}
+export function addMaterialColumns(table,collection){
+    const texts=collection?.texts||[],assets=materialSnapshot({...collection,assets:collection?.assets||[]});
+    if(collection?.ready===false||!Array.isArray(texts)||texts.some(text=>typeof text!=='string'))throw new Error('素材尚未就绪，未修改表格');
+    const count=Math.max(texts.length,assets.length);
+    if(!count)throw new Error('没有可填入的文字或图片／视频');
+    if(count>500||table.fields.length+Number(!!texts.length)+Number(!!assets.length)>64)throw new Error('表格最多 500 行、64 列');
+    while(table.records.length<count)addRecord(table);
+    if(assets.length){
+        const field=addField(table,{name:'图片/视频',type:'content',width:300});
+        for(const row of table.records)row.values[field.id]=emptyValue(field);
+        assets.forEach((asset,index)=>table.records[index].values[field.id]=[asset]);
+    }
+    if(texts.length){
+        const field=addField(table,{name:'文本',type:'json',presentation:'prompt',generationPrompt:true,width:420});
+        for(const row of table.records)row.values[field.id]=emptyValue(field);
+        texts.forEach((text,index)=>setValue(table,table.records[index].id,field.id,text));
+    }
 }
 export function fillMaterialColumn(table,fieldId,collection){
     const field=table.fields.find(f=>f.id===fieldId);

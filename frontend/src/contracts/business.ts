@@ -2,6 +2,12 @@ import type { CanvasGraph, CanvasHistoryPort, CanvasNode } from './canvas_host.j
 
 export type BusinessDomain = 'storyboard' | 'script' | 'optimization' | 'generation';
 export interface BusinessAuth { headers?: Record<string, string>; assertCurrent?: () => void }
+export interface GenerationPriceInput {
+  model: string; kind: string; mode: string;
+  settings: Record<string, unknown>;
+  media: readonly { kind: string }[];
+}
+export interface GenerationCredits { min: number; max: number }
 export interface BusinessHostPort {
   readonly history: CanvasHistoryPort;
   nodes(graph: CanvasGraph): readonly CanvasNode[];
@@ -11,6 +17,7 @@ export interface BusinessHostPort {
   placeNode?(node: CanvasNode, position: {x: number; y: number; width: number}): void;
   isSelected(node: CanvasNode): boolean;
   fetchNative(url: string, options?: RequestInit): Promise<Response>;
+  estimateGenerationCredits?(input: GenerationPriceInput): Promise<GenerationCredits | null>;
 }
 export interface BusinessServicePort {
   /** Existing domain DTOs are preserved. The bound service owns execution and its durable ledger. */

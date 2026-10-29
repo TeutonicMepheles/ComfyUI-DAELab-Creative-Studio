@@ -35,6 +35,7 @@ export function requirePromptSource(table) {
 
 export function setPromptSource(table, fieldId) {
     if (table.meta?.generationInput && table.meta.generationInput.version !== 1) throw new Error('不支持的提示词来源版本，请保留原表格');
+    if (!fieldId && table.meta?.material_columns && promptSourceId(table)) throw new Error('必须保留提示词列，请先将其他文本列设为提示词');
     const field = table.fields.find(f => f.id === fieldId);
     if (fieldId && !isTextColumn(table, field)) throw new Error('请选择不含图片或视频的文本列');
     // Preserve every cell and template. Editable plain text becomes a rich text editor.
@@ -44,7 +45,7 @@ export function setPromptSource(table, fieldId) {
     }
     table.meta ||= {};
     table.meta.generationInput = {version: 1, promptFieldId: fieldId || null};
-    for(const output of table.fields.filter(f=>f.generation)){
+    for(const output of table.fields.filter(f=>f.generation&&(f.presentation==='generation'||f.id===fieldId))){
         for(const row of table.records){
             const oldId=row.meta?.generationPromptFields?.[output.id]??output.generation.promptFieldId;
             const settings=row.meta?.generationSettings?.[oldId]?.[output.id];

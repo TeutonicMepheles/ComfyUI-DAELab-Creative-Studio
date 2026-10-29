@@ -1,7 +1,7 @@
 import {tableClipboard} from './table_capabilities.js';
 import {bindBusinessDocument,tableInputStamp} from './business_document_host.js';
 import {businessFetch} from '../../../contracts/business.js';
-import {readTableView} from '../../../application/table_exchange.mjs';
+import {isTableSource,readTableView} from '../../../application/table_exchange.mjs';
 import {createTableWidgetSerializer} from './table_serializer.js';
 import {removeEmptyTableNode} from '../../../features/table/public_helpers.mjs';
 import {preserveGenerationHistory} from '../../../features/generation/table_generation_history.mjs';
@@ -79,8 +79,12 @@ function createPanel(node){
  const tabs=document.createElement('nav');tabs.className='studio-tabs';heading.append(tabs);root.append(heading);
  let tools=document.createElement('div');tools.className='studio-group-head';root.append(tools);
  let updateSummary=()=>{},promptUI=null,generationUI=null;
+ function confirmDeselectRows(ids){
+  const running=(node.outputs?.[0]?.links||[]).some(id=>{const link=node.graph.links[id],target=node.graph.getNodeById(link?.target_id);return target?.__libtvPanel?.hasActiveRows(ids);});
+  return !running||window.confirm('当前任务正在进行中，确认取消吗？');
+ }
  const widgetDocument=bindBusinessDocument(node,()=>Object.fromEntries(['main_prompt','force_run_token'].filter(name=>widget(node,name)).map(name=>[name,widget(node,name).value])),value=>{for(const [name,item] of Object.entries(value))setWidget(node,name,item);});
- const editor=createTableEditor({getPanelContext:root=>globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root),clipboard:tableClipboard,documentFactory:(read,write)=>bindBusinessDocument(node,read,write,tableInputStamp),removeEmptyNode:table=>removeEmptyTableNode(node,table),validateChange:assertTransition,promptColumnsOnly:isGeneric(node),nativeHistory:tableHistory(app),displayContent:()=>isGeneric(node)&&globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root)?.presentation==='content',getTable:()=>node.__dataTable,setTable:t=>{generationUI?.syncPromptChanges(t,node.__dataTable);save(node,t);updateSummary();},upload,notify,isRowStateEmpty:t=>isGeneric(node)&&!t.meta.prompt_config,getRowState:(t,r)=>isGeneric(node)&&!t.meta.prompt_config?{issues:[],hint:''}:storyboardTaskState(t,r),renderCell:args=>promptUI?.renderCell(args),decorateAsset:(...args)=>promptUI?.decorateAsset(...args),onRestore:()=>{promptUI?.invalidate();generationUI?.invalidate();}});
+ const editor=createTableEditor({getPanelContext:root=>globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root),clipboard:tableClipboard,documentFactory:(read,write)=>bindBusinessDocument(node,read,write,tableInputStamp),removeEmptyNode:table=>removeEmptyTableNode(node,table),validateChange:assertTransition,confirmDeselectRows,promptColumnsOnly:isGeneric(node),nativeHistory:tableHistory(app),displayContent:()=>isGeneric(node)&&globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root)?.presentation==='content',getTable:()=>node.__dataTable,setTable:t=>{generationUI?.syncPromptChanges(t,node.__dataTable);save(node,t);updateSummary();},upload,notify,isRowStateEmpty:t=>isGeneric(node)&&!t.meta.prompt_config,getRowState:(t,r)=>isGeneric(node)&&!t.meta.prompt_config?{issues:[],hint:''}:storyboardTaskState(t,r),renderCell:args=>promptUI?.renderCell(args),decorateAsset:(...args)=>promptUI?.decorateAsset(...args),onRestore:()=>{promptUI?.invalidate();generationUI?.invalidate();}});
  const optimization=attachPromptOptimization({node,graph:node.graph,editor,getTable:()=>node.__dataTable,identity:ensureIdentity(node.graph,node),fetchApi:businessFetch});
  function defaults(){return promptConfig(node.__dataTable).defaults||{};}
  function syncDefaults(){const next=defaults();if(JSON.stringify(next)!==JSON.stringify(promptConfig(node.__dataTable).defaults||{}))editor.change(t=>{t.meta.prompt_config||=clone(promptConfig(t));t.meta.prompt_config.defaults=next;});}
@@ -160,6 +164,11 @@ function createPanel(node){
 function install(node){
  if(!node.graph)return;
  if(isGeneric(node)&&!node.inputs?.some(i=>i.name==='source_table'))node.addInput('source_table','STRING');
+ if(isGeneric(node)){
+  const index=node.inputs.findIndex(input=>input.name==='source_table'),link=node.graph.links[node.inputs[index].link],source=node.graph.getNodeById(link?.origin_id);
+  // Old STRING sockets accepted text nodes; that hidden link blocks table reads.
+  if(source&&(!isTableSource(source)||link.origin_slot!==0))node.disconnectInput(index);
+ }
  const duplicate=node.graph._nodes?.some(n=>n!==node&&n.properties?.[NAMESPACE]?.tableId&&n.properties[NAMESPACE].tableId===node.properties?.[NAMESPACE]?.tableId);ensureIdentity(node.graph,node,{duplicate});
 
  const raw=widget(node,dataName(node))?.value;
@@ -179,6 +188,13 @@ export function registerTableNodes(){
  if(globalThis.__DAELAB_TABLE_VERSION===VERSION)return;globalThis.__DAELAB_TABLE_VERSION=VERSION;
  app.registerExtension({name:'DAELab.DataTable',beforeRegisterNodeDef(type,data){
   if(!TYPES.includes(data.name))return;
+  if(data.name==='DAELAB.Table'){
+   const connectInput=type.prototype.onConnectInput;
+   type.prototype.onConnectInput=function(index,outputType,output,source,sourceSlot){
+    if(this.inputs[index]?.name==='source_table'&&(!isTableSource(source)||sourceSlot!==0))return false;
+    return connectInput?.apply(this,arguments)??true;
+   };
+  }
   for(const method of ['onNodeCreated','onAdded','onConfigure']){const prev=type.prototype[method];type.prototype[method]=function(){const result=prev?.apply(this,arguments);if(method==='onConfigure'&&this.__dataTablePanel){this.__dataTablePanel.close();this.__dataTablePanel.editor.invalidateAsync();this.__dataTablePanel.editor.history.undoStack=[];this.__dataTablePanel.editor.history.redoStack=[];}scheduleTableInstall(this,install);return result;};}
   const removed=type.prototype.onRemoved;type.prototype.onRemoved=function(){removeOwnedWidgets(this,OWNER);delete this.__dataTablePanel;delete this.__daelabStoryboardRender;delete this.__storyboardResultUI;return removed?.apply(this,arguments);};
  }});

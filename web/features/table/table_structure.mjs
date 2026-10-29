@@ -27,7 +27,7 @@ export function attachTableStructure({root,shell,table,getTable,change,notify,ge
             if(t.records.length>=500)throw new Error('每张表最多 500 行');
             if(target&&!t.records.some(row=>row.id===target))throw new Error('目标行已变化，请重试');
             const row=addRecord(t,Object.fromEntries(t.fields.map(f=>[f.id,emptyValue(f)])));
-            row.selected=false;id=row.id;field=t.fields.find(f=>!f.hidden&&!f.readonly)?.id;
+            id=row.id;field=t.fields.find(f=>!f.hidden&&!f.readonly)?.id;
             if(target)moveRows(t,[id],target,!before);
         });focusCell(id,field);}catch(error){notify(error.message);}
     }
@@ -47,7 +47,9 @@ export function attachTableStructure({root,shell,table,getTable,change,notify,ge
         node.setAttribute('role','dialog');node.setAttribute('aria-label','新增列');
         const title=el('strong','',target?(before?'在左侧插入列':'在右侧插入列'):'新增列');
         const name=el('input',''),type=el('select','');name.required=true;name.maxLength=100;name.value=`列 ${getTable().fields.length+1}`;name.setAttribute('aria-label','列名称');
-        for(const [value,label] of [['content','图片/视频'],['generation','生成'],['prompt','文本'],['checkbox','勾选']])type.add(new Option(label,value));
+        for(const [value,label] of [['content','图片/视频'],['generation','生成列（仅测试用）'],['prompt','文本']])type.add(new Option(label,value));
+        let defaultName=name.value;
+        type.onchange=()=>{const next=type.value==='generation'?'生成列（仅测试用）':`列 ${getTable().fields.length+1}`;if(name.value===defaultName)name.value=next;defaultName=next;};
         type.setAttribute('aria-label','列类型');
         const label=(text,input)=>{const item=el('label','',text);item.append(input);return item;};
         const error=el('p','table-column-error');error.setAttribute('role','status');
@@ -78,18 +80,20 @@ export function attachTableStructure({root,shell,table,getTable,change,notify,ge
     const trailing=el('th','table-add-column');trailing.scope='col';
     const addColumn=control('＋',e=>openColumn(e.currentTarget),'table-add-column-button');addColumn.title='新增列';addColumn.setAttribute('aria-label','新增列');trailing.append(addColumn);table.tHead.rows[0].append(trailing);
     const col=el('col','');col.style.width='48px';table.querySelector('colgroup').append(col);
-    for(const row of rows())row.append(el('td','table-trailing-cell'));
     const foot=table.createTFoot(),footRow=foot.insertRow(),footCell=footRow.insertCell();footCell.colSpan=headers().length+2;footCell.className='table-add-row-cell';
     const addRowButton=control('＋ 新增行',()=>addRow(),'table-add-row');
     addRowButton.replaceChildren(el('span','table-add-row-label','＋ 新增行'));footCell.append(addRowButton);
     const corner=table.querySelector('th.table-choice');corner.querySelector('input').title='选择全部行';
-    for(const row of rows()){
+    function mountRowControls(rowList){for(const row of rowList){
+        if(!row.querySelector('.table-trailing-cell'))row.append(el('td','table-trailing-cell'));
+        if(row.querySelector('[data-structure-kind=row]'))continue;
         const id=row.dataset.recordId,number=getTable().records.findIndex(r=>r.id===id)+1,gutter=row.querySelector('.table-choice'),old=row.querySelector('.row-grip');
         old?.remove();gutter.dataset.structureGutter='true';row.dataset.rowSelected=String(!!getTable().records.find(r=>r.id===id)?.selected);
         if(root.dataset.namedRows==='true'){
             gutter.tabIndex=0;bindHandle(gutter,'row',id);gutter.title='双击重命名，拖动调整顺序，或 Alt + 方向键';
         }else gutter.prepend(makeHandle('row',id,`移动第 ${number} 行`));
-    }
+    }}
+    mountRowControls(rows());
     for(const header of headers()){
         header.draggable=false;header.ondragover=header.ondrop=null;
         const id=header.dataset.column,field=getTable().fields.find(f=>f.id===id);
@@ -104,15 +108,17 @@ export function attachTableStructure({root,shell,table,getTable,change,notify,ge
     }
     function bindHandle(handle,kind,id){
         handle.dataset.structureKind=kind;handle.dataset.structureId=id;handle.title='拖动调整顺序，或 Alt + 方向键';handle.draggable=false;
-        listen(handle,'pointerdown',e=>{if(e.target!==handle&&e.target.closest('button,input,select,a,[role=separator]'))return;start(e,kind,id,handle);});
-        listen(handle,'keydown',e=>{
+    }
+    const moveHandle=e=>e.target.closest('[data-structure-kind]');
+    listen(root,'pointerdown',e=>{const handle=moveHandle(e);if(!handle||e.target!==handle&&e.target.closest('button,input,select,a,[role=separator]'))return;start(e,handle.dataset.structureKind,handle.dataset.structureId,handle);});
+    listen(root,'keydown',e=>{
+            const handle=moveHandle(e);if(!handle)return;const kind=handle.dataset.structureKind,id=handle.dataset.structureId;
             const keys=kind==='row'?['ArrowUp','ArrowDown']:['ArrowLeft','ArrowRight'];
             if(!e.altKey||!keys.includes(e.key))return;e.preventDefault();e.stopPropagation();
             const t=getTable(),items=kind==='row'?t.records:t.fields.filter(f=>!f.hidden),ids=kind==='row'&&items.find(r=>r.id===id)?.selected?items.filter(r=>r.selected).map(r=>r.id):[id];
             const direction=e.key===keys[0]?-1:1,positions=items.flatMap((item,i)=>ids.includes(item.id)?[i]:[]),at=direction<0?Math.min(...positions)-1:Math.max(...positions)+1,target=items[at];
             if(target){change(next=>kind==='row'?moveRows(next,ids,target.id,direction>0):moveColumn(next,id,target.id,direction>0));restoreHandle(kind,id);}
         });
-    }
     const guide=el('div','dae-ui table-structure-guide'),ghost=el('div','dae-ui table-structure-ghost');guide.hidden=ghost.hidden=true;document.body.append(guide,ghost);
     function start(e,kind,id,handle){
         if(e.button!==0||drag)return;e.preventDefault();e.stopPropagation();closeColumn();handle.focus({preventScroll:true});
@@ -194,6 +200,7 @@ export function attachTableStructure({root,shell,table,getTable,change,notify,ge
     // Read all row geometry before inserting the absolutely positioned handles.
     // Interleaving these writes/reads forces a full table layout for every row.
     function mountRows(rowList=rows()){
+    mountRowControls(rowList);
     const rowGeometry=rowList.filter(row=>!row.querySelector('.table-row-resize')).map(row=>({row,index:row.getAttribute('aria-rowindex')?Number(row.getAttribute('aria-rowindex'))-1:row.rowIndex,height:row.offsetHeight}));
     for(const {row,index,height} of rowGeometry){
         const handle=control('调整行高',()=>{},'table-row-resize');handle.setAttribute('role','separator');handle.setAttribute('aria-label',`调整第 ${index} 行高度`);handle.setAttribute('aria-orientation','horizontal');handle.setAttribute('aria-valuenow',String(height));handle.title='拖动本行下边缘调整高度；双击恢复自适应';handle.textContent='';row.querySelector('.table-choice').append(handle);

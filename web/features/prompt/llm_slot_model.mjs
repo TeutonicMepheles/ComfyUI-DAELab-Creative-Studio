@@ -1,6 +1,7 @@
 import {pairInputs,tableInput} from './llm_io_model.mjs';
 import {readTableSnapshot} from '../../application/table_exchange.mjs';
 const API=Symbol.for('DAELAB.CreativeCanvas.API.v1');
+export function hasTableInput(node){return node.inputs?.some(input=>input.link!=null&&node.graph?.getNodeById(node.graph.links[input.link]?.origin_id)?.type==='DAELAB.Table')||false;}
 export function slotRows(node,seen=new Set()){
     if(seen.has(node))throw new Error('输入连线形成循环');
     seen=new Set(seen).add(node);
@@ -26,7 +27,10 @@ export function slotRows(node,seen=new Set()){
         if(!snapshot.texts&&!snapshot.assets&&!snapshot.rows)throw new Error('无法解析此输入类型');
         snapshots.push(snapshot);
     }
-    if(!snapshots.length) return [];
+    if(!snapshots.length){
+        const source=node.properties?.llmStylePreview?.source||'';
+        return source.trim()?pairInputs([],source):[];
+    }
     return pairInputs(snapshots);
 }
 export function slotSignature(node,seen){const s=node.properties?.llmStylePreview||{};return JSON.stringify([slotRows(node,seen),s.mode||'polish',s.instruction||'',s.model||'qwen']);}

@@ -35,7 +35,7 @@ test('large plain tables keep all model rows while visible DOM follows focus and
   const {createTableEditor}=await import('/web/application/table_editor.mjs');
   const {normalizeTable}=await import('/web/application/table_model.mjs');window.windowFixtures={};const heights={};
   for(const id of ['A','B']){
-   let table=normalizeTable({version:1,view:'table',meta:{},fields:[0,1,2].map(i=>({id:'f'+i,name:'列 '+i,type:'content',width:180})),records:Array.from({length:150},(_,i)=>({id:'r'+i,values:{f0:id+' '+i,f1:'text',f2:''}}))});
+   let table=normalizeTable({version:1,view:'table',meta:{},fields:[0,1,2].map(i=>({id:'f'+i,name:'列 '+i,type:'content',width:180})),records:Array.from({length:150},(_,i)=>({id:'r'+i,selected:false,values:{f0:id+' '+i,f1:'text',f2:''}}))});
    const panel=document.createElement('section');panel.id='window-'+id;document.body.append(panel);
    const editor=createTableEditor({getTable:()=>table,setTable:next=>{table=next;},displayContent:()=>true,upload:async()=>{throw Error('No upload');}});
    panel.append(editor.root);editor.render();heights[id]=panel.querySelector('table').offsetHeight;window.windowFixtures[id]={editor,read:()=>table,panel};
@@ -54,20 +54,34 @@ test('large plain tables keep all model rows while visible DOM follows focus and
  await page.evaluate(()=>window.windowFixtures.A.editor.focusCell('r149','f2'));
  expect(await page.evaluate(()=>document.activeElement?.closest('td[data-record]')?.dataset.record)).toBe('r149');
  await expect.poll(()=>page.locator('#window-A tr[data-record-id]').count()).toBeLessThan(150);
+ const last=page.locator('#window-A tr[data-record-id="r149"]');
+ await expect(last.locator('.table-trailing-cell')).toHaveCount(1);
+ const move=last.locator('[data-structure-kind=row]');await expect(move).toHaveCount(1);
+ await move.focus();await page.keyboard.press('Alt+ArrowUp');
+ expect(await page.evaluate(()=>window.windowFixtures.A.read().records[148].id)).toBe('r149');
+ await page.evaluate(()=>window.windowFixtures.A.editor.restore());
+ expect(await page.evaluate(()=>window.windowFixtures.A.read().records[149].id)).toBe('r149');
+ await page.evaluate(()=>window.windowFixtures.A.editor.focusCell('r149','f2'));
+ const resize=page.locator('#window-A tr[data-record-id="r149"] .table-row-resize');
+ await resize.focus();await page.keyboard.press('ArrowDown');
+ expect(await page.evaluate(()=>window.windowFixtures.A.read().records[149].meta.height)).toBeGreaterThan(0);
+ expect(await page.evaluate(()=>window.windowFixtures.B.read())).toEqual(peer);
  await page.evaluate(()=>window.windowFixtures.A.editor.change(table=>{table.fields[1].readonly=true;}));
  await expect.poll(()=>page.locator('#window-A tr[data-record-id]').count()).toBe(150);
  await expect(page.locator('#window-A [data-table-row-spacer]')).toHaveCount(0);
  await page.evaluate(()=>Object.values(window.windowFixtures).forEach(f=>{f.editor.destroy();f.panel.remove();}));
  await page.waitForTimeout(100);expect(errors).toEqual([]);
 });
+async function editNote(panel,id,text){const cell=panel.locator(`td[data-field="note-${id}"]`).first();await cell.dblclick();await cell.locator('[contenteditable="true"]').fill(text);await cell.locator('[contenteditable="true"]').press('Tab');}
+
 test.beforeEach(async({page})=>{await page.goto('/');await expect(page.locator('.dae-table')).toHaveCount(2);});
 test('real editors preserve independent edits, history, menus and saved unknown keys',async({page})=>{
  const errors=[];page.on('pageerror',error=>errors.push(error.message));const a=instance(page,'A'),b=instance(page,'B');
- await a.locator('td[data-field="note-A"] input').first().fill('中文 A / English');
- await b.locator('td[data-field="note-B"] input').first().fill('独立 B');
+ await editNote(a,'A','中文 A / English');
+ await editNote(b,'B','独立 B');
  expect((await snapshot(a)).records[0].values['note-A']).toBe('中文 A / English');expect((await snapshot(b)).records[0].values['note-B']).toBe('独立 B');
  await a.getByRole('button',{name:'保存预览',exact:true}).click();
- await a.locator('td[data-field="note-A"] input').first().fill('临时');
+ await editNote(a,'A','临时');
  await a.getByRole('button',{name:'重载预览',exact:true}).click();
  expect((await snapshot(a)).records[0].values['note-A']).toBe('中文 A / English');expect((await snapshot(a)).fixtureExtension).toEqual({preserve:true});
  await a.getByRole('button',{name:'提示词模板',exact:true}).click();await expect(page.locator('.table-text-side:not([hidden])')).toHaveCount(1);
@@ -87,7 +101,7 @@ test('capability states preserve configuration and late simulated completion can
 });
 test('empty table, narrow viewport, focus and internal overflow remain reachable',async({page})=>{
  await page.setViewportSize({width:600,height:800});const a=instance(page,'A');
- await a.locator('td[data-field="note-A"] input').first().fill('窄视口');await page.keyboard.press('Tab');
+ await editNote(a,'A','窄视口');await page.keyboard.press('Tab');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
  expect(await a.locator('.dae-table-scroll').evaluate(e=>e.scrollWidth>e.clientWidth)).toBe(true);
  await a.getByRole('button',{name:'空表',exact:true}).click();expect((await snapshot(a)).records).toEqual([]);
@@ -117,12 +131,12 @@ test('structured clipboard exchange is explicit and a late upload cannot change 
 
 test('generation settings keep their click target when the prompt hint appears',async({page})=>{
  for(const name of ['A','B']){
-  const panel=instance(page,name),settings=panel.locator('[data-generation-defaults]').first();
+  const panel=instance(page,name),settings=panel.locator('.table-prompt-toggle[aria-pressed="true"]').first();
   await settings.scrollIntoViewIfNeeded();await page.mouse.move(0,0);const before=await settings.boundingBox();expect(before).not.toBeNull();
   await page.mouse.move(before.x+before.width/2,before.y+before.height/2);
   const hovered=await settings.boundingBox();expect(Math.abs(hovered.x-before.x)).toBeLessThan(.5);expect(Math.abs(hovered.y-before.y)).toBeLessThan(.5);
   await page.mouse.click(before.x+before.width/2,before.y+before.height/2);
-  await expect(page.locator('.table-text-side:not([hidden])')).toContainText('列默认配置');
-  await page.getByRole('button',{name:'关闭侧栏',exact:true}).click();
+  await expect(page.getByRole('button',{name:'应用全部',exact:true})).toBeVisible();
+  await page.keyboard.press('Escape');
  }
 });

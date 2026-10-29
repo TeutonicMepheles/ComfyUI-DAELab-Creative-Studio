@@ -15,7 +15,7 @@ export function projectTableSource(local, source) {
         return {...upstream,...saved,id,type:['text','longtext','assets'].includes(upstream.type)?'content':upstream.type,readonly:true,hidden};
     });
     return normalizeTable({...local,fields,meta:{...local.meta,material_columns:true,liveSource:{...settings,fields:mapping}},records:source.records.map(row=>({
-        ...row,selected:previous.get(row.id)?.selected===true,
+        ...row,selected:previous.get(row.id)?.selected??true,
         values:Object.fromEntries(Object.entries(mapping).map(([id,origin])=>[id,structuredClone(row.values[origin]??'')]))
     }))});
 }

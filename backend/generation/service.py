@@ -15,10 +15,12 @@ from ..contracts.validation import clean_json, digest, identity
 from ..jobs.ledger import TERMINAL_STATES
 from ..providers.contracts import Observation, ProviderUnavailable, SubmissionRejected, SubmissionUncertain
 from ..providers.parameters import IMAGE_MODEL, VIDEO_MODEL, QWEN_MODEL
+from ..providers.comfy_video import SeedanceProvider, MinimaxProvider
 from .media import freeze_reference
 from .admission import ResourceAdmission, complete_blocking
 
 MODELS = {IMAGE_MODEL: 'local-qwen-image', VIDEO_MODEL: 'local-h3', QWEN_MODEL: 'local-qwen-text', 'qwen': 'local-qwen-text'}
+MODELS.update({model: provider.id for provider in (SeedanceProvider, MinimaxProvider) for model in provider.models})
 _BARRIERS = {'rejected', 'fenced'}
 _SCOPE_IDS = {'documentId', 'tableId', 'nodeId', 'recordId', 'fieldId', 'workflowSession', 'groupId'}
 _SCOPE_KEYS = _SCOPE_IDS | {'epoch', 'inputVersion', 'inputDigest', 'model', 'createdAt', 'operation', 'groupIndex', 'groupCount'}
@@ -28,6 +30,7 @@ class GenerationService:
     def __init__(self, jobs, assets, *, providers=None, admission=None, poll_interval=1.0, poll_limit=3600, barrier_namespace=None, resources=None):
         self.jobs, self.assets = jobs, assets
         self.providers = dict(providers or {})
+        self.enabled_remote_providers = set()
         self.admission = admission
         self.resources = resources if resources is not None else ResourceAdmission(jobs=jobs)
         self.poll_interval, self.poll_limit = poll_interval, poll_limit
@@ -63,7 +66,7 @@ class GenerationService:
             inspect = getattr(self.admission, 'check_available', None)
             if inspect is not None:
                 inspect(provider.resource)
-        elif getattr(provider, 'protocol_only', False) is not True:
+        elif provider.id not in self.enabled_remote_providers and getattr(provider, 'protocol_only', False) is not True:
             raise ProviderUnavailable('Live cloud execution is disabled for this migration.')
 
     @staticmethod
@@ -262,7 +265,7 @@ class GenerationService:
                     async with self.admission.lease(provider.resource):
                         yield
                 else:
-                    if getattr(provider, 'protocol_only', False) is not True:
+                    if provider.id not in self.enabled_remote_providers and getattr(provider, 'protocol_only', False) is not True:
                         raise ProviderUnavailable('Live cloud execution is disabled for this migration.')
                     yield
             finally:

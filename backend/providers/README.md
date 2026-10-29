@@ -6,6 +6,8 @@ contracts.py distinguishes rejected/uncertain delivery; parameters.py builds gra
 
 Injected transport/queues execute; providers do not own another scheduler or ledger.
 
+comfy_video.py maps frozen image/video references and mode-specific installed schemas into official Seedance and MiniMax H3 API node graphs. Host assembly explicitly enables these remote providers; credentials remain in the host queue's transient sensitive fields. No provider-owned network client or fallback is added.
+
 Focused checks, from the repository root:
 
 ```powershell

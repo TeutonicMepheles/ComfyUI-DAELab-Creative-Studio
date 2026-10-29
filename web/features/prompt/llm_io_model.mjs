@@ -1,9 +1,22 @@
 import {normalizeTable} from '../../application/table_model.mjs';
+import {requirePromptSource,promptSourceId} from './table_prompt_source.mjs';
+import {effectivePrompt,toColumnPrompt,resolveColumnPrompt} from './table_prompt_template.mjs';
+import {promptText} from './table_prompt_model.mjs';
 export const MODE_LABELS={polish:'提示词润色',reverse:'图片反推',custom:'自定义'};
 export function tableInput(table){
+    // Normalization gives legacy scalar tables a v1 binding with a null ID.
+    // Keep their unambiguous text/image contract, without hiding broken modern bindings.
+    const binding=table.meta?.generationInput;
+    if(promptSourceId(table)||binding!==undefined&&(binding?.version!==1||binding?.promptFieldId||table.fields.some(field=>field.presentation==='prompt'))){
+        const field=requirePromptSource(table);
+        return {version:1,rows:table.records.filter(row=>row.selected).map((row,index)=>{
+            const document=resolveColumnPrompt(toColumnPrompt(effectivePrompt(table,row,field.id),row),table,row,field.id);
+            return {id:row.id,index:index+1,name:row.name||`任务${table.records.indexOf(row)+1}`,text:promptText(document,table,row),image:document.assets.length===1&&document.assets[0].kind==='image'?document.assets[0]:null,promptDocument:document};
+        })};
+    }
     const fields=table.fields.filter(f=>!f.hidden), images=fields.filter(f=>['assets','content'].includes(f.type)&&table.records.some(r=>Array.isArray(r.values[f.id])&&r.values[f.id].length)), texts=fields.filter(f=>['text','longtext','content'].includes(f.type)&&table.records.some(r=>typeof r.values[f.id]==='string'&&r.values[f.id].trim()));
     if(images.length>1||texts.length>1)throw new Error('本轮请使用一列图片和一列文本的表格');
-    return {version:1,rows:table.records.map((r,i)=>{
+    return {version:1,rows:table.records.filter(row=>row.selected!==false).map((r,i)=>{
         const assets=images[0]?r.values[images[0].id]||[]:[];
         if(!Array.isArray(assets)||assets.length>1)throw new Error(`第 ${i+1} 行请只放一张图片`);
         return {id:r.id,index:i+1,text:texts[0]?String(r.values[texts[0].id]??''):'',image:assets[0]||null};
