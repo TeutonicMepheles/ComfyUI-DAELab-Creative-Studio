@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "8cc702ecb1a5f1a319c07c46a382e9697e8b2bdca4138b50410d918d69b2df17",
+  "sourceFingerprint": "67673857184513b58faea5795f3b63206bbfead4e93e44ba8e190862daea569e",
   "files": [
     {
       "path": "AGENTS.md",
@@ -576,7 +576,11 @@
     },
     {
       "path": "features/groups/README.md",
-      "sha256": "c53525b4dc8a1cf5a0500ccba45d9a227f2ba8f9c4d7c60b574bdcf547f94e5e"
+      "sha256": "f47a770bb77c1b6a9622712ce53aa329bb9b30a360fe2590583dc49de531a11a"
+    },
+    {
+      "path": "features/groups/material_group_download.js",
+      "sha256": "1c9e02b9d72fb96030871c3b548132ad33cde57ba4ee0062f1eabe7d7f146655"
     },
     {
       "path": "features/groups/material_group_model.mjs",
@@ -584,11 +588,11 @@
     },
     {
       "path": "features/groups/material_groups.css",
-      "sha256": "fa0b199b904f7ff5d28f52b8c9e30349ae3df80d01897e9695cf0be10cb14b8b"
+      "sha256": "d464ae0bd3047a9a0d42f199c89b65c4d927b69ecf0e60d5f03cd5486bd4794d"
     },
     {
       "path": "features/groups/material_groups.mjs",
-      "sha256": "68839ac7a18559a834eaa428736c2b3abc9c51233ace44f6a72aa45df75f0222"
+      "sha256": "4b6af0dfe2dff2e5d37860a0712840b8e25478009932db47f6306d1dd8e0c411"
     },
     {
       "path": "features/prompt/AGENTS.md",
@@ -1100,7 +1104,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "8cb2affddfd18e72b51451039c771cea237418a15d7957adf15e6253e34017f0"
+      "sha256": "c17c5f0ec71c6761dd2dcf28c1694f08c50c5d27f5e10c5b6fefae44db4d1549"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

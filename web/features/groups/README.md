@@ -16,3 +16,5 @@ node --import ./tests/migrated_business/register.mjs --test tests/migrated_canva
 
 
 尚无本模块独立预览入口。模型/合同用例可从上述命令单独运行；界面、模式与保存需在独立 ComfyUI 中检查。示例使用见 [Showcase](../../../Showcase/README.md)，开发环境见 [开发指南](../../../docs/DEVELOPMENT.md)。
+
+整组下载由 `material_group_download.ts` 按成员快照顺序生成 ZIP；媒体保持原字节，文字保存为 UTF-8 TXT。文件名前加序号避免重名，缺失或空素材拒绝整包下载。当前在浏览器内存中打包，不支持 4GB 及以上 ZIP。预设颜色为灰、蓝、绿，保留自定义颜色和已有颜色数据。

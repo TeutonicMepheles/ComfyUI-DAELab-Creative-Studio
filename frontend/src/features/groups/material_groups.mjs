@@ -1,6 +1,8 @@
 import {createCreativeButton} from '../../ui/creative_button.mjs';
 import {bindCreativeField} from '../../ui/creative_field.mjs';
 import {canvasState,graphLinks} from '../../canvas/creative_canvas_model.mjs';
+import {createGroupArchive,safeDownloadName} from './material_group_download.js';
+import {assetURL} from '../assets/media_upload_model.mjs';
 import {UPLOAD_TYPE} from '../assets/media_upload_model.mjs';
 import {inputSnapshot} from '../../canvas/creative_contract.mjs';
 import {normalizeAsset,saveFavorite} from '../assets/asset_library_model.mjs';
@@ -76,6 +78,30 @@ export function installMaterialGroups(host,view){
             if(!disposed&&host.graph()===sourceGraph)say(`已保存 ${saved} 项素材到资产库`);
         }catch(error){if(!disposed&&host.graph()===sourceGraph)say(`${saved?`已保存 ${saved} 项；其余未保存：`:''}${error.message}`);}
     }
+    let downloading=false;
+    async function downloadGroup(g){
+        if(downloading)return;
+        const sourceGraph=host.graph(),title=g.title;downloading=true;
+        try{
+            const items=[];
+            for(const id of [...(g.properties.members||[])]){
+                const before=items.length,n=sourceGraph.getNodeById(id),snapshot=inputSnapshot(n);
+                if(!snapshot||snapshot.ready===false)throw new Error('组内素材尚未就绪或已缺失');
+                for(const asset of snapshot.assets||[]){
+                    if(asset.missing||!asset.filename)throw new Error('组内素材文件缺失');
+                    items.push({name:asset.filename,url:assetURL(asset)});
+                }
+                for(const text of snapshot.texts||[])if(text.trim())items.push({name:(n.title||'文字素材')+'.txt',text});
+                if(items.length===before)throw new Error('组内包含空素材，请补齐内容后重试');
+            }
+            say('正在准备整组下载…');
+            const archive=await createGroupArchive(items);
+            if(disposed||host.graph()!==sourceGraph)return;
+            const url=URL.createObjectURL(archive),link=document.createElement('a');link.href=url;link.download=safeDownloadName(title||'素材组')+'.zip';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+            say(`已准备 ${items.length} 项素材的 ZIP 下载`);
+        }catch(error){if(!disposed&&host.graph()===sourceGraph)say(error.message);}
+        finally{downloading=false;}
+    }
     function ungroup(g){
         const members=(g.properties.members||[]).map(node).filter(Boolean);
         change(()=>{for(const n of members){const c=card(n.id);if(c)c.style.display='';}host.removeNode(host.graph(),g);delete cards()[g.id];selected=null;selectionActive=false;view.sync();view.select(null);for(const n of members)view.select(n,{toggle:true});},'已解组，素材保留，可撤销。');
@@ -90,6 +116,7 @@ export function installMaterialGroups(host,view){
     function buildPanel(){
         closeMenu();panel.replaceChildren();const g=group();if(!g)return;
         const save=button('保存到资产库',()=>saveMaterials([g]));save.prepend(icon('archive-stack-line'));save.title='将组内素材分别保存到资产库';
+        const download=button('下载整组',()=>downloadGroup(g));download.prepend(icon('download-line'));download.title='按组内顺序下载全部素材（ZIP）';
         const dissolve=button('解组',()=>ungroup(g));dissolve.prepend(icon('scissors-cut-line'));dissolve.title='解组并保留素材（可撤销）';
         const arrange=button(layoutNames[g.properties.layout]+' ▾',()=>openMenu(arrange,list=>{
             for(const [mode,label] of Object.entries(layoutNames)){const item=button(label,()=>{change(()=>g.properties.layout=mode,'已更新排列，素材输出顺序保持不变。');panel.querySelector('[data-layout-trigger]')?.focus();});item.prepend(icon(mode==='grid'?'layout-grid-line':mode==='horizontal'?'artboard-line':'arrow-down-line'));item.setAttribute('aria-pressed',String(g.properties.layout===mode));item.disabled=g.properties.locked;list.append(item);}
@@ -99,7 +126,7 @@ export function installMaterialGroups(host,view){
             const actionIcons=[g.properties.collapsed?'arrow-down-line':'arrow-up-line',g.properties.locked?'lock-unlock-line':'lock-line','edit-line','scissors-cut-line'];[...list.children].filter(e=>e.tagName==='BUTTON').forEach((b,i)=>b.prepend(icon(actionIcons[i])));
         }));options.prepend(icon('folder-image-line'));options.setAttribute('aria-haspopup','true');options.setAttribute('aria-expanded','false');
             const colors=el('div','gr-color-row');colors.setAttribute('aria-label','组颜色');
-            for(const [name,value] of Object.entries({灰色:'#909090',蓝色:'#b8c4ff',绿色:'#a2d5ba',黄色:'#efca83',珊瑚:'#ffb4ab'})){const swatch=button('',()=>change(()=>g.properties.reviewColor=value,'组颜色已更新。'),'gr-swatch');swatch.title=name;swatch.setAttribute('aria-label',name);swatch.setAttribute('aria-pressed',String(g.properties.reviewColor===value));swatch.style.setProperty('--gr-swatch',value);colors.append(swatch);}
+            for(const [name,value] of Object.entries({灰色:'#909090',蓝色:'#b8c4ff',绿色:'#a2d5ba'})){const swatch=button('',()=>change(()=>g.properties.reviewColor=value,'组颜色已更新。'),'gr-swatch');swatch.title=name;swatch.setAttribute('aria-label',name);swatch.setAttribute('aria-pressed',String(g.properties.reviewColor===value));swatch.style.setProperty('--gr-swatch',value);colors.append(swatch);}
             const custom=el('label','gr-custom-color');custom.title='自定义组颜色';custom.append(icon('palette-line'));const picker=el('input');picker.type='color';picker.setAttribute('aria-label','自定义组颜色');picker.value=/^#[0-9a-f]{6}$/i.test(g.properties.reviewColor||'')?g.properties.reviewColor:'#909090';
             picker.addEventListener('input',()=>{if(!colorEditing){history.begin();colorEditing=true;}g.properties.reviewColor=picker.value;g.properties.reviewCustomColor=picker.value;layoutGroups();custom.style.background=picker.value;custom.style.color='#141414';});
             const commitColor=()=>{if(!colorEditing)return;history.end();colorEditing=false;dirty();renderSignature='';tick();say('自定义颜色已更新。');};picker.addEventListener('change',commitColor);picker.addEventListener('blur',commitColor);
@@ -107,7 +134,7 @@ export function installMaterialGroups(host,view){
             custom.append(picker);colors.append(custom);
         const numbers=button('序号',()=>change(()=>g.properties.showNumbers=g.properties.showNumbers===false,'素材序号显示已更新。'));numbers.prepend(icon('list-ordered'));numbers.title='显示素材序号';numbers.classList.add('gr-number-toggle');numbers.setAttribute('aria-pressed',String(g.properties.showNumbers!==false));
         const remove=button('删除组',()=>change(()=>{const ids=new Set([g.id,...g.properties.members]);for(const other of groups())if(!ids.has(other.id))other.properties.members=other.properties.members.filter(id=>!ids.has(id));for(const id of ids){const n=node(id);if(n)host.removeNode(host.graph(),n);delete cards()[id];}selected=null;selectionActive=false;view.sync();},'已删除组及内部节点，可撤销。'),'gr-delete-group');remove.prepend(icon('delete-bin-line'));remove.title='删除组及内部节点（可撤销）';
-        panel.append(save,dissolve,el('span','gr-divider'),arrange,el('span','gr-divider'),numbers,el('span','gr-divider'),colors,el('span','gr-divider'),options,el('span','gr-divider'),remove);
+        panel.append(save,download,dissolve,el('span','gr-divider'),arrange,el('span','gr-divider'),numbers,el('span','gr-divider'),colors,el('span','gr-divider'),options,el('span','gr-divider'),remove);
     }
     const decorated=new Map();
     function restoreMedia(){for(const bar of decorated.values()){for(const action of bar.querySelectorAll('.gr-media-action')){if(!action.dataset.assetFavorite)action.textContent=action.getAttribute('aria-label');action.classList.remove('gr-media-action');}}decorated.clear();}

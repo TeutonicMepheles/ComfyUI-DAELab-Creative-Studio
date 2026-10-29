@@ -25,6 +25,8 @@ assets 保持为有序的整组图片／视频集合；文本成员由公开 inp
 
 ## 验证
 
+2026-10-30 组菜单反馈：基于 `41e811d` 增加整组 ZIP 下载，预设色仅保留灰、蓝、绿及自定义入口，两个下拉菜单项从 40px 降为 32px。隔离 ComfyUI 8310 实测下载两张图片，Python zipfile 校验通过，解包内容与输入文件逐字节一致；验证蓝色选择、菜单展开与 Escape 关闭，实测排列和组选项各行均为 32px。截图 `.local/group-download-toolbar.jpg`，ZIP `.local/group-download.zip`。完整检查 `.local/group-download-check.log`：前端 389 通过、3 既有跳过，业务 566 通过；含 ZIP 顺序、重名、UTF-8、CRC、空组和失败响应测试。追加 `EV-group-download-20261030`，沿用 F-CAN-011/F-CAN-015 的相关操作追踪；未重跑完整模式、保存重开或大文件压力矩阵，不关闭 M6。
+
 2026-10-30 紧凑高度：基于 `fa9c1c4` 收紧选区与组工具栏纵向间距。隔离 ComfyUI 8310 实测选区栏从约 50px 降为 40px，打组、解组及组栏换行显示正常；截图 `.local/compact-toolbar.jpg`。构建与来源边界 6 项检查通过。追加 `EV-compact-toolbar-20261030`，沿用本页功能追踪；本次未重跑完整模式矩阵。
 
 2026-10-30 平面操作栏：基于 `cb49e22` 去掉选区与组工具栏按钮的胶囊边框，外框改为 8px 圆角，保留悬停、焦点、序号选中与颜色控件。隔离 ComfyUI 8310 实测两素材多选、打组和解组，按钮显示正常；截图 `.local/flat-toolbar.jpg`。`npm run build` 及来源边界检查 6 项通过（`.local/flat-toolbar-check.log`）。沿用上述功能追踪，追加 `EV-flat-toolbar-20261030`；仅验证本次样式和相关操作，未重跑完整模式矩阵。

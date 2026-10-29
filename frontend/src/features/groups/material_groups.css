@@ -19,7 +19,7 @@
 .dae-creative[data-group-review=true] .gr-panel button:hover:not(:disabled){background:var(--dae-surface-hover)!important}
 .dae-creative[data-group-review=true] .gr-divider{width:1px;height:26px;background:var(--dae-border)}
 .dae-creative[data-group-review=true] .gr-local-menu{position:absolute;z-index:24;width:210px;max-width:calc(100% - 24px);max-height:calc(100% - 160px);overflow:auto;display:flex;flex-direction:column;gap:5px;padding:8px;border:1px solid var(--dae-border);border-radius:14px;background:var(--dae-surface-raised);box-shadow:var(--dae-elevation-overlay);user-select:text;touch-action:auto}
-.dae-creative[data-group-review=true] .gr-local-menu button{display:flex;align-items:center;gap:10px;text-align:left;border-color:transparent!important;min-height:40px}
+.dae-creative[data-group-review=true] .gr-local-menu button{display:flex;align-items:center;gap:10px;text-align:left;border-color:transparent!important;min-height:32px!important;padding-top:4px!important;padding-bottom:4px!important}
 .dae-creative[data-group-review=true] .gr-local-menu button[aria-pressed=true]{background:var(--dae-primary-container)!important}
 .dae-creative[data-group-review=true] .dae-creative-card[data-review-group=true]{border-style:dashed}
 

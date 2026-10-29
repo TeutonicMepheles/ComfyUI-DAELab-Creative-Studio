@@ -366,14 +366,15 @@
       "source": "web/material_groups.css",
       "destination": "frontend/src/features/groups/material_groups.css",
       "sourceSha256": "8080b8c2d5cbba4ef167a79a54b16f64b6cbe7108728501c5c5acd1606f526c3",
-      "destinationSha256": "fa0b199b904f7ff5d28f52b8c9e30349ae3df80d01897e9695cf0be10cb14b8b",
+      "destinationSha256": "d464ae0bd3047a9a0d42f199c89b65c4d927b69ecf0e60d5f03cd5486bd4794d",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "2026-10-29: anchor create-group action to visible selected materials; retain screen-sized accent selection outlines. Original source hash retained.",
         "2026-10-29: retain a non-interactive dashed, tinted bounding box around selected materials; dispose with group controller.",
         "2026-10-30: icon and text selection toolbar, direct reversible ungroup, and public snapshot-based batch favorites.",
         "2026-10-30: remove capsule styling from selection/group toolbar actions; retain hover, focus and color swatches.",
-        "2026-10-30: reduce selection/group toolbar height to approximately 80 percent with compact vertical spacing."
+        "2026-10-30: reduce selection/group toolbar height to approximately 80 percent with compact vertical spacing.",
+        "2026-10-30: add whole-group ZIP download, retain three preset colors plus custom colors, and compact submenu rows."
       ],
       "kind": "production-source"
     },
@@ -381,7 +382,7 @@
       "source": "web/material_groups.mjs",
       "destination": "frontend/src/features/groups/material_groups.mjs",
       "sourceSha256": "91c47c4439efda72218a2749e00030e570bf1731a3eb100282347aecc463e144",
-      "destinationSha256": "68839ac7a18559a834eaa428736c2b3abc9c51233ace44f6a72aa45df75f0222",
+      "destinationSha256": "4b6af0dfe2dff2e5d37860a0712840b8e25478009932db47f6306d1dd8e0c411",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "inject existing host history port at integration assembly boundary",
@@ -389,7 +390,8 @@
         "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained.",
         "2026-10-29: anchor create-group action to visible selected materials; retain screen-sized accent selection outlines. Original source hash retained.",
         "2026-10-29: retain a non-interactive dashed, tinted bounding box around selected materials; dispose with group controller.",
-        "2026-10-30: icon and text selection toolbar, direct reversible ungroup, and public snapshot-based batch favorites."
+        "2026-10-30: icon and text selection toolbar, direct reversible ungroup, and public snapshot-based batch favorites.",
+        "2026-10-30: add whole-group ZIP download, retain three preset colors plus custom colors, and compact submenu rows."
       ],
       "kind": "production-source"
     },
