@@ -14,12 +14,13 @@ from ..contracts.errors import Conflict, InvalidInput, InvalidTransition, Missin
 from ..contracts.validation import clean_json, digest, identity
 from ..jobs.ledger import TERMINAL_STATES
 from ..providers.contracts import Observation, ProviderUnavailable, SubmissionRejected, SubmissionUncertain
-from ..providers.parameters import IMAGE_MODEL, VIDEO_MODEL, QWEN_MODEL
+from ..providers.parameters import IMAGE_MODEL, VIDEO_MODEL, REFERENCE_VIDEO_MODEL, QWEN_MODEL
 from ..providers.comfy_video import SeedanceProvider, MinimaxProvider
 from .media import freeze_reference
 from .admission import ResourceAdmission, complete_blocking
 
 MODELS = {IMAGE_MODEL: 'local-qwen-image', VIDEO_MODEL: 'local-h3', QWEN_MODEL: 'local-qwen-text', 'qwen': 'local-qwen-text'}
+MODELS[REFERENCE_VIDEO_MODEL] = 'local-h3-reference'
 MODELS.update({model: provider.id for provider in (SeedanceProvider, MinimaxProvider) for model in provider.models})
 _BARRIERS = {'rejected', 'fenced'}
 _SCOPE_IDS = {'documentId', 'tableId', 'nodeId', 'recordId', 'fieldId', 'workflowSession', 'groupId'}

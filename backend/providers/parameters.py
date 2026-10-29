@@ -9,6 +9,7 @@ from ..contracts.errors import InvalidInput
 
 IMAGE_MODEL = 'Qwen-Image-2.1 Turbo（本地）'
 VIDEO_MODEL = 'MiniMax H3 FL（本地）'
+REFERENCE_VIDEO_MODEL = 'MiniMax H3 Ref（本地）'
 QWEN_MODEL = 'qwen3.5:9b-q4_K_M'
 IMAGE_FILES = {
     'diffusion_models': 'qwen_image_2.1_turbo_int8_convrot.safetensors',
@@ -117,7 +118,7 @@ def image_graph(text, values, files, prefix):
     }
 
 
-def video_graph(text, values, media, files, prefix):
+def video_graph(text, values, media, files, prefix, *, reference=False):
     length = max(5, round(values['duration'] * 24))
     length += (5 - length % 17) % 17
     for span in reversed(text.reference_spans):
@@ -142,7 +143,15 @@ def video_graph(text, values, media, files, prefix):
     }
     if values['turbo']:
         graph['turbo'] = node('LoraLoaderModelOnly', model=['model', 0], lora_name=files['loras'], strength_model=1.0)
+    if reference:
+        graph['condition']['class_type'] = 'MiniMaxH3ReferenceToVideo'
+        graph['condition']['inputs']['ref_image_size'] = 'match'
     for index, item in enumerate(media):
+        if reference:
+            name = f'reference_{index}'
+            graph[name] = node('LoadImage', image=item['native_input'])
+            graph['condition']['inputs'][f'ref_images.ref_image_{index}'] = [name, 0]
+            continue
         name = 'first_frame' if index == 0 else 'last_frame'
         graph[name] = node('LoadImage', image=item['native_input'])
         graph['condition']['inputs'][name] = [name, 0]

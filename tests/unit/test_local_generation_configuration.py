@@ -48,7 +48,7 @@ class LocalGenerationConfigurationTests(unittest.TestCase):
              patch('backend.providers.native.ModelInventory.verify', side_effect=AssertionError('early weight IO')):
             service = compose_configured_generation(core, config, native_queue=queue, node_types=lambda: {},
                                                    resolve_model=lambda *_: None, release_native_models=lambda: None)
-        self.assertEqual(set(service.providers), {'local-qwen-text', 'local-qwen-image', 'local-h3'})
+        self.assertEqual(set(service.providers), {'local-qwen-text', 'local-qwen-image', 'local-h3', 'local-h3-reference'})
         self.assertEqual(service._workers, {})
         self.assertIs(service.jobs, core.jobs)
         self.assertIs(service.resources, core.resources)

@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "2a18e2b2d6be60f6a8edb2289c94ba03f958e2bf67797b301ff5e0a1ba67afcb",
+  "sourceFingerprint": "8442801288802fc07f8c205c6b41e58524652be77973f810bf3f2bf54e9ba453",
   "files": [
     {
       "path": "AGENTS.md",
@@ -504,7 +504,7 @@
     },
     {
       "path": "features/generation/README.md",
-      "sha256": "a9c9fcce0fcf36f5bf5663810f549a862c1e65ad4f42d051481a5bf3fcd610bd"
+      "sha256": "8b43fb3f1c18eb95ba6e8a7077de695e799b9974faa8d5ae047902dd1c13a852"
     },
     {
       "path": "features/generation/generation_input.js",
@@ -524,7 +524,7 @@
     },
     {
       "path": "features/generation/table_generation_api.mjs",
-      "sha256": "e8a39c468c142e371102fe7d209f094bda8b9e75e158a06a7386640ed109383d"
+      "sha256": "29fe47a223ab97c1d853e918167770ba40869c2ecf8bfc72f93127d0d7ac858c"
     },
     {
       "path": "features/generation/table_generation_history.mjs",
@@ -532,11 +532,11 @@
     },
     {
       "path": "features/generation/table_generation_model.mjs",
-      "sha256": "96cbd13e231fc137c444298752b54fb9be6bc31588f9dc3f776446aa0f84c08d"
+      "sha256": "87c9b02d9780094045955fb2843f55ea7350a5ed41e0ae3832144e098baa6a12"
     },
     {
       "path": "features/generation/table_generation_panel.mjs",
-      "sha256": "8f1e6202728c4619a18acccd4f4d3a6887f1d0de36908cddc6fb7326aa3369d8"
+      "sha256": "6e998e6e29785d7e9b07228bbf4722f3632103701cc193ec82b2b0f930924fd1"
     },
     {
       "path": "features/generation/table_generation_tasks.mjs",
@@ -676,7 +676,7 @@
     },
     {
       "path": "features/prompt/table_prompt_settings.mjs",
-      "sha256": "6ec169ce4703cc97b19d05b3818a4a75711d89c277a5a0e3cfbbd8efbfd74944"
+      "sha256": "6128743831dcf1bc80d770bd9bdaef881d73b446fd580ec595999919e2d796a3"
     },
     {
       "path": "features/prompt/table_prompt_source.mjs",
@@ -1100,7 +1100,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "d5ef39094943025efe55db9706c58d05cd9394c7105e813ea0af7876700d71da"
+      "sha256": "d07b6edd7d6f74ba1987bb9276f4e01d781682a54705620256c8e829340d948b"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
