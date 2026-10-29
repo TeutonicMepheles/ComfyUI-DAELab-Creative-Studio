@@ -54,7 +54,7 @@
 .dae-creative[data-group-review=true] .dae-upload{background:transparent;border-radius:0}
 .dae-creative[data-group-review=true] .dae-upload-toolbar{position:absolute;top:0;right:0;z-index:4;height:auto;min-height:0;padding:12px;gap:8px;flex-wrap:nowrap;pointer-events:none}
 .dae-creative[data-group-review=true] .dae-creative-card[data-upload=true]:hover .dae-upload-stage{border-color:var(--dae-text)}
-.dae-creative[data-group-review=true] .dae-creative-card[data-upload=true][data-selected=true] .dae-upload-stage{outline:2px solid var(--dae-node-selected);outline-offset:2px}
+.dae-creative[data-group-review=true] .dae-creative-card[data-upload=true][data-selected=true] .dae-upload-stage{outline:calc(2px * var(--dae-canvas-inverse-zoom,1)) solid var(--dae-accent);outline-offset:calc(3px * var(--dae-canvas-inverse-zoom,1))}
 .dae-creative[data-group-review=true] .dae-creative-card[data-review-group=true]>.dae-creative-ports>div[data-side=output]{width:54px;align-items:flex-end;pointer-events:auto}
 /* Number badge belongs to the thumbnail, not the title. */
 .dae-creative[data-group-review=true] .dae-creative-card[data-review-member]::before{display:none}
@@ -95,7 +95,7 @@
 @media(prefers-reduced-motion:reduce){.dae-creative[data-group-review=true] .dae-creative-wires path.gr-wire-pulse{animation:none;stroke-dasharray:none;stroke-opacity:.5}}
 .dae-creative .gr-notice[hidden]{display:none}
 
-.dae-creative .gr-create-selection{position:absolute;top:14px;left:16px;z-index:22}
+.dae-creative .gr-create-selection{position:absolute;z-index:22;max-width:calc(100% - 24px);box-shadow:var(--dae-elevation-overlay);border-color:var(--dae-accent);background:var(--dae-primary-container);color:var(--dae-on-primary-container)}
 .dae-creative .gr-create-selection[hidden]{display:none}
 
 /* Empty previews use geometry, not screen resolution or a fixed height. */

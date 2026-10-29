@@ -64,6 +64,8 @@ test('new CSS zoom consumers require reviewing both owned body boundaries',()=>{
   'canvas/creative_canvas.css :: .dae-creative .dae-creative-width-handle',
   'canvas/creative_canvas.css :: .dae-creative .dae-creative-width-handle::after',
   'canvas/creative_canvas.css :: .dae-creative .dae-creative-width-handle::before',
+  // Upload stages are outside the TextInput and LLM body reset boundaries.
+  'features/groups/material_groups.css :: .dae-creative[data-group-review=true] .dae-creative-card[data-upload=true][data-selected=true] .dae-upload-stage',
   'features/groups/material_groups.css :: .dae-creative[data-group-review=true] .dae-upload-stage[data-review-index]::before',
   'features/groups/material_groups.css :: .dae-creative[data-group-review=true] .dae-creative-card[data-review-member]:has(.dae-upload-stage :is(img,video))>.dae-creative-heading',
   'features/groups/material_groups.css :: .dae-creative[data-group-review=true] .dae-creative-card[data-review-member][data-review-compact-actions=false]:has(.dae-upload-stage :is(img,video))>.dae-creative-heading',

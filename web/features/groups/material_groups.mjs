@@ -170,10 +170,26 @@ export function installMaterialGroups(host,view){
         for(const id of pulseStarts.keys())if(!wanted.has(id))pulseStarts.delete(id);
     }
     root.addEventListener('dae-canvas-wires-changed',updateWirePulse);
+    function positionCreateButton(chosen){
+        const members=chosen.filter(n=>isGroupMember(n)),bounds=root.getBoundingClientRect();
+        const rects=members.map(n=>card(n.id)?.getBoundingClientRect()).filter(r=>r&&r.width&&r.height&&r.right>bounds.left&&r.left<bounds.right&&r.bottom>bounds.top&&r.top<bounds.bottom);
+        createButton.hidden=members.length<2||!rects.length;
+        if(createButton.hidden)return;
+        const label=`素材打组 · ${members.length} 项`;
+        if(createButton.textContent!==label)createButton.textContent=label;
+        const left=Math.min(...rects.map(r=>r.left))-bounds.left,right=Math.max(...rects.map(r=>r.right))-bounds.left;
+        const top=Math.min(...rects.map(r=>r.top))-bounds.top,bottom=Math.max(...rects.map(r=>r.bottom))-bounds.top;
+        const maxX=Math.max(12,root.clientWidth-createButton.offsetWidth-12),maxY=Math.max(12,root.clientHeight-createButton.offsetHeight-65);
+        // Card headings occupy 28 screen pixels above the selected media.
+        let y=top-28-createButton.offsetHeight-12;
+        if(y<12)y=bottom+12;
+        createButton.style.left=Math.max(12,Math.min((Math.max(0,left)+Math.min(root.clientWidth,right)-createButton.offsetWidth)/2,maxX))+'px';
+        createButton.style.top=Math.max(12,Math.min(y,maxY))+'px';
+    }
     function syncToolbar(){
-        if(disposed||!view.active){panel.hidden=true;closeMenu();return;}
+        if(disposed||!view.active){panel.hidden=true;createButton.hidden=true;closeMenu();return;}
         if(seenGraph!==host.graph().extra){seenGraph=host.graph().extra;selected=null;selectionActive=false;renderSignature='';closeMenu();}
-        const chosen=view.selectedIds.map(node).filter(Boolean);createButton.hidden=chosen.filter(n=>isGroupMember(n)).length<2;const chosenGroup=chosen.find(n=>n.type===TYPE)||groups().find(g=>chosen.some(n=>g.properties.members.includes(n.id)));
+        const chosen=view.selectedIds.map(node).filter(Boolean);positionCreateButton(chosen);const chosenGroup=chosen.find(n=>n.type===TYPE)||groups().find(g=>chosen.some(n=>g.properties.members.includes(n.id)));
         if(!drag){const next=chosenGroup?.id??null;if(next!==selected){selected=next;renderSignature='';}selectionActive=selected!=null;}
         const g=group(),signature=JSON.stringify([selected,g?.title,g?.properties]);
         if(!colorEditing&&signature!==renderSignature){renderSignature=signature;buildPanel();}

@@ -366,9 +366,10 @@
       "source": "web/material_groups.css",
       "destination": "frontend/src/features/groups/material_groups.css",
       "sourceSha256": "8080b8c2d5cbba4ef167a79a54b16f64b6cbe7108728501c5c5acd1606f526c3",
-      "destinationSha256": "8080b8c2d5cbba4ef167a79a54b16f64b6cbe7108728501c5c5acd1606f526c3",
+      "destinationSha256": "f889eca4e3d1b3764fb7ecd966717f2d407c017a8cffcefc4cec8bb3dcaab1e3",
       "changes": [
-        "relocate into owner layer; rewrite relative module/style/resource paths"
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "2026-10-29: anchor create-group action to visible selected materials; retain screen-sized accent selection outlines. Original source hash retained."
       ],
       "kind": "production-source"
     },
@@ -376,12 +377,13 @@
       "source": "web/material_groups.mjs",
       "destination": "frontend/src/features/groups/material_groups.mjs",
       "sourceSha256": "91c47c4439efda72218a2749e00030e570bf1731a3eb100282347aecc463e144",
-      "destinationSha256": "16b36901da1f88e1fda33780b3fdd2981459e1f5ab80ef25f9ea231f00cdcc9e",
+      "destinationSha256": "15884bf371347bf470ad545ee70555c8800ee3f3a1160e679f5abf38913ef014",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "inject existing host history port at integration assembly boundary",
         "Inject CanvasHostPort plus view; delegate native graph commands; return controller for integration-owned registration; retain UI/layout behavior.",
-        "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained."
+        "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained.",
+        "2026-10-29: anchor create-group action to visible selected materials; retain screen-sized accent selection outlines. Original source hash retained."
       ],
       "kind": "production-source"
     },
@@ -1053,10 +1055,11 @@
       "source": null,
       "sourceSha256": null,
       "destination": "tests/migrated_canvas/panel_zoom_scope.test.mjs",
-      "destinationSha256": "cc2ca5f7163cf1bbb001ae297c98c4aac358dec24c612124f823c2bb82ec0316",
+      "destinationSha256": "eaae0c8b9d53547393538b2ff77c1f2c24440034bcc7752e9b58542c889a08c6",
       "kind": "rule-regression",
       "changes": [
-        "Guard the two exact owned body scopes, actual root constructor/lease identity, preserved public sibling controls, and exhaustive CSS/JS zoom dependencies; no browser layout or performance pass claimed."
+        "Guard the two exact owned body scopes, actual root constructor/lease identity, preserved public sibling controls, and exhaustive CSS/JS zoom dependencies; no browser layout or performance pass claimed.",
+        "2026-10-29: reviewed upload-only selection outline inverse zoom; TextInput and LLM reset boundaries remain unchanged."
       ]
     },
     {

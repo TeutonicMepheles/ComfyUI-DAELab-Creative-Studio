@@ -42,6 +42,8 @@ test('all CSS zoom consumers remain outside the isolated data-cell subtree',()=>
   'canvas/creative_canvas.css :: .dae-creative .dae-creative-width-handle',
   'canvas/creative_canvas.css :: .dae-creative .dae-creative-width-handle::after',
   'canvas/creative_canvas.css :: .dae-creative .dae-creative-width-handle::before',
+  // Native upload stages cannot occur inside isolated table data cells.
+  'features/groups/material_groups.css :: .dae-creative[data-group-review=true] .dae-creative-card[data-upload=true][data-selected=true] .dae-upload-stage',
   'features/groups/material_groups.css :: .dae-creative[data-group-review=true] .dae-upload-stage[data-review-index]::before',
   'features/groups/material_groups.css :: .dae-creative[data-group-review=true] .dae-creative-card[data-review-member]:has(.dae-upload-stage :is(img,video))>.dae-creative-heading',
   'features/groups/material_groups.css :: .dae-creative[data-group-review=true] .dae-creative-card[data-review-member][data-review-compact-actions=false]:has(.dae-upload-stage :is(img,video))>.dae-creative-heading',
