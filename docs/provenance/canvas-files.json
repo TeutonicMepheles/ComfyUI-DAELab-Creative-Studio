@@ -366,13 +366,14 @@
       "source": "web/material_groups.css",
       "destination": "frontend/src/features/groups/material_groups.css",
       "sourceSha256": "8080b8c2d5cbba4ef167a79a54b16f64b6cbe7108728501c5c5acd1606f526c3",
-      "destinationSha256": "1df1184e39c29784bb4658c4df8e51d4f38ab696e79552128d46bf41abe08823",
+      "destinationSha256": "fa0b199b904f7ff5d28f52b8c9e30349ae3df80d01897e9695cf0be10cb14b8b",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "2026-10-29: anchor create-group action to visible selected materials; retain screen-sized accent selection outlines. Original source hash retained.",
         "2026-10-29: retain a non-interactive dashed, tinted bounding box around selected materials; dispose with group controller.",
         "2026-10-30: icon and text selection toolbar, direct reversible ungroup, and public snapshot-based batch favorites.",
-        "2026-10-30: remove capsule styling from selection/group toolbar actions; retain hover, focus and color swatches."
+        "2026-10-30: remove capsule styling from selection/group toolbar actions; retain hover, focus and color swatches.",
+        "2026-10-30: reduce selection/group toolbar height to approximately 80 percent with compact vertical spacing."
       ],
       "kind": "production-source"
     },
