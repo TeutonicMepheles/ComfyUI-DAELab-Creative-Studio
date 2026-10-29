@@ -50,7 +50,7 @@ export function bindInlineEditor({cell,box,label,read,write,reset,draw,columns,g
  function place(){if(!menu)return;const r=queryRange?.getBoundingClientRect(),fallback=box.getBoundingClientRect(),anchor=r?.width||r?.height?r:fallback;const h=menu.getBoundingClientRect().height;
   menu.style.left=Math.max(8,Math.min(anchor.left,innerWidth-menu.getBoundingClientRect().width-8))+'px';menu.style.top=Math.max(8,Math.min(anchor.bottom+6,innerHeight-h-8))+'px';picker?.layout();}
  function choose(option){const node=getColumnChip(option);node.removeAttribute('tabindex');insert(node,queryRange);insert(document.createTextNode(''));closeMenu();persist();}
- function suggest(){closeMenu();if(!columns||composing)return;const r=selection();if(!r?.collapsed||r.startContainer.nodeType!==3)return;
+ function suggest(){closeMenu();if(!columns||composing||!box.textContent.includes('@'))return;const r=selection();if(!r?.collapsed||r.startContainer.nodeType!==3)return;
   const prefix=r.startContainer.textContent.slice(0,r.startOffset),match=prefix.match(/@([^@\n]*)$/);if(!match)return;
   const options=columns().filter(f=>f.name.toLowerCase().includes(match[1].toLowerCase()));if(!options.length)return;
   queryRange=r.cloneRange();queryRange.setStart(r.startContainer,r.startOffset-match[0].length);

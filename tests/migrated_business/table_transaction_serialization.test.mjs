@@ -26,7 +26,7 @@ function encodings(operation){
  try{operation();return counts;}finally{JSON.stringify=stringify;}
 }
 
-function harness({native=true,content=false,validate=()=>{},removeEmpty=false,proxy=false}={}){
+function harness({native=true,content=false,validate=()=>{},removeEmpty=false,proxy=false,windowed=false}={}){
  let value=table(),wire='',stamp=0,before=null,active=true;
  if(proxy)value=new Proxy(value,{});
  const initial=value,events=[],undo=[],redo=[],history=new SnapshotHistory();
@@ -50,7 +50,7 @@ function harness({native=true,content=false,validate=()=>{},removeEmpty=false,pr
  // Only surrounding DOM callbacks/host history are injected; this is not a DOM
  // render, ComfyUI integration, or performance acceptance test.
  const env={released:false,canAsync:ticket=>doc.canApply(ticket),clone,getTable:()=>value,promptColumnsOnly:content,displayContent:()=>content,
-  getPanelContext:target=>{assert.equal(target,root);return context;},root,shell,
+  getPanelContext:target=>{assert.equal(target,root);return context;},root,shell,rowWindow:windowed?{revealAll(){events.push('reveal-all');}}:null,
   validateChange:(old,next)=>{events.push('validate');validate(old,next);},nativeDocument:native?doc:null,history,nativeHistory,setTable:write,
   removeEmptyNode:next=>{events.push('remove-check');return removeEmpty&&!next.records.length;},
   observed:()=>events.push('observed'),render:()=>events.push('render'),updateFooter:()=>events.push('footer')};
@@ -113,6 +113,15 @@ test('column deletion measures before transaction and resizes after write, prese
   assert.equal(h.context.width,800);assert.equal(h.value.meta.canvasWidth,800);assert.equal(h.value.fields[0].width,100);assert.equal(h.value.records[0].meta.height,80);
   assert.deepEqual(h.initial,before,'context width adjustment must not mutate original metadata');
  }
+});
+
+test('windowed column deletion restores rows before measuring and opening history',()=>{
+ const h=harness({content:true,windowed:true});
+ h.change(next=>{next.fields=next.fields.filter(f=>f.id!=='b');delete next.records[0].values.b;});
+ assert.equal(h.events.filter(x=>x==='reveal-all').length,1);
+ assert.ok(h.events.indexOf('reveal-all')<h.events.indexOf('measure.row'));
+ assert.ok(h.events.indexOf('measure.row')<h.events.indexOf('history.begin'));
+ assert.equal(h.value.records[0].meta.height,80);
 });
 
 test('empty-node removal retains the existing native versus fallback callback ordering',()=>{

@@ -13,10 +13,12 @@ const el=(tag,cls,text)=>{const e=document.createElement(tag);e.className=cls||'
 // One instance-owned contextual menu; the existing editor remains the transaction
 // owner. This module never reads another plugin's node or private application state.
 export function installContentPresentation({root,editor,getTable,notify,editPromptTemplate,enabled=()=>true,onPresentationChange=()=>{}}){
-    const toolbar=el('aside','dae-ui content-context');toolbar.setAttribute('role','toolbar');toolbar.setAttribute('aria-label','表格选中操作');toolbar.hidden=true;document.body.append(toolbar);
+    const toolbar=el('aside','dae-ui content-context');toolbar.setAttribute('role','toolbar');toolbar.setAttribute('aria-label','表格选中操作');if(!toolbar.hidden)toolbar.hidden=true;document.body.append(toolbar);
     let selected=null,signature='',disposed=false,columnGrid=null,columnSelection=null,rowGrid=null,rowSelection=null,cellAnchor=null,columnAnchor=null,rowAnchor=null,optimizationEntry=null,nativeMenuOpen=false;
     const context=()=>editor.panelContext?.();
-    const active=()=>enabled()&&context()?.presentation==='content'&&root.isConnected&&!!context()?.getViewport();
+    // Activity checks must not flush the full table layout on every poll/input.
+    // Older adapters retain their geometry-based fallback.
+    const active=()=>{const panel=context();return enabled()&&panel?.presentation==='content'&&root.isConnected&&(typeof panel.active==='boolean'?panel.active:!!panel.getViewport());};
     const nativeActive=()=>enabled()&&nativeMenuOpen&&root.isConnected&&!context();
     const findCell=()=>{if(!selected?.record)return null;if(!cellAnchor?.isConnected||cellAnchor.dataset.field!==selected.field||cellAnchor.dataset.record!==selected.record)cellAnchor=root.querySelector(`td[data-field="${CSS.escape(selected.field)}"][data-record="${CSS.escape(selected.record)}"]`);return cellAnchor;};
     const field=()=>getTable().fields.find(f=>f.id===selected?.field);
@@ -73,10 +75,10 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
     }
     function choose(e){
         if(toolbar.contains(e.target)||e.target.closest('.prompt-opt-popover,.table-prompt-toggle,dialog,.dae-table-material-preview,.table-text-side,.table-column-popover,.table-structure-control,.table-choice input,.generation-actions,.generation-cell-state'))return;
-        if(nativeMenuOpen){nativeMenuOpen=false;selected=null;toolbar.hidden=true;}
+        if(nativeMenuOpen){nativeMenuOpen=false;selected=null;if(!toolbar.hidden)toolbar.hidden=true;}
         if(e.type==='focusin'&&!root.contains(e.target))return;
-        if(!active()||!context()?.contains(e.target)){if(selected)editor.clearSelection();selected=null;toolbar.hidden=true;queueMicrotask(tick);return;}
-        if(e.target.closest('[data-inline-editing=true]')){selected=null;editor.clearSelection();toolbar.hidden=true;root.querySelectorAll('[data-column-selected=true]').forEach(e=>delete e.dataset.columnSelected);queueMicrotask(tick);return;}
+        if(!active()||!context()?.contains(e.target)){if(selected)editor.clearSelection();selected=null;if(!toolbar.hidden)toolbar.hidden=true;queueMicrotask(tick);return;}
+        if(e.target.closest('[data-inline-editing=true]')){selected=null;editor.clearSelection();if(!toolbar.hidden)toolbar.hidden=true;root.querySelectorAll('[data-column-selected=true]').forEach(e=>delete e.dataset.columnSelected);queueMicrotask(tick);return;}
         const cell=e.target.closest('td[data-field]'),th=e.target.closest('th[data-column]'),row=e.target.closest('.table-choice[data-content-row]');
         selected=cell?{kind:'cell',field:cell.dataset.field,record:cell.dataset.record}:th?{kind:'column',field:th.dataset.column}:row?{kind:'row',record:row.dataset.contentRow}:{kind:'table'};
         if(selected.kind==='column')editor.selectColumn(selected.field);else if(selected.kind!=='cell')editor.clearSelection();signature='';queueMicrotask(tick);
@@ -85,7 +87,7 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
         if(disposed)return;const showing=String(Boolean(active()));if(root.dataset.contentPresentation!==showing){root.dataset.contentPresentation=showing;onPresentationChange(showing==='true');editor.render();}
         const chosen=String(showing==='true'&&!!context()?.selected||nativeActive());if(root.dataset.contentSelected!==chosen)root.dataset.contentSelected=chosen;
         if(chosen==='false'&&selected){selected=null;editor.clearSelection();}
-        if(showing!=='true'&&!nativeActive()){columnGrid=null;columnSelection=null;rowGrid=null;rowSelection=null;toolbar.hidden=true;return;}
+        if(showing!=='true'&&!nativeActive()){columnGrid=null;columnSelection=null;rowGrid=null;rowSelection=null;if(!toolbar.hidden)toolbar.hidden=true;return;}
         const grid=root.querySelector('table'),column=selected?.kind==='column'?selected.field:null;
         if(grid!==columnGrid||column!==columnSelection){
             columnGrid=grid;columnSelection=column;
@@ -96,19 +98,19 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
             rowGrid=grid;rowSelection=row;
             root.querySelectorAll('tr[data-record-id]').forEach(e=>{const chosen=String(Boolean(row)&&e.dataset.recordId===row);if(e.dataset.rowActive!==chosen)e.dataset.rowActive=chosen;const gutter=e.querySelector('.table-choice');if(gutter&&gutter.getAttribute('aria-selected')!==chosen)gutter.setAttribute('aria-selected',chosen);});
         }
-        if((!active()||!context()?.selected)&&!nativeActive()||!selected){toolbar.hidden=true;return;}
+        if((!active()||!context()?.selected)&&!nativeActive()||!selected){if(!toolbar.hidden)toolbar.hidden=true;return;}
         const key=JSON.stringify([selected,getTable().fields,editor.selection().reduce((count,row)=>count+row.length,0),selected.kind==='cell'?getTable().records.find(r=>r.id===selected.record)?.values[selected.field]:null]);if(key!==signature){signature=key;build();}
         positionToolbar();
     }
     function positionToolbar(){
         if(disposed)return;
-        if(!selected||((!context()?.selected||!active())&&!nativeActive())||root.querySelector('[data-inline-editing=true],[data-structure-dragging],[data-structure-popup]')){toolbar.hidden=true;return;}
+        if(!selected||root.querySelector('[data-inline-editing=true],[data-structure-dragging],[data-structure-popup]')||((!context()?.selected||!active())&&!nativeActive())){if(!toolbar.hidden)toolbar.hidden=true;return;}
         if(selected.kind==='column'&&(!columnAnchor?.isConnected||columnAnchor.dataset.column!==selected.field))columnAnchor=root.querySelector(`th[data-column="${CSS.escape(selected.field)}"]`);
         if(selected.kind==='row'&&(!rowAnchor?.isConnected||rowAnchor.dataset.contentRow!==selected.record))rowAnchor=root.querySelector(`.table-choice[data-content-row="${CSS.escape(selected.record)}"]`);
         let anchor=selected.kind==='cell'?findCell():selected.kind==='column'?columnAnchor:selected.kind==='row'?rowAnchor:null;
         if(!anchor&&selected.kind!=='table'){selected={kind:'table'};signature='';return;}
-        toolbar.hidden=false;const r=anchor?anchor.getBoundingClientRect():context().getBounds(),bounds=nativeActive()?{left:0,top:0,right:document.documentElement.clientWidth,bottom:document.documentElement.clientHeight,width:document.documentElement.clientWidth}:context().getViewport();toolbar.style.boxSizing='border-box';toolbar.style.maxWidth=Math.max(160,Math.min(bounds.width,document.documentElement.clientWidth)-32)+'px';const h=toolbar.getBoundingClientRect().height,w=toolbar.getBoundingClientRect().width;
-        if(r.bottom<bounds.top||r.top>bounds.bottom){toolbar.hidden=true;return;}
+        if(toolbar.hidden)toolbar.hidden=false;const r=anchor?anchor.getBoundingClientRect():context().getBounds(),bounds=nativeActive()?{left:0,top:0,right:document.documentElement.clientWidth,bottom:document.documentElement.clientHeight,width:document.documentElement.clientWidth}:context().getViewport();toolbar.style.boxSizing='border-box';toolbar.style.maxWidth=Math.max(160,Math.min(bounds.width,document.documentElement.clientWidth)-32)+'px';const h=toolbar.getBoundingClientRect().height,w=toolbar.getBoundingClientRect().width;
+        if(r.bottom<bounds.top||r.top>bounds.bottom){if(!toolbar.hidden)toolbar.hidden=true;return;}
         toolbar.style.left=Math.max(bounds.left+8,Math.min(r.left,Math.min(bounds.right,document.documentElement.clientWidth)-w-16))+'px';toolbar.style.top=Math.max(bounds.top+8,Math.min(r.top-h-10>=bounds.top?r.top-h-10:r.bottom+10,bounds.bottom-h-8))+'px';
     }
     const double=e=>{if(e.target.closest('button,input,.dae-column-divider'))return;const row=e.target.closest('.table-choice[data-content-row]');if(row&&root.contains(row)&&active()){e.preventDefault();e.stopPropagation();selected={kind:'row',record:row.dataset.contentRow};rename();return;}const th=e.target.closest('th[data-column]');if(th&&root.contains(th)&&active()){e.preventDefault();e.stopPropagation();selected={kind:'column',field:th.dataset.column};rename();}};
@@ -120,10 +122,10 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
         e.preventDefault();e.stopPropagation();nativeMenuOpen=true;selected=cell?{kind:'cell',field:fieldId,record:cell.dataset.record}:{kind:'column',field:fieldId};signature='';tick();
     };
     const layout=()=>{if(root.dataset.contentPresentation!==String(Boolean(active())))tick();else positionToolbar();};
-    const escape=e=>{if(e.key==='Escape'&&!e.isComposing&&!e.target.matches('input,textarea,select')){nativeMenuOpen=false;selected=null;editor.clearSelection();toolbar.hidden=true;tick();}};
+    const escape=e=>{if(e.key==='Escape'&&!e.isComposing&&!e.target.matches('input,textarea,select')){nativeMenuOpen=false;selected=null;editor.clearSelection();if(!toolbar.hidden)toolbar.hidden=true;tick();}};
     for(const type of ['pointerdown','focusin'])document.addEventListener(type,choose,true);
     document.addEventListener('keydown',escape,true);root.addEventListener('dblclick',double,true);root.addEventListener('dae-preview',showPreview);root.addEventListener('contextmenu',nativeContext);
     globalThis.addEventListener('dae-canvas-layout',layout);
     const timer=setInterval(tick,100);
-    return {close(){nativeMenuOpen=false;if(selected)editor.clearSelection();selected=null;toolbar.hidden=true;},destroy(){disposed=true;clearInterval(timer);optimizationEntry?.destroy();toolbar.remove();for(const type of ['pointerdown','focusin'])document.removeEventListener(type,choose,true);document.removeEventListener('keydown',escape,true);root.removeEventListener('dblclick',double,true);root.removeEventListener('dae-preview',showPreview);root.removeEventListener('contextmenu',nativeContext);globalThis.removeEventListener('dae-canvas-layout',layout);}};
+    return {close(){nativeMenuOpen=false;if(selected)editor.clearSelection();selected=null;if(!toolbar.hidden)toolbar.hidden=true;},destroy(){disposed=true;clearInterval(timer);optimizationEntry?.destroy();toolbar.remove();for(const type of ['pointerdown','focusin'])document.removeEventListener(type,choose,true);document.removeEventListener('keydown',escape,true);root.removeEventListener('dblclick',double,true);root.removeEventListener('dae-preview',showPreview);root.removeEventListener('contextmenu',nativeContext);globalThis.removeEventListener('dae-canvas-layout',layout);}};
 }

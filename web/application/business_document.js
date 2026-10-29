@@ -45,7 +45,7 @@ export function createBusinessDocument(options) {
             }
         }
         group = settings.group ?? null;
-        lastHistoryStamp = options.historyStamp?.();
+        lastHistoryStamp = options.committedHistoryStamp ? options.committedHistoryStamp() : options.historyStamp?.();
     };
     const port = {
         read: options.read,

@@ -191,14 +191,21 @@ export function attachTableStructure({root,shell,table,getTable,change,notify,ge
         if(state.handle.hasPointerCapture(state.pointer))state.handle.releasePointerCapture(state.pointer);
         hoverHeight(null);
     }
-    for(const row of rows()){
-        const handle=control('调整行高',()=>{},'table-row-resize');handle.setAttribute('role','separator');handle.setAttribute('aria-label',`调整第 ${row.rowIndex} 行高度`);handle.setAttribute('aria-orientation','horizontal');handle.setAttribute('aria-valuenow',String(row.offsetHeight));handle.title='拖动本行下边缘调整高度；双击恢复自适应';handle.textContent='';row.querySelector('.table-choice').append(handle);
-        listen(handle,'pointerdown',e=>beginRowResize(e,row,handle));
-        listen(handle,'lostpointercapture',()=>finishRowResize(true));
-        listen(handle,'dblclick',e=>{e.preventDefault();e.stopPropagation();row.style.height='';saveRowHeight(row,0);handle.setAttribute('aria-valuenow',String(row.offsetHeight));});
-        listen(handle,'keydown',e=>{if(!['ArrowUp','ArrowDown','Home'].includes(e.key))return;e.preventDefault();e.stopPropagation();row.style.height=e.key==='Home'?'':Math.max(0,row.offsetHeight+(e.key==='ArrowUp'?-1:1)*(e.shiftKey?40:10))+'px';saveRowHeight(row,e.key==='Home'?0:row.offsetHeight);handle.setAttribute('aria-valuenow',String(row.offsetHeight));});
-        for(const type of ['mousedown','click','dragstart'])listen(handle,type,e=>{e.preventDefault();e.stopPropagation();});
+    // Read all row geometry before inserting the absolutely positioned handles.
+    // Interleaving these writes/reads forces a full table layout for every row.
+    function mountRows(rowList=rows()){
+    const rowGeometry=rowList.filter(row=>!row.querySelector('.table-row-resize')).map(row=>({row,index:row.getAttribute('aria-rowindex')?Number(row.getAttribute('aria-rowindex'))-1:row.rowIndex,height:row.offsetHeight}));
+    for(const {row,index,height} of rowGeometry){
+        const handle=control('调整行高',()=>{},'table-row-resize');handle.setAttribute('role','separator');handle.setAttribute('aria-label',`调整第 ${index} 行高度`);handle.setAttribute('aria-orientation','horizontal');handle.setAttribute('aria-valuenow',String(height));handle.title='拖动本行下边缘调整高度；双击恢复自适应';handle.textContent='';row.querySelector('.table-choice').append(handle);
     }
+    }
+    mountRows();
+    const resizeHandle=e=>e.target.closest('.table-row-resize');
+    listen(root,'pointerdown',e=>{const handle=resizeHandle(e);if(handle)beginRowResize(e,handle.closest('tr'),handle);},{capture:true});
+    listen(root,'lostpointercapture',e=>{if(resizeHandle(e))finishRowResize(true);});
+    listen(root,'dblclick',e=>{const handle=resizeHandle(e);if(!handle)return;const row=handle.closest('tr');e.preventDefault();e.stopImmediatePropagation();row.style.height='';saveRowHeight(row,0);handle.setAttribute('aria-valuenow',String(row.offsetHeight));},{capture:true});
+    listen(root,'keydown',e=>{const handle=resizeHandle(e);if(!handle||!['ArrowUp','ArrowDown','Home'].includes(e.key))return;const row=handle.closest('tr');e.preventDefault();e.stopImmediatePropagation();row.style.height=e.key==='Home'?'':Math.max(0,row.offsetHeight+(e.key==='ArrowUp'?-1:1)*(e.shiftKey?40:10))+'px';saveRowHeight(row,e.key==='Home'?0:row.offsetHeight);handle.setAttribute('aria-valuenow',String(row.offsetHeight));},{capture:true});
+    for(const type of ['mousedown','click','dragstart'])listen(root,type,e=>{if(resizeHandle(e)){e.preventDefault();e.stopPropagation();}});
     const edgeCell=e=>{const cell=e.target.closest('td[data-field]');if(!cell||!table.contains(cell))return null;const bottom=cell.getBoundingClientRect().bottom;return e.clientY<=bottom&&e.clientY>=bottom-6?cell:null;};
     listen(root,'pointermove',e=>{if(rowSizing){if(e.pointerId!==rowSizing.pointer)return;e.preventDefault();e.stopImmediatePropagation();rowSizing.row.style.height=Math.max(0,rowSizing.height+(e.clientY-rowSizing.y)/rowSizing.scale)+'px';}else if(!drag)hoverHeight(edgeCell(e));},{capture:true});
     listen(root,'pointerleave',()=>{if(!rowSizing)hoverHeight(null);});
@@ -208,5 +215,5 @@ export function attachTableStructure({root,shell,table,getTable,change,notify,ge
     listen(root,'pointercancel',()=>finishRowResize(true),{capture:true});
     listen(document,'keydown',e=>{if(rowSizing&&e.key==='Escape'){e.preventDefault();e.stopPropagation();finishRowResize(true);}},{capture:true});
     listen(window,'blur',()=>finishRowResize(true));
-    return {dispose(){disposed=true;finishRowResize(true);hoverHeight(null);finish(true);closeColumn();events.abort();guide.remove();ghost.remove();delete root.dataset.structure;}};
+    return {mountRows,dispose(){disposed=true;finishRowResize(true);hoverHeight(null);finish(true);closeColumn();events.abort();guide.remove();ghost.remove();delete root.dataset.structure;}};
 }

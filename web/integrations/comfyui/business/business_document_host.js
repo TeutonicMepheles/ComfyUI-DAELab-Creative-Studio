@@ -30,6 +30,14 @@ export function bindBusinessDocument(node, read, write, stamp) {
             return { workflowSession: `native-workflow-${session}`, epoch, documentId: String(node.id) };
         },
         historyStamp: () => nativeEditHistoryStamp((app.rootGraph || app.graph)?.serialize()),
+        committedHistoryStamp: () => {
+            const tracker = active()?.changeTracker;
+            // The native boundary already captured this snapshot. Reading the live
+            // graph again both repeats serialization and can absorb a later external
+            // mutation into our grouping baseline. Nested/legacy hosts keep the old path.
+            return nativeEditHistoryStamp(tracker?.changeCount === 0 && tracker.activeState
+                ? tracker.activeState : (app.rootGraph || app.graph)?.serialize());
+        },
         canUndo: () => {
             const tracker = active()?.changeTracker;
             return !!tracker && (!!tracker.undoQueue?.length || !!tracker.activeState && JSON.stringify(tracker.activeState) !== JSON.stringify((app.rootGraph || app.graph)?.serialize()));

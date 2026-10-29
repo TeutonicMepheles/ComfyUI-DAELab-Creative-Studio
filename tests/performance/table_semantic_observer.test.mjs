@@ -170,10 +170,15 @@ test('visible panel is inert until trusted Start, downloads only on request, and
  const element=h.document.getElementById('studio-table-semantic-observer'),picker=element.children.find(e=>e.type==='file'),build=element.children.find(e=>e.getAttribute('aria-label')==='构建指纹');
  assert.match(element.style.cssText,/left:8px;top:160px/);assert.match(element.style.cssText,/width:350px;max-height:65vh/);assert.notEqual(element.open,true);
  picker.files=[{arrayBuffer:async()=>bytes}];await Promise.all(picker.emit('change'));build.value=buildFingerprint;
+ const status=element.children.find(e=>e.tagName==='OUTPUT'),text={nodeType:3,nodeValue:status.textContent};
+ status.firstChild=text;
+ Object.defineProperty(status,'textContent',{configurable:true,get:()=>text.nodeValue,set:()=>{throw new Error('status replaced its text node during measurement');}});
  const button=label=>element.children.find(e=>e.textContent===label);
  button('开始语义观测').onclick({isTrusted:false});assert.equal(panel.resources().active,false);
  button('开始语义观测').onclick({isTrusted:true});assert.equal(panel.resources().active,true);
  h.emit('input');h.frame();h.frame();button('停止语义观测').onclick({isTrusted:true});
+ assert.equal(status.firstChild,text);assert.match(text.nodeValue,/已停止；输入 1/);
+ Object.defineProperty(status,'textContent',{configurable:true,writable:true,value:text.nodeValue});
  button('下载语义原始记录').onclick({isTrusted:false});assert.equal(h.blobs.length,0);
  button('下载语义原始记录').onclick({isTrusted:true});assert.equal(h.blobs.length,1);
  const downloaded=JSON.parse(await h.blobs[0].text());assert.equal(downloaded.samples.length,1);assert.equal(downloaded.productAcceptance,false);

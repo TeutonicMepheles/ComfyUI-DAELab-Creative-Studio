@@ -1,6 +1,65 @@
 import {test,expect} from '@playwright/test';
 const instance=(page,name)=>page.getByRole('region',{name:`实例 ${name}`,exact:true});
 const snapshot=async panel=>JSON.parse(await panel.locator('.state').textContent());
+test('row resize controls batch initial layout reads and retain keyboard resizing',async({page})=>{
+ await page.evaluate(async()=>{
+  const descriptor=Object.getOwnPropertyDescriptor(HTMLElement.prototype,'offsetHeight');
+  window.rowHeightReads={count:0,interleaved:0};
+  Object.defineProperty(HTMLElement.prototype,'offsetHeight',{...descriptor,get(){
+   const height=descriptor.get.call(this);
+   if(this.matches('tr[data-record-id]')&&!this.querySelector('.table-row-resize')){
+    window.rowHeightReads.count++;
+    if(this.parentElement.querySelector('.table-row-resize'))window.rowHeightReads.interleaved++;
+   }
+   return height;
+  }});
+  const {createTableEditor}=await import('/web/application/table_editor.mjs');
+  const {createMaterialTable}=await import('/web/application/table_material_columns.mjs');
+  window.rowResizeFixtures={};
+  for(const id of ['A','B']){
+   let table=createMaterialTable();const panel=document.createElement('section');panel.id='row-resize-'+id;document.body.append(panel);
+   const editor=createTableEditor({getTable:()=>table,setTable:next=>{table=next;},displayContent:()=>true,upload:async()=>{throw Error('No upload in row fixture');}});
+   panel.append(editor.root);editor.render();window.rowResizeFixtures[id]={editor,read:()=>table};
+  }
+ });
+ const reads=await page.evaluate(()=>window.rowHeightReads);expect(reads.count).toBeGreaterThanOrEqual(6);expect(reads.interleaved).toBe(0);
+ const peer=await page.evaluate(()=>window.rowResizeFixtures.B.read()),row=page.locator('#row-resize-A tbody>tr[data-record-id]').first(),handle=row.locator('.table-row-resize'),before=await row.evaluate(e=>e.offsetHeight);
+ await expect(handle).toHaveAttribute('aria-valuenow',String(before));await handle.focus();await page.keyboard.press('ArrowDown');
+ await expect.poll(()=>page.evaluate(()=>Number(window.rowResizeFixtures.A.read().records[0].meta.height))).toBeGreaterThan(before);
+ expect(await page.evaluate(()=>window.rowResizeFixtures.B.read())).toEqual(peer);
+ await page.evaluate(()=>Object.values(window.rowResizeFixtures).forEach(fixture=>fixture.editor.destroy()));
+});
+test('large plain tables keep all model rows while visible DOM follows focus and undo',async({page})=>{
+ const errors=[];page.on('pageerror',error=>errors.push(error.message));
+ const heights=await page.evaluate(async()=>{
+  const {createTableEditor}=await import('/web/application/table_editor.mjs');
+  const {normalizeTable}=await import('/web/application/table_model.mjs');window.windowFixtures={};const heights={};
+  for(const id of ['A','B']){
+   let table=normalizeTable({version:1,view:'table',meta:{},fields:[0,1,2].map(i=>({id:'f'+i,name:'列 '+i,type:'content',width:180})),records:Array.from({length:150},(_,i)=>({id:'r'+i,values:{f0:id+' '+i,f1:'text',f2:''}}))});
+   const panel=document.createElement('section');panel.id='window-'+id;document.body.append(panel);
+   const editor=createTableEditor({getTable:()=>table,setTable:next=>{table=next;},displayContent:()=>true,upload:async()=>{throw Error('No upload');}});
+   panel.append(editor.root);editor.render();heights[id]=panel.querySelector('table').offsetHeight;window.windowFixtures[id]={editor,read:()=>table,panel};
+  }return heights;
+ });
+ await expect.poll(()=>page.locator('#window-A tr[data-record-id]').count()).toBeLessThan(150);
+ for(const id of ['A','B']){expect(await page.locator('#window-'+id+' table').evaluate(e=>e.offsetHeight)).toBe(heights[id]);expect(await page.evaluate(id=>window.windowFixtures[id].read().records.length,id)).toBe(150);}
+ const peer=await page.evaluate(()=>window.windowFixtures.B.read());
+ await page.evaluate(()=>window.windowFixtures.A.editor.focusCell('r0','f0'));
+ for(let i=0;i<25;i++)await page.keyboard.press('ArrowDown');
+ expect(await page.evaluate(()=>document.activeElement?.closest('td[data-record]')?.dataset.record)).toBe('r25');
+ const cell=page.locator('#window-A td[data-record="r25"][data-field="f0"] .content-display');await cell.dblclick();await cell.fill('窗口 A');await page.keyboard.press('Tab');
+ expect(await page.evaluate(()=>window.windowFixtures.A.read().records[25].values.f0)).toBe('窗口 A');expect(await page.evaluate(()=>window.windowFixtures.B.read())).toEqual(peer);
+ await page.evaluate(()=>window.windowFixtures.A.editor.restore());
+ expect(await page.evaluate(()=>window.windowFixtures.A.read().records[25].values.f0)).toBe('A 25');
+ await page.evaluate(()=>window.windowFixtures.A.editor.focusCell('r149','f2'));
+ expect(await page.evaluate(()=>document.activeElement?.closest('td[data-record]')?.dataset.record)).toBe('r149');
+ await expect.poll(()=>page.locator('#window-A tr[data-record-id]').count()).toBeLessThan(150);
+ await page.evaluate(()=>window.windowFixtures.A.editor.change(table=>{table.fields[1].readonly=true;}));
+ await expect.poll(()=>page.locator('#window-A tr[data-record-id]').count()).toBe(150);
+ await expect(page.locator('#window-A [data-table-row-spacer]')).toHaveCount(0);
+ await page.evaluate(()=>Object.values(window.windowFixtures).forEach(f=>{f.editor.destroy();f.panel.remove();}));
+ await page.waitForTimeout(100);expect(errors).toEqual([]);
+});
 test.beforeEach(async({page})=>{await page.goto('/');await expect(page.locator('.dae-table')).toHaveCount(2);});
 test('real editors preserve independent edits, history, menus and saved unknown keys',async({page})=>{
  const errors=[];page.on('pageerror',error=>errors.push(error.message));const a=instance(page,'A'),b=instance(page,'B');
@@ -53,4 +112,17 @@ test('structured clipboard exchange is explicit and a late upload cannot change 
  const chooser=page.waitForEvent('filechooser');await a.getByRole('button',{name:'添加图片',exact:true}).first().click();await (await chooser).setFiles({name:'late.png',mimeType:'image/png',buffer:Buffer.from('synthetic')});
  await expect(a.locator('.notice')).toContainText('模拟上传中');await a.getByRole('button',{name:'卸载',exact:true}).click();await a.getByRole('button',{name:'挂载',exact:true}).click();await page.waitForTimeout(3200);
  expect((await snapshot(a)).records[0].values[af]).toEqual(source.records[0].values[af]);
+});
+
+
+test('generation settings keep their click target when the prompt hint appears',async({page})=>{
+ for(const name of ['A','B']){
+  const panel=instance(page,name),settings=panel.locator('[data-generation-defaults]').first();
+  await settings.scrollIntoViewIfNeeded();await page.mouse.move(0,0);const before=await settings.boundingBox();expect(before).not.toBeNull();
+  await page.mouse.move(before.x+before.width/2,before.y+before.height/2);
+  const hovered=await settings.boundingBox();expect(Math.abs(hovered.x-before.x)).toBeLessThan(.5);expect(Math.abs(hovered.y-before.y)).toBeLessThan(.5);
+  await page.mouse.click(before.x+before.width/2,before.y+before.height/2);
+  await expect(page.locator('.table-text-side:not([hidden])')).toContainText('列默认配置');
+  await page.getByRole('button',{name:'关闭侧栏',exact:true}).click();
+ }
 });

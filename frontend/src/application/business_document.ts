@@ -9,6 +9,8 @@ export interface BusinessDocumentOptions<T> {
   current(): boolean;
   stamp?(value: T, target: EditTarget): unknown;
   historyStamp?(): unknown;
+  /** Stamp of the host's completed history snapshot; live checks still use historyStamp. */
+  committedHistoryStamp?(): unknown;
   history: { begin(): void; end(): void; amend(change: () => void): unknown; undo(): unknown; redo(): unknown };
   invalidateHost?(): void;
   canUndo?(): boolean;
@@ -38,7 +40,7 @@ export function createBusinessDocument<T>(options: BusinessDocumentOptions<T>) {
     if (settings.derived || continuing) options.history.amend(write);
     else { options.history.begin(); try { write(); } finally { options.history.end(); } }
     group = settings.group ?? null;
-    lastHistoryStamp = options.historyStamp?.();
+    lastHistoryStamp = options.committedHistoryStamp ? options.committedHistoryStamp() : options.historyStamp?.();
   };
   const port: NativeDocumentPort<T> = {
     read: options.read,

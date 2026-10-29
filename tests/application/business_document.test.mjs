@@ -23,6 +23,46 @@ test('intervening native changes break an input group instead of amending anothe
   h.value.future.nativeChange=true;h.doc.edit('输入',t=>{t.records[0].values.prompt='second';},{group:'input-a'});
   assert.equal(h.begins,2);assert.equal(h.amends,0);
 });
+
+function committedHost({nested=false,afterCapture=()=>{}}={}){
+  let value=table(),liveReads=0,begins=0,amends=0;
+  const metadata={future:'original'},tracker={changeCount:nested?1:0,activeState:null};
+  const snapshot=()=>structuredClone({nodes:[{id:1,table:value}],extra:metadata});
+  const graph={getNodeById:id=>id===1?node:null,serialize(){liveReads++;return snapshot();}},node={id:1,graph};
+  const app={graph,rootGraph:graph,extensionManager:{workflow:{activeWorkflow:{changeTracker:tracker}}}};
+  const complete=()=>{if(!tracker.changeCount){tracker.activeState=snapshot();afterCapture(metadata);}};
+  const history={begin(){begins++;tracker.changeCount++;},end(){tracker.changeCount--;complete();},amend(write){amends++;write();complete();},undo(){},redo(){}};
+  installBusinessDocuments(app,history);
+  const doc=bindBusinessDocument(node,()=>value,next=>{value=next;});
+  return {doc,metadata,tracker,get liveReads(){return liveReads;},get begins(){return begins;},get amends(){return amends;}};
+}
+
+test('completed native snapshot avoids a second live read while the next grouped input still checks the live graph',()=>{
+  const h=committedHost();
+  h.doc.edit('输入',t=>{t.records[0].values.prompt='one';},{group:'typing'});
+  assert.equal(h.liveReads,0);
+  h.doc.edit('输入',t=>{t.records[0].values.prompt='two';},{group:'typing'});
+  assert.equal(h.liveReads,1);assert.equal(h.begins,1);assert.equal(h.amends,1);
+  h.metadata.future='outside edit';
+  h.doc.edit('输入',t=>{t.records[0].values.prompt='three';},{group:'typing'});
+  assert.equal(h.liveReads,2);assert.equal(h.begins,2);assert.equal(h.amends,1);
+});
+
+test('external mutation after native capture is not absorbed into the input-group baseline',()=>{
+  const h=committedHost({afterCapture:metadata=>{metadata.future='changed after capture';}});
+  h.doc.edit('输入',t=>{t.records[0].values.prompt='one';},{group:'typing'});
+  assert.equal(h.tracker.activeState.extra.future,'original');
+  h.doc.edit('输入',t=>{t.records[0].values.prompt='two';},{group:'typing'});
+  assert.equal(h.begins,2);assert.equal(h.amends,0);assert.equal(h.metadata.future,'changed after capture');
+});
+
+test('nested native transactions keep the live-stamp fallback until their outer boundary closes',()=>{
+  const h=committedHost({nested:true});
+  h.doc.edit('输入',t=>{t.records[0].values.prompt='one';},{group:'typing'});
+  assert.equal(h.liveReads,1);assert.equal(h.tracker.activeState,null);
+  h.doc.edit('输入',t=>{t.records[0].values.prompt='two';},{group:'typing'});
+  assert.equal(h.liveReads,3);assert.equal(h.begins,1);assert.equal(h.amends,1);
+});
 test('batch review checks all stable row targets before one native step',()=>{
   const h=harness(),a=h.doc.beginRequest('a',{recordId:'a',fieldId:'prompt'}),b=h.doc.beginRequest('b',{recordId:'b',fieldId:'prompt'});
   const next=structuredClone(h.value);next.records[0].values.prompt='结果甲';next.records[1].values.prompt='结果乙';

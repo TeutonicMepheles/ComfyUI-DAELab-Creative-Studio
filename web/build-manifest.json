@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "08e9cc7b8c62adde61022a2159d80dfe641a262228044188b26b30a30b133d9a",
+  "sourceFingerprint": "724f9097c2d688fc3436e5044ff799ffe988795e2efe67c9271b84a74202e9db",
   "files": [
     {
       "path": "AGENTS.md",
@@ -28,7 +28,7 @@
     },
     {
       "path": "application/business_document.js",
-      "sha256": "0c6f2a081b19927b43ccd41fa63c0dcd1b9c2f1667bee625aaa3ed7c80dd1e61"
+      "sha256": "492f25d1847f03eb05456dd8f864f83abb85ea8ea13820177bb70bc7cebd3242"
     },
     {
       "path": "application/document_controller.js",
@@ -72,7 +72,7 @@
     },
     {
       "path": "application/table_presentation.mjs",
-      "sha256": "16b37e36b0defbcd5526b017a79d51b7f357f13e5742a3fa6d9f78c8efa644f0"
+      "sha256": "7a4978db8c02a25502adcd32af33ddb00a845f808ab45bd4973dcf78ac8f859b"
     },
     {
       "path": "application/table_reference_options.mjs",
@@ -108,7 +108,7 @@
     },
     {
       "path": "canvas/creative_canvas_view.mjs",
-      "sha256": "254fa1ec55697d67ced13768cc23b1740e79b2f77d0e265e998eddbfa963445d"
+      "sha256": "29a573d7fc81ed46a2b802e501854d05570d1d3121ccd025894be4e2886d0177"
     },
     {
       "path": "canvas/creative_connections.mjs",
@@ -732,7 +732,7 @@
     },
     {
       "path": "features/table/README.md",
-      "sha256": "5a33d2f0c50953f5b4ba2b362d29b14beebbdf6efe4bac52643fdbfe777379ab"
+      "sha256": "ec94a48c8dbafe76ec91caa9081a060f5cc8d37e9306ec0f0a2bb8eb69c32608"
     },
     {
       "path": "features/table/contracts.js",
@@ -760,7 +760,7 @@
     },
     {
       "path": "features/table/editor_runtime.mjs",
-      "sha256": "32818bdd85a4d8391a1b107312a6d9f7cf4d0b31fb03a9f47feb361922d208b6"
+      "sha256": "ea050bca243ac8f867b7568ed7733345335df48d30f156d92ebc9cc73a01681d"
     },
     {
       "path": "features/table/empty_row_state_scope.js",
@@ -789,6 +789,10 @@
     {
       "path": "features/table/public_helpers.mjs",
       "sha256": "f8501bb7cae9a08e8087386a013ffbd37fc748012f7202ca04b77e21bc74955b"
+    },
+    {
+      "path": "features/table/row_window.js",
+      "sha256": "24b7350115f29037e1523568d137472b9a68efdf21a357297b211e4f1a62260d"
     },
     {
       "path": "features/table/table_cell_choice.mjs",
@@ -856,7 +860,7 @@
     },
     {
       "path": "features/table/table_structure.mjs",
-      "sha256": "bc7ab647cc1c6c55990cabb41091b095c2433b711ed68481a8b7e395a59e6bae"
+      "sha256": "5880638a01a2b9234d5be88c2a3125aeed989d2f9ab0282345fcafee03abfd59"
     },
     {
       "path": "features/table/table_structure_model.mjs",
@@ -868,7 +872,7 @@
     },
     {
       "path": "features/table/table_ui.css",
-      "sha256": "6654069124652ea54bfeb53505d7bf00a96cf75426d6d41c2a46c1f91111efcd"
+      "sha256": "3df2015e5e7ddc5b65de7d97c91a79de95d9ad6ddc239f0b4f3a857114d68c2a"
     },
     {
       "path": "features/table/table_video_references.mjs",
@@ -952,7 +956,7 @@
     },
     {
       "path": "integrations/comfyui/business/business_document_host.js",
-      "sha256": "faadcda080740a58a805c34c3af7df83881e0f3c9de51e4191270057983f16a9"
+      "sha256": "ad2b81d4187fb53b9ba18f39ea089adfaf7fc77398be49fb8252683b47874382"
     },
     {
       "path": "integrations/comfyui/business/business_http.js",
@@ -1076,7 +1080,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "c86fe21950ca7d0f78945c227e2c893312d3c6e57a24a07b409bdaf5b9d97225"
+      "sha256": "5156346d3e44a1680cac421e1bedbc1d55caef5bf71b5944fe19370e75dad51d"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
@@ -1116,7 +1120,7 @@
     },
     {
       "path": "ui/inline_editor.mjs",
-      "sha256": "728e8d62b785351e1198c51ec9c100dd475059345135e0ec646daed146ef59f4"
+      "sha256": "7622ed7605a8973d69445509842d8b5654c802c777cc8440e3e8506581c23894"
     },
     {
       "path": "ui/list_editor_controls.mjs",

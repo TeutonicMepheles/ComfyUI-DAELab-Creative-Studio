@@ -346,6 +346,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
                 c.layout.width=width;update(c);drawWires();queueLayout();dirty();return true;
             },
             get selected(){return leased&&selected.has(c.node.id);},
+            get active(){return leased&&visible&&!c.body.hidden&&!c.body.inert;},
             focus(){
                 if(!leased||!visible||c.node.mode||c.body.hidden||c.body.inert)return false;
                 select(c.node);root.focus({preventScroll:true});return true;

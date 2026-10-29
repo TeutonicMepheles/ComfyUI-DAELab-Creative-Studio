@@ -95,6 +95,8 @@ register();
 `api.getPanelContext(element)` 返回当前借用面板的上下文，独立安装或归还后返回 null。上下文提供 `presentation`、`fullHeight`、`selected`、`contains(element)`、`getBounds()`、`getViewport()`、`focus()` 与 `panBy(dx,dy)`；`focus()` 选择并聚焦当前租借面板所在节点，停用或释放后返回 false；适配器可在随后聚焦自己的字段。位移为屏幕像素，正数将内容向左／上平移。隐藏、停用或释放后平移返回 false。无需查找宿主 DOM 或派发模拟滚轮事件。宿主在借用 root 上管理公开 `data-canvas-panel=true` 和 `data-canvas-full-height` 标记，归还时清理。业务自身的滚动、末行和末列布局留在业务包，不由宿主识别其 CSS 类名。
 
 宿主在视角、卡片位置／尺寸、选择或内部滚动变化后，按动画帧合并派发冒泡事件 `dae-canvas-layout`。业务可在 `globalThis` 监听该通知，通过自己的面板上下文重新定位可见悬浮栏；无需读取宿主 DOM，也不应在每帧重建业务面板。独立安装时没有此事件，原有编辑逻辑照常工作；销毁时移除监听。
+上下文另提供可选只读布尔值 `active`，表示面板仍被借用、画布可见且正文未隐藏或停用；读取不触发布局测量。只需判断活动状态的消费者优先使用它，旧适配器缺少该值时可回退到 `getViewport()`；实际定位仍读取几何接口。
+
 ## LLM 输入输出流程接入（2026-10-15）
 
 - API v1 新增只读 `inputSnapshot(node)`：由节点适配器的 `inputSnapshot(node)` 或已有 `assets(node)` 提供版本化快照，公共入口深拷贝后返回；停用或无提供方返回 null。文本适配器提供 `{version:1,texts:[text]}`，上传及素材组沿用有序 assets 契约。业务消费者不得读取其他节点的私有面板。
