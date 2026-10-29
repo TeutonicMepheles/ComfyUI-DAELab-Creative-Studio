@@ -4,6 +4,8 @@
 
 源码入口：table_generation_model.mjs：最终输入和配置；generation_session.ts：异步会话；table_generation_tasks.mjs：提交与恢复；video_tasks_panel.mjs：独立节点；task_snapshots.mjs：任务展示快照。
 
+独立面板的 `isDocumentReady` 回调由宿主适配器提供；暂未就绪时不自动同步输入，显式修改仍拒绝执行，不绕过原生历史。
+
 协作边界：后端 generation 服务拥有任务事实，前端仅保存引用和编辑输入。libtv_video_model.mjs 是保留格式/配置模型，不代表启用旧 LibTV 执行通道。
 
 生成节点按实际连线自动识别表格、文字和图片。表格及 LLM 逐行结果单独接入，文字与图片可以组合；图片依次使用空闲首帧、尾帧、参考图片入口，不覆盖已有连线。断开文字／图片连线会清除该输入及对应任务的结果预览，仍连接的输入保留；断开表格或逐行来源后恢复空白任务，保留生成设置。清理随断线进入原生撤销记录，不删除服务账本或磁盘文件。输入识别由 generation_input.ts 维护，原生连线与画布共用。

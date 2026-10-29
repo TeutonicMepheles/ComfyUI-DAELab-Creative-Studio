@@ -356,14 +356,15 @@
       "source": "web/video_tasks_panel.mjs",
       "destination": "frontend/src/features/generation/video_tasks_panel.mjs",
       "sourceSha256": "1f567635a4b88ab672b6f656d1c2ede14a5a79432592e26ccf2c39775281452d",
-      "destinationSha256": "b40ab9c189a9537d272e6b68ef00e89f728d12f53abd50654044fc0c36962ad8",
+      "destinationSha256": "341184dbd464b8a32830e6f4bbd199d8741f27512f429cd09b4f8cbcc526f231",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Native selection and upload use BusinessHostPort; legacy generation channel is unreachable.",
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
         "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
-        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
+        "Defer generation panel installation/input sync until native workflow loading settles; preserve history capability diagnostics and original source hash."
       ]
     },
     {
@@ -1874,9 +1875,10 @@
       "kind": "authored-contract-or-integration",
       "changes": [
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
-        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
+        "Defer generation panel installation/input sync until native workflow loading settles; preserve history capability diagnostics and original source hash."
       ],
-      "destinationSha256": "f2ccff9b2c00b57a1723a8bab5e43929ad760aaa3a57637cf2f8c63530c4fafa"
+      "destinationSha256": "7abe4170e5c9d58a90c6acfb00f8c352b2846646ec95d806f929495c08bc307d"
     },
     {
       "source": null,
