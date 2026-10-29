@@ -50,6 +50,7 @@ export function installMaterialGroups(host,view){
     const change=(fn,text)=>{history.begin();try{fn();}finally{history.end();}renderSignature='';dirty();tick();if(text)say(text);};
     const button=(label,fn,cls)=>{const b=createCreativeButton(label,fn);if(cls)b.classList.add(cls);return b;};
     const createButton=button('素材打组',createFromSelection);createButton.title='将选中素材打组 (Ctrl+G)';createButton.classList.add('gr-create-selection');createButton.hidden=true;root.append(createButton);
+    const selectionBox=el('div','gr-selection-box');selectionBox.hidden=true;selectionBox.setAttribute('aria-hidden','true');root.append(selectionBox);
     function stopPanel(e){e.stopPropagation();}
     for(const event of ['pointerdown','dblclick','wheel','keydown'])panel.addEventListener(event,stopPanel);
     function createNode(type,title){const n=host.createNode(type);if(!n)throw new Error(`缺少节点 ${type}`);host.addNode(host.graph(),n);n.title=title;return n;}
@@ -81,7 +82,7 @@ export function installMaterialGroups(host,view){
     }
     const decorated=new Map();
     function restoreMedia(){for(const bar of decorated.values()){for(const action of bar.querySelectorAll('.gr-media-action')){if(!action.dataset.assetFavorite)action.textContent=action.getAttribute('aria-label');action.classList.remove('gr-media-action');}}decorated.clear();}
-    function onHide(){if(drag){const current=drag;drag=null;restoreDrag(current);}if(colorEditing){colorEditing=false;history.end();}restoreMedia();layoutElements=[];layoutSignature='';}
+    function onHide(){selectionBox.hidden=true;createButton.hidden=true;if(drag){const current=drag;drag=null;restoreDrag(current);}if(colorEditing){colorEditing=false;history.end();}restoreMedia();layoutElements=[];layoutSignature='';}
     root.addEventListener('dae-canvas-hide',onHide);
     function decorateMedia(){
         for(const upload of decorated.keys())if(!upload.isConnected)decorated.delete(upload);
@@ -172,7 +173,13 @@ export function installMaterialGroups(host,view){
     root.addEventListener('dae-canvas-wires-changed',updateWirePulse);
     function positionCreateButton(chosen){
         const members=chosen.filter(n=>isGroupMember(n)),bounds=root.getBoundingClientRect();
-        const rects=members.map(n=>card(n.id)?.getBoundingClientRect()).filter(r=>r&&r.width&&r.height&&r.right>bounds.left&&r.left<bounds.right&&r.bottom>bounds.top&&r.top<bounds.bottom);
+        const allRects=members.map(n=>card(n.id)?.getBoundingClientRect()).filter(r=>r&&r.width&&r.height);
+        const rects=allRects.filter(r=>r.right>bounds.left&&r.left<bounds.right&&r.bottom>bounds.top&&r.top<bounds.bottom);
+        selectionBox.hidden=members.length<2||!rects.length;
+        if(!selectionBox.hidden){
+            const left=Math.min(...allRects.map(r=>r.left))-bounds.left-10,top=Math.min(...allRects.map(r=>r.top))-bounds.top-36;
+            Object.assign(selectionBox.style,{left:left+'px',top:top+'px',width:(Math.max(...allRects.map(r=>r.right))-bounds.left+10-left)+'px',height:(Math.max(...allRects.map(r=>r.bottom))-bounds.top+10-top)+'px'});
+        }
         createButton.hidden=members.length<2||!rects.length;
         if(createButton.hidden)return;
         const label=`素材打组 · ${members.length} 项`;
@@ -187,7 +194,7 @@ export function installMaterialGroups(host,view){
         createButton.style.top=Math.max(12,Math.min(y,maxY))+'px';
     }
     function syncToolbar(){
-        if(disposed||!view.active){panel.hidden=true;createButton.hidden=true;closeMenu();return;}
+        if(disposed||!view.active){panel.hidden=true;createButton.hidden=true;selectionBox.hidden=true;closeMenu();return;}
         if(seenGraph!==host.graph().extra){seenGraph=host.graph().extra;selected=null;selectionActive=false;renderSignature='';closeMenu();}
         const chosen=view.selectedIds.map(node).filter(Boolean);positionCreateButton(chosen);const chosenGroup=chosen.find(n=>n.type===TYPE)||groups().find(g=>chosen.some(n=>g.properties.members.includes(n.id)));
         if(!drag){const next=chosenGroup?.id??null;if(next!==selected){selected=next;renderSignature='';}selectionActive=selected!=null;}
@@ -265,6 +272,6 @@ export function installMaterialGroups(host,view){
     function key(e){if(e.target.closest('input,textarea,select,[contenteditable=true]'))return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='g'){e.preventDefault();e.stopImmediatePropagation();createFromSelection();return;}if(e.key==='Escape'&&drag){const current=drag;drag=null;if(current.kind==='group')e.stopImmediatePropagation();restoreDrag(current);}}
     root.addEventListener('pointerdown',down,true);root.addEventListener('pointermove',move,true);root.addEventListener('pointerup',up,true);root.addEventListener('pointercancel',up,true);root.addEventListener('lostpointercapture',up,true);root.addEventListener('keydown',key,true);
     const timer=setInterval(tick,150);
-    const controller={createFromSelection,tick,destroy(){onHide();closeMenu();disposed=true;root.removeEventListener('dae-canvas-layout',tick);clearInterval(timer);clearTimeout(noticeTimer);cancelAnimationFrame(shiftFrame);root.removeEventListener('transitionrun',onShift);root.removeEventListener('dae-canvas-wires-changed',updateWirePulse);root.removeEventListener('pointerdown',down,true);root.removeEventListener('pointermove',move,true);root.removeEventListener('pointerup',up,true);root.removeEventListener('pointercancel',up,true);root.removeEventListener('lostpointercapture',up,true);root.removeEventListener('keydown',key,true);panel.remove();toast.remove();insertion.remove();createButton.remove();sheet.remove();restoreMedia();root.removeEventListener('dae-canvas-hide',onHide);}};
+    const controller={createFromSelection,tick,destroy(){onHide();closeMenu();disposed=true;root.removeEventListener('dae-canvas-layout',tick);clearInterval(timer);clearTimeout(noticeTimer);cancelAnimationFrame(shiftFrame);root.removeEventListener('transitionrun',onShift);root.removeEventListener('dae-canvas-wires-changed',updateWirePulse);root.removeEventListener('pointerdown',down,true);root.removeEventListener('pointermove',move,true);root.removeEventListener('pointerup',up,true);root.removeEventListener('pointercancel',up,true);root.removeEventListener('lostpointercapture',up,true);root.removeEventListener('keydown',key,true);panel.remove();toast.remove();insertion.remove();createButton.remove();selectionBox.remove();sheet.remove();restoreMedia();root.removeEventListener('dae-canvas-hide',onHide);}};
     tick();return controller;
 }

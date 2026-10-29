@@ -97,6 +97,8 @@
 
 .dae-creative .gr-create-selection{position:absolute;z-index:22;max-width:calc(100% - 24px);box-shadow:var(--dae-elevation-overlay);border-color:var(--dae-accent);background:var(--dae-primary-container);color:var(--dae-on-primary-container)}
 .dae-creative .gr-create-selection[hidden]{display:none}
+.dae-creative .gr-selection-box{position:absolute;pointer-events:none;z-index:2;border:1px dashed var(--dae-accent);border-radius:8px;background:color-mix(in srgb,var(--dae-accent) 7%,transparent)}
+.dae-creative .gr-selection-box[hidden]{display:none}
 
 /* Empty previews use geometry, not screen resolution or a fixed height. */
 .dae-creative[data-group-review=true] .dae-upload-stage:has(.dae-upload-empty){aspect-ratio:16 / 9;min-height:0;box-sizing:border-box}
