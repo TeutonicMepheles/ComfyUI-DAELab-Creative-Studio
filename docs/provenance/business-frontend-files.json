@@ -994,12 +994,13 @@
       "source": "web/table_structure.mjs",
       "destination": "frontend/src/features/table/table_structure.mjs",
       "sourceSha256": "c33ebda46986c7f79d6a8a5740de652964205f02ea0ec2ac962c26bec421202f",
-      "destinationSha256": "13f29dcc6266247bf50b43d8537ff5a823b58f9894c4ce16ce3a8cddd5c22185",
+      "destinationSha256": "34c2155c4e86f8350be0b854af7eb250dab200cea28c3ba06931e5bb4a83c161",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Actual-host nested keyboard follow-up: shared save propagation in nested panel/popover; keep local editor keys and IME/229 ownership.",
-        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
+        "Table performance integration: reuse completed native history snapshots and preserve row controls across viewport remounts; original source hashes retained."
       ]
     },
     {
@@ -1849,9 +1850,10 @@
         "Native reactive JSON boundary: detach nested host proxies for document transactions and LLM load/proposal/apply; preserve all unknown JSON keys and identities, reject unsavable edits before history, and verify source-bound edit/recovery/undo with no submit. Real UI acceptance remains separate.",
         "Skip only unused whole-table equality encodings in the native afterWrite path; preserve all validated snapshots, native history, rollback, per-target revisions and fallback ordering. Count and semantic regressions pass; actual performance acceptance pending.",
         "Add optional typed native replacement through DocumentController: ordinary same-container JSON replacements retain isolated before/next snapshots while sharing unchanged history, no-op, rollback and observation logic. Preserve unlike-root descriptor behavior and the asynchronous review mutation path. Two-snapshot mechanism and focused checks pass; actual performance acceptance remains pending.",
-        "Expose cheap isCurrent using the existing disposed/options.current lifetime predicate without document reads, serialization or history access. Existing host current/ready semantics, transactions, revisions and undo remain unchanged."
+        "Expose cheap isCurrent using the existing disposed/options.current lifetime predicate without document reads, serialization or history access. Existing host current/ready semantics, transactions, revisions and undo remain unchanged.",
+        "Table performance integration: reuse completed native history snapshots and preserve row controls across viewport remounts; original source hashes retained."
       ],
-      "destinationSha256": "8559ee9251854f69395dd5ca82d3f881c4880fa72bd1d80748492c0539d04043"
+      "destinationSha256": "7bebee709d4258877b263be0ba14fa3ab34d50ffcc33a24c4155188598501331"
     },
     {
       "source": null,
@@ -1860,9 +1862,10 @@
       "kind": "authored-contract-or-integration",
       "changes": [
         "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
-        "Use a typed comparison-only native history stamp that excludes valid known v1 Canvas x/y/zoom navigation; preserve native/saved snapshots, unknown fields, other business revisions and all existing ownership/history checks. Actual host grouping and input latency require retest."
+        "Use a typed comparison-only native history stamp that excludes valid known v1 Canvas x/y/zoom navigation; preserve native/saved snapshots, unknown fields, other business revisions and all existing ownership/history checks. Actual host grouping and input latency require retest.",
+        "Table performance integration: reuse completed native history snapshots and preserve row controls across viewport remounts; original source hashes retained."
       ],
-      "destinationSha256": "d6fac788cef9e86206d5292fb0b4a244ad71da00ff6db7306ad957f75ecc1128"
+      "destinationSha256": "b8c0e76a5c917f315ef0504e08741f70060f8e32203f7a0e13b7099b3fcab109"
     },
     {
       "source": null,
@@ -1896,9 +1899,10 @@
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
         "Post-snapshot hardblock review: immutable receipt digest, exact missing-task recovery, no automatic replay; tests include original-scope and storage-unavailable rejection.",
         "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
-        "Native reactive JSON boundary: detach nested host proxies for document transactions and LLM load/proposal/apply; preserve all unknown JSON keys and identities, reject unsavable edits before history, and verify source-bound edit/recovery/undo with no submit. Real UI acceptance remains separate."
+        "Native reactive JSON boundary: detach nested host proxies for document transactions and LLM load/proposal/apply; preserve all unknown JSON keys and identities, reject unsavable edits before history, and verify source-bound edit/recovery/undo with no submit. Real UI acceptance remains separate.",
+        "Table performance integration: reuse completed native history snapshots and preserve row controls across viewport remounts; original source hashes retained."
       ],
-      "destinationSha256": "fd1c9f21dd348bfa4ac2314d6ee72cefce9cddbdedd45b92837c20b8234fc5fd"
+      "destinationSha256": "a224c0322a1de39a278cbb61ac3dc066521b26bb97a24bbfea1af863ec8792a9"
     },
     {
       "source": null,
@@ -2074,10 +2078,11 @@
       "source": null,
       "sourceSha256": null,
       "destination": "tests/migrated_business/table_input_snapshot_encoding.test.mjs",
-      "destinationSha256": "26c6527c6a56692c1f556f345e1780683db9ce9a94490b9d0869fffe03a58c9c",
+      "destinationSha256": "e6ba704749d23257a284dad331f1fcc62651109d5634f5c5fe828ea343d02b86",
       "kind": "test-source",
       "changes": [
-        "Authored local cell snapshot isolation, rollback, unknown JSON, width/derived/ticket fallback and encoding-count contracts. These do not establish actual latency or UI acceptance."
+        "Authored local cell snapshot isolation, rollback, unknown JSON, width/derived/ticket fallback and encoding-count contracts. These do not establish actual latency or UI acceptance.",
+        "Table performance integration: reuse completed native history snapshots and preserve row controls across viewport remounts; original source hashes retained."
       ]
     }
   ],
