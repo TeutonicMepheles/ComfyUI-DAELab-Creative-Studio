@@ -99,6 +99,9 @@
 .dae-creative .gr-create-selection button{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;border-color:transparent;background:transparent;padding:7px 10px}
 .dae-creative .gr-selection-count{font-size:12px;color:var(--dae-text-muted);padding:0 8px;white-space:nowrap}
 .dae-creative .gr-create-selection[hidden]{display:none}
+.dae-creative[data-group-review=true] :is(.gr-create-selection,.gr-panel){border-radius:8px}
+.dae-creative[data-group-review=true] :is(.gr-create-selection,.gr-panel) button:not(.gr-swatch){border:0!important;border-radius:4px!important;box-shadow:none;background:transparent!important}
+.dae-creative[data-group-review=true] :is(.gr-create-selection,.gr-panel) button:not(.gr-swatch):hover:not(:disabled){background:var(--dae-surface-hover)!important}
 .dae-creative .gr-selection-box{position:absolute;pointer-events:none;z-index:2;border:1px dashed var(--dae-accent);border-radius:8px;background:color-mix(in srgb,var(--dae-accent) 7%,transparent)}
 .dae-creative .gr-selection-box[hidden]{display:none}
 
