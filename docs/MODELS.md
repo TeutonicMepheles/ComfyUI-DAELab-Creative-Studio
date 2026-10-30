@@ -28,6 +28,8 @@ Qwen 使用本机 Ollama 回环接口 `127.0.0.1:11434`。注册清单、已安�
 
 生成节点通过已安装的官方 `ByteDance2TextToVideoNode`、`ByteDance2FirstLastFrameNode`、`ByteDance2ReferenceNodeV2` 接入 Seedance 2.5、2.0、2.0 Fast、2.0 Mini。启用 ComfyUI API 节点并登录 ComfyUI 账户（或配置其 API Key）后，重启服务、刷新页面即可读取模式；选项取自当前安装的官方节点，不依赖本地模型配置。实际生成使用 ComfyUI 账户积分。
 
+宿主启动参数不能包含 `--offline` 或 `--disable-api-nodes`：这些参数会禁用官方积分节点，账户已登录且有余额也无法生成。隔离准备工具默认使用离线模式；仅在用户明确要求积分生成时，保存工作流、确认队列空闲后移除离线参数并重启隔离宿主。
+
 支持文生视频、首帧、首尾帧和全能参考。图片／视频经冻结文件传入官方节点；全能参考按素材类型分别编号，结构化文字引用转换为 `Image N`／`Video N`。认证仅传入原生队列的敏感字段，不写入工作流或任务账本。
 
 Seedance 参考图在提交前适配官方尺寸限制：宽高比 0.4–2.5、每边 300–6000 像素。超限图片等比缩放并居中补黑边，不裁剪；合规图片保持原文件字节。处理结果单独保存，原图及冻结输入不修改。此处理不改变视频素材。
@@ -39,3 +41,7 @@ Seedance 参考图在提交前适配官方尺寸限制：宽高比 0.4–2.5、�
 界面的 `Minimax H3` 接入官方 `MinimaxHailuo03TextToVideoNode`、`MinimaxHailuo03FirstLastFrameNode` 和 `MinimaxHailuo03ReferenceNode`，保留已有工作流模型名称，并在接口边界映射为官方 `MiniMax H3`。支持文生视频、首帧、首尾帧及图片／视频全能参考；模式和参数读取已安装节点的实际定义。与 Seedance 共用登录、文件冻结和任务恢复通道，取消及付费验证限制同上。
 
 云端 H3 与 `MiniMax H3 FL（本地）` 分别路由；本地版仍只支持文生视频和图片首尾帧，不会自动回退到云端。
+
+## GPT Image（ComfyUI 账户）
+
+GPT Image 2、2.5 Flare、2.5 Sunburst 使用官方 `OpenAIGPTImageNodeV2`。支持文生图和最多 16 张图片参考，每个任务生成一张图片；尺寸、质量和背景选项读取已安装节点。参考顺序及结构化 `Image N` 引用保持一致，结果通过 `SaveImage` 写入宿主输出目录并由共享任务服务校验。认证与中断处理复用上述 ComfyUI 账户通道，不需要单独配置 OpenAI 密钥。

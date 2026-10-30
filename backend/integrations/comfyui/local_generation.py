@@ -10,6 +10,7 @@ from ...generation.admission import complete_blocking
 from ...generation.media import stage_native_input
 from ...providers.qwen_binding import QwenModelBinding
 from ...providers.comfy_video import SeedanceProvider, MinimaxProvider
+from ...providers.comfy_image import ComfyImageProvider
 from .comfy_video import ComfyVideoQueue, stage_seedance_input
 
 SHA = re.compile(r"^[a-f0-9]{64}$")
@@ -124,7 +125,7 @@ def assemble_host_generation(server, core, folder_paths, *, native_queue=None):
         node = nodes.NODE_CLASS_MAPPINGS.get(node_id)
         return node.INPUT_TYPES() if node is not None else None
     remote_queue = ComfyVideoQueue(server, queue.validate_prompt)
-    for provider_type in (SeedanceProvider, MinimaxProvider):
+    for provider_type in (SeedanceProvider, MinimaxProvider, ComfyImageProvider):
         media_input = stage_seedance_input if provider_type is SeedanceProvider else stage_native_input
         provider = provider_type(schema=schema, queue=remote_queue,
                                  media_input=lambda item, stage=media_input: stage(core.assets, item))

@@ -16,12 +16,13 @@ from ..jobs.ledger import TERMINAL_STATES
 from ..providers.contracts import Observation, ProviderUnavailable, SubmissionRejected, SubmissionUncertain
 from ..providers.parameters import IMAGE_MODEL, VIDEO_MODEL, REFERENCE_VIDEO_MODEL, QWEN_MODEL
 from ..providers.comfy_video import SeedanceProvider, MinimaxProvider
+from ..providers.comfy_image import ComfyImageProvider
 from .media import freeze_reference
 from .admission import ResourceAdmission, complete_blocking
 
 MODELS = {IMAGE_MODEL: 'local-qwen-image', VIDEO_MODEL: 'local-h3', QWEN_MODEL: 'local-qwen-text', 'qwen': 'local-qwen-text'}
 MODELS[REFERENCE_VIDEO_MODEL] = 'local-h3-reference'
-MODELS.update({model: provider.id for provider in (SeedanceProvider, MinimaxProvider) for model in provider.models})
+MODELS.update({model: provider.id for provider in (SeedanceProvider, MinimaxProvider, ComfyImageProvider) for model in provider.models})
 _BARRIERS = {'rejected', 'fenced'}
 _SCOPE_IDS = {'documentId', 'tableId', 'nodeId', 'recordId', 'fieldId', 'workflowSession', 'groupId'}
 _SCOPE_KEYS = _SCOPE_IDS | {'epoch', 'inputVersion', 'inputDigest', 'model', 'createdAt', 'operation', 'groupIndex', 'groupCount'}

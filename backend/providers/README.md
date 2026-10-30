@@ -8,6 +8,8 @@ Injected transport/queues execute; providers do not own another scheduler or led
 
 comfy_video.py maps frozen image/video references and mode-specific installed schemas into official Seedance and MiniMax H3 API node graphs. Host assembly explicitly enables these remote providers; credentials remain in the host queue's transient sensitive fields. No provider-owned network client or fallback is added.
 
+comfy_image.py maps GPT Image text/reference requests into the official image node with one output per task, preserving reference order and the same authenticated queue lifecycle.
+
 Focused checks, from the repository root:
 
 ```powershell
