@@ -21,6 +21,13 @@ end-to-end test of `ExportService.execute` or the real native prompt worker.
 
 ## Preserved first failure and subsequent regression
 
+The 2026-10-30 PR #16 CI run at `e7054a9` failed queued-cancellation
+coverage after product submission became ordered within each batch. The harness
+now submits the 100 jobs independently through the same product service so they
+contend for shared resources. Capacity limits and cancellation assertions remain
+unchanged. Earlier single-batch measurements are not current evidence for this
+workload; the failed CI run is retained as run `41017233428`.
+
 The first random-loopback regression ran all 100 actual Studio service tasks:
 91 succeeded, 6 failed as planned, and 3 queued GPU tasks were cancelled without
 provider creation. There were 97 provider creates. The observed GPU lease and

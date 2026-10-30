@@ -40,6 +40,12 @@ def authenticated_submission(handler):
         credentials = {key: request.headers[header] for key, header in (
             ('auth_token_comfy_org', 'X-DAELAB-Comfy-Token'), ('api_key_comfy_org', 'X-DAELAB-Comfy-Key'))
             if request.headers.get(header)}
+        if getattr(request, 'path', '').startswith('/daelab/prompt-optimization/'):
+            authorization = request.headers.get('Authorization', '')
+            if authorization.startswith('Bearer '):
+                credentials.setdefault('auth_token_comfy_org', authorization[7:])
+            if request.headers.get('X-API-Key'):
+                credentials.setdefault('api_key_comfy_org', request.headers['X-API-Key'])
         token = _submission_auth.set(credentials)
         try:
             return await handler(request)

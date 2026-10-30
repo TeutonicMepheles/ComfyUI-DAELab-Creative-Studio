@@ -118,6 +118,7 @@ test('table edits sync by row and column identity while preserving task settings
  syncVideoTaskInputs(state,source,previous);
  assert.deepEqual(promptContent(state.table,row,'p2'),[{type:'text',text:'表格新内容'}]);
  assert.equal(row.name,'新任务名');assert.equal(row.values.m[0].id,'ref');
+ saved.meta.generationReferences[state.fieldId]=[{fieldId:'m',assetId:'ref'}];
  assert.deepEqual(row.values[state.fieldId],saved.output);assert.deepEqual(row.meta,saved.meta);
  assert.deepEqual(promptContent(state.table,state.table.records[0],'p'),promptContent(previous,previous.records.find(r=>r.id===state.table.records[0].id),'p'));
  assert.deepEqual(state.table.records.map(r=>r.id),source.records.map(r=>r.id));

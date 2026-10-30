@@ -15,11 +15,13 @@ from ..contracts.errors import Conflict, InvalidInput, MissingRecord
 from ..contracts.validation import identity, clean_json
 from ..providers.contracts import ProviderUnavailable
 from ..providers.parameters import QWEN_MODEL
-from ..providers.optimization_contract import validate_snapshot, suggestion
+from ..providers.optimization_contract import validate_snapshot, suggestion, MODEL_LIMITS
 from ..providers.optimization_instructions import INSTRUCTIONS, INSTRUCTION_VERSION, INSTRUCTION_DIGEST, INPUT_VERSION
 
 ACTIVE = {'submitting', 'submitted', 'running', 'fetching', 'needs_recovery'}
 OPERATION = 'prompt_optimization'
+PROVIDERS = {'gpt-6-luna': 'comfy', QWEN_MODEL: 'qwen', 'deepseek-flash': 'deepseek'}
+PROVIDER_IDS = {'gpt-6-luna': 'comfy-gpt-text', QWEN_MODEL: 'local-qwen-text', 'deepseek-flash': 'deepseek-text'}
 
 
 def now():
@@ -40,6 +42,7 @@ class OptimizationFacade:
     def __init__(self, service):
         self.service = service
         self.quotes, self.leases, self.permits, self.controls = {}, {}, {}, {}
+        self.prices = {}
         self.lock = asyncio.Lock()
 
     def _prune(self):
@@ -90,6 +93,8 @@ class OptimizationFacade:
             raise Conflict('估算已失效或快照已改变，请重新估算')
         if isinstance(budget, bool) or not isinstance(budget, (int, float)) or not math.isfinite(budget) or budget < 0:
             raise InvalidInput('确认预算无效')
+        if budget < quote['budgetUpperCredits']:
+            raise InvalidInput('Confirmed budget is below the estimated upper bound.')
         return quote
 
     @staticmethod
@@ -117,32 +122,44 @@ class OptimizationFacade:
                 text = job['result'].get('text', '')
                 row['suggestion'] = suggestion({'status': 'completed', 'output': [{'type': 'message', 'content': [{'type': 'output_text', 'text': text}]}]}, snapshot)
                 row['usage'] = job['result'].get('metadata', {}).get('usage', {})
+                row['actualCredits'] = job['result'].get('metadata', {}).get('actualCredits')
             rows.append(row)
         return {'contractVersion': 1, 'batchId': source['batchId'], 'quoteId': control['quoteId'] or source['quoteId'],
-                'range': source['range'], 'provider': 'qwen', 'currency': 'local', 'price': self._price(),
-                'budgetCredits': 0, 'paused': control['paused'], 'stopped': control['stopped'], 'rows': rows,
+                'range': source['range'], 'provider': self._price(source['model'])['provider'], 'currency': self._price(source['model'])['currency'], 'price': source.get('price') or self._price(source['model']),
+                'budgetCredits': control.get('budgetCredits', source.get('budgetCredits', 0)), 'paused': control['paused'], 'stopped': control['stopped'], 'rows': rows,
                 'preflightSkipped': source.get('skipped', []), 'updatedAt': max(int(datetime.fromisoformat(j['updated_at']).timestamp() * 1000) for j in jobs),
                 'unknownRequests': self._unknown([row['snapshot'] for row in rows], related)}
 
     def _unknown(self, snapshots, related=None):
         target = {key: snapshots[0]['target'][key] for key in ('documentId', 'tableId')}
         targets = {digest(s['target']) for s in snapshots}
-        return [{'requestId': j['request_id'], 'batchId': j['source']['batchId'], 'target': self._snapshot(j)['target'], 'model': QWEN_MODEL}
+        return [{'requestId': j['request_id'], 'batchId': j['source']['batchId'], 'target': self._snapshot(j)['target'], 'model': self._snapshot(j)['model']}
                 for j in (self._jobs(**target) if related is None else related) if j['state'] == 'unknown' and digest(self._snapshot(j)['target']) in targets]
 
-    @staticmethod
-    def _price():
+    def _price(self, model=QWEN_MODEL):
+        if model == 'gpt-6-luna':
+            return dict(self.prices.get(model) or {'provider': 'comfy', 'currency': 'credits', 'model': model, 'input': 0, 'output': 0, 'version': 'unavailable', 'basis': '重新估算后才能提交'})
+        if model == 'deepseek-flash':
+            return {'provider': 'deepseek', 'currency': 'USD', 'model': model, 'input': .3, 'output': 1.2,
+                    'version': 'deepseek-flash-20261030', 'unit': '1M tokens', 'basis': 'Official peak uncached USD rates; provider billing is authoritative.'}
         return {'provider': 'qwen', 'currency': 'local', 'model': QWEN_MODEL, 'input': 0, 'output': 0,
                 'version': 'local-no-cloud-charge-v1', 'unit': 'local', 'basis': '本地执行；无云端积分扣费，不代表已完成生成。'}
 
     async def capabilities(self, payload):
         model = payload.get('model', QWEN_MODEL)
-        if model != QWEN_MODEL:
-            raise ProviderUnavailable('Only explicitly assembled local Qwen optimization is enabled.')
+        if model not in PROVIDERS:
+            raise ProviderUnavailable('Unsupported optimization model.')
         cap = await self.service.capabilities(model)
-        return {'contractVersion': 1, 'available': bool(cap.get('available')), 'models': [{'id': QWEN_MODEL, 'label': 'Qwen3.5-9B（本地）', 'provider': 'qwen', 'available': bool(cap.get('available')), 'maxOutputTokens': 1024, 'contextTokens': 16384}],
-                'defaultModel': QWEN_MODEL, 'instructionVersion': INSTRUCTION_VERSION, 'instructionDigest': INSTRUCTION_DIGEST,
-                'inputVersion': INPUT_VERSION, 'price': self._price(), 'deepseekKeyConfigured': False, 'tokenAlgorithm': 'utf8-byte-upper-bound-v1'}
+        if model == 'gpt-6-luna':
+            if not cap.get('price'):
+                raise ProviderUnavailable('Official Comfy credit pricing is unavailable.')
+            self.prices[model] = cap['price']
+        return {'contractVersion': 1, 'available': bool(cap.get('available')),
+                'models': [{'id': model, 'label': 'GPT-6 Luna（ComfyUI 积分）' if model == 'gpt-6-luna' else 'DeepSeek API' if model == 'deepseek-flash' else 'Qwen3.5-9B',
+                            'provider': PROVIDERS[model], 'available': bool(cap.get('available')), **MODEL_LIMITS[model]}],
+                'defaultModel': model, 'instructionVersion': INSTRUCTION_VERSION, 'instructionDigest': INSTRUCTION_DIGEST,
+                'inputVersion': INPUT_VERSION, 'price': self._price(model), 'deepseekKeyConfigured': cap.get('deepseekKeyConfigured', False),
+                'tokenAlgorithm': 'utf8-byte-upper-bound-v1'}
 
     async def estimate(self, payload):
         snapshots = payload.get('rows')
@@ -150,21 +167,24 @@ class OptimizationFacade:
             raise InvalidInput('Select between 1 and 500 optimization rows.')
         for s in snapshots:
             validate_snapshot(s)
-            if s['model'] != payload.get('model') or s['model'] != QWEN_MODEL:
-                raise ProviderUnavailable('Only explicitly assembled local Qwen optimization is enabled.')
+            if s['model'] != payload.get('model') or s['model'] not in PROVIDERS:
+                raise ProviderUnavailable('Unsupported optimization model.')
             count = len(INSTRUCTIONS.encode()) + len(s['inputText'].encode()) + 64
-            if count + s['maxOutputTokens'] > 16384:
+            if count + s['maxOutputTokens'] > MODEL_LIMITS[s['model']]['contextTokens']:
                 raise InvalidInput('完整输入与输出预算超出此模型上下文限制')
         if len({digest({k: s['target'][k] for k in ('documentId', 'tableId')}) for s in snapshots}) != 1 or len({digest(s['target']) for s in snapshots}) != len(snapshots):
             raise InvalidInput('范围必须属于同一表格，且目标不能重复')
         await self.capabilities(payload)
         self._prune()
+        price = self._price(payload['model'])
         quote = {'contractVersion': 1, 'quoteId': str(uuid.uuid4()), 'snapshotDigest': digest(snapshots), 'status': 'ready',
-                 'price': self._price(), 'provider': 'qwen', 'currency': 'local', 'inputTokens': sum(len(INSTRUCTIONS.encode()) + len(s['inputText'].encode()) + 64 for s in snapshots),
+                 'price': price, 'provider': price['provider'], 'currency': price['currency'], 'inputTokens': sum(len(INSTRUCTIONS.encode()) + len(s['inputText'].encode()) + 64 for s in snapshots),
                  'expectedOutputTokens': sum(min(s['maxOutputTokens'], max(32, math.ceil(len(s['input']['prompt_text'].encode()) * .65))) for s in snapshots),
                  'maxOutputTokens': sum(s['maxOutputTokens'] for s in snapshots), 'estimatedCredits': 0, 'budgetUpperCredits': 0,
                  'expiresAt': now() + 300000, 'tokenAlgorithm': 'utf8-byte-upper-bound-v1', 'processed': len(snapshots),
                  'skipped': payload.get('skipped', []), 'unknownRequests': (await asyncio.to_thread(self._unknown, snapshots))}
+        quote['estimatedCredits'] = (quote['inputTokens'] * price['input'] + quote['expectedOutputTokens'] * price['output']) / 1000000
+        quote['budgetUpperCredits'] = (quote['inputTokens'] * price['input'] + quote['maxOutputTokens'] * price['output']) / 1000000
         self.quotes[quote['quoteId']] = quote
         return dict(quote)
 
@@ -214,7 +234,11 @@ class OptimizationFacade:
                       'position': i, 'rowCount': len(rows), 'submissionDigest': submission_digest, 'range': scope,
                       'skipped': skipped, 'recordId': snapshot['target']['recordId'], 'fieldId': scope['fieldId'],
                       'inputDigest': snapshot['snapshotDigest'], 'model': snapshot['model']}
-            items.append({'requestId': request_id, 'input': {'entry': 'table', 'model': QWEN_MODEL, 'optimization': snapshot}, 'source': source})
+            if snapshot['model'] in ('deepseek-flash', 'gpt-6-luna'):
+                source['budgetCredits'] = payload['budgetCredits']
+                if snapshot['model'] == 'gpt-6-luna':
+                    source['price'] = self._price(snapshot['model'])
+            items.append({'requestId': request_id, 'input': {'entry': 'table', 'model': snapshot['model'], 'optimization': snapshot}, 'source': source})
         return items
 
     def _fence_references(self, payload):
@@ -222,7 +246,7 @@ class OptimizationFacade:
         if set(payload) - {'contractVersion', 'provider', 'batchId', 'quoteId', 'range', 'references'}:
             raise InvalidInput('Unexpected optimization fence reference field.')
         clean_json(payload)
-        if payload.get('provider', 'qwen') != 'qwen': raise InvalidInput('Only local Qwen optimization fencing is assembled.')
+        if payload.get('provider', 'qwen') not in PROVIDERS.values(): raise InvalidInput('Unsupported optimization provider.')
         batch_id, quote_id = identity(payload['batchId'], 'batch ID'), identity(payload['quoteId'], 'quote ID')
         refs, scope = payload['references'], payload['range']
         if not isinstance(refs, list) or not 1 <= len(refs) <= 500 or not isinstance(scope, dict):
@@ -238,7 +262,7 @@ class OptimizationFacade:
             if request_id in seen: raise InvalidInput('Duplicate optimization fence reference.')
             seen.add(request_id)
             owner = ref['source']; self.service._correlation_scope(owner, required=True)
-            if owner['model'] != QWEN_MODEL or owner['fieldId'] != scope['fieldId'] or scope['scope'] == 'cell' and owner['recordId'] != scope['recordId']:
+            if owner['model'] not in PROVIDERS or PROVIDERS[owner['model']] != payload.get('provider', 'qwen') or owner['fieldId'] != scope['fieldId'] or scope['scope'] == 'cell' and owner['recordId'] != scope['recordId']:
                 raise Conflict('Optimization fence reference and range differ.')
             for key in ('revision', 'requestSeq'):
                 if not isinstance(ref[key], int) or isinstance(ref[key], bool) or not 0 <= ref[key] <= 2**53 - 1:
@@ -256,7 +280,7 @@ class OptimizationFacade:
             except MissingRecord: existing = None
             if existing:
                 expected = {**owner, 'operation': OPERATION, 'batchId': batch_id, 'position': i, 'rowCount': len(refs), 'range': scope}
-                if existing['provider'] != 'local-qwen-text' or any(existing['source'].get(key) != value for key, value in expected.items()) or any(self._snapshot(existing).get(key) != value for key, value in meta.items()):
+                if existing['provider'] != PROVIDER_IDS[owner['model']] or any(existing['source'].get(key) != value for key, value in expected.items()) or any(self._snapshot(existing).get(key) != value for key, value in meta.items()):
                     raise Conflict('Original optimization owner, input digest or revision differs.')
                 source = existing['source']
             result.append((request_id, source, meta))
@@ -272,7 +296,7 @@ class OptimizationFacade:
         # preflight under the facade lock. Each row competes atomically in SQLite.
         if 'references' in payload:
             references = self._fence_references(payload)
-            results = [self.service._reserve_barrier(request_id, 'local-qwen-text', source,
+            results = [self.service._reserve_barrier(request_id, PROVIDER_IDS[metadata['model']], source,
                        preparation='fenced', optimization_meta=metadata) for request_id, source, metadata in references]
             return results
         items = self._submission_items(payload, skipped)
@@ -287,14 +311,14 @@ class OptimizationFacade:
                 existing = None
             if existing:
                 expected = item['source']
-                if existing['provider'] != 'local-qwen-text' or any(existing['source'].get(key) != value for key, value in expected.items() if key != 'skipped'):
+                if existing['provider'] != PROVIDER_IDS[item['input']['model']] or any(existing['source'].get(key) != value for key, value in expected.items() if key not in ('skipped', 'price')):
                     raise Conflict('Original optimization request has different owner or frozen submission.')
                 item['source'] = existing['source']
             from ..contracts.validation import digest as request_digest
-            fingerprint = request_digest({'provider': 'local-qwen-text', 'input': item['input'], 'source': item['source']})
+            fingerprint = request_digest({'provider': PROVIDER_IDS[item['input']['model']], 'input': item['input'], 'source': item['source']})
             snapshot = item['input']['optimization']
             metadata = {key: snapshot[key] for key in ('target', 'model', 'snapshotDigest', 'revision', 'requestSeq')}
-            results.append(self.service._reserve_barrier(item['requestId'], 'local-qwen-text', item['source'], preparation='fenced', request_fingerprint=fingerprint, optimization_meta=metadata))
+            results.append(self.service._reserve_barrier(item['requestId'], PROVIDER_IDS[item['input']['model']], item['source'], preparation='fenced', request_fingerprint=fingerprint, optimization_meta=metadata))
         return results
 
     async def submit(self, payload):
@@ -325,7 +349,7 @@ class OptimizationFacade:
             if not unknown <= {r['requestId'] for r in quote['unknownRequests']} or not unknown <= set(payload.get('acknowledgeUnknownRequestIds', [])):
                 raise Conflict('历史未知请求已变化或尚未确认；不会自动重新提交。')
             jobs = await self.service.prepare_batch((await asyncio.to_thread(self._submission_items, payload, quote['skipped'])))
-            self.controls[batch_id] = {'paused': False, 'stopped': False, 'quoteId': quote['quoteId']}
+            self.controls[batch_id] = {'paused': False, 'stopped': False, 'quoteId': quote['quoteId'], 'budgetCredits': payload['budgetCredits']}
             return (await self._report(jobs))
 
     async def query(self, payload):
@@ -375,21 +399,26 @@ class OptimizationFacade:
             jobs = (await asyncio.to_thread(self._batch, payload['batchId']))
             self._lease(self._target(jobs[0]), payload['leaseId'])
             control = self._control(payload['batchId'])
+            selected = next((j for j in jobs if j['request_id'] == payload['requestId']), None)
+            if selected and selected['provider'] == 'comfy-gpt-text':
+                self.service.provider('comfy-gpt-text').require_auth()
+            if selected and selected['provider'] == 'deepseek-text':
+                self.service.provider('deepseek-text').require_key()
             permit = self.permits.pop(payload['permitId'], None)
             if not permit or permit['expiresAt'] <= now() or any(permit[k] != payload[k] for k in ('batchId', 'requestId', 'leaseId')):
                 raise Conflict('提交许可已过期或已消费')
             if control['paused'] or control['stopped'] or any(j['state'] in ACTIVE or j['request_id'] in self.service._workers for j in jobs):
                 raise Conflict('任务已停止、暂停或有请求在途')
             job = next((j for j in jobs if j['request_id'] == payload['requestId']), None)
-            if not job or self.service._barrier(job) or job['state'] != 'pending' or payload.get('provider', 'qwen') != 'qwen':
+            if not job or self.service._barrier(job) or job['state'] != 'pending' or payload.get('provider', 'qwen') != PROVIDERS[job['source']['model']]:
                 raise Conflict('此任务当前不能提交')
-            self._quote(control['quoteId'], [j['snapshot']['input']['optimization'] for j in jobs], 0)
+            self._quote(control['quoteId'], [j['snapshot']['input']['optimization'] for j in jobs], control.get('budgetCredits', job['source'].get('budgetCredits', 0)))
             def authorized():
                 if control['paused'] or control['stopped']:
                     return False
                 try:
                     self._lease(self._target(job), payload['leaseId'])
-                    self._quote(control['quoteId'], [j['snapshot']['input']['optimization'] for j in jobs], 0)
+                    self._quote(control['quoteId'], [j['snapshot']['input']['optimization'] for j in jobs], control.get('budgetCredits', job['source'].get('budgetCredits', 0)))
                     return True
                 except (Conflict, ValueError):
                     control['paused'] = True
@@ -422,7 +451,7 @@ class OptimizationFacade:
             selected = {digest(j['snapshot']['input']['optimization']['target']) for j in jobs if j['state'] == 'pending'}
             if self._overlap((await asyncio.to_thread(self._jobs, **self._target(jobs[0]))), payload['batchId'], selected):
                 raise Conflict('范围已有其他活动批次；未继续旧任务。')
-            self._control(payload['batchId']).update(paused=False, stopped=False, quoteId=payload['quoteId'])
+            self._control(payload['batchId']).update(paused=False, stopped=False, quoteId=payload['quoteId'], budgetCredits=payload['budgetCredits'])
             return (await self._report(jobs))
 
     async def skip(self, payload):

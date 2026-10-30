@@ -67,7 +67,7 @@ export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,
    notify(session.canReplace(ref.requestId)?'原请求已封存且不会执行；再次选择重新生成将创建新请求':'原任务已有提交事实，不能作为未提交请求封存；请查询原任务');
   }catch(error){if(alive&&captured===epoch)notify(error.message);}finally{submitting=false;if(alive)decorate();}
  }
- async function generate(fieldId,recordId=null,recover=false){
+ async function generate(fieldId,recordId=null,recover=false,unsubmittedOnly=false){
   if(!alive||submitting||!canGenerate())return;const captured=epoch;submitting=true;decorate();
   const guards=[];let prepared=[];
   try{
@@ -75,9 +75,10 @@ export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,
    if(recover){const refs=getTable().records.filter(row=>!recordId||row.id===recordId).map(row=>reference(row,fieldId)).filter(Boolean);if(!refs.length)throw new Error('旧回执只读；没有新任务账本引用');const existing=[];
     for(const ref of refs){session.watch(ref);try{ingest(await request('status',{requestIds:[ref.requestId]}));existing.push(ref.requestId);}catch(error){if(error.status===404&&error.code==='record_not_found'){missingRequests.add(ref.requestId);localErrors.set(ref.requestId,'暂未查到原请求；可能仍在预检。请继续查询，或明确封存原请求');notify('暂未查到原请求，尚不能重新生成；可明确封存原请求后再创建新请求');}else throw error;}}
     if(existing.length)ingest(await request('recover',{requestIds:existing}));return;}
+   if(unsubmittedOnly)await poll(true);
    await prepareGeneration(fieldId,recordId);
    if(!alive||captured!==epoch||!canGenerate())return;
-   const table=getTable(),rows=recordId?table.records.filter(row=>row.id===recordId):generationRows(table,fieldId),jobs=[];
+   const table=getTable(),candidates=unsubmittedOnly?table.records:recordId?table.records.filter(row=>row.id===recordId):generationRows(table,fieldId),rows=unsubmittedOnly?candidates.filter(row=>!reference(row,fieldId)&&!stateFor(row,fieldId)&&!row.values[fieldId]?.length):candidates,jobs=[];
    for(const row of rows){
     const old=stateFor(row,fieldId);if(old&&!old.legacy&&['waiting','running','pausing','needs_recovery'].includes(old.phase))throw new Error('请先核对原任务，未知状态不能直接创建新任务');
     const input=generationInput(table,fieldId,row.id),requestId=crypto.randomUUID(),guard=editor.beginAsync({recordId:row.id,fieldId},requestId);guards.push(guard);
@@ -85,7 +86,7 @@ export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,
    }
    if(!jobs.length)throw new Error('没有可生成的行，请补充提示词或检查任务状态');
    for(const config of new Map(jobs.map(job=>[job.input.config.model,job.input.config])).values())await modelCapabilities(config);
-   await poll(true);if(rows.some(row=>['waiting','running','pausing','needs_recovery'].includes(stateFor(row,fieldId)?.phase)))throw new Error('账本中仍有原任务，请先恢复查询');
+   await poll(true);if(unsubmittedOnly&&rows.some(row=>reference(row,fieldId)||stateFor(row,fieldId)||row.values[fieldId]?.length))throw new Error('任务状态已变化，请重新检查尚未生成的任务');if(rows.some(row=>['waiting','running','pausing','needs_recovery'].includes(stateFor(row,fieldId)?.phase)))throw new Error('账本中仍有原任务，请先恢复查询');
    if(!alive||captured!==epoch||!canGenerate()||guards.some(ticket=>!editor.canAsync(ticket)))throw new Error('预检期间输入或工作流已变化，未提交');
    const stable=identity(),group='generation:'+crypto.randomUUID(),createdAt=Date.now();for(const job of jobs)editGroups.set(job.requestId,group);
    editor.change(table=>{for(const job of jobs){const row=table.records.find(row=>row.id===job.input.recordId);row.meta||={};row.meta.studioGenerationRefs||={};row.meta.studioGenerationRefs[fieldId]||=[];

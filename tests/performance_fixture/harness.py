@@ -334,7 +334,10 @@ class SchedulerFixture:
                       'source': {'batchId': run_id, 'documentId': 'performance-fixture', 'operation': 'performance_fixture'}}
                      for key, row in self.items.items()]
             self.record('run_started', plannedCount=len(items))
-            await self.service.submit(items)
+            # Independent submissions exercise shared resource contention;
+            # one ordered batch intentionally waits for each preceding job.
+            for item in items:
+                await self.service.submit([item])
             return {'runId': run_id, 'requestIds': list(self.items), 'uncertainRequestIds': sorted(self.uncertain)}
 
     def require_owned(self, request_id):

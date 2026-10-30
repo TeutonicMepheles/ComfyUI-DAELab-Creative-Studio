@@ -1,3 +1,4 @@
+import {OPTIMIZATION_MODELS} from './prompt_optimization_model.mjs';
 import {generationInputDigest} from '../generation/generation_session.js';
 import {ensureIdentity} from './prompt_optimization_model.mjs';
 import {assertBusinessService,businessJson} from '../../contracts/business.js';
@@ -45,8 +46,11 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
     const sourceSection=source.closest('.llm-style-source');source.placeholder='输入原始文字，或连接文本节点';
     const imageSection=make('section','llm-style-section llm-style-image-source'),imageBox=make('div','llm-style-image-upload'),image=make('img','llm-style-image-preview'),imageText=make('span','llm-style-image-text','通过 Slot 连接参考图片');
     imageSection.append(make('span','llm-style-label','参考图片'),imageBox);imageBox.append(image,imageText);sourceSection.after(imageSection);materialHint.parentElement.hidden=true;
-    select.replaceChildren(new Option('Qwen3.5-9B · 本地','qwen'),new Option('DeepSeek · API','deepseek'));
-    saved().model??='qwen';if(!['qwen','deepseek'].includes(saved().model)){const legacy=new Option('旧模型配置（未接入）',saved().model);legacy.disabled=true;select.add(legacy);}select.value=saved().model;
+    const models=OPTIMIZATION_MODELS.map(model=>({...model,id:model.logo==='qwen'?'qwen':model.logo==='deepseek'?'deepseek':model.id}));
+    const supported=model=>models.some(option=>option.id===model);
+    const modelLabel=model=>models.find(option=>option.id===model)?.label||model;
+    select.replaceChildren(...models.map(model=>new Option(model.label+(model.logo==='openai'?' · Comfy 积分':''),model.id)));
+    saved().model??='qwen';if(!supported(saved().model)){const legacy=new Option('旧模型配置（未接入）',saved().model);legacy.disabled=true;select.add(legacy);}select.value=saved().model;
     const generationTask=createLLMTask();
     const taskRail=make('div','llm-io-task-rail');taskRail.setAttribute('role','tablist');taskRail.setAttribute('aria-label','优化任务');root.append(taskRail);
     let selectedId='',railStamp='';
@@ -108,7 +112,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
         setProperty(paragraph,'textContent',(d?.rows.find(row=>row.id===selectedId)||(rows.length===1?d?.rows[0]:null))?.result||'');
         setProperty(apply,'disabled',disabled||!d?.complete||stale||isApplied||!!nativeDocument&&(proposalTicket?!nativeDocument.canApply(proposalTicket):restoredProposal!==d?.requestId));setProperty(apply,'hidden',isApplied);
         setProperty(recover,'disabled',disabled||!nativeDocument);setProperty(undo,'disabled',disabled||!saved().ioUndo);setProperty(undo,'hidden',!saved().ioUndo);setProperty(regenerate,'disabled',run.disabled||!d);
-        setProperty(status,'textContent',error||(d&&stale?'输入已改变，请重新生成':message|| (d?`${d.provider==='qwen'?'本地 Qwen 结果':d.provider==='deepseek'?'DeepSeek 结果':'示例结果 · 未调用模型'}${isApplied?' · 已应用':' · 待应用'}`:rows.length&&!valid?'当前输入不支持此模式':rows.length?`${rows.length} 项输入 · 等待生成`:'请输入原始文字或连接输入')));
+        setProperty(status,'textContent',error||(d&&stale?'输入已改变，请重新生成':message|| (d?`${d.provider==='qwen'?'本地 Qwen 结果':d.provider==='deepseek'?'DeepSeek 结果':d.provider==='gpt-6-luna'?'GPT-6 Luna 结果（Comfy 积分）':'示例结果 · 未调用模型'}${isApplied?' · 已应用':' · 待应用'}`:rows.length&&!valid?'当前输入不支持此模式':rows.length?`${rows.length} 项输入 · 等待生成`:'请输入原始文字或连接输入')));
         task=[...generationTask.snapshot(),...(!busy&&error?[{id:'llm-input',label:waiting?'等待输入':'输入异常',state:waiting?'queued':'error',detail:error}]:[])];
         try{node.setOutputData?.(0,outputText(node));}catch{node.setOutputData?.(0,null);}
     }
@@ -120,13 +124,13 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
         const current=()=>!disposed&&node.graph===graph&&(!nativeDocument||nativeDocument.canApply(proposalTicket))&&!node.mode&&signature()===stamp;
         const rowTickets=[];
         try{
-            const rows=slotRows(node),provider=state.model;if(!['qwen','deepseek'].includes(provider))throw new Error('该历史模型配置不可执行，请明确选择已接入的提供方');
+            const rows=slotRows(node),provider=state.model;if(!supported(provider))throw new Error('该历史模型配置不可执行，请明确选择已接入的提供方');
             assertBusinessService('optimization');generationTask.start(rows.length,state.mode,provider);render();
             const proposal={version:1,requestId:crypto.randomUUID(),rows:[],mode:state.mode,instruction:state.instruction||'',signature:stamp,provider,complete:false};if(proposalTicket)nativeDocument?.releaseRequest(proposalTicket);proposalTicket=nativeDocument?.beginRequest(proposal.requestId)||null;project(proposal);
             if(!nativeDocument)throw new Error('原生编辑会话尚未就绪，未提交');const identity=ensureIdentity(graph,node),inputDigest=await generationInputDigest(stamp);if(!current())throw new Error('输入或工作流已变化，未提交');const existing=[];let offset=0;do{const page=await businessJson('generation','status',{source:{...identity,nodeId:proposalTicket.documentId},limit:500,offset});existing.push(...page.jobs);offset=page.nextOffset;}while(Number.isSafeInteger(offset)&&offset>0);if(!current())throw new Error('输入或工作流已变化，未提交');if(existing.some(report=>report.source?.operation==='standalone-optimization'&&report.source.inputDigest===inputDigest&&!['succeeded','failed','cancelled'].includes(report.state)))throw new Error('原请求尚未确定，请先恢复原结果；未创建新请求');const createdAt=Date.now(),requests=rows.map((row,index)=>{const requestId=crypto.randomUUID(),ticket=nativeDocument.beginRequest(requestId,{recordId:String(row.id),fieldId:'instruction'});rowTickets.push(ticket);return {requestId,recordId:String(row.id),sourceScope:{...identity,nodeId:ticket.documentId,workflowSession:ticket.workflowSession,epoch:ticket.epoch,recordId:String(row.id),fieldId:'instruction',inputVersion:ticket.inputVersion,operation:'standalone-optimization',groupId:proposal.requestId,rowIndex:index,rowCount:rows.length,inputDigest,createdAt}};});nativeDocument.edit('记录优化请求',draft=>{draft.studioTextRequests={groupId:proposal.requestId,inputDigest,requests};});
-            if(['qwen','deepseek'].includes(provider))for(const row of rows){
+            if(supported(provider))for(const row of rows){
                 if(!current())throw new Error('输入或节点状态已改变，已停止后续提交');
-                message=`${provider==='qwen'?'本地 Qwen':'DeepSeek'} 处理中 ${proposal.rows.length+1}/${rows.length} · 并发 1`;render();
+                message=`${modelLabel(provider)} 处理中 ${proposal.rows.length+1}/${rows.length} · 并发 1`;render();
                 const reference=requests[proposal.rows.length],ticket=rowTickets[proposal.rows.length];
                 const output=await optimizeRow(row,state.mode,row.instruction??state.instruction??'',{model:provider,requestId:reference.requestId,sourceScope:reference.sourceScope});if(!nativeDocument.canApply(ticket))throw new Error('输入或工作流已变化，结果保留在账本中');
                 if(!current())throw new Error('输入或节点状态已改变，结果未应用');

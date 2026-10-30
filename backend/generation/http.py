@@ -5,6 +5,7 @@ from ..contracts.errors import ContractError, Conflict, InvalidInput, InvalidTra
 from ..contracts.validation import identity
 from ..providers.contracts import ProviderUnavailable
 from ..providers.parameters import QWEN_MODEL
+from ..providers.deepseek import request_key
 from .media import image_data_reference
 from .optimization import OptimizationFacade
 
@@ -108,9 +109,14 @@ def routes(service):
     async def polish(request):
         async def run():
             payload = await read_payload(request)
-            if payload.get('model') != 'qwen':
-                raise ProviderUnavailable('Only explicitly assembled local Qwen can execute; cloud adapters are protocol fixtures only.')
-            service.provider('local-qwen-text')
+            model = payload.get('model')
+            if model not in ('qwen', 'deepseek', 'gpt-6-luna'):
+                raise ProviderUnavailable('Unsupported optimization model.')
+            provider = service.provider({'deepseek': 'deepseek-text', 'qwen': 'local-qwen-text', 'gpt-6-luna': 'comfy-gpt-text'}[model])
+            if model == 'gpt-6-luna':
+                provider.require_auth()
+            if model == 'deepseek':
+                provider.require_key()
             assets = []
             if payload.get('mode') == 'reverse':
                 assets.append(await asyncio.to_thread(image_data_reference, service.assets, payload.get('imageDataUrl')))
@@ -129,8 +135,12 @@ def routes(service):
             report = await asyncio.to_thread(service.public, job['request_id'])
             if report['phase'] != 'complete':
                 return web.json_response({'contractVersion': 1, **report, 'error': report['error'] or 'Original response is unavailable; do not automatically resubmit.'}, status=409)
-            return {'contractVersion': 1, **report, 'model': QWEN_MODEL, 'provider': 'qwen', 'usage': report['receipt'].get('metadata', {}).get('usage', {})}
-        return await guarded(run)
+            return {'contractVersion': 1, **report, 'model': QWEN_MODEL if model == 'qwen' else 'deepseek-flash' if model == 'deepseek' else model, 'provider': 'comfy' if model == 'gpt-6-luna' else model, 'usage': report['receipt'].get('metadata', {}).get('usage', {})}
+        token = request_key.set(request.headers.get('X-DAELab-DeepSeek-Key', ''))
+        try:
+            return await guarded(run)
+        finally:
+            request_key.reset(token)
 
     def optimization_handler(action):
         async def handle(request):
@@ -139,7 +149,11 @@ def routes(service):
                 if not isinstance(payload, dict) or payload.get('contractVersion') != 1:
                     raise InvalidInput('契约版本不支持')
                 return await getattr(optimization, 'continue_batch' if action == 'continue' else action)(payload)
-            return await guarded(run)
+            token = request_key.set(request.headers.get('X-DAELab-DeepSeek-Key', ''))
+            try:
+                return await guarded(run)
+            finally:
+                request_key.reset(token)
         return handle
 
     return [('GET', '/daelab/studio/generation/capabilities', capabilities),

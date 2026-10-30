@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {comfySubmissionOptions} from '../../frontend/src/integrations/comfyui/business/comfy_submission_auth.js';
+import {comfySubmissionOptions,comfyAccountAuth} from '../../frontend/src/integrations/comfyui/business/comfy_submission_auth.js';
 
 const options=()=>({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jobs:[{input:{config:{provider:'comfy'}}}]})});
 function fixture(){
@@ -8,6 +8,21 @@ function fixture(){
  const keys={getApiKey:()=>null},workspace={activeWorkspaceId:'personal',workspaceTransitionGeneration:0};
  return {auth,keys,workspace,host:{_p:{_s:new Map([['auth',auth],['apiKeyAuth',keys],['teamWorkspace',workspace]])}}};
 }
+
+test('shared LLM auth binds current workspace and rechecks account before send',async()=>{
+ const {host,auth}=fixture();
+ const result=await comfyAccountAuth(host,true);
+ assert.equal(result.headers.Authorization,'Bearer fresh-workspace-token');
+ result.assertCurrent();auth.currentUser={uid:'other'};
+ assert.throws(result.assertCurrent,/账户或工作区/);
+});
+
+test('shared LLM auth accepts API key login and rejects signed-out required calls',async()=>{
+ const {host,auth,keys}=fixture();auth.getWorkspaceAuthToken=async()=>undefined;keys.getApiKey=()=> 'synthetic-key';
+ assert.equal((await comfyAccountAuth(host,true)).headers['X-API-Key'],'synthetic-key');
+ keys.getApiKey=()=>null;
+ await assert.rejects(comfyAccountAuth(host,true),/请先登录/);
+});
 
 test('logged-in host fetches fresh workspace token for every cloud submission without temporary api fields',async()=>{
  const {host,auth}=fixture(),request=options(),controller=new AbortController();request.signal=controller.signal;

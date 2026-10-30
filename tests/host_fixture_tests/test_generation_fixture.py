@@ -123,7 +123,10 @@ class FixtureTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.fixture.counts['create'],1)
 
     async def test_two_delayed_documents_release_in_reverse_order_without_cross_write(self):
-        self.arm('overlapping');await self.fixture.service.submit([image_job('A','doc-A'),image_job('B','doc-B')])
+        self.arm('overlapping')
+        # Independent submissions may overlap; rows within one batch run in order.
+        await self.fixture.service.submit([image_job('A','doc-A')])
+        await self.fixture.service.submit([image_job('B','doc-B')])
         await self.until(lambda:self.fixture.counts['create']==2)
         self.fixture.release('B');await self.until(lambda:self.core.jobs.get('B')['state']=='succeeded')
         self.assertNotEqual(self.core.jobs.get('A')['state'],'succeeded')
@@ -164,7 +167,9 @@ class FixtureTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.core.jobs.get('request-1')['state'],'succeeded');self.assertEqual(self.fixture.counts['create'],0)
 
     async def test_cancellation_and_foreign_restart_guard_are_scoped(self):
-        self.arm('overlapping');await self.fixture.service.submit([image_job('A'),image_job('B')])
+        self.arm('overlapping')
+        await self.fixture.service.submit([image_job('A')])
+        await self.fixture.service.submit([image_job('B')])
         await self.until(lambda:self.fixture.counts['create']==2)
         await self.fixture.service.cancel('A');self.fixture.release('B');await self.fixture.service.wait_idle()
         self.assertEqual(self.core.jobs.get('A')['state'],'cancelled');self.assertEqual(self.core.jobs.get('B')['state'],'succeeded')

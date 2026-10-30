@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class Request:
-    def __init__(self, body=None, query=None): self.body=body;self.query=query or {}
+    def __init__(self, body=None, query=None, headers=None): self.body=body;self.query=query or {};self.headers=headers or {}
     async def json(self): return self.body
 
 
@@ -159,6 +159,9 @@ assert not any(n in sys.modules for n in ('torch','folder_paths','server','execu
                 for node in ast.walk(tree):
                     if isinstance(node,(ast.Import,ast.ImportFrom)):
                         names=[n.name for n in node.names]+[getattr(node,'module','') or '']
+                        # The owned stateless adapter is permitted; retired DeepSeek
+                        # execution services and provider SDKs remain forbidden.
+                        names=[name for name in names if name != 'providers.deepseek']
                         self.assertFalse(any(bad in name for name in names for bad in ('libtv_bridge','sqlite3','subprocess','deepseek','comfy_api_nodes')),str(file))
                 self.assertNotIn('atomic_json',file.read_text('utf8'))
 

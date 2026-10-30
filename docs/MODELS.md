@@ -24,18 +24,34 @@ Qwen 使用本机 Ollama 回环接口 `127.0.0.1:11434`。注册清单、已安�
 
 本地文生图使用 Qwen-Image-2.1 Turbo；文生视频、首帧与首尾帧使用 MiniMax H3 FL；1–9 张图片参考使用独立的 MiniMax H3 Ref。Ref 的图片顺序保留为 `<Picture N>` 编号，当前不接入视频或音频参考。生成节点与多维表格共用这些提供方和任务服务。权重格式与名称来自显式绑定，不自动切换量化版本；图片 GGUF 编码器需要已安装的 `CLIPLoaderGGUF` 节点及匹配的 mmproj 文件。首次能力查询会校验模型文件哈希，界面最多等待 120 秒。
 
+## LLM 优化
+
+GPT-6 Luna 在独立 LLM 节点和表格优化中均通过官方 `OpenAIChatNode` 对应的 Comfy Partner Responses 通道执行，使用当前 ComfyUI 工作区积分，不读取 OpenAI API Key。宿主须启用 API 节点并支持该模型；表格积分估算从官方 Partner Node Pricing 文档读取，实际用量来自原生响应头。独立节点支持文字优化与单图反推，两处均保留原请求身份、不自动重试计费 POST。新增接线采用模拟接口验证，不代表已执行付费验收。
+
+独立 LLM 节点和多维表格优化共用任务账本，支持上述本地 Qwen 和显式选择的 `deepseek-flash`。DeepSeek 使用宿主进程的 `DEEPSEEK_API_KEY`，也可在宿主 user 目录的 `daelab/creative-studio/deepseek.env` 中设置同名变量。表格优化还支持仅当前页面保存的密钥，请勿将密钥写入工作流或提交源码。
+
+DeepSeek 表格优化先估算并确认美元预算，再逐行提交；服务器有配置不代表密钥有效或账户余额充足。请求固定发往官方 API，无自动重试、代理继承或模型回退；响应丢失会保留未知状态，恢复查询不会重新计费提交。独立节点可优化文字或使用用户选择的参考图反推。自动化测试采用模拟接口，真实云端调用需要另外授权。
+
+Qwen 需要在启动 LLM 优化前运行已安装的本地 Ollama 服务；Studio 不自动下载模型或启动外部进程。只有通过清单及六个 blob 校验后才允许本地推理。
+
 ## Seedance（ComfyUI 账户）
 
 生成节点通过已安装的官方 `ByteDance2TextToVideoNode`、`ByteDance2FirstLastFrameNode`、`ByteDance2ReferenceNodeV2` 接入 Seedance 2.5、2.0、2.0 Fast、2.0 Mini。启用 ComfyUI API 节点并登录 ComfyUI 账户（或配置其 API Key）后，重启服务、刷新页面即可读取模式；选项取自当前安装的官方节点，不依赖本地模型配置。实际生成使用 ComfyUI 账户积分。
+
+宿主启动参数不能包含 `--offline` 或 `--disable-api-nodes`：这些参数会禁用官方积分节点，账户已登录且有余额也无法生成。隔离准备工具默认使用离线模式；仅在用户明确要求积分生成时，保存工作流、确认队列空闲后移除离线参数并重启隔离宿主。
 
 支持文生视频、首帧、首尾帧和全能参考。图片／视频经冻结文件传入官方节点；全能参考按素材类型分别编号，结构化文字引用转换为 `Image N`／`Video N`。认证仅传入原生队列的敏感字段，不写入工作流或任务账本。
 
 Seedance 参考图在提交前适配官方尺寸限制：宽高比 0.4–2.5、每边 300–6000 像素。超限图片等比缩放并居中补黑边，不裁剪；合规图片保持原文件字节。处理结果单独保存，原图及冻结输入不修改。此处理不改变视频素材。
 
-排队中可取消；已发往云端的任务不能通过本地中断确认取消或退款，继续保留原任务记录。断线或宿主中断后结果不明时不自动重发。本次接线验证覆盖官方节点结构、请求和任务生命周期；未执行付费云端推理。
+排队中可取消；已发往云端的任务不能通过本地中断确认取消或退款，继续保留原任务记录。断线或宿主中断后结果不明时不自动重发。初始接线验证仅覆盖官方节点结构、请求和任务生命周期；后续授权真实推理范围见 [Comfy 积分验证](validation/COMFY_CREDITS_20261030.md)。
 
 ## MiniMax H3（ComfyUI 账户）
 
 界面的 `Minimax H3` 接入官方 `MinimaxHailuo03TextToVideoNode`、`MinimaxHailuo03FirstLastFrameNode` 和 `MinimaxHailuo03ReferenceNode`，保留已有工作流模型名称，并在接口边界映射为官方 `MiniMax H3`。支持文生视频、首帧、首尾帧及图片／视频全能参考；模式和参数读取已安装节点的实际定义。与 Seedance 共用登录、文件冻结和任务恢复通道，取消及付费验证限制同上。
 
 云端 H3 与 `MiniMax H3 FL（本地）` 分别路由；本地版仍只支持文生视频和图片首尾帧，不会自动回退到云端。
+
+## GPT Image（ComfyUI 账户）
+
+GPT Image 2、2.5 Flare、2.5 Sunburst 使用官方 `OpenAIGPTImageNodeV2`。支持文生图和最多 16 张图片参考，每个任务生成一张图片；尺寸、质量和背景选项读取已安装节点。参考顺序及结构化 `Image N` 引用保持一致，结果通过 `SaveImage` 写入宿主输出目录并由共享任务服务校验。认证与中断处理复用上述 ComfyUI 账户通道，不需要单独配置 OpenAI 密钥。
