@@ -56,7 +56,7 @@ function fixture({groups=false}={}){
   return e;
  }
  const call=(name,owner)=>events.push({kind:'call',name,owner});
- const globals={document,selected,state,graph,cards,isPanelActive,UPLOAD_TYPE:'DAELAB.MediaUpload',raise:node=>call('raise',node.id),
+ const globals={GROUP_TYPE,magneticPort:null,setMagnet:()=>{},document,selected,state,graph,cards,isPanelActive,UPLOAD_TYPE:'DAELAB.MediaUpload',raise:node=>call('raise',node.id),
    host:{nodes:g=>{if(groups)call('host.nodes',null);return g.nodes;}},suppressGroupSlots:(nodes,node,selection)=>{if(groups){call('suppressGroupSlots',node.id);return suppressGroupSlots(nodes,node,selection);}return Boolean(node.suppressed);},
   adapterFor:node=>node.adapter,cardWidth:()=>320,
   value:(node,name)=>node.widgets?.find(w=>w.name===name)?.value,
@@ -70,7 +70,7 @@ function fixture({groups=false}={}){
  function card(id){
   const node={id,type:'Fixture.Adapter',title:'节点 '+id,mode:0,inputs:[],widgets:[],properties:{unknown:{kept:true}}};graph.nodes.push(node);
   const c={node,layout:{x:id*100,y:30,width:640,expanded:true},
-   element:element(id,'card'),title:element(id,'title'),body:element(id,'body'),media:element(id,'media'),summary:element(id,'summary'),
+   ports:element(id,'ports'),element:element(id,'card'),title:element(id,'title'),body:element(id,'body'),media:element(id,'media'),summary:element(id,'summary'),
    panel:element(id,'panel'),widthHandle:element(id,'widthHandle'),minimumWidth:()=>640,fieldBindings:[],mediaURL:undefined};
   c.surface=element(id,'surface');c.panel.children.push(c.surface);
   node.adapter={presentation:'content',fullHeight:true,compactWidth:400,selectionSurface:()=>c.surface,
@@ -160,10 +160,10 @@ test('selecting one of 300 cards only paints changed selection while preserving 
  assert.deepEqual([...f.selected],[1]);assert.equal(f.api.selectedLink,null);
  assert.deepEqual(f.writes().map(event=>[event.owner,event.key]),[[1,'dataset.selected'],[1,'class.toggle']]);
  assert.equal(cards[0].element.dataset.selected,'true');assert(cards[0].surface.classList.contains('dae-creative-selection-active'));
- assert.equal(f.calls().filter(name=>name==='host.nodes').length,300);assert.equal(f.calls().filter(name=>name==='suppressGroupSlots').length,300);
+ assert.equal(f.calls().filter(name=>name==='host.nodes').length,301);assert.equal(f.calls().filter(name=>name==='suppressGroupSlots').length,300);
  assert.deepEqual(f.events.filter(event=>event.kind==='call'&&['raise','queueLayout'].includes(event.name)).map(event=>[event.name,event.owner]),[['raise',1],['queueLayout',null]]);
  f.reset();f.api.select(cards[0].node,{preserve:true});
- assert.equal(f.writes().length,0);assert.equal(f.calls().filter(name=>name==='host.nodes').length,300);
+ assert.equal(f.writes().length,0);assert.equal(f.calls().filter(name=>name==='host.nodes').length,301);
  assert.equal(f.calls().filter(name=>name==='raise').length,1);assert.equal(f.calls().filter(name=>name==='queueLayout').length,1);
  f.api.select(cards[1].node,{toggle:true});assert.deepEqual([...f.selected],[1,2]);
  f.api.select(cards[0].node,{toggle:true});assert.deepEqual([...f.selected],[2]);assert.equal(cards[0].element.dataset.selected,'false');
@@ -177,10 +177,10 @@ test('selection paint reads current group membership and collapse state without 
  group.node.properties.collapsed=true;const native=JSON.stringify(f.graph.nodes.map(node=>({id:node.id,type:node.type,properties:node.properties})));
  f.reset();f.api.paintSelection();
  assert.deepEqual([a,b,group].map(card=>card.element.dataset.slotsSuppressed),['true','true','false']);
- assert.deepEqual(f.writes().map(event=>[event.owner,event.key]),[[1,'dataset.slotsSuppressed'],[3,'dataset.slotsSuppressed']]);
+ assert.deepEqual(f.writes().map(event=>[event.owner,event.key]),[[1,'dataset.slotsSuppressed'],[1,'inert'],[3,'dataset.slotsSuppressed'],[3,'inert']]);
  assert.equal(JSON.stringify(f.graph.nodes.map(node=>({id:node.id,type:node.type,properties:node.properties}))),native);
  group.node.properties.members=[1];f.reset();f.api.paintSelection();
- assert.equal(b.element.dataset.slotsSuppressed,'false');assert.deepEqual(f.writes().map(event=>[event.owner,event.key]),[[2,'dataset.slotsSuppressed']]);
+ assert.equal(b.element.dataset.slotsSuppressed,'false');assert.deepEqual(f.writes().map(event=>[event.owner,event.key]),[[2,'dataset.slotsSuppressed'],[2,'inert']]);
  assert.deepEqual(f.events.filter(event=>event.kind==='call'&&event.name==='suppressGroupSlots').map(event=>event.owner),[1,2,3]);
 });
 
@@ -192,4 +192,10 @@ test('selection paint repairs externally changed DOM and replaced surfaces then 
  assert(a.surface.classList.contains('dae-creative-selection-active'));assert.equal(b.surface.classList.contains('dae-creative-selection-active'),false);
  assert.deepEqual(f.writes().map(event=>[event.owner,event.key]),[[1,'dataset.selected'],[1,'class.toggle'],[2,'class.toggle'],[2,'dataset.slotsSuppressed']]);
  a.surface=null;f.reset();f.api.paintSelection();assert.equal(f.writes().length,0);assert.equal(f.calls().filter(name=>name==='queueLayout').length,1);
+});
+
+test('explicit group/member selection clears conflicting ownership without changing membership',()=>{
+ const f=fixture({groups:true}),a=f.card(1),b=f.card(2),g=f.card(3);g.node.type=GROUP_TYPE;g.node.properties.members=[1,2];
+ f.selected.add(1);f.selected.add(3);f.api.select(g.node,{preserve:true});assert.deepEqual([...f.selected],[3]);assert.equal(a.ports.inert,true);assert.equal(g.ports.inert,false);
+ f.api.select(a.node,{toggle:true});assert.deepEqual([...f.selected],[1]);assert.equal(a.ports.inert,false);assert.equal(g.ports.inert,true);assert.deepEqual(g.node.properties.members,[1,2]);
 });

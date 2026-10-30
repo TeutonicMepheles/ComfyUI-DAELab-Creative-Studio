@@ -1,3 +1,6 @@
+import {generationModelLabel} from '../../frontend/src/features/generation/generation_model_icons.mjs';
+import {GENERATION_MODELS,isLocalGenerationModel,generationInput} from '../../frontend/src/features/generation/table_generation_model.mjs';
+import {createVideoTasks} from '../../frontend/src/features/generation/video_tasks_model.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createComfyPriceEstimator} from '../../frontend/src/integrations/comfyui/business/comfy_pricing.js';
@@ -39,7 +42,7 @@ test('frame inputs and local or unsupported models are handled separately',async
  assert.deepEqual(await estimate(input({mode:'singleImage2video'})),{min:211,max:211});
  assert.deepEqual(await estimate(input({mode:'frames2video'})),{min:422,max:422});
  assert.equal(await estimate(input({model:'MiniMax H3 FL（本地）'})),null);
- assert.equal(await estimate(input({kind:'image',model:'GPT Image 2'})),null);
+ assert.equal(await estimate(input({kind:'image',model:'unknown'})),null);
 });
 
 test('missing or invalid prices never turn into zero; a genuine zero remains valid',async()=>{
@@ -48,4 +51,27 @@ test('missing or invalid prices never turn into zero; a genuine zero remains val
   assert.equal(await createComfyPriceEstimator(()=>node(expr))(input()),null);
  }
  assert.deepEqual(await createComfyPriceEstimator(()=>node('{"type":"usd","usd":0}'))(input()),{min:0,max:0});
+});
+
+test('all Comfy image model names resolve to official pricing IDs with count and references',async()=>{
+ for(const [label,id] of Object.entries({'GPT Image 2':'gpt-image-2','GPT Image 2.5 Flare':'gpt-image-2.5-flare','GPT Image 2.5 Sunburst':'gpt-image-2.5-sunburst'})){
+  const estimate=createComfyPriceEstimator(type=>{
+   assert.equal(type,'OpenAIGPTImageNodeV2');
+   const definition=node('{"type":"range_usd","min_usd":widgets.n * $lookup(inputGroups,"model.images") * 0.1,"max_usd":widgets.n * 0.5}',id);
+   definition.input.required.n=['INT',{default:1}];
+   definition.price_badge.depends_on.widgets=[{name:'model',type:'COMBO'},{name:'n',type:'INT'}];definition.price_badge.depends_on.input_groups=['model.images'];
+   return definition;
+  });
+  assert.deepEqual(await estimate(input({kind:'image',model:label,mode:'image2image',settings:{n:2},media:[{kind:'image'},{kind:'image'},{kind:'video'}]})),{min:84.4,max:211});
+ }
+});
+
+test('every offered generation model declares its source while serialized IDs stay unchanged',()=>{
+ const before=JSON.stringify(GENERATION_MODELS);
+ for(const model of Object.values(GENERATION_MODELS).flat())assert.ok(generationModelLabel(model).endsWith(isLocalGenerationModel(model)?'（本地）':'（Comfy）'));
+ assert.equal(generationModelLabel('Minimax H3'),'MiniMax H3（Comfy）');assert.equal(generationModelLabel(''), '');assert.equal(JSON.stringify(GENERATION_MODELS),before);
+});
+test('pricing can inspect media before a prompt is entered; submission still requires a prompt',()=>{
+ const state=createVideoTasks();assert.throws(()=>generationInput(state.table,state.fieldId,state.currentId),/提示词.*为空/);
+ assert.deepEqual(generationInput(state.table,state.fieldId,state.currentId,{allowEmptyPrompt:true}).assets,[]);
 });

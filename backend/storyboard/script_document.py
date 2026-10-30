@@ -64,7 +64,7 @@ remain visible text but are flagged separately for manual attribution.
 
 def header_role(text):
     value = re.sub(r'\s+', '', text).strip('：:')
-    if re.fullmatch(r'(镜号|序号|编号|镜头号|分镜号|序)', value):
+    if re.fullmatch(r'(镜号[/／]序号|镜号|序号|编号|镜头号|分镜号|序)', value):
         return 'shot_no'
     if value in ('时间', '时长', '时间段', '时码', '秒数'):
         return 'time_range'
@@ -121,7 +121,9 @@ def parse_docx(payload, filename='document.docx'):
         for index, element in enumerate(body):
             if element.tag == q('w:p'):
                 value = text_content(element)
-                paragraph = dict(id=f'p{index + 1}', text=value, order=index)
+                style = element.find('w:pPr/w:pStyle', NS)
+                paragraph = dict(id=f'p{index + 1}', text=value, order=index,
+                                 style=style.get(q('w:val'), '') if style is not None else '')
                 inventory['paragraphs'].append(paragraph)
                 if value.strip():
                     context.append(paragraph)
@@ -259,6 +261,7 @@ def normalize_inventory(inventory, choices):
     cells = {c['id']: c for t in inventory['tables'] for r in t['rows'] for c in r['cells']}
     occurrences = {o['id']: o for o in inventory['occurrences']}
     tasks, audit, unknown = [], [], []
+    chapter, chapter_key, column_chapter, last_heading = '', f"{inventory['document_id']}:unsectioned", None, None
     for table in inventory['tables']:
         spec = selected.get(table['id'])
         if spec is None:
@@ -280,8 +283,13 @@ def normalize_inventory(inventory, choices):
         if header is not None and header not in {r['id'] for r in table['rows']}:
             raise ValueError('表头来源不存在')
         header_index = next((r['index'] for r in table['rows'] if r['id'] == header), 0)
-        context_text = [p['text'] for p in inventory['paragraphs'] if p['id'] in table['context']]
-        chapter = next((p for p in reversed(context_text) if re.match(r'^第.{1,5}篇章|^[一二三四五六七八九十]+[、.]', p)), '')
+        context_paragraphs = [p for p in inventory['paragraphs'] if p['id'] in table['context']]
+        heading = next((p for p in reversed(context_paragraphs)
+                        if re.match(r'^第.{1,12}[章节篇部幕]|^[一二三四五六七八九十]+[、.]', p['text'].strip())
+                        or re.match(r'^(?:heading|标题)\s*\d+$', p.get('style', ''), re.I)), None)
+        if heading and heading['id'] != last_heading:
+            chapter, chapter_key = heading['text'], f"{inventory['document_id']}:{heading['id']}"
+            column_chapter, last_heading = None, heading['id']
         for row in table['rows']:
             default = 'header' if row['id'] == header else 'title' if row['index'] < header_index else row['kind']
             if default == 'header' and row['id'] != header:
@@ -292,6 +300,8 @@ def normalize_inventory(inventory, choices):
             audit.append(dict(row_id=row['id'], kind=kind, reason='用户确认分类' if row['id'] in overrides else row['reason']))
             if kind == 'title':
                 chapter = '\n'.join(c['text'] for c in row['cells'] if c['text'].strip())
+                chapter_key = f"{inventory['document_id']}:{row['id']}"
+                column_chapter = None
             if kind not in ('task', 'review'):
                 continue
             values = {role: [] for role in ROLES}
@@ -304,6 +314,10 @@ def normalize_inventory(inventory, choices):
                     values[role].append(value)
                     sources[role].append(dict(cell_id=cell['id'], anchor=cell['anchor']))
             values = {k: '\n'.join(v) for k, v in values.items()}
+            if values['chapter'].strip() and values['chapter'] != column_chapter:
+                column_chapter = values['chapter']
+                chapter = column_chapter
+                chapter_key = f"{inventory['document_id']}:{row['id']}:chapter"
             issues = list(row['issues'])
             if not values['scene'].strip():
                 issues.append('缺画面文字，待补充')
@@ -316,6 +330,7 @@ def normalize_inventory(inventory, choices):
             tasks.append(dict(source_key=f"{inventory['document_id']}:{row['id']}", row_id=row['id'],
                               table_id=table['id'], values=values, sources=sources,
                               chapter=values['chapter'] or chapter,
+                              chapter_key=chapter_key,
                               context=table['context'], original_cells=row['cells'],
                               images=[], issues=issues))
     if len(tasks) > MAX_ROWS:

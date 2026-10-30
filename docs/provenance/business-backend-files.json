@@ -93,9 +93,10 @@
       "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/script_contract.py",
       "destination": "backend/storyboard/script_contract.py",
       "sourceSha256": "e3e6b72af36acc3bcce5275c256104010da61303857845e6174bd04ca08f235e",
-      "destinationSha256": "e3e6b72af36acc3bcce5275c256104010da61303857845e6174bd04ca08f235e",
+      "destinationSha256": "337b282d18d795508bcc84c3d266e1c49f547e62308d7aec79fa49b2ba59850b",
       "changes": [
-        "relocate pure implementation without semantic changes"
+        "relocate pure implementation without semantic changes",
+        "1029 script parsing: fixed four columns, source-identified chapters, ten-row pages and native multi-table import history."
       ],
       "kind": "migrated-production"
     },
@@ -104,10 +105,11 @@
       "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/script_document.py",
       "destination": "backend/storyboard/script_document.py",
       "sourceSha256": "f26f711e69eed675186640b68d011f376eea8f6df76bbc0314bd18b1fbe04188",
-      "destinationSha256": "f81d47f63c12df922f2a7280ed120497dc6a6c1c720d65a795d01faf1d96be4b",
+      "destinationSha256": "8c28480f7a663b699a66fd6ffb1ec840ddba92b2def0b37f6ef6dafdbd3554d1",
       "changes": [
         "retain physical XML cell/row/occurrence identity and merged anchors",
-        "validate Office archive paths before parsing; preserve all confirmed task rows or reject limit"
+        "validate Office archive paths before parsing; preserve all confirmed task rows or reject limit",
+        "1029 script parsing: fixed four columns, source-identified chapters, ten-row pages and native multi-table import history."
       ],
       "kind": "migrated-production"
     },

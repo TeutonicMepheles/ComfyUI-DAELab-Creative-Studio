@@ -170,7 +170,10 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
             const active=selected.has(c.node.id);
             setViewProperty(c.element.dataset,'selected',String(active));
             if(c.surface&&c.surface.classList.contains('dae-creative-selection-active')!==active)c.surface.classList.toggle('dae-creative-selection-active',active);
-            setViewProperty(c.element.dataset,'slotsSuppressed',String(suppressGroupSlots(host.nodes(graph),c.node,selected)));
+            const suppressed=suppressGroupSlots(host.nodes(graph),c.node,selected);
+            setViewProperty(c.element.dataset,'slotsSuppressed',String(suppressed));
+            setViewProperty(c.ports,'inert',suppressed);
+            if(suppressed&&c.ports.contains(magneticPort))setMagnet(null);
         }
         queueLayout();
     }
@@ -181,7 +184,11 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         if(group&&group!==node){ids.delete(node.id);ids.add(node.id);}
         for(const id of ids){const c=cards.get(id);if(c){layers.set(c.node,++topLayer);c.element.style.zIndex=String(topLayer);}}
     }
-    function select(node,{toggle=false,preserve=false}={}){selectedLink=null;if(!node)selected.clear();else if(toggle){if(selected.has(node.id))selected.delete(node.id);else selected.add(node.id);}else if(!preserve||!selected.has(node.id)){selected.clear();selected.add(node.id);}if(node&&selected.has(node.id))raise(node);paintSelection();}
+    function select(node,{toggle=false,preserve=false}={}){selectedLink=null;if(!node)selected.clear();else if(toggle){if(selected.has(node.id))selected.delete(node.id);else selected.add(node.id);}else if(!preserve||!selected.has(node.id)){selected.clear();selected.add(node.id);}if(node&&selected.has(node.id)){
+            if(node.type===GROUP_TYPE)for(const id of node.properties.members||[])selected.delete(id);
+            else for(const owner of host.nodes(graph))if(owner.type===GROUP_TYPE&&(owner.properties.members||[]).includes(node.id))selected.delete(owner.id);
+            raise(node);
+        }paintSelection();}
     function connect(node,index,side){
         if(side==='output'){pending={node,index};message(`已选择 ${node.title} 的 ${node.outputs[index].name}，点击目标输入连接；Esc 取消`);return;}
         if(!pending){message('请先点击来源卡片的输出接口');return;}
@@ -207,7 +214,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
                 const b=button(unified?'+':'',()=>{});if(unified)b.classList.add('dae-material-slot');
                 b.disabled=material&&!uploadKind(c.node);
                 // A magnetic hit may originate on the port wrapper; do not also start a group drag.
-                const startWire=e=>{if(e.button!==0)return;e.stopImmediatePropagation();e.preventDefault();
+                const startWire=e=>{if(e.button!==0||drag||suppressGroupSlots(host.nodes(graph),c.node,selected))return;e.stopImmediatePropagation();e.preventDefault();
                     if(side==='output'&&!canConnectOutput(c.node))return;
                     const links=graphLinks(graph).filter(link=>side==='input'?link.target_id===c.node.id&&(i===MATERIAL_SLOT||link.target_slot===i):link.origin_id===c.node.id&&(i===MATERIAL_SLOT||link.origin_slot===i));
                     if(side==='input'&&links.length){const link=links.find(link=>link.id===selectedLink)||(links.length===1?links[0]:nearestIncoming(links,e.clientX,e.clientY));if(!link){message('请沿要断开的连线靠近接收端，再拖动圆点');return;}closePicker();selectWire(link.id);setMagnet(null);root.focus();drag={kind:'detach',id:link.id,x:e.clientX,y:e.clientY,point:{x:e.clientX,y:e.clientY}};setMagnet(b);root.setPointerCapture(e.pointerId);drawWires();return;}
@@ -499,6 +506,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
     }
     function update(c){
         setViewProperty(c.element.dataset,'slotsSuppressed',String(suppressGroupSlots(host.nodes(graph),c.node,selected)));
+        setViewProperty(c.ports,'inert',c.element.dataset.slotsSuppressed==='true');
         const {node,layout}=c;
         const adapter=adapterFor(node),presentation=adapter?.presentation;
         // Optional read-only interface. A broken provider must not break the canvas.
@@ -823,7 +831,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
     function nearestPort(x,y,context=null){
         if(picker||workspace||context?.materialKey!==undefined)return null;
         if(context?.side==='output'&&materialDropSnapshot(context.node)){const target=materialTargetAt(x,y,context.node);if(target)return target.element;if(materialTargetAt(x,y))return null;}
-        const hit=document.elementFromPoint(x,y);
+        const hit=document.elementFromPoint(x,y),direct=hit?.closest('button[data-slot]'),hitCard=hit?.closest('.dae-creative-card');
         // At low zoom, the screen-sized magnet radius overlaps card drag handles.
         if(!context&&hit?.closest('.dae-creative-heading,.dae-creative-width-handle'))return null;
         if(hit?.closest('button:not([data-slot]):not([data-material-column-slot]),input,textarea,select,a,video,.dae-creative-picker,.dae-library-overlay'))return null;
@@ -833,6 +841,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         }
         for(const c of cards.values()){
             if(!unifiedNode(c.node)||context?.node===c.node||suppressGroupSlots(host.nodes(graph),c.node,selected))continue;
+            if(!context&&hitCard&&hitCard!==c.element)continue;
             const bounds=c.element.getBoundingClientRect();
             if(x>bounds.left&&x<bounds.right&&y>bounds.top&&y<bounds.bottom&&!hit?.closest('[data-slot]'))continue;
             for(const port of c.ports.querySelectorAll('button[data-slot]')){
@@ -843,6 +852,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
                     if(!compatible)continue;
                 }
                 const r=port.getBoundingClientRect();if(!r.width||!r.height||getComputedStyle(port).visibility==='hidden')continue;
+                if(port===direct)return port;
                 const center=portCenter(port),d=Math.hypot(x-center.x,y-center.y);
                 if(d<distance){best=port;distance=d;}
             }
@@ -924,6 +934,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
             if(current.side==='output'&&materialDropSnapshot(current.node)&&materialTargetAt(e.clientX,e.clientY)){message('此位置不支持当前素材类型');return;}
             const hit=dropHit,port=hit?.closest('button[data-slot]'),card=hit?.closest('.dae-creative-card');
             const target=card&&[...cards.values()].find(c=>String(c.node.id)===card.dataset.nodeId)?.node;
+            if(port&&target&&suppressGroupSlots(host.nodes(graph),target,selected)){message('连接已取消，目标接口当前不可用');return;}
             if(target&&current.side==='output'&&(!port||port.dataset.side==='input')){
                 const r=root.getBoundingClientRect(),index=port?Number(port.dataset.slot):MATERIAL_SLOT;
                 connectToCard({...current,targetIndex:index===MATERIAL_SLOT?null:index},target,{x:e.clientX-r.left,y:e.clientY-r.top});

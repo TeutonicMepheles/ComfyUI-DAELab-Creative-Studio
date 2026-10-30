@@ -3,14 +3,16 @@ import {isTextColumn,promptSourceId,setPromptSource,requirePromptSource} from '.
 import {effectivePrompt,isColumnPrompt,resolveColumnPrompt,columnValue,toColumnPrompt} from '../prompt/table_prompt_template.mjs';
 
 export const LOCAL_VIDEO_MODEL='MiniMax H3 FL（本地）';
+export const LOCAL_REFERENCE_VIDEO_MODEL='MiniMax H3 Ref（本地）';
+export const isLocalVideoModel=model=>[LOCAL_VIDEO_MODEL,LOCAL_REFERENCE_VIDEO_MODEL].includes(model);
 export const LOCAL_VIDEO_MODES=['text2video','singleImage2video','frames2video'];
 export const LOCAL_IMAGE_MODEL='Qwen-Image-2.1 Turbo（本地）';
-export const isLocalGenerationModel=model=>[LOCAL_IMAGE_MODEL,LOCAL_VIDEO_MODEL].includes(model);
+export const isLocalGenerationModel=model=>model===LOCAL_IMAGE_MODEL||isLocalVideoModel(model);
 export const COMFY_VIDEO_MODELS=['Seedance 2.0','Seedance 2.0 Fast','Seedance 2.0 Mini','Seedance 2.5','Minimax H3'];
 export const COMFY_IMAGE_MODELS=['GPT Image 2','GPT Image 2.5 Flare','GPT Image 2.5 Sunburst'];
 export const isComfyGenerationModel=model=>[...COMFY_VIDEO_MODELS,...COMFY_IMAGE_MODELS].includes(model);
 export const needsGenerationProject=()=>false;
-export const GENERATION_MODELS={image:[LOCAL_IMAGE_MODEL,...COMFY_IMAGE_MODELS],video:[...COMFY_VIDEO_MODELS,LOCAL_VIDEO_MODEL]};
+export const GENERATION_MODELS={image:[LOCAL_IMAGE_MODEL,...COMFY_IMAGE_MODELS],video:[...COMFY_VIDEO_MODELS,LOCAL_VIDEO_MODEL,LOCAL_REFERENCE_VIDEO_MODEL]};
 export const isGeneration=field=>field?.presentation==='generation';
 export function rowGenerationConfig(row,fieldId,defaults){
  const source=row?.meta?.generationPromptFields?.[fieldId]??defaults?.promptFieldId;
@@ -118,13 +120,16 @@ export function generationRows(table,fieldId){
  const selected=table.records.filter(r=>r.selected);
  return selected.length?selected:table.records.filter(r=>!r.values[fieldId]?.length);
 }
-function generationPrompt(table,row,promptFieldId){
+function generationPrompt(table,row,promptFieldId,allowEmptyPrompt=false){
  const source=table.fields.find(f=>f.id===promptFieldId);
  if(!source)throw new Error('请选择提示词列');
  const value=effectivePrompt(table,row,source.id);
  let document;
  if(typeof value==='string')document={segments:[{type:'text',text:value}],references:[],assets:[]};
- else if(isColumnPrompt(value))document=resolveColumnPrompt(value,table,row,promptFieldId);
+ else if(isColumnPrompt(value)){
+  const empty=allowEmptyPrompt&&value.version===1&&Array.isArray(value.segments)&&value.segments.every(s=>s.type==='text'&&typeof s.text==='string'&&!s.text.trim());
+  document=empty?{segments:[],references:[],assets:[]}:resolveColumnPrompt(value,table,row,promptFieldId);
+ }
  else if(value?.segments){
   const references=value.references||[];
   document={...value,assets:references.filter(r=>r.included!==false).map(ref=>{
@@ -219,20 +224,21 @@ export function generationFrames(table,row,fieldId,config){
   catch(error){return {role,error:error.message};}
  });
 }
-export function generationInput(table,fieldId,recordId){
+export function generationInput(table,fieldId,recordId,{allowEmptyPrompt=false}={}){
  const field=table.fields.find(f=>f.id===fieldId),row=table.records.find(r=>r.id===recordId);
  if(!isGeneration(field)||!row)throw new Error('生成列或记录已删除');
  if(row.meta?.generationSourceMissing)throw new Error('来源表格中的任务行已删除；已有结果保留');
- const source=requirePromptSource(table),owner=generationConfigField(table,fieldId),config={...rowGenerationConfig(row,owner.id,owner.generation),promptFieldId:source.id},document=generationPrompt(table,row,source.id);
+ const source=requirePromptSource(table),owner=generationConfigField(table,fieldId),config={...rowGenerationConfig(row,owner.id,owner.generation),promptFieldId:source.id},document=generationPrompt(table,row,source.id,allowEmptyPrompt);
  if(config.model===LOCAL_VIDEO_MODEL&&!LOCAL_VIDEO_MODES.includes(config.mode))throw new Error('本地 H3 FL 仅支持文生视频、首帧和首尾帧，请重新选择生成方式');
+ if(config.model===LOCAL_REFERENCE_VIDEO_MODEL&&config.mode!=='image2video')throw new Error('本地 H3 Ref 仅支持图片参考，请重新选择生成方式');
  if(generationFrameRoles(config).length&&document.segments.some(s=>s.type==='ref'))throw new Error('首帧／首尾帧模式不能在提示词中 @ 素材，请移除正文素材引用，并通过帧选择入口填入图片');
- if(!document.segments.some(s=>s.type==='ref'||s.text?.trim()))throw new Error('本行提示词为空');
+ if(!allowEmptyPrompt&&!document.segments.some(s=>s.type==='ref'||s.text?.trim()))throw new Error('本行提示词为空');
  const assets=[],frameBindings=row.meta?.generationFrames?.[owner.id];
  if(frameBindings)for(const frame of generationFrames(table,row,owner.id,config)){
   if(!frame.asset)throw new Error((frame.role==='first'?'首帧':'尾帧')+'：'+(frame.error||'请选择本行图片'));
   const a=frame.asset;if(a.fieldId===fieldId)throw new Error('生成列不能引用自身结果，请引用其他已完成的生成列');assets.push({id:a.id,fieldId:a.fieldId,kind:a.kind||'image',url:a.url});
  }
- if(!generationFrameRoles(config).length)for(const ref of row.meta?.generationReferences?.[owner.id]||[]){
+ if(!generationFrameRoles(config).length&&!['text2video','text2image'].includes(config.mode))for(const ref of row.meta?.generationReferences?.[owner.id]||[]){
   if(ref.fieldId===fieldId)throw new Error('生成列不能引用自身结果，请引用其他已完成的生成列');
   const {asset}=columnValue(table,row,ref.fieldId,undefined,ref.assetId);
   if(!asset)throw new Error('参考素材已不存在');

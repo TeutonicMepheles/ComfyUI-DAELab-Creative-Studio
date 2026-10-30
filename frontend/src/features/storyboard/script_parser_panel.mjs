@@ -10,11 +10,12 @@ import {workbenchTheme} from '../../ui/table_workbench_theme.mjs';
 import {createSettingsPopover} from '../prompt/table_prompt_settings.mjs';
 import {studioTheme} from '../../ui/studio_theme.mjs';
 import {ROLE_LABELS,KIND_LABELS,initialChoices,importTasks,reviseImport,hasActiveGeneration,assertTransition,ParserRequests} from './script_parser_model.mjs';
+import {isFixedScript} from './script_partitions.js';
 
 const el=(tag,parent,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;parent?.append(e);return e;};
 function select(parent,label,options,value,onChange){const wrap=el('label',parent,label),s=el('select',wrap);s.setAttribute('aria-label',label);for(const [v,n] of options)s.add(new Option(n,v));s.value=value??'';s.onchange=()=>onChange(s.value);return s;}
 
-export function createScriptParserPanel({node,app,getTable,setTable,notify,documentFactory=null,getPanelContext=()=>null,clipboard=null}){
+export function createScriptParserPanel({node,app,getTable,setTable,notify,documentFactory=null,getPanelContext=()=>null,clipboard=null,batchImport=null}){
  tableTheme();workbenchTheme();studioTheme();
  if(!document.getElementById('dae-script-parser-css')){const link=el('link',document.head);link.id='dae-script-parser-css';link.rel='stylesheet';link.href=new URL('./script_parser.css',import.meta.url).href;}
  const root=el('div');root.className='dae-ui dae-table-panel script-parser';root.setAttribute('aria-label','分镜剧本解析器');
@@ -26,7 +27,7 @@ export function createScriptParserPanel({node,app,getTable,setTable,notify,docum
  const draftBox=el('section');draftBox.className='script-draft';draftBox.hidden=true;
  const guard=new ParserRequests();let draft=null,choices=null,normalized=null,controller=null,alive=true,promptUI=null,generation=null,presentation=null,detailsDialog=null,uploadMode='append',adjusting=false,menu=null,statusTimer=null,busy=false,workbench=null;
  let operationTask=null,activeEditTicket=null;
- const snapshot=()=>JSON.stringify(getTable());
+ const snapshot=()=>batchImport?.snapshot()??JSON.stringify(getTable());
  function message(value,error=false){
   if(error&&operationTask)operationTask={...operationTask,state:'error',detail:value};
   clearTimeout(statusTimer);status.textContent=value;status.dataset.error=String(error);feedback.hidden=!value&&!busy;
@@ -35,7 +36,7 @@ export function createScriptParserPanel({node,app,getTable,setTable,notify,docum
  }
  function updatePending(){
   const t=getTable(),docs=t.meta.script_parser.documents;
-  const hasTable=Boolean(t.fields.length||t.records.length||docs.length);
+  const hasTable=Boolean((!isFixedScript(t)&&t.fields.length)||t.records.length||docs.length);
   if(!hasTable&&root.dataset.expanded==='true')workbench?.close();
   root.dataset.empty=String(!hasTable);empty.hidden=hasTable;editor.root.hidden=!hasTable;
   if(!hasTable)empty.append(feedback);else root.insertBefore(feedback,editor.root);
@@ -81,6 +82,7 @@ export function createScriptParserPanel({node,app,getTable,setTable,notify,docum
   menu.root.classList.add('script-table-menu');
   const add=(label,action)=>menu.root.append(button(label,()=>{menu.close();action();}));
   add('追加 DOCX',()=>pick('append'));add('查看导入来源',showSources);add('查看待处理项',showIssues);
+  if(batchImport&&!isFixedScript(getTable()))add('按四列与章节拆表',()=>{try{const result=batchImport.apply(null,'convert',snapshot());updatePending();message(`已转换为 ${result.pages.length} 张四列表格，原表数据保留在导入详情，可撤销。`);}catch(e){message(e.message,true);}});
   add('显示字段',()=>editor.manageFields());
   add(root.dataset.expanded==='true'?'返回节点':'展开工作台',()=>root.dataset.expanded==='true'?workbench.close():workbench.open());
   menu.root.querySelector('button')?.focus();
@@ -117,9 +119,9 @@ export function createScriptParserPanel({node,app,getTable,setTable,notify,docum
   commit(mode,allowUnresolved){
    if(!normalized)return;
    try{if(!editor.canAsync(normalized.editTicket)||snapshot()!==normalized.baseSnapshot)throw new Error('预览期间任务表已变化，请重新归一核对');
-    const filename=normalized.filename,result=mode==='revise'?reviseImport(getTable(),normalized):importTasks(getTable(),normalized,{mode,allowUnresolved});
-    editor.applyAsync(normalized.editTicket,t=>{for(const key of Object.keys(t))delete t[key];Object.assign(t,result.table);});
-    cancel();updatePending();message(mode==='revise'?`已应用解析调整；保留 ${result.conflicts.length} 项手工编辑，可在导入详情查看。`:`${filename} · 已导入 ${result.added} 条记录${result.skipped?`，跳过 ${result.skipped} 条重复来源`:''}${result.newVersion?'；同名文档已作为新版本追加':''}。可撤销。`);
+    const filename=normalized.filename,result=batchImport?batchImport.apply(normalized,mode,normalized.baseSnapshot):mode==='revise'?reviseImport(getTable(),normalized):importTasks(getTable(),normalized,{mode,allowUnresolved});
+    if(!batchImport)editor.applyAsync(normalized.editTicket,t=>{for(const key of Object.keys(t))delete t[key];Object.assign(t,result.table);});
+    cancel();updatePending();message(mode==='revise'?`已应用解析调整；保留 ${result.conflicts.length} 项手工编辑，可在导入详情查看。`:`${filename} · 已导入 ${result.added} 条记录${result.pages?`，共 ${result.pages.length} 张表（每表最多 10 行）`:''}${result.skipped?`，跳过 ${result.skipped} 条重复来源`:''}${result.newVersion?'；同名文档已作为新版本追加':''}。可撤销。`);
    }catch(e){message(e.message,true);notify(e.message,'error');}
   }
  };
@@ -164,6 +166,7 @@ export function createScriptParserPanel({node,app,getTable,setTable,notify,docum
  function showSources(){
   const d=editor.openDialog('导入详情');d.classList.add('script-parser','script-import-dialog');
   const docs=getTable().meta.script_parser.documents;
+  const legacy=getTable().meta.script_parser.legacy_table;if(legacy){const details=el('details',d);el('summary',details,'转换前完整表格（含原字段与手工编辑）');el('pre',details,JSON.stringify(legacy,null,2));}
   if(!docs.length)el('p',d,'上传 DOCX 后自动生成表格。');
   for(const doc of docs){const s=el('details',d);el('summary',s,doc.filename);
    s.append(button('调整字段与图片归属',()=>{d.remove();editDocument(doc);}));

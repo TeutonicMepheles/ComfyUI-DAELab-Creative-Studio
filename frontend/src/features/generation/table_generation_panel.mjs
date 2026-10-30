@@ -3,7 +3,7 @@ import {setPromptSource,promptSourceId} from '../prompt/table_prompt_source.mjs'
 import {modelCapabilities} from './table_generation_api.mjs';
 import {attachGenerationTasks,generationTaskStyle} from './table_generation_tasks.mjs';
 import {createTableButton as button,tableIcon} from '../../ui/table_controls.mjs';
-import {GENERATION_MODELS,LOCAL_VIDEO_MODEL,isLocalGenerationModel,isComfyGenerationModel,needsGenerationProject,isGeneration,rowGenerationConfig,setRowGenerationConfig,promptColumns,createGenerationPrompt,enableColumnPrompt,generationRows,generationFrameRoles,generationFrames,generationFrameTagKey,syncGenerationFrameTags,syncGenerationPromptMode,syncGenerationPromptSource,generationConfigField,syncGenerationConfigOwners} from './table_generation_model.mjs';
+import {GENERATION_MODELS,LOCAL_VIDEO_MODEL,isLocalVideoModel,isLocalGenerationModel,isComfyGenerationModel,needsGenerationProject,isGeneration,rowGenerationConfig,setRowGenerationConfig,promptColumns,createGenerationPrompt,enableColumnPrompt,generationRows,generationFrameRoles,generationFrames,generationFrameTagKey,syncGenerationFrameTags,syncGenerationPromptMode,syncGenerationPromptSource,generationConfigField,syncGenerationConfigOwners} from './table_generation_model.mjs';
 import {effectivePrompt,toColumnPrompt} from '../prompt/table_prompt_template.mjs';
 import {frameReferenceOptions,createReferenceMenu,materialReferenceLabel} from '../../application/table_reference_options.mjs';
 import {PROMPT_SETTINGS_TEMPLATE,createPromptSettingsBar,promptSettingsStyle,normalizeLocalGenerationConfig,generationModeLabels,generationModeChoice,generationSettingSpecs,generationParameterSpecs,generationModes,promptSettingSpecs,generationSettingWarning,createGenerationSetting,createGenerationParameters,createLocalVideoSizePicker,createSettingsPopover} from '../prompt/table_prompt_settings.mjs';
@@ -19,7 +19,7 @@ function applyModelDefaults(config,schema){
  if(!config.mode)config.mode=Object.keys(schema.properties?.modeType?.items||{})[0]||'';
  for(const setting of generationSettingSpecs(schema,config.mode))if(config.settings[setting.name]===undefined&&setting.default!==undefined)config.settings[setting.name]=structuredClone(setting.default);
 }
-export function attachGenerationColumns({editor,getTable,notify,editPromptTemplate,observe=true,onRefresh=()=>{},canGenerate=()=>true,kinds=['video','image']}){
+export function attachGenerationColumns({editor,getTable,notify,editPromptTemplate,observe=true,onRefresh=()=>{},onPrepared,onReports,canGenerate=()=>true,kinds=['video','image']}){
  let alive=true;
  const configPanels=new Map();
  const frameStamps=new WeakMap();
@@ -70,7 +70,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
  let frameMenu=null,frameAnchor=null,settingsMenu=null,promptSourceMenu=null,promptSourceTimer=null;
  let promptSourceCells=[];
  const frameConfig=(fieldId,row,promptFieldId)=>{const owner=generationConfigField(getTable(),fieldId,promptFieldId);const defaults=configPanels.get(owner?.id)?.draft||owner?.generation;return rowGenerationConfig(row,owner?.id,promptFieldId?{...defaults,promptFieldId}:defaults);};
- const tasks=attachGenerationTasks({editor,getTable,notify,getConfig:frameConfig,onUpdate:onRefresh,canGenerate,async prepareGeneration(fieldId,recordId){
+ const tasks=attachGenerationTasks({editor,getTable,notify,getConfig:frameConfig,onUpdate:onRefresh,onPrepared,onReports,canGenerate,async prepareGeneration(fieldId,recordId){
    const owner=generationConfigField(getTable(),fieldId),panel=configPanels.get(owner.id),targets=recordId?getTable().records.filter(r=>r.id===recordId):generationRows(getTable(),fieldId);
    if(panel&&(panel.draft.promptFieldId!==owner.generation.promptFieldId||targets.some(row=>rowGenerationConfig(row,owner.id,panel.draft)===panel.draft)))await panel.apply();
  }});
@@ -153,7 +153,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
   const menu=createSettingsPopover(anchor,key==='duration'?'选择视频时长':spec.label,()=>{parameterView?.dispose?.();parameterView=null;if(settingsMenu===menu)settingsMenu=null;});settingsMenu=menu;
   if(combined)menu.root.classList.add('generation-parameters-popover');
   const content=el('div',menu.root),status=el('p',menu.root);if(key==='size'||key==='duration')content.className='generation-settings-fields';status.setAttribute('role','status');
-  const draft=structuredClone(currentConfig()),localSize=key==='size'&&draft.model===LOCAL_VIDEO_MODEL;let baseline=JSON.stringify(currentConfig()),schema=null,schemaError='',busy=false;
+  const draft=structuredClone(currentConfig()),localSize=key==='size'&&isLocalVideoModel(draft.model);let baseline=JSON.stringify(currentConfig()),schema=null,schemaError='',busy=false;
   const active=()=>alive&&settingsMenu===menu&&Boolean(findField(fieldId)&&row());
   const current=()=>{if(JSON.stringify(currentConfig())!==baseline)throw new Error('配置已变化，请重新打开选择面板');};
   function drawParameters(){
@@ -187,7 +187,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
    (content.querySelector('[aria-pressed=true]')||content.querySelector('button'))?.focus({preventScroll:true});
   }
   if(key==='kind')choices([['video','视频生成'],['image','图片生成']].filter(([id])=>kinds.includes(id)),draft.kind,(next,id)=>{next.kind=id;next.model=GENERATION_MODELS[id][0];next.mode='';next.settings={};});
-  else if(key==='model')choices(GENERATION_MODELS[draft.kind].map(name=>[name,generationModelLabel(name)]),draft.model,(next,id)=>{next.model=id;if(next.kind==='video'&&typeof next.settings.duration==='number')next.settings.duration=Math.min(next.settings.duration,id===LOCAL_VIDEO_MODEL?15:30);});
+  else if(key==='model')choices(GENERATION_MODELS[draft.kind].map(name=>[name,generationModelLabel(name)]),draft.model,(next,id)=>{next.model=id;if(next.kind==='video'&&typeof next.settings.duration==='number')next.settings.duration=Math.min(next.settings.duration,isLocalVideoModel(id)?15:30);});
   else {
    status.textContent='正在读取模型选项…';
    try{const caps=await modelCapabilities(draft);schema=caps.schema;}catch(error){schema={};schemaError=error.message;status.textContent='无法读取当前模型的生成方式，请重试。';return;}
@@ -332,7 +332,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
     }
     el('small',columns,'每行取所选列的第一张图片，应用后仍可单独修改。');
    }
-   const localVideo=draft.model===LOCAL_VIDEO_MODEL;
+   const localVideo=isLocalVideoModel(draft.model);
    const parameterNames=new Set(generationParameterSpecs(schema,draft.mode).map(spec=>spec.name));
    const extras=generationSettingSpecs(schema,draft.mode).filter(spec=>!parameterNames.has(spec.name)&&(!localVideo||!['width','height'].includes(spec.name)));
    if(extras.length){const more=el('details',settings);more.open=Boolean(expanded);el('summary',more,'更多设置');for(const spec of extras)more.append(createGenerationSetting(spec,draft,()=>{}));}
@@ -372,7 +372,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
    function fillModels(){model.replaceChildren();if(draft.model==='Image-2')draft.model='Lib Image';if(!GENERATION_MODELS[kind.value].includes(draft.model)){const placeholder=new Option('请选择具体模型版本','');placeholder.disabled=true;model.add(placeholder);}for(const name of GENERATION_MODELS[kind.value])model.add(new Option(generationModelLabel(name),name));model.value=GENERATION_MODELS[kind.value].includes(draft.model)?draft.model:'';}
    function drawSettings(){
     const focus=document.activeElement?.dataset.focusKey;settings.replaceChildren();if(!schema)return;
-    const localVideo=draft.model===LOCAL_VIDEO_MODEL;
+    const localVideo=isLocalVideoModel(draft.model);
     if(localVideo)settings.append(createLocalVideoSizePicker(draft,schema,values=>{Object.assign(draft.settings,values);drawSettings();refreshSettingBars();}));
     for(const spec of generationSettingSpecs(schema,draft.mode).filter(spec=>!localVideo||!['width','height'].includes(spec.name)))settings.append(createGenerationSetting(spec,draft,refreshSettingBars));
     if(focus)[...settings.querySelectorAll('[data-focus-key]')].find(e=>e.dataset.focusKey===focus)?.focus({preventScroll:true});
@@ -391,7 +391,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
    const loadCapabilities=()=>pendingCapabilities=capabilities();
    kind.onchange=()=>{draft.kind=kind.value;draft.model=GENERATION_MODELS[draft.kind][0];draft.settings={};draft.mode='';fillModels();void loadCapabilities();};
    model.onchange=()=>{draft.model=model.value;if(!isLocalGenerationModel(draft.model))draft.settings={};draft.mode='';void loadCapabilities();};
-   mode.onchange=()=>{draft.mode=mode.value;draft.settings={};if(draft.model===LOCAL_VIDEO_MODEL&&schema)normalizeLocalGenerationConfig(draft,schema);drawSettings();refreshDefaults();};
+   mode.onchange=()=>{draft.mode=mode.value;draft.settings={};if(isLocalVideoModel(draft.model)&&schema)normalizeLocalGenerationConfig(draft,schema);drawSettings();refreshDefaults();};
    async function applyConfig(){
      while(pendingCapabilities){const pending=pendingCapabilities;await pending;if(pending===pendingCapabilities)break;}
      if(!alive||!body.isConnected)throw new Error('配置面板已关闭，请重新打开');

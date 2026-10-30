@@ -1,9 +1,13 @@
 import {createCreativeButton} from '../../ui/creative_button.mjs';
 import {bindCreativeField} from '../../ui/creative_field.mjs';
 import {canvasState,graphLinks} from '../../canvas/creative_canvas_model.mjs';
+import {createGroupArchive,safeDownloadName} from './material_group_download.js';
+import {assetURL} from '../assets/media_upload_model.mjs';
 import {UPLOAD_TYPE} from '../assets/media_upload_model.mjs';
+import {inputSnapshot} from '../../canvas/creative_contract.mjs';
+import {normalizeAsset,saveFavorite} from '../assets/asset_library_model.mjs';
 
-import {GROUP_TYPE as TYPE,isGroupMember} from './material_group_model.mjs?v=20261015-mixed1';
+import {GROUP_TYPE as TYPE,isGroupMember,selectedMaterialGroup} from './material_group_model.mjs?v=20261015-mixed1';
 const el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text)e.textContent=text;return e;};
 const copy=v=>JSON.parse(JSON.stringify(v));
 const widget=(node,name)=>node.widgets?.find(w=>w.name===name);
@@ -49,9 +53,60 @@ export function installMaterialGroups(host,view){
     const dirty=()=>{host.changed(host.graph());};
     const change=(fn,text)=>{history.begin();try{fn();}finally{history.end();}renderSignature='';dirty();tick();if(text)say(text);};
     const button=(label,fn,cls)=>{const b=createCreativeButton(label,fn);if(cls)b.classList.add(cls);return b;};
-    const createButton=button('素材打组',createFromSelection);createButton.title='将选中素材打组 (Ctrl+G)';createButton.classList.add('gr-create-selection');createButton.hidden=true;root.append(createButton);
+    const createButton=el('div','dae-creative-toolbar gr-create-selection');createButton.setAttribute('role','toolbar');createButton.setAttribute('aria-label','所选素材操作');
+    const createAction=button('打组',createFromSelection);createAction.prepend(icon('box-3-line'));createAction.title='将选中素材打组 (Ctrl+G)';
+    const saveAction=button('保存到资产库',()=>saveMaterials(view.selectedIds.map(node).filter(Boolean)));saveAction.prepend(icon('archive-stack-line'));saveAction.title='将所选素材分别保存到资产库';
+    const selectionCount=el('span','gr-selection-count');createButton.append(saveAction,el('span','gr-divider'),createAction,selectionCount);createButton.hidden=true;root.append(createButton);
+    const selectionBox=el('div','gr-selection-box');selectionBox.hidden=true;selectionBox.setAttribute('aria-hidden','true');root.append(selectionBox);
     function stopPanel(e){e.stopPropagation();}
     for(const event of ['pointerdown','dblclick','wheel','keydown'])panel.addEventListener(event,stopPanel);
+    for(const event of ['pointerdown','dblclick','wheel','keydown'])createButton.addEventListener(event,stopPanel);
+    async function saveMaterials(chosen){
+        const sourceGraph=host.graph();let saved=0;
+        try{
+            const ids=new Set(chosen.flatMap(n=>n.type===TYPE?n.properties.members||[]:[n.id]).map(String));
+            const values=[];
+            for(const id of ids){
+                const n=sourceGraph.getNodeById(id),snapshot=inputSnapshot(n);
+                if(!snapshot||snapshot.ready===false)throw new Error('所选素材尚未就绪，请恢复或完成上传后重试');
+                const source={operation:'selection-favorite',nodeId:String(n.id)};
+                for(const asset of snapshot.assets||[]){if(asset.missing)throw new Error('所选素材文件缺失');values.push(normalizeAsset({kind:asset.kind,name:n.title||asset.name,asset,source}));}
+                for(const text of snapshot.texts||[])if(text.trim())values.push(normalizeAsset({kind:'text',name:n.title||'文字素材',text,source}));
+            }
+            if(!values.length)throw new Error('所选素材为空，请先上传文件或填写文字');
+            for(const value of values){if(disposed||host.graph()!==sourceGraph)return;await saveFavorite(value);saved++;}
+            if(!disposed&&host.graph()===sourceGraph)say(`已保存 ${saved} 项素材到资产库`);
+        }catch(error){if(!disposed&&host.graph()===sourceGraph)say(`${saved?`已保存 ${saved} 项；其余未保存：`:''}${error.message}`);}
+    }
+    let downloading=false;
+    async function downloadGroup(g){
+        if(downloading)return;
+        const sourceGraph=host.graph(),title=g.title;downloading=true;
+        try{
+            const items=[];
+            for(const id of [...(g.properties.members||[])]){
+                const before=items.length,n=sourceGraph.getNodeById(id),snapshot=inputSnapshot(n);
+                if(!snapshot||snapshot.ready===false)throw new Error('组内素材尚未就绪或已缺失');
+                for(const asset of snapshot.assets||[]){
+                    if(asset.missing||!asset.filename)throw new Error('组内素材文件缺失');
+                    items.push({name:asset.filename,url:assetURL(asset)});
+                }
+                for(const text of snapshot.texts||[])if(text.trim())items.push({name:(n.title||'文字素材')+'.txt',text});
+                if(items.length===before)throw new Error('组内包含空素材，请补齐内容后重试');
+            }
+            say('正在准备整组下载…');
+            const archive=await createGroupArchive(items);
+            if(disposed||host.graph()!==sourceGraph)return;
+            const url=URL.createObjectURL(archive),link=document.createElement('a');link.href=url;link.download=safeDownloadName(title||'素材组')+'.zip';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+            say(`已准备 ${items.length} 项素材的 ZIP 下载`);
+        }catch(error){if(!disposed&&host.graph()===sourceGraph)say(error.message);}
+        finally{downloading=false;}
+    }
+    function ungroup(g){
+        if(selectedMaterialGroup(view.selectedIds.map(node).filter(Boolean),groups())!==g){syncToolbar();return;}
+        const members=(g.properties.members||[]).map(node).filter(Boolean);
+        change(()=>{for(const n of members){const c=card(n.id);if(c)c.style.display='';}host.removeNode(host.graph(),g);delete cards()[g.id];selected=null;selectionActive=false;view.sync();view.select(null);for(const n of members)view.select(n,{toggle:true});},'已解组，素材保留，可撤销。');
+    }
     function createNode(type,title){const n=host.createNode(type);if(!n)throw new Error(`缺少节点 ${type}`);host.addNode(host.graph(),n);n.title=title;return n;}
     function newGroup(title,ids,x,y){const n=createNode(TYPE,title);n.properties.members=ids;cards()[n.id]={x,y,width:800,expanded:false};return n;}
     function createFromSelection(){const ids=[...world.querySelectorAll('.dae-creative-card[data-selected=true]')].map(c=>node(c.dataset.nodeId)?.id).filter(id=>isGroupMember(node(id)));if(!ids.length)return say('先选中素材，再使用 Ctrl+G 打组。');if(groups().some(g=>g.properties.locked&&g.properties.members.some(id=>ids.includes(id))))return say('请先解锁素材所在的组。');change(()=>{for(const g of groups())g.properties.members=g.properties.members.filter(id=>!ids.includes(id));const g=newGroup('新素材组',ids,Math.min(...ids.map(id=>cards()[id].x))-24,Math.min(...ids.map(id=>cards()[id].y))-80);selected=g.id;selectionActive=true;view.sync();view.select(g);},'已把选中的真实素材卡片组成新组。');}
@@ -61,15 +116,18 @@ export function installMaterialGroups(host,view){
     function openMenu(trigger,fill){if(menuTrigger===trigger){closeMenu(true);return;}closeMenu();menu=el('section','dae-creative-toolbar gr-local-menu');menu.setAttribute('aria-label',trigger.textContent);menuTrigger=trigger;trigger.setAttribute('aria-expanded','true');for(const event of ['pointerdown','dblclick','wheel'])menu.addEventListener(event,stopPanel);menu.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();closeMenu(true);}if(['ArrowDown','ArrowUp'].includes(e.key)&&e.target.tagName==='BUTTON'){e.preventDefault();const buttons=[...menu.querySelectorAll('button:not(:disabled)')],at=buttons.indexOf(document.activeElement);buttons[(at+(e.key==='ArrowDown'?1:buttons.length-1))%buttons.length]?.focus();}});root.append(menu);fill(menu);positionPanel();menu.querySelector('button:not(:disabled),select,input')?.focus({preventScroll:true});}
     function buildPanel(){
         closeMenu();panel.replaceChildren();const g=group();if(!g)return;
+        const save=button('保存到资产库',()=>saveMaterials([g]));save.prepend(icon('archive-stack-line'));save.title='将组内素材分别保存到资产库';
+        const download=button('下载整组',()=>downloadGroup(g));download.prepend(icon('download-line'));download.title='按组内顺序下载全部素材（ZIP）';
+        const dissolve=button('解组',()=>ungroup(g));dissolve.prepend(icon('scissors-cut-line'));dissolve.title='解组并保留素材（可撤销）';
         const arrange=button(layoutNames[g.properties.layout]+' ▾',()=>openMenu(arrange,list=>{
             for(const [mode,label] of Object.entries(layoutNames)){const item=button(label,()=>{change(()=>g.properties.layout=mode,'已更新排列，素材输出顺序保持不变。');panel.querySelector('[data-layout-trigger]')?.focus();});item.prepend(icon(mode==='grid'?'layout-grid-line':mode==='horizontal'?'artboard-line':'arrow-down-line'));item.setAttribute('aria-pressed',String(g.properties.layout===mode));item.disabled=g.properties.locked;list.append(item);}
         }));arrange.prepend(icon('layout-grid-line'));arrange.dataset.layoutTrigger='true';arrange.setAttribute('aria-haspopup','true');arrange.setAttribute('aria-expanded','false');arrange.title='选择组内排列方式';
         const options=button('组选项 ▾',()=>openMenu(options,list=>{
-            list.append(button(g.properties.collapsed?'展开组':'收起组',()=>change(()=>g.properties.collapsed=!g.properties.collapsed,'展示已更新，整组输出不变。')),button(g.properties.locked?'解锁组':'锁定组',()=>change(()=>g.properties.locked=!g.properties.locked,'组锁定状态已更新。')),button('重命名',()=>{list.replaceChildren();const input=el('input');input.value=g.title;input.setAttribute('aria-label','组名称');bindCreativeField(input);const save=()=>{change(()=>g.title=input.value.trim()||g.title,'组名称已更新。');};list.append(input,button('保存名称',save));input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing)save();});input.focus();input.select();positionPanel();}),button('解散组',()=>{change(()=>{for(const id of g.properties.members){const c=card(id);if(c)c.style.display='';}host.removeNode(host.graph(),g);delete cards()[g.id];selected=null;selectionActive=false;},'已解散，素材保留。');}));
+            list.append(button(g.properties.collapsed?'展开组':'收起组',()=>change(()=>g.properties.collapsed=!g.properties.collapsed,'展示已更新，整组输出不变。')),button(g.properties.locked?'解锁组':'锁定组',()=>change(()=>g.properties.locked=!g.properties.locked,'组锁定状态已更新。')),button('重命名',()=>{list.replaceChildren();const input=el('input');input.value=g.title;input.setAttribute('aria-label','组名称');bindCreativeField(input);const save=()=>{change(()=>g.title=input.value.trim()||g.title,'组名称已更新。');};list.append(input,button('保存名称',save));input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing)save();});input.focus();input.select();positionPanel();}),button('解组',()=>ungroup(g)));
             const actionIcons=[g.properties.collapsed?'arrow-down-line':'arrow-up-line',g.properties.locked?'lock-unlock-line':'lock-line','edit-line','scissors-cut-line'];[...list.children].filter(e=>e.tagName==='BUTTON').forEach((b,i)=>b.prepend(icon(actionIcons[i])));
         }));options.prepend(icon('folder-image-line'));options.setAttribute('aria-haspopup','true');options.setAttribute('aria-expanded','false');
             const colors=el('div','gr-color-row');colors.setAttribute('aria-label','组颜色');
-            for(const [name,value] of Object.entries({灰色:'#909090',蓝色:'#b8c4ff',绿色:'#a2d5ba',黄色:'#efca83',珊瑚:'#ffb4ab'})){const swatch=button('',()=>change(()=>g.properties.reviewColor=value,'组颜色已更新。'),'gr-swatch');swatch.title=name;swatch.setAttribute('aria-label',name);swatch.setAttribute('aria-pressed',String(g.properties.reviewColor===value));swatch.style.setProperty('--gr-swatch',value);colors.append(swatch);}
+            for(const [name,value] of Object.entries({灰色:'#909090',蓝色:'#b8c4ff',绿色:'#a2d5ba'})){const swatch=button('',()=>change(()=>g.properties.reviewColor=value,'组颜色已更新。'),'gr-swatch');swatch.title=name;swatch.setAttribute('aria-label',name);swatch.setAttribute('aria-pressed',String(g.properties.reviewColor===value));swatch.style.setProperty('--gr-swatch',value);colors.append(swatch);}
             const custom=el('label','gr-custom-color');custom.title='自定义组颜色';custom.append(icon('palette-line'));const picker=el('input');picker.type='color';picker.setAttribute('aria-label','自定义组颜色');picker.value=/^#[0-9a-f]{6}$/i.test(g.properties.reviewColor||'')?g.properties.reviewColor:'#909090';
             picker.addEventListener('input',()=>{if(!colorEditing){history.begin();colorEditing=true;}g.properties.reviewColor=picker.value;g.properties.reviewCustomColor=picker.value;layoutGroups();custom.style.background=picker.value;custom.style.color='#141414';});
             const commitColor=()=>{if(!colorEditing)return;history.end();colorEditing=false;dirty();renderSignature='';tick();say('自定义颜色已更新。');};picker.addEventListener('change',commitColor);picker.addEventListener('blur',commitColor);
@@ -77,11 +135,11 @@ export function installMaterialGroups(host,view){
             custom.append(picker);colors.append(custom);
         const numbers=button('序号',()=>change(()=>g.properties.showNumbers=g.properties.showNumbers===false,'素材序号显示已更新。'));numbers.prepend(icon('list-ordered'));numbers.title='显示素材序号';numbers.classList.add('gr-number-toggle');numbers.setAttribute('aria-pressed',String(g.properties.showNumbers!==false));
         const remove=button('删除组',()=>change(()=>{const ids=new Set([g.id,...g.properties.members]);for(const other of groups())if(!ids.has(other.id))other.properties.members=other.properties.members.filter(id=>!ids.has(id));for(const id of ids){const n=node(id);if(n)host.removeNode(host.graph(),n);delete cards()[id];}selected=null;selectionActive=false;view.sync();},'已删除组及内部节点，可撤销。'),'gr-delete-group');remove.prepend(icon('delete-bin-line'));remove.title='删除组及内部节点（可撤销）';
-        panel.append(arrange,el('span','gr-divider'),numbers,el('span','gr-divider'),colors,el('span','gr-divider'),options,el('span','gr-divider'),remove);
+        panel.append(save,download,dissolve,el('span','gr-divider'),arrange,el('span','gr-divider'),numbers,el('span','gr-divider'),colors,el('span','gr-divider'),options,el('span','gr-divider'),remove);
     }
     const decorated=new Map();
     function restoreMedia(){for(const bar of decorated.values()){for(const action of bar.querySelectorAll('.gr-media-action')){if(!action.dataset.assetFavorite)action.textContent=action.getAttribute('aria-label');action.classList.remove('gr-media-action');}}decorated.clear();}
-    function onHide(){if(drag){const current=drag;drag=null;restoreDrag(current);}if(colorEditing){colorEditing=false;history.end();}restoreMedia();layoutElements=[];layoutSignature='';}
+    function onHide(){selectionBox.hidden=true;createButton.hidden=true;if(drag){const current=drag;drag=null;restoreDrag(current);}if(colorEditing){colorEditing=false;history.end();}restoreMedia();layoutElements=[];layoutSignature='';}
     root.addEventListener('dae-canvas-hide',onHide);
     function decorateMedia(){
         for(const upload of decorated.keys())if(!upload.isConnected)decorated.delete(upload);
@@ -124,6 +182,7 @@ export function installMaterialGroups(host,view){
                 const id=ids[i],c=card(id);if(!c)continue;
                 c.style.setProperty('--gr-number-bg',g.properties.reviewColor||'var(--dae-border-control)');
                 if(i%count===0&&ids.slice(i,i+count).some(mid=>card(mid)?.dataset.selected==='true'&&!card(mid).querySelector('.dae-upload-stage :is(img,video)')))y+=28/(canvasState(host.graph()).viewport.zoom||1);c.dataset.reviewMember=String(g.id);c.dataset.reviewIndex=String(i+1);c.dataset.reviewNumbers=String(g.properties.showNumbers!==false);const stage=c.querySelector('.dae-upload-stage');if(stage&&g.properties.showNumbers!==false)stage.dataset.reviewIndex=String(i+1);c.style.display=g.properties.collapsed&&id!==moving?'none':'';
+                const memberPort=c.querySelector('[data-side=output][data-slot]');if(memberPort){memberPort.title=`单项输出 · ${node(id)?.title||'素材'}`;memberPort.setAttribute('aria-label',memberPort.title);}
                 const cp=cards()[id];if(!cp)continue;
                 if(!drag?.ids?.includes(id))Object.assign(cp,{x:p.x+padding+(i%count)*(350+gap),y:p.y+y,width:350});
                 c.style.left=cp.x+'px';c.style.top=cp.y+'px';c.style.width=cp.width+'px';
@@ -170,11 +229,33 @@ export function installMaterialGroups(host,view){
         for(const id of pulseStarts.keys())if(!wanted.has(id))pulseStarts.delete(id);
     }
     root.addEventListener('dae-canvas-wires-changed',updateWirePulse);
+    function positionCreateButton(chosen){
+        const members=chosen.filter(n=>isGroupMember(n)),bounds=root.getBoundingClientRect();
+        const allRects=members.map(n=>card(n.id)?.getBoundingClientRect()).filter(r=>r&&r.width&&r.height);
+        const rects=allRects.filter(r=>r.right>bounds.left&&r.left<bounds.right&&r.bottom>bounds.top&&r.top<bounds.bottom);
+        selectionBox.hidden=members.length<2||!rects.length;
+        if(!selectionBox.hidden){
+            const left=Math.min(...allRects.map(r=>r.left))-bounds.left-10,top=Math.min(...allRects.map(r=>r.top))-bounds.top-36;
+            Object.assign(selectionBox.style,{left:left+'px',top:top+'px',width:(Math.max(...allRects.map(r=>r.right))-bounds.left+10-left)+'px',height:(Math.max(...allRects.map(r=>r.bottom))-bounds.top+10-top)+'px'});
+        }
+        createButton.hidden=members.length<2||!rects.length;
+        if(createButton.hidden)return;
+        const label=`${members.length} 项`;
+        if(selectionCount.textContent!==label)selectionCount.textContent=label;
+        const left=Math.min(...rects.map(r=>r.left))-bounds.left,right=Math.max(...rects.map(r=>r.right))-bounds.left;
+        const top=Math.min(...rects.map(r=>r.top))-bounds.top,bottom=Math.max(...rects.map(r=>r.bottom))-bounds.top;
+        const maxX=Math.max(12,root.clientWidth-createButton.offsetWidth-12),maxY=Math.max(12,root.clientHeight-createButton.offsetHeight-65);
+        // Card headings occupy 28 screen pixels above the selected media.
+        let y=top-28-createButton.offsetHeight-12;
+        if(y<12)y=bottom+12;
+        createButton.style.left=Math.max(12,Math.min((Math.max(0,left)+Math.min(root.clientWidth,right)-createButton.offsetWidth)/2,maxX))+'px';
+        createButton.style.top=Math.max(12,Math.min(y,maxY))+'px';
+    }
     function syncToolbar(){
-        if(disposed||!view.active){panel.hidden=true;closeMenu();return;}
+        if(disposed||!view.active){panel.hidden=true;createButton.hidden=true;selectionBox.hidden=true;closeMenu();return;}
         if(seenGraph!==host.graph().extra){seenGraph=host.graph().extra;selected=null;selectionActive=false;renderSignature='';closeMenu();}
-        const chosen=view.selectedIds.map(node).filter(Boolean);createButton.hidden=chosen.filter(n=>isGroupMember(n)).length<2;const chosenGroup=chosen.find(n=>n.type===TYPE)||groups().find(g=>chosen.some(n=>g.properties.members.includes(n.id)));
-        if(!drag){const next=chosenGroup?.id??null;if(next!==selected){selected=next;renderSignature='';}selectionActive=selected!=null;}
+        const chosen=view.selectedIds.map(node).filter(Boolean);positionCreateButton(chosen);const chosenGroup=selectedMaterialGroup(chosen,groups());
+        const next=chosenGroup?.id??null;if(next!==selected){selected=next;renderSignature='';closeMenu();}selectionActive=selected!=null;
         const g=group(),signature=JSON.stringify([selected,g?.title,g?.properties]);
         if(!colorEditing&&signature!==renderSignature){renderSignature=signature;buildPanel();}
         positionPanel();
@@ -249,6 +330,6 @@ export function installMaterialGroups(host,view){
     function key(e){if(e.target.closest('input,textarea,select,[contenteditable=true]'))return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='g'){e.preventDefault();e.stopImmediatePropagation();createFromSelection();return;}if(e.key==='Escape'&&drag){const current=drag;drag=null;if(current.kind==='group')e.stopImmediatePropagation();restoreDrag(current);}}
     root.addEventListener('pointerdown',down,true);root.addEventListener('pointermove',move,true);root.addEventListener('pointerup',up,true);root.addEventListener('pointercancel',up,true);root.addEventListener('lostpointercapture',up,true);root.addEventListener('keydown',key,true);
     const timer=setInterval(tick,150);
-    const controller={createFromSelection,tick,destroy(){onHide();closeMenu();disposed=true;root.removeEventListener('dae-canvas-layout',tick);clearInterval(timer);clearTimeout(noticeTimer);cancelAnimationFrame(shiftFrame);root.removeEventListener('transitionrun',onShift);root.removeEventListener('dae-canvas-wires-changed',updateWirePulse);root.removeEventListener('pointerdown',down,true);root.removeEventListener('pointermove',move,true);root.removeEventListener('pointerup',up,true);root.removeEventListener('pointercancel',up,true);root.removeEventListener('lostpointercapture',up,true);root.removeEventListener('keydown',key,true);panel.remove();toast.remove();insertion.remove();createButton.remove();sheet.remove();restoreMedia();root.removeEventListener('dae-canvas-hide',onHide);}};
+    const controller={createFromSelection,tick,destroy(){onHide();closeMenu();disposed=true;root.removeEventListener('dae-canvas-layout',tick);clearInterval(timer);clearTimeout(noticeTimer);cancelAnimationFrame(shiftFrame);root.removeEventListener('transitionrun',onShift);root.removeEventListener('dae-canvas-wires-changed',updateWirePulse);root.removeEventListener('pointerdown',down,true);root.removeEventListener('pointermove',move,true);root.removeEventListener('pointerup',up,true);root.removeEventListener('pointercancel',up,true);root.removeEventListener('lostpointercapture',up,true);root.removeEventListener('keydown',key,true);panel.remove();toast.remove();insertion.remove();createButton.remove();selectionBox.remove();sheet.remove();restoreMedia();root.removeEventListener('dae-canvas-hide',onHide);}};
     tick();return controller;
 }
