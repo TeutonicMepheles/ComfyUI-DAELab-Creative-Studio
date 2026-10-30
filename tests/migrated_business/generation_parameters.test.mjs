@@ -40,11 +40,13 @@ test('official image settings remain editable and summarize the selected dimensi
  const names=['size','quality','background','custom_width','custom_height'];
  const schema={properties:Object.fromEntries(names.map(name=>[name,{type:'string'}])),config:{settings:{text2image:names,image2image:names}}};
  assert.deepEqual(generationParameterSpecs(schema,'image2image').map(x=>x.name),['size','custom_width','custom_height','quality','background']);
- const config={kind:'image',mode:'text2image',settings:{size:'1536x1024',quality:'low',width:512,height:288}};
+ const config={kind:'image',model:'GPT Image 2',mode:'text2image',settings:{size:'1536x1024',quality:'low',width:512,height:288}};
  const before=structuredClone(config);
  assert.equal(generationParametersSummary(config),'文生图 · 1536×1024 · 质量 low');
  assert.deepEqual(config,before);
  assert.equal(generationParametersSummary({...config,settings:{size:'Custom',custom_width:2048,custom_height:1152}}),'文生图 · 2048×1152');
+ assert.equal(generationParametersSummary({...config,model:'Qwen-Image-2.1 Turbo（本地）'}),'文生图 · 16:9 · 512×288');
+ assert.equal(generationParametersSummary({...config,kind:'video',model:'Seedance 2.5',mode:'text2video'}),'文生视频 · 16:9 · 512×288');
 });
 
 test('new cloud MiniMax tasks use its resolution default and preserve explicit saved values',()=>{

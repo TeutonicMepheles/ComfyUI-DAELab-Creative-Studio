@@ -12,8 +12,8 @@ export const PROMPT_SETTINGS_TEMPLATE=Object.freeze([
  {key:'duration',label:'时间',icon:'time-line',settings:['duration']},
 ]);
 export const generationModeLabels={text2video:'文生视频',singleImage2video:'首帧',frames2video:'首尾帧',image2video:'全能参考',mixed2video:'全能参考',text2image:'文生图',image2image:'参考图',audio2video:'音频参考'};
-function sizeLabel(settings){
- if(settings.size)return settings.size==='Custom'?`${settings.custom_width||1024}×${settings.custom_height||1024}`:settings.size==='auto'?'自动尺寸':String(settings.size).replace('x','×');
+function sizeLabel(settings,config){
+ if(config.kind==='image'&&isComfyGenerationModel(config.model)&&settings.size)return settings.size==='Custom'?`${settings.custom_width||1024}×${settings.custom_height||1024}`:settings.size==='auto'?'自动尺寸':String(settings.size).replace('x','×');
  const width=Number(settings.width),height=Number(settings.height),dimensions=width>0&&height>0;
  let ratio=settings.ratio;
  if(!ratio&&dimensions&&Number.isInteger(width)&&Number.isInteger(height)){let a=width,b=height;while(b){[a,b]=[b,a%b];}ratio=`${width/a}:${height/a}`;}
@@ -21,11 +21,11 @@ function sizeLabel(settings){
 }
 export function generationParametersSummary(config){
  const settings=config.settings||{},sound=settings.enableSound;
- return [generationModeLabels[config.mode]||config.mode||'选择方式',sizeLabel(settings),config.kind==='image'&&settings.quality?`质量 ${settings.quality}`:'',config.kind==='video'&&settings.duration!=null?`${settings.duration}s`:'',sound!==undefined?(['on',true,1].includes(sound)?'音频开启':'音频关闭'):''].filter(Boolean).join(' · ');
+ return [generationModeLabels[config.mode]||config.mode||'选择方式',sizeLabel(settings,config),config.kind==='image'&&isComfyGenerationModel(config.model)&&settings.quality?`质量 ${settings.quality}`:'',config.kind==='video'&&settings.duration!=null?`${settings.duration}s`:'',sound!==undefined?(['on',true,1].includes(sound)?'音频开启':'音频关闭'):''].filter(Boolean).join(' · ');
 }
 export function promptSettingsItems(config,{combined=false}={}){
  const settings=config.settings||{},video=config.kind==='video';
- const labels={kind:video?'视频生成':'图片生成',model:generationModelLabel(config.model)||'选择模型',mode:generationModeLabels[config.mode]||config.mode||'选择方式',size:sizeLabel(settings),duration:settings.duration!=null&&settings.duration!==''?`${settings.duration}s`:'设置时长'};
+ const labels={kind:video?'视频生成':'图片生成',model:generationModelLabel(config.model)||'选择模型',mode:generationModeLabels[config.mode]||config.mode||'选择方式',size:sizeLabel(settings,config),duration:settings.duration!=null&&settings.duration!==''?`${settings.duration}s`:'设置时长'};
  const items=PROMPT_SETTINGS_TEMPLATE.map(item=>({...item,icon:item.key==='kind'&&!video?'image-line':item.icon,text:labels[item.key],hidden:item.key==='duration'&&!video}));
  return combined?[...items.slice(0,2),{key:'parameters',label:'生成参数',icon:'settings-3-line',text:generationParametersSummary(config)}]:items;
 }
