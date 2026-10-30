@@ -120,13 +120,16 @@ export function generationRows(table,fieldId){
  const selected=table.records.filter(r=>r.selected);
  return selected.length?selected:table.records.filter(r=>!r.values[fieldId]?.length);
 }
-function generationPrompt(table,row,promptFieldId){
+function generationPrompt(table,row,promptFieldId,allowEmptyPrompt=false){
  const source=table.fields.find(f=>f.id===promptFieldId);
  if(!source)throw new Error('请选择提示词列');
  const value=effectivePrompt(table,row,source.id);
  let document;
  if(typeof value==='string')document={segments:[{type:'text',text:value}],references:[],assets:[]};
- else if(isColumnPrompt(value))document=resolveColumnPrompt(value,table,row,promptFieldId);
+ else if(isColumnPrompt(value)){
+  const empty=allowEmptyPrompt&&value.version===1&&Array.isArray(value.segments)&&value.segments.every(s=>s.type==='text'&&typeof s.text==='string'&&!s.text.trim());
+  document=empty?{segments:[],references:[],assets:[]}:resolveColumnPrompt(value,table,row,promptFieldId);
+ }
  else if(value?.segments){
   const references=value.references||[];
   document={...value,assets:references.filter(r=>r.included!==false).map(ref=>{
@@ -221,15 +224,15 @@ export function generationFrames(table,row,fieldId,config){
   catch(error){return {role,error:error.message};}
  });
 }
-export function generationInput(table,fieldId,recordId){
+export function generationInput(table,fieldId,recordId,{allowEmptyPrompt=false}={}){
  const field=table.fields.find(f=>f.id===fieldId),row=table.records.find(r=>r.id===recordId);
  if(!isGeneration(field)||!row)throw new Error('生成列或记录已删除');
  if(row.meta?.generationSourceMissing)throw new Error('来源表格中的任务行已删除；已有结果保留');
- const source=requirePromptSource(table),owner=generationConfigField(table,fieldId),config={...rowGenerationConfig(row,owner.id,owner.generation),promptFieldId:source.id},document=generationPrompt(table,row,source.id);
+ const source=requirePromptSource(table),owner=generationConfigField(table,fieldId),config={...rowGenerationConfig(row,owner.id,owner.generation),promptFieldId:source.id},document=generationPrompt(table,row,source.id,allowEmptyPrompt);
  if(config.model===LOCAL_VIDEO_MODEL&&!LOCAL_VIDEO_MODES.includes(config.mode))throw new Error('本地 H3 FL 仅支持文生视频、首帧和首尾帧，请重新选择生成方式');
  if(config.model===LOCAL_REFERENCE_VIDEO_MODEL&&config.mode!=='image2video')throw new Error('本地 H3 Ref 仅支持图片参考，请重新选择生成方式');
  if(generationFrameRoles(config).length&&document.segments.some(s=>s.type==='ref'))throw new Error('首帧／首尾帧模式不能在提示词中 @ 素材，请移除正文素材引用，并通过帧选择入口填入图片');
- if(!document.segments.some(s=>s.type==='ref'||s.text?.trim()))throw new Error('本行提示词为空');
+ if(!allowEmptyPrompt&&!document.segments.some(s=>s.type==='ref'||s.text?.trim()))throw new Error('本行提示词为空');
  const assets=[],frameBindings=row.meta?.generationFrames?.[owner.id];
  if(frameBindings)for(const frame of generationFrames(table,row,owner.id,config)){
   if(!frame.asset)throw new Error((frame.role==='first'?'首帧':'尾帧')+'：'+(frame.error||'请选择本行图片'));

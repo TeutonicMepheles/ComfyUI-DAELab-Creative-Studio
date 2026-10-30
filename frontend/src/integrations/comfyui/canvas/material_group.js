@@ -12,6 +12,9 @@ function serializedCollection(node){
 registerAdapter('daelab.material-group',{
     matches:n=>n.type===GROUP_TYPE,width:730,expanded:false,floatingHeader:true,
     summary:n=>`${n.properties.members?.length||0} 项 · 整组输出`,menu:[],
+    inputLabels:{source_report:'来源任务'},
+    canConnectInput:node=>!!node.properties?.generationOutputOwner,
+    prepareCopy(node,data){if(data.properties)delete data.properties.generationOutputOwner;},
     assets:collectionFor,
     inputSnapshot:groupInputSnapshot,
 });

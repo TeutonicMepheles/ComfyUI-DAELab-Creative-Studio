@@ -70,6 +70,15 @@ class RegistrationTests(unittest.TestCase):
         self.addCleanup(unload)
         self.module = importlib.import_module("backend.integrations.comfyui.canvas_nodes")
 
+    def test_upload_lineage_input_is_lazy_without_changing_material_outputs(self):
+        upload = importlib.import_module("backend.integrations.comfyui.canvas_nodes.media_upload").MediaUpload
+        schema = upload.define_schema()
+        self.assertEqual([slot["name"] for slot in schema.inputs], ["asset_data", "source_report"])
+        self.assertTrue(schema.inputs[1]["lazy"])
+        self.assertTrue(schema.inputs[1]["optional"])
+        self.assertEqual([slot["name"] for slot in schema.outputs], ["image_ref", "image_refs", "video_ref", "image", "video"])
+        self.assertEqual(upload.check_lazy_status(asset_data="{}", source_report=None), [])
+
     def test_import_and_node_lookup_do_not_register_routes(self):
         self.assertEqual(list(self.server.routes), [])
         nodes, names = self.module.register_nodes()
@@ -79,6 +88,15 @@ class RegistrationTests(unittest.TestCase):
         again, _ = self.module.register_nodes()
         self.assertIsNot(again, nodes)
         self.assertEqual(again, nodes)
+
+    def test_group_lineage_is_optional_lazy_and_preserves_collection_contract(self):
+        group = importlib.import_module("backend.integrations.comfyui.canvas_nodes.material_group").MaterialGroup
+        schema = group.define_schema()
+        self.assertEqual([slot["name"] for slot in schema.inputs], ["collection_data", "source_report"])
+        self.assertTrue(schema.inputs[1]["optional"])
+        self.assertTrue(schema.inputs[1]["lazy"])
+        self.assertEqual([slot["name"] for slot in schema.outputs], ["assets"])
+        self.assertEqual(group.check_lazy_status(collection_data="{}", source_report=None), [])
 
     def test_stable_schema_preserves_native_slot_positions(self):
         nodes, _ = self.module.register_nodes()

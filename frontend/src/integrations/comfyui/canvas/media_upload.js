@@ -4,6 +4,7 @@ import {createCreativeButton} from '../../../ui/creative_button.mjs';
 import {stopCanvasPropagation} from '../../../ui/creative_events.mjs';
 import {registerAsset} from '../../../application/asset_library_service.js';
 import {canvasHistory} from './creative_history.mjs';
+import {generationOutputConnected} from './generation_output_binding.js';
 import {createFavoriteButton} from '../../../features/assets/asset_favorite.mjs?v=20261015-2';
 import {createUploadVideoControls} from '../../../features/assets/upload_video_controls.mjs?v=20261001-player1';
 import {UPLOAD_TYPE,ACCEPT,mediaKind,readAsset,assetURL,slotAllowed} from '../../../features/assets/media_upload_model.mjs?v=20261001-material-references';
@@ -32,12 +33,17 @@ function install(node){
     function render(){
         if(disposed)return;
         const previousName=asset?.name;
-        asset=readAsset(data.value);favorite.sync();const next=JSON.stringify(asset);if(next===signature)return;signature=next;
+        asset=readAsset(data.value);favorite.sync();const savedPlaceholder=node.properties?.materialPlaceholder;const detached=node.properties?.generationOutput&&!generationOutputConnected(node,node.properties.generationOutput.nodeId);const placeholder=detached&&savedPlaceholder?{phase:'stopped',label:'已断开来源',detail:'重新连接原生成节点以同步状态',busy:false}:savedPlaceholder;const next=JSON.stringify([asset,asset?null:placeholder]);if(next===signature)return;signature=next;
         root.dataset.hasAsset=String(!!asset);
         if(asset&&(!node.title||node.title==='上传'||node.title===UPLOAD_TYPE||node.title===previousName))node.title=asset.name;
         releasePlayer?.();releasePlayer=null;stage.querySelector('video')?.pause();stage.replaceChildren();status.textContent='';
+        choose.hidden=!!placeholder&&!asset;favorite.button.hidden=!asset;root.dataset.placeholder=String(!!placeholder&&!asset);
         choose.textContent=asset?'替换素材':'上传图片 / 视频';download.hidden=fullscreen.hidden=!asset;
         info.textContent=asset?.name||'';info.title=info.textContent;
+        if(!asset&&placeholder){const hint=document.createElement('div');hint.className='dae-upload-empty dae-upload-placeholder';hint.setAttribute('role','status');hint.setAttribute('aria-live','polite');hint.dataset.phase=placeholder.phase;
+            const ring=document.createElement('span');ring.className='dae-upload-placeholder-ring';ring.hidden=!placeholder.busy;ring.setAttribute('aria-hidden','true');
+            const label=document.createElement('strong');label.textContent=placeholder.label||'等待结果';const detail=document.createElement('small');detail.textContent=placeholder.detail||'结果将在此处显示';
+            hint.append(ring,label,detail);if(placeholder.busy){const progress=document.createElement('progress');progress.max=100;if(Number.isFinite(placeholder.progress))progress.value=placeholder.progress;progress.setAttribute('aria-label',label.textContent);hint.append(progress);}stage.append(hint);return;}
         if(!asset){const hint=document.createElement('div');hint.className='dae-upload-empty';const open=createCreativeButton('选择本地文件',()=>{if(!node.mode){picker.value='';picker.click();}});const formats=document.createElement('small');formats.textContent='PNG · JPG · WebP · MP4 · WebM · MOV';hint.append(open,formats);stage.append(hint);return;}
         const media=document.createElement(asset.kind==='video'?'video':'img');media.src=assetURL(asset);
         if(asset.kind==='video'){
@@ -52,7 +58,7 @@ function install(node){
         if(asset.kind==='video')releasePlayer=createUploadVideoControls(media,stage,text=>{status.textContent=text;});
     }
     async function upload(file){
-        if(!file||disposed||node.mode)return;
+        if(!file||disposed||node.mode||node.properties?.materialPlaceholder&&!asset)return;
         const kind=mediaKind(file.name);if(!kind){status.textContent='请选择 PNG、JPG、WebP、MP4、WebM 或 MOV 文件';return;}
         if(asset&&kind!==asset.kind&&node.outputs.some(o=>o.links?.length)){status.textContent='切换素材类型前，请先断开现有输出连线';return;}
         controller?.abort();controller=new AbortController();const token=++epoch,previous=data.value,owner=node.graph,registrationSource=source('upload');
@@ -69,6 +75,7 @@ function install(node){
             if(!current())return;
             history.begin();try{
                 data.value=JSON.stringify({...asset,...registration.asset,id:crypto.randomUUID(),size:registration.byteSize});
+                if(node.properties){delete node.properties.generationOutput;delete node.properties.materialPlaceholder;}
                 data.callback?.(data.value);node.graph.setDirtyCanvas?.(true,true);node.graph.change?.();
             }finally{history.end();}
             render();task={...task,state:'success',detail:'上传完成',finishedAt:Date.now()};
@@ -89,6 +96,7 @@ app.registerExtension({name:'DAELab.MediaUpload',beforeRegisterNodeDef(type,defi
     if(definition.name!==UPLOAD_TYPE)return;
     const created=type.prototype.onNodeCreated;type.prototype.onNodeCreated=function(){created?.apply(this,arguments);install(this);};
     const configured=type.prototype.onConfigure;type.prototype.onConfigure=function(){configured?.apply(this,arguments);install(this);this.__mediaUpload.reload();};
+    const connections=type.prototype.onConnectionsChange;type.prototype.onConnectionsChange=function(){const result=connections?.apply(this,arguments);this.__mediaUpload?.render();return result;};
     const removed=type.prototype.onRemoved;type.prototype.onRemoved=function(){this.__mediaUpload?.destroy();removed?.apply(this,arguments);};
     const connect=type.prototype.onConnectOutput;type.prototype.onConnectOutput=function(index){if(!slotAllowed(this.__mediaUpload?.kind(),index))return false;return connect?.apply(this,arguments)??true;};
 }});

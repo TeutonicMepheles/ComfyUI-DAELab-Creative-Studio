@@ -30,7 +30,7 @@ export const generationTaskStyle=`
 @media(prefers-reduced-motion:reduce){.dae-ui .generation-progress{animation:none;border-style:dashed}}
 `;
 
-export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,getConfig,onUpdate=()=>{},canGenerate=()=>true}){
+export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,getConfig,onUpdate=()=>{},onPrepared=()=>{},onReports=()=>{},canGenerate=()=>true}){
  let alive=true,polling=false,submitting=false,epoch=0;
  const live=new Map(),localErrors=new Map(),discovered=new Map(),discoveredByTarget=new Map(),editGroups=new Map(),missingRequests=new Set();
  const targetKey=(recordId,fieldId)=>JSON.stringify([recordId,fieldId]);
@@ -53,7 +53,9 @@ export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,
  // No generation columns means no generation capsules; preserve the public full projection.
  const taskSnapshots=()=>{const table=getTable();return table.fields.some(field=>field.presentation==='generation')?generationTaskSnapshots(projectTable(table),live):[];};
  function ingest(response){
-  for(const report of response.jobs||[])if(session.ingest(report)){live.set(report.requestId,report);missingRequests.delete(report.requestId);localErrors.delete(report.requestId);session.apply(report.requestId);}
+  const accepted=[];
+  for(const report of response.jobs||[])if(session.ingest(report)){live.set(report.requestId,report);missingRequests.delete(report.requestId);localErrors.delete(report.requestId);session.apply(report.requestId);accepted.push(report);}
+  if(accepted.length)onReports(accepted);
   for(const status of editor.root.querySelectorAll('.generation-cell-state'))status.remove();decorate();
  }
  async function fenceOriginal(fieldId,recordId){
@@ -67,7 +69,7 @@ export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,
  }
  async function generate(fieldId,recordId=null,recover=false){
   if(!alive||submitting||!canGenerate())return;const captured=epoch;submitting=true;decorate();
-  const guards=[];
+  const guards=[];let prepared=[];
   try{
    if(!editor.nativeDocument||!identity())throw new Error('原生编辑会话尚未就绪，未提交');
    if(recover){const refs=getTable().records.filter(row=>!recordId||row.id===recordId).map(row=>reference(row,fieldId)).filter(Boolean);if(!refs.length)throw new Error('旧回执只读；没有新任务账本引用');const existing=[];
@@ -90,10 +92,13 @@ export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,
     const guard=guards.find(ticket=>ticket.requestId===job.requestId);const source={...stable,nodeId:guard.documentId,workflowSession:guard.workflowSession,epoch:guard.epoch,recordId:row.id,fieldId,inputVersion:guard.inputVersion+1,inputDigest:job.inputDigest,model:job.input.config.model,createdAt};
     row.meta.studioGenerationRefs[fieldId].push({requestId:job.requestId,inputDigest:job.inputDigest,source,model:job.input.config.model});
    }},{group});
+   prepared=jobs.map(job=>({...job,source:getTable().records.find(row=>row.id===job.input.recordId).meta.studioGenerationRefs[fieldId].find(ref=>ref.requestId===job.requestId).source}));
+   onPrepared(prepared);
    for(const ticket of guards)editor.releaseAsync(ticket);
    for(const job of jobs){const ref=getTable().records.find(row=>row.id===job.input.recordId).meta.studioGenerationRefs[fieldId].find(ref=>ref.requestId===job.requestId),ticket=editor.beginAsync({recordId:job.input.recordId,fieldId},job.requestId);if(ref.source.inputVersion!==ticket.inputVersion)throw new Error('输入版本已变化，未提交');session.watch(ref,ticket);job.source=ref.source;}
-   ingest(await request('submit',{jobs:jobs.map(({requestId,input,source})=>({requestId,input,source}))}));
-  }catch(error){if(alive&&captured===epoch)notify(error.message);}finally{for(const ticket of guards)editor.releaseAsync(ticket);submitting=false;decorate();}
+   const response=await request('submit',{jobs:jobs.map(({requestId,input,source})=>({requestId,input,source}))});
+   if(alive&&captured===epoch)ingest(response);
+  }catch(error){if(alive&&captured===epoch){notify(error.message);if(prepared.length)onReports(prepared.map(job=>({requestId:job.requestId,source:job.source,phase:'needs_recovery',error:error.message})));}}finally{for(const ticket of guards)editor.releaseAsync(ticket);submitting=false;decorate();}
  }
  async function pause(states){try{ingest(await request('pause',{requestIds:states.filter(state=>!state.legacy).map(state=>state.requestId)}));}catch(error){notify(error.message);}}
  async function reviewResult(fieldId,recordId,requestId){
@@ -108,7 +113,7 @@ export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,
  async function poll(whileSubmitting=false){
   if(!alive||submitting&&!whileSubmitting)return;if(polling){if(whileSubmitting)throw new Error('任务查询尚未完成，请稍后重试');return;}const captured=epoch;let refs=allReferences();polling=true;
   try{const stable=identity();if(stable){let offset=0;do{const response=await request('status',{source:{documentId:stable.documentId,tableId:stable.tableId,nodeId:stable.nodeId},limit:500,offset});if(!alive||captured!==epoch)return;for(const report of response.jobs||[])if(report.source?.documentId===stable.documentId&&report.source.tableId===stable.tableId&&report.source.nodeId===stable.nodeId&&/^[a-f0-9]{64}$/.test(report.source.inputDigest||'')){const ref={requestId:report.requestId,inputDigest:report.source.inputDigest,source:report.source,model:report.source.model};discovered.set(ref.requestId,ref);const key=targetKey(ref.source.recordId,ref.source.fieldId),bucket=discoveredByTarget.get(key)||new Map();bucket.set(ref.requestId,ref);discoveredByTarget.set(key,bucket);session.watch(ref);}ingest(response);offset=response.nextOffset;}while(Number.isSafeInteger(offset)&&offset>0);}refs=allReferences();for(const ref of refs)session.watch(ref);const ids=[...new Set(refs.map(ref=>ref.requestId))];for(let offset=0;offset<ids.length;offset+=500){const response=await request('status',{requestIds:ids.slice(offset,offset+500)});if(!alive||captured!==epoch)return;ingest(response);}}
-  catch(error){if(whileSubmitting)throw error;if(alive&&captured===epoch){for(const ref of refs)localErrors.set(ref.requestId,'无法同步任务状态：'+error.message);decorate();}}
+  catch(error){if(whileSubmitting)throw error;if(alive&&captured===epoch){for(const ref of refs)localErrors.set(ref.requestId,'无法同步任务状态：'+error.message);onReports(refs.map(ref=>({...ref,phase:'needs_recovery',error:'无法同步任务状态：'+error.message})));decorate();}}
   finally{polling=false;}
  }
  function refreshLive(){
@@ -144,7 +149,7 @@ export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,
       const label=action==='pause'?'暂停本列生成':action==='pausing'?'正在暂停':'继续本列生成';
       const control=tableIcon(button(label,()=>action==='resume'?resume(field.id):pause(getTable().records.map(r=>stateFor(r,field.id)).filter(s=>['waiting','running'].includes(s?.phase)))),action==='resume'?'play-line':'pause-fill',label);
       control.dataset.generationControl=action;control.classList.add('generation-settings');control.disabled=action==='pausing';
-      control.title=label+'；本地当前行中断后会重新生成，云端已提交任务继续完成';
+      control.title=label+'；本地当前行中断后会重新生成，Comfy 已提交任务继续完成';
       actions.insertBefore(control,actions.querySelector('[data-generation-source]'));
      }
     }
@@ -164,7 +169,7 @@ export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,
      el('span',status,stageText(live.get(state.requestId),phase)).className='generation-stage';
     }
     else if(state){const indicator=tableIcon(button(label,()=>notify(label)),phase==='complete'?'check-line':phase==='paused'?'pause-fill':'error-warning-line',label);indicator.classList.add('generation-state-icon');status.append(indicator);}
-    if(busy&&phase!=='pausing')status.append(tableIcon(button('暂停此行',()=>pause([state])),'pause-fill','暂停此行；本地中断后从头生成，云端已提交任务继续完成'));
+    if(busy&&phase!=='pausing')status.append(tableIcon(button('暂停此行',()=>pause([state])),'pause-fill','暂停此行；本地中断后从头生成，Comfy 已提交任务继续完成'));
     if(!busy){const recover=!state?.legacy&&(phase==='needs_recovery'||phase==='stopped'||phase==='paused'),retry=Boolean(state);const actionLabel=phase==='paused'?'查询原任务':recover?'恢复原任务':retry?'重新生成':'生成此行';status.append(tableIcon(button(actionLabel,()=>generate(field.id,row.id,recover)),retry&&phase!=='paused'?'restart-line':'play-line',actionLabel));
     }
     if(state?.needsOriginalFence&&!state?.legacy)status.append(tableIcon(button('封存原请求',()=>fenceOriginal(field.id,row.id)),'stop-line','明确阻止原请求以后提交；已执行的任务不会被覆盖'));

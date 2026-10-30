@@ -86,7 +86,7 @@
       "source": "web/creative_canvas_view.mjs",
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
       "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
-      "destinationSha256": "ff0a1dc5fe5ca811dbcd90db3bd5cd1b903ba746fbfb614095ecc679b597c594",
+      "destinationSha256": "afa9884d7f3939d7e20f7bf4d5030bb665a5dbf06815b860c79d778dcf6fcc53",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "remove opt-in test gallery rendering; retain unrelated graph.extra data",
@@ -220,11 +220,13 @@
       "source": "web/media_upload.js",
       "destination": "frontend/src/integrations/comfyui/canvas/media_upload.js",
       "sourceSha256": "652756732af498a98eee22908cf26904d2c786c03bc9b0057eb956bc0b53b7d3",
-      "destinationSha256": "93c63be487e472f4d9b80835a7b5adf9b833e93345bbbcb89cb2e4171d360091",
+      "destinationSha256": "1e7971045e1e4f48b6d14994a193cce4a8b54b0560ae76611956dd9e4affeb5f",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "Actual-host nested keyboard follow-up: shared save propagation in nested panel/popover; keep local editor keys and IME/229 ownership.",
-        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources."
+        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources.",
+        "2026-10-30: request-bound output placeholders, copy isolation and ready-only group material snapshots; see GENERATION_OUTPUTS_20261030 validation.",
+        "Generation batch lineage connects to the group container; members resolve their saved group binding."
       ],
       "kind": "production-source"
     },
@@ -232,11 +234,13 @@
       "source": "web/material_group.js",
       "destination": "frontend/src/integrations/comfyui/canvas/material_group.js",
       "sourceSha256": "67d2b8989a842b69688415f7f5f18fd748c3839a1856393507d52149377049f2",
-      "destinationSha256": "02902c36a873515da5500d6d0c48373cfe3ade91c6f63f961fe83f616789bab6",
+      "destinationSha256": "8aa4f16fafd095d97f9fdf38cd6558702568fc7e72e05069485bb666a79b8864",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "remove implicit destructive prototype migration on graph load",
-        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources."
+        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources.",
+        "2026-10-30: request-bound output placeholders, copy isolation and ready-only group material snapshots; see GENERATION_OUTPUTS_20261030 validation.",
+        "Generation batch lineage connects to the group container; members resolve their saved group binding."
       ],
       "kind": "production-source"
     },
@@ -325,9 +329,10 @@
       "source": "web/media_upload.css",
       "destination": "frontend/src/features/assets/media_upload.css",
       "sourceSha256": "ac81ffd3b14def4fc96a587442dc45ee76f44fb84fd45c2b79f41da2bfa83c53",
-      "destinationSha256": "b893013b4f4106d9e73cff636f7e320eb6c1618acdf3f06dafb764746630d793",
+      "destinationSha256": "a4ce3b777bfe79bb5979c533e94f26e34aa85414d028af14667594f2e6e73d50",
       "changes": [
-        "relocate into owner layer; rewrite relative module/style/resource paths"
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "2026-10-30: request-bound output placeholders, copy isolation and ready-only group material snapshots; see GENERATION_OUTPUTS_20261030 validation."
       ],
       "kind": "production-source"
     },
@@ -355,12 +360,13 @@
       "source": "web/material_group_model.mjs",
       "destination": "frontend/src/features/groups/material_group_model.mjs",
       "sourceSha256": "72c88b9a74a3ee7e8963e5ee711bb0780591110ad4ca9225c0201c67b650dc33",
-      "destinationSha256": "625df7b543184b11000a2d90777cea2fe6d955718ca6e7f3f60c5ded87e40d19",
+      "destinationSha256": "2a4dfb8486d987406a5543db06fd63ceb402d685b286f3f718515f41fa191aca",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "remove implicit prototype converter; explicit workflow migration belongs to compat",
         "Receive explicit native-node lists for selection identity and Slot suppression instead of reading private graph._nodes.",
-        "Require one unambiguous group owner across the complete selection; revalidate before ungroup and close stale group menus."
+        "Require one unambiguous group owner across the complete selection; revalidate before ungroup and close stale group menus.",
+        "2026-10-30: request-bound output placeholders, copy isolation and ready-only group material snapshots; see GENERATION_OUTPUTS_20261030 validation."
       ],
       "kind": "production-source"
     },
@@ -368,7 +374,7 @@
       "source": "web/material_groups.css",
       "destination": "frontend/src/features/groups/material_groups.css",
       "sourceSha256": "8080b8c2d5cbba4ef167a79a54b16f64b6cbe7108728501c5c5acd1606f526c3",
-      "destinationSha256": "d464ae0bd3047a9a0d42f199c89b65c4d927b69ecf0e60d5f03cd5486bd4794d",
+      "destinationSha256": "eac85d8339d62aaecc0a9863050c40aa27ecf5263c9dca1cd0ac8d4cc2a3ad7a",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "2026-10-29: anchor create-group action to visible selected materials; retain screen-sized accent selection outlines. Original source hash retained.",
@@ -384,7 +390,7 @@
       "source": "web/material_groups.mjs",
       "destination": "frontend/src/features/groups/material_groups.mjs",
       "sourceSha256": "91c47c4439efda72218a2749e00030e570bf1731a3eb100282347aecc463e144",
-      "destinationSha256": "4575da772f9f078883203057eaa3b827d3fa11808799e39585504c9dee86ca36",
+      "destinationSha256": "424c3ba590c006fc22e6c8c53450ab43542abe8883e0067e3d32fda7e0f147bf",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "inject existing host history port at integration assembly boundary",
@@ -465,9 +471,11 @@
       "source": "web/adapters/upload.mjs",
       "destination": "frontend/src/integrations/comfyui/canvas/adapters/upload.mjs",
       "sourceSha256": "d7f056a0370ab81a251090b665d6481c337534a28e94fcd0ebf684a4e73c27c4",
-      "destinationSha256": "805d2e782257e42296dca8bc72ef98a44eb657d2b90fbd7a3443ee7bb63b4b19",
+      "destinationSha256": "7a7b20e7b326fc9ae12409252f7b52b974299b651285063977359ade633329ff",
       "changes": [
-        "relocate into owner layer; rewrite relative module/style/resource paths"
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "2026-10-30: request-bound output placeholders, copy isolation and ready-only group material snapshots; see GENERATION_OUTPUTS_20261030 validation.",
+        "Grouped generation members expose lineage only through their group container."
       ],
       "kind": "production-source"
     },
@@ -904,12 +912,13 @@
       "source": "tests/material_groups.test.mjs",
       "destination": "tests/migrated_canvas/material_groups.test.mjs",
       "sourceSha256": "ad6489ea79bb78ca890d5ebb860c62ea79a7cf9e63888771599122f8e161c0b6",
-      "destinationSha256": "3c7c44dc7a48ed78feebc10fb2886ef6d0269c7485b1e2e33592a369b718f223",
+      "destinationSha256": "b1ec22c70d5385a4640ac61081fa056ada0a60f2bfe83f6009751d38a56ccaff",
       "changes": [
         "point existing rule regression tests at migrated production modules",
         "old implicit destructive prototype migration test superseded by production-boundary preservation test",
         "Pass explicit native nodes to mixed-ID group selection rules.",
-        "Cover ungroup selection ownership, mixed groups, ungrouped nodes, ambiguous ownership and restored membership."
+        "Cover ungroup selection ownership, mixed groups, ungrouped nodes, ambiguous ownership and restored membership.",
+        "2026-10-30: request-bound output placeholders, copy isolation and ready-only group material snapshots; see GENERATION_OUTPUTS_20261030 validation."
       ],
       "kind": "rule-regression"
     },
@@ -1068,7 +1077,7 @@
       "source": null,
       "sourceSha256": null,
       "destination": "tests/migrated_canvas/panel_zoom_scope.test.mjs",
-      "destinationSha256": "eaae0c8b9d53547393538b2ff77c1f2c24440034bcc7752e9b58542c889a08c6",
+      "destinationSha256": "3c2c03bba5159fd2b399b991b5972dceb0b5ec79590c9082058a6753cdf80ddb",
       "kind": "rule-regression",
       "changes": [
         "Guard the two exact owned body scopes, actual root constructor/lease identity, preserved public sibling controls, and exhaustive CSS/JS zoom dependencies; no browser layout or performance pass claimed.",

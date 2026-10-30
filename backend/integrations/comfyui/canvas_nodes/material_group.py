@@ -9,11 +9,17 @@ class MaterialGroup(io.ComfyNode):
     @classmethod
     def define_schema(cls):
         return io.Schema(node_id='DAELAB.MaterialGroup', display_name='素材组', category='DAELab/素材',
-            inputs=[io.String.Input('collection_data', default='{"version":1,"assets":[]}', multiline=True)],
+            inputs=[io.String.Input('collection_data', default='{"version":1,"assets":[]}', multiline=True),
+                    io.String.Input('source_report', optional=True, force_input=True, lazy=True)],
             outputs=[io.Custom('DAELAB_ASSETS').Output('assets')])
 
     @classmethod
-    def execute(cls, collection_data):
+    def check_lazy_status(cls, **kwargs):
+        # Lineage only; consume the saved collection without executing generation.
+        return []
+
+    @classmethod
+    def execute(cls, collection_data, source_report=None):
         collection = json.loads(collection_data)
         if not isinstance(collection, dict) or collection.get('version') != 1 or not isinstance(collection.get('assets'), list):
             raise ValueError('素材组数据格式不正确')

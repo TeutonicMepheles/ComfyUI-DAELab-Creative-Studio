@@ -7,7 +7,7 @@ import {createMaterialTable} from '../../web/features/table/table_material_colum
 import {attachGenerationTasks} from '../../web/features/generation/table_generation_tasks.mjs';
 import {addGenerationColumn} from '../../web/features/generation/table_generation_model.mjs';
 
-function fixture(t){
+function fixture(t,hooks={}){
  let markSubmitted;
  const submissionReady=new Promise(resolve=>{markSubmitted=resolve;});
  let table=createMaterialTable(),steps=0,epoch=0,release,report,submitFault=null,statusFault=null;table.records=table.records.slice(0,1);const field=addGenerationColumn(table,{name:'生成列（仅测试用）'}),row=table.records[0];row.values[field.generation.promptFieldId]='合成独立测试输入';
@@ -22,7 +22,7 @@ function fixture(t){
   if(url.endsWith('/submit')){const job=body.jobs[0];report={requestId:job.requestId,source:job.source,inputFingerprint:'a'.repeat(64),state:'succeeded',phase:'complete',version:3,result:{url:'/view?filename=synthetic.png&type=output',kind:'image',asset_id:'asset',reference_id:'ref'},receipt:{kind:'assets',items:[{asset_id:'asset',reference_id:'ref'}]}};await new Promise(resolve=>{release=resolve;markSubmitted();});}
   return new Response(JSON.stringify({jobs:report?[report]:[],nextOffset:null}));
  });
- const notices=[],tasks=attachGenerationTasks({editor,getTable:()=>table,notify:message=>notices.push(message),prepareGeneration:async()=>{},canGenerate:()=>true});
+ const notices=[],tasks=attachGenerationTasks({editor,getTable:()=>table,notify:message=>notices.push(message),prepareGeneration:async()=>{},canGenerate:()=>true,...hooks});
  t.after(()=>{tasks.destroy();native.dispose();unbind();});
  return {tasks,native,calls,notices,field,row,original,rejectOnce(status){submitFault=status;},statusFailure(status){statusFault=status;},get table(){return table;},get steps(){return steps;},async submitted(){let timeout;try{await Promise.race([submissionReady,new Promise((_,reject)=>{timeout=setTimeout(()=>reject(new Error('Generation did not reach the test submit handler')),5000);})]);}finally{clearTimeout(timeout);}},complete(){release();},switch(){epoch++;}};
 }
@@ -56,4 +56,15 @@ test('temporary 404 remains locked; explicit durable fencing precedes a new user
 test('database unavailability never supplies missing-task evidence or enables replacement submission',async t=>{
  const f=fixture(t);f.rejectOnce(500);await f.tasks.generate(f.field.id,f.row.id);f.statusFailure(503);await f.tasks.generate(f.field.id,f.row.id,true);await f.tasks.generate(f.field.id,f.row.id);
  assert.equal(f.tasks.stateFor(f.table.records[0],f.field.id).phase,'needs_recovery');assert.equal(f.calls.filter(call=>call.url.endsWith('/submit')).length,1);
+});
+
+test('output targets are prepared before submission and late invalidated responses cannot update them',async t=>{
+ const prepared=[],reports=[],f=fixture(t,{onPrepared:jobs=>prepared.push(...jobs),onReports:jobs=>reports.push(...jobs)});
+ const pending=f.tasks.generate(f.field.id,f.row.id);await f.submitted();assert.equal(prepared.length,1);assert.equal(reports.length,0);
+ assert.equal(prepared[0].requestId,f.calls.find(call=>call.url.endsWith('/submit')).body.jobs[0].requestId);
+ f.tasks.invalidate();f.complete();await pending;assert.equal(reports.length,0);
+});
+test('a failed submit leaves the existing output visibly awaiting recovery without creating another request',async t=>{
+ const reports=[],prepared=[],f=fixture(t,{onPrepared:jobs=>prepared.push(...jobs),onReports:jobs=>reports.push(...jobs)});f.rejectOnce(503);
+ await f.tasks.generate(f.field.id,f.row.id);assert.equal(prepared.length,1);assert.equal(reports.at(-1).phase,'needs_recovery');assert.equal(reports.at(-1).requestId,prepared[0].requestId);
 });

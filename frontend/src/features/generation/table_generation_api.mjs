@@ -11,7 +11,7 @@ export async function request(action,body){
 }
 export async function modelCapabilities(config){
  const local=isLocalGenerationModel(config.model);
- const restart='本地模型服务尚未加载，请重启 ComfyUI 后刷新页面；本地模型无需云端积分。';
+ const restart='本地模型服务尚未加载，请重启 ComfyUI 后刷新页面；本地模型无需Comfy 积分。';
  try{
   const caps=await request('capabilities?'+new URLSearchParams({kind:config.kind,model:config.model}));
   if(local&&caps.local!==true)throw new Error(restart);
