@@ -1,4 +1,4 @@
-import {LOCAL_VIDEO_MODEL,isComfyGenerationModel,isLocalGenerationModel} from '../generation/table_generation_model.mjs';
+import {LOCAL_VIDEO_MODEL,isLocalVideoModel,isComfyGenerationModel,isLocalGenerationModel} from '../generation/table_generation_model.mjs';
 import {createTableButton} from '../../ui/table_controls.mjs';
 import {stopCanvasPropagation} from '../../ui/list_editor_controls.mjs';
 import {generationModelIconURL,generationModelLabel} from '../generation/generation_model_icons.mjs';
@@ -183,7 +183,7 @@ export function createGenerationParameters(config,schema,{onMode,onSetting,onSet
  if(config.mode&&!modes.includes(selectedMode)){
   const warning=document.createElement('p');warning.setAttribute('role','status');warning.textContent='当前模型不支持已保存的生成方式，请重新选择。';modeSection.append(warning);
  }
- const localVideo=config.model===LOCAL_VIDEO_MODEL;
+ const localVideo=isLocalVideoModel(config.model);
  if(localVideo)root.append(createLocalVideoSizePicker(config,schema,onSettings));
  for(const spec of generationParameterSpecs(schema,config.mode).filter(spec=>!localVideo||!['width','height','ratio','resolution'].includes(spec.name))){
   const title=({resolution:'清晰度',duration:'生成时长',enableSound:'生成音频',sound:'生成音频',generateAudio:'生成音频'})[spec.name]||spec.displayName||spec.title||spec.name,block=section(title);block.dataset.parameter=spec.name;
@@ -238,7 +238,7 @@ export function normalizeLocalGenerationConfig(config,schema){
   if(valid)settings[spec.name]=value;
   else if(spec.default!==undefined)settings[spec.name]=structuredClone(spec.default);
  }
- if(config.model===LOCAL_VIDEO_MODEL&&previous.width===undefined&&previous.height===undefined){const preset=localVideoSizePresets(schema)[0];if(preset)Object.assign(settings,{width:preset.width,height:preset.height});}
+ if(isLocalVideoModel(config.model)&&previous.width===undefined&&previous.height===undefined){const preset=localVideoSizePresets(schema)[0];if(preset)Object.assign(settings,{width:preset.width,height:preset.height});}
  config.settings=settings;return config;
 }
 export function promptSettingSpecs(schema,mode,key,settings={}){
@@ -264,7 +264,7 @@ export function createGenerationSetting(spec,config,onChange,unrestricted=false)
  if(spec.name==='duration'){
   const wrapper=document.createElement('div'),caption=document.createElement('span'),row=document.createElement('div'),track=document.createElement('div'),ticks=document.createElement('div'),input=document.createElement('input'),valueBox=document.createElement('div'),number=document.createElement('input'),unit=document.createElement('span');
   const values=(spec.enum||[]).map(item=>Number(typeof item==='object'?item.value:item)).filter(Number.isFinite);
-  const maximum=config.model===LOCAL_VIDEO_MODEL?15:30;
+  const maximum=isLocalVideoModel(config.model)?15:30;
   const minimum=isComfyGenerationModel(config.model)?4:0,step=isComfyGenerationModel(config.model)?1:.5;
   let seconds=Number(config.settings.duration??spec.default??values[0]??.5);
   wrapper.className='generation-duration';wrapper.setAttribute('role','group');wrapper.setAttribute('aria-label','视频时长');caption.className='generation-duration-caption';caption.textContent='选择视频时长';row.className='generation-duration-row';track.className='generation-duration-track';ticks.className='generation-duration-ticks';ticks.setAttribute('aria-hidden','true');
