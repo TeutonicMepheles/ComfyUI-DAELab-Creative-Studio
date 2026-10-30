@@ -110,9 +110,11 @@ def routes(service):
         async def run():
             payload = await read_payload(request)
             model = payload.get('model')
-            if model not in ('qwen', 'deepseek'):
+            if model not in ('qwen', 'deepseek', 'gpt-6-luna'):
                 raise ProviderUnavailable('Unsupported optimization model.')
-            provider = service.provider('deepseek-text' if model == 'deepseek' else 'local-qwen-text')
+            provider = service.provider({'deepseek': 'deepseek-text', 'qwen': 'local-qwen-text', 'gpt-6-luna': 'comfy-gpt-text'}[model])
+            if model == 'gpt-6-luna':
+                provider.require_auth()
             if model == 'deepseek':
                 provider.require_key()
             assets = []
@@ -133,7 +135,7 @@ def routes(service):
             report = await asyncio.to_thread(service.public, job['request_id'])
             if report['phase'] != 'complete':
                 return web.json_response({'contractVersion': 1, **report, 'error': report['error'] or 'Original response is unavailable; do not automatically resubmit.'}, status=409)
-            return {'contractVersion': 1, **report, 'model': QWEN_MODEL if model == 'qwen' else 'deepseek-flash', 'provider': model, 'usage': report['receipt'].get('metadata', {}).get('usage', {})}
+            return {'contractVersion': 1, **report, 'model': QWEN_MODEL if model == 'qwen' else 'deepseek-flash' if model == 'deepseek' else model, 'provider': 'comfy' if model == 'gpt-6-luna' else model, 'usage': report['receipt'].get('metadata', {}).get('usage', {})}
         token = request_key.set(request.headers.get('X-DAELab-DeepSeek-Key', ''))
         try:
             return await guarded(run)

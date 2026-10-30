@@ -21,7 +21,7 @@ from .media import freeze_reference
 from .admission import ResourceAdmission, complete_blocking
 
 MODELS = {IMAGE_MODEL: 'local-qwen-image', VIDEO_MODEL: 'local-h3', QWEN_MODEL: 'local-qwen-text', 'qwen': 'local-qwen-text'}
-MODELS.update({'deepseek': 'deepseek-text', 'deepseek-flash': 'deepseek-text'})
+MODELS.update({'gpt-6-luna': 'comfy-gpt-text', 'deepseek': 'deepseek-text', 'deepseek-flash': 'deepseek-text'})
 MODELS[REFERENCE_VIDEO_MODEL] = 'local-h3-reference'
 MODELS.update({model: provider.id for provider in (SeedanceProvider, MinimaxProvider, ComfyImageProvider) for model in provider.models})
 _BARRIERS = {'rejected', 'fenced'}
@@ -224,12 +224,21 @@ class GenerationService:
 
     async def submit(self, items):
         jobs = await self.prepare_batch(items)
+        previous = None
         for job, item in zip(jobs, items):
             if item.get('recovery'):
                 self._schedule(job['request_id'], self.recover(job['request_id']))
             elif job['state'] == 'pending' and not self._barrier(job):
-                self._schedule(job['request_id'], self.dispatch(job['request_id']))
+                self._schedule(job['request_id'], self._dispatch_after(job['request_id'], previous))
+            previous = self._workers.get(job['request_id'], previous)
         return [await complete_blocking(self.public, job['request_id']) for job in jobs]
+
+    async def _dispatch_after(self, request_id, previous):
+        # Register every row immediately, but retain the submitted batch order.
+        # Cancelling a queued row must not cancel its running predecessor.
+        if previous is not None:
+            await asyncio.gather(asyncio.shield(previous), return_exceptions=True)
+        return await self.dispatch(request_id)
 
     def _schedule(self, request_id, coroutine):
         if request_id in self._workers and not self._workers[request_id].done():

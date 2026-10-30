@@ -4,7 +4,7 @@ import re
 from .optimization_instructions import INSTRUCTION_VERSION, INSTRUCTION_DIGEST, INPUT_VERSION
 from .context_copy import context_copy_reason
 from .parameters import QWEN_MODEL
-MODEL_LIMITS = {QWEN_MODEL: {'maxOutputTokens':1024,'contextTokens':16384}, 'deepseek-flash': {'maxOutputTokens':4096,'contextTokens':131072}}
+MODEL_LIMITS = {'gpt-6-luna': {'maxOutputTokens':4096,'contextTokens':262144}, QWEN_MODEL: {'maxOutputTokens':1024,'contextTokens':16384}, 'deepseek-flash': {'maxOutputTokens':4096,'contextTokens':131072}}
 TOKEN = re.compile(r'⟦DAE_REF_[A-Za-z0-9_-]+_\d+⟧')
 
 def validate_snapshot(s):

@@ -26,6 +26,8 @@ Qwen 使用本机 Ollama 回环接口 `127.0.0.1:11434`。注册清单、已安�
 
 ## LLM 优化
 
+GPT-6 Luna 在独立 LLM 节点和表格优化中均通过官方 `OpenAIChatNode` 对应的 Comfy Partner Responses 通道执行，使用当前 ComfyUI 工作区积分，不读取 OpenAI API Key。宿主须启用 API 节点并支持该模型；表格积分估算从官方 Partner Node Pricing 文档读取，实际用量来自原生响应头。独立节点支持文字优化与单图反推，两处均保留原请求身份、不自动重试计费 POST。新增接线采用模拟接口验证，不代表已执行付费验收。
+
 独立 LLM 节点和多维表格优化共用任务账本，支持上述本地 Qwen 和显式选择的 `deepseek-flash`。DeepSeek 使用宿主进程的 `DEEPSEEK_API_KEY`，也可在宿主 user 目录的 `daelab/creative-studio/deepseek.env` 中设置同名变量。表格优化还支持仅当前页面保存的密钥，请勿将密钥写入工作流或提交源码。
 
 DeepSeek 表格优化先估算并确认美元预算，再逐行提交；服务器有配置不代表密钥有效或账户余额充足。请求固定发往官方 API，无自动重试、代理继承或模型回退；响应丢失会保留未知状态，恢复查询不会重新计费提交。独立节点可优化文字或使用用户选择的参考图反推。自动化测试采用模拟接口，真实云端调用需要另外授权。

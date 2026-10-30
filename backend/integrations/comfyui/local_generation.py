@@ -136,4 +136,9 @@ def assemble_host_generation(server, core, folder_paths, *, native_queue=None):
                                 key_resolver=lambda: configured_key(folder_paths.get_user_directory()))
     generation.providers[deepseek.id] = deepseek
     generation.enabled_remote_providers.add(deepseek.id)
+    from ...providers.comfy_text import ComfyTextProvider
+    from .comfy_text_transport import ComfyTextTransport
+    text = ComfyTextProvider(transport=ComfyTextTransport(), read_frozen=lambda item: read_frozen(core.assets, item))
+    generation.providers[text.id] = text
+    generation.enabled_remote_providers.add(text.id)
     return generation

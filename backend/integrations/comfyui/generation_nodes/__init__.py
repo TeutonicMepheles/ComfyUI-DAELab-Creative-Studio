@@ -20,7 +20,7 @@ def register_routes(server, service):
     for method, path, handler in definitions:
         key = method, path
         if key not in existing:
-            if path == '/daelab/studio/generation/submit':
+            if path == '/daelab/studio/generation/submit' or path.startswith('/daelab/prompt-optimization/'):
                 handler = authenticated_submission(handler)
             server.routes.route(method, path)(handler)
             owned[key] = service, handler

@@ -20,8 +20,8 @@ from ..providers.optimization_instructions import INSTRUCTIONS, INSTRUCTION_VERS
 
 ACTIVE = {'submitting', 'submitted', 'running', 'fetching', 'needs_recovery'}
 OPERATION = 'prompt_optimization'
-PROVIDERS = {QWEN_MODEL: 'qwen', 'deepseek-flash': 'deepseek'}
-PROVIDER_IDS = {QWEN_MODEL: 'local-qwen-text', 'deepseek-flash': 'deepseek-text'}
+PROVIDERS = {'gpt-6-luna': 'comfy', QWEN_MODEL: 'qwen', 'deepseek-flash': 'deepseek'}
+PROVIDER_IDS = {'gpt-6-luna': 'comfy-gpt-text', QWEN_MODEL: 'local-qwen-text', 'deepseek-flash': 'deepseek-text'}
 
 
 def now():
@@ -42,6 +42,7 @@ class OptimizationFacade:
     def __init__(self, service):
         self.service = service
         self.quotes, self.leases, self.permits, self.controls = {}, {}, {}, {}
+        self.prices = {}
         self.lock = asyncio.Lock()
 
     def _prune(self):
@@ -121,9 +122,10 @@ class OptimizationFacade:
                 text = job['result'].get('text', '')
                 row['suggestion'] = suggestion({'status': 'completed', 'output': [{'type': 'message', 'content': [{'type': 'output_text', 'text': text}]}]}, snapshot)
                 row['usage'] = job['result'].get('metadata', {}).get('usage', {})
+                row['actualCredits'] = job['result'].get('metadata', {}).get('actualCredits')
             rows.append(row)
         return {'contractVersion': 1, 'batchId': source['batchId'], 'quoteId': control['quoteId'] or source['quoteId'],
-                'range': source['range'], 'provider': self._price(source['model'])['provider'], 'currency': self._price(source['model'])['currency'], 'price': self._price(source['model']),
+                'range': source['range'], 'provider': self._price(source['model'])['provider'], 'currency': self._price(source['model'])['currency'], 'price': source.get('price') or self._price(source['model']),
                 'budgetCredits': control.get('budgetCredits', source.get('budgetCredits', 0)), 'paused': control['paused'], 'stopped': control['stopped'], 'rows': rows,
                 'preflightSkipped': source.get('skipped', []), 'updatedAt': max(int(datetime.fromisoformat(j['updated_at']).timestamp() * 1000) for j in jobs),
                 'unknownRequests': self._unknown([row['snapshot'] for row in rows], related)}
@@ -134,8 +136,9 @@ class OptimizationFacade:
         return [{'requestId': j['request_id'], 'batchId': j['source']['batchId'], 'target': self._snapshot(j)['target'], 'model': self._snapshot(j)['model']}
                 for j in (self._jobs(**target) if related is None else related) if j['state'] == 'unknown' and digest(self._snapshot(j)['target']) in targets]
 
-    @staticmethod
-    def _price(model=QWEN_MODEL):
+    def _price(self, model=QWEN_MODEL):
+        if model == 'gpt-6-luna':
+            return dict(self.prices.get(model) or {'provider': 'comfy', 'currency': 'credits', 'model': model, 'input': 0, 'output': 0, 'version': 'unavailable', 'basis': '重新估算后才能提交'})
         if model == 'deepseek-flash':
             return {'provider': 'deepseek', 'currency': 'USD', 'model': model, 'input': .3, 'output': 1.2,
                     'version': 'deepseek-flash-20261030', 'unit': '1M tokens', 'basis': 'Official peak uncached USD rates; provider billing is authoritative.'}
@@ -147,8 +150,12 @@ class OptimizationFacade:
         if model not in PROVIDERS:
             raise ProviderUnavailable('Unsupported optimization model.')
         cap = await self.service.capabilities(model)
+        if model == 'gpt-6-luna':
+            if not cap.get('price'):
+                raise ProviderUnavailable('Official Comfy credit pricing is unavailable.')
+            self.prices[model] = cap['price']
         return {'contractVersion': 1, 'available': bool(cap.get('available')),
-                'models': [{'id': model, 'label': 'DeepSeek API' if model == 'deepseek-flash' else 'Qwen3.5-9B',
+                'models': [{'id': model, 'label': 'GPT-6 Luna（ComfyUI 积分）' if model == 'gpt-6-luna' else 'DeepSeek API' if model == 'deepseek-flash' else 'Qwen3.5-9B',
                             'provider': PROVIDERS[model], 'available': bool(cap.get('available')), **MODEL_LIMITS[model]}],
                 'defaultModel': model, 'instructionVersion': INSTRUCTION_VERSION, 'instructionDigest': INSTRUCTION_DIGEST,
                 'inputVersion': INPUT_VERSION, 'price': self._price(model), 'deepseekKeyConfigured': cap.get('deepseekKeyConfigured', False),
@@ -227,8 +234,10 @@ class OptimizationFacade:
                       'position': i, 'rowCount': len(rows), 'submissionDigest': submission_digest, 'range': scope,
                       'skipped': skipped, 'recordId': snapshot['target']['recordId'], 'fieldId': scope['fieldId'],
                       'inputDigest': snapshot['snapshotDigest'], 'model': snapshot['model']}
-            if snapshot['model'] == 'deepseek-flash':
+            if snapshot['model'] in ('deepseek-flash', 'gpt-6-luna'):
                 source['budgetCredits'] = payload['budgetCredits']
+                if snapshot['model'] == 'gpt-6-luna':
+                    source['price'] = self._price(snapshot['model'])
             items.append({'requestId': request_id, 'input': {'entry': 'table', 'model': snapshot['model'], 'optimization': snapshot}, 'source': source})
         return items
 
@@ -302,7 +311,7 @@ class OptimizationFacade:
                 existing = None
             if existing:
                 expected = item['source']
-                if existing['provider'] != PROVIDER_IDS[item['input']['model']] or any(existing['source'].get(key) != value for key, value in expected.items() if key != 'skipped'):
+                if existing['provider'] != PROVIDER_IDS[item['input']['model']] or any(existing['source'].get(key) != value for key, value in expected.items() if key not in ('skipped', 'price')):
                     raise Conflict('Original optimization request has different owner or frozen submission.')
                 item['source'] = existing['source']
             from ..contracts.validation import digest as request_digest
@@ -391,6 +400,8 @@ class OptimizationFacade:
             self._lease(self._target(jobs[0]), payload['leaseId'])
             control = self._control(payload['batchId'])
             selected = next((j for j in jobs if j['request_id'] == payload['requestId']), None)
+            if selected and selected['provider'] == 'comfy-gpt-text':
+                self.service.provider('comfy-gpt-text').require_auth()
             if selected and selected['provider'] == 'deepseek-text':
                 self.service.provider('deepseek-text').require_key()
             permit = self.permits.pop(payload['permitId'], None)
