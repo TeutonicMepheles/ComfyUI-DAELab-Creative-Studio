@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {isTableSource,readTableSnapshot,writeTablePrompts} from '../../frontend/src/features/table/table_exchange.mjs';
 import {promptContent} from '../../frontend/src/features/prompt/table_prompt_template.mjs';
-import {importVideoTasks,syncVideoTaskInputs} from '../../frontend/src/features/generation/video_tasks_model.mjs';
+import {importVideoTasks,syncVideoTaskInputs,syncVideoTaskReferences} from '../../frontend/src/features/generation/video_tasks_model.mjs';
 import {generationInput,LOCAL_VIDEO_MODEL,setRowGenerationConfig,syncGenerationPromptMode,rowGenerationConfig} from '../../frontend/src/features/generation/table_generation_model.mjs';
 import {generationParameterModes,generationModes} from '../../frontend/src/features/prompt/table_prompt_settings.mjs';
 import {frameReferenceOptions} from '../../frontend/src/features/table/table_reference_menu.mjs';
@@ -26,6 +26,25 @@ function sourceNode(type='DAELAB.ScriptParser'){
  const editor={change(update){const t=JSON.parse(data.value);update(t);data.value=JSON.stringify(t);},refreshCells(){}};
  return {type,mode:0,widgets:[data],[type==='DAELAB.ScriptParser'?'__scriptPanel':'__dataTablePanel']:{editor}};
 }
+
+test('table task reference modes submit imported media without requiring inline mentions',()=>{
+ const source=readTableSnapshot(sourceNode()),state=importVideoTasks(source);
+ const row=state.table.records[0],output=state.table.fields.find(f=>f.id===state.fieldId);
+ const config={...output.generation,model:'Seedance 2.5',kind:'video',mode:'mixed2video'};
+ setRowGenerationConfig(row,state.fieldId,config);
+ assert.deepEqual(generationInput(state.table,state.fieldId,row.id).assets.map(a=>a.id),['a1','b1']);
+ const saved=JSON.parse(JSON.stringify(state));
+ delete saved.table.records[0].meta.generationReferences;
+ syncVideoTaskReferences(saved);
+ assert.deepEqual(generationInput(saved.table,saved.fieldId,row.id).assets.map(a=>a.id),['a1','b1']);
+ setRowGenerationConfig(row,state.fieldId,{...config,mode:'text2video'});
+ assert.deepEqual(generationInput(state.table,state.fieldId,row.id).assets,[]);
+ setRowGenerationConfig(row,state.fieldId,config);
+ const next=structuredClone(source);next.records[0].values.media.splice(0,1);
+ syncVideoTaskInputs(state,next,source);
+ assert.deepEqual(generationInput(state.table,state.fieldId,row.id).assets.map(a=>a.id),['b1']);
+ assert.deepEqual(generationInput(state.table,state.fieldId,'2').assets,[]);
+});
 
 test('single generation accepts autogrow text and image sockets while table input stays exclusive',()=>{
  const text={type:'DAELAB.TextInput',outputs:[{type:'STRING'}]},image={type:'LoadImage',outputs:[{type:'IMAGE'}]},table={type:'DAELAB.Table'};
@@ -151,8 +170,8 @@ test('cloud text-to-video switches on a structured media mention, not text refer
   row.values.prompt.segments.push({type:'column',fieldId:'media',assetId:'b1'});
   syncGenerationPromptMode(state.table,before,field.id,field.generation);
   const input=generationInput(state.table,field.id,row.id);
-  assert.equal(input.config.mode,'mixed2video');assert.deepEqual(input.assets.map(a=>a.id),['b1']);
-  assert.deepEqual(input.segments.at(-1),{type:'asset',index:0});
+  assert.equal(input.config.mode,'mixed2video');assert.deepEqual(input.assets.map(a=>a.id),['a1','b1']);
+  assert.deepEqual(input.segments.at(-1),{type:'asset',index:1});
   assert.deepEqual(state.table.records[1],before.records[1]);
  }
 });

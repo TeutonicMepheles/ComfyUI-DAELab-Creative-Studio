@@ -16,7 +16,7 @@ import {rowGenerationConfig,setRowGenerationConfig,promptColumns,syncGenerationF
 import {videoResultAssets} from './libtv_video_model.mjs';
 import {addField,uid,normalizeTable} from '../../application/table_model.mjs';
 import {fillMaterialCell} from '../../application/table_material_columns.mjs';
-import {createVideoTasks,importVideoTasks,activeVideoTask,videoTaskAssets,syncVideoTaskInputs,syncVideoTaskPromptWriteback} from './video_tasks_model.mjs';
+import {createVideoTasks,importVideoTasks,activeVideoTask,videoTaskAssets,syncVideoTaskInputs,syncVideoTaskPromptWriteback,syncVideoTaskReferences} from './video_tasks_model.mjs';
 import {stopCanvasPropagation} from '../../ui/list_editor_controls.mjs';
 import {bindMaterialThumbnail} from '../../application/table_content_view.mjs';
 import {generationInputKind,generationInputRole} from './generation_input.js';
@@ -35,6 +35,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
  if(!node.inputs?.some(i=>i.name==='table_json'))node.addInput('table_json','STRING');
  let state=data.value?JSON.parse(data.value):createVideoTasks(Object.fromEntries((node.widgets||[]).map(w=>[w.name,w.value])));
  state.table=normalizeTable(state.table);
+ if(state.source)syncVideoTaskReferences(state);
  if(!data.value){const saved=videoResultAssets(node);if(saved.ready)state.table.records[0].values[state.fieldId]=saved.assets.map(a=>({...a,id:uid()}));}
  let disposed=false,frame=null,generation=null,promptUI=null,binding=null,promptStamp='',resultsStamp='',lastStored='',sourceKey='',inputError='',linkedTable=null,lastMode=node.mode,notice='';
  let highlightedNode=null,highlightedRecord='',releaseRowHighlight=null;
@@ -140,6 +141,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
  function mutate(update,{render:draw=true,group=null,writePrompts=false}={}){
   if(!isDocumentReady())throw new Error('工作流正在切换，请加载完成后重试');
   const before=state,next=structuredClone(state);update(next);generation?.syncPromptChanges(next.table,state.table);
+  if(next.source)syncVideoTaskReferences(next);
   if(JSON.stringify(next)===JSON.stringify(state))return;
   notice='';
   const derived=['table-input-sync','approved-row-sync','input-disconnect'].includes(group),continuing=group&&group===historyGroup;

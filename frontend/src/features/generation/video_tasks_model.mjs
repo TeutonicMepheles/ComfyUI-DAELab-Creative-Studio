@@ -5,6 +5,15 @@ import {effectivePrompt,toColumnPrompt,promptContent} from '../prompt/table_prom
 import {generationMaterials} from '../../application/table_material_output.mjs';
 import {videoTaskResultPreviews} from './video_task_results.js';
 import {promptSourceId,requirePromptSource,setPromptSource} from '../prompt/table_prompt_source.mjs';
+import {tableAssets} from '../prompt/table_prompt_model.mjs';
+
+export function syncVideoTaskReferences(state){
+ const fields=new Set(state.table.fields.filter(field=>!field.readonly&&field.id!==state.fieldId).map(field=>field.id));
+ for(const row of [...state.table.records,...(state.archivedTasks||[])]){
+  row.meta||={};row.meta.generationReferences||={};
+  row.meta.generationReferences[state.fieldId]=tableAssets(state.table,row).filter(asset=>fields.has(asset.fieldId)).map(asset=>({fieldId:asset.fieldId,assetId:asset.id}));
+ }
+}
 
 export const activeVideoTask=row=>Object.values(row?.meta?.generationColumns||{}).some(s=>['waiting','running','pausing'].includes(s.phase));
 export function taskConfig(config={},promptFieldId){
@@ -44,7 +53,9 @@ export function importVideoTasks(source,promptId,previous){
   if(content.some(s=>s.type==='frame'))applyPromptContent(table,row,prompt.id,content,fieldId);
  }
  syncGenerationFrameTags(table,fieldId,defaults);
- return {version:1,table,fieldId,currentId:table.records[0]?.id||''};
+ const state={version:1,table,fieldId,currentId:table.records[0]?.id||''};
+ syncVideoTaskReferences(state);
+ return state;
 }
 export function selectTaskPrompt(state,recordId,promptFieldId){
  if(state.table.meta?.generationInput&&promptFieldId!==promptSourceId(state.table))throw new Error('请在来源表格的列头切换提示词');
@@ -113,6 +124,7 @@ export function syncVideoTaskInputs(state,source,previous){
   }
   row.name=origin.name||`任务${normalized.records.indexOf(origin)+1}`;
  }
+ syncVideoTaskReferences(state);
 }
 
 // Prompt writeback can derive a mode on the source table from added/removed frame tags.
