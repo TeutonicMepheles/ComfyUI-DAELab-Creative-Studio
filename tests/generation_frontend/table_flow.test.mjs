@@ -26,6 +26,30 @@ function fixture(t,hooks={}){
  t.after(()=>{tasks.destroy();native.dispose();unbind();});
  return {tasks,native,calls,notices,field,row,original,rejectOnce(status){submitFault=status;},statusFailure(status){statusFault=status;},get table(){return table;},get steps(){return steps;},async submitted(){let timeout;try{await Promise.race([submissionReady,new Promise((_,reject)=>{timeout=setTimeout(()=>reject(new Error('Generation did not reach the test submit handler')),5000);})]);}finally{clearTimeout(timeout);}},complete(){release();},switch(){epoch++;}};
 }
+test('injected batch submits all three untouched rows in one shared request',async t=>{
+ const f=fixture(t);
+ for(const id of ['second','third']){const row=structuredClone(f.row);row.id=id;f.table.records.push(row);}
+ const pending=f.tasks.generate(f.field.id,null,false,true);await f.submitted();
+ const jobs=f.calls.find(call=>call.url.endsWith('/submit')).body.jobs;
+ assert.deepEqual(jobs.map(job=>job.input.recordId),[f.row.id,'second','third']);
+ assert.equal(new Set(jobs.map(job=>job.requestId)).size,3);
+ f.complete();await pending;
+ assert.equal(f.calls.filter(call=>call.url.endsWith('/submit')).length,1);
+});
+
+test('injected batch skips completed receipts and existing outputs',async t=>{
+ const f=fixture(t),first=f.tasks.generate(f.field.id,f.row.id);await f.submitted();f.complete();await first;
+ const original=f.table.records[0].meta.studioGenerationRefs[f.field.id][0].requestId;
+ for(const id of ['completed','remaining']){const row=structuredClone(f.original.records[0]);row.id=id;f.table.records.push(row);}
+ f.table.records[1].values[f.field.id]=[{id:'previous-output',kind:'image',url:'/view?filename=previous.png&type=output'}];
+ const pending=f.tasks.generate(f.field.id,null,false,true);
+ for(let i=0;i<100&&!f.calls.some(call=>call.url.endsWith('/submit')&&call.body.jobs[0].input.recordId==='remaining');i++)await new Promise(setImmediate);
+ const submissions=f.calls.filter(call=>call.url.endsWith('/submit'));
+ assert.deepEqual(submissions.at(-1).body.jobs.map(job=>job.input.recordId),['remaining']);
+ assert.equal(f.table.records[0].meta.studioGenerationRefs[f.field.id][0].requestId,original);
+ f.complete();await pending;
+});
+
 test('actual table submit stores only immutable references; completion uses one native result transaction and poll never writes facts',async t=>{
  t.mock.timers.enable({apis:['setInterval']});const f=fixture(t),pending=f.tasks.generate(f.field.id,f.row.id);await f.submitted();
  assert.equal(f.table.records[0].meta.generationColumns,undefined);assert.equal(f.steps,1);const refs=f.table.records[0].meta.studioGenerationRefs[f.field.id];assert.equal(refs.length,1);assert.equal(refs[0].phase,undefined);assert.equal(refs[0].input,undefined);

@@ -98,7 +98,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
   Promise.resolve().then(()=>businessHost().estimateGenerationCredits?.(input)).then(price=>{
    if(disposed||priceStamp!==stamp)return;
    const format=value=>new Intl.NumberFormat('zh-CN',{maximumFractionDigits:2}).format(value);
-   estimate.textContent=price?'预计约 '+format(price.min)+(price.max!==price.min?'–'+format(price.max):'')+' 积分':'积分暂无法估算';
+   estimate.textContent=price?'当前任务预计约 '+format(price.min)+(price.max!==price.min?'–'+format(price.max):'')+' 积分':'积分暂无法估算';
   }).catch(()=>{if(!disposed&&priceStamp===stamp)estimate.textContent='积分暂无法估算';});
  }
  function notify(message){notice=message;status.textContent=message;}
@@ -135,6 +135,8 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
  }
  function schedule(){if(!disposed&&frame===null)frame=requestAnimationFrame(()=>{frame=null;render();});}
  const nativeDocument=documentFactory?.(()=>state,next=>{state=next;persist();promptStamp='';schedule();});
+ const batchMode=()=>Boolean(state.source||state.approvedSource);
+ const remainingTasks=()=>state.table.records.filter(row=>!generation?.stateFor(row,state.fieldId)&&!row.values[state.fieldId]?.length);
  const active=row=>['waiting','running','pausing'].includes(generation?.stateFor(row,state.fieldId)?.phase);
  state.sourceScope={...taskIdentity,nodeId:String(node.id)};
  let historyGroup=null;
@@ -367,7 +369,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
  function render(){
   if(disposed)return;
   if(!current())state.currentId=state.table.records[0]?.id||'';
-  const row=current(),cfg=config(),receipt=generation.stateFor(row,state.fieldId),busy=!!row&&active(row);
+  const row=current(),cfg=config(),receipt=generation.stateFor(row,state.fieldId),busy=batchMode()?state.table.records.some(active):!!row&&active(row);
   renderPrice(row,cfg);
   if(!rail.hidden)renderCards();else if(cards.children.length){releaseThumbnails(cards);cards.replaceChildren();}
   renderPrompt();syncRowHighlight();body.hidden=!row;bodyTop.hidden=!linkedTable&&!state.source&&!materials.children.length;
@@ -382,7 +384,8 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
   root.dataset.kind=cfg?.kind||'video';typeTabs.setAttribute('aria-busy',String(changingType));for(const [kind,control] of typeButtons){control.disabled=locked||!row;control.setAttribute('aria-pressed',String(cfg?.kind===kind));}
   prompt.inert=locked;
   if(cfg)settings.update(cfg,'当前任务');settings.root.hidden=!row;settings.root.inert=locked;
-  const runLabel=busy?'暂停':receipt?.needsOriginalFence?'封存原请求':['needs_recovery','stopped'].includes(receipt?.phase)?'恢复原任务':receipt?'重新生成':'运行';
+  const remaining=batchMode()?remainingTasks().length:0;
+  const runLabel=busy?'暂停':remaining?`生成剩余 ${remaining} 个任务`:receipt?.needsOriginalFence?'封存原请求':['needs_recovery','stopped'].includes(receipt?.phase)?'恢复原任务':receipt?'重新生成':'运行';
   if(run.title!==runLabel)tableIcon(run,busy?'pause-fill':runLabel==='重新生成'?'restart-line':'play-line',runLabel);
   run.disabled=!row||!!node.mode||generation.submitting||changingType||!!inputError;
   const output=videoTaskResultPreviews(row?.values[state.fieldId]||[],receipt,row?.meta?.generationPreviewAfter?.[state.fieldId]).filter(asset=>!outputNodes?.owns(asset.provenance?.requestId)),stamp=JSON.stringify([row?.id,output]);
@@ -395,7 +398,9 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
   notice='';
   const row=current(),receipt=generation.stateFor(row,state.fieldId);
   if(!row)return;
-  if(active(row)){if(window.confirm('当前任务正在进行中，确认取消吗？'))return generation.pause([receipt]);return;}
+  const running=(batchMode()?state.table.records:[row]).filter(active).map(item=>generation.stateFor(item,state.fieldId));
+  if(running.length){if(window.confirm('当前任务正在进行中，确认取消吗？'))return generation.pause(running);return;}
+  if(batchMode()&&remainingTasks().length){binding?.finish();return generation.generate(state.fieldId,null,false,true);}
   if(receipt?.needsOriginalFence)return generation.fenceOriginal(state.fieldId,row.id);
   if(['needs_recovery','stopped'].includes(receipt?.phase))return generation.generate(state.fieldId,row.id,true);
   binding?.finish();return generation.generate(state.fieldId,row.id);
