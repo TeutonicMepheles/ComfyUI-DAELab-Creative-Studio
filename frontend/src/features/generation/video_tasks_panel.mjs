@@ -135,7 +135,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
  }
  function schedule(){if(!disposed&&frame===null)frame=requestAnimationFrame(()=>{frame=null;render();});}
  const nativeDocument=documentFactory?.(()=>state,next=>{state=next;persist();promptStamp='';schedule();});
- const batchMode=()=>Boolean(state.source||state.approvedSource);
+ const batchMode=()=>Boolean(state.source||state.approvedSource||state.table.records.length>1);
  const remainingTasks=()=>state.table.records.filter(row=>!generation?.stateFor(row,state.fieldId)&&!row.values[state.fieldId]?.length);
  const active=row=>['waiting','running','pausing'].includes(generation?.stateFor(row,state.fieldId)?.phase);
  state.sourceScope={...taskIdentity,nodeId:String(node.id)};

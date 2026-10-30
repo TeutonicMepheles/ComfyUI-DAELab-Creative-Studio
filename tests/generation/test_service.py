@@ -119,6 +119,22 @@ class GenerationTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(Conflict):
             await self.service.prepare_batch([self.item(recordId='other-row')])
 
+    async def test_three_injected_jobs_queue_and_all_complete_without_another_click(self):
+        self.fake.gate = asyncio.Event()
+        ids = ['injected-first', 'injected-second', 'injected-third']
+        await self.service.submit([self.item(request_id, recordId='row-' + str(index)) for index, request_id in enumerate(ids)])
+        for _ in range(200):
+            if self.fake.creates:
+                break
+            await asyncio.sleep(.005)
+        self.assertEqual(self.fake.creates, ids[:1])
+        self.assertEqual([self.core.jobs.get(request_id)['state'] for request_id in ids[1:]], ['pending', 'pending'])
+        self.fake.gate.set()
+        await self.service.wait_idle()
+        self.assertEqual(self.fake.creates, ids)
+        self.assertEqual([self.service.public(request_id)['phase'] for request_id in ids], ['complete'] * 3)
+        self.assertEqual(self.admission.peak, 1)
+
     async def test_all_selected_preflight_precedes_any_ledger_or_provider_submission(self):
         with self.assertRaises(InvalidInput):
             await self.service.submit([self.item(), self.item('bad', segments=[])])

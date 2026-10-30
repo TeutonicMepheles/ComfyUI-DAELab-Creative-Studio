@@ -78,7 +78,7 @@ export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,
    if(unsubmittedOnly)await poll(true);
    await prepareGeneration(fieldId,recordId);
    if(!alive||captured!==epoch||!canGenerate())return;
-   const table=getTable(),candidates=recordId?table.records.filter(row=>row.id===recordId):generationRows(table,fieldId),rows=unsubmittedOnly?candidates.filter(row=>!reference(row,fieldId)&&!stateFor(row,fieldId)&&!row.values[fieldId]?.length):candidates,jobs=[];
+   const table=getTable(),candidates=unsubmittedOnly?table.records:recordId?table.records.filter(row=>row.id===recordId):generationRows(table,fieldId),rows=unsubmittedOnly?candidates.filter(row=>!reference(row,fieldId)&&!stateFor(row,fieldId)&&!row.values[fieldId]?.length):candidates,jobs=[];
    for(const row of rows){
     const old=stateFor(row,fieldId);if(old&&!old.legacy&&['waiting','running','pausing','needs_recovery'].includes(old.phase))throw new Error('请先核对原任务，未知状态不能直接创建新任务');
     const input=generationInput(table,fieldId,row.id),requestId=crypto.randomUUID(),guard=editor.beginAsync({recordId:row.id,fieldId},requestId);guards.push(guard);
