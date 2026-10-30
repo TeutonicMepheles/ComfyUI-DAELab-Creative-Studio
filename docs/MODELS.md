@@ -24,6 +24,14 @@ Qwen 使用本机 Ollama 回环接口 `127.0.0.1:11434`。注册清单、已安�
 
 本地文生图使用 Qwen-Image-2.1 Turbo；文生视频、首帧与首尾帧使用 MiniMax H3 FL；1–9 张图片参考使用独立的 MiniMax H3 Ref。Ref 的图片顺序保留为 `<Picture N>` 编号，当前不接入视频或音频参考。生成节点与多维表格共用这些提供方和任务服务。权重格式与名称来自显式绑定，不自动切换量化版本；图片 GGUF 编码器需要已安装的 `CLIPLoaderGGUF` 节点及匹配的 mmproj 文件。首次能力查询会校验模型文件哈希，界面最多等待 120 秒。
 
+## LLM 优化
+
+独立 LLM 节点和多维表格优化共用任务账本，支持上述本地 Qwen 和显式选择的 `deepseek-flash`。DeepSeek 使用宿主进程的 `DEEPSEEK_API_KEY`，也可在宿主 user 目录的 `daelab/creative-studio/deepseek.env` 中设置同名变量。表格优化还支持仅当前页面保存的密钥，请勿将密钥写入工作流或提交源码。
+
+DeepSeek 表格优化先估算并确认美元预算，再逐行提交；服务器有配置不代表密钥有效或账户余额充足。请求固定发往官方 API，无自动重试、代理继承或模型回退；响应丢失会保留未知状态，恢复查询不会重新计费提交。独立节点可优化文字或使用用户选择的参考图反推。自动化测试采用模拟接口，真实云端调用需要另外授权。
+
+Qwen 需要在启动 LLM 优化前运行已安装的本地 Ollama 服务；Studio 不自动下载模型或启动外部进程。只有通过清单及六个 blob 校验后才允许本地推理。
+
 ## Seedance（ComfyUI 账户）
 
 生成节点通过已安装的官方 `ByteDance2TextToVideoNode`、`ByteDance2FirstLastFrameNode`、`ByteDance2ReferenceNodeV2` 接入 Seedance 2.5、2.0、2.0 Fast、2.0 Mini。启用 ComfyUI API 节点并登录 ComfyUI 账户（或配置其 API Key）后，重启服务、刷新页面即可读取模式；选项取自当前安装的官方节点，不依赖本地模型配置。实际生成使用 ComfyUI 账户积分。

@@ -21,6 +21,7 @@ from .media import freeze_reference
 from .admission import ResourceAdmission, complete_blocking
 
 MODELS = {IMAGE_MODEL: 'local-qwen-image', VIDEO_MODEL: 'local-h3', QWEN_MODEL: 'local-qwen-text', 'qwen': 'local-qwen-text'}
+MODELS.update({'deepseek': 'deepseek-text', 'deepseek-flash': 'deepseek-text'})
 MODELS[REFERENCE_VIDEO_MODEL] = 'local-h3-reference'
 MODELS.update({model: provider.id for provider in (SeedanceProvider, MinimaxProvider, ComfyImageProvider) for model in provider.models})
 _BARRIERS = {'rejected', 'fenced'}

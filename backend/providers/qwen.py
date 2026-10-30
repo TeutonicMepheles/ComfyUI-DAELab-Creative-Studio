@@ -114,6 +114,8 @@ class QwenProvider:
         return {'model': QWEN_MODEL, 'provider': 'qwen', 'local': True, 'available': True, 'maxOutputTokens': 1024, 'weightBinding': weights}
 
     def build(self, data, media, request_id):
+        if data.get('entry') == 'table' and data.get('optimization', {}).get('model') != QWEN_MODEL:
+            raise InvalidInput('Frozen optimization model does not belong to local Qwen.')
         if len(media) > 1:
             raise InvalidInput('Canvas optimization accepts at most one reference image.')
         image = self.read_frozen(media[0]) if media else None

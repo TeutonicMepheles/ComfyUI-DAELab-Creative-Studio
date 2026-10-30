@@ -7,7 +7,8 @@ import re
 
 from ...generation.assembly import assemble_generation
 from ...generation.admission import complete_blocking
-from ...generation.media import stage_native_input
+from ...generation.media import stage_native_input, read_frozen
+from ...providers.deepseek import DeepSeekProvider, DeepSeekTransport, configured_key
 from ...providers.qwen_binding import QwenModelBinding
 from ...providers.comfy_video import SeedanceProvider, MinimaxProvider
 from ...providers.comfy_image import ComfyImageProvider
@@ -131,4 +132,8 @@ def assemble_host_generation(server, core, folder_paths, *, native_queue=None):
                                  media_input=lambda item, stage=media_input: stage(core.assets, item))
         generation.providers[provider.id] = provider
         generation.enabled_remote_providers.add(provider.id)
+    deepseek = DeepSeekProvider(transport=DeepSeekTransport(), read_frozen=lambda item: read_frozen(core.assets, item),
+                                key_resolver=lambda: configured_key(folder_paths.get_user_directory()))
+    generation.providers[deepseek.id] = deepseek
+    generation.enabled_remote_providers.add(deepseek.id)
     return generation
