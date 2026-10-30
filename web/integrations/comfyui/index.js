@@ -2,4 +2,4 @@
 export const STUDIO_VERSION = '0.1.0-dev.0';
 export const STUDIO_API_VERSION = 1;
 // Replaced in compiled output by tools/build.mjs using the complete source tree.
-export const FRONTEND_BUILD_ID = '777b66a49d7194f58b7c413c96e3694f5348466f326b913d8e088ee26d75ae3f';
+export const FRONTEND_BUILD_ID = 'b5a57c77284dce712b661c1e7b288ef0378ba58e8c8d3134e7db50841bfa552f';

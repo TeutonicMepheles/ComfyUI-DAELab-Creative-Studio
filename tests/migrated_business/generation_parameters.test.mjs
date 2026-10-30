@@ -36,6 +36,17 @@ test('image summary omits stale video duration; local dimensions remain visible'
  assert.equal(generationParametersSummary({kind:'image',mode:'text2image',settings:{width:1024,height:1024,duration:9}}),'文生图 · 1:1 · 1024×1024');
 });
 
+test('official image settings remain editable and summarize the selected dimensions and quality',()=>{
+ const names=['size','quality','background','custom_width','custom_height'];
+ const schema={properties:Object.fromEntries(names.map(name=>[name,{type:'string'}])),config:{settings:{text2image:names,image2image:names}}};
+ assert.deepEqual(generationParameterSpecs(schema,'image2image').map(x=>x.name),['size','custom_width','custom_height','quality','background']);
+ const config={kind:'image',mode:'text2image',settings:{size:'1536x1024',quality:'low',width:512,height:288}};
+ const before=structuredClone(config);
+ assert.equal(generationParametersSummary(config),'文生图 · 1536×1024 · 质量 low');
+ assert.deepEqual(config,before);
+ assert.equal(generationParametersSummary({...config,settings:{size:'Custom',custom_width:2048,custom_height:1152}}),'文生图 · 2048×1152');
+});
+
 test('new cloud MiniMax tasks use its resolution default and preserve explicit saved values',()=>{
  const config=values=>{const state=createVideoTasks(values);return state.table.fields.find(field=>field.id===state.fieldId).generation;};
  assert.equal(config({model:'Minimax H3'}).settings.resolution,'768P');

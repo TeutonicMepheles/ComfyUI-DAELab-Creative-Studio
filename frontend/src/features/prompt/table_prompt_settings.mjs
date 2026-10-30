@@ -3,7 +3,7 @@ import {createTableButton} from '../../ui/table_controls.mjs';
 import {stopCanvasPropagation} from '../../ui/list_editor_controls.mjs';
 import {generationModelIconURL,generationModelLabel} from '../generation/generation_model_icons.mjs';
 
-// The order and setting keys are the contract documented in docs/prompt-settings-template.md.
+// Shared setting entries for table cells and standalone generation nodes.
 export const PROMPT_SETTINGS_TEMPLATE=Object.freeze([
  {key:'kind',label:'生成类型',icon:'video-line'},
  {key:'model',label:'模型',icon:'box-3-line'},
@@ -13,6 +13,7 @@ export const PROMPT_SETTINGS_TEMPLATE=Object.freeze([
 ]);
 export const generationModeLabels={text2video:'文生视频',singleImage2video:'首帧',frames2video:'首尾帧',image2video:'全能参考',mixed2video:'全能参考',text2image:'文生图',image2image:'参考图',audio2video:'音频参考'};
 function sizeLabel(settings){
+ if(settings.size)return settings.size==='Custom'?`${settings.custom_width||1024}×${settings.custom_height||1024}`:settings.size==='auto'?'自动尺寸':String(settings.size).replace('x','×');
  const width=Number(settings.width),height=Number(settings.height),dimensions=width>0&&height>0;
  let ratio=settings.ratio;
  if(!ratio&&dimensions&&Number.isInteger(width)&&Number.isInteger(height)){let a=width,b=height;while(b){[a,b]=[b,a%b];}ratio=`${width/a}:${height/a}`;}
@@ -20,7 +21,7 @@ function sizeLabel(settings){
 }
 export function generationParametersSummary(config){
  const settings=config.settings||{},sound=settings.enableSound;
- return [generationModeLabels[config.mode]||config.mode||'选择方式',sizeLabel(settings),config.kind==='video'&&settings.duration!=null?`${settings.duration}s`:'',sound!==undefined?(['on',true,1].includes(sound)?'音频开启':'音频关闭'):''].filter(Boolean).join(' · ');
+ return [generationModeLabels[config.mode]||config.mode||'选择方式',sizeLabel(settings),config.kind==='image'&&settings.quality?`质量 ${settings.quality}`:'',config.kind==='video'&&settings.duration!=null?`${settings.duration}s`:'',sound!==undefined?(['on',true,1].includes(sound)?'音频开启':'音频关闭'):''].filter(Boolean).join(' · ');
 }
 export function promptSettingsItems(config,{combined=false}={}){
  const settings=config.settings||{},video=config.kind==='video';
@@ -127,7 +128,7 @@ export function generationSettingSpecs(schema,mode){
  const props=schema.properties||{},config=schema.config||{};
  return ['settings','advancedSettings'].flatMap(bucket=>{const keys=config[bucket]||[];return (Array.isArray(keys)?keys:keys[mode]||[]).filter(key=>props[key]).map(key=>({...props[key],name:props[key].originalField||key}));});
 }
-const generationParameterOrder=['ratio','resolution','width','height','duration','enableSound','sound','generateAudio'];
+const generationParameterOrder=['ratio','resolution','width','height','size','custom_width','custom_height','quality','background','duration','enableSound','sound','generateAudio'];
 export function generationParameterSpecs(schema,mode){
  const seen=new Set();return generationSettingSpecs(schema,mode).filter(spec=>{if(!generationParameterOrder.includes(spec.name)||seen.has(spec.name))return false;seen.add(spec.name);return true;}).sort((a,b)=>generationParameterOrder.indexOf(a.name)-generationParameterOrder.indexOf(b.name));
 }
@@ -186,6 +187,7 @@ export function createGenerationParameters(config,schema,{onMode,onSetting,onSet
  const localVideo=isLocalVideoModel(config.model);
  if(localVideo)root.append(createLocalVideoSizePicker(config,schema,onSettings));
  for(const spec of generationParameterSpecs(schema,config.mode).filter(spec=>!localVideo||!['width','height','ratio','resolution'].includes(spec.name))){
+  if(['custom_width','custom_height'].includes(spec.name)&&config.settings?.size!=='Custom')continue;
   const title=({resolution:'清晰度',duration:'生成时长',enableSound:'生成音频',sound:'生成音频',generateAudio:'生成音频'})[spec.name]||spec.displayName||spec.title||spec.name,block=section(title);block.dataset.parameter=spec.name;
   const value=config.settings?.[spec.name]??spec.default,items=spec.enum?.map(item=>typeof item==='object'?[item.value,String(item.displayName||item.label||item.value)]:[item,String(item)]);
   if(spec.name==='duration'){
@@ -242,7 +244,7 @@ export function normalizeLocalGenerationConfig(config,schema){
  config.settings=settings;return config;
 }
 export function promptSettingSpecs(schema,mode,key,settings={}){
- const names=key==='duration'?['duration']:['ratio','resolution','width','height'],specs=generationSettingSpecs(schema,mode),properties=Object.entries(schema.properties||{}).map(([key,spec])=>({...spec,name:spec.originalField||key}));
+ const names=key==='duration'?['duration']:['ratio','resolution','width','height','size','quality','background',...(settings.size==='Custom'?['custom_width','custom_height']:[])],specs=generationSettingSpecs(schema,mode),properties=Object.entries(schema.properties||{}).map(([key,spec])=>({...spec,name:spec.originalField||key}));
  return names.flatMap(name=>{
   const spec=specs.find(item=>item.name===name)||properties.find(item=>item.name===name);
   if(spec)return [spec];

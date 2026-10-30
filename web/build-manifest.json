@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "777b66a49d7194f58b7c413c96e3694f5348466f326b913d8e088ee26d75ae3f",
+  "sourceFingerprint": "b5a57c77284dce712b661c1e7b288ef0378ba58e8c8d3134e7db50841bfa552f",
   "files": [
     {
       "path": "AGENTS.md",
@@ -600,7 +600,7 @@
     },
     {
       "path": "features/prompt/README.md",
-      "sha256": "5fde3004a1a6848f5e975bedf3d3a0e5a318b33e1da26f9daa8297135b8c875a"
+      "sha256": "387c805ec118db3fbaa20339c427a4f51ec85ebea1cd9a83dc57b283f77ff8da"
     },
     {
       "path": "features/prompt/llm_io_model.mjs",
@@ -680,7 +680,7 @@
     },
     {
       "path": "features/prompt/table_prompt_settings.mjs",
-      "sha256": "6128743831dcf1bc80d770bd9bdaef881d73b446fd580ec595999919e2d796a3"
+      "sha256": "d112b3977a6dd781fee27c730d5fb73c18fd8a135e98b1edf129ce30442ea03e"
     },
     {
       "path": "features/prompt/table_prompt_source.mjs",
@@ -1116,7 +1116,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "ea25ecf5d2baabfbdce6e42d95ea06d13b4f20cb6a302b01749791d1ee616e74"
+      "sha256": "33b6625e64faec0f50988d4cd0a3c470288c0fb5c71bf644dbbc82c4c55852bc"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
