@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "435e1ee0f2e06c6cf60135a7042b8a21a3af5d2ec06445748b5b123cd42f8140",
+  "sourceFingerprint": "a0c00590ca7bad5c26bfcfea60798d83689a7c5b30159347c21be58719f22f7d",
   "files": [
     {
       "path": "AGENTS.md",
@@ -108,7 +108,7 @@
     },
     {
       "path": "canvas/creative_canvas_view.mjs",
-      "sha256": "6481fbdbd34ccc7cd2e8d3f05f8f81a1e0e2fefe654467dc1e5808f757968f52"
+      "sha256": "afa9884d7f3939d7e20f7bf4d5030bb665a5dbf06815b860c79d778dcf6fcc53"
     },
     {
       "path": "canvas/creative_connections.mjs",
@@ -548,7 +548,7 @@
     },
     {
       "path": "features/generation/video_task_linked_prompt.mjs",
-      "sha256": "e1009045aabb97e5c610f8ad6866361f9359b5cd3b8df57076656caaf5c25f0b"
+      "sha256": "88fceeb7bd9f702dd018ef05580f60c2204b1f9f42f67c81382a2212a41ec7e2"
     },
     {
       "path": "features/generation/video_task_results.js",
@@ -564,11 +564,11 @@
     },
     {
       "path": "features/generation/video_tasks_model.mjs",
-      "sha256": "057cf74f2c968e72e2970e826507914951caa6c639201c6ae9c3ce4dbde1c379"
+      "sha256": "220afac84f1e95c87054e540b4a753df009482dda3397a21134d9d2a0790d469"
     },
     {
       "path": "features/generation/video_tasks_panel.mjs",
-      "sha256": "34555286577f3f9217d25447f5b09d02f5bd98ca2e27b5cf9770950a5ade7204"
+      "sha256": "7a6e5f127327ed9ab1963cf40846bce4e97ae61ca4ed6ca33fcdfee91dfc706d"
     },
     {
       "path": "features/groups/AGENTS.md",
@@ -576,19 +576,23 @@
     },
     {
       "path": "features/groups/README.md",
-      "sha256": "4a557701740c5fc0c8c6162f38fdfdcba9660cb32144a9ca157d574df9dfb19f"
+      "sha256": "44bdf90016e178dc2b37c26e667330c92267abbb0aace73c47ba68ebc0fcc32d"
+    },
+    {
+      "path": "features/groups/material_group_download.js",
+      "sha256": "1c9e02b9d72fb96030871c3b548132ad33cde57ba4ee0062f1eabe7d7f146655"
     },
     {
       "path": "features/groups/material_group_model.mjs",
-      "sha256": "85502838074baca6dd2e2451284fb7494dc55800077f3751274a155ed1427a82"
+      "sha256": "625df7b543184b11000a2d90777cea2fe6d955718ca6e7f3f60c5ded87e40d19"
     },
     {
       "path": "features/groups/material_groups.css",
-      "sha256": "8080b8c2d5cbba4ef167a79a54b16f64b6cbe7108728501c5c5acd1606f526c3"
+      "sha256": "eac85d8339d62aaecc0a9863050c40aa27ecf5263c9dca1cd0ac8d4cc2a3ad7a"
     },
     {
       "path": "features/groups/material_groups.mjs",
-      "sha256": "16b36901da1f88e1fda33780b3fdd2981459e1f5ab80ef25f9ea231f00cdcc9e"
+      "sha256": "424c3ba590c006fc22e6c8c53450ab43542abe8883e0067e3d32fda7e0f147bf"
     },
     {
       "path": "features/prompt/AGENTS.md",
@@ -700,7 +704,7 @@
     },
     {
       "path": "features/storyboard/README.md",
-      "sha256": "6eacc2991a1267d8aab7fad3146227ab00ab24f40fd084e74fe6f14acc6680ff"
+      "sha256": "747cc0e8f3a73a294ca735ce836db02558215f76ae3ee8d4b02bb36583ed3c8b"
     },
     {
       "path": "features/storyboard/daelab_storyboard_import.mjs",
@@ -716,11 +720,15 @@
     },
     {
       "path": "features/storyboard/script_parser_model.mjs",
-      "sha256": "3bae1532a51f9b95d90968c29c04c03e932754f1023276c534cf6f4f16fce2fa"
+      "sha256": "69410b86d01aa74a35e61f77a94b07fb8791fdddd790277c65df7f0003b8f517"
     },
     {
       "path": "features/storyboard/script_parser_panel.mjs",
-      "sha256": "ef350eff528a6b7a766a0d25a4f8ec7554dd89dfa33481f1918cd2cb60940a1f"
+      "sha256": "61c37c3d7cde53d809a24b8457ee6945c0e86d837d9bbc0ce341864814fdb780"
+    },
+    {
+      "path": "features/storyboard/script_partitions.js",
+      "sha256": "3c921c83cb41a5f445d704b06659c93d32ce2aa291d9260f38246eb5f18c770f"
     },
     {
       "path": "features/storyboard/storyboard_import_assets.mjs",
@@ -1012,7 +1020,7 @@
     },
     {
       "path": "integrations/comfyui/business/script_parser.js",
-      "sha256": "83eadd71a158c66afa5b6d6cfb80a91221d101f6e794918ef88438e56323bb03"
+      "sha256": "d872a0acfe742d5c30b6afce945b09ca66fe9ba1ce3169df5d705ebf38c284c4"
     },
     {
       "path": "integrations/comfyui/business/table_capabilities.js",
@@ -1100,7 +1108,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "71ae804eca83fbb685b55a446d7adf5d580b6e9388b1d083170addb1b477466c"
+      "sha256": "f72d64eaebd009b03f8ae9b9e6c466431b9a6f171634b42ee896d5b25bf8ab89"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

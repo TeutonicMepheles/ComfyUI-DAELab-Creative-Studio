@@ -4,6 +4,18 @@ import {inputSnapshot} from '../../canvas/creative_input_exchange.mjs';
 export const GROUP_TYPE='DAELAB.MaterialGroup';
 export const GROUP_SOCKET='DAELAB_ASSETS';
 export const isGroupMember=node=>[UPLOAD_TYPE,'DAELAB.TextInput'].includes(node?.type);
+// A group action requires one unambiguous owner for the entire selection.
+export function selectedMaterialGroup(chosen,groups){
+    if(!chosen.length)return null;
+    let owner=null;
+    for(const node of chosen){
+        const owners=node.type===GROUP_TYPE?groups.filter(g=>String(g.id)===String(node.id)):
+            groups.filter(g=>(g.properties.members||[]).some(id=>String(id)===String(node.id)));
+        if(owners.length!==1||(owner&&String(owner.id)!==String(owners[0].id)))return null;
+        owner=owners[0];
+    }
+    return owner;
+}
 export function groupInputSnapshot(group){
     const collection=collectionFor(group),texts=[];
     for(const id of group.properties.members||[]){

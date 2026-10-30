@@ -50,7 +50,7 @@ function fixture({count=100,zoom=.5,ordinary=false,reduced=false}={}){
   }
   const graph={links},graphBefore=JSON.stringify(graph),world={getBoundingClientRect(){read('world');return{left:0,top:0};}};
   const wires={getScreenCTM(){read('matrix');return{a:zoom,b:0,c:0,d:zoom,e:0,f:0};}};
-  const document={elementFromPoint(){read('hit');return{closest:()=>null};}};
+  let hit={closest:()=>null};const document={elementFromPoint(){read('hit');return hit;}};
   const host={nodes:()=>[...cards.values()].map(c=>c.node)};
   const globals={root,state,cards,wirePaths,wireGeometry,portOffsets,graph,world,wires,document,host,
     getComputedStyle(port){read('visibility');return{visibility:port.invisible?'hidden':'visible'};},
@@ -63,7 +63,7 @@ function fixture({count=100,zoom=.5,ordinary=false,reduced=false}={}){
   api.drawWires();events.length=0;
   const port=(i,side='input')=>cards.get(i).ports.querySelector(side);
   const center=p=>{const r=p.getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/2};};
-  return {api,events,port,cards,wirePaths,graph,graphBefore,center,run(point){api.frame(point);frames.shift()();},clear(){events.length=0;}};
+  return {api,events,port,cards,wirePaths,graph,graphBefore,center,setHit(value){hit=value;},run(point){api.frame(point);frames.shift()();},clear(){events.length=0;}};
 }
 
 test('100-node hover frame measures ports, receiving wires and all anchors before its first DOM write',t=>{
@@ -110,4 +110,16 @@ test('direct pointer magnet measures before writes; disabled, suppressed and inv
   p.disabled=true;assert.equal(f.api.nearestPort(point.x,point.y),null);p.disabled=false;
   p.invisible=true;assert.equal(f.api.nearestPort(point.x,point.y),null);p.invisible=false;
   f.cards.get(0).node.suppressed=true;assert.equal(f.api.nearestPort(point.x,point.y),null);
+});
+
+test('direct port wins over a closer neighboring port at low zoom',()=>{
+ const f=fixture({zoom:0.15}),direct=f.port(1,'output');
+ f.setHit({closest:selector=>selector==='button[data-slot]'?direct:selector==='.dae-creative-card'?f.cards.get(1).element:null});
+ const p=f.center(f.port(0,'output'));assert.equal(f.api.nearestPort(p.x,p.y),direct);
+ f.cards.get(1).node.suppressed=true;assert.equal(f.api.nearestPort(p.x,p.y),null);
+});
+test('a suppressed member cannot attract a drag near another group',()=>{
+ const f=fixture({zoom:0.15}),port=f.port(1,'output');f.cards.get(1).node.suppressed=true;
+ f.setHit({closest:selector=>selector==='.dae-creative-card'?f.cards.get(1).element:null});
+ const p=f.center(port);assert.equal(f.api.nearestPort(p.x,p.y),null);
 });

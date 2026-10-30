@@ -21,7 +21,7 @@ from PIL import Image
 from backend.assets import AssetCatalog
 from backend.storyboard.document_import import parse_storyboard_document, preview_storyboard_document
 from backend.storyboard.script_document import parse_docx, normalize_inventory
-from backend.storyboard.script_contract import storyboard_projection
+from backend.storyboard.script_contract import storyboard_projection, confirmed_table
 from backend.storyboard.services import StoryboardServices, ProviderUnavailable
 from backend.storyboard.table_adapter import validated_table
 from backend.storyboard.table_source import project_selected_source
@@ -122,6 +122,32 @@ class BusinessTests(unittest.TestCase):
         self.assertEqual(result['tasks'][1]['values']['notes'], '连续镜头备注')
         self.assertEqual(result['tasks'][0]['values']['scene'], '画面 1：几何形状。\n保持原文。')
         self.assertNotEqual(result['tasks'][0]['images'][0]['id'], result['tasks'][1]['images'][0]['id'])
+
+    def test_chapter_identity_uses_source_boundaries_not_equal_titles(self):
+        document = Document()
+        for _ in range(2):
+            document.add_heading('同名章节', level=1)
+            table = document.add_table(rows=3, cols=2)
+            table.cell(0, 0).text, table.cell(0, 1).text = '镜号', '画面描述'
+            for n in (1, 2):
+                table.cell(n, 0).text, table.cell(n, 1).text = str(n), '保留原文'
+        stream = io.BytesIO(); document.save(stream)
+        inventory, _ = parse_docx(stream.getvalue())
+        result = normalize_inventory(inventory, choices_for(inventory))
+        a, b, c, d = result['tasks']
+        self.assertEqual(a['chapter'], c['chapter'])
+        self.assertEqual(a['chapter_key'], b['chapter_key'])
+        self.assertNotEqual(a['chapter_key'], c['chapter_key'])
+        self.assertEqual(c['chapter_key'], d['chapter_key'])
+
+    def test_fixed_script_server_rejects_eleven_rows_without_changing_legacy(self):
+        fields = [{'id': fid, 'name': fid, 'type': 'text'} for fid in ('sp-shot_no', 'sp-scene', 'sp-reference', 'sp-notes')]
+        table = {'fields': fields, 'records': [{'id': str(i), 'values': {}} for i in range(11)],
+                 'meta': {'script_parser': {'version': 1, 'field_policy': 'fixed-four'}}}
+        with self.assertRaisesRegex(ValueError, '10 行'):
+            confirmed_table(table)
+        table['meta']['script_parser']['field_policy'] = 'nonempty'
+        self.assertEqual(len(confirmed_table(table)['records']), 11)
 
     def test_preview_compatible_dto_and_visual_column_not_reference(self):
         result = preview_storyboard_document('合成.docx', self.docx)
