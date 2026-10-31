@@ -32,7 +32,7 @@ test('DeepSeek settings are opt-in, close on provider switch, and discard unsave
 });
 
 test('Comfy GPT is a real native-credit model and prices cannot be labelled as USD',()=>{
- assert.equal(OPTIMIZATION_MODELS.find(m=>m.id===COMFY_GPT_MODEL).label,'GPT-6 Luna（ComfyUI）');assert.equal(optimizationProvider(COMFY_GPT_MODEL),'comfy');
+ assert.equal(OPTIMIZATION_MODELS.find(m=>m.id===COMFY_GPT_MODEL).label,'GPT-6 Luna（Comfy）');assert.equal(optimizationProvider(COMFY_GPT_MODEL),'comfy');
  assert.equal(optimizationCostSummary({provider:'comfy',quote:{status:'ready',estimatedCredits:1.2,budgetUpperCredits:2.3,expiresAt:Date.now()+5000}}),'预计 1.2 积分 · 预算上界 2.3 积分');
 });
 
