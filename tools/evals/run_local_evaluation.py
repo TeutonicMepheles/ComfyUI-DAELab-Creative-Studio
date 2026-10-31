@@ -302,11 +302,13 @@ def verify_capture(case, variant=None):
     return {'path': str(path.resolve()), 'sha256': record['sha256']}
 
 
-def prepare_run(prepared_path, approval_path, cases_path, destination, *, plan_path=None):
+def prepare_run(prepared_path, approval_path, cases_path, destination, *, plan_path=None, continuation_review_path=None):
     """Offline-only: immutable run definition, all 44 fresh identities, no sockets."""
     paths = {'prepared': Path(prepared_path).resolve(), 'approval': Path(approval_path).resolve(),
              'cases': Path(cases_path).resolve(), 'plan': Path(plan_path or ROOT / 'docs/validation/catalog/local-eval-plan.json').resolve(),
              'traceability': ROOT / 'docs/validation/catalog/traceability.json'}
+    if continuation_review_path is not None:
+        paths['continuationReview'] = Path(continuation_review_path).resolve()
     prepared, approval, cases, plan = (read(paths[k]) for k in ('prepared', 'approval', 'cases', 'plan'))
     require(file_hash(paths['prepared']) == approval.get('preparedSha256')
             and file_hash(paths['cases']) == approval.get('casesSha256')
@@ -345,8 +347,33 @@ def prepare_run(prepared_path, approval_path, cases_path, destination, *, plan_p
            'inputs': {k: {'path': str(p), 'sha256': file_hash(p)} for k, p in paths.items()},
            'runnerSha256': file_hash(__file__), 'captureInputs': capture_inputs, 'slots': slots, 'runtimeProjections': projections, 'comparisons': comparisons,
            'traceability': links, 'productAcceptance': False, 'qualityScores': None, 'inferencesExecuted': 0}
+    if continuation_review_path is not None:
+        from tools.evals.local_continuation import create_continuation
+        review = read(paths['continuationReview'])
+        require(review.get('schemaVersion') == 1 and review.get('reviewer') == approval['reviewer'],
+                'continuation-reviewer-not-approved')
+        parent = review['parentRun']
+        require(file_hash(parent['path']) == parent['sha256'], 'continuation-parent-review-drift')
+        continuation = create_continuation(parent['path'], run,
+            completed_prefix=review['completedPrefix'], blocked_slot=review['blockedSlot'],
+            blocked_trace_root=review['blockedTraceRoot'], reviewed_changes=review['reviewedChanges'],
+            reviewer=review['reviewer'])
+        continuation_path = destination / 'continuation.json'
+        write_new(continuation_path, continuation)
+        run['continuation'] = {'path': str(continuation_path), 'sha256': file_hash(continuation_path)}
     write_new(destination / 'run.json', run)
     return run
+
+
+def verified_continuation(run):
+    """Resolve immutable prior evidence without copying it into this run."""
+    if 'continuation' not in run:
+        return None, None
+    from tools.evals.local_continuation import verify_continuation
+    reference = run['continuation']
+    require(file_hash(reference['path']) == reference['sha256'], 'continuation-manifest-drift')
+    manifest = read(reference['path'])
+    return manifest, verify_continuation(manifest, run)
 
 
 class LocalHTTP:
@@ -584,6 +611,10 @@ async def execute_slot(run_directory, slot_number, *, resume=False, execute_revi
     require(approval.get('executionApproved') is True, 'execution-not-approved')
     configuration = verify_prepared(prepared, approval)
     require(type(slot_number) is int and 1 <= slot_number <= len(run['slots']), 'unknown-slot')
+    continuation, continuation_context = verified_continuation(run)
+    if continuation is not None:
+        from tools.evals.local_continuation import inherited_result, require_pending_slot
+        require_pending_slot(continuation, run, slot_number, context=continuation_context)
     slot = run['slots'][slot_number - 1]
     case = reviewed_runtime_case(run, cases[slot['variant']][slot['sampleId']], slot,
                                 prepared['environments'][slot['variant']], approval.get('reviewer'))
@@ -591,6 +622,8 @@ async def execute_slot(run_directory, slot_number, *, resume=False, execute_revi
     if not resume:
         require(not slot_dir.exists(), 'slot-already-claimed-query-only')
         for earlier in run['slots'][:slot_number - 1]:
+            if continuation is not None and inherited_result(continuation, run, earlier['slot'], context=continuation_context) is not None:
+                continue
             previous_root = root / f"slot-{earlier['slot']:02d}"
             reports = [p for p in [previous_root / 'result.json', *previous_root.glob('recovery-*/result.json')] if p.is_file()]
             require(any(read(p).get('status') == 'captured' and read(p).get('requestId') == earlier['requestId'] for p in reports),
@@ -664,6 +697,8 @@ async def execute_slot(run_directory, slot_number, *, resume=False, execute_revi
             for item in [*run['inputs'].values(), *run.get('captureInputs', [])]:
                 require(file_hash(item['path']) == item['sha256'], 'evaluation-input-changed-during-run')
             require(file_hash(__file__) == run['runnerSha256'], 'runner-changed-during-run')
+            if continuation is not None:
+                verified_continuation(run)
             summary['status'] = 'captured' if not summary['blocks'] else 'blocked'
     except Exception as error:
         summary['blocks'].append(str(error) if isinstance(error, Blocked) else 'inspection-or-transport-unavailable')
@@ -686,6 +721,7 @@ def main():
     prepare = actions.add_parser('prepare')
     for name in ('prepared', 'approval', 'cases', 'destination'):
         prepare.add_argument('--' + name, type=Path, required=True)
+    prepare.add_argument('--continuation-review', type=Path)
     for action in ('run', 'resume'):
         command = actions.add_parser(action)
         command.add_argument('--directory', type=Path, required=True)
@@ -693,7 +729,8 @@ def main():
         command.add_argument('--execute-reviewed', action='store_true')
     args = parser.parse_args()
     if args.action == 'prepare':
-        result = prepare_run(args.prepared, args.approval, args.cases, args.destination)
+        result = prepare_run(args.prepared, args.approval, args.cases, args.destination,
+                             continuation_review_path=args.continuation_review)
         print(json.dumps({'status': 'prepared-not-executed', 'slots': len(result['slots']), 'inferencesExecuted': 0}))
         return 0
     result = asyncio.run(execute_slot(args.directory, args.slot, resume=args.action == 'resume', execute_reviewed=args.execute_reviewed))
