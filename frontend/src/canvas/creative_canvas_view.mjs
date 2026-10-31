@@ -4,7 +4,7 @@ import {materialDropSnapshot,acceptsMaterialDrop,materialDropCount} from './crea
 import {createTaskCapsules} from '../features/tasks/creative_tasks.mjs';
 import {bindPanelContext} from '../ui/creative_panel_context.mjs?v=20260930-public-layout4';
 import {isPanelActive} from '../ui/creative_panel_state.mjs?v=20261013-active-state';
-import {wheelViewport,copySnapshot,readSnapshot} from './creative_navigation.mjs';
+import {wheelViewport,copySnapshot,readSnapshot,hasCanvasTextSelection} from './creative_navigation.mjs';
 import {createCaretReveal} from './creative_focus_reveal.js';
 import {UPLOAD_TYPE,mediaKind,readAsset} from '../features/assets/media_upload_model.mjs';
 import {MATERIAL_SLOT,uploadKind,sourceSlots,resolveOutput,targetChoices,outputSelector,inputSelector,unifiedNode,inputSlots,acceptsTargetType} from './creative_connections.mjs';
@@ -913,7 +913,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
     },true);
     root.addEventListener('auxclick',e=>{if(e.button===1)e.preventDefault();});
     root.addEventListener('pointerdown',e=>{
-        if(e.target.closest('button,input,select,textarea,.dae-creative-card,.dae-creative-picker,path')||e.button!==0)return;
+        if(e.target.closest('button,input,select,textarea,.dae-creative-card,.dae-creative-picker,path')||e.button!==0||hasCanvasTextSelection(root))return;
         e.preventDefault();root.focus();closePicker();setMagnet(null);
         const base=e.shiftKey?new Set(selected):new Set();selected=new Set(base);selectedLink=null;paintSelection();
         drag={kind:'marquee',x:e.clientX,y:e.clientY,base};root.setPointerCapture(e.pointerId);
@@ -948,7 +948,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         }dirty();};root.addEventListener('pointerup',endDrag);root.addEventListener('pointercancel',endDrag);
     const editable=target=>target?.closest?.('input,textarea,select,[contenteditable]:not([contenteditable=false])');
     function copyNode(e){
-        if(!visible||editable(e.target)||e.target.closest('[role=grid],.dae-library-overlay')||workspace||picker)return;
+        if(!visible||editable(e.target)||hasCanvasTextSelection(root)||e.target.closest('[role=grid],.dae-library-overlay')||workspace||picker)return;
         const copyIds=expandGroupSelection(graph,selected,host.nodes(graph));const list=[...copyIds].map(id=>cards.get(id)).filter(Boolean);if(!list.length)return;
         const left=Math.min(...list.map(c=>c.layout.x)),top=Math.min(...list.map(c=>c.layout.y));
         const nodes=list.map(c=>({...copySnapshot(c.node,c.layout),sourceId:c.node.id,offset:{x:c.layout.x-left,y:c.layout.y-top}}));
@@ -957,7 +957,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         e.preventDefault();e.stopPropagation();pasteCount=0;message('已复制节点；Ctrl+V 粘贴为新节点');
     }
     function pasteNode(e){
-        if(!visible||editable(e.target)||e.target.closest('[role=grid],.dae-library-overlay')||workspace||picker)return;
+        if(!visible||editable(e.target)||hasCanvasTextSelection(root)||e.target.closest('[role=grid],.dae-library-overlay')||workspace||picker)return;
         const snapshot=readSnapshot(e.clipboardData.getData('text/plain'));if(!snapshot)return;
         e.preventDefault();e.stopPropagation();
         const entries=snapshot.nodes||[snapshot],created=[],mapping=new Map();
@@ -985,6 +985,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         // Saving belongs to the native workflow even while a select/text field has focus.
         // Composition keys retain editor ownership and must never dispatch a host save.
         if((e.ctrlKey||e.metaKey)&&String(e.key).toLowerCase()==='s'&&!e.isComposing&&e.keyCode!==229)return;
+        if(hasCanvasTextSelection(root)){e.stopPropagation();return;}
         if(picker?.contains(e.target)){
             if(['ArrowDown','ArrowUp','Home','End'].includes(e.key)&&!e.isComposing){
                 e.preventDefault();const items=[...picker.querySelectorAll('button:not(:disabled)')],index=items.indexOf(document.activeElement);

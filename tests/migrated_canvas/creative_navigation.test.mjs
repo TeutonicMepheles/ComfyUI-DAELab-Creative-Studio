@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {wheelViewport,copySnapshot,readSnapshot} from '../../frontend/src/canvas/creative_navigation.mjs';
+import {wheelViewport,copySnapshot,readSnapshot,hasCanvasTextSelection} from '../../frontend/src/canvas/creative_navigation.mjs';
 test('wheel pan, shift pan and cursor-centered Ctrl zoom are independent',()=>{
  const v={x:100,y:200,zoom:.5},p={x:350,y:300},e={deltaX:0,deltaY:100,deltaMode:0};
  assert.deepEqual(wheelViewport(v,p,e),{x:100,y:100,zoom:.5});
@@ -11,4 +11,13 @@ test('wheel pan, shift pan and cursor-centered Ctrl zoom are independent',()=>{
 test('copy snapshot detaches edges without changing source and round-trips parameters',()=>{
  const data={id:7,type:'DAELAB.MediaUpload',inputs:[{link:4}],outputs:[{links:[8]}],widgets_values:['asset']};
  const copy=copySnapshot({serialize:()=>data},{width:600,expanded:true});assert.equal(copy.node.id,undefined);assert.equal(copy.node.inputs[0].link,null);assert.equal(copy.node.outputs[0].links,null);assert.equal(data.inputs[0].link,4);assert.equal(readSnapshot(JSON.stringify(copy)).node.widgets_values[0],'asset');assert.equal(readSnapshot('unrelated text'),null);
+});
+
+test('selected text inside the canvas remains owned by native copy and paste',()=>{
+ const text={nodeType:3,parentNode:{owner:'panel'}},outside={nodeType:1,parentNode:null};
+ const root={contains:node=>node?.owner==='panel'};
+ assert.equal(hasCanvasTextSelection(root,{isCollapsed:false,anchorNode:text,focusNode:text}),true);
+ assert.equal(hasCanvasTextSelection(root,{isCollapsed:false,anchorNode:text,focusNode:outside}),false);
+ assert.equal(hasCanvasTextSelection(root,{isCollapsed:true,anchorNode:text,focusNode:text}),false);
+ assert.equal(hasCanvasTextSelection(root,null),false);
 });

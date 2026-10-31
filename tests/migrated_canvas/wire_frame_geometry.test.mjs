@@ -112,11 +112,13 @@ test('direct pointer magnet measures before writes; disabled, suppressed and inv
   f.cards.get(0).node.suppressed=true;assert.equal(f.api.nearestPort(point.x,point.y),null);
 });
 
-test('direct port wins over a closer neighboring port at low zoom',()=>{
- const f=fixture({zoom:0.15}),direct=f.port(1,'output');
- f.setHit({closest:selector=>selector==='button[data-slot]'?direct:selector==='.dae-creative-card'?f.cards.get(1).element:null});
- const p=f.center(f.port(0,'output'));assert.equal(f.api.nearestPort(p.x,p.y),direct);
- f.cards.get(1).node.suppressed=true;assert.equal(f.api.nearestPort(p.x,p.y),null);
+test('direct port wins over a closer neighboring port at 50, 100 and 150 percent zoom',()=>{
+ for(const zoom of [0.5,1,1.5]){
+  const f=fixture({zoom}),direct=f.port(1,'output');
+  f.setHit({closest:selector=>selector==='button[data-slot]'?direct:selector==='.dae-creative-card'?f.cards.get(1).element:null});
+  const p=f.center(f.port(0,'output'));assert.equal(f.api.nearestPort(p.x,p.y),direct,`${zoom * 100}% direct hit`);
+  f.cards.get(1).node.suppressed=true;assert.equal(f.api.nearestPort(p.x,p.y),null,`${zoom * 100}% suppression`);
+ }
 });
 test('a suppressed member cannot attract a drag near another group',()=>{
  const f=fixture({zoom:0.15}),port=f.port(1,'output');f.cards.get(1).node.suppressed=true;
