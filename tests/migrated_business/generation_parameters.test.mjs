@@ -30,7 +30,7 @@ test('combined video summary preserves saved values without mutating config or a
  assert.deepEqual(items.map(x=>x.key),['kind','model','parameters']);
  assert.match(items[2].text,/首尾帧 · 720p · 9s · 音频关闭/);
  assert.deepEqual(config,before);
- assert.equal(promptSettingsItems(config).length,5,'existing table settings keep their individual entry points');
+ assert.equal(promptSettingsItems(config).length,6,'existing table settings keep their individual entry points');
 });
 test('image summary omits stale video duration; local dimensions remain visible',()=>{
  assert.equal(generationParametersSummary({kind:'image',mode:'text2image',settings:{width:1024,height:1024,duration:9}}),'文生图 · 1:1 · 1024×1024');
@@ -92,6 +92,14 @@ test('image and mixed references share one omnireference choice without rewritin
   assert.deepEqual(config,before);
  }
  assert.deepEqual(generationModes({},'video'),[]);
+});
+
+test('attempt summary is explicit only above one and invalid values remain detectable',()=>{
+ const one={kind:'video',model:'Seedance 2.5',mode:'text2video',settings:{duration:4}},four={...one,attempts:4};
+ assert.doesNotMatch(generationParametersSummary(one),/抽卡/);
+ assert.match(generationParametersSummary(four),/抽卡 4 次/);
+ assert.throws(()=>generationParametersSummary({...one,attempts:0}),/1–4/);
+ assert.throws(()=>generationParametersSummary({...one,attempts:5}),/1–4/);
 });
 
 test('single-frame and image-reference modes never become unsupported alternatives',()=>{

@@ -7,6 +7,7 @@ export interface GenerationEdits {
   current(ticket: AsyncEditTicket): boolean;
   release(ticket: AsyncEditTicket): void;
   apply(ticket: AsyncEditTicket, report: GenerationReport): boolean;
+  applyMany?(tickets: readonly AsyncEditTicket[], reports: readonly GenerationReport[]): boolean;
 }
 type Entry = { reference: GenerationReference; ticket?: AsyncEditTicket; report?: GenerationReport };
 const canonical = (value: unknown): unknown => Array.isArray(value) ? value.map(canonical) : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).sort(([a],[b]) => a.localeCompare(b)).map(([key,item]) => [key,canonical(item)])) : value;
@@ -58,6 +59,13 @@ export class GenerationSession {
     if (!this.edits.apply(entry.ticket!, structuredClone(entry.report!))) return false;
     delete entry.ticket;
     return true;
+  }
+  /** Apply every currently valid completion for one target in one native edit. */
+  applyMany(ids: readonly string[]): boolean {
+    const entries = ids.map(id => [id, this.#entries.get(id)] as const).filter(([,entry]) => !!entry && this.canApply(entry.reference.requestId));
+    return entries.length > 1 && !!this.edits.applyMany &&
+      this.edits.applyMany(entries.map(([,entry]) => entry!.ticket!), entries.map(([,entry]) => structuredClone(entry!.report!))) &&
+      entries.every(([,entry]) => { delete entry!.ticket; return true; });
   }
   /** A visible review action may issue a new ticket; polling and recovery never do. */
   review(id: string, inputDigest: string, identity: {documentId: string; tableId: string; nodeId: string}): boolean {

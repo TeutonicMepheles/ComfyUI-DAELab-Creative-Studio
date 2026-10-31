@@ -19,7 +19,7 @@ function fixture(t,hooks={}){
   if(url.endsWith('/submit')&&submitFault){const status=submitFault;submitFault=null;return new Response(JSON.stringify({error:'synthetic rejection',submitted:false,code:'synthetic-fault'}),{status});}
   if(url.endsWith('/status')&&body.requestIds&&!report)return new Response(JSON.stringify({error:'missing',code:statusFault?'storage_unavailable':'record_not_found'}),{status:statusFault||404});
    if(url.endsWith('/fence-unsubmitted')){if(statusFault)return new Response(JSON.stringify({error:'storage unavailable',code:'storage_unavailable'}),{status:statusFault});report={requestId:body.requestId,source:body.source,inputFingerprint:'a'.repeat(64),state:'cancelled',phase:'needs_input',preparation:'fenced',replacementAllowed:true,version:1};reports=[report];}
-  if(url.endsWith('/submit')){reports=body.jobs.map(job=>({requestId:job.requestId,source:job.source,inputFingerprint:'a'.repeat(64),state:'succeeded',phase:'complete',version:3,result:{url:'/view?filename=synthetic.png&type=output',kind:'image',asset_id:'asset',reference_id:'ref'},receipt:{kind:'assets',items:[{asset_id:'asset',reference_id:'ref'}]}}));report=reports[0];await new Promise(resolve=>{release=resolve;markSubmitted();});}
+  if(url.endsWith('/submit')){reports=body.jobs.map(job=>({requestId:job.requestId,source:job.source,inputFingerprint:'a'.repeat(64),state:'succeeded',phase:'complete',version:3,result:{url:`/view?filename=${job.requestId}.png&type=output`,kind:'image',asset_id:'asset-'+job.requestId,reference_id:'ref-'+job.requestId},receipt:{kind:'assets',items:[{asset_id:'asset-'+job.requestId,reference_id:'ref-'+job.requestId}]}}));report=reports[0];await new Promise(resolve=>{release=resolve;markSubmitted();});}
   return new Response(JSON.stringify({jobs:reports.length?reports:report?[report]:[],nextOffset:null}));
  });
  const notices=[],tasks=attachGenerationTasks({editor,getTable:()=>table,notify:message=>notices.push(message),prepareGeneration:async()=>{},canGenerate:()=>true,...hooks});
@@ -51,6 +51,37 @@ test('injected batch skips completed receipts and existing outputs',async t=>{
  assert.deepEqual(submissions.at(-1).body.jobs.map(job=>job.input.recordId),['remaining']);
  assert.equal(f.table.records[0].meta.studioGenerationRefs[f.field.id][0].requestId,original);
  f.complete();await pending;
+});
+
+test('single-task attempts accept 1 and 4 while 0 and 5 fail before submission',async t=>{
+ for(const attempts of [1,4]){
+  const f=fixture(t);f.field.generation.attempts=attempts;const pending=f.tasks.generate(f.field.id,f.row.id);
+  try{
+   await f.submitted();
+   const jobs=f.calls.find(call=>call.url.endsWith('/submit')).body.jobs;
+   assert.equal(jobs.length,attempts);assert.equal(new Set(jobs.map(job=>job.requestId)).size,attempts);
+   assert.deepEqual(jobs.map(job=>[job.source.groupIndex,job.source.groupCount]),Array.from({length:attempts},(_,index)=>[index,attempts]),JSON.stringify(jobs[0].source));
+   f.complete();await pending;
+   assert.equal(f.table.records[0].values[f.field.id].length,attempts);
+  }finally{f.complete();await pending.catch(()=>{});}
+ }
+ for(const attempts of [0,5]){
+  const f=fixture(t);f.field.generation.attempts=attempts;await f.tasks.generate(f.field.id,f.row.id);
+  assert.equal(f.calls.some(call=>call.url.endsWith('/submit')),false);
+  assert.equal(f.table.records[0].meta?.studioGenerationRefs,undefined);
+  assert.match(f.notices.at(-1),/1–4/);
+ }
+});
+
+test('deselecting a row after submission does not remove or rewrite its submitted requests',async t=>{
+ const f=fixture(t),second=structuredClone(f.row);second.id='second';second.selected=true;f.row.selected=true;f.table.records.push(second);
+ const pending=f.tasks.generate(f.field.id,null,false,true);await f.submitted();
+ const jobs=f.calls.find(call=>call.url.endsWith('/submit')).body.jobs,ids=jobs.map(job=>job.requestId);
+ f.table.records[1].selected=false;
+ assert.deepEqual(f.table.records[1].meta.studioGenerationRefs[f.field.id].map(ref=>ref.requestId),ids.slice(1));
+ f.complete();await pending;
+ assert.deepEqual(f.table.records[1].meta.studioGenerationRefs[f.field.id].map(ref=>ref.requestId),ids.slice(1));
+ assert.equal(f.table.records[1].values[f.field.id].length,1);
 });
 
 test('actual table submit stores only immutable references; completion uses one native result transaction and poll never writes facts',async t=>{

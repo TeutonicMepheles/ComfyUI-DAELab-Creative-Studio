@@ -3,7 +3,7 @@ import {setPromptSource,promptSourceId} from '../prompt/table_prompt_source.mjs'
 import {modelCapabilities} from './table_generation_api.mjs';
 import {attachGenerationTasks,generationTaskStyle} from './table_generation_tasks.mjs';
 import {createTableButton as button,tableIcon} from '../../ui/table_controls.mjs';
-import {GENERATION_MODELS,LOCAL_VIDEO_MODEL,isLocalVideoModel,isLocalGenerationModel,isComfyGenerationModel,needsGenerationProject,isGeneration,rowGenerationConfig,setRowGenerationConfig,promptColumns,createGenerationPrompt,enableColumnPrompt,generationRows,generationFrameRoles,generationFrames,generationFrameTagKey,syncGenerationFrameTags,syncGenerationPromptMode,syncGenerationPromptSource,generationConfigField,syncGenerationConfigOwners} from './table_generation_model.mjs';
+import {GENERATION_MODELS,LOCAL_VIDEO_MODEL,MAX_GENERATION_ATTEMPTS,generationAttempts,isLocalVideoModel,isLocalGenerationModel,isComfyGenerationModel,needsGenerationProject,isGeneration,rowGenerationConfig,setRowGenerationConfig,promptColumns,createGenerationPrompt,enableColumnPrompt,generationRows,generationFrameRoles,generationFrames,generationFrameTagKey,syncGenerationFrameTags,syncGenerationPromptMode,syncGenerationPromptSource,generationConfigField,syncGenerationConfigOwners} from './table_generation_model.mjs';
 import {effectivePrompt,toColumnPrompt} from '../prompt/table_prompt_template.mjs';
 import {frameReferenceOptions,createReferenceMenu,materialReferenceLabel} from '../../application/table_reference_options.mjs';
 import {PROMPT_SETTINGS_TEMPLATE,createPromptSettingsBar,promptSettingsStyle,normalizeLocalGenerationConfig,generationModeLabels,generationModeChoice,generationSettingSpecs,generationParameterSpecs,generationModes,promptSettingSpecs,generationSettingWarning,createGenerationSetting,createGenerationParameters,createLocalVideoSizePicker,createSettingsPopover} from '../prompt/table_prompt_settings.mjs';
@@ -160,7 +160,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
    const focus=document.activeElement?.dataset.focusKey,scroll=menu.root.scrollTop;
    parameterView?.dispose?.();
    const updateSize=values=>commit(next=>Object.assign(next.settings,values));
-   parameterView=localSize?createLocalVideoSizePicker(draft,schema||{},updateSize):createGenerationParameters(draft,schema||{},{onMode:id=>commit(next=>{next.mode=id;},true),onSetting:(name,value)=>commit(next=>{if(value===undefined)delete next.settings[name];else next.settings[name]=value;}),onSettings:updateSize});
+   parameterView=localSize?createLocalVideoSizePicker(draft,schema||{},updateSize):createGenerationParameters(draft,schema||{},{onMode:id=>commit(next=>{next.mode=id;},true),onSetting:(name,value)=>commit(next=>{if(value===undefined)delete next.settings[name];else next.settings[name]=value;}),onSettings:updateSize,onAttempts:value=>commit(next=>{next.attempts=value;})});
    content.replaceChildren(parameterView);
    if(focus)[...content.querySelectorAll('[data-focus-key]')].find(e=>e.dataset.focusKey===focus)?.focus({preventScroll:true});menu.root.scrollTop=scroll;
   }
@@ -182,10 +182,11 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
    }catch(error){if(active())status.textContent=error.message;}
    finally{busy=false;if(active()){menu.root.removeAttribute('aria-busy');content.querySelectorAll('button,input,select').forEach(input=>input.disabled=false);}}
   }
-  function choices(items,value,select){
-   for(const [id,label] of items){const control=button(label,()=>{if(id===value){menu.close();return;}void commit(next=>select(next,id),true);});if(key==='model')prependGenerationModelIcon(control,id);control.setAttribute('aria-pressed',String(id===(key==='mode'&&!isLocalGenerationModel(draft.model)?generationModeChoice(value,schema):value)));content.append(control);}
+  function choices(items,value,select,reset=true){
+   for(const [id,label] of items){const control=button(label,()=>{if(id===value){menu.close();return;}void commit(next=>select(next,id),reset);});if(key==='model')prependGenerationModelIcon(control,id);control.setAttribute('aria-pressed',String(id===(key==='mode'&&!isLocalGenerationModel(draft.model)?generationModeChoice(value,schema):value)));content.append(control);}
    (content.querySelector('[aria-pressed=true]')||content.querySelector('button'))?.focus({preventScroll:true});
   }
+  if(key==='attempts'){choices(Array.from({length:MAX_GENERATION_ATTEMPTS},(_,index)=>[index+1,`${index+1} 次`]),generationAttempts(draft),(next,id)=>{next.attempts=id;},false);return;}
   if(key==='kind')choices([['video','视频生成'],['image','图片生成']].filter(([id])=>kinds.includes(id)),draft.kind,(next,id)=>{next.kind=id;next.model=GENERATION_MODELS[id][0];next.mode='';next.settings={};});
   else if(key==='model')choices(GENERATION_MODELS[draft.kind].map(name=>[name,generationModelLabel(name)]),draft.model,(next,id)=>{next.model=id;if(next.kind==='video'&&typeof next.settings.duration==='number')next.settings.duration=Math.min(next.settings.duration,isLocalVideoModel(id)?15:30);});
   else {
