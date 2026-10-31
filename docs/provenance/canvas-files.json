@@ -1165,10 +1165,11 @@
       "source": null,
       "sourceSha256": null,
       "destination": "tests/migrated_canvas/material_sources_header_scope.test.mjs",
-      "destinationSha256": "b481d2b756236170d6dfca6b38d68db22c29b07a39a0853367c8ca58b60e72bd",
+      "destinationSha256": "ad26d5d6eb87cb70c2330a67cf731717cf785d00437319320931900a040ee5e7",
       "kind": "rule-regression",
       "changes": [
-        "Execute the actual materialSources property and generation decorator against two independent table DOM trees; cover current-header identity, column changes/replacement, empty and zero-row tables, and bounded body-search counts. Offline counts are not browser performance acceptance."
+        "Execute the actual materialSources property and generation decorator against two independent table DOM trees; cover current-header identity, column changes/replacement, empty and zero-row tables, and bounded body-search counts. Offline counts are not browser performance acceptance.",
+        "2026-10-31: provide the table prompt-source capability to the extracted decorator harness."
       ]
     }
   ],

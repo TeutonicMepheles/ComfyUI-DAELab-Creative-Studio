@@ -42,6 +42,7 @@ function fixture(id,fieldIds=['g0','g1'],rows=3){
  const button=label=>{const e=dom.element('button');e.textContent=label;return e;};
  const collaborators={editor:{root},getTable:()=>table,isGeneration:field=>field.presentation==='generation',
   syncFrameTags(){},refreshFrameTokens(){},refreshSettingBars(){},generationRows:()=>table.records,
+  needsGenerationPromptSelector:()=>false,
   el(tag,parent){const e=dom.element(tag);parent?.append(e);return e;},button,tableIcon:e=>e,
   document:{createElement:dom.element},tasks:{submitting:false,decorate(){}},leavePromptSources(){}};
  const decorate=new Function(...Object.keys(collaborators),`const promptSourceMenu=null,settingsMenu=null,frameAnchor=null,alive=true;${decorateSource};return decorate;`)(...Object.values(collaborators));
