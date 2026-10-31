@@ -76,7 +76,7 @@ test('USD quotes and historical usage costs never render as Comfy credits or act
  const text=root=>[root.textContent||'',...root.children.map(text)].join('\n');const displayed=text(panel.root);
  assert.match(displayed,/0\.002 美元（USD）/);assert.match(displayed,/实际消耗：0\.5 积分/);
  assert.match(displayed,/用量保守估算：0\.003 美元（USD）；实际账单未知/);assert.doesNotMatch(displayed,/99 积分|实际消耗：.*美元/);
- assert.match(displayed,/现有批次：ComfyUI Partner.*积分/);panel.destroy();
+ assert.match(displayed,/现有批次：Comfy.*积分/);panel.destroy();
 });
 
 test('page key input is password-only, cleared after save and when dock hides',()=>{
