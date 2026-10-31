@@ -21,7 +21,7 @@ function icon(name){const e=el('span','llm-style-icon');e.setAttribute('aria-hid
 export function createLLMStylePanel(node,variant,{nativeDocument=null}={}){
     tableTheme();
     if(!document.getElementById('dae-llm-style-css')){const link=el('link');link.id='dae-llm-style-css';link.rel='stylesheet';link.href=new URL('./llm_style_preview.css',import.meta.url).href;document.head.append(link);}
-    const root=el('section',`dae-ui llm-style llm-style-${variant.id}`);root.dataset.variant=variant.id;root.setAttribute('aria-label',`LLM 优化 ${variant.label}`);
+    const root=el('section',`dae-ui llm-style llm-style-${variant.id}`);root.dataset.variant=variant.id;root.setAttribute('aria-label',`文本生成 ${variant.label}`);
     const releases=[],fields=[],buttons=[];let interaction=null;
     const saved=()=>node.properties.llmStylePreview||={version:1,mode:'polish'};
     const write=(key,value,group=null)=>{if(nativeDocument)nativeDocument.edit('编辑 LLM 配置',draft=>{draft[key]=value;},{group});else{saved()[key]=value;node.graph?.change?.();}};

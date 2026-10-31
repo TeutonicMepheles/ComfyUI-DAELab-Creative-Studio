@@ -50,7 +50,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
     const models=OPTIMIZATION_MODELS.map(model=>({...model,id:model.logo==='qwen'?'qwen':model.logo==='deepseek'?'deepseek':model.id}));
     const supported=model=>models.some(option=>option.id===model);
     const modelLabel=model=>models.find(option=>option.id===model)?.label||model;
-    select.replaceChildren(...models.map(model=>new Option(model.label+(model.logo==='openai'?' · Comfy 积分':''),model.id)));
+    select.replaceChildren(...models.map(model=>new Option(model.label+(model.logo==='openai'?' · Comfy':''),model.id)));
     saved().model??='qwen';if(!supported(saved().model)){const legacy=new Option('旧模型配置（未接入）',saved().model);legacy.disabled=true;select.add(legacy);}select.value=saved().model;
     const generationTask=createLLMTask();
     const taskRail=make('div','llm-io-task-rail');taskRail.setAttribute('role','tablist');taskRail.setAttribute('aria-label','优化任务');root.append(taskRail);
@@ -126,7 +126,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
         setProperty(paragraph,'contentEditable',disabled||!d?.complete||stale||isApplied?'false':'plaintext-only');
         setProperty(apply,'disabled',disabled||!d?.complete||stale||isApplied||!!nativeDocument&&(proposalTicket?!nativeDocument.canApply(proposalTicket):restoredProposal!==d?.requestId));setProperty(apply,'hidden',isApplied);
         setProperty(recover,'disabled',disabled||!nativeDocument);setProperty(undo,'disabled',disabled||!saved().ioUndo);setProperty(undo,'hidden',!saved().ioUndo);setProperty(regenerate,'disabled',run.disabled||!d);
-        setProperty(status,'textContent',error||(d&&stale?'输入已改变，请重新生成':message|| (d?`${d.provider==='qwen'?'本地 Qwen 结果':d.provider==='deepseek'?'DeepSeek 结果':d.provider==='gpt-6-luna'?'GPT-6 Luna 结果（Comfy 积分）':'示例结果 · 未调用模型'}${isApplied?' · 已应用':' · 待应用'}`:rows.length&&!valid?'当前输入不支持此模式':rows.length?`${rows.length} 项输入 · 等待生成`:'请输入原始文字或连接输入')));
+        setProperty(status,'textContent',error||(d&&stale?'输入已改变，请重新生成':message|| (d?`${d.provider==='qwen'?'本地 Qwen 结果':d.provider==='deepseek'?'DeepSeek 结果':d.provider==='gpt-6-luna'?'GPT-6 Luna 结果（Comfy）':'示例结果 · 未调用模型'}${isApplied?' · 已应用':' · 待应用'}`:rows.length&&!valid?'当前输入不支持此模式':rows.length?`${rows.length} 项输入 · 等待生成`:'请输入原始文字或连接输入')));
         task=[...generationTask.snapshot(),...(!busy&&error?[{id:'llm-input',label:waiting?'等待输入':'输入异常',state:waiting?'queued':'error',detail:error}]:[])];
         try{node.setOutputData?.(0,outputText(node));}catch{node.setOutputData?.(0,null);}
     }

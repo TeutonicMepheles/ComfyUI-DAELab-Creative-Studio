@@ -5,6 +5,9 @@ import {generationModelIconURL} from '../../frontend/src/features/generation/gen
 import {LOCAL_VIDEO_MODEL} from '../../frontend/src/features/generation/table_generation_model.mjs';
 import {createVideoTasks} from '../../frontend/src/features/generation/video_tasks_model.mjs';
 import {LOCAL_VIDEO_SIZE_PRESETS,localVideoSizePresets,normalizeLocalGenerationConfig} from '../../frontend/src/features/prompt/table_prompt_settings.mjs';
+import {applyGenerationModelDefaults,needsGenerationPromptSelector} from '../../frontend/src/features/generation/table_generation_panel.mjs';
+import {normalizeTable} from '../../frontend/src/features/table/data_table_model.mjs';
+import {OPTIMIZATION_MODELS} from '../../frontend/src/features/prompt/prompt_optimization_model.mjs';
 
 test('H3 ratio presets use exact 32-aligned dimensions and obey live size bounds',()=>{
  const schema={properties:{width:{min:32,max:8192,step:32},height:{min:32,max:8192,step:32}}};
@@ -100,6 +103,31 @@ test('attempt summary is explicit only above one and invalid values remain detec
  assert.match(generationParametersSummary(four),/抽卡 4 次/);
  assert.throws(()=>generationParametersSummary({...one,attempts:0}),/1–4/);
  assert.throws(()=>generationParametersSummary({...one,attempts:5}),/1–4/);
+});
+
+test('new model defaults use medium image quality and integer video seconds without rewriting explicit values',()=>{
+ const imageSchema={properties:{modeType:{items:{text2image:[]}},quality:{enum:['low','medium','high'],default:'low'}},config:{settings:['quality']}};
+ const freshImage={kind:'image',model:'GPT Image 2',mode:'text2image',settings:{}};applyGenerationModelDefaults(freshImage,imageSchema);
+ assert.equal(freshImage.settings.quality,'medium');
+ const savedImage={kind:'image',model:'GPT Image 2',mode:'text2image',settings:{quality:'low'}};applyGenerationModelDefaults(savedImage,imageSchema);
+ assert.equal(savedImage.settings.quality,'low');
+ const videoSchema={properties:{modeType:{items:{text2video:[]}},duration:{type:'number',min:.5,max:10,step:.5,default:1.5}},config:{settings:['duration']}};
+ const freshVideo={kind:'video',model:'Seedance 2.5',mode:'text2video',settings:{}};applyGenerationModelDefaults(freshVideo,videoSchema);
+ assert.equal(freshVideo.settings.duration,2);assert.equal(Number.isInteger(freshVideo.settings.duration),true);
+ const savedVideo={kind:'video',model:'Seedance 2.5',mode:'text2video',settings:{duration:1.5}};applyGenerationModelDefaults(savedVideo,videoSchema);
+ assert.equal(savedVideo.settings.duration,1.5);
+});
+
+test('generation prompt selector is hidden only when the table already designates one',()=>{
+ const bare=normalizeTable({fields:[{id:'text',name:'文本',type:'text'}],records:[]});
+ assert.equal(needsGenerationPromptSelector(bare),true);
+ bare.meta.generationInput={version:1,promptFieldId:'text'};
+ assert.equal(needsGenerationPromptSelector(bare),false);
+});
+
+test('user-facing generation identities use the agreed Comfy and omnireference labels',()=>{
+ assert.equal(OPTIMIZATION_MODELS.find(model=>model.logo==='openai').label,'GPT-6 Luna（Comfy）');
+ assert.equal(promptSettingsItems({kind:'video',model:'Seedance 2.5',mode:'image2video',settings:{duration:4}}).find(item=>item.key==='mode').text,'全能参考');
 });
 
 test('single-frame and image-reference modes never become unsupported alternatives',()=>{

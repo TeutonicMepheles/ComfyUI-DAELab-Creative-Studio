@@ -10,14 +10,25 @@ import {PROMPT_SETTINGS_TEMPLATE,createPromptSettingsBar,promptSettingsStyle,nor
 import {prependGenerationModelIcon,generationModelLabel} from './generation_model_icons.mjs';
 import {promptGenerationOwner,applyColumnGenerationConfig,applyColumnFrameSources} from './table_generation_model.mjs';
 const el=(tag,parent,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;parent?.append(node);return node;};
+export const needsGenerationPromptSelector=table=>!promptSourceId(table);
 // Private normalized-table boundary: no generation means both sync passes are
 // no-ops. Check field shape only; do not revalidate or scan every row value.
 // Unknown outer/field shapes retain the existing path and its diagnostics.
 const noGenerationWork=table=>table?.version===1&&Array.isArray(table.fields)&&Array.isArray(table.records)&&table.fields.every(field=>field&&typeof field.id==='string'&&FIELD_TYPES.includes(field.type)&&!field.generation);
-function applyModelDefaults(config,schema){
+export function applyGenerationModelDefaults(config,schema){
+ const supplied={...(config.settings||{})};config.settings||={};
  if(isLocalGenerationModel(config.model)||isComfyGenerationModel(config.model)&&schema.properties)normalizeLocalGenerationConfig(config,schema);
  if(!config.mode)config.mode=Object.keys(schema.properties?.modeType?.items||{})[0]||'';
  for(const setting of generationSettingSpecs(schema,config.mode))if(config.settings[setting.name]===undefined&&setting.default!==undefined)config.settings[setting.name]=structuredClone(setting.default);
+ if(config.kind==='image'&&supplied.quality===undefined){
+  const quality=schema.properties?.quality,choice=(quality?.enum||[]).map(item=>typeof item==='object'?item.value:item).find(value=>String(value).toLowerCase()==='medium');
+  if(choice!==undefined)config.settings.quality=choice;
+ }
+ if(config.kind==='video'&&supplied.duration===undefined&&!Number.isInteger(config.settings.duration)){
+  const spec=generationSettingSpecs(schema,config.mode).find(item=>item.name==='duration'),value=Number(config.settings.duration??spec?.default??1);
+  const candidate=Math.max(Math.ceil(value),Math.ceil(Number(spec?.min??1)));
+  if(Number.isFinite(candidate)&&candidate<=(spec?.max??Infinity))config.settings.duration=candidate;
+ }
 }
 export function attachGenerationColumns({editor,getTable,notify,editPromptTemplate,observe=true,onRefresh=()=>{},onPrepared,onReports,canGenerate=()=>true,kinds=['video','image']}){
  let alive=true;
@@ -139,7 +150,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
   closeSettings();closeFrames();config.kind=kind;config.model=GENERATION_MODELS[kind][0];config.mode='';config.settings={};
   let schema={},warning='';
   try{schema=(await modelCapabilities(config)).schema;}catch(error){if(isLocalGenerationModel(config.model))throw error;warning='已保存，但未能确认模型兼容性：'+error.message;}
-  applyModelDefaults(config,schema);
+  applyGenerationModelDefaults(config,schema);
   if(!alive||!row()||!findField(fieldId))return;
   if(!canGenerate()||tasks.submitting||JSON.stringify(frameConfig(fieldId,row()))!==before)throw new Error('任务已变化，请重新选择生成类型');
   editor.change(t=>setRowGenerationConfig(t.records.find(r=>r.id===recordId),fieldId,config),{render:false});
@@ -171,7 +182,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
     if(reset){
      status.textContent='正在读取模型选项…';
      if(!schema||next.kind!==draft.kind||next.model!==draft.model){try{const caps=await modelCapabilities(next);schema=caps.schema;schemaError='';}catch(error){schema={};schemaError=error.message;if(isLocalGenerationModel(next.model))throw error;}if(!active())return;}
-     applyModelDefaults(next,schema);
+     applyGenerationModelDefaults(next,schema);
     }
     if(!active())return;current();
     editor.change(t=>setRowGenerationConfig(t.records.find(r=>r.id===recordId),fieldId,next),{render:false});
@@ -317,7 +328,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
    const focusKey=settings.contains(document.activeElement)?document.activeElement.dataset.focusKey:null,expanded=settings.querySelector('details')?.open;
    parameterView?.dispose();parameterView=null;settings.replaceChildren();if(!schema)return;
    parameterView=createGenerationParameters(draft,schema,{
-    onMode:id=>{draft.mode=id;draft.settings={};applyModelDefaults(draft,schema);drawSettings();},
+    onMode:id=>{draft.mode=id;draft.settings={};applyGenerationModelDefaults(draft,schema);drawSettings();},
     onSetting:(name,value)=>{if(value===undefined)delete draft.settings[name];else draft.settings[name]=value;drawSettings();},
     onSettings:values=>{Object.assign(draft.settings,values);drawSettings();}
    });settings.append(parameterView);
@@ -343,7 +354,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
    const token=++sequence;loading=true;schema=null;apply.disabled=true;parameterView?.dispose();parameterView=null;settings.replaceChildren();status.textContent='正在读取模型选项…';
    try{
     const caps=await modelCapabilities(draft);if(!active()||token!==sequence)return;
-    schema=caps.schema;applyModelDefaults(draft,schema);const modes=generationModes(schema,draft.kind),chosen=generationModeChoice(draft.mode,schema);
+    schema=caps.schema;applyGenerationModelDefaults(draft,schema);const modes=generationModes(schema,draft.kind),chosen=generationModeChoice(draft.mode,schema);
     draft.mode=modes.includes(chosen)?chosen:modes[0]||'';
     drawSettings();apply.disabled=!modes.length;status.textContent='';
    }catch(error){if(active()&&token===sequence)status.textContent=error.message;}
@@ -362,12 +373,13 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
    const draft=structuredClone(field.generation);let original=JSON.stringify(field.generation),pendingCapabilities=null;
    const label=(name,tag='select')=>{const wrapper=el('label',body,name),input=el(tag,wrapper);input.setAttribute('aria-label',name);return input;};
    const kind=label('生成类型');for(const [v,n] of [['image','图片'],['video','视频']])kind.add(new Option(n,v));kind.value=draft.kind;
-   const model=label('模型'),prompt=label('提示词列');
+   const fixedPrompt=promptSourceId(getTable());if(fixedPrompt)draft.promptFieldId=fixedPrompt;
+   const model=label('模型'),prompt=needsGenerationPromptSelector(getTable())?label('提示词列'):null;
    function fillPrompts(){const placeholder=new Option('请选择提示词列','');placeholder.disabled=true;prompt.replaceChildren(placeholder);for(const f of promptColumns(getTable()))prompt.add(new Option(f.name,f.id));prompt.value=draft.promptFieldId;}
-   fillPrompts();
+   if(prompt)fillPrompts();
    function refreshDefaults(){syncFrameTags();refreshFrameTokens();refreshSettingBars();}
-   prompt.onchange=()=>{const source=prompt.value;editor.change(t=>{setPromptSource(t,source);t.fields.find(f=>f.id===fieldId).generation={...structuredClone(draft),promptFieldId:source};});body.close();open(fieldId);};
-   body.append(button('新建空白提示词列',()=>{editor.change(t=>{draft.promptFieldId=createGenerationPrompt(t,fieldId).id;});fillPrompts();refreshDefaults();}));
+   if(prompt)prompt.onchange=()=>{const source=prompt.value;editor.change(t=>{setPromptSource(t,source);t.fields.find(f=>f.id===fieldId).generation={...structuredClone(draft),promptFieldId:source};});body.close();open(fieldId);};
+   if(prompt)body.append(button('新建空白提示词列',()=>{editor.change(t=>{draft.promptFieldId=createGenerationPrompt(t,fieldId).id;});fillPrompts();refreshDefaults();}));
    const mode=label('生成方式'),settings=el('section',body),status=el('p',body);status.setAttribute('role','status');
    const project={value:getTable().meta.generationProject||''};
    function fillModels(){model.replaceChildren();if(draft.model==='Image-2')draft.model='Lib Image';if(!GENERATION_MODELS[kind.value].includes(draft.model)){const placeholder=new Option('请选择具体模型版本','');placeholder.disabled=true;model.add(placeholder);}for(const name of GENERATION_MODELS[kind.value])model.add(new Option(generationModelLabel(name),name));model.value=GENERATION_MODELS[kind.value].includes(draft.model)?draft.model:'';}
@@ -412,7 +424,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
      }
      original=config;
    }
-   configPanels.set(fieldId,{draft,apply:applyConfig,setPromptSource(sourceId){if(generationConfigField(getTable(),fieldId)?.id!==fieldId){body.close();open(fieldId);return;}draft.promptFieldId=sourceId;fillPrompts();refreshDefaults();}});
+   configPanels.set(fieldId,{draft,apply:applyConfig,setPromptSource(sourceId){if(generationConfigField(getTable(),fieldId)?.id!==fieldId){body.close();open(fieldId);return;}draft.promptFieldId=sourceId;if(prompt)fillPrompts();refreshDefaults();}});
    body.append(button('重新读取模型选项',loadCapabilities),button('保存配置',async()=>{
     try{await applyConfig();body.close();
     }catch(error){status.textContent=error.message;}
