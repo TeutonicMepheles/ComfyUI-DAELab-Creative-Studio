@@ -30,6 +30,22 @@ test('multiple image references retain earlier frame images and remove only a di
  clearLinkedTaskInput(state,'images.image0');assert.deepEqual(generationInput(table,fieldId,row.id).assets.map(a=>a.id),['asset0','asset1','asset2','asset4']);
 });
 
+test('reconnecting replaces one source snapshot while disconnect retains unrelated manual materials',()=>{
+ const state=createVideoTasks({model:'Seedance 2.5',prompt:'画面'}),{table,fieldId}=state,row=table.records[0],output=table.fields.find(f=>f.id===fieldId);
+ const sourceColumn={id:'source-images',type:'content',videoInput:'reference_images'},manualColumn={id:'manual-images',type:'content'};
+ table.fields.push(sourceColumn,manualColumn);
+ row.values[sourceColumn.id]=[{id:'source-a',kind:'image',url:'/view?filename=a.png&type=input'},{id:'source-b',kind:'image',url:'/view?filename=b.png&type=input'}];
+ row.values[manualColumn.id]=[{id:'manual-safe',kind:'image',url:'/view?filename=manual.png&type=input'}];
+ state.inputs={'reference_images':{recordId:row.id,order:1}};
+ const config=rowGenerationConfig(row,fieldId,output.generation);bindLinkedTaskReference(table,row,fieldId,config,sourceColumn);
+ row.values[sourceColumn.id]=[{id:'source-c',kind:'image',url:'/view?filename=c.png&type=input'}];bindLinkedTaskReference(table,row,fieldId,config,sourceColumn);
+ assert.deepEqual(row.values[sourceColumn.id].map(asset=>asset.id),['source-c']);
+ clearLinkedTaskInput(state,'reference_images');
+ assert.deepEqual(row.values[sourceColumn.id],[]);
+ assert.deepEqual(row.values[manualColumn.id].map(asset=>asset.id),['manual-safe']);
+ assert.equal(state.inputs.reference_images,undefined);
+});
+
 test('disconnecting a mixed group removes its text and media while retaining independent inputs',()=>{
  const state=createVideoTasks({model:'Seedance 2.5'}),{table,fieldId}=state,row=table.records[0],config=table.fields.find(f=>f.id===fieldId).generation;
  const column={id:'group-media',type:'content',videoInput:'groups.group0'};table.fields.push(column);row.values[column.id]=[{id:'group-image',kind:'image',url:'/view?filename=group.png&type=input'}];

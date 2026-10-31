@@ -15,7 +15,7 @@ import {tableAssets,promptText} from '../prompt/table_prompt_model.mjs';
 import {rowGenerationConfig,setRowGenerationConfig,promptColumns,syncGenerationFrameTags,generationFrames,generationInput,isComfyGenerationModel} from './table_generation_model.mjs';
 import {videoResultAssets} from './libtv_video_model.mjs';
 import {addField,uid,normalizeTable} from '../../application/table_model.mjs';
-import {fillMaterialCell} from '../../application/table_material_columns.mjs';
+import {fillMaterialCell,removeMaterialItem} from '../../application/table_material_columns.mjs';
 import {createVideoTasks,importVideoTasks,activeVideoTask,videoTaskAssets,syncVideoTaskInputs,syncVideoTaskPromptWriteback,syncVideoTaskReferences} from './video_tasks_model.mjs';
 import {stopCanvasPropagation} from '../../ui/list_editor_controls.mjs';
 import {bindMaterialThumbnail} from '../../application/table_content_view.mjs';
@@ -357,7 +357,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
   binding=promptUI.mountEditor({cell:prompt,row,field:state.table.fields.find(f=>f.id===cfg.promptFieldId)});
   clearMaterialPreviews();materials.replaceChildren();const assets=tableAssets(state.table,row).filter(a=>a.fieldId!==state.fieldId);if(!assets.length)materials.append(emptyMaterial);
   for(const [index,asset] of assets.entries()){
-   const removeMaterial=()=>{if(node.mode||generation.submitting||active(current()))return;editor.change(t=>{const target=t.records.find(r=>r.id===row.id);target.values[asset.fieldId]=target.values[asset.fieldId].filter(a=>a.id!==asset.id);});};
+   const removeMaterial=()=>{if(node.mode||generation.submitting||active(current()))return;editor.change(t=>{removeMaterialItem(t,row.id,asset.fieldId,asset.id);});};
    const thumb=element('div',materials,'video-task-material');thumb.title=asset.name;thumb.setAttribute('aria-label',asset.name||'参考素材');
    const media=asset.kind==='video'?videoThumb(asset,thumb):mediaThumb(asset,thumb);if(asset.kind==='video'){media.onloadedmetadata=null;if(asset.poster||asset.thumbnailUrl)media.poster=asset.poster||asset.thumbnailUrl;}
    materialPreviews.push(bindMaterialThumbnail(thumb,media,index,{cell:materials,remove:removeMaterial}));

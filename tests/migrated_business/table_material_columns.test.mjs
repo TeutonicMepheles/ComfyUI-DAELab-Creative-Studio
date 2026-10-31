@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createMaterialTable,fillMaterialColumn,fillMaterialCell,fillMaterialRow,columnFillCount,columnDropTypes} from '../../frontend/src/features/table/table_material_columns.mjs';
+import {createMaterialTable,fillMaterialColumn,fillMaterialCell,fillMaterialRow,removeMaterialItem,columnFillCount,columnDropTypes} from '../../frontend/src/features/table/table_material_columns.mjs';
 import {clone,setValue,SnapshotHistory,normalizeTable,pasteMatrix,transferValue} from '../../frontend/src/features/table/data_table_model.mjs';
 const group=n=>({assets:Array.from({length:n},(_,i)=>({filename:`${i}.${i%2?'webm':'png'}`,kind:i%2?'video':'image',nodeId:String(i)}))});
 const mediaTable=()=>normalizeTable({meta:{material_columns:true},fields:[{id:'a',name:'素材 A',type:'content'},{id:'b',name:'素材 B',type:'content'}],records:[{id:'r1',values:{a:[],b:[]}},{id:'r2',values:{a:[],b:[]}}]});
@@ -94,6 +94,18 @@ test('cell drops append the entire collection without changing other rows or col
  assert.equal(row.values[a.id].length,5);assert.equal(new Set(row.values[a.id].map(a=>a.id)).size,5);
  assert.deepEqual(row.values[b.id],untouched);assert.deepEqual(t.records[1],other);assert.equal(t.records.length,2);
  assert.deepEqual(normalizeTable(JSON.stringify(t)),t);
+});
+
+test('single material deletion uses the requested identity and retains manual neighbours',()=>{
+ const t=mediaTable(),row=t.records[0],field=t.fields[0];row.values[field.id]=[
+  {id:'manual-before',url:'/view?filename=manual-before.png',kind:'image'},
+  {id:'source-item',url:'/view?filename=source.png',kind:'image',sourceNodeId:'source'},
+  {id:'manual-after',url:'/view?filename=manual-after.png',kind:'image'},
+ ];
+ assert.equal(removeMaterialItem(t,row.id,field.id,'source-item'),true);
+ assert.deepEqual(row.values[field.id].map(asset=>asset.id),['manual-before','manual-after']);
+ assert.equal(removeMaterialItem(t,row.id,field.id,'missing'),false);
+ assert.equal(t.records[1].values[field.id].length,0);
 });
 
 test('row drops fill media columns left to right and append missing columns',()=>{

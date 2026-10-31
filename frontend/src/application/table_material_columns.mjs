@@ -70,6 +70,13 @@ export function fillMaterialCell(table,recordId,fieldId,collection){
     if(field.type==='assets'&&field.maxItems===1&&assets.length+(Array.isArray(previous)?previous.length:0)>1)throw new Error('此列仅支持单个素材，请拖到列头填充');
     row.values[fieldId]=[...(Array.isArray(previous)?previous:[]),...assets];
 }
+export function removeMaterialItem(table,recordId,fieldId,assetId){
+    const row=table.records.find(r=>r.id===recordId),field=table.fields.find(f=>f.id===fieldId),items=row?.values?.[fieldId];
+    if(!row||!accepts(field)||!Array.isArray(items))throw new Error('此单元格不能删除素材');
+    if(!items.some(asset=>asset.id===assetId))return false;
+    row.values[fieldId]=items.filter(asset=>asset.id!==assetId);
+    return true;
+}
 export function fillMaterialRow(table,recordId,collection){
     const row=table.records.find(r=>r.id===recordId);if(!row)throw new Error('此行已不存在');
     const assets=materialSnapshot(collection),fields=table.fields.filter(accepts);
