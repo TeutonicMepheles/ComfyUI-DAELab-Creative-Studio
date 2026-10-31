@@ -448,9 +448,12 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
     const title=header.querySelector('.field-title');if(title)row.append(title);
     const actions=el('div',row);actions.className='generation-actions';
     const run=button('生成 '+generationRows(getTable(),field.id).length+' 行',()=>findField(frameConfig(field.id)?.promptFieldId)?tasks.generate(field.id):open(field.id),true);run.dataset.generationRun=field.id;run.disabled=tasks.submitting;
-    const source=tableIcon(button('选择提示词列',()=>choosePromptSource(field.id,source)),'edit-line','选择提示词列');source.classList.add('generation-settings');source.setAttribute('aria-haspopup','dialog');
-    source.onpointerenter=()=>choosePromptSource(field.id,source);source.onpointerleave=leavePromptSources;
-    actions.append(source,run);
+    if(needsGenerationPromptSelector(getTable())){
+     const source=tableIcon(button('选择提示词列',()=>choosePromptSource(field.id,source)),'edit-line','选择提示词列');source.classList.add('generation-settings');source.setAttribute('aria-haspopup','dialog');source.dataset.generationPromptSourceControl='true';
+     source.onpointerenter=()=>choosePromptSource(field.id,source);source.onpointerleave=leavePromptSources;
+     actions.append(source);
+    }
+    actions.append(run);
     const output=document.createElement('button');output.type='button';output.className='dae-material-slot';output.dataset.generationSource=field.id;output.setAttribute('aria-label','输出为素材组');output.title='拖到画布空白处输出素材组';actions.append(output);
     actions.onpointerdown=e=>e.stopPropagation();actions.ondragstart=e=>e.preventDefault();
    }
