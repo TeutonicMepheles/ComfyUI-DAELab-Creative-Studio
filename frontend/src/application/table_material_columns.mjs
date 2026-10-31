@@ -94,3 +94,11 @@ export function applyMaterialCellToColumn(table,fieldId,recordId){
         setValue(table,row.id,fieldId,source.map(asset=>({...asset,id:uid()})));
     }
 }
+
+export function applyTextCellToColumn(table,fieldId,recordId){
+    const field=table.fields.find(f=>f.id===fieldId),row=table.records.find(r=>r.id===recordId);
+    if(!row||!columnDropTypes(field).includes('text')||field.presentation==='prompt')throw new Error('请选择可编辑的单文本单元格');
+    const text=row.values[fieldId];
+    if(typeof text!=='string')throw new Error('请选择可编辑的单文本单元格');
+    for(const target of table.records)setValue(table,target.id,fieldId,text);
+}

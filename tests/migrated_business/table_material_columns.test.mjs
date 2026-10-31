@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createMaterialTable,fillMaterialColumn,fillMaterialCell,fillMaterialRow,removeMaterialItem,columnFillCount,columnDropTypes} from '../../frontend/src/features/table/table_material_columns.mjs';
+import {createMaterialTable,fillMaterialColumn,fillMaterialCell,fillMaterialRow,removeMaterialItem,applyTextCellToColumn,columnFillCount,columnDropTypes} from '../../frontend/src/features/table/table_material_columns.mjs';
 import {clone,setValue,SnapshotHistory,normalizeTable,pasteMatrix,transferValue} from '../../frontend/src/features/table/data_table_model.mjs';
 const group=n=>({assets:Array.from({length:n},(_,i)=>({filename:`${i}.${i%2?'webm':'png'}`,kind:i%2?'video':'image',nodeId:String(i)}))});
 const mediaTable=()=>normalizeTable({meta:{material_columns:true},fields:[{id:'a',name:'素材 A',type:'content'},{id:'b',name:'素材 B',type:'content'}],records:[{id:'r1',values:{a:[],b:[]}},{id:'r2',values:{a:[],b:[]}}]});
@@ -24,6 +24,12 @@ test('single text broadcasts unchanged newlines to plain text and prompt columns
   for(const r of t.records)assert.equal(field.presentation==='prompt'?r.values.a.segments[0].text:r.values.a,text);
   assert.deepEqual(normalizeTable(JSON.stringify(t)),t);
  }
+});
+
+test('plain text cell fill copies one value without cycling or truncation',()=>{
+ const table=normalizeTable({fields:[{id:'text',name:'文本',type:'text'}],records:Array.from({length:3},(_,index)=>({id:`r${index}`,values:{text:`旧 ${index}`}}))});
+ table.records[1].values.text='新\n第二行';applyTextCellToColumn(table,'text','r1');
+ assert.deepEqual(table.records.map(row=>row.values.text),['新\n第二行','新\n第二行','新\n第二行']);
 });
 test('column fill handles empty tables, preview counts and invalid text without partial writes',()=>{
  const t=mediaTable();t.records=[];fillMaterialColumn(t,'a',group(1));assert.equal(t.records.length,1);
