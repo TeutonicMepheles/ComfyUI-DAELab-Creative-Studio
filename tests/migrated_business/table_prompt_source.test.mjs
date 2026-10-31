@@ -119,6 +119,27 @@ test('same-row text expansion matches imported generation input and survives ren
  assert.throws(()=>selectTaskPrompt(state,'r1','motion'),/列头/);
 });
 
+test('stable row and field identities keep one shared template aligned after edits and reorder',()=>{
+ const source=fixture();setPromptSource(source,'final');
+ const stableIds=source.records.map(row=>row.id);
+ source.records.reverse();
+ const overridden=source.records.find(row=>row.id===stableIds[1]);
+ overridden.values.final=toColumnPrompt('单格覆盖',overridden);
+ const updated=source.records.find(row=>row.id===stableIds[0]);
+ updated.values.scene=toColumnPrompt('新画面');
+ for(const row of source.records){
+  const preview=text(resolveColumnPrompt(effectivePrompt(source,row,'final'),source,row,'final'));
+  const expected=row.id===stableIds[1]?'单格覆盖':row.id===stableIds[0]?'新画面向前推进。保持写实风格。':'卫星在右。向右横移。保持写实风格。';
+  assert.equal(preview,expected);
+ }
+ const state=importVideoTasks(source);
+ assert.deepEqual(state.table.records.map(row=>row.id),source.records.map(row=>row.id));
+ for(const row of source.records){
+  const expected=text(resolveColumnPrompt(effectivePrompt(source,row,'final'),source,row,'final'));
+  assert.equal(text(generationInput(state.table,state.fieldId,row.id)),expected);
+ }
+});
+
 test('text picker supports old literal documents; nested, empty, deleted and converted sources fail explicitly',()=>{
  const t=fixture(),row=t.records[0];setPromptSource(t,'final');
  const choices=columnReferenceOptions(t,row);assert.deepEqual(choices.map(f=>f.id),['scene','motion']);assert.equal(choices[0].textPreview,'地球在左。');
