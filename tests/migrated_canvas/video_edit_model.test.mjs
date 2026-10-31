@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {connectedEdit,newClip,remapEditSources,sourceKey,splitClip} from '../../frontend/src/features/editor/video_edit_model.mjs';
+import {connectedEdit,newClip,remapEditSources,sourceKey,materialIdentityKey,splitClip} from '../../frontend/src/features/editor/video_edit_model.mjs';
 
 const asset={filename:'copy-test.mp4',subfolder:'',type:'input',kind:'video',duration:10,fps:24,width:640,height:360};
 
@@ -48,4 +48,28 @@ test('copy keeps standalone clips and legacy source keys compatible',()=>{
     assert.deepEqual(copy,edit);
     const synced=connectedEdit(copy,[{asset,source:{...source,nodeId:'101',groupId:'110'}}]);
     assert.deepEqual(synced.clips.map(c=>c.id),['legacy','local']);
+});
+
+test('clip imports dedupe by material identity and fingerprint without collapsing legal timeline copies',()=>{
+ const source={slot:'assets',nodeId:'1'};
+ const first={...asset,id:'asset-occurrence',filename:'first.mp4',contentSha256:'a'.repeat(64)};
+ const sameMaterial={...first,filename:'renamed.mp4'};
+ const sameNameDifferentBytes={...first,id:'other-occurrence',contentSha256:'b'.repeat(64)};
+ assert.equal(materialIdentityKey(first),materialIdentityKey(sameMaterial));
+ const deduped=connectedEdit({version:1,fit:'contain',clips:[]},[
+  {asset:first,source},
+  {asset:sameMaterial,source},
+  {asset:sameNameDifferentBytes,source},
+ ]);
+ assert.equal(deduped.clips.length,2);
+ assert.deepEqual(deduped.clips.map(clip=>clip.asset.contentSha256),['a'.repeat(64),'b'.repeat(64)]);
+ const repeated={...deduped,clips:[deduped.clips[0],{...structuredClone(deduped.clips[0]),id:'intentional-repeat'}]};
+ const resynced=connectedEdit(repeated,[{asset:first,source}]);
+ assert.deepEqual(resynced.clips.map(clip=>clip.id),repeated.clips.map(clip=>clip.id));
+});
+
+test('same filename with different bytes keeps distinct source identities',()=>{
+ const source={slot:'assets',nodeId:'1'},a={...asset,filename:'same.mp4',contentSha256:'c'.repeat(64)},b={...asset,filename:'same.mp4',contentSha256:'d'.repeat(64)};
+ assert.notEqual(sourceKey(a,source),sourceKey(b,source));
+ assert.equal(connectedEdit({version:1,fit:'contain',clips:[]},[{asset:a,source},{asset:b,source}]).clips.length,2);
 });
