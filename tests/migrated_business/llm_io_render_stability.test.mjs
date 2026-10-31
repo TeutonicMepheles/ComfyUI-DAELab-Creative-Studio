@@ -156,6 +156,19 @@ test('saved proposal, apply/undo history and stale native output preserve their 
  a.upstream.snapshot.texts[0]='changed';a.release.sync();assert.equal(a.apply.disabled,true);assert.match(a.status.textContent,/输入已改变/);assert.deepEqual(a.outputs.at(-1),[0,null]);assert.equal(b.paragraph.textContent,'');
 });
 
+test('manual result review edits apply through the original ticket and become read-only when stale',async t=>{
+ const env=environment(t),a=panel(t,env,15,{proposal:true});
+ assert.equal(a.paragraph.contentEditable,'plaintext-only');
+ a.paragraph.textContent='人工修改后的结果\n第二行';await a.paragraph.emit('input');
+ assert.equal(a.state().ioResult.rows[0].result,'结果 15','the saved receipt stays immutable while reviewing');
+ assert.match(a.status.textContent,/结果已修改/);
+ await a.apply.click();
+ assert.equal(a.state().appliedIO.rows[0].result,'人工修改后的结果\n第二行');
+ assert.deepEqual(a.outputs.at(-1),[0,'人工修改后的结果\n第二行']);
+ a.upstream.snapshot.texts[0]='changed';a.release.sync();
+ assert.equal(a.paragraph.contentEditable,'false');assert.equal(a.apply.disabled,true);
+});
+
 test('nullable result text and normalized boolean controls retain DOM assignment semantics',t=>{
  const env=environment(t),a=panel(t,env,9,{proposal:true});
  for(const result of [null,undefined,'']){
