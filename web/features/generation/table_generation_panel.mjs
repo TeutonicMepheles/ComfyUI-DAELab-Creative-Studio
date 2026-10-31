@@ -375,12 +375,13 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
    const kind=label('生成类型');for(const [v,n] of [['image','图片'],['video','视频']])kind.add(new Option(n,v));kind.value=draft.kind;
    const fixedPrompt=promptSourceId(getTable());if(fixedPrompt)draft.promptFieldId=fixedPrompt;
    const model=label('模型'),prompt=needsGenerationPromptSelector(getTable())?label('提示词列'):null;
+   const attempts=label('抽卡次数');for(let count=1;count<=MAX_GENERATION_ATTEMPTS;count++)attempts.add(new Option(`${count} 次`,String(count)));attempts.value=String(draft.attempts??1);attempts.onchange=()=>{draft.attempts=Number(attempts.value);refreshSettingBars();};
    function fillPrompts(){const placeholder=new Option('请选择提示词列','');placeholder.disabled=true;prompt.replaceChildren(placeholder);for(const f of promptColumns(getTable()))prompt.add(new Option(f.name,f.id));prompt.value=draft.promptFieldId;}
    if(prompt)fillPrompts();
    function refreshDefaults(){syncFrameTags();refreshFrameTokens();refreshSettingBars();}
    if(prompt)prompt.onchange=()=>{const source=prompt.value;editor.change(t=>{setPromptSource(t,source);t.fields.find(f=>f.id===fieldId).generation={...structuredClone(draft),promptFieldId:source};});body.close();open(fieldId);};
    if(prompt)body.append(button('新建空白提示词列',()=>{editor.change(t=>{draft.promptFieldId=createGenerationPrompt(t,fieldId).id;});fillPrompts();refreshDefaults();}));
-   const mode=label('生成方式'),settings=el('section',body),status=el('p',body);status.setAttribute('role','status');
+    const mode=label('生成方式'),settings=el('section',body),status=el('p',body);status.setAttribute('role','status');
    const project={value:getTable().meta.generationProject||''};
    function fillModels(){model.replaceChildren();if(draft.model==='Image-2')draft.model='Lib Image';if(!GENERATION_MODELS[kind.value].includes(draft.model)){const placeholder=new Option('请选择具体模型版本','');placeholder.disabled=true;model.add(placeholder);}for(const name of GENERATION_MODELS[kind.value])model.add(new Option(generationModelLabel(name),name));model.value=GENERATION_MODELS[kind.value].includes(draft.model)?draft.model:'';}
    function drawSettings(){
@@ -448,9 +449,12 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
     const title=header.querySelector('.field-title');if(title)row.append(title);
     const actions=el('div',row);actions.className='generation-actions';
     const run=button('生成 '+generationRows(getTable(),field.id).length+' 行',()=>findField(frameConfig(field.id)?.promptFieldId)?tasks.generate(field.id):open(field.id),true);run.dataset.generationRun=field.id;run.disabled=tasks.submitting;
-    const source=tableIcon(button('选择提示词列',()=>choosePromptSource(field.id,source)),'edit-line','选择提示词列');source.classList.add('generation-settings');source.setAttribute('aria-haspopup','dialog');
-    source.onpointerenter=()=>choosePromptSource(field.id,source);source.onpointerleave=leavePromptSources;
-    actions.append(source,run);
+    if(needsGenerationPromptSelector(getTable())){
+     const source=tableIcon(button('选择提示词列',()=>choosePromptSource(field.id,source)),'edit-line','选择提示词列');source.classList.add('generation-settings');source.setAttribute('aria-haspopup','dialog');source.dataset.generationPromptSourceControl='true';
+     source.onpointerenter=()=>choosePromptSource(field.id,source);source.onpointerleave=leavePromptSources;
+     actions.append(source);
+    }
+    actions.append(run);
     const output=document.createElement('button');output.type='button';output.className='dae-material-slot';output.dataset.generationSource=field.id;output.setAttribute('aria-label','输出为素材组');output.title='拖到画布空白处输出素材组';actions.append(output);
     actions.onpointerdown=e=>e.stopPropagation();actions.ondragstart=e=>e.preventDefault();
    }
