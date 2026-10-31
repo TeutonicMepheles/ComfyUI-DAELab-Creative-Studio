@@ -23,6 +23,7 @@ PINNED_SOURCES = {
 }
 INSTRUMENTATION_FILES = (
     'tools/evals/local_runtime_hooks.py', 'tools/evals/run_local_evaluation.py',
+    'tools/evals/local_continuation.py',
     'tools/evals/request_contract.py', 'tools/host/prepare_baseline.py',
     'tools/host/prepare_gpu_evaluation.py', 'tests/host_fixture/local_eval_trace.py',
 )

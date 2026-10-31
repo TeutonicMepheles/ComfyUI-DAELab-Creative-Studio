@@ -459,6 +459,12 @@ class RuntimeHooks:
         require(len(self.by_image_hash) == len(self.fixtures['media']), 'ambiguous-fixture-byte-identity')
         self.run = read(manifest['run']['path'])
         self.slots = {s['requestId']: s for s in self.run['slots'] if s['variant'] == self.variant}
+        if 'continuation' in self.run:
+            from tools.evals.run_local_evaluation import verified_continuation
+            from tools.evals.local_continuation import inherited_result
+            continuation, context = verified_continuation(self.run)
+            self.slots = {rid: slot for rid, slot in self.slots.items()
+                          if inherited_result(continuation, self.run, slot['slot'], context=context) is None}
         cases = read(self.run['inputs']['cases']['path'])
         self.cases = {s['requestId']: cases[self.variant][s['sampleId']] for s in self.slots.values()}
         self.server, self.modules, self.installed, self.restores = None, {}, set(), []
@@ -524,6 +530,11 @@ class RuntimeHooks:
         request_id = request_id or CONTEXT.get()
         require(request_id in self.slots and self.gate.active == request_id, 'unowned-evaluation-dispatch')
         return request_id
+
+    def validate_arm_slot(self, payload):
+        slot = payload.get('slot') or {}
+        require(slot.get('requestId') in self.slots and self.slots[slot['requestId']] == slot,
+                'unreviewed-or-inherited-slot-cannot-arm')
 
     def _fixture_label(self, raw):
         digest = hashlib.sha256(raw).hexdigest()
@@ -764,6 +775,8 @@ class RuntimeHooks:
                 async def owned_entry(request, handler):
                     require(not any(request.headers.get(key) for key in ('Authorization', 'Cookie', 'X-API-Key', 'X-DAELab-DeepSeek-Key')),
                             'credentials-refused-in-local-eval')
+                    if request.method == 'POST' and request.path == PREFIX + '/arm':
+                        hooks.validate_arm_slot(await request.json())
                     if request.method != 'POST' or request.path.startswith(PREFIX):
                         return await handler(request)
                     allowed = {'/daelab/libtv/table/submit', '/daelab/libtv/table/status', '/daelab/studio/generation/submit',

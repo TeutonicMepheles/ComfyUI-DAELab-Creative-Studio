@@ -24,10 +24,11 @@ class Transport:
 
     async def create(self, body, key):
         self.calls.append((body, key))
+        task_id = 'chat-' + str(len(self.calls))
         await asyncio.sleep(0)
         if self.error:
             raise self.error
-        return {'id': 'chat-' + str(len(self.calls)), 'choices': [{'finish_reason': 'stop', 'message': {'content': self.text}}],
+        return {'id': task_id, 'choices': [{'finish_reason': 'stop', 'message': {'content': self.text}}],
                 'usage': {'prompt_tokens': 32, 'completion_tokens': 8}}
 
 
@@ -110,6 +111,11 @@ class DeepSeekTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual({key for _, key in self.transport.calls}, {'synthetic-secret-1', 'synthetic-secret-2'})
         for job in self.core.jobs.list_jobs(): self.assertNotIn('synthetic-secret', json.dumps(job))
         self.assertEqual(request_key.get(), '')
+
+    async def test_transport_assigns_distinct_ids_before_yielding(self):
+        replies = await asyncio.gather(self.transport.create({}, 'synthetic-1'),
+                                       self.transport.create({}, 'synthetic-2'))
+        self.assertEqual([reply['id'] for reply in replies], ['chat-1', 'chat-2'])
 
     async def test_rejection_and_truncated_response_are_not_success(self):
         self.provider.key_resolver = lambda: 'synthetic-server-secret'
