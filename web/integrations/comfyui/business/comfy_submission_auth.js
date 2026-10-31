@@ -17,7 +17,7 @@ export async function comfyAccountAuth(host, required = false) {
     };
     assertCurrent();
     if (required && !token && !key)
-        throw new Error('请先登录 ComfyUI 账户，GPT 优化使用 Comfy 积分');
+        throw new Error('请先登录 Comfy 账户，GPT 文本生成使用 Comfy 积分');
     const headers = {};
     if (token)
         headers.Authorization = `Bearer ${token}`;

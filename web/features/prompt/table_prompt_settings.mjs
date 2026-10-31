@@ -1,4 +1,4 @@
-import {LOCAL_VIDEO_MODEL,isLocalVideoModel,isComfyGenerationModel,isLocalGenerationModel} from '../generation/table_generation_model.mjs';
+import {LOCAL_VIDEO_MODEL,MAX_GENERATION_ATTEMPTS,generationAttempts,isLocalVideoModel,isComfyGenerationModel,isLocalGenerationModel} from '../generation/table_generation_model.mjs';
 import {createTableButton} from '../../ui/table_controls.mjs';
 import {stopCanvasPropagation} from '../../ui/list_editor_controls.mjs';
 import {generationModelIconURL,generationModelLabel} from '../generation/generation_model_icons.mjs';
@@ -8,6 +8,7 @@ export const PROMPT_SETTINGS_TEMPLATE=Object.freeze([
  {key:'kind',label:'生成类型',icon:'video-line'},
  {key:'model',label:'模型',icon:'box-3-line'},
  {key:'mode',label:'参考模式',icon:'film-line'},
+ {key:'attempts',label:'抽卡次数',icon:'file-copy-line'},
  {key:'size',label:'比例／分辨率',icon:'aspect-ratio-line',settings:['ratio','resolution','width','height']},
  {key:'duration',label:'时间',icon:'time-line',settings:['duration']},
 ]);
@@ -20,12 +21,12 @@ function sizeLabel(settings,config){
  return [ratio,settings.resolution||(dimensions?`${width}×${height}`:'')].filter(Boolean).join(' · ')||'比例／分辨率';
 }
 export function generationParametersSummary(config){
- const settings=config.settings||{},sound=settings.enableSound;
- return [generationModeLabels[config.mode]||config.mode||'选择方式',sizeLabel(settings,config),config.kind==='image'&&isComfyGenerationModel(config.model)&&settings.quality?`质量 ${settings.quality}`:'',config.kind==='video'&&settings.duration!=null?`${settings.duration}s`:'',sound!==undefined?(['on',true,1].includes(sound)?'音频开启':'音频关闭'):''].filter(Boolean).join(' · ');
+ const settings=config.settings||{},sound=settings.enableSound,attempts=generationAttempts(config);
+ return [generationModeLabels[config.mode]||config.mode||'选择方式',sizeLabel(settings,config),config.kind==='image'&&isComfyGenerationModel(config.model)&&settings.quality?`质量 ${settings.quality}`:'',config.kind==='video'&&settings.duration!=null?`${settings.duration}s`:'',attempts>1?`抽卡 ${attempts} 次`:'',sound!==undefined?(['on',true,1].includes(sound)?'音频开启':'音频关闭'):''].filter(Boolean).join(' · ');
 }
 export function promptSettingsItems(config,{combined=false}={}){
- const settings=config.settings||{},video=config.kind==='video';
- const labels={kind:video?'视频生成':'图片生成',model:generationModelLabel(config.model)||'选择模型',mode:generationModeLabels[config.mode]||config.mode||'选择方式',size:sizeLabel(settings,config),duration:settings.duration!=null&&settings.duration!==''?`${settings.duration}s`:'设置时长'};
+ const settings=config.settings||{},video=config.kind==='video',attempts=generationAttempts(config);
+ const labels={kind:video?'视频生成':'图片生成',model:generationModelLabel(config.model)||'选择模型',mode:generationModeLabels[config.mode]||config.mode||'选择方式',attempts:`${attempts} 次`,size:sizeLabel(settings,config),duration:settings.duration!=null&&settings.duration!==''?`${settings.duration}s`:'设置时长'};
  const items=PROMPT_SETTINGS_TEMPLATE.map(item=>({...item,icon:item.key==='kind'&&!video?'image-line':item.icon,text:labels[item.key],hidden:item.key==='duration'&&!video}));
  return combined?[...items.slice(0,2),{key:'parameters',label:'生成参数',icon:'settings-3-line',text:generationParametersSummary(config)}]:items;
 }
@@ -173,11 +174,13 @@ export function createLocalVideoSizePicker(config,schema,onChange){
  return root;
 }
 // One view over the existing schema and setting editor. It never saves or submits by itself.
-export function createGenerationParameters(config,schema,{onMode,onSetting,onSettings}){
+export function createGenerationParameters(config,schema,{onMode,onSetting,onSettings,onAttempts=()=>{}}){
  const root=document.createElement('div');root.className='generation-parameter-sections';
  const cleanups=[];root.dispose=()=>{for(const cleanup of cleanups.splice(0))cleanup();};
  const section=(name,parent=root)=>{const block=document.createElement('section'),title=document.createElement('div');block.className='generation-parameter-section';title.className='generation-parameter-title';title.textContent=name;block.append(title);parent.append(block);return block;};
  const choices=parameterChoices;
+  const attemptSection=section('抽卡次数');
+  choices(attemptSection,'抽卡次数',Array.from({length:MAX_GENERATION_ATTEMPTS},(_,index)=>[index+1,`${index+1} 次`]),generationAttempts(config),id=>onAttempts(id));
  const modes=generationParameterModes(config,schema),modeSection=section('生成方式');
  const selectedMode=isLocalGenerationModel(config.model)?config.mode:generationModeChoice(config.mode,schema);
  choices(modeSection,'生成方式',modes.map(id=>[id,generationModeLabels[id]||id||'默认']),selectedMode,id=>{if(id!==config.mode)return onMode(id);});

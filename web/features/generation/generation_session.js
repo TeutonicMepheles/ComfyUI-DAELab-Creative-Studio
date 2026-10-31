@@ -58,6 +58,13 @@ export class GenerationSession {
         delete entry.ticket;
         return true;
     }
+    /** Apply every currently valid completion for one target in one native edit. */
+    applyMany(ids) {
+        const entries = ids.map(id => [id, this.#entries.get(id)]).filter(([, entry]) => !!entry && this.canApply(entry.reference.requestId));
+        return entries.length > 1 && !!this.edits.applyMany &&
+            this.edits.applyMany(entries.map(([, entry]) => entry.ticket), entries.map(([, entry]) => structuredClone(entry.report))) &&
+            entries.every(([, entry]) => { delete entry.ticket; return true; });
+    }
     /** A visible review action may issue a new ticket; polling and recovery never do. */
     review(id, inputDigest, identity) {
         const entry = this.#entries.get(id);

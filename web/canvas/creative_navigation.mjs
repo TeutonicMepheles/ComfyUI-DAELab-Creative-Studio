@@ -15,6 +15,11 @@ export function copySnapshot(node,layout){
     for(const output of data.outputs||[])output.links=null;
     return {kind:CLIPBOARD_KIND,node:data,layout:{width:layout.width,expanded:layout.expanded}};
 }
+export function hasCanvasTextSelection(root,selection=globalThis.getSelection?.()){
+    if(!root||!selection||selection.isCollapsed)return false;
+    const within=node=>Boolean(node&&(node===root||root.contains?.(node.nodeType===1?node:node.parentNode)));
+    return within(selection.anchorNode)&&within(selection.focusNode);
+}
 export function readSnapshot(text){
     try{const value=JSON.parse(text);return value?.kind===CLIPBOARD_KIND&&typeof value.node?.type==='string'?value:null;}catch{return null;}
 }

@@ -1,9 +1,9 @@
-import {applyMaterialCellToColumn} from './table_material_columns.mjs';
+import {applyMaterialCellToColumn,applyTextCellToColumn} from './table_material_columns.mjs';
 import {isGeneration,rowGenerationConfig,setRowGenerationConfig,generationConfigField} from '../features/generation/table_generation_model.mjs';
 import {isPrompt,promptField} from '../features/prompt/table_prompt_model.mjs';
 import {addField,addRecord,removeField,clone,uid,reorder,emptyValue} from './table_model.mjs';
 import {createTableButton as button} from '../ui/table_controls.mjs';
-import {applyPromptToColumn} from '../features/prompt/table_prompt_template.mjs';
+import {applyPromptToColumn,expandedCellText} from '../features/prompt/table_prompt_template.mjs';
 import {previewContentAsset} from './table_content_view.mjs';
 import {createPromptOptimizationEntry} from '../features/prompt/prompt_optimization_panel.mjs';
 import {isTextColumn} from '../features/prompt/table_prompt_source.mjs';
@@ -12,7 +12,7 @@ const el=(tag,cls,text)=>{const e=document.createElement(tag);e.className=cls||'
 
 // One instance-owned contextual menu; the existing editor remains the transaction
 // owner. This module never reads another plugin's node or private application state.
-export function installContentPresentation({root,editor,getTable,notify,editPromptTemplate,enabled=()=>true,onPresentationChange=()=>{}}){
+export function installContentPresentation({root,editor,getTable,notify,editPromptTemplate,extractText=null,enabled=()=>true,onPresentationChange=()=>{}}){
     const toolbar=el('aside','dae-ui content-context');toolbar.setAttribute('role','toolbar');toolbar.setAttribute('aria-label','表格选中操作');if(!toolbar.hidden)toolbar.hidden=true;document.body.append(toolbar);
     let selected=null,signature='',disposed=false,columnGrid=null,columnSelection=null,rowGrid=null,rowSelection=null,cellAnchor=null,columnAnchor=null,rowAnchor=null,optimizationEntry=null,nativeMenuOpen=false;
     const context=()=>editor.panelContext?.();
@@ -33,6 +33,15 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
         const prompt=isPrompt(field());
         optimizationEntry?.destroy();optimizationEntry=null;
         toolbar.replaceChildren();const label=el('span','content-context-label',selected.kind==='table'?'表格':selected.kind==='column'?field()?.name:selected.kind==='row'?'行':'单元格');toolbar.append(label);
+        if(extractText&&selected.kind==='cell'&&isTextColumn(getTable(),field())&&!field()?.readonly){
+            toolbar.append(button('拆出文本',()=>{
+                try{
+                    const table=getTable(),row=table.records.find(item=>item.id===selected.record),text=expandedCellText(table,row,selected.field);
+                    if(!text.trim())throw new Error('所选文本为空，未创建节点');
+                    extractText({recordId:selected.record,fieldId:selected.field,text,title:(field()?.name||'文本')+' · 拆出'});
+                }catch(error){notify(error.message);}
+            }));
+        }
         if(isTextColumn(getTable(),field())&&editor.openPromptOptimization&&(selected.kind==='column'||selected.kind==='cell'&&(nativeActive()||editor.selection().flat().length<=1))){
             const menuEditor={openPromptOptimization:target=>editor.openPromptOptimization({...target,anchor:target.scope==='column'?columnAnchor||target.anchor:findCell()||target.anchor})};
             optimizationEntry=createPromptOptimizationEntry({editor:menuEditor,target:{scope:selected.kind==='column'?'column':'cell',fieldId:selected.field,...(selected.kind==='cell'?{recordId:selected.record}:{})}});toolbar.append(optimizationEntry.element);
@@ -64,6 +73,10 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
                     for(const row of t.records)setRowGenerationConfig(row,target.id,config);
                 }
             }));fill.title='覆盖本列所有行的提示词和当前生成配置；@列引用仍读取各自行的素材，配置不再跟随默认值，可撤销';toolbar.append(fill);}
+            else if(!many&&!f?.readonly&&isTextColumn(getTable(),f)&&typeof value==='string'){
+                const fill=button('应用到整列',()=>mutate(t=>applyTextCellToColumn(t,selected.field,selected.record)));
+                fill.title='将当前单文本按原样（包括换行）填入本列所有行，可撤销';toolbar.append(fill);
+            }
             if(!many&&['assets','content'].includes(f?.type)&&!f.readonly&&Array.isArray(value)&&value.length){const fill=button('应用到整列',()=>mutate(t=>applyMaterialCellToColumn(t,selected.field,selected.record)));fill.title='用当前格全部素材覆盖本列其他行，保留素材顺序，可撤销';toolbar.append(fill);}
             if(!many&&['assets','content'].includes(f?.type)&&!f.readonly)toolbar.append(button('清空',()=>editor.clearCells([{row:{id:selected.record},field:f}])));
         }
