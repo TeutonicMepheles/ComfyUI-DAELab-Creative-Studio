@@ -152,6 +152,16 @@
 | 8 | `task8-clip-dedup-and-repeat.png` |
 | 宿主与隔离 | `isolated-workflow-overview.png`、`final-head-isolated-workflow-overview.png`、`second-isolated-host-8312.png` |
 
+2026-11-01 在修正后的隔离宿主中重新采集创作画布证据。以下截图顶部均显示“创作画布”，不是节点图或 `dev/table` 测试预览：
+
+- `20261101-creative-canvas-fit.png`：创作画布整体布局与保存状态。
+- `20261101-creative-canvas-table-complete.png`：表格行、两个素材和同行提示词。
+- `20261101-creative-canvas-table-assets-prompt.png`：素材列与提示词列的可读近景。
+- `20261101-creative-canvas-text-extract.png`：拆出的独立文本节点及保留换行。
+- `20261101-creative-canvas-generation.png`：生成节点、Comfy 模型和 4 秒整数视频参数。
+- `20261101-creative-canvas-generation-models-100.png`：创作画布中的 Comfy 与本地模型选择菜单。
+- `20261101-creative-canvas-clip-dedup.png`：同一来源素材及时间线上两个用户主动保留的片段。
+
 ## 首次失败与未验证项
 
 - 画布与剪辑源码修改后，来源指纹检查首先因源/目标哈希变化失败；复核修改范围后更新 `docs/provenance/canvas-files.json`。没有把旧指纹用于新证据。
