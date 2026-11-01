@@ -24,7 +24,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
     const listeners=[],on=(el,event,fn)=>{el.addEventListener(event,fn);listeners.push(()=>el.removeEventListener(event,fn));};
     const make=(tag,cls,text)=>{const e=document.createElement(tag);e.className=cls;if(text)e.textContent=text;return e;};
     const heading=result.querySelector('.llm-style-result-head');heading.querySelector('.llm-style-result-actions')?.remove();result.before(heading);
-    const paragraph=make('div','llm-style-result-editor',''),status=make('div','llm-style-preview-status');status.setAttribute('role','status');
+    const paragraph=make('p','llm-style-result-editor',''),status=make('div','llm-style-preview-status');status.setAttribute('role','status');
     paragraph.contentEditable='plaintext-only';paragraph.spellcheck=false;paragraph.setAttribute('role','textbox');paragraph.setAttribute('aria-label','审阅结果');paragraph.setAttribute('aria-multiline','true');
     const actions=make('div','llm-style-result-actions');result.replaceChildren(paragraph,status,actions);
     const changed=()=>{node.graph?.change?.();render();};
