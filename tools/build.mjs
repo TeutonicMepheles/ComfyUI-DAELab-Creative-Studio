@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import {relocateMarkdownLinks} from './document_links.mjs';
+import {loadTextRules, productBytes} from './text_bytes.mjs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { spawnSync } from 'node:child_process';
@@ -8,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const source = path.join(root, 'frontend/src');
 const output = path.join(root, 'web');
+const textRules = loadTextRules(root);
 // Only files listed by our previous build may be removed; never recurse-delete a target.
 const manifestPath = path.join(output, 'build-manifest.json');
 if (fs.existsSync(manifestPath)) {
@@ -27,14 +29,15 @@ function visit(directory) {
     if (entry.isDirectory()) visit(full);
     else {
       const relative = path.relative(source, full).replaceAll('\\', '/');
-      sourceHashes.push([relative, crypto.createHash('sha256').update(fs.readFileSync(full)).digest('hex')]);
+      const bytes = productBytes(`frontend/src/${relative}`, fs.readFileSync(full), textRules);
+      sourceHashes.push([relative, crypto.createHash('sha256').update(bytes).digest('hex')]);
       if (relative.endsWith('.ts')) {
         if (!relative.endsWith('.d.ts')) files.push(relative.replace(/\.ts$/, '.js'));
       } else {
         const target = path.join(output, relative);
         fs.mkdirSync(path.dirname(target), { recursive: true });
-        if(relative.endsWith('.md'))fs.writeFileSync(target,relocateMarkdownLinks(fs.readFileSync(full,'utf8'),full,target));
-        else fs.copyFileSync(full, target);
+        if(relative.endsWith('.md'))fs.writeFileSync(target,relocateMarkdownLinks(bytes.toString('utf8'),full,target));
+        else fs.writeFileSync(target, bytes);
         files.push(relative);
       }
     }
