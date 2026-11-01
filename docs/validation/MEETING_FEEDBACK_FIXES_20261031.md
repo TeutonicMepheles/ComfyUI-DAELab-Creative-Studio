@@ -2,6 +2,8 @@
 
 本记录覆盖 `codex/meeting-feedback-fixes` 上的八项会议反馈修复。源码修复、自动回归和隔离宿主交互已完成；本轮未调用云模型，未执行真实模型推理，未合并或发布分支。
 
+2026-11-01 人工界面复核发现任务 1 的结果编辑器在初次实现中改变了默认视觉：原 `<p>` 被换成 `<div>`，并增加了未聚焦背景、文字色和边框。后续修正恢复原 `<p>` 语义和默认样式，仅在可编辑结果获得焦点时显示轮廓；人工编辑、过期禁用和显式应用行为不变。修正提交为 `7dcfa61`，对应 Web 构建为 `b9d8d4f`。
+
 ## 候选与范围
 
 - 开发基线：`main` 的 `363ed94`。
@@ -92,6 +94,7 @@
 | `94f1fc8` | 隐藏生成列头重复提示词来源 |
 | `f5a005f` | 列默认配置显示抽卡入口 |
 | `4ad0c59`、`20c7810`、`9d73896` | Web 构建、来源指纹与生成列测试夹具 |
+| `7dcfa61`、`b9d8d4f` | 恢复文本审阅结果的原有结构、默认样式及对应 Web 构建 |
 
 回退范围是 `main..codex/meeting-feedback-fixes`。各任务提交可单独回退；共享 Web 清单和来源指纹需随对应源码回退重新构建。
 
@@ -103,6 +106,7 @@
 | `npm run test:table:ui` | 8/8 通过 | `.local/evidence/meeting-feedback-fixes/20261031/final-table-ui-pass2.log` |
 | `python -m unittest discover -s tests/generation -p "test_*.py" -v` | 132/132 通过 | `.local/evidence/meeting-feedback-fixes/20261031/final-python-generation-rerun.log` |
 | `npm run check:docs` | 125 个文档本地链接通过 | `.local/evidence/meeting-feedback-fixes/20261031/final-docs-check-after-meeting-feedback.log` |
+| `npm run check`（样式修正后） | 成功；构建 302 个文件，185 个模块检查通过；前端 404 通过、3 跳过、0 失败；业务 612/612 | `.local/evidence/meeting-feedback-fixes/20261031/20261101-style-correction-npm-check.log` |
 
 覆盖点包括双实例隔离、连接/断开、结果过期、同行引用、字段删除、手动素材保留、重连和单图删除、文本拆出、混合勾选、提交后改选、抽卡边界、未知任务恢复、旧配置保持、事件清理、重复导入和合法重复片段。
 
@@ -128,6 +132,7 @@
 - 剪辑相同来源只有一条素材/片段；时间线主动复制后保留两条片段。
 - 工作流保存、刷新重载后恢复节点、表格、素材、文本和剪辑编辑；标题不再显示未保存标记。
 - 停止主宿主后刷新包快照并重新启动，最终 HEAD 再次完成保存重载。
+- 样式修正后的隔离宿主实际计算样式确认结果节点为 `<p>`，背景透明、无边框、使用原有弱化文字色。
 
 模拟与真实模型验证分开：生成阶段、完成态和 1–4 次入口来自 `dev/table` 的完整模拟扩展；未把模拟结果记作真实生成验收。本轮没有调用云模型，没有消费积分，没有下载替代模型，也没有修改端口 8000。
 
