@@ -158,6 +158,7 @@ test('saved proposal, apply/undo history and stale native output preserve their 
 
 test('manual result review edits apply through the original ticket and become read-only when stale',async t=>{
  const env=environment(t),a=panel(t,env,15,{proposal:true});
+ assert.equal(a.paragraph.tagName,'p');
  assert.equal(a.paragraph.contentEditable,'plaintext-only');
  a.paragraph.textContent='人工修改后的结果\n第二行';await a.paragraph.emit('input');
  assert.equal(a.state().ioResult.rows[0].result,'结果 15','the saved receipt stays immutable while reviewing');
