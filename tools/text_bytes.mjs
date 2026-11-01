@@ -27,7 +27,11 @@ function globToRegExp(glob) {
       pattern += char.replace(/[.+^${}()|[\]\\]/g, '\\$&');
     }
   }
-  return new RegExp(`^${pattern}$`);
+  // As in .gitattributes and .gitignore, a pattern without a slash matches at any depth,
+  // so `*.png` must also cover nested images. A pattern containing a slash is anchored
+  // to the repository root.
+  const depth = glob.includes('/') ? '' : '(?:.*/)?';
+  return new RegExp(`^${depth}${pattern}$`);
 }
 
 // Collect the `-text` patterns from .gitattributes so binary and vendor assets stay verbatim.
