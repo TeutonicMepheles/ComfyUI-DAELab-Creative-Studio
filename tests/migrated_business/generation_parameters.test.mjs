@@ -1,8 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {generationDurationOptions,generationParameterSpecs,generationParameterModes,generationModes,generationModeChoice,promptSettingsItems,generationParametersSummary} from '../../frontend/src/features/prompt/table_prompt_settings.mjs';
+import {readFileSync} from 'node:fs';
+import ts from 'typescript';
+import {installDom} from './prompt_optimization_dom.mjs';
+import {generationDurationOptions,generationParameterSpecs,generationParameterModes,generationModes,generationModeChoice,promptSettingsItems,generationParametersSummary,createGenerationParameters,generationSettingSpecs} from '../../frontend/src/features/prompt/table_prompt_settings.mjs';
 import {generationModelIconURL} from '../../frontend/src/features/generation/generation_model_icons.mjs';
-import {LOCAL_VIDEO_MODEL} from '../../frontend/src/features/generation/table_generation_model.mjs';
+import {LOCAL_VIDEO_MODEL,applyColumnGenerationConfig,promptGenerationOwner,rowGenerationConfig,generationAttempts} from '../../frontend/src/features/generation/table_generation_model.mjs';
 import {createVideoTasks} from '../../frontend/src/features/generation/video_tasks_model.mjs';
 import {LOCAL_VIDEO_SIZE_PRESETS,localVideoSizePresets,normalizeLocalGenerationConfig} from '../../frontend/src/features/prompt/table_prompt_settings.mjs';
 import {applyGenerationModelDefaults,needsGenerationPromptSelector} from '../../frontend/src/features/generation/table_generation_panel.mjs';
@@ -137,4 +140,54 @@ test('single-frame and image-reference modes never become unsupported alternativ
   assert.equal(generationModeChoice(mode,schema),mode);
  }
  assert.deepEqual(generationParameterModes({model:'unavailable',kind:'image',mode:'image2image'},{}),[]);
+});
+// The column-header "apply all" popover builds its parameters with a callback bundle.
+// Read the real drawing code so a missing callback cannot hide behind a stub.
+const panelPath='../../frontend/src/features/generation/table_generation_panel.mjs';
+function columnParameterDrawing(){
+ const text=readFileSync(new URL(panelPath,import.meta.url),'utf8'),tree=ts.createSourceFile(panelPath,text,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
+ const named=(node,name)=>{const found=[];(function visit(child){if(ts.isFunctionDeclaration(child)&&child.name?.text===name)found.push(child);ts.forEachChild(child,visit);})(node);return found;};
+ const open=named(tree,'openPromptColumn');
+ assert.equal(open.length,1,'the prompt-column popover must stay one function');
+ const draw=named(open[0],'drawSettings');
+ assert.equal(draw.length,1,'the prompt-column popover must build its parameters in one place');
+ assert.match(draw[0].getText(tree),/createGenerationParameters\(/);
+ return draw[0].getText(tree);
+}
+const columnDrawing=columnParameterDrawing();
+function descendants(node,found=[]){for(const child of node.children||[]){found.push(child);descendants(child,found);}return found;}
+function drawColumn({draft,schema,table}){
+ const settings={children:[],contains:()=>false,querySelector:()=>null,replaceChildren(){this.children=[];},append(...nodes){for(const node of nodes){node.parentNode=this;this.children.push(node);}}};
+ const draws={count:0};
+ const drawSettings=new Function('settings','document','schema','draft','owner','frameColumns','getTable','el','createGenerationParameters','generationFrameRoles','isLocalVideoModel','localVideoSizePicker','generationParameterSpecs','generationSettingSpecs',
+  `let parameterView=null;${columnDrawing};return drawSettings;`)(
+  settings,document,schema,draft,null,{},()=>table,
+  (tag,parent,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;parent?.append(node);return node;},
+  (config,spec,handlers)=>{draws.count++;return createGenerationParameters(config,spec,handlers);},
+  ()=>[],()=>false,()=>null,generationParameterSpecs,generationSettingSpecs);
+ drawSettings();
+ return {settings,draws,drawSettings};
+}
+const attemptButton=(settings,label)=>descendants(settings).find(node=>node.tagName==='button'&&node.textContent===label);
+const pressAttempts=button=>button.onclick({preventDefault(){},stopPropagation(){}});
+
+test('the prompt-column apply-all popover records attempts, saves them and reopens with them selected',t=>{
+ const dom=installDom(t);t.after(()=>dom.restore());
+ const state=createVideoTasks({prompt:'任务'}),table=state.table,field=table.fields.find(item=>item.generation),promptFieldId=field.generation.promptFieldId;
+ const schema={properties:{modeType:{items:{text2video:[]}}}};
+ const draft={...structuredClone(field.generation),kind:'video',model:'Seedance 2.5',mode:'text2video',settings:{}};
+ const column=drawColumn({draft,schema,table});
+ const four=attemptButton(column.settings,'4 次');
+ assert.equal(four.getAttribute('aria-pressed'),'false','one attempt is the saved default');
+ pressAttempts(four);
+ assert.equal(draft.attempts,4,'choosing four attempts must update the draft');
+ assert.equal(column.draws.count,2,'choosing attempts must redraw the parameter view');
+ assert.equal(attemptButton(column.settings,'4 次').getAttribute('aria-pressed'),'true');
+ assert.equal(attemptButton(column.settings,'1 次').getAttribute('aria-pressed'),'false');
+ applyColumnGenerationConfig(table,promptFieldId,draft);
+ const saved=promptGenerationOwner(table,promptFieldId);
+ assert.equal(generationAttempts(saved.generation),4,'apply all must persist the chosen attempts');
+ for(const row of table.records)assert.equal(generationAttempts(rowGenerationConfig(row,saved.id,saved.generation)),4);
+ const reopened=drawColumn({draft:structuredClone(saved.generation),schema,table});
+ assert.equal(attemptButton(reopened.settings,'4 次').getAttribute('aria-pressed'),'true','reopening must show the saved attempts');
 });
