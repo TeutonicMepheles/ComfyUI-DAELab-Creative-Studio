@@ -71,6 +71,13 @@ export function connectedEdit(edit,assets){
         const identity=materialIdentityKey(item.asset,item.source);if(identity&&identities.has(identity))continue;
         incoming.set(key,item);if(identity)identities.add(identity);
     }
+    // Deduplication keeps the first occurrence of each material identity, so a renamed or
+    // reordered source resolves its saved clips to that kept occurrence instead of losing
+    // them and re-adding one default clip.
+    const keptIdentities=new Map();
+    for(const {asset,source} of incoming.values()){
+        const identity=materialIdentityKey(asset,source);if(identity&&!keptIdentities.has(identity))keptIdentities.set(identity,{asset,source});
+    }
     // Saved source keys used only the asset ID; keep existing edits and deletions when upgrading.
     const savedKeys=new Map();
     for(const {asset,source} of [...assets,...edit.clips])if(source.slot==='assets'&&source.nodeId!=null)savedKeys.set(sourceKey(asset,{...source,nodeId:undefined}),sourceKey(asset,source));
@@ -79,10 +86,14 @@ export function connectedEdit(edit,assets){
         const member=replacements.get(key);return member?sourceKey(member.asset,member.source):key;
     }));
     const clips=edit.clips.map(clip=>{
-        const key=sourceKey(clip.asset,clip.source),member=replacements.get(key)||incoming.get(savedKeys.get(key))||(isGroupSlot(clip.source.slot)&&incoming.get(key));
+        const key=sourceKey(clip.asset,clip.source),member=replacements.get(key)||incoming.get(savedKeys.get(key))||(isGroupSlot(clip.source.slot)&&incoming.get(key))||(clip.source.slot?keptIdentities.get(materialIdentityKey(clip.asset,clip.source)):undefined);
         return member?{...clip,asset:member.asset,source:member.source}:clip;
     }).filter(c=>!c.source.slot||incoming.has(sourceKey(c.asset,c.source)));
-    for(const [key,{asset,source}] of incoming)if(!previous.has(key))clips.push(newClip(asset,source));
+    const knownIdentities=new Set(edit.clips.filter(clip=>clip.source.slot).map(clip=>materialIdentityKey(clip.asset,clip.source)).filter(Boolean));
+    for(const [key,{asset,source}] of incoming){
+        const identity=materialIdentityKey(asset,source);if(previous.has(key)||(identity&&knownIdentities.has(identity)))continue;
+        clips.push(newClip(asset,source));
+    }
     return {...edit,clips,sources:[...incoming.keys()]};
 }
 export function resizeClip(clip,edge,delta,fps=clip.asset.fps||24){

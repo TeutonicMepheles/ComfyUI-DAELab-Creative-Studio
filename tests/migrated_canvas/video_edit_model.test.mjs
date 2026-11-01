@@ -68,6 +68,39 @@ test('clip imports dedupe by material identity and fingerprint without collapsin
  assert.deepEqual(resynced.clips.map(clip=>clip.id),repeated.clips.map(clip=>clip.id));
 });
 
+test('renamed or reordered material keeps its trimmed clips and copies',()=>{
+ const source={slot:'assets',nodeId:'1',assetId:'same-file'};
+ const original={...asset,filename:'old.mp4',contentSha256:'a'.repeat(64)};
+ const renamed={...original,filename:'renamed.mp4'};
+ assert.equal(materialIdentityKey(original,source),materialIdentityKey(renamed,source));
+ const edited={version:1,fit:'contain',clips:[
+  {...newClip(original,source,'trimmed'),start:2,duration:3,mute:true},
+  {...newClip(original,source,'copy'),start:2,duration:3},
+ ],sources:[sourceKey(original,source)]};
+ const before=structuredClone(edited);
+ // The renamed occurrence is listed first, so identity dedupe keeps it and drops the
+ // occurrence the saved clips point at.
+ const renamedFirst=[{asset:renamed,source},{asset:original,source}];
+ const synced=connectedEdit(edited,renamedFirst);
+ assert.deepEqual(synced.clips.map(clip=>[clip.id,clip.start,clip.duration,clip.mute]),[['trimmed',2,3,true],['copy',2,3,false]]);
+ assert.deepEqual(synced.clips.map(clip=>clip.asset.filename),['renamed.mp4','renamed.mp4']);
+ assert.deepEqual(synced.clips.map(clip=>[clip.source.assetId,clip.source.nodeId]),[['same-file','1'],['same-file','1']]);
+ assert.deepEqual(synced.sources,[sourceKey(renamed,source)]);
+ assert.deepEqual(edited,before,'sync must not mutate the saved edit');
+ assert.deepEqual(connectedEdit(structuredClone(before),[{asset:original,source},{asset:renamed,source}]).clips.map(clip=>[clip.id,clip.start,clip.duration]),[['trimmed',2,3],['copy',2,3]],'listing order must not change the clips');
+ const reloaded=JSON.parse(JSON.stringify(synced));
+ assert.deepEqual(connectedEdit(reloaded,renamedFirst),reloaded,'reloading a saved edit must be stable');
+});
+
+test('a disconnected material still drops its clips while connected material stays',()=>{
+ const kept={slot:'assets',nodeId:'1',assetId:'kept-file'},gone={slot:'assets',nodeId:'2',assetId:'gone-file'};
+ const a={...asset,filename:'a.mp4'},b={...asset,filename:'b.mp4'};
+ const edited={version:1,fit:'contain',clips:[newClip(a,kept,'keep'),newClip(b,gone,'drop')],sources:[sourceKey(a,kept),sourceKey(b,gone)]};
+ const synced=connectedEdit(edited,[{asset:a,source:kept}]);
+ assert.deepEqual(synced.clips.map(clip=>clip.id),['keep']);
+ assert.deepEqual(synced.sources,[sourceKey(a,kept)]);
+});
+
 test('same filename with different bytes keeps distinct source identities',()=>{
  const source={slot:'assets',nodeId:'1'},a={...asset,filename:'same.mp4',contentSha256:'c'.repeat(64)},b={...asset,filename:'same.mp4',contentSha256:'d'.repeat(64)};
  assert.notEqual(sourceKey(a,source),sourceKey(b,source));
