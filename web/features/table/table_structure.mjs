@@ -13,23 +13,18 @@ export function attachTableStructure({root,shell,table,getTable,change,notify,ge
     const rows=()=>[...table.querySelectorAll('tbody>tr[data-record-id]')];
     const headers=()=>[...table.querySelectorAll('th[data-column]')];
     const control=(label,action,cls)=>{const node=button(label,action);node.classList.add('table-structure-control',cls);return node;};
-    const focusCell=(record,field)=>queueMicrotask(()=>{
-        const cell=[...root.querySelectorAll('td[data-field]')].find(node=>node.dataset.record===record&&node.dataset.field===field);
-        cell?.focus({preventScroll:true});cell?.scrollIntoView({block:'nearest',inline:'nearest'});
-    });
     const restoreHandle=(kind,id)=>queueMicrotask(()=>{
         const handle=[...root.querySelectorAll('[data-structure-kind]')].find(node=>node.dataset.structureKind===kind&&node.dataset.structureId===id);
         handle?.focus({preventScroll:true});
     });
     function addRow(target=null,before=false){
-        let id,field;
         try{change(t=>{
             if(t.records.length>=500)throw new Error('每张表最多 500 行');
             if(target&&!t.records.some(row=>row.id===target))throw new Error('目标行已变化，请重试');
             const row=addRecord(t,Object.fromEntries(t.fields.map(f=>[f.id,emptyValue(f)])));
-            id=row.id;field=t.fields.find(f=>!f.hidden&&!f.readonly)?.id;
-            if(target)moveRows(t,[id],target,!before);
-        });focusCell(id,field);}catch(error){notify(error.message);}
+            row.selected=false;
+            if(target)moveRows(t,[row.id],target,!before);
+        });}catch(error){notify(error.message);}
     }
     function closeColumn(restore=false){
         if(!popup)return;const {node,anchor}=popup;popup=null;delete root.dataset.structurePopup;node.remove();
@@ -58,14 +53,13 @@ export function attachTableStructure({root,shell,table,getTable,change,notify,ge
         node.append(title,label('列名称',name),label('列类型',type),error,actions);
         function save(){
             if(!name.value.trim()){error.textContent='请输入列名称';name.focus();return;}
-            let id,record;
+            let id;
             try{change(t=>{
                 if(target&&!t.fields.some(f=>f.id===target))throw new Error('目标列已被删除，请重新选择位置');
                 const spec={name:name.value.trim(),type:type.value==='prompt'?'json':type.value,width:type.value==='prompt'?420:300,...(type.value==='prompt'?{presentation:'prompt',generationPrompt:true}:{})};const f=type.value==='generation'?addGenerationColumn(t,spec):addField(t,spec);id=f.id;
                 if(target)moveColumn(t,id,target,!before);
                 for(const row of t.records)row.values[id]=emptyValue(f);
-                record=t.records[0]?.id;
-            });closeColumn();if(record)focusCell(record,id);else restoreHandle('column',id);}catch(e){error.textContent=e.message;}
+            });closeColumn();}catch(e){error.textContent=e.message;}
         }
         node.onsubmit=e=>{e.preventDefault();save();};
         node.onkeydown=e=>{stopCanvasPropagation(e);if(e.isComposing||e.keyCode===229)return;if(e.key==='Escape'){e.preventDefault();closeColumn(true);}else if(e.key==='Enter'&&e.target===name){e.preventDefault();save();}};
