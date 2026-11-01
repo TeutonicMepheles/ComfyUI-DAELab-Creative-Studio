@@ -10,7 +10,7 @@ export function optimizationCostSummary(state){
  const q=state.quote,amount=n=>Number.isFinite(n)?n.toLocaleString('zh-CN',{maximumFractionDigits:6}):'—';
  if(state.provider==='qwen')return '本地运行 · 不产生 API 费用';
  if(q?.status==='estimating')return '正在估算…';
- if(q?.status!=='ready')return state.provider==='comfy'?'使用 ComfyUI 账号积分':'';
+ if(q?.status!=='ready')return state.provider==='comfy'?'使用 Comfy 账户积分':'';
  if(q.expiresAt<=Date.now())return '估算已失效，请重新估算';
  return state.provider==='deepseek'?`预计 $${amount(q.estimatedCredits)} · 预算上界 $${amount(q.budgetUpperCredits)}`:`预计 ${amount(q.estimatedCredits)} 积分 · 预算上界 ${amount(q.budgetUpperCredits)} 积分`;
 }

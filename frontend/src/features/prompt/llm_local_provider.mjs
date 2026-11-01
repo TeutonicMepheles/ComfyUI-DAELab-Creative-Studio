@@ -17,7 +17,7 @@ export async function optimizeRow(row,mode,instruction,{fetcher=businessFetch,mo
         else if(auth?.headers?.['X-API-Key'])headers['X-API-Key']=auth.headers['X-API-Key'];
         else if(auth?.authToken)headers.Authorization=`Bearer ${auth.authToken}`;
         else if(auth?.apiKey)headers['X-API-Key']=auth.apiKey;
-        else throw new Error('请先登录 ComfyUI 账户；GPT 优化使用 Comfy 积分');
+        else throw new Error('请先登录 Comfy 账户；GPT 文本生成使用 Comfy 积分');
         auth?.assertCurrent?.();
     }
     const response=await fetcher('/daelab/prompt-optimization/polish',{method:'POST',headers,body:JSON.stringify({contractVersion:1,requestId,model,mode,source:row.text||'',instruction,imageDataUrl,...(sourceScope?{sourceScope}:{})})});

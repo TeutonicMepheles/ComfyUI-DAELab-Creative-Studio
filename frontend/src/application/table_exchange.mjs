@@ -3,6 +3,7 @@ import {businessHost} from '../contracts/business.js';
 import {normalizeTable} from './table_model.mjs';
 import {projectTableSource,selectedTableOutput} from './table_source_model.mjs';
 import {promptContent} from '../features/prompt/table_prompt_template.mjs';
+import {expandedCellText} from '../features/prompt/table_prompt_template.mjs';
 import {promptColumns,applyPromptContent} from '../features/generation/table_generation_model.mjs';
 export const isTableSource=node=>['DAELAB.Table','DAELAB.ScriptParser'].includes(node?.type);
 export function readTableView(node,seen=new Set()){
@@ -83,4 +84,26 @@ export function createTableSnapshot(graph,table,{title='LLM 输出 · 模拟结�
     widget.value=JSON.stringify(normalizeTable(table));businessHost().addNode(graph,node);
     businessHost().placeNode?.(node,{x:outputPos[0],y:outputPos[1],width:760});
     graph.change?.();return node;
+}
+
+export function createTextNodeFromCell(node,table,{recordId,fieldId,title='拆出文本'}={}){
+    if(!node?.graph)throw new Error('当前工作流尚未就绪');
+    const text=expandedCellText(table,table.records.find(row=>row.id===recordId),fieldId);
+    if(!text.trim())throw new Error('所选文本为空，未创建节点');
+    const host=businessHost(),created=host.createNode('DAELAB.TextInput');
+    if(!created)throw new Error('输入文本节点尚未加载，请刷新后重试');
+    const widget=created.widgets?.find(item=>item.name==='text');
+    if(!widget)throw new Error('输入文本节点格式不兼容');
+    const siblings=host.nodes(node.graph),x=(node.pos?.[0]||0)+(node.size?.[0]||1080)+60;
+    let y=node.pos?.[1]||0;
+    while(siblings.some(item=>item!==created&&Math.abs((item.pos?.[0]||0)-x)<380&&Math.abs((item.pos?.[1]||0)-y)<260))y+=260;
+    host.history.begin();
+    try{
+        widget.value=text;widget.callback?.(text,undefined,created,null,undefined);
+        created.title=title;created.pos=[x,y];created.setSize?.([350,220]);
+        host.addNode(node.graph,created);
+        host.placeNode?.(created,{x,y,width:350});
+        host.focusNode(created);
+        return created;
+    }finally{host.history.end();}
 }

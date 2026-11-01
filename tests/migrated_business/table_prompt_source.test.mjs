@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {normalizeTable,removeField,SnapshotHistory,setValue,addField} from '../../frontend/src/features/table/data_table_model.mjs';
 import {setPromptSource,promptSourceId,requirePromptSource} from '../../frontend/src/features/prompt/table_prompt_source.mjs';
-import {effectivePrompt,resolveColumnPrompt,toColumnPrompt,setColumnTemplate} from '../../frontend/src/features/prompt/table_prompt_template.mjs';
+import {effectivePrompt,resolveColumnPrompt,toColumnPrompt,setColumnTemplate,expandedCellText} from '../../frontend/src/features/prompt/table_prompt_template.mjs';
 import {columnReferenceOptions} from '../../frontend/src/features/table/table_reference_menu.mjs';
 import {importVideoTasks,syncVideoTaskInputs,selectTaskPrompt} from '../../frontend/src/features/generation/video_tasks_model.mjs';
 import {generationInput,generationFrames,applyColumnGenerationConfig,applyColumnFrameSources,rowGenerationConfig,setRowGenerationConfig,LOCAL_VIDEO_MODEL} from '../../frontend/src/features/generation/table_generation_model.mjs';
@@ -117,6 +117,34 @@ test('same-row text expansion matches imported generation input and survives ren
  for(const row of source.records){const expected=text(resolveColumnPrompt(row.values.final,source,row,'final'));assert.equal(text(generationInput(state.table,state.fieldId,row.id)),expected);}
  const restored=JSON.parse(JSON.stringify(state));assert.deepEqual(generationInput(restored.table,restored.fieldId,'r1'),generationInput(state.table,state.fieldId,'r1'));
  assert.throws(()=>selectTaskPrompt(state,'r1','motion'),/列头/);
+});
+
+test('copy expansion keeps current-row text and newlines while resolving media labels',()=>{
+ const table=createMaterialTable(),prompt=promptSourceId(table),media=table.fields[0].id,row=table.records[0];
+ row.values[media]=[{id:'image-a',name:'镜头参考.png',url:'/view?filename=image-a.png&type=input',kind:'image'}];
+ row.values[prompt]={kind:'column-template',version:1,segments:[{type:'text',text:'第一行\n'},{type:'column',fieldId:media,assetId:'image-a'},{type:'text',text:'\n第三行'}]};
+ assert.equal(expandedCellText(table,row,prompt),'第一行\n@镜头参考.png\n第三行');
+});
+
+test('stable row and field identities keep one shared template aligned after edits and reorder',()=>{
+ const source=fixture();setPromptSource(source,'final');
+ const stableIds=source.records.map(row=>row.id);
+ source.records.reverse();
+ const overridden=source.records.find(row=>row.id===stableIds[1]);
+ overridden.values.final=toColumnPrompt('单格覆盖',overridden);
+ const updated=source.records.find(row=>row.id===stableIds[0]);
+ updated.values.scene=toColumnPrompt('新画面');
+ for(const row of source.records){
+  const preview=text(resolveColumnPrompt(effectivePrompt(source,row,'final'),source,row,'final'));
+  const expected=row.id===stableIds[1]?'单格覆盖':row.id===stableIds[0]?'新画面向前推进。保持写实风格。':'卫星在右。向右横移。保持写实风格。';
+  assert.equal(preview,expected);
+ }
+ const state=importVideoTasks(source);
+ assert.deepEqual(state.table.records.map(row=>row.id),source.records.map(row=>row.id));
+ for(const row of source.records){
+  const expected=text(resolveColumnPrompt(effectivePrompt(source,row,'final'),source,row,'final'));
+  assert.equal(text(generationInput(state.table,state.fieldId,row.id)),expected);
+ }
 });
 
 test('text picker supports old literal documents; nested, empty, deleted and converted sources fail explicitly',()=>{

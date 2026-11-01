@@ -9,7 +9,7 @@ app.registerExtension({
         for(const variant of STYLE_VARIANTS.filter(v=>v.id==='B')){
             class LLMStylePreview extends LGraphNode {
                 constructor(){
-                    super(variant.id==='B'?'LLM优化功能':`LLM 优化 · ${variant.label}`);
+                    super(variant.id==='B'?'文本生成':`文本生成 · ${variant.label}`);
                     this.isVirtualNode=variant.id!=='B';
                     this.comfyClass=variant.type;this.serialize_widgets=true;
                     this.properties={llmStylePreview:{version:1,mode:'polish'}};
@@ -29,7 +29,7 @@ app.registerExtension({
                     this.size=[variant.width,variant.height+80];
                 }
                 onAdded(){this.installPanel();}
-                onConfigure(){if(variant.id==='B'){if(!this.outputs?.some(o=>o.name==='逐行结果'))this.addOutput('逐行结果','STRING');if(this.title==='LLM 优化 · B 双栏工作台')this.title='LLM优化功能';for(const [name,type] of [['素材组','DAELAB_ASSETS'],['多维表格','STRING'],['其他输入','*']])if(!this.inputs?.some(i=>i.name===name))this.addInput(name,type);}this.__llmStylePanel?.invalidate();this.__llmStylePanel?.sync();}
+                onConfigure(){if(variant.id==='B'){if(!this.outputs?.some(o=>o.name==='逐行结果'))this.addOutput('逐行结果','STRING');if(['文本生成 · B 双栏工作台','LLM 优化 · B 双栏工作台'].includes(this.title))this.title='文本生成';for(const [name,type] of [['素材组','DAELAB_ASSETS'],['多维表格','STRING'],['其他输入','*']])if(!this.inputs?.some(i=>i.name===name))this.addInput(name,type);}this.__llmStylePanel?.invalidate();this.__llmStylePanel?.sync();}
                 installPanel(){
                     if(this.__llmStylePanel)return;
                     const nativeDocument=bindBusinessDocument(this,()=>this.properties.llmStylePreview,value=>{this.properties.llmStylePreview=value;this.graph?.change?.();},value=>({mode:value.mode,instruction:value.instruction,model:value.model,source:value.source}));
@@ -45,7 +45,7 @@ app.registerExtension({
                 onExecute(){if(variant.id==='B'){try{this.setOutputData(0,outputText(this));this.setOutputData(1,outputRows(this));}catch{this.setOutputData(0,null);this.setOutputData(1,null);}}}
                 onRemoved(){this.__llmStylePanel?.destroy();delete this.__llmStylePanel;for(const w of this.widgets||[])if(w.name==='llm_style_preview')w.onRemove?.();this.widgets=(this.widgets||[]).filter(w=>w.name!=='llm_style_preview');}
             }
-            LLMStylePreview.title=variant.id==='B'?'LLM优化功能':`LLM 优化 · ${variant.label}`;
+            LLMStylePreview.title=variant.id==='B'?'文本生成':`文本生成 · ${variant.label}`;
             LLMStylePreview.category=variant.id==='B'?'DAELab/文本':'DAELab/样式预览';
             LiteGraph.registerNodeType(variant.type,LLMStylePreview);
         }
@@ -57,11 +57,11 @@ function register(){
     if(registered||api?.version!==1)return;
     api.registerAdapter('daelab.llm-style-preview',{
         matches:node=>node.type==='DAELAB.LLMStylePreviewB',
-        menu:[{label:'LLM优化功能',type:'DAELAB.LLMStylePreviewB',icon:'sparkling-line'}],
+        menu:[{label:'文本生成',type:'DAELAB.LLMStylePreviewB',icon:'sparkling-line'}],
         width:node=>STYLE_VARIANTS.find(v=>v.type===node.type)?.width||460,
         expanded:true,collapsible:false,floatingHeader:true,compactWidth:0,
         panel:node=>node.__llmStylePanel,
-        summary:()=> 'LLM 优化 · 建议需显式应用',
+        summary:()=> '文本生成 · 建议需显式应用',
         inputSelection:'first-free',
         canConnectOutput:node=>node.type==='DAELAB.LLMStylePreviewB',
         defaultOutputNode:{type:'DAELAB.TextInput',title:'优化结果'},

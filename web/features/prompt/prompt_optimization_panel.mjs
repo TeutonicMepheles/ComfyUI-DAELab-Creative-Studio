@@ -41,7 +41,7 @@ export function createPromptOptimizationPanel({controller,container,renderPrompt
     const skippedTitle=node('summary',skipped,'跳过原因'),skippedItems=node('ul',skipped);let skippedSignature='';
     const settings=node('details',scroller,undefined,'prompt-opt-settings');settings.open=true;const settingsTitle=node('summary',settings,'优化设置');const settingsBody=node('div',settings,undefined,'prompt-opt-settings-body');
     const providerLabel=node('label',settingsBody,'服务提供方','prompt-opt-field'),provider=node('select',providerLabel);provider.setAttribute('aria-label','服务提供方');
-    for(const [id,label] of [['comfy','ComfyUI Partner'],['deepseek','自有 DeepSeek API']]){const option=node('option',provider,label);option.value=id;}
+    for(const [id,label] of [['comfy','Comfy'],['deepseek','自有 DeepSeek API']]){const option=node('option',provider,label);option.value=id;}
     provider.addEventListener('change',()=>{keyInput.value='';controller.setProvider(provider.value);});
     const modelLabel=node('label',settingsBody,'润色模型','prompt-opt-field'),model=node('select',modelLabel);model.setAttribute('aria-label','润色模型');
     const keyArea=node('div',settingsBody,undefined,'prompt-opt-key');
@@ -126,7 +126,7 @@ export function createPromptOptimizationPanel({controller,container,renderPrompt
         if(modelSignature!==newModelSignature){modelSignature=newModelSignature;model.replaceChildren();if(!models.some(m=>m.id===state.model)){const unavailable=node('option',model,`${state.model||'未选择'}（不可用）`);unavailable.value=state.model||'';unavailable.disabled=true;}for(const item of models){const option=node('option',model,`${item.label||item.id}${item.available===false?'（不可用）':''}`);option.value=item.id;option.disabled=item.available===false;}model.value=state.model||'';}
         if(!composing&&document.activeElement!==requirements&&requirements.value!==(state.requirements||''))requirements.value=state.requirements||'';
         model.disabled=state.permissions?.canChangeProvider===false;requirements.disabled=Boolean(state.busy||state.requestActivity)&&!composing;
-        batchInfo.hidden=!state.batchId;batchInfo.textContent=state.batchId?`现有批次：${state.batchProvider==='deepseek'?'自有 DeepSeek API':'ComfyUI Partner'} · ${state.batchModel||state.model} · ${state.batchCurrency==='USD'?'美元（USD）':'积分'}`:'';
+        batchInfo.hidden=!state.batchId;batchInfo.textContent=state.batchId?`现有批次：${state.batchProvider==='deepseek'?'自有 DeepSeek API':'Comfy'} · ${state.batchModel||state.model} · ${state.batchCurrency==='USD'?'美元（USD）':'积分'}`:'';
         const expired=quote?.status==='expired'||Boolean(quote?.expiresAt&&quote.expiresAt<=Date.now());
         quoteText.textContent=batchView&&!state.continuationReady?'费用记录见各行结果':optimizationQuoteLabel(quote);
         pricingText.textContent=quote?[

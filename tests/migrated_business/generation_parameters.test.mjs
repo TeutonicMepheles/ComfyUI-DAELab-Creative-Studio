@@ -1,10 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {generationDurationOptions,generationParameterSpecs,generationParameterModes,generationModes,generationModeChoice,promptSettingsItems,generationParametersSummary} from '../../frontend/src/features/prompt/table_prompt_settings.mjs';
+import {readFileSync} from 'node:fs';
+import ts from 'typescript';
+import {installDom} from './prompt_optimization_dom.mjs';
+import {generationDurationOptions,generationParameterSpecs,generationParameterModes,generationModes,generationModeChoice,promptSettingsItems,generationParametersSummary,createGenerationParameters,generationSettingSpecs} from '../../frontend/src/features/prompt/table_prompt_settings.mjs';
 import {generationModelIconURL} from '../../frontend/src/features/generation/generation_model_icons.mjs';
-import {LOCAL_VIDEO_MODEL} from '../../frontend/src/features/generation/table_generation_model.mjs';
+import {LOCAL_VIDEO_MODEL,applyColumnGenerationConfig,promptGenerationOwner,rowGenerationConfig,generationAttempts} from '../../frontend/src/features/generation/table_generation_model.mjs';
 import {createVideoTasks} from '../../frontend/src/features/generation/video_tasks_model.mjs';
 import {LOCAL_VIDEO_SIZE_PRESETS,localVideoSizePresets,normalizeLocalGenerationConfig} from '../../frontend/src/features/prompt/table_prompt_settings.mjs';
+import {applyGenerationModelDefaults,needsGenerationPromptSelector} from '../../frontend/src/features/generation/table_generation_panel.mjs';
+import {normalizeTable} from '../../frontend/src/features/table/data_table_model.mjs';
+import {OPTIMIZATION_MODELS} from '../../frontend/src/features/prompt/prompt_optimization_model.mjs';
 
 test('H3 ratio presets use exact 32-aligned dimensions and obey live size bounds',()=>{
  const schema={properties:{width:{min:32,max:8192,step:32},height:{min:32,max:8192,step:32}}};
@@ -30,7 +36,7 @@ test('combined video summary preserves saved values without mutating config or a
  assert.deepEqual(items.map(x=>x.key),['kind','model','parameters']);
  assert.match(items[2].text,/首尾帧 · 720p · 9s · 音频关闭/);
  assert.deepEqual(config,before);
- assert.equal(promptSettingsItems(config).length,5,'existing table settings keep their individual entry points');
+ assert.equal(promptSettingsItems(config).length,6,'existing table settings keep their individual entry points');
 });
 test('image summary omits stale video duration; local dimensions remain visible',()=>{
  assert.equal(generationParametersSummary({kind:'image',mode:'text2image',settings:{width:1024,height:1024,duration:9}}),'文生图 · 1:1 · 1024×1024');
@@ -94,6 +100,39 @@ test('image and mixed references share one omnireference choice without rewritin
  assert.deepEqual(generationModes({},'video'),[]);
 });
 
+test('attempt summary is explicit only above one and invalid values remain detectable',()=>{
+ const one={kind:'video',model:'Seedance 2.5',mode:'text2video',settings:{duration:4}},four={...one,attempts:4};
+ assert.doesNotMatch(generationParametersSummary(one),/抽卡/);
+ assert.match(generationParametersSummary(four),/抽卡 4 次/);
+ assert.throws(()=>generationParametersSummary({...one,attempts:0}),/1–4/);
+ assert.throws(()=>generationParametersSummary({...one,attempts:5}),/1–4/);
+});
+
+test('new model defaults use medium image quality and integer video seconds without rewriting explicit values',()=>{
+ const imageSchema={properties:{modeType:{items:{text2image:[]}},quality:{enum:['low','medium','high'],default:'low'}},config:{settings:['quality']}};
+ const freshImage={kind:'image',model:'GPT Image 2',mode:'text2image',settings:{}};applyGenerationModelDefaults(freshImage,imageSchema);
+ assert.equal(freshImage.settings.quality,'medium');
+ const savedImage={kind:'image',model:'GPT Image 2',mode:'text2image',settings:{quality:'low'}};applyGenerationModelDefaults(savedImage,imageSchema);
+ assert.equal(savedImage.settings.quality,'low');
+ const videoSchema={properties:{modeType:{items:{text2video:[]}},duration:{type:'number',min:.5,max:10,step:.5,default:1.5}},config:{settings:['duration']}};
+ const freshVideo={kind:'video',model:'Seedance 2.5',mode:'text2video',settings:{}};applyGenerationModelDefaults(freshVideo,videoSchema);
+ assert.equal(freshVideo.settings.duration,2);assert.equal(Number.isInteger(freshVideo.settings.duration),true);
+ const savedVideo={kind:'video',model:'Seedance 2.5',mode:'text2video',settings:{duration:1.5}};applyGenerationModelDefaults(savedVideo,videoSchema);
+ assert.equal(savedVideo.settings.duration,1.5);
+});
+
+test('generation prompt selector is hidden only when the table already designates one',()=>{
+ const bare=normalizeTable({fields:[{id:'text',name:'文本',type:'text'}],records:[]});
+ assert.equal(needsGenerationPromptSelector(bare),true);
+ bare.meta.generationInput={version:1,promptFieldId:'text'};
+ assert.equal(needsGenerationPromptSelector(bare),false);
+});
+
+test('user-facing generation identities use the agreed Comfy and omnireference labels',()=>{
+ assert.equal(OPTIMIZATION_MODELS.find(model=>model.logo==='openai').label,'GPT-6 Luna（Comfy）');
+ assert.equal(promptSettingsItems({kind:'video',model:'Seedance 2.5',mode:'image2video',settings:{duration:4}}).find(item=>item.key==='mode').text,'全能参考');
+});
+
 test('single-frame and image-reference modes never become unsupported alternatives',()=>{
  for(const mode of ['singleImage2video','frames2video','image2video','mixed2video','text2image']){
   const schema={properties:{modeType:{items:{[mode]:[]}}}};
@@ -101,4 +140,54 @@ test('single-frame and image-reference modes never become unsupported alternativ
   assert.equal(generationModeChoice(mode,schema),mode);
  }
  assert.deepEqual(generationParameterModes({model:'unavailable',kind:'image',mode:'image2image'},{}),[]);
+});
+// The column-header "apply all" popover builds its parameters with a callback bundle.
+// Read the real drawing code so a missing callback cannot hide behind a stub.
+const panelPath='../../frontend/src/features/generation/table_generation_panel.mjs';
+function columnParameterDrawing(){
+ const text=readFileSync(new URL(panelPath,import.meta.url),'utf8'),tree=ts.createSourceFile(panelPath,text,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
+ const named=(node,name)=>{const found=[];(function visit(child){if(ts.isFunctionDeclaration(child)&&child.name?.text===name)found.push(child);ts.forEachChild(child,visit);})(node);return found;};
+ const open=named(tree,'openPromptColumn');
+ assert.equal(open.length,1,'the prompt-column popover must stay one function');
+ const draw=named(open[0],'drawSettings');
+ assert.equal(draw.length,1,'the prompt-column popover must build its parameters in one place');
+ assert.match(draw[0].getText(tree),/createGenerationParameters\(/);
+ return draw[0].getText(tree);
+}
+const columnDrawing=columnParameterDrawing();
+function descendants(node,found=[]){for(const child of node.children||[]){found.push(child);descendants(child,found);}return found;}
+function drawColumn({draft,schema,table}){
+ const settings={children:[],contains:()=>false,querySelector:()=>null,replaceChildren(){this.children=[];},append(...nodes){for(const node of nodes){node.parentNode=this;this.children.push(node);}}};
+ const draws={count:0};
+ const drawSettings=new Function('settings','document','schema','draft','owner','frameColumns','getTable','el','createGenerationParameters','generationFrameRoles','isLocalVideoModel','localVideoSizePicker','generationParameterSpecs','generationSettingSpecs',
+  `let parameterView=null;${columnDrawing};return drawSettings;`)(
+  settings,document,schema,draft,null,{},()=>table,
+  (tag,parent,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;parent?.append(node);return node;},
+  (config,spec,handlers)=>{draws.count++;return createGenerationParameters(config,spec,handlers);},
+  ()=>[],()=>false,()=>null,generationParameterSpecs,generationSettingSpecs);
+ drawSettings();
+ return {settings,draws,drawSettings};
+}
+const attemptButton=(settings,label)=>descendants(settings).find(node=>node.tagName==='button'&&node.textContent===label);
+const pressAttempts=button=>button.onclick({preventDefault(){},stopPropagation(){}});
+
+test('the prompt-column apply-all popover records attempts, saves them and reopens with them selected',t=>{
+ const dom=installDom(t);t.after(()=>dom.restore());
+ const state=createVideoTasks({prompt:'任务'}),table=state.table,field=table.fields.find(item=>item.generation),promptFieldId=field.generation.promptFieldId;
+ const schema={properties:{modeType:{items:{text2video:[]}}}};
+ const draft={...structuredClone(field.generation),kind:'video',model:'Seedance 2.5',mode:'text2video',settings:{}};
+ const column=drawColumn({draft,schema,table});
+ const four=attemptButton(column.settings,'4 次');
+ assert.equal(four.getAttribute('aria-pressed'),'false','one attempt is the saved default');
+ pressAttempts(four);
+ assert.equal(draft.attempts,4,'choosing four attempts must update the draft');
+ assert.equal(column.draws.count,2,'choosing attempts must redraw the parameter view');
+ assert.equal(attemptButton(column.settings,'4 次').getAttribute('aria-pressed'),'true');
+ assert.equal(attemptButton(column.settings,'1 次').getAttribute('aria-pressed'),'false');
+ applyColumnGenerationConfig(table,promptFieldId,draft);
+ const saved=promptGenerationOwner(table,promptFieldId);
+ assert.equal(generationAttempts(saved.generation),4,'apply all must persist the chosen attempts');
+ for(const row of table.records)assert.equal(generationAttempts(rowGenerationConfig(row,saved.id,saved.generation)),4);
+ const reopened=drawColumn({draft:structuredClone(saved.generation),schema,table});
+ assert.equal(attemptButton(reopened.settings,'4 次').getAttribute('aria-pressed'),'true','reopening must show the saved attempts');
 });

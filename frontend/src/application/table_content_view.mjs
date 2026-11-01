@@ -6,6 +6,7 @@ import {isColumnPrompt,columnValue} from '../features/prompt/table_prompt_templa
 import {columnReferenceOptions,materialReferenceLabel} from './table_reference_options.mjs';
 import {readPromptSegments} from '../features/prompt/table_prompt_template_editor.mjs';
 import {uid,setValue} from './table_model.mjs';
+import {removeMaterialItem} from './table_material_columns.mjs';
 import {createTableButton as button} from '../ui/table_controls.mjs';
 
 const el=(tag,cls,text)=>{const e=document.createElement(tag);e.className=cls||'';if(text)e.textContent=text;return e;};
@@ -32,7 +33,7 @@ export function renderContentCell(cell,row,field,{change,upload,notify,getTable,
             const item=el('div','content-material'),media=el(asset.kind==='video'?'video':'img');media.src=asset.url;
             if(asset.kind!=='video')media.alt=asset.name||'图片';
             item.setAttribute('aria-label',`第 ${index+1} 个素材：${asset.name||'素材'}${field.readonly?'':'，Delete 移除'}`);
-            materialCleanups.push(bindMaterialThumbnail(item,media,index,{cell,bindDrag:!bindAssetDrag?null:element=>bindAssetDrag(element,asset),remove:field.readonly?null:()=>change(t=>{const r=t.records.find(r=>r.id===row.id);r.values[field.id]=r.values[field.id].filter(a=>a.id!==asset.id);})}));
+            materialCleanups.push(bindMaterialThumbnail(item,media,index,{cell,bindDrag:!bindAssetDrag?null:element=>bindAssetDrag(element,asset),remove:field.readonly?null:()=>change(t=>{removeMaterialItem(t,row.id,field.id,asset.id);})}));
             item.ondblclick=e=>{e.stopPropagation();cell.dispatchEvent(new CustomEvent('dae-preview',{bubbles:true,detail:asset}));};
             item.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();cell.dispatchEvent(new CustomEvent('dae-preview',{bubbles:true,detail:asset}));}});
             display.append(item);

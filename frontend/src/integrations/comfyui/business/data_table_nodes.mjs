@@ -1,7 +1,7 @@
 import {tableClipboard} from './table_capabilities.js';
 import {bindBusinessDocument,tableInputStamp} from './business_document_host.js';
 import {businessFetch} from '../../../contracts/business.js';
-import {isTableSource,readTableView} from '../../../application/table_exchange.mjs';
+import {isTableSource,readTableView,createTextNodeFromCell} from '../../../application/table_exchange.mjs';
 import {createTableWidgetSerializer} from './table_serializer.js';
 import {removeEmptyTableNode} from '../../../features/table/public_helpers.mjs';
 import {preserveGenerationHistory} from '../../../features/generation/table_generation_history.mjs';
@@ -142,7 +142,7 @@ function createPanel(node){
   const report=linkedReport(node);if(!report)return;
   const next=clone(node.__dataTable);writeGenerationResults(next,report);if(JSON.stringify(next)!==JSON.stringify(node.__dataTable)){editor.nativeDocument.replace(next,{derived:true,afterWrite:()=>{editor.render();updateSummary();}});}
  };
- const presentation=isGeneric(node)?installContentPresentation({root,editor,getTable:()=>node.__dataTable,notify,editPromptTemplate:id=>promptUI.editTemplate(id),onPresentationChange:active=>views.setContent(active)}):null;
+ const presentation=isGeneric(node)?installContentPresentation({root,editor,getTable:()=>node.__dataTable,notify,editPromptTemplate:id=>promptUI.editTemplate(id),extractText:selection=>createTextNodeFromCell(node,node.__dataTable,selection),onPresentationChange:active=>views.setContent(active)}):null;
  generationUI=isGeneric(node)?attachGenerationColumns({editor,getTable:()=>node.__dataTable,notify,editPromptTemplate:id=>promptUI.editTemplate(id)}):null;
  let sourceDisposed=false;
  const sourceTimer=isGeneric(node)?setInterval(()=>{

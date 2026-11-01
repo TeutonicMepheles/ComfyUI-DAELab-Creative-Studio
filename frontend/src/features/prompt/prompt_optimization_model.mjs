@@ -13,7 +13,7 @@ export const NAMESPACE='daelabPromptOptimizationV1';
 // Provider remains derivable from the frozen model, including old snapshots.
 export const QWEN_MODEL='qwen3.5:9b-q4_K_M';
 export const COMFY_GPT_MODEL='gpt-6-luna';
-export const OPTIMIZATION_MODELS=[{id:'deepseek-flash',label:'DeepSeek API',logo:'deepseek'},{id:QWEN_MODEL,label:'Qwen3.5-9B（本地）',logo:'qwen'},{id:COMFY_GPT_MODEL,label:'GPT-6 Luna（ComfyUI）',logo:'openai'}];
+export const OPTIMIZATION_MODELS=[{id:'deepseek-flash',label:'DeepSeek API',logo:'deepseek'},{id:QWEN_MODEL,label:'Qwen3.5-9B（本地）',logo:'qwen'},{id:COMFY_GPT_MODEL,label:'GPT-6 Luna（Comfy）',logo:'openai'}];
 export const optimizationProvider=model=>model===QWEN_MODEL?'qwen':String(model||'').startsWith('deepseek-')?'deepseek':'comfy';
 // Workflow properties can be Vue proxies. These snapshots are JSON data;
 // clone through the same serialization boundary used by workflow save/load.

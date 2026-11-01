@@ -86,7 +86,7 @@
       "source": "web/creative_canvas_view.mjs",
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
       "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
-      "destinationSha256": "afa9884d7f3939d7e20f7bf4d5030bb665a5dbf06815b860c79d778dcf6fcc53",
+      "destinationSha256": "0c1a4b52925ae945a575eb87bd692afd3ea3d4a6985c5ff671aac80a67191579",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "remove opt-in test gallery rendering; retain unrelated graph.extra data",
@@ -106,7 +106,8 @@
         "Expose only the existing connected, visible direct-child asset dock bounds to focus reveal; retain native focus, owner leases and viewport-only navigation. The 1752 LLM B dock interception failure is retained; candidate browser reacceptance follows.",
         "Expose the leased panel active state without a geometry read; preserve viewport geometry and legacy adapter fallback. Two-instance table and mode checks are recorded in TABLE_PILOT_ACCEPTANCE_20261027.md; the 100 ms budget remains open.",
         "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained.",
-        "2026-10-30: make group/member port ownership exclusive and prioritize direct hits without style or layout changes."
+      "2026-10-30: make group/member port ownership exclusive and prioritize direct hits without style or layout changes.",
+      "2026-10-31: preserve native text selection ownership for copy, paste, delete and blank-pointer interactions."
       ],
       "kind": "production-source"
     },
@@ -171,9 +172,10 @@
       "source": "web/creative_navigation.mjs",
       "destination": "frontend/src/canvas/creative_navigation.mjs",
       "sourceSha256": "795f510d8fb6bde4b6bba99297818595bb4ae4070491607ab7d16d49b49e2a2f",
-      "destinationSha256": "795f510d8fb6bde4b6bba99297818595bb4ae4070491607ab7d16d49b49e2a2f",
+      "destinationSha256": "29be211c392b6ffac0e6a6d5eb3e0ce868abde8b36d0a88c2e8614e6fb742c17",
       "changes": [
-        "relocate into owner layer; rewrite relative module/style/resource paths"
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "2026-10-31: expose a pure helper for owned non-collapsed text selections."
       ],
       "kind": "production-source"
     },
@@ -409,9 +411,11 @@
       "source": "web/video_edit_model.mjs",
       "destination": "frontend/src/features/editor/video_edit_model.mjs",
       "sourceSha256": "33b21e462fcdb261c4a915d26b85af2a29749cf3ad0beea484140df608b0a033",
-      "destinationSha256": "33b21e462fcdb261c4a915d26b85af2a29749cf3ad0beea484140df608b0a033",
+      "destinationSha256": "acb68456f6b9eb6b587d916625869f34af75890ff62dacca0f58a97bf8df164f",
       "changes": [
-        "relocate into owner layer; rewrite relative module/style/resource paths"
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "2026-10-31: dedupe connected clip materials by source-scoped identity or SHA-256 without collapsing intentional timeline copies.",
+        "2026-11-01: resolve saved clips of a deduplicated source through material identity so renaming or reordering keeps clip IDs, trims and intentional copies."
       ],
       "kind": "production-source"
     },
@@ -862,9 +866,10 @@
       "source": "tests/creative_navigation.test.mjs",
       "destination": "tests/migrated_canvas/creative_navigation.test.mjs",
       "sourceSha256": "b1a9fc23980bb527d3788cb0456c4b8eadbb70e11fa8b745084f292c8aa81f9d",
-      "destinationSha256": "d62550ee2cf564a579c3ab80850b111a04eaa4a06b461b34e64341e5cc2600de",
+      "destinationSha256": "39a8c57947d3dbd7885046837fb91b5e348a0f34c6ce469c869d9cc2e8c38cfb",
       "changes": [
-        "point existing rule regression tests at migrated production modules"
+        "point existing rule regression tests at migrated production modules",
+        "2026-10-31: cover native text copy/paste ownership."
       ],
       "kind": "rule-regression"
     },
@@ -936,9 +941,11 @@
       "source": "tests/video_edit_model.test.mjs",
       "destination": "tests/migrated_canvas/video_edit_model.test.mjs",
       "sourceSha256": "67e0a87354fb3c6389a55e81c522d42902037961d8c9279d18da276a14c8f9b1",
-      "destinationSha256": "ae3ed0201439dabbbc27106606bbed9a95430730f1620690fdfd03858cc6fb06",
+      "destinationSha256": "fa228bd95a48c95708175599c4932702927c8100a720d95a145623b33ed36199",
       "changes": [
-        "point existing rule regression tests at migrated production modules"
+        "point existing rule regression tests at migrated production modules",
+        "2026-10-31: cover material identity dedupe and legal repeated timeline clips.",
+        "2026-11-01: cover renamed and reordered material keeping trimmed clips and copies, and unchanged disconnects still dropping clips."
       ],
       "kind": "rule-regression"
     },
@@ -1160,10 +1167,11 @@
       "source": null,
       "sourceSha256": null,
       "destination": "tests/migrated_canvas/material_sources_header_scope.test.mjs",
-      "destinationSha256": "b481d2b756236170d6dfca6b38d68db22c29b07a39a0853367c8ca58b60e72bd",
+      "destinationSha256": "ad26d5d6eb87cb70c2330a67cf731717cf785d00437319320931900a040ee5e7",
       "kind": "rule-regression",
       "changes": [
-        "Execute the actual materialSources property and generation decorator against two independent table DOM trees; cover current-header identity, column changes/replacement, empty and zero-row tables, and bounded body-search counts. Offline counts are not browser performance acceptance."
+        "Execute the actual materialSources property and generation decorator against two independent table DOM trees; cover current-header identity, column changes/replacement, empty and zero-row tables, and bounded body-search counts. Offline counts are not browser performance acceptance.",
+        "2026-10-31: provide the table prompt-source capability to the extracted decorator harness."
       ]
     }
   ],

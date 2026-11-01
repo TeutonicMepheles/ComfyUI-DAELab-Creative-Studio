@@ -47,7 +47,7 @@ function fixture(){
   const end=view.indexOf('\n    function show()',start);
   assert.ok(start>=0&&end>start);
   let handler;
-  new Function('root','history','picker',view.slice(start,end))({addEventListener(type,fn){handler=fn;}},history,null);
+  new Function('root','history','picker','hasCanvasTextSelection',view.slice(start,end))({addEventListener(type,fn){handler=fn;}},history,null,()=>false);
   async function press(key,{shiftKey=false,altKey=false,repeat=false,editable=false}={}){
     const e={key,ctrlKey:true,metaKey:false,shiftKey,altKey,repeat,isComposing:false,
       target:{closest:()=>editable?{}:null},preventDefault(){this.defaultPrevented=true;},stopPropagation(){}};

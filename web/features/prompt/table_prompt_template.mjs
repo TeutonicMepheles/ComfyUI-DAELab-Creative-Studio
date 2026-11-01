@@ -18,6 +18,19 @@ export function effectivePrompt(table,row,fieldId) {
 export function promptContent(table,row,fieldId){
  return toColumnPrompt(effectivePrompt(table,row,fieldId),row).segments.map(s=>s.type==='frame'?{...s,binding:structuredClone(row.meta?.generationFrames?.[s.generationFieldId]?.[s.role]||null)}:s);
 }
+export function expandedCellText(table,row,fieldId){
+ const value=effectivePrompt(table,row,fieldId);
+ if(value==null)return '';
+ if(typeof value==='string')return value;
+ const doc=validateColumnPrompt(toColumnPrompt(value,row));
+ const resolved=resolveColumnPrompt(doc,table,row,fieldId),assets=new Map(resolved.assets.map(asset=>[asset.id,asset]));
+ return resolved.segments.map(segment=>{
+  if(segment.type==='text')return segment.text;
+  const ref=resolved.references.find(item=>item.refId===segment.refId),asset=ref&&assets.get(ref.assetId);
+  if(!asset)throw new Error('解析后的素材引用已失效');
+  return '@'+(asset.name||asset.filename||'素材');
+ }).join('');
+}
 export function columnValue(table,row,fieldId,assetIndex,assetId,valueType) {
  if(valueType==='text'&&!isTextColumn(table,table.fields.find(f=>f.id===fieldId)))throw new Error('引用的文本列已删除或类型已变化');
  const field=assetId?table.fields.find(f=>['assets','content'].includes(f.type)&&Array.isArray(row.values[f.id])&&row.values[f.id].some(a=>a.id===assetId)):table.fields.find(f=>f.id===fieldId);
