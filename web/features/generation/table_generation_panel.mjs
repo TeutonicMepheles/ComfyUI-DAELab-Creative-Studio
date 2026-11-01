@@ -330,7 +330,8 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
    parameterView=createGenerationParameters(draft,schema,{
     onMode:id=>{draft.mode=id;draft.settings={};applyGenerationModelDefaults(draft,schema);drawSettings();},
     onSetting:(name,value)=>{if(value===undefined)delete draft.settings[name];else draft.settings[name]=value;drawSettings();},
-    onSettings:values=>{Object.assign(draft.settings,values);drawSettings();}
+    onSettings:values=>{Object.assign(draft.settings,values);drawSettings();},
+    onAttempts:value=>{draft.attempts=value;drawSettings();}
    });settings.append(parameterView);
    const roles=generationFrameRoles(draft);
    if(roles.length){
