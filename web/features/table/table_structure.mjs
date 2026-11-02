@@ -6,7 +6,7 @@ import {stopCanvasPropagation} from '../../ui/creative_events.mjs';
 const el=(tag,cls,text)=>{const node=document.createElement(tag);node.className=cls;if(text)node.textContent=text;return node;};
 
 // Instance-owned UI; all writes go through the editor's existing transaction.
-export function attachTableStructure({root,shell,table,getTable,change,notify,getPanelContext=()=>null,addGenerationColumn=()=>{throw new Error('生成列能力不可用');}}) {
+export function attachTableStructure({root,shell,table,getTable,change,notify,getPanelContext=()=>null,allowColumns=true,addGenerationColumn=()=>{throw new Error('生成列能力不可用');}}) {
     root.dataset.structure='true';
     const events=new AbortController(),listen=(node,type,fn,options={})=>node.addEventListener(type,fn,{...options,signal:events.signal});
     let drag=null,frame=0,popup=null,disposed=false,rowSizing=null,heightHover=null;
@@ -67,19 +67,19 @@ export function attachTableStructure({root,shell,table,getTable,change,notify,ge
         node.addEventListener('toggle',e=>{if(e.newState==='closed'&&popup?.node===node)closeColumn();});
         document.body.append(node);popup={node,anchor};root.dataset.structurePopup='true';node.showPopover();positionColumn();name.focus();name.select();
     }
-    listen(root,'dae-add-column',e=>{e.stopPropagation();openColumn(e.detail.anchor,e.detail.target,e.detail.before);});
+    listen(root,'dae-add-column',e=>{e.stopPropagation();if(!allowColumns)return;openColumn(e.detail.anchor,e.detail.target,e.detail.before);});
     listen(root,'dae-add-row',e=>{e.stopPropagation();addRow(e.detail?.target,e.detail?.before);});
     listen(window,'resize',positionColumn);listen(document,'scroll',positionColumn,{capture:true,passive:true});
 
-    const trailing=el('th','table-add-column');trailing.scope='col';
+    if(allowColumns){const trailing=el('th','table-add-column');trailing.scope='col';
     const addColumn=control('＋',e=>openColumn(e.currentTarget),'table-add-column-button');addColumn.title='新增列';addColumn.setAttribute('aria-label','新增列');trailing.append(addColumn);table.tHead.rows[0].append(trailing);
-    const col=el('col','');col.style.width='48px';table.querySelector('colgroup').append(col);
-    const foot=table.createTFoot(),footRow=foot.insertRow(),footCell=footRow.insertCell();footCell.colSpan=headers().length+2;footCell.className='table-add-row-cell';
+    const col=el('col','');col.style.width='48px';table.querySelector('colgroup').append(col);}
+    const foot=table.createTFoot(),footRow=foot.insertRow(),footCell=footRow.insertCell();footCell.colSpan=headers().length+1+Number(allowColumns);footCell.className='table-add-row-cell';
     const addRowButton=control('＋ 新增行',()=>addRow(),'table-add-row');
     addRowButton.replaceChildren(el('span','table-add-row-label','＋ 新增行'));footCell.append(addRowButton);
     const corner=table.querySelector('th.table-choice');corner.querySelector('input').title='选择全部行';
     function mountRowControls(rowList){for(const row of rowList){
-        if(!row.querySelector('.table-trailing-cell'))row.append(el('td','table-trailing-cell'));
+        if(allowColumns&&!row.querySelector('.table-trailing-cell'))row.append(el('td','table-trailing-cell'));
         if(row.querySelector('[data-structure-kind=row]'))continue;
         const id=row.dataset.recordId,number=getTable().records.findIndex(r=>r.id===id)+1,gutter=row.querySelector('.table-choice'),old=row.querySelector('.row-grip');
         old?.remove();gutter.dataset.structureGutter='true';row.dataset.rowSelected=String(!!getTable().records.find(r=>r.id===id)?.selected);
@@ -94,7 +94,7 @@ export function attachTableStructure({root,shell,table,getTable,change,notify,ge
         header.tabIndex=0;header.setAttribute('aria-label',`${field.name}，点击选择整列，拖动调整顺序`);
         header.querySelector('.field-title')?.removeAttribute('tabindex');
         header.querySelector('.field-settings')?.remove();
-        bindHandle(header,'column',id);
+        if(allowColumns)bindHandle(header,'column',id);
     }
     function makeHandle(kind,id,label){
         const handle=control('',()=>{},'table-move-handle');tableIcon(handle,'draggable',label);

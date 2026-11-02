@@ -29,7 +29,7 @@
 .dae-ui.script-parser .script-empty .script-feedback{justify-content:center;max-width:100%}
 .dae-ui.script-parser[data-empty=true]>.table-height{display:none}
 .dae-ui.script-parser button.script-notice{align-self:flex-start;border:0;background:transparent;color:var(--dae-text-muted);font-size:12px;min-height:32px;text-align:left;white-space:normal}
-.dae-ui.script-parser th.table-choice button.script-more{display:inline-flex;align-items:center;justify-content:center;min-width:32px;min-height:32px;padding:0 2px!important;margin:0 0 0 2px!important;border:0!important;background:transparent!important;font-size:11px}
+.dae-ui.script-parser th.table-choice button.script-more{position:absolute;left:4px;top:12px;display:inline-flex;align-items:center;justify-content:center;width:32px;min-width:32px;min-height:32px;padding:0 2px!important;margin:0!important;border:0!important;background:transparent!important;font-size:11px}
 .dae-ui.script-parser th.table-choice button.script-more:hover{background:var(--dae-surface-hover)!important}
 .dae-ui.script-parser button:focus-visible{outline:2px solid var(--dae-focus);outline-offset:-2px}
 .dae-ui.script-table-menu{display:flex;flex-direction:column;gap:6px;max-height:calc(100vh - 16px);overflow:auto}
