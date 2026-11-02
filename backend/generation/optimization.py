@@ -459,23 +459,21 @@ class OptimizationFacade:
     async def continue_batch(self, payload):
         async with self.lock:
             jobs = (await asyncio.to_thread(self._batch, payload['batchId']))
-            if any(j.get('control_intent') == 'stop' for j in jobs):
-                raise Conflict('Stopped optimization batches cannot continue; explicitly estimate a new request.')
             if any(self.service._barrier(job) for job in jobs):
                 raise Conflict('Sealed preparations cannot continue; explicitly estimate a new request.')
             self._lease(self._target(jobs[0]), payload['leaseId'])
             self._quote(payload['quoteId'], [j['snapshot']['input']['optimization'] for j in jobs], payload['budgetCredits'])
             if any(j['state'] in ACTIVE for j in jobs):
                 raise Conflict('仍有原请求在途，请继续查询')
-            for job in jobs:
-                if job['state'] == 'pending' and job.get('control_intent') == 'pause':
-                    await asyncio.to_thread(self.service.jobs.record_control, job['request_id'], 'resume',
-                                            expected_version=job['version'], scope='optimization-batch')
             selected = {digest(j['snapshot']['input']['optimization']['target']) for j in jobs if j['state'] == 'pending'}
             if self._overlap((await asyncio.to_thread(self._jobs, **self._target(jobs[0]))), payload['batchId'], selected):
                 raise Conflict('范围已有其他活动批次；未继续旧任务。')
+            for job in jobs:
+                if job['state'] == 'pending' and job.get('control_intent') in {'pause', 'stop'}:
+                    await asyncio.to_thread(self.service.jobs.record_control, job['request_id'], 'resume',
+                                            expected_version=job['version'], scope='optimization-batch')
             self._control(payload['batchId']).update(paused=False, stopped=False, quoteId=payload['quoteId'], budgetCredits=payload['budgetCredits'])
-            return (await self._report(jobs))
+            return (await self._report((await asyncio.to_thread(self._batch, payload['batchId']))))
 
     async def skip(self, payload):
         async with self.lock:

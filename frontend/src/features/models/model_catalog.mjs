@@ -53,8 +53,14 @@ export function createModelCatalog({now=()=>Date.now(),log=()=>{}}={}){
     }
     function record(id,result){
         const entry=entries.get(id);if(!entry)return null;
+        if(!result||typeof result!=='object'||Array.isArray(result)||typeof result.available!=='boolean'){
+            const code='invalid_model_capability';
+            log({version:MODEL_CATALOG_VERSION,provider:entry.definition.provider,model:id,stage:'probe',code,time:new Date(now()).toISOString()});
+            return setStatus(id,MODEL_STATUS.unavailable,{code});
+        }
         const provider=result?.provider||entry.definition.provider;
-        const status=result?.available===false?MODEL_STATUS.unavailable:provider==='deepseek'&&result?.deepseekKeyConfigured===false?MODEL_STATUS.unverified:MODEL_STATUS.available;
+        const status=result.available===false?MODEL_STATUS.unavailable:
+            provider==='deepseek'&&result?.deepseekKeyConfigured===false?MODEL_STATUS.unverified:MODEL_STATUS.available;
         return setStatus(id,status,{capability:result||null});
     }
     function check(id,probe,{force=false}={}){

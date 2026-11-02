@@ -109,8 +109,8 @@ class TaskControlLedgerTests(unittest.TestCase):
         self.assertEqual(reopened.get('original-control')['control_intent'], 'stop')
         with self.assertRaises(InvalidTransition):
             reopened.begin_submission('original-control', expected_version=stopped['version'])
-        with self.assertRaises(InvalidTransition):
-            reopened.record_control('original-control', 'resume', expected_version=stopped['version'])
+        resumed = reopened.record_control('original-control', 'resume', expected_version=stopped['version'])
+        self.assertEqual((resumed['state'], resumed['control_intent']), ('pending', None))
 
     def test_pause_after_running_can_continue_as_next_attempt_of_the_same_request(self):
         claimed = self.jobs.begin_submission('original-control', expected_version=self.job['version'])
@@ -181,6 +181,19 @@ class TaskControlServiceTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(service.public(job['request_id'])['progress'], 20.0)
             await service._observe(jobs.get(job['request_id']), Observation('failed', 'native-progress'))
             self.assertNotIn('progress', service.public(job['request_id']))
+
+    async def test_legacy_unattributed_task_gets_explicit_recovery_phase_without_rewriting(self):
+        with tempfile.TemporaryDirectory(prefix='studio-legacy-owner-') as folder:
+            jobs = JobLedger(Path(folder) / 'studio.db')
+            provider = NativeProgressProvider()
+            service = GenerationService(jobs, None, providers={provider.id: provider}, admission=Admission(), owner_session='current')
+            job, _ = jobs.create_or_get('legacy-active', provider=provider.id, execution_kind='local', snapshot={'input': {}})
+            claimed = jobs.begin_submission(job['request_id'], expected_version=job['version'])
+            jobs.mark_submitted(job['request_id'], 'native-legacy', expected_version=claimed['version'], event_id='legacy-submitted')
+            report = service.public(job['request_id'])
+            self.assertEqual((report['state'], report['phase'], report['legacyUnattributed']), ('submitted', 'needs_recovery', True))
+            self.assertEqual(report['controls'], {'pause': False, 'resume': False, 'interrupt': False, 'restart': False})
+            self.assertEqual(jobs.get(job['request_id'])['state'], 'submitted')
 
     async def test_interrupt_pending_confirmation_has_distinct_transition_phase(self):
         from backend.providers.contracts import Observation

@@ -115,11 +115,15 @@ class OptimizationTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual([row['status'] for row in restarted['rows']],['stopped','stopped'])
         lease=await self.facade.lease({'target':self.target,'instanceId':'view-2'})
         quote=await self.facade.estimate({'model':QWEN_MODEL,'rows':[row['snapshot'] for row in restarted['rows']]})
-        with self.assertRaises(Conflict):
-            await self.facade.continue_batch({'batchId':'batch-1','leaseId':lease['leaseId'],
-                                              'quoteId':quote['quoteId'],'budgetCredits':0})
-        self.assertEqual([job['control_intent'] for job in self.core.jobs.list_jobs()],['stop','stop'])
+        resumed=await self.facade.continue_batch({'batchId':'batch-1','leaseId':lease['leaseId'],
+                                                  'quoteId':quote['quoteId'],'budgetCredits':0})
+        self.assertFalse(resumed['stopped'])
+        self.assertEqual([row['status'] for row in resumed['rows']],['queued','queued'])
+        self.assertEqual([job['control_intent'] for job in self.core.jobs.list_jobs()],[None,None])
         self.assertEqual(self.creates(),[])
+        await self.advance(resumed,lease)
+        await self.service.wait_idle()
+        self.assertEqual(len(self.creates()),1)
 
     async def test_foreign_instance_stale_revision_expired_permit_and_overlap_reject(self):
         report,lease,p=await self.prepare()
@@ -211,8 +215,7 @@ class OptimizationTests(unittest.IsolatedAsyncioTestCase):
             await self.advance(report, lease)
             await self.service.wait_idle()
             await self.facade.stop({'batchId': 'batch-1', 'leaseId': lease['leaseId']})
-            with self.assertRaises(Conflict):
-                await self.facade.continue_batch({'batchId': 'batch-1', 'leaseId': lease['leaseId'], 'quoteId': payload['quoteId'], 'budgetCredits': 0})
+            await self.facade.continue_batch({'batchId': 'batch-1', 'leaseId': lease['leaseId'], 'quoteId': payload['quoteId'], 'budgetCredits': 0})
             await self.facade.skip({'batchId': 'batch-1', 'requestId': report['rows'][1]['requestId'], 'leaseId': lease['leaseId']})
             await self.facade.recover({'batchId': 'batch-1'})
         self.assertEqual(len(self.creates()), 1)

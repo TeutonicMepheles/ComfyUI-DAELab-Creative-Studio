@@ -207,8 +207,8 @@ class JobLedger:
                     raise InvalidTransition("Only an undispatched task can be stopped.")
                 intent = "stop"
             elif action == "resume":
-                if job["control_intent"] != "pause" or job["state"] != "pending":
-                    raise InvalidTransition("Only a queued paused task can resume its original identity.")
+                if job["control_intent"] not in {"pause", "stop"} or job["state"] != "pending":
+                    raise InvalidTransition("Only a queued paused or stopped task can resume its original identity.")
                 intent = None
             else:
                 if job["state"] in TERMINAL_STATES and action == "pause":
@@ -273,6 +273,15 @@ class JobLedger:
                   ON jobs.request_id=job_attempts.request_id AND jobs.attempt=job_attempts.attempt
                 WHERE jobs.state IN ('submitting','submitted','running','fetching')""").fetchall()
             return [(row["request_id"], row["attempt_id"]) for row in rows]
+
+    def current_attempt_owner_session(self, request_id):
+        with self.database.read() as connection:
+            row = connection.execute("""
+                SELECT job_attempts.attempt_id
+                FROM jobs JOIN job_attempts
+                  ON jobs.request_id=job_attempts.request_id AND jobs.attempt=job_attempts.attempt
+                WHERE jobs.request_id=?""", (identity(request_id, "request ID"),)).fetchone()
+            return self.attempt_owner_session(row["attempt_id"]) if row is not None else None
 
     def active_attempt_count(self, *, unattributed_only=False):
         rows = self.active_attempt_owners()

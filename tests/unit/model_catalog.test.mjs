@@ -53,3 +53,11 @@ test('provider change for the same logical id clears stale availability and capa
  const changed=catalog.replaceDefinitions([{id:'deepseek-flash',label:'Server LLM',family:'optimization',kind:'text',provider:'qwen'}])[0];
  assert.deepEqual([changed.status,changed.capability,changed.available,changed.selectable],['unverified',null,false,true]);
 });
+test('non-capability probe results are rejected as unavailable and never become available',async()=>{
+ const logs=[],catalog=createModelCatalog({log:value=>logs.push(value)});
+ for(const value of [undefined,null,{},()=>{},[]]){
+  const result=await catalog.check('Qwen-Image-2.1 Turbo（本地）',async()=>value,{force:true});
+  assert.deepEqual([result.status,result.available,result.selectable],['unavailable',false,false]);
+ }
+ assert.ok(logs.every(item=>item.code==='invalid_model_capability'));
+});

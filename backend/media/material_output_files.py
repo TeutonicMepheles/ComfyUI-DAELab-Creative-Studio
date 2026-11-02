@@ -33,19 +33,22 @@ def import_materials(assets, input_root, output_root, *, register=None):
                 name=asset.get('name') or path.name,filename=path.name,
                 subfolder=subfolder,type=q['type'][0],size=path.stat().st_size,
                 provenance=asset.get('provenance',{}),sourceIndex=source_index)
-            if register is not None:
-                # Preserve occurrence ID/provenance; the catalog supplies content identity.
-                local={key:item[key] for key in ('version','kind','name','filename','subfolder','type')}
-                for key in ('assetId','referenceId','contentSha256','byteSize'):
-                    if key in asset: local[key]=asset[key]
-                provenance=asset.get('provenance') if isinstance(asset.get('provenance'),dict) else {}
-                source={key:provenance[key] for key in ('documentId','tableId','recordId','fieldId','requestId') if isinstance(provenance.get(key),str) and provenance[key]}
-                occurrence=provenance.get('materialId',provenance.get('assetId',asset.get('id')))
-                if isinstance(occurrence,str) and occurrence: source['occurrenceId']=occurrence
-                registration=register({'kind':kind,'name':item['name'],'asset':local,'source':source})
-                item.update(registration['asset'])
-                item['size']=registration['byteSize']
-            result.append(item)
-        except (ValueError, Conflict):
+        except (ValueError, OSError):
             continue
+        if register is not None:
+            # Preserve occurrence ID/provenance; the catalog supplies content identity.
+            local={key:item[key] for key in ('version','kind','name','filename','subfolder','type')}
+            for key in ('assetId','referenceId','contentSha256','byteSize'):
+                if key in asset: local[key]=asset[key]
+            provenance=asset.get('provenance') if isinstance(asset.get('provenance'),dict) else {}
+            source={key:provenance[key] for key in ('documentId','tableId','recordId','fieldId','requestId') if isinstance(provenance.get(key),str) and provenance[key]}
+            occurrence=provenance.get('materialId',provenance.get('assetId',asset.get('id')))
+            if isinstance(occurrence,str) and occurrence: source['occurrenceId']=occurrence
+            try:
+                registration=register({'kind':kind,'name':item['name'],'asset':local,'source':source})
+            except Conflict:
+                continue
+            item.update(registration['asset'])
+            item['size']=registration['byteSize']
+        result.append(item)
     return result

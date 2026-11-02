@@ -72,7 +72,7 @@ class GenerationService:
         stopped = job.get('control_intent') == 'stop' and job['state'] == 'pending'
         return {
             'pause': (job['state'] == 'pending' and not stopped) or (active and precise),
-            'resume': job.get('control_intent') == 'pause' and job['state'] in {'pending', 'cancelled'} and job.get('result') is None,
+            'resume': job.get('control_intent') in {'pause', 'stop'} and job['state'] in {'pending', 'cancelled'} and job.get('result') is None,
             'interrupt': (job['state'] == 'pending' and not stopped) or (active and precise),
             'restart': terminal and bool(provider and provider.execution_kind in {'local', 'media'}),
         }
@@ -679,6 +679,14 @@ class GenerationService:
             result['phase'] = 'stopped'
         if control_intent == 'interrupt' and job['state'] == 'cancelled':
             result['phase'] = 'interrupted'
+        legacy_unattributed = (
+            self.owner_session is not None
+            and job['state'] in {'submitting', 'submitted', 'running', 'fetching'}
+            and self.jobs.current_attempt_owner_session(request_id) is None
+        )
+        if legacy_unattributed:
+            result.update(phase='needs_recovery', legacyUnattributed=True,
+                          controls={'pause': False, 'resume': False, 'interrupt': False, 'restart': False})
         progress = self._progress.get(request_id)
         if progress and progress['attempt'] == job['attempt'] and job['state'] not in TERMINAL_STATES:
             result['progress'] = progress['value']
