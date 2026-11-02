@@ -6,6 +6,13 @@ contracts.py distinguishes rejected/uncertain delivery; parameters.py builds gra
 
 Injected transport/queues execute; providers do not own another scheduler or ledger.
 
+Local Qwen image2image accepts one frozen image. The same image_graph stages it,
+scales it to the explicit width/height without cropping, and passes image and VAE
+to TextEncodeQwenImage21. Sampling uses that encoder's reference latent. Width and
+height therefore also determine reference scaling; select the reference aspect
+ratio to avoid stretching. Text2image retains its original graph and settings.
+The reference mode is offered only when LoadImage and ImageScale are installed.
+
 comfy_text.py shares GPT-6 Luna optimization between standalone and table entrypoints. Native Comfy Responses transport, login and official credit pricing are injected from integrations/comfyui. Paid POST requests never retry automatically; an available original response ID can be queried without creating a replacement. Credentials never enter frozen inputs or the ledger.
 
 deepseek.py implements explicit DeepSeek Flash text optimization through the shared ledger. Its fixed HTTPS transport disables redirects, proxy inheritance and automatic retries. Request-scoped or host-configured credentials are resolved outside snapshots. Lost responses remain unknown; neither recovery nor lookup recreates a completion. Table requests retain protected-reference validation and require an accepted USD estimate before advance.

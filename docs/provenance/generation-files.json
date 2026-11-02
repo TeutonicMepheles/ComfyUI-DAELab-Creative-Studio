@@ -300,7 +300,7 @@
     },
     {
       "destination": "backend/providers/native.py",
-      "destinationSha256": "3fa9e65a6566deddc8318be844fe89557314038bfa0b9fb9ff71de0c728e1a71",
+      "destinationSha256": "18e17a11305e89c618936082700bd172bd8e34e5e98068b7186aa1cd06dc0e6d",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -317,6 +317,7 @@
         }
       ],
       "changes": [
+        "2026-11-02: Add one-image local Qwen reference conditioning through frozen media, explicit output-size scaling and encoder latent; keep text requests unchanged.",
         "Explicit inventory/queue/media ports; hash and actual host-resolution validation; deterministic original native identity; preserved UI capabilities; no host singleton import."
       ]
     },
@@ -356,7 +357,7 @@
     },
     {
       "destination": "backend/providers/parameters.py",
-      "destinationSha256": "e7b2a088f30fd9c51f9cf0ea93e59b65b12e67589998f8a63848ec2e79c52f6c",
+      "destinationSha256": "026983be5e23c8e927496a18a0001c4c53fcc674ab2c7e3fb60095204e918699",
       "kind": "migrated-pure-rule",
       "source": "nodes/libtv_bridge/table_generation.py",
       "sourceSha256": "0a79d391377741187a91f0a7aa641c13d5bd7c70837b21ad25752b7a376e1ca0",
@@ -378,6 +379,7 @@
         }
       ],
       "changes": [
+        "2026-11-02: Add one-image local Qwen reference conditioning through frozen media, explicit output-size scaling and encoder latent; keep text requests unchanged.",
         "Extract only pure structured references, parameter validation and Qwen/H3 graph builders; accept explicit pinned model names; no discovery, fallback, native execution or old persistence."
       ]
     },
