@@ -1,8 +1,9 @@
+import {tableColumnTargets} from './table_column_targets.js';
 import {NAMESPACE} from '../../../features/prompt/prompt_optimization_model.mjs';
 import {parseTableOutputKey,tableMaterialSnapshot} from '../../../application/table_material_output.mjs';
 // Optional integration: business nodes work without the canvas extension.
 // This repository alone owns knowledge of its private panel implementations.
-import {createMaterialTable,addMaterialColumns,fillMaterialColumn,fillMaterialRow,fillMaterialCell,columnDropTypes,columnFillCount} from '../../../application/table_material_columns.mjs';
+import {createMaterialTable,addMaterialColumns,fillMaterialColumn,fillMaterialRow,fillMaterialCell,columnDropTypes} from '../../../application/table_material_columns.mjs';
 import {app} from '/scripts/app.js';
 import {materialItem} from '../../../features/table/public_helpers.mjs';
 import {videoResultAssets} from '../../../features/generation/libtv_video_model.mjs';
@@ -26,7 +27,7 @@ function register(){
             const columns=[...root.querySelectorAll('th[data-column]')].filter(e=>columnDropTypes(fields.find(f=>f.id===e.dataset.column)).length),ids=new Set(columns.filter(e=>columnDropTypes(fields.find(f=>f.id===e.dataset.column)).includes('image')).map(e=>e.dataset.column));
             const cells=[...root.querySelectorAll('td[data-field]')].filter(e=>ids.has(e.dataset.field));
             const target=(element,key,label,project=true)=>({element,key,label,project,clipElement:element.closest('.dae-table-scroll')});
-            const projectedTargets=columns.map(e=>{const columnCells=[...root.querySelectorAll('td[data-field]')].filter(c=>c.dataset.field===e.dataset.column);return {...target(e,e.dataset.column,'单个素材填满整列，多个素材按序向下填充'),accepts:columnDropTypes(fields.find(f=>f.id===e.dataset.column)),previewElements:count=>[e,...columnCells.slice(0,columnFillCount(count,columnCells.length))]};});
+            const projectedTargets=tableColumnTargets(root,fields);
             const addColumn=root.querySelector('th.table-add-column');
             const targets=[...projectedTargets,
                 ...(addColumn?[{...target(addColumn,JSON.stringify(['new-column']),'松开自动新建列，按顺序从首行填入',false),accepts:['image','video','text']}]:[]),
