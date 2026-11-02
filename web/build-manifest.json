@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "1591827313fb8a80074f28d6c47b50c37c08cd879198d89b45016fee5c14e662",
+  "sourceFingerprint": "efe1576ca70041b85eb63308ed42543ef28ce18cc24bdd4f5e1ef137fceb2a9d",
   "files": [
     {
       "path": "AGENTS.md",
@@ -44,7 +44,7 @@
     },
     {
       "path": "application/table_asset_groups.mjs",
-      "sha256": "e514dc0c1cea378413d0010c7fd15e1f0deb7e52db72a91b3f519c4146c8106b"
+      "sha256": "453540f31a91e3add0ba6f46191aefb06c492a503ed7f46700ac6a6ceaead80a"
     },
     {
       "path": "application/table_content_view.mjs",
@@ -64,7 +64,7 @@
     },
     {
       "path": "application/table_material_columns.mjs",
-      "sha256": "4b71afd977cb7796670e3ad3743182abe1bac21e9d578efdab24180e735f7e0a"
+      "sha256": "b3f66ab0b8d8033a6c21865e683769094f07683ac8f0016db58fd5d81c54563f"
     },
     {
       "path": "application/table_material_output.mjs",
@@ -764,7 +764,7 @@
     },
     {
       "path": "features/table/README.md",
-      "sha256": "522a07be90a7165abc01002046559243d08fdc359bc33f8880dd77d99d890cea"
+      "sha256": "9b371f1ff36f363f61868de9df486706951415f4267c3d0b4cc0b52e288b3930"
     },
     {
       "path": "features/table/contracts.js",
@@ -812,7 +812,7 @@
     },
     {
       "path": "features/table/model_runtime.mjs",
-      "sha256": "509e1007aff6636fec95881ffa6356a2cfe07fa21aad726349ddf74f1925a90c"
+      "sha256": "fed8a990a9d192d35f6d35442de11fd5602be1b7f3d5244425dc24d4a5c3687d"
     },
     {
       "path": "features/table/node_availability.mjs",
@@ -1136,7 +1136,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "a6a606b9e403d6aa0e44b84ebe89534d38bc28d344bcde1ab6be26ec1ffe23f6"
+      "sha256": "622d15be8266bdd52ed745971adf33acd28c7d5b39f7fda3a338f74f1a16b41b"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

@@ -858,7 +858,7 @@
 | [F-BIZ-001](FEATURE_MATRIX.md#f-biz-001) | 通用表格文档与稳定身份 | 保留 | M3 | 3 | 2 |
 | [F-BIZ-002](FEATURE_MATRIX.md#f-biz-002) | 表格行的增删、复制、排序与选择 | 保留 | M3 | 1 | 2 |
 | [F-BIZ-003](FEATURE_MATRIX.md#f-biz-003) | 字段类型、增删、改名、隐藏与列宽 | 保留 | M3 | 1 | 2 |
-| [F-BIZ-004](FEATURE_MATRIX.md#f-biz-004) | 网格选择、文本编辑及复制粘贴 | 保留 | M3 | 2 | 1 |
+| [F-BIZ-004](FEATURE_MATRIX.md#f-biz-004) | 网格选择、文本编辑及复制粘贴 | 保留 | M3 | 2 | 2 |
 | [F-BIZ-005](FEATURE_MATRIX.md#f-biz-005) | 文字与多媒体单元格、媒体预览和排序 | 保留 | M3 | 2 | 4 |
 | [F-BIZ-006](FEATURE_MATRIX.md#f-biz-006) | 列头广播、按行填充及单格追加素材 | 保留 | M3 | 1 | 2 |
 | [F-BIZ-007](FEATURE_MATRIX.md#f-biz-007) | 表格单素材复制到画布 | 保留 | M3 | 1 | 1 |
@@ -874,7 +874,7 @@
 | [F-BIZ-017](FEATURE_MATRIX.md#f-biz-017) | 文本润色与图片反推提示词 | 重构 | M3 | 1 | 3 |
 | [F-BIZ-018](FEATURE_MATRIX.md#f-biz-018) | DOCX 分镜原文读取与最终视图 | 保留 | M3 | 2 | 1 |
 | [F-BIZ-019](FEATURE_MATRIX.md#f-biz-019) | 分镜字段映射、来源追踪与待分配图片 | 保留 | M3 | 2 | 2 |
-| [F-BIZ-020](FEATURE_MATRIX.md#f-biz-020) | 文稿追加、去重、修订及原子导入 | 保留 | M3 | 1 | 2 |
+| [F-BIZ-020](FEATURE_MATRIX.md#f-biz-020) | 文稿追加、去重、修订及原子导入 | 保留 | M3 | 1 | 3 |
 | [F-BIZ-021](FEATURE_MATRIX.md#f-biz-021) | 既有通用文稿和表格文件导入 | 保留 | M3 | 1 | 1 |
 | [F-BIZ-022](FEATURE_MATRIX.md#f-biz-022) | 可选 AI 文稿归类 | 保留 | M3 | 1 | 1 |
 | [F-BIZ-023](FEATURE_MATRIX.md#f-biz-023) | 表内图片/视频生成列与提交范围 | 保留 | M4 | 2 | 1 |
@@ -978,8 +978,9 @@
 
 - `AC-BIZ-004-001` 输入框内多行粘贴不误变成多条记录。
 - `AC-BIZ-004-002` Shift/Ctrl 表格选择不被画布抢占；非法粘贴不部分修改。
+- `AC-BIZ-004-003` 新建通用多维表格不默认选中前三行或多行；允许焦点在首格，但不形成默认多行选区。
 
-**关联：** [UC-BIZ-001](USE_CASES.md#uc-biz-001)、[UC-BIZ-004](USE_CASES.md#uc-biz-004)；[TC-BIZ-004](TEST_CASES.md#tc-biz-004)
+**关联：** [UC-BIZ-001](USE_CASES.md#uc-biz-001)、[UC-BIZ-004](USE_CASES.md#uc-biz-004)；[TC-BIZ-004](TEST_CASES.md#tc-biz-004)、[TC-BIZ-058](TEST_CASES.md#tc-biz-058)
 
 <a id="f-biz-005"></a>
 
@@ -1283,8 +1284,9 @@
 
 - `AC-BIZ-020-001` 重复导入不重复行；内容变更的新文档版本可追踪。
 - `AC-BIZ-020-002` 读入期间表格变化、容量超限或类型冲突整次拒绝；活动任务期间不改写其输入快照。
+- `AC-BIZ-020-003` 分镜解析完成后以可编辑多维表格呈现（镜号/画面描述/画面参考/备注）；单元格与画面描述可原位编辑，撤销重做、保存重载，保留来源与修订保护。不改成普通 DAELAB.Table，不放开每表 10 行与固定四列。
 
-**关联：** [UC-BIZ-003](USE_CASES.md#uc-biz-003)；[TC-BIZ-023](TEST_CASES.md#tc-biz-023)、[TC-BIZ-024](TEST_CASES.md#tc-biz-024)
+**关联：** [UC-BIZ-003](USE_CASES.md#uc-biz-003)；[TC-BIZ-023](TEST_CASES.md#tc-biz-023)、[TC-BIZ-024](TEST_CASES.md#tc-biz-024)、[TC-BIZ-059](TEST_CASES.md#tc-biz-059)
 
 <a id="f-biz-021"></a>
 

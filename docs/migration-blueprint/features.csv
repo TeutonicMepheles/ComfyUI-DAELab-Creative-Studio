@@ -226,7 +226,8 @@ business:web/table_column_splitters.mjs","frontend/src/features/table","M3","字
 "F-BIZ-004","网格选择、文本编辑及复制粘贴","保留","源码已存在；内容展示与编辑态、表内范围选择、TSV/自有剪贴板格式并存。","business:web/data_table_editor.mjs
 business:web/table_content_view.mjs
 business:web/data_table_model.mjs","frontend/src/features/table","M3","保留中文输入和表格选择优先级，统一编辑事务。","输入框内多行粘贴不误变成多条记录。
-Shift/Ctrl 表格选择不被画布抢占；非法粘贴不部分修改。","UC-BIZ-001 UC-BIZ-004","TC-BIZ-004"
+Shift/Ctrl 表格选择不被画布抢占；非法粘贴不部分修改。
+新建通用多维表格不默认选中前三行或多行；允许焦点在首格，但不形成默认多行选区。","UC-BIZ-001 UC-BIZ-004","TC-BIZ-004 TC-BIZ-058"
 "F-BIZ-005","文字与多媒体单元格、媒体预览和排序","保留","当前 fillMaterialCell 支持向 content 格追加多个素材；历史文档有单素材限制描述，需核对实际 UI 后冻结基线。","business:web/table_material_columns.mjs:44
 business:web/table_content_view.mjs
 business:web/data_table_editor.mjs
@@ -298,7 +299,8 @@ business:docs/script-parser.md","frontend/src/features/storyboard; backend/story
 "F-BIZ-020","文稿追加、去重、修订及原子导入","保留","源码已存在；文档指纹加来源定位去重，映射调整保护手工编辑与生成结果。","business:web/script_parser_model.mjs
 business:web/script_parser_panel.mjs
 business:nodes/daelab_comfytv_storyboard/script_contract.py","frontend/src/features/storyboard; frontend/src/application","M3","保留用户编辑与生成身份，导入作为一个可撤销事务。","重复导入不重复行；内容变更的新文档版本可追踪。
-读入期间表格变化、容量超限或类型冲突整次拒绝；活动任务期间不改写其输入快照。","UC-BIZ-003","TC-BIZ-023 TC-BIZ-024"
+读入期间表格变化、容量超限或类型冲突整次拒绝；活动任务期间不改写其输入快照。
+分镜解析完成后以可编辑多维表格呈现（镜号/画面描述/画面参考/备注）；单元格与画面描述可原位编辑，撤销重做、保存重载，保留来源与修订保护。不改成普通 DAELAB.Table，不放开每表 10 行与固定四列。","UC-BIZ-003","TC-BIZ-023 TC-BIZ-024 TC-BIZ-059"
 "F-BIZ-021","既有通用文稿和表格文件导入","保留","源码已存在；既有入口接收 DOCX/XLSX/XLSM/CSV/TSV/TXT/MD/PDF，支持程度以解析器与夹具核定。","business:nodes/daelab_comfytv_storyboard/document_import.py
 business:web/data_table_nodes.mjs:111
 business:nodes/daelab_comfytv_storyboard/import_node.py","backend/storyboard; frontend/src/features/storyboard","M3","迁移现有可用格式，不把扩展名列表当所有复杂文档已通过。","逐格式提供正常、空、损坏和结构异常夹具并记录支持限制。

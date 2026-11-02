@@ -79,11 +79,13 @@
       "rationale": "保留中文输入和表格选择优先级，统一编辑事务。",
       "acceptance": [
         "输入框内多行粘贴不误变成多条记录。",
-        "Shift/Ctrl 表格选择不被画布抢占；非法粘贴不部分修改。"
+        "Shift/Ctrl 表格选择不被画布抢占；非法粘贴不部分修改。",
+        "新建通用多维表格不默认选中前三行或多行；允许焦点在首格，但不形成默认多行选区。"
       ],
       "acceptance_ids": [
         "AC-BIZ-004-001",
-        "AC-BIZ-004-002"
+        "AC-BIZ-004-002",
+        "AC-BIZ-004-003"
       ]
     },
     {
@@ -440,11 +442,13 @@
       "rationale": "保留用户编辑与生成身份，导入作为一个可撤销事务。",
       "acceptance": [
         "重复导入不重复行；内容变更的新文档版本可追踪。",
-        "读入期间表格变化、容量超限或类型冲突整次拒绝；活动任务期间不改写其输入快照。"
+        "读入期间表格变化、容量超限或类型冲突整次拒绝；活动任务期间不改写其输入快照。",
+        "分镜解析完成后以可编辑多维表格呈现（镜号/画面描述/画面参考/备注）；单元格与画面描述可原位编辑，撤销重做、保存重载，保留来源与修订保护。不改成普通 DAELAB.Table，不放开每表 10 行与固定四列。"
       ],
       "acceptance_ids": [
         "AC-BIZ-020-001",
-        "AC-BIZ-020-002"
+        "AC-BIZ-020-002",
+        "AC-BIZ-020-003"
       ]
     },
     {
@@ -1124,7 +1128,8 @@
       ],
       "outcomes": [
         "A 恢复全部编辑、字段与宽度；B 未变化。",
-        "焦点、中文输入、选择与菜单始终可达；文档数据以原生图序列化为权威。"
+        "焦点、中文输入、选择与菜单始终可达；文档数据以原生图序列化为权威。",
+        "新建表后不默认选中前三行或多行。"
       ],
       "exceptions": [
         "不支持的类型转换提示原因并保留旧值。",
@@ -1178,7 +1183,8 @@
       ],
       "outcomes": [
         "重复来源不重复创建；变化版本可追踪。",
-        "手工编辑、行/素材 ID 和既有结果保持；inventory 与待处理项跨刷新保留。"
+        "手工编辑、行/素材 ID 和既有结果保持；inventory 与待处理项跨刷新保留。",
+        "解析完成后得到可编辑分镜表，可原位改内容；不是只读预览，也不改成普通无约束表。"
       ],
       "exceptions": [
         "坏图保留原文和错误定位。",
@@ -3569,6 +3575,68 @@
       "existing_coverage": [
         "business:web/task_snapshots.mjs",
         "business:tests/task_snapshots.test.mjs"
+      ]
+    },
+    {
+      "id": "TC-BIZ-058",
+      "title": "新建表格不默认多行选中",
+      "features": [
+        "F-BIZ-004"
+      ],
+      "usecases": [
+        "UC-BIZ-001"
+      ],
+      "level": "host",
+      "priority": "P0",
+      "phase": "M3",
+      "fixture": "空画布新建通用多维表格。",
+      "setup": [
+        "隔离宿主；不预先框选。"
+      ],
+      "steps": [
+        "新建一张通用多维表格。",
+        "观察行头/单元格选区。"
+      ],
+      "expected": [
+        "不默认选中前三行或多行。",
+        "允许焦点在一个单元格；Shift/Ctrl 仍可手工多选。"
+      ],
+      "automation": "混合",
+      "execution_policy": "不付费",
+      "existing_coverage": [
+        "business:web/data_table_editor.mjs"
+      ]
+    },
+    {
+      "id": "TC-BIZ-059",
+      "title": "分镜解析结果为可编辑多维表格",
+      "features": [
+        "F-BIZ-020"
+      ],
+      "usecases": [
+        "UC-BIZ-003"
+      ],
+      "level": "host",
+      "priority": "P0",
+      "phase": "M3",
+      "fixture": "固定 DOCX 分镜夹具。",
+      "setup": [
+        "隔离宿主；解析器入口。"
+      ],
+      "steps": [
+        "完成一次分镜解析。",
+        "编辑一格文字，撤销/重做，保存并重载。"
+      ],
+      "expected": [
+        "解析结果是可编辑分镜多维表，单元格与画面描述可原位改。",
+        "撤销重做与保存重载保留编辑；来源关系仍在。",
+        "仍是解析节点与四列/每表最多 10 行，不改成普通 DAELAB.Table。"
+      ],
+      "automation": "混合",
+      "execution_policy": "不付费",
+      "existing_coverage": [
+        "business:web/script_parser_panel.mjs",
+        "business:web/data_table_editor.mjs"
       ]
     }
   ]

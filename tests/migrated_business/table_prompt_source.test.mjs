@@ -14,7 +14,8 @@ const fixture=()=>normalizeTable({fields:[{id:'scene',name:'画面描述',type:'
 const text=input=>input.segments.map(s=>s.text).join('');
 
 test('column frame sources select the first image in each row and retain individual overrides until explicitly reapplied',()=>{
- const table=createMaterialTable(),prompt=promptSourceId(table),first=table.fields[0].id,last=addField(table,{name:'结束图片',type:'content'}).id;
+ const table=createMaterialTable();table.records[0].selected=true;
+ const prompt=promptSourceId(table),first=table.fields[0].id,last=addField(table,{name:'结束图片',type:'content'}).id;
  const config={version:1,kind:'video',model:LOCAL_VIDEO_MODEL,promptFieldId:prompt,mode:'frames2video',settings:{duration:4}};
  table.records.forEach((row,index)=>{
   row.values[prompt]='保留文字';row.values[first]=[{id:'video-'+index,kind:'video',url:'/view?filename=clip.mp4'},{id:'first-'+index,kind:'image',url:'/view?filename=first.png'},{id:'extra-'+index,kind:'image',url:'/view?filename=extra.png'}];
@@ -40,7 +41,8 @@ test('column frame sources select the first image in each row and retain individ
 });
 
 test('column configuration applies to every row without creating a generation column and syncs explicit reapplication',()=>{
- const table=createMaterialTable(),prompt=promptSourceId(table),originalFields=table.fields.map(f=>f.id);
+ const table=createMaterialTable();table.records[0].selected=true;
+ const prompt=promptSourceId(table),originalFields=table.fields.map(f=>f.id);
  table.records[1].selected=false;for(const row of table.records)row.values[prompt]='保留文字';
  assert.throws(()=>setPromptSource(table,null),/必须保留提示词列/);assert.throws(()=>removeField(table,prompt),/必须保留提示词列/);
  const config={version:1,kind:'video',model:LOCAL_VIDEO_MODEL,promptFieldId:prompt,mode:'frames2video',settings:{width:512,height:288,duration:4,turbo:true,seed:42}};
@@ -120,7 +122,8 @@ test('same-row text expansion matches imported generation input and survives ren
 });
 
 test('copy expansion keeps current-row text and newlines while resolving media labels',()=>{
- const table=createMaterialTable(),prompt=promptSourceId(table),media=table.fields[0].id,row=table.records[0];
+ const table=createMaterialTable();table.records[0].selected=true;
+ const prompt=promptSourceId(table),media=table.fields[0].id,row=table.records[0];
  row.values[media]=[{id:'image-a',name:'镜头参考.png',url:'/view?filename=image-a.png&type=input',kind:'image'}];
  row.values[prompt]={kind:'column-template',version:1,segments:[{type:'text',text:'第一行\n'},{type:'column',fieldId:media,assetId:'image-a'},{type:'text',text:'\n第三行'}]};
  assert.equal(expandedCellText(table,row,prompt),'第一行\n@镜头参考.png\n第三行');
