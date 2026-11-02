@@ -62,7 +62,7 @@ function table(env,index,options={}){
  const selection=attachCellSelection({root,shell:root,getTable:()=>value});
  const context={presentation:'content',selected:true,contains:node=>root.contains(node),getViewport:()=>({left:0,top:0,right:1200,bottom:800,width:1200}),getBounds:()=>root.getBoundingClientRect()};env.contexts.set(root,context);
  const editor={panelContext:()=>env.contexts.get(root),clearSelection:selection.clear,selectColumn:selection.selectColumn,selection:selection.selection,render(){}};
- const presentation=installContentPresentation({root,editor,getTable:()=>value,outputTable:options.outputTable});env.releases.push(()=>{presentation.destroy();selection.destroy();});
+ const presentation=installContentPresentation({root,editor,getTable:()=>value,outputTable:options.outputTable,...(options.columnOutputs===false?{columnOutputs:false}:{})});env.releases.push(()=>{presentation.destroy();selection.destroy();});
  const toolbar=document.body.children.at(-1);env.tick();
  return {root,headers,cells,selection,toolbar,value,context,presentation,enter(cell=cells[0]){cell.dataset.inlineEditing='true';env.emit('focusin',cell);},leave(cell=cells[0]){delete cell.dataset.inlineEditing;},selectColumn(index){env.emit('pointerdown',headers[index]);env.flush();},contextMenu(cell=cells[0]){root.fire('contextmenu',{clientX:420,clientY:260,target:cell});env.flush();}};
 }
@@ -146,6 +146,17 @@ test('rebuilding a header without changing fields restores its output source but
  const before=header.querySelector('[data-table-source]');
  assert.ok(before);before.remove();env.tick();
  assert.ok(header.querySelector('[data-table-source]'),'missing per-header source must be rebuilt');
+});
+
+test('fixed table presentation omits output Slots through rerenders without affecting another table',t=>{
+ const env=dom(t),fixed=table(env,0,{columnOutputs:false}),generic=table(env,1);
+ for(let i=0;i<3;i++){
+  env.tick();assert.equal(fixed.root.querySelectorAll('[data-table-source]').length,0);
+  assert.equal(generic.root.querySelectorAll('[data-table-source]').length,generic.value.fields.length);
+ }
+ fixed.selectColumn(0);env.tick();
+ assert.equal(fixed.headers[0].dataset.columnSelected,'true');
+ assert.equal(fixed.root.querySelectorAll('[data-table-source]').length,0);
 });
 test('column output buttons have a positioned header containing block',()=>{
  const css=readFileSync(new URL('../../frontend/src/features/table/table_ui.css',import.meta.url),'utf8');
