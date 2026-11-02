@@ -3,7 +3,7 @@ import uuid
 from pathlib import Path
 from urllib.parse import urlsplit, parse_qs
 
-from backend.contracts.errors import Conflict
+from ..contracts.errors import Conflict
 
 
 def import_materials(assets, input_root, output_root, *, register=None):

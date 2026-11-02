@@ -1,13 +1,36 @@
+import importlib
 import importlib.util
+import os
 from pathlib import Path
+import shutil
+import subprocess
+import sys
 import tempfile
 import unittest
 from PIL import Image
 from unittest.mock import patch
 from backend.contracts.errors import Conflict, StorageError
-spec=importlib.util.spec_from_file_location('output_files',Path(__file__).parents[2]/'backend/media/material_output_files.py')
-module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+from backend.media import material_output_files as module
 class MaterialOutputImportTest(unittest.TestCase):
+ def test_installed_node_import_uses_package_relative_dependencies(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   package=Path(tmp)/'ComfyUI-DAELab-Creative-Studio'
+   shutil.copytree(Path(__file__).parents[2]/'backend',package/'backend',
+                   ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
+   (package/'__init__.py').write_text('',encoding='utf-8')
+   script=r'''
+import importlib,importlib.util,sys
+from pathlib import Path
+package=Path(sys.argv[1]);name='installed_creative_studio'
+spec=importlib.util.spec_from_file_location(name,package/'__init__.py',submodule_search_locations=[str(package)])
+loaded=importlib.util.module_from_spec(spec);sys.modules[name]=loaded;spec.loader.exec_module(loaded)
+installed=importlib.import_module(name+'.backend.media.material_output_files')
+assert callable(installed.import_materials)
+'''
+   environment={key:value for key,value in os.environ.items() if key!='PYTHONPATH'}
+   result=subprocess.run([sys.executable,'-c',script,str(package)],cwd=tmp,env=environment,
+                         capture_output=True,text=True,encoding='utf-8')
+   self.assertEqual(result.returncode,0,result.stderr)
  def test_local_output_keeps_the_original_file_reference(self):
   with tempfile.TemporaryDirectory() as tmp:
    root=Path(tmp);i=root/'input';o=root/'output';i.mkdir();o.mkdir();Image.new('RGB',(8,8),'red').save(o/'a.png')
