@@ -332,6 +332,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
             const snapshot=snapshotFor(context);
             if(!snapshot||snapshot.ready===false||(!snapshot.assets?.length&&!snapshot.texts?.length))throw new Error('当前没有有效素材');
             const frozen=JSON.parse(JSON.stringify(snapshot)),stamp=JSON.stringify(snapshot);
+            frozen.assets??=[];frozen.texts??=[];
             const sections=frozen.outputGroups||['text','image','video'].flatMap(kind=>{
                 const assetIndexes=frozen.assets.map((asset,index)=>[asset,index]).filter(([asset])=>asset.kind===kind).map(([,index])=>index);
                 const textIndexes=kind==='text'?frozen.texts.map((_,index)=>index):[],count=assetIndexes.length+textIndexes.length;
@@ -367,7 +368,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
                     }
                     if(!members.length)continue;materialized+=members.length;
                     const group=createNode(GROUP_TYPE,origin);if(!group)throw new Error('素材组节点未加载');created.push(group);group.title=section.label||context.node.title+' · 输出';group.properties={...group.properties,members,materialType:section.kind,materialOutputSource:{nodeId:String(context.node.id),key:context.materialKey??null,kind:section.kind,scope:frozen.scope,fieldId:frozen.fieldId,...(frozen.recordId==null?{}:{recordId:frozen.recordId})}};group.properties.collapsed=false;
-                    if(!connectTableOutput(context.node,group))throw new Error('无法建立表格到素材组的持久连线');
+                    if(context.node.outputs?.some(slot=>slot.name==='table_json')&&!connectTableOutput(context.node,group))throw new Error('无法建立表格到素材组的持久连线');
                     const collection=group.widgets?.find(w=>w.name==='collection_data');if(collection)collection.value=JSON.stringify(collectionFor(group));
                 }
             }catch(error){for(const node of created){host.removeNode(graph,node);delete state.cards[node.id];}throw error;}
