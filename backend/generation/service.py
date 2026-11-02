@@ -69,10 +69,11 @@ class GenerationService:
         terminal = job['state'] in TERMINAL_STATES
         active = not terminal
         precise = bool(provider and (provider.execution_kind in {'local', 'media'} or getattr(provider, 'supports_cancel', False)))
+        stopped = job.get('control_intent') == 'stop' and job['state'] == 'pending'
         return {
-            'pause': job['state'] == 'pending' or active and precise,
+            'pause': (job['state'] == 'pending' and not stopped) or (active and precise),
             'resume': job.get('control_intent') == 'pause' and job['state'] in {'pending', 'cancelled'} and job.get('result') is None,
-            'interrupt': job['state'] == 'pending' or active and precise,
+            'interrupt': (job['state'] == 'pending' and not stopped) or (active and precise),
             'restart': terminal and bool(provider and provider.execution_kind in {'local', 'media'}),
         }
 
@@ -674,6 +675,8 @@ class GenerationService:
                   'controls': self._controls(job)}
         if control_intent == 'pause' and job['state'] == 'pending':
             result['phase'] = 'paused'
+        if control_intent == 'stop' and job['state'] == 'pending':
+            result['phase'] = 'stopped'
         if control_intent == 'interrupt' and job['state'] == 'cancelled':
             result['phase'] = 'interrupted'
         progress = self._progress.get(request_id)

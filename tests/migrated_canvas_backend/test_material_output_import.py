@@ -3,6 +3,7 @@ from pathlib import Path
 import tempfile
 import unittest
 from PIL import Image
+from backend.contracts.errors import Conflict, StorageError
 spec=importlib.util.spec_from_file_location('output_files',Path(__file__).parents[2]/'backend/media/material_output_files.py')
 module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 class MaterialOutputImportTest(unittest.TestCase):
@@ -22,4 +23,17 @@ class MaterialOutputImportTest(unittest.TestCase):
    result=module.import_materials([dict(kind='image',url='/view?filename=a.png&type=output'),dict(kind='image',url='/view?filename=missing.png&type=output')],i,o)
    self.assertEqual([(item['filename'],item['sourceIndex']) for item in result],[('a.png',0)])
    self.assertFalse((i/'DAELAB/results').exists())
+ def test_item_level_registration_conflict_is_skipped_but_storage_failure_is_not(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   root=Path(tmp);i=root/'input';o=root/'output';i.mkdir();o.mkdir()
+   Image.new('RGB',(8,8)).save(o/'valid.png');Image.new('RGB',(8,8)).save(o/'changed.png')
+   assets=[dict(kind='image',url='/view?filename=valid.png&type=output'),
+           dict(kind='image',url='/view?filename=changed.png&type=output')]
+   def register(value):
+    if value['asset']['filename']=='changed.png':raise Conflict('synthetic changed source')
+    return {'asset':{'assetId':'asset-valid'},'byteSize':64}
+   result=module.import_materials(assets,i,o,register=register)
+   self.assertEqual([(item['filename'],item['sourceIndex']) for item in result],[('valid.png',0)])
+   def unavailable(_value):raise StorageError('synthetic unavailable storage')
+   with self.assertRaises(StorageError):module.import_materials(assets[:1],i,o,register=unavailable)
 if __name__=='__main__':unittest.main()

@@ -9,6 +9,14 @@ for(const model of ['qwen','deepseek'])test(`${model} uses the shared real endpo
  }});
  assert.equal(calls,1);assert.equal(row.result,'optimized');assert.equal(row.model,model);
 });
+for(const [model,transport] of [['qwen3.5:9b-q4_K_M','qwen'],['deepseek-flash','deepseek']])test(`${model} is persisted as a logical identity and aliased only at transport`,async()=>{
+ let calls=0;
+ const row=await optimizeRow({text:'original'},'polish','keep',{model,fetcher:async(_url,options)=>{
+  calls++;const body=JSON.parse(options.body);assert.equal(body.model,transport);
+  return {ok:true,json:async()=>({requestId:body.requestId,result:'optimized',model})};
+ }});
+ assert.equal(calls,1);assert.equal(row.result,'optimized');assert.equal(row.model,model);
+});
 test('failed remote requests are not silently retried or simulated',async()=>{
  let calls=0;
  await assert.rejects(optimizeRow({text:'original'},'polish','',{model:'deepseek',fetcher:async()=>{calls++;return {ok:false,json:async()=>({error:'network unavailable'})};}}),/network unavailable/);

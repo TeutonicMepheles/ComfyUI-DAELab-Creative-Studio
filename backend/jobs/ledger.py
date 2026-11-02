@@ -96,7 +96,7 @@ class JobLedger:
         with self.database.transaction() as connection:
             job = self._get(connection, request_id)
             self._expect(job, expected_version)
-            if job["state"] != "pending" or job["cancel_requested"] or job["control_intent"] in {"pause", "interrupt", "restart"}:
+            if job["state"] != "pending" or job["cancel_requested"] or job["control_intent"] in {"pause", "interrupt", "restart", "stop"}:
                 raise InvalidTransition("Only an uncancelled pending task may submit; recovery never resubmits.")
             if owner_session is not None:
                 identity(owner_session, "host session ID")
@@ -193,8 +193,8 @@ class JobLedger:
             return {"job": self._get(connection, request_id), "action": action}
 
     def record_control(self, request_id, action, *, expected_version=None, scope=None):
-        """Persist an explicit pause/interrupt/resume intent without provider IO."""
-        if action not in {"pause", "interrupt", "resume"}:
+        """Persist an explicit pause/interrupt/resume/stop intent without provider IO."""
+        if action not in {"pause", "interrupt", "resume", "stop"}:
             raise InvalidInput("Unknown task control intent.")
         if scope is not None and (not isinstance(scope, str) or not scope or len(scope) > 200):
             raise InvalidInput("Task control scope must be a bounded string.")
@@ -202,7 +202,11 @@ class JobLedger:
             job = self._get(connection, request_id)
             if expected_version is not None:
                 self._expect(job, expected_version)
-            if action == "resume":
+            if action == "stop":
+                if job["state"] != "pending":
+                    raise InvalidTransition("Only an undispatched task can be stopped.")
+                intent = "stop"
+            elif action == "resume":
                 if job["control_intent"] != "pause" or job["state"] != "pending":
                     raise InvalidTransition("Only a queued paused task can resume its original identity.")
                 intent = None

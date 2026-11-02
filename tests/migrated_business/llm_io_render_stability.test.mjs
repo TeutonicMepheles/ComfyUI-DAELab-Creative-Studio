@@ -9,6 +9,7 @@ import {bindBusinessService} from '../../frontend/src/contracts/business.js';
 import {createMaterialTable} from '../../frontend/src/application/table_material_columns.mjs';
 import {addField} from '../../frontend/src/application/table_model.mjs';
 import {setPromptSource} from '../../frontend/src/features/prompt/table_prompt_source.mjs';
+import {QWEN_MODEL} from '../../frontend/src/features/prompt/prompt_optimization_model.mjs';
 
 const API=Symbol.for('DAELAB.CreativeCanvas.API.v1');
 // Execute the owning field factory/write closure to retain the actual input
@@ -98,6 +99,14 @@ test('table connections disable reverse even with one row or invalid input; disc
  env.reset();env.tick();assert.equal(env.writes.length,0);
 });
 
+test('LLM model options use logical catalog values while legacy aliases remain read-compatible',t=>{
+ const env=environment(t),a=panel(t,env,32);
+ const options=a.select.children,values=options.filter(option=>!option.disabled).map(option=>option.value);
+ assert.ok(values.includes(QWEN_MODEL));assert.equal(values.includes('qwen'),false);assert.equal(values.includes('deepseek'),false);
+ assert.equal(options.find(option=>option.value==='qwen'),undefined);
+ assert.equal(a.state().model,'qwen');assert.equal(a.select.value,QWEN_MODEL);
+});
+
 test('manual source persists with native history and caret, while links temporarily take precedence in independent panels',async t=>{
  const env=environment(t),a=panel(t,env,17,{nativeSource:true}),b=panel(t,env,18,{nativeSource:true});
  for(const owner of [a,b]){owner.node.inputs[0].link=null;owner.release.sync();assert.equal(owner.source.readOnly,false);assert.equal(owner.run.disabled,true);}
@@ -142,7 +151,7 @@ test('fresh input, derived instructions, mode/error/waiting and image changes st
  a.upstream.mode=2;a.release.sync();assert.match(a.status.textContent,/停用/);assert.equal(a.release.tasks()[0].state,'error');assert.equal(a.run.disabled,true);
  a.upstream.mode=0;a.upstream.snapshot={version:1,ready:false,texts:[]};a.release.sync();assert.match(a.status.textContent,/等待上游/);assert.equal(a.release.tasks()[0].state,'queued');
  a.upstream.snapshot={version:1,texts:['恢复输入']};a.release.sync();assert.equal(a.run.disabled,false);assert.deepEqual(a.release.tasks(),[]);
- a.state().instruction='用户编辑';a.instruction.value='用户编辑';await a.instruction.emit('input');a.state().model='deepseek';a.select.value='deepseek';await a.select.emit('change');assert.equal(a.instruction.value,'用户编辑');assert.equal(a.select.value,'deepseek');
+ a.state().instruction='用户编辑';a.instruction.value='用户编辑';await a.instruction.emit('input');a.state().model='deepseek-flash';a.select.value='deepseek-flash';await a.select.emit('change');assert.equal(a.instruction.value,'用户编辑');assert.equal(a.select.value,'deepseek-flash');
  b.release.sync();assert.equal(JSON.stringify(b.state()),bBefore);assert.equal(b.source.value,'输入 4');assert.equal(b.instruction.value,'手动要求');assert.deepEqual(a.state().unknown,{kept:3});
  env.reset();a.release.sync();b.release.sync();assert.equal(env.writes.length,0);
 });

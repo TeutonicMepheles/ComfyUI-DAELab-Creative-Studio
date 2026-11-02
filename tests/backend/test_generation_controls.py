@@ -102,6 +102,16 @@ class TaskControlLedgerTests(unittest.TestCase):
         self.assertEqual(interrupted['error_code'], 'interrupted_before_submit')
         self.assertEqual(self.jobs.attempts('original-control'), [])
 
+    def test_stop_is_a_distinct_durable_pending_control_without_resume(self):
+        stopped = self.jobs.record_control('original-control', 'stop', expected_version=self.job['version'])
+        self.assertEqual((stopped['state'], stopped['control_intent']), ('pending', 'stop'))
+        reopened = JobLedger(Path(self.temp.name) / 'studio.db')
+        self.assertEqual(reopened.get('original-control')['control_intent'], 'stop')
+        with self.assertRaises(InvalidTransition):
+            reopened.begin_submission('original-control', expected_version=stopped['version'])
+        with self.assertRaises(InvalidTransition):
+            reopened.record_control('original-control', 'resume', expected_version=stopped['version'])
+
     def test_pause_after_running_can_continue_as_next_attempt_of_the_same_request(self):
         claimed = self.jobs.begin_submission('original-control', expected_version=self.job['version'])
         submitted = self.jobs.mark_submitted('original-control', 'native-pause', expected_version=claimed['version'], event_id='pause-submitted')

@@ -3,6 +3,8 @@ import uuid
 from pathlib import Path
 from urllib.parse import urlsplit, parse_qs
 
+from backend.contracts.errors import Conflict
+
 
 def import_materials(assets, input_root, output_root, *, register=None):
     if not isinstance(assets, list) or not 1 <= len(assets) <= 500:
@@ -44,6 +46,6 @@ def import_materials(assets, input_root, output_root, *, register=None):
                 item.update(registration['asset'])
                 item['size']=registration['byteSize']
             result.append(item)
-        except ValueError:
+        except (ValueError, Conflict):
             continue
     return result
