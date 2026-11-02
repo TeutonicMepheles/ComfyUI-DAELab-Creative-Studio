@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {GROUP_TYPE,collectionFor,expandGroupSelection,remapGroupMembers,selectedMaterialGroup} from '../../frontend/src/features/groups/material_group_model.mjs';
+import {GROUP_TYPE,canJoinMaterialGroup,collectionFor,expandGroupSelection,groupMaterialType,remapGroupMembers,selectedMaterialGroup,selectionMaterialType} from '../../frontend/src/features/groups/material_group_model.mjs';
 test('group actions require the entire selection to have one unambiguous live owner',()=>{
  const a={id:1},b={id:2},c={id:3},outside={id:4};
  const g={id:10,type:GROUP_TYPE,properties:{members:['1',2]}},h={id:11,type:GROUP_TYPE,properties:{members:[3]}};
@@ -52,4 +52,22 @@ test('placeholder members stay visible but only ready media enters the group out
  assert.deepEqual(collectionFor(group).assets.map(asset=>asset.nodeId),['1']);assert.equal(collectionFor(group).ready,true);
  group.properties.members=[2];assert.equal(collectionFor(group).ready,false);
  delete pending.properties.materialPlaceholder;assert.equal(collectionFor(group).assets[0].missing,true);
+});
+test('new groups require one material type and only accept members of that type',()=>{
+ const image=kind=>kind==='text'
+  ?{id:kind,type:'DAELAB.TextInput',widgets:[{name:'text',value:'caption'}]}
+  :{id:kind,type:'DAELAB.MediaUpload',widgets:[{name:'asset_data',value:JSON.stringify({kind,filename:kind==='image'?'a.png':'a.webm'})}]};
+ const images=[image('image'),{...image('image'),id:'image-2'}],videos=[image('video')],texts=[image('text')];
+ assert.equal(selectionMaterialType(images),'image');
+ assert.equal(selectionMaterialType([...images,...videos]),null);
+ assert.equal(selectionMaterialType([...images,...texts]),null);
+ const byId=new Map([...images,...videos,...texts].map(node=>[node.id,node]));
+ const group={properties:{members:['image','image-2']},graph:{getNodeById:id=>byId.get(id)}};
+ assert.equal(groupMaterialType(group),'image');
+ assert.equal(canJoinMaterialGroup(group,image('image')),true);
+ assert.equal(canJoinMaterialGroup(group,image('video')),false);
+ assert.equal(canJoinMaterialGroup(group,image('text')),false);
+ const empty={properties:{members:[],materialType:'video'},graph:{getNodeById:id=>byId.get(id)}};
+ assert.equal(canJoinMaterialGroup(empty,image('video')),true);
+ assert.equal(canJoinMaterialGroup(empty,image('image')),false);
 });

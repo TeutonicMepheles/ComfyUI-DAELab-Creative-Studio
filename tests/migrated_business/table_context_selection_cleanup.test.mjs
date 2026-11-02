@@ -10,11 +10,17 @@ function dom(t){
  const writes=[],timers=new Set(),microtasks=[],contexts=new Map(),listeners=new Map(),releases=[];
  const key=name=>name.slice(5).replace(/-([a-z])/g,(_,c)=>c.toUpperCase());
  class Element extends EventTarget{
-  constructor(tag){super();this.tagName=tag.toUpperCase();this.children=[];this.attrs=new Map();this.className='';this.style={};this.hidden=false;this.parentElement=null;
+  constructor(tag){super();this.tagName=tag.toUpperCase();this.children=[];this.attrs=new Map();this.className='';this.style={setProperty(name,value){this[name]=value;}};this.hidden=false;this.parentElement=null;this.elementListeners=new Map();
    this.dataset=new Proxy({}, {set:(target,name,value)=>{if(name==='columnSelected')writes.push({element:this,from:target[name],to:String(value)});target[name]=String(value);return true;},deleteProperty:(target,name)=>{if(name==='columnSelected'&&name in target)writes.push({element:this,from:target[name],to:undefined});delete target[name];return true;}});
+   const owner=this;this.classList={add(...names){const values=new Set(owner.className.split(/\s+/).filter(Boolean));names.forEach(name=>values.add(name));owner.className=[...values].join(' ');},remove(...names){const removed=new Set(names);owner.className=owner.className.split(/\s+/).filter(name=>name&&!removed.has(name)).join(' ');},contains:name=>owner.className.split(/\s+/).includes(name)};
   }
+  addEventListener(type,fn){const set=this.elementListeners.get(type)??new Set();set.add(fn);this.elementListeners.set(type,set);}
+  removeEventListener(type,fn){this.elementListeners.get(type)?.delete(fn);}
+  fire(type,more={}){const event={type,target:this,defaultPrevented:false,preventDefault(){this.defaultPrevented=true;},stopPropagation(){},...more};for(const fn of [...this.elementListeners.get(type)??[]])fn(event);return event;}
+  focus(){document.activeElement=this;}
   get isConnected(){return this===document.body||!!this.parentElement?.isConnected;}
   append(...nodes){for(const node of nodes){node.parentElement=this;this.children.push(node);}}add(node){this.append(node);}
+  prepend(...nodes){for(const node of nodes)node.parentElement=this;this.children.unshift(...nodes);}
   replaceChildren(...nodes){for(const node of this.children)node.parentElement=null;this.children=[];this.append(...nodes);}
   remove(){if(this.parentElement)this.parentElement.children.splice(this.parentElement.children.indexOf(this),1);this.parentElement=null;}
   setAttribute(name,value){if(name.startsWith('data-'))this.dataset[key(name)]=value;else this.attrs.set(name,String(value));}
@@ -33,7 +39,7 @@ function dom(t){
  const before=new Map();for(const [name,value]of Object.entries(globals)){before.set(name,Object.getOwnPropertyDescriptor(globalThis,name));Object.defineProperty(globalThis,name,{configurable:true,writable:true,value});}
  const api=Symbol.for('DAELAB.CreativeCanvas.API.v1'),prior=globalThis[api];globalThis[api]={getPanelContext:root=>contexts.get(root)};document.body=new Element('body');
  t.after(()=>{for(const release of releases.reverse())release();for(const [name,value]of before)value?Object.defineProperty(globalThis,name,value):delete globalThis[name];if(prior===undefined)delete globalThis[api];else globalThis[api]=prior;});
- return {Element,writes,contexts,releases,tick(){for(const fn of timers)fn();},flush(){while(microtasks.length)microtasks.shift()();},emit(type,target,more={}){const event={type,target,preventDefault(){},stopPropagation(){},...more};for(const fn of [...listeners.get(type)??[]])fn(event);},reset(){writes.length=0;}};
+ return {Element,writes,contexts,releases,tick(){for(const fn of timers)fn();},flush(){while(microtasks.length)microtasks.shift()();},emit(type,target,more={}){const event={type,target,defaultPrevented:false,preventDefault(){this.defaultPrevented=true;},stopPropagation(){},...more};for(const fn of [...listeners.get(type)??[]])fn(event);return event;},reset(){writes.length=0;}};
 }
 
 const fixture=JSON.parse(readFileSync(new URL('../fixtures/performance/FX-PERF-M-no-video.json',import.meta.url),'utf8'));
@@ -58,7 +64,7 @@ function table(env,index){
  const editor={panelContext:()=>env.contexts.get(root),clearSelection:selection.clear,selectColumn:selection.selectColumn,selection:selection.selection,render(){}};
  const presentation=installContentPresentation({root,editor,getTable:()=>value});env.releases.push(()=>{presentation.destroy();selection.destroy();});
  const toolbar=document.body.children.at(-1);env.tick();
- return {root,headers,cells,selection,toolbar,value,context,presentation,enter(cell=cells[0]){cell.dataset.inlineEditing='true';env.emit('focusin',cell);},leave(cell=cells[0]){delete cell.dataset.inlineEditing;},selectColumn(index){env.emit('pointerdown',headers[index]);env.flush();}};
+ return {root,headers,cells,selection,toolbar,value,context,presentation,enter(cell=cells[0]){cell.dataset.inlineEditing='true';env.emit('focusin',cell);},leave(cell=cells[0]){delete cell.dataset.inlineEditing;},selectColumn(index){env.emit('pointerdown',headers[index]);env.flush();},contextMenu(cell=cells[0]){root.fire('contextmenu',{clientX:420,clientY:260,target:cell});env.flush();}};
 }
 
 test('500x10 unselected cells enter editing without clearing false markers, including repeated entry and a peer',t=>{
@@ -93,4 +99,23 @@ test('Escape cancels a column selection, permits reselection, and the next edit 
  a.selectColumn(8);assert.equal(a.root.querySelectorAll('[data-column-selected=true]').length,501);
  env.emit('keydown',a.headers[8],{key:'Escape',isComposing:false});env.flush();
  env.reset();a.enter();env.flush();assert.equal(env.writes.length,0);assert.equal(a.headers[8].getAttribute('aria-selected'),'false');
+});
+test('left selection keeps the menu closed; right click and keyboard open a focusable vertical menu',t=>{
+ const env=dom(t),a=table(env,0),cell=a.cells[0];
+ env.emit('pointerdown',cell);env.flush();
+ assert.equal(a.root.dataset.contentSelected,'true');
+ assert.equal(a.toolbar.hidden,true,'left selection must not open the action menu');
+ a.contextMenu(cell);
+ assert.equal(a.toolbar.hidden,false);
+ assert.equal(a.toolbar.getAttribute('role'),'menu');
+ assert.match(a.toolbar.className,/content-context/);
+ assert.ok(a.toolbar.querySelector('[role=menuitem]'));
+ assert.ok(a.toolbar.querySelector('.content-context-item'));
+ env.emit('keydown',a.toolbar.querySelector('[role=menuitem]'),{key:'Escape',isComposing:false});
+ env.flush();
+ assert.equal(a.toolbar.hidden,true);
+ assert.equal(document.activeElement,cell,'Escape returns focus to the triggering cell');
+ assert.equal(a.root.dataset.contentSelected,'true','closing the menu keeps the table selection');
+ cell.focus();a.root.fire('keydown',{target:cell,key:'F10',shiftKey:true,isComposing:false});
+ env.flush();assert.equal(a.toolbar.hidden,false,'Shift+F10 opens the current object menu');
 });
