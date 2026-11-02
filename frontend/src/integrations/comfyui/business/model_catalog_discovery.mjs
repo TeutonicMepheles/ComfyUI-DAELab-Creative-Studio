@@ -42,7 +42,7 @@ export function startModelCatalogDiscovery(){
     const catalog=getModelCatalog();
     optimizationApi.subscribeDeepSeekKey(()=>{
         catalog.invalidate({family:'optimization',provider:'deepseek'});
-        void catalog.check('deepseek-flash',optimizationProbe({id:'deepseek-flash',provider:'deepseek'}),{force:true});
+        void catalog.check('deepseek-flash',()=>optimizationProbe(catalog.get('deepseek-flash')),{force:true}).catch(()=>{});
     });
     const refresh=()=>{if(Date.now()-lastRefresh<1000)return;catalog.invalidate();void refreshModelCatalog({force:true}).catch(()=>{});};
     globalThis.addEventListener?.('online',refresh);
