@@ -1,18 +1,23 @@
 import {addField,uid} from '../../application/table_model.mjs';
 import {isTextColumn,promptSourceId,setPromptSource,requirePromptSource} from '../prompt/table_prompt_source.mjs';
 import {effectivePrompt,isColumnPrompt,resolveColumnPrompt,columnValue,toColumnPrompt} from '../prompt/table_prompt_template.mjs';
+import {GENERATION_MODEL_DEFINITIONS} from '../models/model_catalog.mjs';
 
-export const LOCAL_VIDEO_MODEL='MiniMax H3 FL（本地）';
-export const LOCAL_REFERENCE_VIDEO_MODEL='MiniMax H3 Ref（本地）';
+const generationModels=(kind,provider)=>GENERATION_MODEL_DEFINITIONS.filter(model=>model.kind===kind&&model.provider===provider).map(model=>model.id);
+export const LOCAL_VIDEO_MODEL=generationModels('video','local')[0];
+export const LOCAL_REFERENCE_VIDEO_MODEL=generationModels('video','local')[1];
 export const isLocalVideoModel=model=>[LOCAL_VIDEO_MODEL,LOCAL_REFERENCE_VIDEO_MODEL].includes(model);
 export const LOCAL_VIDEO_MODES=['text2video','singleImage2video','frames2video'];
-export const LOCAL_IMAGE_MODEL='Qwen-Image-2.1 Turbo（本地）';
+export const LOCAL_IMAGE_MODEL=generationModels('image','local')[0];
 export const isLocalGenerationModel=model=>model===LOCAL_IMAGE_MODEL||isLocalVideoModel(model);
-export const COMFY_VIDEO_MODELS=['Seedance 2.0','Seedance 2.0 Fast','Seedance 2.0 Mini','Seedance 2.5','Minimax H3'];
-export const COMFY_IMAGE_MODELS=['GPT Image 2','GPT Image 2.5 Flare','GPT Image 2.5 Sunburst'];
+export const COMFY_VIDEO_MODELS=generationModels('video','comfy');
+export const COMFY_IMAGE_MODELS=generationModels('image','comfy');
 export const isComfyGenerationModel=model=>[...COMFY_VIDEO_MODELS,...COMFY_IMAGE_MODELS].includes(model);
 export const needsGenerationProject=()=>false;
-export const GENERATION_MODELS={image:[LOCAL_IMAGE_MODEL,...COMFY_IMAGE_MODELS],video:[...COMFY_VIDEO_MODELS,LOCAL_VIDEO_MODEL,LOCAL_REFERENCE_VIDEO_MODEL]};
+export const GENERATION_MODELS={
+ image:generationModels('image','local').concat(generationModels('image','comfy')),
+ video:generationModels('video','comfy').concat(generationModels('video','local')),
+};
 export const MAX_GENERATION_ATTEMPTS=4;
 export function generationAttempts(config){
  const attempts=config?.attempts??1;
