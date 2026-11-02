@@ -754,7 +754,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         const list=el('div');picker.append(list);root.append(picker);
         if(context?.side==='output'&&(context.materialKey!==undefined||(typeof adapterFor(context.node)?.materialOutput==='function'?adapterFor(context.node).materialOutput(context.node):adapterFor(context.node)?.materialOutput===true))){
             const snap=snapshotFor(context);const label=context.materialKey!==undefined||snap?.groups?'输出为素材组':'输出为视频素材';
-            const output=button(label+(snap?.skipped?'（跳过 '+snap.skipped+' 行）':''),()=>{closePicker();return outputMaterials(context,point);});output.disabled=!snap?.assets?.length||snap.ready===false;list.append(output);
+            const output=button(label+(snap?.skipped?'（跳过 '+snap.skipped+' 行）':''),()=>{closePicker();return outputMaterials(context,point);});output.disabled=(!snap?.assets?.length&&!snap?.texts?.length)||snap.ready===false;list.append(output);
             if(context.materialKey!==undefined){positionPicker();output.focus();return;}
         }
         for(const item of menuItems()){
