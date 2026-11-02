@@ -72,6 +72,7 @@ function register(){const api=globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v
  tasks:node=>node.__scriptPanel?.tasks?.()||[],
  panel:node=>node.__scriptPanel?{root:node.__scriptPanel.root,close:()=>node.__scriptPanel.close()}:null,
  selectionSurface:node=>node.__scriptPanel?.surface,
+ upload:async(node,file)=>{await Promise.resolve();if(!node.graph||node.mode)return;const panel=node.__scriptPanel;if(!panel)throw new Error('解析面板尚未就绪，请重新拖入 DOCX');await panel.actions.uploadDocument(file,{mode:'append'});},
  materialSources:node=>[...(node.__scriptPanel?.root.querySelectorAll('[data-generation-source]')||[])].map(element=>({element,key:element.dataset.generationSource,label:'输出为素材组'})),
  outputMaterials:(node,key)=>{const fieldId=String(key).startsWith('column:')?decodeURIComponent(String(key).slice(7)):String(key);return tableMaterialSnapshot(node.__scriptTable,fieldId);},summary:node=>`${node.__scriptTable?.records.length||0} 条已确认任务`,
  prepareCopy(node,data){if(data.properties?.[NAMESPACE])delete data.properties[NAMESPACE];const index=node.widgets?.findIndex(w=>w.name==='table_data');if(index<0||!data.widgets_values?.[index])return;const table=readScriptTable(data.widgets_values[index]);for(const row of table.records)if(row.meta)delete row.meta.generationColumns;delete table.meta.generationProject;delete table.meta.script_parser.batch_id;delete table.meta.script_parser.page_key;data.widgets_values[index]=JSON.stringify(table);},
