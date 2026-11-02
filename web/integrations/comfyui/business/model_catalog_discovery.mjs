@@ -5,19 +5,15 @@ import {businessJson} from '../../../contracts/business.js';
 
 let started=false,optimizationApi=null,definitionsLoaded=false,lastRefresh=0;
 
-function generationProbe(model){
-    return async()=>{
-        const capability=await modelCapabilities({kind:model.kind,model:model.id});
-        return {...capability,available:capability?.available!==false,provider:capability?.provider||model.provider};
-    };
+async function generationProbe(model){
+    const capability=await modelCapabilities({kind:model.kind,model:model.id});
+    return {...capability,available:capability?.available===true,provider:capability?.provider||model.provider};
 }
 
-function optimizationProbe(model){
-    return async()=>{
-        const capability=await optimizationApi.capabilities({model:model.id});
-        const selected=capability?.models?.find(item=>item.id===model.id);
-        return {...capability,...selected,available:selected?.available??capability?.available!==false,provider:selected?.provider||model.provider};
-    };
+async function optimizationProbe(model){
+    const capability=await optimizationApi.capabilities({model:model.id});
+    const selected=capability?.models?.find(item=>item.id===model.id);
+    return {...capability,...selected,available:selected?.available===true,provider:selected?.provider||model.provider};
 }
 
 export async function loadModelDefinitions(catalog,{force=false,request=businessJson}={}){
@@ -29,6 +25,7 @@ export async function loadModelDefinitions(catalog,{force=false,request=business
 
 export async function refreshModelCatalog({force=false}={}){
     const catalog=getModelCatalog();
+    optimizationApi||=createPromptOptimizationApi();
     await loadModelDefinitions(catalog,{force});
     lastRefresh=Date.now();
     return Promise.all([

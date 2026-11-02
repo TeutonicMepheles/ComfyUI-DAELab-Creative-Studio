@@ -178,11 +178,11 @@ async function loadCapabilities(force=false){
   const c=++capabilityEpoch,model=state.model;
   try{
    const caps=await api.capabilities({model}),selected=caps.models?.find(item=>item.id===model);
-   modelCatalog.record(model,{...caps,...selected,available:selected?.available??caps.available!==false,provider:selected?.provider||optimizationProvider(model)});
+   modelCatalog.record(model,{...caps,...selected,available:selected?.available??caps.available===true,provider:selected?.provider||optimizationProvider(model)});
    if(dead||c!==capabilityEpoch||model!==state.model)return;
    const current=modelCatalog.get(model);
    state.models=modelCatalog.snapshot({family:'optimization'});state.deepseekKeyConfigured=Boolean(current?.capability?.deepseekKeyConfigured);if(!canSubmitModel(current))state.error='模型不可用，请重新检测。';
-  }catch{ if(!dead&&c===capabilityEpoch&&model===state.model)state.error='模型不可用，请重新检测。';}
+  }catch{ if(!dead&&c===capabilityEpoch&&model===state.model){modelCatalog.markUnavailable(model,'model_probe_failed');state.error='模型不可用，请重新检测。';}}
   finally{if(!dead&&c===capabilityEpoch&&model===state.model)update();}
  }
  update();void loadCapabilities();

@@ -49,27 +49,34 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
     const imageSection=make('section','llm-style-section llm-style-image-source'),imageBox=make('div','llm-style-image-upload'),image=make('img','llm-style-image-preview'),imageText=make('span','llm-style-image-text','通过 Slot 连接参考图片');
     imageSection.append(make('span','llm-style-label','参考图片'),imageBox);imageBox.append(image,imageText);sourceSection.after(imageSection);materialHint.parentElement.hidden=true;
     const modelCatalog=getModelCatalog();
-    const logicalModel=model=>models.find(option=>option.id===model)?.logicalId||model;
     let models=[],modelListSignature='';
-    saved().model??='qwen';
+    const logicalModel=model=>{
+        if(models.some(option=>option.id===model))return model;
+        if(model==='qwen'||model==='deepseek')return models.find(option=>option.provider===model)?.id||model;
+        return model;
+    };
+    const initialModels=modelCatalog.snapshot({family:'optimization'});
+    saved().model??=(initialModels.find(model=>model.provider==='qwen')||initialModels[0])?.id||'';
     function rebuildModelOptions(){
         const discovered=modelCatalog.snapshot({family:'optimization'}),signature=JSON.stringify(discovered.map(model=>[model.id,model.label,model.provider]));
         if(signature===modelListSignature)return;
         modelListSignature=signature;
         models=discovered.map(model=>({
-            id:model.provider==='qwen'?'qwen':model.provider==='deepseek'?'deepseek':model.id,
+            id:model.id,
             label:model.label,
+            provider:model.provider,
             logo:model.provider==='comfy'?'openai':model.provider,
-            logicalId:model.id,
         }));
         const previous=saved().model;
-        select.replaceChildren(...models.map(model=>updateModelOption(new Option(model.label+(model.logo==='openai'?' · Comfy':''),model.id),modelCatalog.get(model.logicalId))));
-        if(!models.some(model=>model.id===previous)){const legacy=new Option('未识别模型（历史任务）',previous||'');legacy.disabled=true;select.add(legacy);}
-        select.value=previous||'';
+        const selectedModel=models.some(model=>model.id===previous)?previous:
+            (previous==='qwen'||previous==='deepseek'?models.find(model=>model.provider===previous)?.id||previous:previous);
+        select.replaceChildren(...models.map(model=>updateModelOption(new Option(model.label+(model.logo==='openai'?' · Comfy':''),model.id),modelCatalog.get(model.id))));
+        if(!models.some(model=>model.id===selectedModel)){const legacy=new Option('未识别模型（历史任务）',previous||'');legacy.disabled=true;select.add(legacy);}
+        select.value=selectedModel||'';
     }
-    const supported=model=>models.some(option=>option.id===model);
-    const modelLabel=model=>models.find(option=>option.id===model)?.label||'未识别模型';
-    function refreshModelOptions(){rebuildModelOptions();for(const option of select.children||select.options||[]){const model=models.find(item=>item.id===option.value);if(model)updateModelOption(option,modelCatalog.get(logicalModel(model.id)));}const model=models.find(item=>item.id===saved().model);select.disabled=!model||!canSubmitModel(modelCatalog.get(logicalModel(model.id)));const status=model&&modelCatalog.get(logicalModel(model.id));if(status?.checking)select.setAttribute('aria-busy','true');else select.removeAttribute('aria-busy');}
+    const supported=model=>models.some(option=>option.id===logicalModel(model));
+    const modelLabel=model=>models.find(option=>option.id===logicalModel(model))?.label||'未识别模型';
+    function refreshModelOptions(){rebuildModelOptions();const current=logicalModel(saved().model);for(const option of select.children||select.options||[]){const model=models.find(item=>item.id===option.value);if(model)updateModelOption(option,modelCatalog.get(model.id));}const model=models.find(item=>item.id===current);select.disabled=!model||!canSubmitModel(modelCatalog.get(current));const status=model&&modelCatalog.get(current);if(status?.checking)select.setAttribute('aria-busy','true');else select.removeAttribute('aria-busy');}
     rebuildModelOptions();
     const generationTask=createLLMTask();
     const taskRail=make('div','llm-io-task-rail');taskRail.setAttribute('role','tablist');taskRail.setAttribute('aria-label','优化任务');root.append(taskRail);
@@ -165,7 +172,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
         const current=()=>!disposed&&node.graph===graph&&(!nativeDocument||nativeDocument.canApply(proposalTicket))&&!node.mode&&signature()===stamp;
         const rowTickets=[];
         try{
-            const rows=slotRows(node),provider=state.model;if(!supported(provider))throw new Error('该历史模型配置不可执行，请明确选择已接入的提供方');if(!canSubmitModel(modelCatalog.get(logicalModel(provider))))throw new Error('模型不可用，请重新检测');
+            const rows=slotRows(node),provider=logicalModel(state.model);if(!supported(provider))throw new Error('该历史模型配置不可执行，请明确选择已接入的提供方');if(!canSubmitModel(modelCatalog.get(provider)))throw new Error('模型不可用，请重新检测');
             assertBusinessService('optimization');generationTask.start(rows.length,state.mode,provider);render();
             const proposal={version:1,requestId:crypto.randomUUID(),rows:[],mode:state.mode,instruction:state.instruction||'',signature:stamp,provider,complete:false};if(proposalTicket)nativeDocument?.releaseRequest(proposalTicket);proposalTicket=nativeDocument?.beginRequest(proposal.requestId)||null;project(proposal);
             if(!nativeDocument)throw new Error('原生编辑会话尚未就绪，未提交');const identity=ensureIdentity(graph,node),inputDigest=await generationInputDigest(stamp);if(!current())throw new Error('输入或工作流已变化，未提交');const existing=[];let offset=0;do{const page=await businessJson('generation','status',{source:{...identity,nodeId:proposalTicket.documentId},limit:500,offset});existing.push(...page.jobs);offset=page.nextOffset;}while(Number.isSafeInteger(offset)&&offset>0);if(!current())throw new Error('输入或工作流已变化，未提交');if(existing.some(report=>report.source?.operation==='standalone-optimization'&&report.source.inputDigest===inputDigest&&!['succeeded','failed','cancelled'].includes(report.state)))throw new Error('原请求尚未确定，请先恢复原结果；未创建新请求');const createdAt=Date.now(),requests=rows.map((row,index)=>{const requestId=crypto.randomUUID(),ticket=nativeDocument.beginRequest(requestId,{recordId:String(row.id),fieldId:'instruction'});rowTickets.push(ticket);return {requestId,recordId:String(row.id),sourceScope:{...identity,nodeId:ticket.documentId,workflowSession:ticket.workflowSession,epoch:ticket.epoch,recordId:String(row.id),fieldId:'instruction',inputVersion:ticket.inputVersion,operation:'standalone-optimization',groupId:proposal.requestId,rowIndex:index,rowCount:rows.length,inputDigest,createdAt}};});nativeDocument.edit('记录优化请求',draft=>{draft.studioTextRequests={groupId:proposal.requestId,inputDigest,requests};});
@@ -192,7 +199,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
             const group=matches.filter(report=>report.source.groupId===latest.source.groupId).sort((a,b)=>a.source.rowIndex-b.source.rowIndex);
             if(group.length!==rows.length||group.some((report,index)=>report.source.rowCount!==rows.length||report.source.rowIndex!==index||report.source.recordId!==String(rows[index].id)||report.state!=='succeeded'||report.receipt?.kind!=='text'||report.receipt.text!==report.result))throw new Error('原任务尚未全部完成；请继续查询原结果，未重新提交');
             if(proposalTicket)nativeDocument.releaseRequest(proposalTicket);nativeDocument.releaseRequest(ticket);proposalTicket=nativeDocument.beginRequest(latest.source.groupId);
-            project({version:1,requestId:latest.source.groupId,signature:stamp,provider:saved().model,mode:saved().mode,instruction:saved().instruction||'',complete:true,rows:rows.map((row,index)=>({...row,result:group[index].result,requestId:group[index].requestId,status:'completed'}))});message='原结果已恢复，请审阅后同意更改';
+            project({version:1,requestId:latest.source.groupId,signature:stamp,provider:logicalModel(saved().model),mode:saved().mode,instruction:saved().instruction||'',complete:true,rows:rows.map((row,index)=>({...row,result:group[index].result,requestId:group[index].requestId,status:'completed'}))});message='原结果已恢复，请审阅后同意更改';
         }catch(error){message=error.message;}finally{nativeDocument.releaseRequest(ticket);busy=false;render();}
     }
     const unsubscribeModels=modelCatalog.subscribe(()=>{refreshModelOptions();render();});
