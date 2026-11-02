@@ -1,3 +1,4 @@
+import {uploadMedia} from '../../frontend/src/application/media_upload.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -11,9 +12,9 @@ function fixture(){
   const registration={kind:'image',assetId:'registered',referenceId:'reference',byteSize:12,contentSha256:'a'.repeat(64),asset:{version:1,kind:'image',name:'sample.png',filename:'file.png',subfolder:'DAELAB/uploads',type:'input',assetId:'registered',referenceId:'reference',byteSize:12,contentSha256:'a'.repeat(64)}};
   const registrar=async input=>{events.push(['register',input]);return wait.promise;};
   const history={begin(){events.push('begin');},end(){events.push('end');}};
-  const load=new Function('node','data','status','choose','root','app','registerAsset','history',
+  const load=new Function('node','data','status','choose','root','app','registerAsset','history','uploadMedia',
     "let disposed=false,asset=null,controller=null,epoch=0,task=null;const mediaKind=()=> 'image',render=()=>{},source=operation=>({operation,documentId:String(node.graph.id),nodeId:String(node.id)});"+source.slice(start,end)+'\nreturn {upload,dispose(){disposed=true;}};');
-  return {...load(node,data,status,choose,root,app,registrar,history),events,data,node,status,wait,registration};
+  return {...load(node,data,status,choose,root,app,registrar,history,uploadMedia),events,data,node,status,wait,registration,app};
 }
 const settle=()=>new Promise(resolve=>setImmediate(resolve));
 test('upload registers before one workflow edit, keeps occurrence ID separate and does not create a favorite',async()=>{
@@ -32,5 +33,22 @@ test('registration failure or stale upload completion preserves previous widget 
     if(change==='failure')f.wait.reject(Error('storage unavailable'));else f.wait.resolve(f.registration);
     await pending;assert.equal(f.data.value,change==='widget'?'new user edit':'original');assert.equal(f.events.includes('begin'),false);
     if(change==='failure')assert.match(f.status.textContent,/storage unavailable/);
+  }
+});
+
+
+test('HTTP 413 explains host size limit and preserves previous material without registration',async()=>{
+  for(const body of ['Maximum request body size 104857600 exceeded.', '<html>proxy rejected body</html>']){
+    const f=fixture();
+    f.app.api.fetchApi=async()=>({ok:false,status:413,text:async()=>body});
+    await f.upload(new File(['video'],'sample.mp4'));
+    assert.match(f.status.textContent,/文件过大/);
+    assert.match(f.status.textContent,/MiB/);
+    assert.match(f.status.textContent,/压缩.*较小/);
+    if(body.startsWith('Maximum'))assert.match(f.status.textContent,/100 MiB/);
+    else assert.match(f.status.textContent,/宿主或代理/);
+    assert.doesNotMatch(f.status.textContent,/<html>/);
+    assert.equal(f.data.value,'original');
+    assert.deepEqual(f.events,[]);
   }
 });

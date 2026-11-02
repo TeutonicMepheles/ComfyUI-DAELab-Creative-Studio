@@ -1,3 +1,4 @@
+import {uploadMedia} from '../../application/media_upload.js';
 import {businessHost,businessFetch} from '../../contracts/business.js';
 import {requirePromptSource} from '../prompt/table_prompt_source.mjs';
 import {replaceLinkedTaskText,bindLinkedTaskReference,clearLinkedTaskInput,linkedTaskTexts,mergeLinkedTaskDuplicates} from './video_task_linked_prompt.mjs';
@@ -121,7 +122,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
    for(const file of files){
     const extension=file.name.match(/\.(png|jpe?g|webp|mp4|webm|mov)$/i)?.[0].toLowerCase();if(!extension)throw new Error('请选择 PNG、JPG、WebP、MP4、WebM 或 MOV 文件');
     const form=new FormData();form.append('image',file,crypto.randomUUID()+extension);form.append('type','input');form.append('subfolder','DAELAB/uploads');form.append('overwrite','false');
-    const response=await businessFetch('/upload/image',{method:'POST',body:form,signal:controller.signal});if(!response.ok)throw new Error(`上传失败（${response.status}），请重试`);
+    const response=await uploadMedia(businessFetch,file,form,{signal:controller.signal});if(!response.ok)throw new Error(`上传失败（${response.status}），请重试`);
     const result=await response.json();assets.push({filename:result.name,subfolder:result.subfolder||'',type:result.type||'input',kind:/\.(mp4|webm|mov)$/.test(extension)?'video':'image',name:file.name});
    }
    if(disposed)return;
