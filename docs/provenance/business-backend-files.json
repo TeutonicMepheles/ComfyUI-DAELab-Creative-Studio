@@ -93,8 +93,9 @@
       "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/script_contract.py",
       "destination": "backend/storyboard/script_contract.py",
       "sourceSha256": "e3e6b72af36acc3bcce5275c256104010da61303857845e6174bd04ca08f235e",
-      "destinationSha256": "337b282d18d795508bcc84c3d266e1c49f547e62308d7aec79fa49b2ba59850b",
+      "destinationSha256": "92537cf4c83c4a2c6088c351849f85467c7ac39c93d863ad35ed6e117a0da2fb",
       "changes": [
+        "2026-11-02: Treat parser layout as import defaults; reuse standard editing, material output and pointer/keyboard menu behavior while preserving provenance and edits.",
         "relocate pure implementation without semantic changes",
         "1029 script parsing: fixed four columns, source-identified chapters, ten-row pages and native multi-table import history."
       ],

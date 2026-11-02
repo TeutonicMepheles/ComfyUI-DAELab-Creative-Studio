@@ -164,12 +164,14 @@ class BusinessTests(unittest.TestCase):
         self.assertNotEqual(a['chapter_key'], c['chapter_key'])
         self.assertEqual(c['chapter_key'], d['chapter_key'])
 
-    def test_fixed_script_server_rejects_eleven_rows_without_changing_legacy(self):
+    def test_import_template_does_not_restrict_confirmed_table_edits(self):
         fields = [{'id': fid, 'name': fid, 'type': 'text'} for fid in ('sp-shot_no', 'sp-scene', 'sp-reference', 'sp-notes')]
         table = {'fields': fields, 'records': [{'id': str(i), 'values': {}} for i in range(11)],
                  'meta': {'script_parser': {'version': 1, 'field_policy': 'fixed-four'}}}
-        with self.assertRaisesRegex(ValueError, '10 行'):
-            confirmed_table(table)
+        table['fields'].append({'id': 'custom', 'name': 'User column', 'type': 'text'})
+        table['fields'].reverse()
+        self.assertEqual(len(confirmed_table(table)['records']), 11)
+        self.assertEqual(len(confirmed_table(table)['fields']), 5)
         table['meta']['script_parser']['field_policy'] = 'nonempty'
         self.assertEqual(len(confirmed_table(table)['records']), 11)
 
@@ -182,6 +184,15 @@ class BusinessTests(unittest.TestCase):
         legacy = parse_storyboard_document('合成.docx', self.docx)
         self.assertEqual(len(legacy['shots']), 2)
         self.assertTrue(legacy['shots'][0]['prompt'].startswith('画面 1'))
+
+    def test_script_projection_uses_current_prompt_column_after_original_is_removed(self):
+        table = {'fields': [{'id': 'notes', 'name': 'New prompt', 'type': 'longtext'}],
+                 'records': [{'id': 'row', 'selected': True, 'values': {'notes': 'Current prompt'}}],
+                 'meta': {'generationInput': {'version': 1, 'promptFieldId': 'notes'},
+                          'script_parser': {'version': 1, 'field_policy': 'fixed-four',
+                                            'bindings': {'scene': 'removed'}, 'documents': [], 'reference_fields': []}}}
+        result = storyboard_projection(table)
+        self.assertEqual(result['shots'][0]['prompt'], 'Current prompt')
 
     def test_repeated_import_preserves_original_and_deduplicates_assets(self):
         catalog = AssetCatalog(self.root / 'db.sqlite', roots={'input': self.input})

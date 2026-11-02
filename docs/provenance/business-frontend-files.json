@@ -540,9 +540,10 @@
       "source": "web/prompt_optimization_panel.mjs",
       "destination": "frontend/src/features/prompt/prompt_optimization_panel.mjs",
       "sourceSha256": "a189e6ca2616bf0cf6a4e84430ae2fe4d4e8cf9068f5e53e3392bf745a9a5cc2",
-      "destinationSha256": "e896be3adb4bebf5ee1aa3062f9ec5e8c4b75ed658eedc1a9c3142dd02e0cc89",
+      "destinationSha256": "0e6194dd88cc19ea738e082782440a9f0322513a0ed462eaf5a87b472b6546b8",
       "kind": "production-source",
       "changes": [
+        "2026-11-02: Treat parser layout as import defaults; reuse standard editing, material output and pointer/keyboard menu behavior while preserving provenance and edits.",
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
       ]
@@ -683,9 +684,10 @@
       "source": "web/script_parser_model.mjs",
       "destination": "frontend/src/features/storyboard/script_parser_model.mjs",
       "sourceSha256": "8510cc481847691a1c035b9b950ad9022755f58ff2cb4adb433160eb3f5db51e",
-      "destinationSha256": "69410b86d01aa74a35e61f77a94b07fb8791fdddd790277c65df7f0003b8f517",
+      "destinationSha256": "247af097f60d74cde61a801030cefd889e32203d523b1ee84e71e00647b1926c",
       "kind": "production-source",
       "changes": [
+        "2026-11-02: Treat parser layout as import defaults; reuse standard editing, material output and pointer/keyboard menu behavior while preserving provenance and edits.",
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "1029 script parsing: fixed four columns, source-identified chapters, ten-row pages and native multi-table import history."
       ]
@@ -694,9 +696,10 @@
       "source": "web/script_parser_panel.mjs",
       "destination": "frontend/src/features/storyboard/script_parser_panel.mjs",
       "sourceSha256": "4d89cbcdfb3b98d090bafaf0696f5022afc2e43977d0e21bca78e792a701654d",
-      "destinationSha256": "61c37c3d7cde53d809a24b8457ee6945c0e86d837d9bbc0ce341864814fdb780",
+      "destinationSha256": "c5e6594acbad33aa6f3093848c6813e925274c76dbd1423b52dd277e34a8cef4",
       "kind": "production-source",
       "changes": [
+        "2026-11-02: Treat parser layout as import defaults; reuse standard editing, material output and pointer/keyboard menu behavior while preserving provenance and edits.",
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Use domain/native-upload HTTP port; preserve old document and normalization DTOs.",
         "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
@@ -1122,9 +1125,10 @@
       "source": "web/creative_canvas_adapter.js",
       "destination": "frontend/src/integrations/comfyui/business/creative_canvas_adapter.js",
       "sourceSha256": "87d4a3ec66de9d84f4be88202779471a416ba4046a820ef1ce83780d3711f9b1",
-      "destinationSha256": "fc19e2de101e315cc8d97dca2187d9a978f70dd4286a939039508c6f366834f2",
+      "destinationSha256": "d4c6b42a16bc7849c97839846033d22c3659e70e35223e62654e0a60723a1bf6",
       "kind": "production-source",
       "changes": [
+        "2026-11-02: Treat parser layout as import defaults; reuse standard editing, material output and pointer/keyboard menu behavior while preserving provenance and edits.",
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Register only formal table/storyboard/video adapters; exclude GPT legacy menu and execution hooks.",
         "Expose optional projectedMaterialTargets using the existing grid/cellsRevision cache and shared column descriptor objects; retain the full materialTargets API, row/cell drop capabilities and non-table provider fallback. Two 500x10 owners snapshot 10 projected descriptors each rather than 5510; this is a mechanism count, not measured latency improvement.",
@@ -1219,9 +1223,10 @@
       "source": "web/script_parser.js",
       "destination": "frontend/src/integrations/comfyui/business/script_parser.js",
       "sourceSha256": "7920d6861d96d764a89c4bee1ff714cab3558857e854111146f240bc06b04fb0",
-      "destinationSha256": "d872a0acfe742d5c30b6afce945b09ca66fe9ba1ce3169df5d705ebf38c284c4",
+      "destinationSha256": "0a55c0a22d4fa77d61ca77783fb0bb62bc675f18b210eca423211efe3d46e7d4",
       "kind": "production-source",
       "changes": [
+        "2026-11-02: Treat parser layout as import defaults; reuse standard editing, material output and pointer/keyboard menu behavior while preserving provenance and edits.",
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Use public BusinessPorts for document/prompt requests; retain source slots and lifecycle.",
         "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",

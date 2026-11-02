@@ -300,7 +300,7 @@ business:docs/script-parser.md","frontend/src/features/storyboard; backend/story
 business:web/script_parser_panel.mjs
 business:nodes/daelab_comfytv_storyboard/script_contract.py","frontend/src/features/storyboard; frontend/src/application","M3","保留用户编辑与生成身份，导入作为一个可撤销事务。","重复导入不重复行；内容变更的新文档版本可追踪。
 读入期间表格变化、容量超限或类型冲突整次拒绝；活动任务期间不改写其输入快照。
-分镜解析完成后以可编辑多维表格呈现（镜号/画面描述/画面参考/备注）；单元格与画面描述可原位编辑，撤销重做、保存重载，保留来源与修订保护。不改成普通 DAELAB.Table，不放开每表 10 行与固定四列。","UC-BIZ-003","TC-BIZ-023 TC-BIZ-024 TC-BIZ-059"
+分镜解析导入默认四列（镜号/画面描述/画面参考/备注），画面描述初始为提示词列；单元格可原位编辑，撤销重做、保存重载，保留来源与修订保护。导入完成后该表按标准多维表格提供完整编辑（含增列、指定提示词列、列输出、拆出文本与单元格输出）。","UC-BIZ-003","TC-BIZ-023 TC-BIZ-024 TC-BIZ-059"
 "F-BIZ-021","既有通用文稿和表格文件导入","保留","源码已存在；既有入口接收 DOCX/XLSX/XLSM/CSV/TSV/TXT/MD/PDF，支持程度以解析器与夹具核定。","business:nodes/daelab_comfytv_storyboard/document_import.py
 business:web/data_table_nodes.mjs:111
 business:nodes/daelab_comfytv_storyboard/import_node.py","backend/storyboard; frontend/src/features/storyboard","M3","迁移现有可用格式，不把扩展名列表当所有复杂文档已通过。","逐格式提供正常、空、损坏和结构异常夹具并记录支持限制。
