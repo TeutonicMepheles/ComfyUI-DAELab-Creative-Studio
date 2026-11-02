@@ -38,11 +38,11 @@ export async function refreshModelCatalog({force=false}={}){
 export function startModelCatalogDiscovery(){
     if(started)return;
     started=true;
-    optimizationApi=createPromptOptimizationApi();
+    optimizationApi||=createPromptOptimizationApi();
     const catalog=getModelCatalog();
     optimizationApi.subscribeDeepSeekKey(()=>{
         catalog.invalidate({family:'optimization',provider:'deepseek'});
-        void catalog.check('deepseek-flash',()=>optimizationProbe(catalog.get('deepseek-flash')),{force:true}).catch(()=>{});
+        void catalog.check('deepseek-flash',optimizationProbe,{force:true}).catch(()=>{});
     });
     const refresh=()=>{if(Date.now()-lastRefresh<1000)return;catalog.invalidate();void refreshModelCatalog({force:true}).catch(()=>{});};
     globalThis.addEventListener?.('online',refresh);
