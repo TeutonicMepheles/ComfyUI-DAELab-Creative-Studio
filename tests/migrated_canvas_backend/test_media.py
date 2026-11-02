@@ -118,6 +118,23 @@ class LocalMediaTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             media.edit_clips(missing, roots=self.roots)
 
+    def test_direct_batch_slot_exports_exact_timeline_members_and_trims(self):
+        assets = [{'id': 'a', 'url': '/view?filename=red.png&type=input'},
+                  {'id': 'b', 'url': '/view?filename=blue.png&type=output'}]
+        edit = {'version': 1, 'clips': [
+            {'source': {'slot': 'images.image0', 'nodeId': 'batch'},
+             'asset': {'filename': 'blue.png', 'type': 'output'}, 'duration': .25},
+            {'source': {'slot': 'images.image0', 'nodeId': 'batch'},
+             'asset': {'filename': 'red.png', 'type': 'input'}, 'duration': .5}]}
+        connection = {'images.image0': {'version': 1, 'assets': assets}}
+        clips, _ = media.edit_clips(edit, images=connection, roots=self.roots)
+        self.assertEqual([c['asset']['filename'] for c in clips], ['blue.png', 'red.png'])
+        self.assertEqual([c['duration'] for c in clips], [.25, .5])
+        changed = copy.deepcopy(connection)
+        changed['images.image0']['assets'].pop()
+        with self.assertRaises(ValueError):
+            media.edit_clips(edit, images=changed, roots=self.roots)
+
     def test_synthetic_export_decodes_in_sequence_and_cancel_removes_partial_output(self):
         data = {"version": 1, "clips": [
             {"source": {"asset": {"filename": "red.png", "type": "input"}}, "duration": .25},

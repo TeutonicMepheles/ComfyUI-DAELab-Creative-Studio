@@ -82,8 +82,9 @@
       "source": "nodes/video_edit_media.py",
       "destination": "backend/media/video_edit_media.py",
       "sourceSha256": "2d08a0d53bd4e0662eb44b5134b1b65a49989261e9f0abdd00a0d17882b57a4e",
-      "destinationSha256": "35c0f7f9c4455528bcd99944da9a675b3b8e9768fb3876b1a93d2d2f4d680dbb",
+      "destinationSha256": "544fcc0acf1c9ffce6eac27ee0dea05016fad6d4878905886435cb965900091d",
       "changes": [
+        "2026-11-02: Freeze all results of direct batch editing inputs and resolve each saved timeline member without a single-preview fallback.",
         "2026-11-02: Preserve generated media URL resolution and materialize exported video snapshots with optional text collections.",
         "relocate to owning backend module without changing node identifiers or declared slot order",
         "remove host folder_paths dependency; callers inject allowed input/output/temp roots",
@@ -126,9 +127,10 @@
       "source": null,
       "destination": "tests/migrated_canvas_backend/test_media.py",
       "sourceSha256": null,
-      "destinationSha256": "1a27de008d391adcd5bbf10e9e74a0a41cfca52c0e6ae297e51f1e6b39197ad0",
+      "destinationSha256": "ba5cc76a156e04e617c459ca20cc636420f38c08848e29c3fc9faba5aee8fe09",
       "kind": "authored-migration",
       "changes": [
+        "2026-11-02: Freeze all results of direct batch editing inputs and resolve each saved timeline member without a single-preview fallback.",
         "2026-11-02: Preserve generated media URL resolution and materialize exported video snapshots with optional text collections.",
         "synthetic local path, identity, CPU export/decode, cancellation and preview checks",
         "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources."

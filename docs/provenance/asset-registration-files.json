@@ -146,8 +146,9 @@
     },
     {
       "destination": "tests/migrated_canvas_backend/test_media.py",
-      "destinationSha256": "1a27de008d391adcd5bbf10e9e74a0a41cfca52c0e6ae297e51f1e6b39197ad0",
+      "destinationSha256": "ba5cc76a156e04e617c459ca20cc636420f38c08848e29c3fc9faba5aee8fe09",
       "changes": [
+        "2026-11-02: Freeze all results of direct batch editing inputs and resolve each saved timeline member without a single-preview fallback.",
         "2026-11-02: Preserve generated media URL resolution and materialize exported video snapshots with optional text collections.",
         "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
       ]

@@ -91,6 +91,16 @@ def edit_clips(data, assets=None, videos=None, images=None, groups=None, *, root
             if not slots.get(slot):
                 raise ValueError('片段来源连接已断开，请重新添加')
             asset = slots[slot]
+            if isinstance(asset, dict) and isinstance(asset.get('assets'), list):
+                # A single native input can expose several generated results.
+                # Resolve the timeline's saved locator against that frozen batch,
+                # never against the adapter's current single-result preview.
+                expected, _, _ = resolve_media(clip.get('asset'), roots=roots)
+                matches = [item for item in asset['assets']
+                           if resolve_media(item, roots=roots)[0] == expected]
+                if len(matches) != 1:
+                    raise ValueError('Timeline material is missing or ambiguous in the connected batch.')
+                asset = matches[0]
         else:
             asset = source.get('asset')
         if not asset:
