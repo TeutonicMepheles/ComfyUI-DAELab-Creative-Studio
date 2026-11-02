@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createOptimizationComposer,optimizationCostSummary} from '../../frontend/src/features/prompt/prompt_optimization_composer.mjs';
 import {COMFY_GPT_MODEL,OPTIMIZATION_MODELS,optimizationProvider} from '../../frontend/src/features/prompt/prompt_optimization_model.mjs';
+import {getModelCatalog,resetModelCatalogForTests} from '../../frontend/src/features/models/model_catalog.mjs';
 import {installDom,Element} from './prompt_optimization_dom.mjs';
 const find=(root,test)=>test(root)?root:root.children.map(e=>find(e,test)).find(Boolean);
 
@@ -34,6 +35,18 @@ test('DeepSeek settings are opt-in, close on provider switch, and discard unsave
 test('Comfy GPT is a real native-credit model and prices cannot be labelled as USD',()=>{
  assert.equal(OPTIMIZATION_MODELS.find(m=>m.id===COMFY_GPT_MODEL).label,'GPT-6 Luna（Comfy）');assert.equal(optimizationProvider(COMFY_GPT_MODEL),'comfy');
  assert.equal(optimizationCostSummary({provider:'comfy',quote:{status:'ready',estimatedCredits:1.2,budgetUpperCredits:2.3,expiresAt:Date.now()+5000}}),'预计 1.2 积分 · 预算上界 2.3 积分');
+});
+test('optimization model menu rebuilds from the backend catalog with stable display labels',t=>{
+ const dom=installDom(t);resetModelCatalogForTests();t.after(()=>{dom.restore();resetModelCatalogForTests();});
+ const catalog=getModelCatalog();catalog.replaceDefinitions([{id:'backend-opt-a',label:'Server Model A',family:'optimization',kind:'text',provider:'qwen'}]);
+ let notify,state={provider:'qwen',model:'backend-opt-a',range:{total:1},rows:[],permissions:{canChangeProvider:true}};
+ const controller={getState:()=>state,subscribe(fn){notify=fn;fn(state);return()=>{};},setModel(){return true;}};
+ const container=new Element('div'),view=createOptimizationComposer({controller,container,fieldName:'画面'});t.after(()=>view.destroy());
+ assert.ok(find(container,e=>e.tagName==='button'&&e.textContent.includes('Server Model A')));
+ catalog.replaceDefinitions([{id:'backend-opt-b',label:'Server Model B',family:'optimization',kind:'text',provider:'deepseek'}]);
+ state={...state,provider:'deepseek',model:'backend-opt-b'};notify(state);
+ assert.equal(find(container,e=>e.tagName==='button'&&e.textContent.includes('Server Model A')),undefined);
+ assert.ok(find(container,e=>e.tagName==='button'&&e.textContent.includes('Server Model B')));
 });
 
 test('actual composer exposes explicit original-batch fencing only on the controller permission',async t=>{

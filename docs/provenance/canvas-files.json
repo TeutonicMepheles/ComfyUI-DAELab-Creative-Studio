@@ -86,7 +86,7 @@
       "source": "web/creative_canvas_view.mjs",
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
       "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
-      "destinationSha256": "0c1a4b52925ae945a575eb87bd692afd3ea3d4a6985c5ff671aac80a67191579",
+      "destinationSha256": "c777c58d18166127ed21e144ff318deeddb60928d63263261d79ec32689d540f",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "remove opt-in test gallery rendering; retain unrelated graph.extra data",
@@ -104,6 +104,10 @@
         "Inject current direct-child zoom HUD bounds for trusted Tab whole-control reveal; reserve its top band only when the projected visible control intersects it, then preserve bottom-hint avoidance. Ordinary caret/input adds no HUD read; live owner, internal clipping and post-read lease checks remain. Actual 78 reverse-Tab failures are retained; new candidate browser acceptance pending.",
         "PERF selection-paint candidate: compare current selected/slotsSuppressed attributes and selection-surface class before writes; preserve every select/raise/focus/layout and per-card group projection call. Real closure tests cover 300-card selection, live group mutations and outside DOM repair; actual latency acceptance remains pending.",
         "Expose only the existing connected, visible direct-child asset dock bounds to focus reveal; retain native focus, owner leases and viewport-only navigation. The 1752 LLM B dock interception failure is retained; candidate browser reacceptance follows.",
+        "2026-11-02: materialize table cell/column output as type-separated groups in one native history step and connect each group to the table lineage slot; rollback every created node on failure.",
+        "2026-11-02: keep generation-history task grouping distinct from table-output type grouping while sharing filtering, ordering and identity dedupe.",
+        "2026-11-02: materialize generated row history through its type-split indexed outputGroups, never creating mixed groups; reject listing-layer groups at the write boundary.",
+        "2026-11-02: skip individually invalid local files and omit empty result sections; missing files no longer abort otherwise valid output.",
         "Expose the leased panel active state without a geometry read; preserve viewport geometry and legacy adapter fallback. Two-instance table and mode checks are recorded in TABLE_PILOT_ACCEPTANCE_20261027.md; the 100 ms budget remains open.",
         "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained.",
       "2026-10-30: make group/member port ownership exclusive and prioritize direct hits without style or layout changes.",
@@ -183,9 +187,10 @@
       "source": "web/creative_output.mjs",
       "destination": "frontend/src/canvas/creative_output.mjs",
       "sourceSha256": "7e3fbc2bb73548d3c855665caaac2e71ffb056971937a2dde9052fa0ff9b8173",
-      "destinationSha256": "7e3fbc2bb73548d3c855665caaac2e71ffb056971937a2dde9052fa0ff9b8173",
+      "destinationSha256": "7a83da638d250b5894ae835decae182a79b1526400a2a8b731fc1dc49957c8c8",
       "changes": [
-        "relocate into owner layer; rewrite relative module/style/resource paths"
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "2026-11-02: connect table output to material-group lineage through the stable table_json/source_report slots."
       ],
       "kind": "production-source"
     },
@@ -236,13 +241,14 @@
       "source": "web/material_group.js",
       "destination": "frontend/src/integrations/comfyui/canvas/material_group.js",
       "sourceSha256": "67d2b8989a842b69688415f7f5f18fd748c3839a1856393507d52149377049f2",
-      "destinationSha256": "8aa4f16fafd095d97f9fdf38cd6558702568fc7e72e05069485bb666a79b8864",
+      "destinationSha256": "ad21cc853f6dc7e39d071112ecc869fb6281056afbca809a0a839d9b6eaccc6c",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "remove implicit destructive prototype migration on graph load",
         "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources.",
         "2026-10-30: request-bound output placeholders, copy isolation and ready-only group material snapshots; see GENERATION_OUTPUTS_20261030 validation.",
-        "Generation batch lineage connects to the group container; members resolve their saved group binding."
+        "Generation batch lineage connects to the group container; members resolve their saved group binding.",
+        "2026-11-02: expose lineage input for persisted table-output groups and drop stale source metadata from copies."
       ],
       "kind": "production-source"
     },
@@ -362,13 +368,15 @@
       "source": "web/material_group_model.mjs",
       "destination": "frontend/src/features/groups/material_group_model.mjs",
       "sourceSha256": "72c88b9a74a3ee7e8963e5ee711bb0780591110ad4ca9225c0201c67b650dc33",
-      "destinationSha256": "2a4dfb8486d987406a5543db06fd63ceb402d685b286f3f718515f41fa191aca",
+      "destinationSha256": "b8d0a1cd3b156fc0d418310ab3ebd4a18207290f23281ffca25aaee6f9915080",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "remove implicit prototype converter; explicit workflow migration belongs to compat",
         "Receive explicit native-node lists for selection identity and Slot suppression instead of reading private graph._nodes.",
         "Require one unambiguous group owner across the complete selection; revalidate before ungroup and close stale group menus.",
-        "2026-10-30: request-bound output placeholders, copy isolation and ready-only group material snapshots; see GENERATION_OUTPUTS_20261030 validation."
+        "2026-10-30: request-bound output placeholders, copy isolation and ready-only group material snapshots; see GENERATION_OUTPUTS_20261030 validation.",
+        "2026-11-02: enforce one material type for new groups and group joins while retaining legacy mixed-group reads.",
+        "2026-11-02: reject new members from legacy mixed or unverifiable groups while permitting their existing members to reorder."
       ],
       "kind": "production-source"
     },
@@ -392,7 +400,7 @@
       "source": "web/material_groups.mjs",
       "destination": "frontend/src/features/groups/material_groups.mjs",
       "sourceSha256": "91c47c4439efda72218a2749e00030e570bf1731a3eb100282347aecc463e144",
-      "destinationSha256": "424c3ba590c006fc22e6c8c53450ab43542abe8883e0067e3d32fda7e0f147bf",
+      "destinationSha256": "2a2e678d5e6567bd8efbb7b975f42daa510603d00b8d1897e2b04f5cc0a1d5d9",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "inject existing host history port at integration assembly boundary",
@@ -403,7 +411,9 @@
         "2026-10-30: icon and text selection toolbar, direct reversible ungroup, and public snapshot-based batch favorites.",
         "2026-10-30: add whole-group ZIP download, retain three preset colors plus custom colors, and compact submenu rows.",
         "2026-10-30: make group/member port ownership exclusive and prioritize direct hits without style or layout changes.",
-        "Require one unambiguous group owner across the complete selection; revalidate before ungroup and close stale group menus."
+        "Require one unambiguous group owner across the complete selection; revalidate before ungroup and close stale group menus.",
+        "2026-11-02: reject mixed-type group creation and incompatible drag targets while preserving legacy mixed-group reads.",
+        "2026-11-02: distinguish existing-member reordering from adding to legacy mixed or unverifiable groups."
       ],
       "kind": "production-source"
     },
@@ -877,9 +887,10 @@
       "source": "tests/creative_output.test.mjs",
       "destination": "tests/migrated_canvas/creative_output.test.mjs",
       "sourceSha256": "47f9d462140c0626d17571619f22e7d9ce2d53d6b8b5a43650b78bea466726a0",
-      "destinationSha256": "0504eaded27fe8cc828f314042df84e0ade7567b1fbe6234d433ede1ab72a84b",
+      "destinationSha256": "4f91fe9ba18f126177bd826f95189b30e054005873215d33fe1daf03c419bc08",
       "changes": [
-        "point existing rule regression tests at migrated production modules"
+        "point existing rule regression tests at migrated production modules",
+        "2026-11-02: cover the persistent table-output lineage connection."
       ],
       "kind": "rule-regression"
     },
@@ -917,13 +928,15 @@
       "source": "tests/material_groups.test.mjs",
       "destination": "tests/migrated_canvas/material_groups.test.mjs",
       "sourceSha256": "ad6489ea79bb78ca890d5ebb860c62ea79a7cf9e63888771599122f8e161c0b6",
-      "destinationSha256": "b1ec22c70d5385a4640ac61081fa056ada0a60f2bfe83f6009751d38a56ccaff",
+      "destinationSha256": "6d48e309a23831f403a35c8f636e51a5521d33e6a00e6131b51b2612dc43f564",
       "changes": [
         "point existing rule regression tests at migrated production modules",
         "old implicit destructive prototype migration test superseded by production-boundary preservation test",
         "Pass explicit native nodes to mixed-ID group selection rules.",
         "Cover ungroup selection ownership, mixed groups, ungrouped nodes, ambiguous ownership and restored membership.",
-        "2026-10-30: request-bound output placeholders, copy isolation and ready-only group material snapshots; see GENERATION_OUTPUTS_20261030 validation."
+        "2026-10-30: request-bound output placeholders, copy isolation and ready-only group material snapshots; see GENERATION_OUTPUTS_20261030 validation.",
+        "2026-11-02: cover same-type selection, rejection of cross-type members and legacy mixed-group readability.",
+        "2026-11-02: cover rejecting new members while preserving existing-member reorder in legacy mixed groups."
       ],
       "kind": "rule-regression"
     },
@@ -931,9 +944,10 @@
       "source": "tests/mixed_group.test.mjs",
       "destination": "tests/migrated_canvas/mixed_group.test.mjs",
       "sourceSha256": "372fd748b0fd2946777059145520c7ae5793ca9623247751f9dae6e12c828adf",
-      "destinationSha256": "53253dda3f36ca5cd6d4bd720d2f63585fac36cdd6ff4d634caeb6811532e3d2",
+      "destinationSha256": "7135a95d0b6d1e298b74631eb0a935363b620cdf1ea61181bcbec802682cbe4a",
       "changes": [
-        "point existing rule regression tests at migrated production modules"
+        "point existing rule regression tests at migrated production modules",
+        "2026-11-02: clarify that legacy mixed-group reads do not permit new mixed selections."
       ],
       "kind": "rule-regression"
     },
@@ -1167,11 +1181,12 @@
       "source": null,
       "sourceSha256": null,
       "destination": "tests/migrated_canvas/material_sources_header_scope.test.mjs",
-      "destinationSha256": "ad26d5d6eb87cb70c2330a67cf731717cf785d00437319320931900a040ee5e7",
+      "destinationSha256": "07c0f2534c0259a7129058974e2a04a83ffa30b1b877138cd78026461824afa1",
       "kind": "rule-regression",
       "changes": [
         "Execute the actual materialSources property and generation decorator against two independent table DOM trees; cover current-header identity, column changes/replacement, empty and zero-row tables, and bounded body-search counts. Offline counts are not browser performance acceptance.",
-        "2026-10-31: provide the table prompt-source capability to the extracted decorator harness."
+        "2026-10-31: provide the table prompt-source capability to the extracted decorator harness.",
+        "2026-11-02: cover stable encoded output keys for ordinary table columns without body scans."
       ]
     }
   ],

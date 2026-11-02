@@ -6,7 +6,7 @@ from pathlib import Path
 
 from .errors import StorageError
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 APPLICATION_ID = 0x43535431
 
 _SCHEMA = [
@@ -53,6 +53,7 @@ _MIGRATIONS = {
         created_at TEXT NOT NULL)"""],
     3: ["ALTER TABLE favorites ADD COLUMN removed_at TEXT",
         "CREATE INDEX favorites_active ON favorites(removed_at,created_at)"],
+    4: ["ALTER TABLE jobs ADD COLUMN control_intent TEXT"],
 }
 
 

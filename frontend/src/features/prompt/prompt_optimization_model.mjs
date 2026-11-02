@@ -3,6 +3,7 @@ import {validatePrompt,resolvePromptAsset} from './table_prompt_model.mjs';
 import {generationFrames,rowGenerationConfig} from '../generation/table_generation_model.mjs';
 import {copiesReferenceContext,CONTEXT_COPY_REASON} from './prompt_optimization_context_copy.mjs';
 import {isTextColumn} from './table_prompt_source.mjs';
+import {OPTIMIZATION_MODEL_DEFINITIONS} from '../models/model_catalog.mjs';
 
 export const CONTRACT_VERSION=1;
 export const INSTRUCTION_VERSION='daelab.prompt-opt.v5';
@@ -11,9 +12,9 @@ export const INPUT_VERSION='daelab.prompt-opt.input.v1';
 export const DEFAULT_REQUIREMENTS='提升清晰度和可执行性，消除重复与含混表达，保持原意，不主动扩写。';
 export const NAMESPACE='daelabPromptOptimizationV1';
 // Provider remains derivable from the frozen model, including old snapshots.
-export const QWEN_MODEL='qwen3.5:9b-q4_K_M';
-export const COMFY_GPT_MODEL='gpt-6-luna';
-export const OPTIMIZATION_MODELS=[{id:'deepseek-flash',label:'DeepSeek API',logo:'deepseek'},{id:QWEN_MODEL,label:'Qwen3.5-9B（本地）',logo:'qwen'},{id:COMFY_GPT_MODEL,label:'GPT-6 Luna（Comfy）',logo:'openai'}];
+export const QWEN_MODEL=OPTIMIZATION_MODEL_DEFINITIONS.find(model=>model.provider==='qwen').id;
+export const COMFY_GPT_MODEL=OPTIMIZATION_MODEL_DEFINITIONS.find(model=>model.provider==='comfy').id;
+export const OPTIMIZATION_MODELS=OPTIMIZATION_MODEL_DEFINITIONS.map(model=>({id:model.id,label:model.label,logo:model.provider==='comfy'?'openai':model.provider}));
 export const optimizationProvider=model=>model===QWEN_MODEL?'qwen':String(model||'').startsWith('deepseek-')?'deepseek':'comfy';
 // Workflow properties can be Vue proxies. These snapshots are JSON data;
 // clone through the same serialization boundary used by workflow save/load.
@@ -153,7 +154,7 @@ export class OptimizationRevisions{
  serialize(){return Object.fromEntries([...this.entries].map(([k,v])=>[k,{...v}]));}
 }
 
-export async function freezeSnapshot(table,target,revisions,{model='gpt-4.1-mini',requirements='',maxOutputTokens=1024,begin=false,nonce=uuid().replaceAll('-','')}={}){
+export async function freezeSnapshot(table,target,revisions,{model=COMFY_GPT_MODEL,requirements='',maxOutputTokens=1024,begin=false,nonce=uuid().replaceAll('-','')}={}){
  const local=inspectTarget(table,target.recordId,target.fieldId),revision=(begin?revisions.begin(table,target.recordId,target.fieldId):revisions.current(table,target.recordId,target.fieldId));
  if(canonical(local.content).includes(`DAE_REF_${nonce}_`))throw new Error('保护标记与输入冲突');
  let n=0;const protected_tokens=[],reference_context=[],mapping=[];

@@ -2,7 +2,7 @@
 
 本文件由 `catalog/*.json` 生成；修改目录中的源数据后运行 `node docs/migration-blueprint/render_catalog.mjs --write`。不要单独修改生成表。
 
-共 131 个测试定义。统一状态：**规格已定义；自动化与产品执行状态均待实施/待执行**。自动化列是目标执行方式，既有覆盖是复用候选，不表示此测试已经实现或运行。测试环境、夹具、公共前端矩阵、性能预算和证据格式见 [测试策略](TEST_STRATEGY.md)。
+共 142 个测试定义。统一状态：**规格已定义；自动化与产品执行状态均待实施/待执行**。自动化列是目标执行方式，既有覆盖是复用候选，不表示此测试已经实现或运行。测试环境、夹具、公共前端矩阵、性能预算和证据格式见 [测试策略](TEST_STRATEGY.md)。
 
 每个界面测试都叠加两实例、模式切换、保存重载、焦点溢出和相关缩放检查；表内和表外生成都需覆盖。真实生成仅使用本地 Qwen/MiniMax；其他通道只做协议模拟，不能据此声明真实效果通过。
 
@@ -53,6 +53,8 @@
 | [TC-CAN-043](TEST_CASES.md#tc-can-043) | 离线资源、共享组件状态与样式隔离 | M1 | P1 | host | 混合 | 不付费 |
 | [TC-CAN-044](TEST_CASES.md#tc-can-044) | 历史金样迁移与完整无付费闭环 | M6 | P0 | migration | 混合 | 不付费 |
 | [TC-CAN-045](TEST_CASES.md#tc-can-045) | 生命周期压力与资源回收预算 | M5 | P1 | performance | 自动 | 不付费 |
+| [TC-CAN-046](TEST_CASES.md#tc-can-046) | 同类型打组、跨类型拒绝与保存重载 | M2 | P0 | host | 混合 | 不付费 |
+| [TC-CAN-047](TEST_CASES.md#tc-can-047) | 混合组成组合同改为跨类型反例 | M2 | P0 | contract | 自动 | 不付费 |
 | [TC-BIZ-001](TEST_CASES.md#tc-biz-001) | 表格增删改排序与工作流序列化往返 | M3 | P0 | domain | 自动 | 不付费 |
 | [TC-BIZ-002](TEST_CASES.md#tc-biz-002) | 复制行与复制节点不继承任务执行身份 | M3 | P0 | domain | 自动 | 不付费 |
 | [TC-BIZ-003](TEST_CASES.md#tc-biz-003) | 字段转换与稳定引用的原子保护 | M3 | P0 | domain | 自动 | 不付费 |
@@ -103,6 +105,13 @@
 | [TC-BIZ-048](TEST_CASES.md#tc-biz-048) | LLM 多源输入、应用后输出及模型调用边界 | M3 | P0 | contract | 自动 | 不付费 |
 | [TC-BIZ-049](TEST_CASES.md#tc-biz-049) | 同步投影不拥有任务轮询且不污染撤销 | M3 | P0 | contract | 自动 | 不付费 |
 | [TC-BIZ-050](TEST_CASES.md#tc-biz-050) | 生产注册白名单与旧入口显式转换 | M6 | P0 | migration | 混合 | 不付费 |
+| [TC-BIZ-051](TEST_CASES.md#tc-biz-051) | 表内纵向菜单键盘、边缘与双实例隔离 | M3 | P0 | host | 混合 | 不付费 |
+| [TC-BIZ-052](TEST_CASES.md#tc-biz-052) | 选择后不再出现横向表内工具栏 | M3 | P0 | contract | 自动 | 不付费 |
+| [TC-BIZ-053](TEST_CASES.md#tc-biz-053) | 列输出过滤、去重与类型拆分纯函数 | M3 | P0 | contract | 自动 | 不付费 |
+| [TC-BIZ-054](TEST_CASES.md#tc-biz-054) | 表到组输出连线保存、失败回滚与双实例 | M3 | P0 | host | 混合 | 不付费 |
+| [TC-BIZ-055](TEST_CASES.md#tc-biz-055) | 任务控制命令与状态矩阵 | M4 | P0 | contract | 自动 | 不付费 |
+| [TC-BIZ-056](TEST_CASES.md#tc-biz-056) | 任务控制双实例隔离与恢复 | M4 | P0 | host | 混合 | 不付费 |
+| [TC-BIZ-057](TEST_CASES.md#tc-biz-057) | 单任务百分比与成组完成计数切换 | M4 | P0 | contract | 自动 | 不付费 |
 | [TC-SYS-001](TEST_CASES.md#tc-sys-001) | 仅新包的最小安装 | M1 | P0 | host | 混合 | 不付费 |
 | [TC-SYS-002](TEST_CASES.md#tc-sys-002) | 新旧包冲突可见且无覆盖 | M1 | P0 | integration | 自动 | 不付费 |
 | [TC-SYS-003](TEST_CASES.md#tc-sys-003) | 依赖方向及旧资源路径检查 | M1 | P0 | contract | 自动 | 不付费 |
@@ -139,6 +148,8 @@
 | [TC-SYS-034](TEST_CASES.md#tc-sys-034) | 旧库退出与排除项检查 | M6 | P0 | integration | 自动 | 不付费 |
 | [TC-SYS-035](TEST_CASES.md#tc-sys-035) | 数据写入失败保持一致 | M4 | P0 | backend | 自动 | 不付费 |
 | [TC-SYS-036](TEST_CASES.md#tc-sys-036) | 本地 Qwen 与 MiniMax 实测、回填和恢复 | M4 | P0 | provider-live | 混合 | 仅本地 Qwen/MiniMax |
+| [TC-SYS-037](TEST_CASES.md#tc-sys-037) | 生成、LLM 与表格共用模型目录投影 | M4 | P0 | contract | 自动 | 不付费 |
+| [TC-SYS-038](TEST_CASES.md#tc-sys-038) | 模型选项隐式状态且不展示检测错误 | M4 | P1 | host | 混合 | 不付费 |
 
 <a id="tc-can-001"></a>
 
@@ -1576,6 +1587,70 @@
 - 隐藏视图不继续全量画布扫描，媒体未后台播放；若失败保存可复现剖析记录。
 
 **旧测试复用候选：** 无；迁移实施时建立。
+
+<a id="tc-can-046"></a>
+
+## TC-CAN-046 同类型打组、跨类型拒绝与保存重载
+
+**阶段：** M2；**优先级：** P0；**层级：** host；**方式：** 混合；**执行策略：** 不付费。
+
+**功能：** [F-CAN-040](FEATURE_MATRIX.md#f-can-040)
+
+**用例：** [UC-CAN-015](USE_CASES.md#uc-can-015)
+
+**真实模型白名单：** 无；本用例使用无模型调用的测试方法。
+
+**夹具：** 隔离 ComfyUI 双实例：图片、视频、文本节点各若干。
+
+**准备**
+
+- 两个创作画布实例互不共享选择。
+- 不修改 8352/8311/8340/8000 现用宿主。
+
+**步骤**
+
+1. 分别用同类型选择打组；再用跨类型选择尝试打组。
+2. 向图片组拖入视频和文本；保存、重载、模式往返、撤销。
+3. 在第二实例重复并确认第一实例组成员不变。
+
+**可判断的期望**
+
+- 同类型打组成功；跨类型打组与加入均不可用且不创建混合组。
+- 保存重载和撤销后约束与成员顺序保持。
+- 两实例选择与组成员互不串扰。
+
+**旧测试复用候选：** [canvas:tests/material_groups.test.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Canvas/blob/3176b5a67dbcd0b66f795976e5a81bcdfe346093/tests/material_groups.test.mjs)；[canvas:tests/mixed_group.test.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Canvas/blob/3176b5a67dbcd0b66f795976e5a81bcdfe346093/tests/mixed_group.test.mjs)
+
+<a id="tc-can-047"></a>
+
+## TC-CAN-047 混合组成组合同改为跨类型反例
+
+**阶段：** M2；**优先级：** P0；**层级：** contract；**方式：** 自动；**执行策略：** 不付费。
+
+**功能：** [F-CAN-040](FEATURE_MATRIX.md#f-can-040)、[F-CAN-020](FEATURE_MATRIX.md#f-can-020)
+
+**用例：** [UC-CAN-015](USE_CASES.md#uc-can-015)
+
+**真实模型白名单：** 无；本用例使用无模型调用的测试方法。
+
+**夹具：** 素材组模型夹具：图片+文本、图片+视频、纯图片。
+
+**准备**
+
+- 以当前 material_group_model 合同测试为起点，把混合组通过项改为期望拒绝。
+
+**步骤**
+
+1. 对跨类型选择调用打组；对已有图片组加入文本或视频。
+2. 对纯图片选择打组并读取快照类型。
+
+**可判断的期望**
+
+- 跨类型打组与加入失败，不产生 image-instructions 混合快照。
+- 同类型组快照类型单一，顺序与身份保留。
+- 本测试通过不代表旧混合工作流已迁移。
+
+**旧测试复用候选：** [canvas:tests/mixed_group.test.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Canvas/blob/3176b5a67dbcd0b66f795976e5a81bcdfe346093/tests/mixed_group.test.mjs)
 
 <a id="tc-biz-001"></a>
 
@@ -3093,6 +3168,225 @@
 
 **旧测试复用候选：** [business:tests/table_node_install.test.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/tests/table_node_install.test.mjs)；[business:tests/llm_slot_model.test.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/tests/llm_slot_model.test.mjs)；[business:tests/test_daelab_comfytv_storyboard.py](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/tests/test_daelab_comfytv_storyboard.py)
 
+<a id="tc-biz-051"></a>
+
+## TC-BIZ-051 表内纵向菜单键盘、边缘与双实例隔离
+
+**阶段：** M3；**优先级：** P0；**层级：** host；**方式：** 混合；**执行策略：** 不付费。
+
+**功能：** [F-BIZ-045](FEATURE_MATRIX.md#f-biz-045)
+
+**用例：** [UC-BIZ-017](USE_CASES.md#uc-biz-017)
+
+**真实模型白名单：** 无；本用例使用无模型调用的测试方法。
+
+**夹具：** 隔离 ComfyUI 双表格实例，含行头、列头、单元格。
+
+**准备**
+
+- 记录焦点、菜单锚点和视口裁切。
+- 不使用 Figma 稿作为通过证据。
+
+**步骤**
+
+1. 左键选择；右键与 Shift+F10 打开菜单；方向键、Enter、Escape。
+2. 在视口边缘与窄节点内打开菜单。
+3. 模式往返、保存重载；第二实例同时操作。
+
+**可判断的期望**
+
+- 左键不打开表内菜单；纵向菜单分组、固定行高、图标加文字。
+- Escape 归还焦点；菜单不被裁出视口。
+- 两实例焦点与菜单互不干扰；节点横向菜单仍可用。
+
+**旧测试复用候选：** [business:web/data_table_editor.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/data_table_editor.mjs)
+
+<a id="tc-biz-052"></a>
+
+## TC-BIZ-052 选择后不再出现横向表内工具栏
+
+**阶段：** M3；**优先级：** P0；**层级：** contract；**方式：** 自动；**执行策略：** 不付费。
+
+**功能：** [F-BIZ-045](FEATURE_MATRIX.md#f-biz-045)
+
+**用例：** [UC-BIZ-017](USE_CASES.md#uc-biz-017)
+
+**真实模型白名单：** 无；本用例使用无模型调用的测试方法。
+
+**夹具：** 表格内容呈现夹具，覆盖单元格、行头、列头选择。
+
+**准备**
+
+- 以当前 content-context 工具栏行为为失败基线。
+
+**步骤**
+
+1. 程序化选中单元格、行头、列头。
+2. 断言未创建横向 content-context 工具栏。
+
+**可判断的期望**
+
+- 选择变化不创建表内横向工具栏。
+- 输出与结构命令只从纵向菜单控制器进入。
+
+**旧测试复用候选：** [business:web/data_table_editor.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/data_table_editor.mjs)
+
+<a id="tc-biz-053"></a>
+
+## TC-BIZ-053 列输出过滤、去重与类型拆分纯函数
+
+**阶段：** M3；**优先级：** P0；**层级：** contract；**方式：** 自动；**执行策略：** 不付费。
+
+**功能：** [F-BIZ-047](FEATURE_MATRIX.md#f-biz-047)
+
+**用例：** [UC-BIZ-018](USE_CASES.md#uc-biz-018)
+
+**真实模型白名单：** 无；本用例使用无模型调用的测试方法。
+
+**夹具：** 含空值、失效引用、重复身份、混排文本/图片/视频的列数据。
+
+**准备**
+
+- 固定行序和格内顺序夹具。
+
+**步骤**
+
+1. 对单格和整列运行输出规划。
+2. 对全空列运行输出规划。
+
+**可判断的期望**
+
+- 空值与失效跳过；重复身份保留首次出现。
+- 文本、图片、视频分成独立组；全空不创建组。
+
+**旧测试复用候选：** [business:tests/table_material_output.test.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/tests/table_material_output.test.mjs)；[business:web/table_material_output.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/table_material_output.mjs)
+
+<a id="tc-biz-054"></a>
+
+## TC-BIZ-054 表到组输出连线保存、失败回滚与双实例
+
+**阶段：** M3；**优先级：** P0；**层级：** host；**方式：** 混合；**执行策略：** 不付费。
+
+**功能：** [F-BIZ-046](FEATURE_MATRIX.md#f-biz-046)、[F-BIZ-047](FEATURE_MATRIX.md#f-biz-047)
+
+**用例：** [UC-BIZ-018](USE_CASES.md#uc-biz-018)
+
+**真实模型白名单：** 无；本用例使用无模型调用的测试方法。
+
+**夹具：** 隔离 ComfyUI 表格与空白画布，可注入输出失败。
+
+**准备**
+
+- 两实例各有独立表格。
+
+**步骤**
+
+1. 单元格菜单输出与列 Slot 输出。
+2. 保存重载、模式往返、撤销。
+3. 在写入连线失败时重试并检查残留。
+
+**可判断的期望**
+
+- 结果仅为素材组且与来源连线在重载后仍在。
+- 整行/多格无输出；失败无部分成员或孤立组。
+- 两实例输出互不写入对方文档。
+
+**旧测试复用候选：** [business:tests/table_material_output.test.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/tests/table_material_output.test.mjs)
+
+<a id="tc-biz-055"></a>
+
+## TC-BIZ-055 任务控制命令与状态矩阵
+
+**阶段：** M4；**优先级：** P0；**层级：** contract；**方式：** 自动；**执行策略：** 不付费。
+
+**功能：** [F-BIZ-048](FEATURE_MATRIX.md#f-biz-048)
+
+**用例：** [UC-BIZ-019](USE_CASES.md#uc-biz-019)
+
+**真实模型白名单：** 无；本用例使用无模型调用的测试方法。
+
+**夹具：** 账本替身覆盖等待、本地运行、可取消远端、不可取消远端、未知、完成、失败。
+
+**准备**
+
+- 禁止真实云调用。
+
+**步骤**
+
+1. 对每种状态发出暂停、打断、继续、重启。
+2. 重复点击同一控制。
+
+**可判断的期望**
+
+- 动作与范围写入账本意图，不误伤其他任务。
+- 重复点击不创建重复控制请求。
+- 不可取消远端不进入已停止完成态。
+
+**旧测试复用候选：** [business:web/table_generation_tasks.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/table_generation_tasks.mjs)；[business:tests/task_snapshots.test.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/tests/task_snapshots.test.mjs)
+
+<a id="tc-biz-056"></a>
+
+## TC-BIZ-056 任务控制双实例隔离与恢复
+
+**阶段：** M4；**优先级：** P0；**层级：** host；**方式：** 混合；**执行策略：** 不付费。
+
+**功能：** [F-BIZ-048](FEATURE_MATRIX.md#f-biz-048)
+
+**用例：** [UC-BIZ-019](USE_CASES.md#uc-biz-019)
+
+**真实模型白名单：** 无；本用例使用无模型调用的测试方法。
+
+**夹具：** 隔离 ComfyUI 双生成入口，假服务任务。
+
+**准备**
+
+- 实例 A/B 各有独立任务集合。
+
+**步骤**
+
+1. 暂停 A，确认 B 继续。
+2. 刷新或重开后继续 A。
+3. 重启已完成任务并核对不同 requestId。
+
+**可判断的期望**
+
+- B 的运行任务不被 A 的暂停取消。
+- 重开后 A 仍为暂停直至显式继续。
+- 重启保留旧结果。
+
+**旧测试复用候选：** [business:web/table_generation_tasks.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/table_generation_tasks.mjs)
+
+<a id="tc-biz-057"></a>
+
+## TC-BIZ-057 单任务百分比与成组完成计数切换
+
+**阶段：** M4；**优先级：** P0；**层级：** contract；**方式：** 自动；**执行策略：** 不付费。
+
+**功能：** [F-BIZ-049](FEATURE_MATRIX.md#f-biz-049)
+
+**用例：** [UC-BIZ-020](USE_CASES.md#uc-biz-020)
+
+**真实模型白名单：** 无；本用例使用无模型调用的测试方法。
+
+**夹具：** 任务快照替身：单 requestId 带真实进度；两任务批次；无进度单任务。
+
+**准备**
+
+- 禁止用时间或动画合成百分比。
+
+**步骤**
+
+1. 发布单任务真实进度；发布两任务批次；发布无进度单任务。
+2. 在新尝试开始后注入旧尝试迟到进度。
+
+**可判断的期望**
+
+- 单任务显示数字与百分号；两任务只显示总数和已完成数，无百分比圆环。
+- 无真实进度时为不确定状态，排队不显示 0%。
+- 迟到旧尝试进度不覆盖新尝试。
+
+**旧测试复用候选：** [business:web/task_snapshots.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/task_snapshots.mjs)；[business:tests/task_snapshots.test.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/tests/task_snapshots.test.mjs)
+
 <a id="tc-sys-001"></a>
 
 ## TC-SYS-001 仅新包的最小安装
@@ -4240,5 +4534,66 @@
 - 基础 44 次推理保留完整证据；如两版都配置 8 步 LoRA，另加三模式成对共 6 次。
 - 关键维度新版中位数不低于旧版，可用旧样例新版不低于 3 分；非关键下降 1 分或总体均分下降超过 0.25 阻塞；匹配环境后耗时增长超过 15% 或内存超过 10% 阻塞。
 - M4 仅覆盖本地模型、回填和恢复；分镜到剪辑导出完整流程由 M5 的 TC-SYS-032 承接。
+
+**旧测试复用候选：** 无；迁移实施时建立。
+
+<a id="tc-sys-037"></a>
+
+## TC-SYS-037 生成、LLM 与表格共用模型目录投影
+
+**阶段：** M4；**优先级：** P0；**层级：** contract；**方式：** 自动；**执行策略：** 不付费。
+
+**功能：** [F-SYS-022](FEATURE_MATRIX.md#f-sys-022)
+
+**用例：** [UC-SYS-012](USE_CASES.md#uc-sys-012)
+
+**真实模型白名单：** 无；本用例使用无模型调用的测试方法。
+
+**夹具：** 合成提供方清单：本地图片、本地视频、Qwen、已配置 DeepSeek。
+
+**准备**
+
+- DeepSeek 适配为非计费探测或待验证，禁止真实 HTTP 计费。
+
+**步骤**
+
+1. 发布目录后分别读取三个消费入口。
+2. 删除一个逻辑模型后再发布。
+
+**可判断的期望**
+
+- 三入口看到同一 ID 集合与能力快照。
+- 已保存缺失 ID 保留且不可用，不替换为其他模型。
+
+**旧测试复用候选：** [business:web/llm_io_model.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/llm_io_model.mjs)
+
+<a id="tc-sys-038"></a>
+
+## TC-SYS-038 模型选项隐式状态且不展示检测错误
+
+**阶段：** M4；**优先级：** P1；**层级：** host；**方式：** 混合；**执行策略：** 不付费。
+
+**功能：** [F-SYS-023](FEATURE_MATRIX.md#f-sys-023)
+
+**用例：** [UC-SYS-013](USE_CASES.md#uc-sys-013)
+
+**真实模型白名单：** 无；本用例使用无模型调用的测试方法。
+
+**夹具：** 隔离宿主中的生成与 LLM 模型选择器。
+
+**准备**
+
+- 注入可用、检测中、不可用选项及一条检测失败日志。
+
+**步骤**
+
+1. 打开两处模型菜单。
+2. 尝试点选不可用项。
+3. 检查 Toast 与菜单文本。
+
+**可判断的期望**
+
+- 视觉符合置灰、圆环、默认三类，无常驻错误 Tag。
+- 菜单和 Toast 不含底层检测错误；原因仅在日志。
 
 **旧测试复用候选：** 无；迁移实施时建立。

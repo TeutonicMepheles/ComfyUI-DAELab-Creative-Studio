@@ -1,5 +1,7 @@
 import {optimizationTaskSnapshots,trackTaskCompletion} from '../generation/task_snapshots.mjs';
-import {canonical,OptimizationRevisions,freezeSnapshot,matchesSnapshot,restoreSuggestion,applySuggestions,appliedSuggestionStatus,inspectTarget,displaySuggestion,NAMESPACE,optimizationProvider,OPTIMIZATION_MODELS} from './prompt_optimization_model.mjs';
+import {canonical,OptimizationRevisions,freezeSnapshot,matchesSnapshot,restoreSuggestion,applySuggestions,appliedSuggestionStatus,inspectTarget,displaySuggestion,NAMESPACE,optimizationProvider} from './prompt_optimization_model.mjs';
+import {getModelCatalog} from '../models/model_catalog.mjs';
+import {canSubmitModel} from '../models/model_catalog_ui.mjs';
 import {createPromptOptimizationApi} from './prompt_optimization_api.mjs';
 import {createOptimizationComposer,createOptimizationSourceView} from './prompt_optimization_composer.mjs';
 import {createSettingsPopover} from './table_prompt_settings.mjs';
@@ -14,7 +16,9 @@ export function createOptimizationController({getTable,identity,revisions,persis
  const listeners=new Set(),items=new Map();
  let blockingOperations=0,estimateEpoch=null,capabilityEpoch=0,submissionIntent=null,missingBatch=false;
  const operations=new Map();
- const state={scope,fieldId,recordId,requirements:preferences.requirements||'',model:preferences.model||'qwen3.5:9b-q4_K_M',models:[],range:{total:0,processable:0,skipped:[]},quote:null,busy:false,error:'',rows:[],batchId:null,permissions:{},deepseekKeyConfigured:false,pageDeepSeekKeyConfigured:false};
+ const modelCatalog=getModelCatalog();
+ const initialModels=modelCatalog.snapshot({family:'optimization'});
+ const state={scope,fieldId,recordId,requirements:preferences.requirements||'',model:preferences.model||(initialModels.find(model=>model.provider==='qwen'&&model.selectable)||initialModels.find(model=>model.selectable))?.id||'',models:initialModels,range:{total:0,processable:0,skipped:[]},quote:null,busy:false,error:'',rows:[],batchId:null,permissions:{},deepseekKeyConfigured:false,pageDeepSeekKeyConfigured:false};
  const batchProvider=()=>optimizationProvider(batch?.rows?.[0]?.snapshot?.model||state.model);
  const providerLocked=()=>missingBatch||blockingOperations>0||[...items.values()].some(i=>activeStatuses.has(i.status)||['queued','preparing'].includes(i.status));
  const unknownIds=()=> (state.unknownRequests||[]).map(r=>r.requestId);
@@ -38,7 +42,8 @@ export function createOptimizationController({getTable,identity,revisions,persis
   const resumable=[...items.values()].some(i=>['queued','preparing','stopped'].includes(i.status));
   const quoteValid=state.quote?.status==='ready'&&state.quote.expiresAt>Date.now();
   state.continuationReady=Boolean(quoteValid&&state.quote.quoteId===continuationQuoteId&&state.quote.quoteId!==batch?.quoteId);
-  state.permissions={canChangeProvider:!providerLocked(),canEstimate:!missingBatch&&!state.busy&&!inFlight&&!queued,canSubmit:!missingBatch&&!state.busy&&quoteValid&&prepared.length>0&&!inFlight&&!queued&&isActive()&&!state.deepseekKeyRequired,canStop:!!batch&&(inFlight||queued)&&!batch.stopped,canContinue:!!batch&&!inFlight&&resumable&&(requiresContinue||batch.paused||batch.stopped)&&isActive(),canRecover:!!state.batchId,canFence:missingBatch&&submissionIntent?.batchId===state.batchId&&(submissionIntent.references||submissionIntent.rows).every(row=>row.source),canApplyAll:state.rows.some(i=>i.canApply)};
+    const modelControls=modelCatalog.get(state.model)?.capability?.control;
+    state.permissions={canChangeProvider:!providerLocked(),canEstimate:!missingBatch&&!state.busy&&!inFlight&&!queued,canSubmit:!missingBatch&&!state.busy&&quoteValid&&prepared.length>0&&!inFlight&&!queued&&isActive()&&!state.deepseekKeyRequired&&canSubmitModel(modelCatalog.get(state.model)),canStop:!!batch&&(inFlight||queued)&&!batch.stopped,canInterrupt:!!batch&&(inFlight||queued)&&!batch.stopped&&(modelControls?.interrupt===true||modelControls?.cancel===true),canContinue:!!batch&&!inFlight&&resumable&&(requiresContinue||batch.paused||batch.stopped)&&isActive(),canRecover:!!state.batchId,canFence:missingBatch&&submissionIntent?.batchId===state.batchId&&(submissionIntent.references||submissionIntent.rows).every(row=>row.source),canApplyAll:state.rows.some(i=>i.canApply)};
   for(const listener of listeners)listener(state);
  }
  async function operation(fn,name='processing'){if(dead)return;const token={};operations.set(token,name);blockingOperations++;state.error='';update();try{return await fn();}catch(e){state.error=e.message||String(e);}finally{operations.delete(token);blockingOperations--;update();}}
@@ -141,13 +146,18 @@ export function createOptimizationController({getTable,identity,revisions,persis
  function apply(ids){return operation(()=>{if(!isActive())throw new Error('当前模式不可应用');const selected=[...items.values()].filter(i=>ids.includes(i.requestId));if(edits&&selected.some(item=>!item.editTicket||!edits.can(item.editTicket)))throw new Error('输入或工作流已变化，建议只供查看');const result=applySuggestions({table:getTable(),identity,revisions,items:selected,change:edits?update=>edits.apply(selected.map(item=>item.editTicket),update,selected.map(item=>({requestId:item.requestId,batchId:state.batchId,...item.frozen.wire.target}))):change});for(const id of result.applied)items.get(id).applied=true;if(result.applied.length)onApplied(state.batchId,result.applied);state.error=result.conflicts.map(c=>c.reason).join('；');observe();return result;},'apply');}
  function setModel(id){
   if(providerLocked()){state.error='任务进行中，请先停止剩余行再切换服务或模型';update();return false;}
-  state.draftActive=true;state.model=id;state.quote=null;releasePrepared();continuationQuoteId=null;epoch++;state.error='';
+  if(!canSubmitModel(modelCatalog.get(id))){state.error='模型不可用，请重新检测。';update();return false;}
+    state.draftActive=true;state.model=id;state.quote=null;releasePrepared();continuationQuoteId=null;epoch++;state.error='';
   onPreferences({model:id,requirements:state.requirements});update();void loadCapabilities();return true;
  }
- const controller={getState:()=>state,subscribe(fn){listeners.add(fn);fn(state);return()=>listeners.delete(fn);},setRequirements(text){if(providerLocked())return false;state.draftActive=true;state.requirements=text;onPreferences({model:state.model,requirements:text});state.quote=null;epoch++;update();return true;},setModel,
- setProvider(provider){return setModel(provider==='qwen'?'qwen3.5:9b-q4_K_M':provider==='deepseek'?'deepseek-flash':'gpt-4.1-mini');},
+ const controller={getState:()=>state,subscribe(fn){listeners.add(fn);fn(state);return()=>listeners.delete(fn);},setRequirements(text){if(providerLocked())return false;state.draftActive=true;state.requirements=text;onPreferences({model:state.model,requirements:text});state.quote=null;epoch++;update();return true;},setModel,refreshModels:()=>loadCapabilities(true),
+ setProvider(provider){
+  const models=modelCatalog.snapshot({family:'optimization'}),selected=models.find(model=>model.provider===provider&&model.selectable)||models.find(model=>model.provider===provider);
+  if(!selected){state.error='该服务提供方没有已声明的模型。';update();return false;}
+  return setModel(selected.id);
+ },
  setDeepSeekKey(value){const configured=Boolean(api.setDeepSeekKey?.(value));state.error='';update();return configured;},
- clearDeepSeekKey(){api.clearDeepSeekKey?.();update();return false;},restoreIntent(value){if(dead||submissionIntent)return;submissionIntent=structuredClone(value);state.batchId=value.batchId;missingBatch=true;update();},estimate,submit,fenceOriginalBatch,stop:()=>operation(async()=>{requiresContinue=true;await controlLease();ingest(await api.stop({batchId:state.batchId,leaseId:lease.leaseId}));},'stop'),recover,continue:()=>operation(async()=>{
+ clearDeepSeekKey(){api.clearDeepSeekKey?.();update();return false;},restoreIntent(value){if(dead||submissionIntent)return;submissionIntent=structuredClone(value);state.batchId=value.batchId;missingBatch=true;update();},estimate,submit,fenceOriginalBatch,stop:()=>operation(async()=>{requiresContinue=true;await controlLease();ingest(await api.stop({batchId:state.batchId,leaseId:lease.leaseId}));},'stop'),interrupt:()=>operation(async()=>{requiresContinue=true;await controlLease();ingest(await api.interrupt({batchId:state.batchId,leaseId:lease.leaseId}));},'interrupt'),recover,continue:()=>operation(async()=>{
   const life=lifecycle;
   if(!state.quote||state.quote.status!=='ready'||state.quote.quoteId!==continuationQuoteId||state.quote.expiresAt<=Date.now()||state.quote.quoteId===batch.quoteId){
    prepared=[];
@@ -163,12 +173,16 @@ export function createOptimizationController({getTable,identity,revisions,persis
   if(unknown.length&&!acknowledgeUnknown){state.error='原请求结果未知，可能已产生费用；请明确确认新请求可能重复收费。';update();return;}
   acknowledgeUnknownRequestIds=unknown.map(i=>i.requestId);return estimate();
  },apply:id=>apply([id]),applyAll:()=>apply(state.rows.filter(r=>r.canApply).map(r=>r.requestId)),observe,pause(){requiresContinue=true;lifecycle++;update();},destroy(){submissionIntent=null;dead=true;epoch++;clearTimeout(timer);unsubscribeKey?.();for(const item of [...items.values(),...prepared])if(item.editTicket)edits?.release(item.editTicket);listeners.clear();}};
- const unsubscribeKey=api.subscribeDeepSeekKey?.(()=>update());
- async function loadCapabilities(){
+  const unsubscribeKey=api.subscribeDeepSeekKey?.(()=>{modelCatalog.invalidate({family:'optimization',provider:'deepseek'});void loadCapabilities(true);update();});
+async function loadCapabilities(force=false){
   const c=++capabilityEpoch,model=state.model;
-  try{const caps=await api.capabilities({model});if(dead||c!==capabilityEpoch||model!==state.model)return;
-   state.models=(caps.models||[]).map(m=>typeof m==='string'?{id:m,label:m,provider:optimizationProvider(m)}:{...m,provider:m.provider||optimizationProvider(m.id)});state.deepseekKeyConfigured=Boolean(caps.deepseekKeyConfigured);if(!caps.available)state.error=caps.reason||'当前服务暂不可用';
-  }catch(error){if(!dead&&c===capabilityEpoch&&model===state.model)state.error=error.message||String(error);}
+  try{
+   const caps=await api.capabilities({model}),selected=caps.models?.find(item=>item.id===model);
+   modelCatalog.record(model,{...caps,...selected,available:selected?.available??caps.available===true,provider:selected?.provider||optimizationProvider(model)});
+   if(dead||c!==capabilityEpoch||model!==state.model)return;
+   const current=modelCatalog.get(model);
+   state.models=modelCatalog.snapshot({family:'optimization'});state.deepseekKeyConfigured=Boolean(current?.capability?.deepseekKeyConfigured);if(!canSubmitModel(current))state.error='模型不可用，请重新检测。';
+  }catch{ if(!dead&&c===capabilityEpoch&&model===state.model){modelCatalog.markUnavailable(model,'model_probe_failed');state.error='模型不可用，请重新检测。';}}
   finally{if(!dead&&c===capabilityEpoch&&model===state.model)update();}
  }
  update();void loadCapabilities();
@@ -183,7 +197,11 @@ export function attachPromptOptimization({node,graph,editor,getTable,identity,fe
  const references=new Map((getTable().meta?.studioOptimizationRequests||[]).map(ref=>[ref.batchId,{...ref,...ref.range}])),persist=()=>{};
  const api=createPromptOptimizationApi({fetchApi});const controllers=new Map(),instanceId=uuid();let dead=false,popover=null,view=null,visibilityTimer=null,hasAttemptedController=false;
  const preferences=()=>getTable().meta?.studioOptimizationPreferences||saved().preferences||{};
- const defaultModel=()=>OPTIMIZATION_MODELS.some(model=>model.id===preferences().model)?preferences().model:'qwen3.5:9b-q4_K_M';
+ const defaultModel=()=>{
+  const models=getModelCatalog().snapshot({family:'optimization'}),preferred=preferences().model;
+  if(models.some(model=>model.id===preferred))return preferred;
+  return (models.find(model=>model.provider==='qwen'&&model.selectable)||models.find(model=>model.selectable)||models[0])?.id||'';
+ };
  const edits={begin:(target,id)=>{if(!editor.nativeDocument)throw new Error('原生编辑会话尚未就绪');return editor.beginAsync(target,id);},can:ticket=>editor.canAsync(ticket),release:ticket=>editor.releaseAsync(ticket),apply(tickets,update,refs){
   if(editor.applyAsync(tickets,table=>{const before=structuredClone(table);update(table);for(const ref of refs){const row=table.records.find(row=>row.id===ref.recordId),old=before.records.find(row=>row.id===ref.recordId);if(row&&JSON.stringify(row.values[ref.fieldId])!==JSON.stringify(old?.values[ref.fieldId])){row.meta||={};row.meta.studioOptimizationResults||={};row.meta.studioOptimizationResults[ref.fieldId]={requestId:ref.requestId,batchId:ref.batchId};}}})===false)throw new Error('输入或工作流已变化，建议未应用');
  }};

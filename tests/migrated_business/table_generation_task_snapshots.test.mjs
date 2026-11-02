@@ -2,8 +2,25 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {bindBusinessService} from '../../frontend/src/contracts/business.js';
 import {attachGenerationTasks} from '../../frontend/src/features/generation/table_generation_tasks.mjs';
+import {generationTaskSnapshots} from '../../frontend/src/features/generation/task_snapshots.mjs';
 
 const clone = globalThis.structuredClone.bind(globalThis);
+test('grouped task scope hides numeric progress and counts only verified success in the submitted group',()=>{
+ const field={id:'image',presentation:'generation',generation:{kind:'image'}},source={createdAt:10,groupCount:2};
+ const table={fields:[field],records:[
+  {id:'a',meta:{generationColumns:{image:{requestId:'a',phase:'running',source,groupIndex:0}}}},
+  {id:'b',meta:{generationColumns:{image:{requestId:'b',phase:'running',source,groupIndex:1}}}},
+ ]},live=new Map([
+  ['a',{requestId:'a',phase:'running',stage:'generating',progress:40,source}],
+  ['b',{requestId:'b',phase:'running',stage:'generating',progress:20,source}],
+ ]);
+ const task=generationTaskSnapshots(table,live)[0];
+ assert.equal(task.total,2);assert.equal(task.done,0);assert.equal(task.progress,undefined);
+ assert.match(task.detail,/处理中 2\/2/);
+ live.set('a',{requestId:'a',phase:'complete',source,result:{url:'/view?filename=a.png&type=output'}});
+ const updated=generationTaskSnapshots(table,live)[0];
+ assert.equal(updated.done,1);assert.equal(updated.total,2);assert.equal(updated.progress,undefined);
+});
 function tableFixture(label='A') {
  return {version:1,fields:[{id:'content',type:'content',generation:{kind:'image'},unknown:{keep:label}}],records:[{
   id:'row',values:{content:label,deletedField:{unknown:[label,1]}},meta:{unknown:{keep:label},

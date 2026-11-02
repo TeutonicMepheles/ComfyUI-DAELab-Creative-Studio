@@ -13,7 +13,7 @@ import {bindCreativeField} from '../ui/creative_field.mjs';
 import {createAssetLibrary} from '../features/assets/asset_library.mjs?v=20261022-favorite1';
 import {registerAsset} from '../application/asset_library_service.js';
 import {assetURL} from '../features/assets/media_upload_model.mjs';
-import {connectedOutputNode,outputPosition} from './creative_output.mjs';
+import {connectedOutputNode,connectTableOutput,outputPosition} from './creative_output.mjs';
 import {createCreativeButton,bindCreativeButton} from '../ui/creative_button.mjs';
 import {canvasState,cardState,supportedNode,workspaceNode,cardWidth,zoomAt,socketCompatible,graphLinks} from './creative_canvas_model.mjs?v=20260929-layout1';
 
@@ -330,31 +330,59 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         const ownerGraph=graph,ownerState=state,created=[];
         try{
             const snapshot=snapshotFor(context);
-            if(!snapshot||snapshot.ready===false||!snapshot.assets?.length)throw new Error('当前没有有效的已完成素材');
+            if(!snapshot||snapshot.ready===false||(!snapshot.assets?.length&&!snapshot.texts?.length))throw new Error('当前没有有效素材');
             const frozen=JSON.parse(JSON.stringify(snapshot)),stamp=JSON.stringify(snapshot);
-            if(frozen.groups&&(!Array.isArray(frozen.groups)||frozen.groups.some(g=>!Number.isInteger(g.count)||g.count<1)||frozen.groups.reduce((sum,g)=>sum+g.count,0)!==frozen.assets.length))throw new Error('素材分组数量不一致');
-            message('正在引用本地素材…');
-            const response=await fetch('/daelab/creative/material-output',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({assets:frozen.assets,source:{operation:'material-output',documentId:String(graph.id||'unsaved'),nodeId:String(context.node.id)}})});
-            const data=await response.json();if(!response.ok)throw new Error(data.error||'素材导入失败');
+            const sections=frozen.outputGroups||['text','image','video'].flatMap(kind=>{
+                const assetIndexes=frozen.assets.map((asset,index)=>[asset,index]).filter(([asset])=>asset.kind===kind).map(([,index])=>index);
+                const textIndexes=kind==='text'?frozen.texts.map((_,index)=>index):[],count=assetIndexes.length+textIndexes.length;
+                return count?[{kind,label:`${frozen.label||'素材'} · ${kind==='text'?'文本':kind==='image'?'图片':'视频'}`,count,assetIndexes,textIndexes}]:[];
+            });
+            if(!Array.isArray(sections)||sections.some(section=>!['text','image','video'].includes(section.kind)||!Number.isInteger(section.count)||section.count<1||!Array.isArray(section.assetIndexes)||!Array.isArray(section.textIndexes)||section.count!==section.assetIndexes.length+section.textIndexes.length))throw new Error('素材分组数量不一致');
+            if(sections.reduce((sum,section)=>sum+section.count,0)!==frozen.assets.length+frozen.texts.length)throw new Error('素材分组数量不一致');
+            if(sections.some(section=>section.assetIndexes.some(index=>!Number.isInteger(index)||index<0||index>=frozen.assets.length)||section.textIndexes.some(index=>!Number.isInteger(index)||index<0||index>=frozen.texts.length)))throw new Error('素材分组索引无效');
+            let imported=[],importedSkipped=0;
+            if(frozen.assets.length){
+                message('正在引用本地素材…');
+                const response=await fetch('/daelab/creative/material-output',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({assets:frozen.assets,source:{operation:'material-output',documentId:String(graph.id||'unsaved'),nodeId:String(context.node.id)}})});
+                const data=await response.json();if(!response.ok)throw new Error(data.error||'素材导入失败');
+                imported=data.assets;importedSkipped=Number.isInteger(data.skipped)?data.skipped:0;
+            }
             if(!visible||graph!==ownerGraph||host.graph()!==ownerGraph||state!==ownerState||!validConnection(context)||JSON.stringify(snapshotFor(context))!==stamp)throw new Error('来源或结果已变化，请重新输出');
-            if(!Array.isArray(data.assets)||data.assets.length!==frozen.assets.length)throw new Error('素材导入数量不一致');
-            history.begin();
+            if(!Array.isArray(imported)||importedSkipped<0||imported.length+importedSkipped!==frozen.assets.length)throw new Error('素材导入数量不一致');
+            const importedByIndex=new Map(imported.map((asset,index)=>[Number.isInteger(asset?.sourceIndex)?asset.sourceIndex:importedSkipped?NaN:index,asset]));
+            if(importedByIndex.size!==imported.length||[...importedByIndex.keys()].some(index=>!Number.isInteger(index)||index<0||index>=frozen.assets.length))throw new Error('素材导入索引无效');
+            if(!host.nodeDefinition('DAELAB.TextInput')||!host.nodeDefinition(GROUP_TYPE))throw new Error('文本或素材组节点未加载');
+            history.begin();let materialized=0;
             try{
-                let offset=0;
-                for(const [index,section] of (frozen.groups||[{label:frozen.label,count:data.assets.length}]).entries()){
+                for(const [index,section] of sections.entries()){
                     const origin={x:point.x+index*800*state.viewport.zoom,y:point.y},members=[];
-                    for(const [i,asset] of data.assets.slice(offset,offset+section.count).entries()){
-                        const node=createNode(UPLOAD_TYPE,{x:origin.x+(i%3)*300*state.viewport.zoom,y:origin.y+Math.floor(i/3)*240*state.viewport.zoom});if(!node)throw new Error('素材节点未加载');created.push(node);members.push(node.id);
-                        const widget=node.widgets?.find(w=>w.name==='asset_data');if(!widget)throw new Error('素材节点格式不兼容');widget.value=JSON.stringify(asset);node.title=asset.name;node.properties.materialOutputSource={nodeId:String(context.node.id),key:context.materialKey??null,...asset.provenance};node.__mediaUpload?.reload?.();
+                    for(const textIndex of section.textIndexes){
+                        const node=createNode('DAELAB.TextInput',{x:origin.x+(members.length%2)*356*state.viewport.zoom,y:origin.y+Math.floor(members.length/2)*260*state.viewport.zoom});if(!node)throw new Error('文本节点未加载');created.push(node);members.push(node.id);
+                        const widget=node.widgets?.find(item=>item.name==='text');if(!widget)throw new Error('文本节点格式不兼容');widget.value=frozen.texts[textIndex];widget.callback?.(widget.value);node.title=`${section.label} · ${members.length}`;adapterFor(node)?.refresh?.(node);
                     }
-                    offset+=section.count;
-                    if(frozen.groups||context.materialKey!==undefined||frozen.assets.length>1){const group=createNode(GROUP_TYPE,origin);if(!group)throw new Error('素材组节点未加载');created.push(group);group.title=section.label||context.node.title+' · 输出';group.properties.members=members;group.properties.collapsed=false;const collection=group.widgets?.find(w=>w.name==='collection_data');if(collection)collection.value=JSON.stringify(collectionFor(group));}
+                    for(const [assetIndex,asset] of section.assetIndexes.map(assetIndex=>[assetIndex,importedByIndex.get(assetIndex)]).filter(([,asset])=>asset)){
+                        const i=members.length;
+                        const node=createNode(UPLOAD_TYPE,{x:origin.x+(i%3)*300*state.viewport.zoom,y:origin.y+Math.floor(i/3)*240*state.viewport.zoom});if(!node)throw new Error('素材节点未加载');created.push(node);members.push(node.id);
+                        const widget=node.widgets?.find(w=>w.name==='asset_data');if(!widget)throw new Error('素材节点格式不兼容');widget.value=JSON.stringify(asset);node.title=asset.name;node.properties.materialOutputSource={nodeId:String(context.node.id),key:context.materialKey??null,kind:section.kind,assetIndex,...frozen.assets[assetIndex]?.provenance};node.__mediaUpload?.reload?.();
+                    }
+                    if(!members.length)continue;materialized+=members.length;
+                    const group=createNode(GROUP_TYPE,origin);if(!group)throw new Error('素材组节点未加载');created.push(group);group.title=section.label||context.node.title+' · 输出';group.properties={...group.properties,members,materialType:section.kind,materialOutputSource:{nodeId:String(context.node.id),key:context.materialKey??null,kind:section.kind,scope:frozen.scope,fieldId:frozen.fieldId,...(frozen.recordId==null?{}:{recordId:frozen.recordId})}};group.properties.collapsed=false;
+                    if(!connectTableOutput(context.node,group))throw new Error('无法建立表格到素材组的持久连线');
+                    const collection=group.widgets?.find(w=>w.name==='collection_data');if(collection)collection.value=JSON.stringify(collectionFor(group));
                 }
             }catch(error){for(const node of created){host.removeNode(graph,node);delete state.cards[node.id];}throw error;}
             finally{dirty();sync();if(created.length&&graph.getNodeById(created.at(-1).id))select(created.at(-1));host.tickGroups();dirty();history.end();}
-            root.focus({preventScroll:true});message(`已输出 ${data.assets.length} 个素材${frozen.skipped?'，跳过 '+frozen.skipped+' 行':''}`);
+            root.focus({preventScroll:true});message(`已输出 ${materialized} 项素材${frozen.skipped+importedSkipped?'，跳过 '+(frozen.skipped+importedSkipped)+' 项':''}${frozen.deduplicated?'，去重 '+frozen.deduplicated+' 项':''}`);
         }catch(error){message('输出失败：'+error.message);}finally{outputPending.delete(context.node);}
     }
+    function tableOutput(e){
+        const card=e.target.closest?.('.dae-creative-card'),node=card&&cards.get(card.dataset.nodeId)?.node,key=e.detail?.key;
+        if(!node||!key||!visible||graph!==host.graph()||graph.getNodeById(node.id)!==node)return;
+        e.stopPropagation();
+        const r=root.getBoundingClientRect(),anchor=e.target.getBoundingClientRect();
+        void outputMaterials({node,side:'output',materialKey:key,element:e.target,index:MATERIAL_SLOT,tableOutput:true},{x:anchor.right-r.left+40,y:anchor.top-r.top});
+    }
+    root.addEventListener('dae-table-output',tableOutput);
     function nativeFields(c){
         // Parameters left outside ComfyTV's rich widget still need editable controls.
         c.fields.replaceChildren();c.fieldBindings=[];
@@ -658,7 +686,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
     }
     function setWireSource(port){if(wireSource===port)return;if(wireSource)delete wireSource.dataset.wireSource;wireSource=port;if(port)port.dataset.wireSource='true';}
     function closePicker(){setWireSource(null);picker?.remove();picker=null;pickerConnection=null;addPoint=null;wires.querySelector('[data-preview]')?.remove();}
-    function validConnection(context){if(context.itemKey!==undefined)return visible&&graph===host.graph()&&graph.getNodeById(context.node.id)===context.node&&!context.node.mode&&!!adapterFor(context.node)?.materialItem;if(context.materialKey!==undefined)return graph===host.graph()&&graph.getNodeById(context.node.id)===context.node&&(adapterFor(context.node)?.materialSources?.(context.node)||[]).some(s=>s.key===context.materialKey&&s.element.isConnected);return graph===host.graph()&&graph.getNodeById(context.node.id)===context.node&&(context.index===MATERIAL_SLOT?(context.node.type!==UPLOAD_TYPE||uploadKind(context.node)===context.mediaKind):context.node[context.side==='output'?'outputs':'inputs']?.[context.index]===context.slot);}
+    function validConnection(context){if(context.itemKey!==undefined)return visible&&graph===host.graph()&&graph.getNodeById(context.node.id)===context.node&&!context.node.mode&&!!adapterFor(context.node)?.materialItem;if(context.tableOutput)return graph===host.graph()&&graph.getNodeById(context.node.id)===context.node&&!context.node.mode&&!!adapterFor(context.node)?.outputMaterials;if(context.materialKey!==undefined)return graph===host.graph()&&graph.getNodeById(context.node.id)===context.node&&(adapterFor(context.node)?.materialSources?.(context.node)||[]).some(s=>s.key===context.materialKey&&s.element.isConnected);return graph===host.graph()&&graph.getNodeById(context.node.id)===context.node&&(context.index===MATERIAL_SLOT?(context.node.type!==UPLOAD_TYPE||uploadKind(context.node)===context.mediaKind):context.node[context.side==='output'?'outputs':'inputs']?.[context.index]===context.slot);}
     function previewConnection(context,point){
         const c=cards.get(context.node.id),port=context.element||c?.ports.querySelector(`[data-side=${context.side}][data-slot="${context.index}"]`);if(!port)return;setWireSource(port);
         let path=wires.querySelector('[data-preview]');if(!path){path=document.createElementNS(wires.namespaceURI,'path');path.dataset.preview='true';wires.append(path);}
@@ -1001,5 +1029,5 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
     function show(){graph=host.graph();state=canvasState(graph);state.active=true;visible=true;root.hidden=false;document.body.dataset.daelabCreative='true';viewport();sync();dirty();}
     function hide(save=true){root.dispatchEvent(new Event('dae-canvas-hide'));if(save&&state){state.active=false;dirty();}visible=false;root.hidden=true;delete document.body.dataset.daelabCreative;clear();closePicker();host.redrawNative();}
     const timer=setInterval(sync,250);root.hidden=true;
-    return {root,show,hide,sync,syncPositions,add,fit,select,receiveMaterialGroup,previewMaterialDrop,get selectedIds(){return [...selected];},get active(){return visible;},destroy(){caretReveal.destroy();hide(false);assetLibrary.destroy();resizeObserver.disconnect();clearInterval(timer);root.remove();}};
+    return {root,show,hide,sync,syncPositions,add,fit,select,receiveMaterialGroup,previewMaterialDrop,get selectedIds(){return [...selected];},get active(){return visible;},destroy(){caretReveal.destroy();hide(false);assetLibrary.destroy();resizeObserver.disconnect();clearInterval(timer);root.removeEventListener('dae-table-output',tableOutput);root.remove();}};
 }

@@ -72,9 +72,14 @@ def routes(service):
             if not isinstance(ids, list) or not 1 <= len(ids) <= 500:
                 raise InvalidInput('Select between 1 and 500 task identities.')
             for value in ids:
-                await getattr(service, action)(value)
+                await (service.continue_task(value) if action == 'continue' else getattr(service, action)(value))
             return {'jobs': [await asyncio.to_thread(service.public, value) for value in ids]}
         return await guarded(run)
+
+    def control_handler(action):
+        async def handle(request):
+            return await control(request, action)
+        return handle
 
     async def recover(request):
         return await control(request, 'recover')
@@ -93,6 +98,15 @@ def routes(service):
             return {'jobs': [await service.retry_local(payload['requestId'], payload['newRequestId'])]}
         return await guarded(run)
 
+    async def restart(request):
+        async def run():
+            payload = await read_payload(request)
+            jobs = payload.get('jobs')
+            if not isinstance(jobs, list) or not 1 <= len(jobs) <= 500:
+                raise InvalidInput('Select between 1 and 500 restart targets.')
+            return {'jobs': [await service.restart(item['requestId'], item['newRequestId']) for item in jobs]}
+        return await guarded(run)
+
     async def reconcile_resource(request):
         async def run():
             if service.admission is None or not hasattr(service.admission, 'reconcile'):
@@ -104,6 +118,11 @@ def routes(service):
     async def capabilities(request):
         async def run():
             return await service.capabilities(request.query.get('model'))
+        return await guarded(run)
+
+    async def model_catalog(request):
+        async def run():
+            return service.model_catalog()
         return await guarded(run)
 
     async def polish(request):
@@ -157,15 +176,19 @@ def routes(service):
         return handle
 
     return [('GET', '/daelab/studio/generation/capabilities', capabilities),
+            ('GET', '/daelab/studio/generation/models', model_catalog),
             ('POST', '/daelab/studio/generation/submit', submit),
             ('POST', '/daelab/studio/generation/status', status),
             ('POST', '/daelab/studio/generation/recover', recover),
             ('POST', '/daelab/studio/generation/fence-unsubmitted', fence_unsubmitted),
             ('POST', '/daelab/studio/generation/cancel', cancel),
-            ('POST', '/daelab/studio/generation/pause', cancel),
+            ('POST', '/daelab/studio/generation/pause', control_handler('pause')),
+            ('POST', '/daelab/studio/generation/interrupt', control_handler('interrupt')),
+            ('POST', '/daelab/studio/generation/continue', control_handler('continue')),
+            ('POST', '/daelab/studio/generation/restart', restart),
             ('POST', '/daelab/studio/generation/retry-local', retry_local),
             ('POST', '/daelab/studio/generation/reconcile-resource', reconcile_resource),
             ('POST', '/daelab/studio/optimization/submit', submit),
             ('POST', '/daelab/prompt-optimization/polish', polish)] + [
             ('POST', '/daelab/prompt-optimization/' + action, optimization_handler(action))
-            for action in ('capabilities', 'estimate', 'lease', 'submit', 'query', 'recover', 'permit', 'advance', 'stop', 'continue', 'skip', 'fence')]
+            for action in ('capabilities', 'estimate', 'lease', 'submit', 'query', 'recover', 'permit', 'advance', 'stop', 'interrupt', 'continue', 'skip', 'fence')]

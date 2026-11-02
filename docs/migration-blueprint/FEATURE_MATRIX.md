@@ -2,7 +2,7 @@
 
 本文件由 `catalog/*.json` 生成；修改目录中的源数据后运行 `node docs/migration-blueprint/render_catalog.mjs --write`。不要单独修改生成表。
 
-共 118 项能力决策：保留 61 项，重构 41 项，不迁入 16 项，暂缓 0 项。功能条目按用户行为、兼容合同及产品基础能力计数，不等同于节点数量。当前事实来自固定源码；目标和验收均为新产品定义。
+共 126 项能力决策：保留 61 项，重构 49 项，不迁入 16 项，暂缓 0 项。功能条目按用户行为、兼容合同及产品基础能力计数，不等同于节点数量。当前事实来自固定源码；目标和验收均为新产品定义。
 
 保留表示保留成熟行为及实现，仍可进行模块接入；重构表示保留能力并重组实现；不迁入不等于删除用户旧数据。旧类型处置见 [78 个节点类型清单](NODE_INVENTORY.md)，总体顺序见 [迁移蓝图](BLUEPRINT.md)。
 
@@ -24,12 +24,12 @@
 | [F-CAN-012](FEATURE_MATRIX.md#f-can-012) | 复制粘贴、组成员和内部连接重映射 | 保留 | M2 | 1 | 1 |
 | [F-CAN-013](FEATURE_MATRIX.md#f-can-013) | 编辑事务、撤销重做与派生同步合并 | 重构 | M1 | 2 | 8 |
 | [F-CAN-014](FEATURE_MATRIX.md#f-can-014) | 原生工作流保存、载入与版本兼容 | 保留 | M6 | 2 | 3 |
-| [F-CAN-015](FEATURE_MATRIX.md#f-can-015) | 素材组创建、成员移入移出与顺序 | 保留 | M2 | 2 | 4 |
+| [F-CAN-015](FEATURE_MATRIX.md#f-can-015) | 素材组创建、成员移入移出与顺序 | 保留 | M2 | 3 | 4 |
 | [F-CAN-016](FEATURE_MATRIX.md#f-can-016) | 素材组布局、颜色、序号与紧凑展示 | 保留 | M2 | 1 | 1 |
 | [F-CAN-017](FEATURE_MATRIX.md#f-can-017) | 素材组锁定、收起、解散和删除 | 保留 | M2 | 1 | 1 |
 | [F-CAN-018](FEATURE_MATRIX.md#f-can-018) | 统一 Slot、类型校验、用途选择与磁吸 | 重构 | M2 | 2 | 2 |
 | [F-CAN-019](FEATURE_MATRIX.md#f-can-019) | 连线选择、删除、拖断与动画 | 保留 | M2 | 1 | 1 |
-| [F-CAN-020](FEATURE_MATRIX.md#f-can-020) | 有序素材/文本快照与真实类型输出 | 保留 | M2 | 6 | 6 |
+| [F-CAN-020](FEATURE_MATRIX.md#f-can-020) | 有序素材/文本快照与真实类型输出 | 保留 | M2 | 7 | 7 |
 | [F-CAN-021](FEATURE_MATRIX.md#f-can-021) | 素材向业务落点的一次性填充 | 保留 | M3 | 1 | 1 |
 | [F-CAN-022](FEATURE_MATRIX.md#f-can-022) | 生成结果输出为素材组与单素材拖出 | 保留 | M3 | 1 | 2 |
 | [F-CAN-023](FEATURE_MATRIX.md#f-can-023) | 面板借用、内容呈现、尺寸和公开上下文 | 重构 | M1 | 2 | 3 |
@@ -49,6 +49,7 @@
 | [F-CAN-037](FEATURE_MATRIX.md#f-can-037) | 大画布资源预算与离屏媒体治理 | 重构 | M2 | 1 | 2 |
 | [F-CAN-038](FEATURE_MATRIX.md#f-can-038) | 宿主 API 兼容层与能力/版本诊断 | 重构 | M1 | 2 | 4 |
 | [F-CAN-039](FEATURE_MATRIX.md#f-can-039) | 本地字体图标、资源校验与组件陈列 | 保留 | M1 | 3 | 1 |
+| [F-CAN-040](FEATURE_MATRIX.md#f-can-040) | 新素材组同类型成员约束 | 重构 | M2 | 2 | 2 |
 
 <a id="f-can-001"></a>
 
@@ -348,7 +349,7 @@
 - `AC-CAN-015-002` 不支持嵌套组时清楚拒绝，不能产生环或静默丢成员。
 - `AC-CAN-015-003` 单素材已有连线在打组后保留，除非用户显式建立组输入替代它。
 
-**关联：** [UC-CAN-003](USE_CASES.md#uc-can-003)、[UC-CAN-006](USE_CASES.md#uc-can-006)；[TC-CAN-010](TEST_CASES.md#tc-can-010)、[TC-CAN-012](TEST_CASES.md#tc-can-012)、[TC-CAN-013](TEST_CASES.md#tc-can-013)、[TC-CAN-016](TEST_CASES.md#tc-can-016)
+**关联：** [UC-CAN-003](USE_CASES.md#uc-can-003)、[UC-CAN-006](USE_CASES.md#uc-can-006)、[UC-CAN-015](USE_CASES.md#uc-can-015)；[TC-CAN-010](TEST_CASES.md#tc-can-010)、[TC-CAN-012](TEST_CASES.md#tc-can-012)、[TC-CAN-013](TEST_CASES.md#tc-can-013)、[TC-CAN-016](TEST_CASES.md#tc-can-016)
 
 <a id="f-can-016"></a>
 
@@ -448,7 +449,7 @@
 - `AC-CAN-020-002` ready:false 与空集合不同，未就绪不删除下游已有编辑。
 - `AC-CAN-020-003` 停用来源不提供可消费快照，原生执行类型与前端约束一致。
 
-**关联：** [UC-CAN-003](USE_CASES.md#uc-can-003)、[UC-CAN-004](USE_CASES.md#uc-can-004)、[UC-CAN-005](USE_CASES.md#uc-can-005)、[UC-CAN-006](USE_CASES.md#uc-can-006)、[UC-CAN-007](USE_CASES.md#uc-can-007)、[UC-CAN-010](USE_CASES.md#uc-can-010)；[TC-CAN-009](TEST_CASES.md#tc-can-009)、[TC-CAN-013](TEST_CASES.md#tc-can-013)、[TC-CAN-015](TEST_CASES.md#tc-can-015)、[TC-CAN-016](TEST_CASES.md#tc-can-016)、[TC-CAN-020](TEST_CASES.md#tc-can-020)、[TC-CAN-022](TEST_CASES.md#tc-can-022)
+**关联：** [UC-CAN-003](USE_CASES.md#uc-can-003)、[UC-CAN-004](USE_CASES.md#uc-can-004)、[UC-CAN-005](USE_CASES.md#uc-can-005)、[UC-CAN-006](USE_CASES.md#uc-can-006)、[UC-CAN-007](USE_CASES.md#uc-can-007)、[UC-CAN-010](USE_CASES.md#uc-can-010)、[UC-CAN-015](USE_CASES.md#uc-can-015)；[TC-CAN-009](TEST_CASES.md#tc-can-009)、[TC-CAN-013](TEST_CASES.md#tc-can-013)、[TC-CAN-015](TEST_CASES.md#tc-can-015)、[TC-CAN-016](TEST_CASES.md#tc-can-016)、[TC-CAN-020](TEST_CASES.md#tc-can-020)、[TC-CAN-022](TEST_CASES.md#tc-can-022)、[TC-CAN-047](TEST_CASES.md#tc-can-047)
 
 <a id="f-can-021"></a>
 
@@ -830,6 +831,26 @@
 
 **关联：** [UC-CAN-001](USE_CASES.md#uc-can-001)、[UC-CAN-013](USE_CASES.md#uc-can-013)、[UC-CAN-014](USE_CASES.md#uc-can-014)；[TC-CAN-043](TEST_CASES.md#tc-can-043)
 
+<a id="f-can-040"></a>
+
+### F-CAN-040 新素材组同类型成员约束
+
+**处置：重构；阶段：M2。** 现实现允许媒体与非空文字混合成组，并以 image-instructions 表达图片反推要求；mixed_group 测试保留该行为。
+
+**来源：** [canvas:web/material_group_model.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Canvas/blob/3176b5a67dbcd0b66f795976e5a81bcdfe346093/web/material_group_model.mjs)；[canvas:web/material_groups.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Canvas/blob/3176b5a67dbcd0b66f795976e5a81bcdfe346093/web/material_groups.mjs)；[canvas:docs/material-groups.md](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Canvas/blob/3176b5a67dbcd0b66f795976e5a81bcdfe346093/docs/material-groups.md)
+
+**新归属：** `frontend/src/features/groups`
+
+**理由：** 已确认产品规则要求新组只含文本、图片或视频中的同一类型；不迁入旧混合组改造。F-CAN-015 仍覆盖顺序、唯一性与嵌套拒绝。
+
+**验收：**
+
+- `AC-CAN-040-001` 当前选择全部为同一类型时允许打组；选择含两类及以上时打组不可用，不创建混合组。
+- `AC-CAN-040-002` 已有组只接收同类型成员；跨类型拖入或加入不改变组成员。
+- `AC-CAN-040-003` 图片与视频视为不同类型；不做旧混合组迁移或自动拆分。
+
+**关联：** [UC-CAN-015](USE_CASES.md#uc-can-015)、[UC-BIZ-018](USE_CASES.md#uc-biz-018)；[TC-CAN-046](TEST_CASES.md#tc-can-046)、[TC-CAN-047](TEST_CASES.md#tc-can-047)
+
 ## 表格分镜与生成能力
 
 | 编号 | 能力 | 处置 | 阶段 | 用例数 | 测试数 |
@@ -863,11 +884,11 @@
 | [F-BIZ-027](FEATURE_MATRIX.md#f-biz-027) | 本地 Qwen 图片生成 | 保留 | M4 | 2 | 4 |
 | [F-BIZ-028](FEATURE_MATRIX.md#f-biz-028) | 本地 MiniMax H3 文生、首帧、首尾帧视频 | 保留 | M4 | 2 | 4 |
 | [F-BIZ-029](FEATURE_MATRIX.md#f-biz-029) | 不可变输入快照、指纹与媒体冻结 | 保留 | M4 | 3 | 5 |
-| [F-BIZ-030](FEATURE_MATRIX.md#f-biz-030) | 统一持久任务账本与恢复状态机 | 重构 | M4 | 4 | 5 |
+| [F-BIZ-030](FEATURE_MATRIX.md#f-biz-030) | 统一持久任务账本与恢复状态机 | 重构 | M4 | 5 | 5 |
 | [F-BIZ-031](FEATURE_MATRIX.md#f-biz-031) | 原任务查询、结果下载恢复与结果完整性 | 重构 | M4 | 1 | 2 |
-| [F-BIZ-032](FEATURE_MATRIX.md#f-biz-032) | 暂停、停止后续提交与本地中断 | 保留 | M4 | 1 | 1 |
+| [F-BIZ-032](FEATURE_MATRIX.md#f-biz-032) | 暂停、停止后续提交与本地中断 | 保留 | M4 | 2 | 1 |
 | [F-BIZ-033](FEATURE_MATRIX.md#f-biz-033) | 结果写回、过期保护、历史结果与撤销隔离 | 保留 | M4 | 3 | 7 |
-| [F-BIZ-034](FEATURE_MATRIX.md#f-biz-034) | 任务进度、失败分类与节点汇总 | 重构 | M4 | 3 | 2 |
+| [F-BIZ-034](FEATURE_MATRIX.md#f-biz-034) | 任务进度、失败分类与节点汇总 | 重构 | M4 | 4 | 2 |
 | [F-BIZ-035](FEATURE_MATRIX.md#f-biz-035) | 云并发、本地串行与 GPU 资源协调 | 重构 | M4 | 2 | 4 |
 | [F-BIZ-036](FEATURE_MATRIX.md#f-biz-036) | 生成结果预览、素材组输出与再次引用 | 保留 | M5 | 1 | 1 |
 | [F-BIZ-037](FEATURE_MATRIX.md#f-biz-037) | 旧节点 ID、端口、工作流和记录兼容 | 重构 | M6 | 1 | 4 |
@@ -878,6 +899,11 @@
 | [F-BIZ-042](FEATURE_MATRIX.md#f-biz-042) | 原生生成节点输出与已完成结果读取 | 保留 | M4 | 1 | 2 |
 | [F-BIZ-043](FEATURE_MATRIX.md#f-biz-043) | LLM 优化节点的多源输入与审阅后输出 | 保留 | M3 | 1 | 1 |
 | [F-BIZ-044](FEATURE_MATRIX.md#f-biz-044) | 旧独立分镜生成与 LLM 样式原型的收敛 | 重构 | M6 | 1 | 1 |
+| [F-BIZ-045](FEATURE_MATRIX.md#f-biz-045) | 表内右键纵向操作菜单 | 重构 | M3 | 1 | 2 |
+| [F-BIZ-046](FEATURE_MATRIX.md#f-biz-046) | 单元格与按列输出为素材组并保留来源连线 | 重构 | M3 | 1 | 1 |
+| [F-BIZ-047](FEATURE_MATRIX.md#f-biz-047) | 列输出过滤、身份去重与按类型拆组 | 重构 | M3 | 1 | 2 |
+| [F-BIZ-048](FEATURE_MATRIX.md#f-biz-048) | 生成与优化任务的作用域暂停、打断、继续和重启 | 重构 | M4 | 1 | 2 |
+| [F-BIZ-049](FEATURE_MATRIX.md#f-biz-049) | 单任务真实进度与成组完成计数 | 重构 | M4 | 1 | 1 |
 
 <a id="f-biz-001"></a>
 
@@ -1448,7 +1474,7 @@
 - `AC-BIZ-030-001` 每个状态转移、请求和执行身份均可追踪；重启不重置防重依据。
 - `AC-BIZ-030-002` 提交响应未知独立于失败；没有可查询远端 ID 时禁止自动新提交。
 
-**关联：** [UC-BIZ-007](USE_CASES.md#uc-biz-007)、[UC-BIZ-011](USE_CASES.md#uc-biz-011)、[UC-BIZ-012](USE_CASES.md#uc-biz-012)、[UC-BIZ-015](USE_CASES.md#uc-biz-015)；[TC-BIZ-021](TEST_CASES.md#tc-biz-021)、[TC-BIZ-033](TEST_CASES.md#tc-biz-033)、[TC-BIZ-034](TEST_CASES.md#tc-biz-034)、[TC-BIZ-035](TEST_CASES.md#tc-biz-035)、[TC-BIZ-040](TEST_CASES.md#tc-biz-040)
+**关联：** [UC-BIZ-007](USE_CASES.md#uc-biz-007)、[UC-BIZ-011](USE_CASES.md#uc-biz-011)、[UC-BIZ-012](USE_CASES.md#uc-biz-012)、[UC-BIZ-015](USE_CASES.md#uc-biz-015)、[UC-BIZ-019](USE_CASES.md#uc-biz-019)；[TC-BIZ-021](TEST_CASES.md#tc-biz-021)、[TC-BIZ-033](TEST_CASES.md#tc-biz-033)、[TC-BIZ-034](TEST_CASES.md#tc-biz-034)、[TC-BIZ-035](TEST_CASES.md#tc-biz-035)、[TC-BIZ-040](TEST_CASES.md#tc-biz-040)
 
 <a id="f-biz-031"></a>
 
@@ -1486,7 +1512,7 @@
 - `AC-BIZ-032-001` 暂停只影响指定请求/批次；其他实例继续运行。
 - `AC-BIZ-032-002` 本地继续创建明确的新原生执行记录；云端恢复关联原执行。
 
-**关联：** [UC-BIZ-012](USE_CASES.md#uc-biz-012)；[TC-BIZ-037](TEST_CASES.md#tc-biz-037)
+**关联：** [UC-BIZ-012](USE_CASES.md#uc-biz-012)、[UC-BIZ-019](USE_CASES.md#uc-biz-019)；[TC-BIZ-037](TEST_CASES.md#tc-biz-037)
 
 <a id="f-biz-033"></a>
 
@@ -1524,7 +1550,7 @@
 - `AC-BIZ-034-001` 只有提供方报告百分比时显示百分比，其余显示阶段/计数。
 - `AC-BIZ-034-002` 完成/失败/跳过/过期分开；刷新历史成功不反复发完成通知。
 
-**关联：** [UC-BIZ-013](USE_CASES.md#uc-biz-013)、[UC-BIZ-014](USE_CASES.md#uc-biz-014)、[UC-BIZ-016](USE_CASES.md#uc-biz-016)；[TC-BIZ-039](TEST_CASES.md#tc-biz-039)、[TC-BIZ-045](TEST_CASES.md#tc-biz-045)
+**关联：** [UC-BIZ-013](USE_CASES.md#uc-biz-013)、[UC-BIZ-014](USE_CASES.md#uc-biz-014)、[UC-BIZ-016](USE_CASES.md#uc-biz-016)、[UC-BIZ-020](USE_CASES.md#uc-biz-020)；[TC-BIZ-039](TEST_CASES.md#tc-biz-039)、[TC-BIZ-045](TEST_CASES.md#tc-biz-045)
 
 <a id="f-biz-035"></a>
 
@@ -1716,6 +1742,106 @@
 
 **关联：** [UC-BIZ-015](USE_CASES.md#uc-biz-015)；[TC-BIZ-050](TEST_CASES.md#tc-biz-050)
 
+<a id="f-biz-045"></a>
+
+### F-BIZ-045 表内右键纵向操作菜单
+
+**处置：重构；阶段：M3。** 选中后创建横向 content-context 工具栏；右键仅对部分文本列进入优化菜单，无统一表内上下文菜单。
+
+**来源：** [business:web/data_table_editor.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/data_table_editor.mjs)；[canvas:docs/architecture/FRONTEND_INTERACTION.md](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Canvas/blob/3176b5a67dbcd0b66f795976e5a81bcdfe346093/docs/architecture/FRONTEND_INTERACTION.md)
+
+**新归属：** `frontend/src/features/table; frontend/src/application`
+
+**理由：** 已确认单元格、行头、列头左键只选择，右键打开纵向菜单；横向菜单仅用于节点级操作。
+
+**验收：**
+
+- `AC-BIZ-045-001` 左键选择单元格、行头或列头只更新焦点和选择，不自动打开操作菜单。
+- `AC-BIZ-045-002` 右键、Shift+F10 或键盘菜单键在指针或焦点对象打开纵向菜单；方向键移动、Enter 执行、Escape 关闭并归还焦点。
+- `AC-BIZ-045-003` 选项按逻辑分组，图标加文字、固定行高；菜单避开视口边缘且不被节点内容裁切。表内不再使用横向工具栏；素材组等节点横向菜单保持。
+
+**关联：** [UC-BIZ-017](USE_CASES.md#uc-biz-017)；[TC-BIZ-051](TEST_CASES.md#tc-biz-051)、[TC-BIZ-052](TEST_CASES.md#tc-biz-052)
+
+<a id="f-biz-046"></a>
+
+### F-BIZ-046 单元格与按列输出为素材组并保留来源连线
+
+**处置：重构；阶段：M3。** 列输出 Slot 可创建独立素材节点和组并保存来源属性，但没有持久的表格到素材组原生连线；单元格和列菜单无统一输出入口。
+
+**来源：** [business:web/table_material_output.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/table_material_output.mjs)；[business:web/data_table_editor.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/data_table_editor.mjs)
+
+**新归属：** `frontend/src/application; frontend/src/features/table; frontend/src/canvas`
+
+**理由：** 只允许单格与按列输出；结果为素材组；表到组连线可保存、撤销、重载。整行和多单元格选区不输出。
+
+**验收：**
+
+- `AC-BIZ-046-001` 单元格仅通过右键菜单输出；列通过列头菜单和列输出 Slot 输出，两入口范围与结果相同。
+- `AC-BIZ-046-002` 整行、多行或多单元格选择不提供有效输出动作，也不创建组。
+- `AC-BIZ-046-003` 每个结果组与表格来源之间建立可保存、可撤销、重载后仍有效的原生连线；失败时原子回滚新增成员、组和连线。
+
+**关联：** [UC-BIZ-018](USE_CASES.md#uc-biz-018)；[TC-BIZ-054](TEST_CASES.md#tc-biz-054)
+
+<a id="f-biz-047"></a>
+
+### F-BIZ-047 列输出过滤、身份去重与按类型拆组
+
+**处置：重构；阶段：M3。** 现输出路径主要筛选带 URL 的图片/视频并按任务行分组，不处理文本、跨单元格去重或按类型拆分。
+
+**来源：** [business:web/table_material_output.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/table_material_output.mjs)
+
+**新归属：** `frontend/src/application; frontend/src/features/table`
+
+**理由：** 按行序与格内顺序输出；跳过空值和失效引用；按素材身份去重保留首次出现；按文本、图片、视频自动拆成独立同类型组。
+
+**验收：**
+
+- `AC-BIZ-047-001` 空单元格和失效引用跳过，不创建空占位，也不阻断后续有效内容。
+- `AC-BIZ-047-002` 同一素材身份在一次输出中只保留首次出现；后续重复不改变首次顺序。
+- `AC-BIZ-047-003` 按文本、图片、视频自动拆组，不增加类型筛选步骤；过滤后无有效成员则不创建空组。
+
+**关联：** [UC-BIZ-018](USE_CASES.md#uc-biz-018)；[TC-BIZ-053](TEST_CASES.md#tc-biz-053)、[TC-BIZ-054](TEST_CASES.md#tc-biz-054)
+
+<a id="f-biz-048"></a>
+
+### F-BIZ-048 生成与优化任务的作用域暂停、打断、继续和重启
+
+**处置：重构；阶段：M4。** 主要入口仍以暂停表达，底层多通过取消实现；本地可中断后重跑，远端任务通常继续完成。持久暂停意图与显式打断/重启未完成。
+
+**来源：** [business:web/table_generation_tasks.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/table_generation_tasks.mjs)；[business:web/task_snapshots.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/task_snapshots.mjs)
+
+**新归属：** `frontend/src/features/generation; frontend/src/features/tasks; backend/jobs`
+
+**理由：** 控制动作必须带明确范围并表达真实任务事实；刷新、重开和服务重启后从账本恢复暂停意图。F-BIZ-032 仍描述旧暂停/本地中断能力。
+
+**验收：**
+
+- `AC-BIZ-048-001` 暂停、打断、继续、重启作用于声明范围，不误伤其他节点、表格实例或未选中任务。
+- `AC-BIZ-048-002` 暂停保留继续意图并持久化；打断结束当前执行且不自动派发替代任务；重启创建新请求身份并保留旧回执与结果。
+- `AC-BIZ-048-003` 无法取消的远端执行不得显示已停止或已退款；结果未知时禁止自动新提交。
+
+**关联：** [UC-BIZ-019](USE_CASES.md#uc-biz-019)；[TC-BIZ-055](TEST_CASES.md#tc-biz-055)、[TC-BIZ-056](TEST_CASES.md#tc-biz-056)
+
+<a id="f-biz-049"></a>
+
+### F-BIZ-049 单任务真实进度与成组完成计数
+
+**处置：重构；阶段：M4。** 快照协议已有可选 progress，成组百分比尚未严格隐藏；现有测试主要使用合成报告。
+
+**来源：** [business:web/task_snapshots.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/task_snapshots.mjs)；[business:web/table_generation_tasks.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/table_generation_tasks.mjs)
+
+**新归属：** `frontend/src/features/tasks; frontend/src/features/generation; backend/jobs`
+
+**理由：** 仅一个任务时可显示真实百分比和阶段；两个及以上任务不显示百分比，节点左上角只显示总数和已验证完成数。无真实进度时只显示不确定状态。
+
+**验收：**
+
+- `AC-BIZ-049-001` 生成范围仅一个 requestId 时，可显示提供方或可核对计数换算的百分比，并同时给出数字与百分号。
+- `AC-BIZ-049-002` 生成范围两个及以上任务时，节点、胶囊和占位不显示百分比或进度圆环，左上角只显示总任务数和已完成数。
+- `AC-BIZ-049-003` 禁止用时间、动画或未经校准权重虚构百分比；排队不显示 0%；100% 不等于写回完成。
+
+**关联：** [UC-BIZ-020](USE_CASES.md#uc-biz-020)；[TC-BIZ-057](TEST_CASES.md#tc-biz-057)
+
 ## 产品基础与跨模块能力
 
 | 编号 | 能力 | 处置 | 阶段 | 用例数 | 测试数 |
@@ -1741,6 +1867,8 @@
 | [F-SYS-019](FEATURE_MATRIX.md#f-sys-019) | 结果未知与断点恢复 | 保留 | M4 | 2 | 6 |
 | [F-SYS-020](FEATURE_MATRIX.md#f-sys-020) | 文件范围与敏感数据边界 | 保留 | M2 | 2 | 3 |
 | [F-SYS-021](FEATURE_MATRIX.md#f-sys-021) | 旧库退出与数据回滚 | 重构 | M6 | 3 | 4 |
+| [F-SYS-022](FEATURE_MATRIX.md#f-sys-022) | 统一只读模型目录与启动发现 | 重构 | M4 | 2 | 1 |
+| [F-SYS-023](FEATURE_MATRIX.md#f-sys-023) | 模型选项的隐式可用性状态 | 重构 | M4 | 1 | 1 |
 
 <a id="f-sys-001"></a>
 
@@ -2119,6 +2247,46 @@
 - `AC-SYS-021-001` 新包运行不加载旧库；回滚能恢复旧数据；新产生且旧版不识别的数据独立保全
 
 **关联：** [UC-SYS-005](USE_CASES.md#uc-sys-005)、[UC-SYS-006](USE_CASES.md#uc-sys-006)、[UC-SYS-011](USE_CASES.md#uc-sys-011)；[TC-SYS-012](TEST_CASES.md#tc-sys-012)、[TC-SYS-014](TEST_CASES.md#tc-sys-014)、[TC-SYS-015](TEST_CASES.md#tc-sys-015)、[TC-SYS-034](TEST_CASES.md#tc-sys-034)
+
+<a id="f-sys-022"></a>
+
+### F-SYS-022 统一只读模型目录与启动发现
+
+**处置：重构；阶段：M4。** 本地生成依赖显式装配文件，模型控件各自读取能力；无统一跨节点目录和完整启动/重连刷新。
+
+**来源：** [business:web/table_generation_tasks.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/table_generation_tasks.mjs)；[business:web/llm_io_model.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/llm_io_model.mjs)
+
+**新归属：** `backend/providers; frontend/src/features/generation; frontend/src/features/prompt`
+
+**理由：** 服务启动、应用打开或宿主重连后自动发现本机本地模型及已配置 DeepSeek；生成、LLM 优化和表格共用同一目录。已保存逻辑模型 ID 不自动回退。
+
+**验收：**
+
+- `AC-SYS-022-001` 启动、打开、重连、配置变化、手动重检和提交前复核使目录刷新，不加载 GPU、不发送计费请求。
+- `AC-SYS-022-002` 生成节点、LLM 优化节点和多维表格消费同一只读目录投影。
+- `AC-SYS-022-003` 已保存逻辑模型缺失时保持原 ID 并标为不可用，不静默换成其他模型。DeepSeek 仅配置与能力检查，不调用云或付费接口。
+
+**关联：** [UC-SYS-012](USE_CASES.md#uc-sys-012)、[UC-SYS-013](USE_CASES.md#uc-sys-013)；[TC-SYS-037](TEST_CASES.md#tc-sys-037)
+
+<a id="f-sys-023"></a>
+
+### F-SYS-023 模型选项的隐式可用性状态
+
+**处置：重构；阶段：M4。** 现有控件可能显示不可用原因，未统一可选、检测中、待验证和不可用状态。
+
+**来源：** [business:web/llm_io_model.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/llm_io_model.mjs)
+
+**新归属：** `frontend/src/ui; frontend/src/features/generation; frontend/src/features/prompt`
+
+**理由：** 不可用置灰禁用，检测中显示加载圆环，可用保持默认；检测原因只写结构化日志，不出现在菜单、节点或 Toast。
+
+**验收：**
+
+- `AC-SYS-023-001` 选项只表达可选、检测中、待验证或不可用；不展示底层检测错误文本。
+- `AC-SYS-023-002` 不可用项禁用且可访问名称包含不可用状态；检测中显示加载指示。
+- `AC-SYS-023-003` 原因仅写入结构化日志，不进入菜单、节点正文或 Toast。
+
+**关联：** [UC-SYS-013](USE_CASES.md#uc-sys-013)；[TC-SYS-038](TEST_CASES.md#tc-sys-038)
 
 ## 不迁入的历史功能
 

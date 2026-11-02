@@ -1,38 +1,107 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {generationInput,inputStamp} from '../../frontend/src/features/generation/table_generation_model.mjs';
-import {generationMaterials} from '../../frontend/src/features/table/table_material_output.mjs';
+import {generationMaterials,parseTableOutputKey,tableMaterialSnapshot,tableOutputKey} from '../../frontend/src/application/table_material_output.mjs';
+
+const asset=(id,kind,extra={})=>({id,assetId:id,kind,url:`/view?filename=${id}.${kind==='video'?'mp4':'png'}&type=output`,...extra});
 function fixture(){
- const t={fields:[{id:'p',type:'text'},{id:'g',name:'结果',presentation:'generation',generation:{promptFieldId:'p',kind:'image',settings:{}}}],records:['a','b','c'].map(id=>({id,values:{p:'prompt',g:[{id,url:'/view?filename='+id+'.png&type=output',kind:'image'}]},meta:{}})),meta:{}};
- for(const r of t.records)r.meta.generationColumns={g:{phase:'complete',requestId:r.id,stamp:inputStamp(generationInput(t,'g',r.id))}};
- return t;
+    return {
+        fields:[
+            {id:'text',name:'描述',type:'text'},
+            {id:'mixed',name:'混合素材',type:'content'},
+            {id:'result',name:'生成结果',type:'content',presentation:'generation',generation:{kind:'image'}},
+        ],
+        records:[
+            {id:'a',name:'镜头甲',values:{text:'第一行',mixed:[asset('a1','image'),asset('a2','video'),{id:'bad',kind:'image'}]}},
+            {id:'b',name:'镜头乙',values:{text:'第二行',mixed:[asset('a1','image'),asset('b1','image'),asset('a2','video')]}},
+            {id:'c',name:'镜头丙',values:{text:'',mixed:[]}},
+        ],
+        meta:{},
+    };
 }
-test('output follows row order and preserves task/material provenance',()=>{
- const t=fixture();t.records.reverse();const out=generationMaterials(t,'g');assert.deepEqual(out.assets.map(a=>a.id),['c','b','a']);assert.equal(out.assets[0].provenance.recordId,'c');assert.equal(out.assets[0].provenance.requestId,'c');assert.equal(out.skipped,0);
-});
-test('existing results remain outputtable regardless of task phase or changed inputs',()=>{
- const t=fixture();t.records[0].meta.generationColumns.g.phase='running';t.records[1].meta.generationColumns.g.phase='failed';t.records[2].values.p='edited';
- const out=generationMaterials(t,'g');assert.equal(out.ready,true);assert.equal(out.skipped,0);assert.deepEqual(out.assets.map(a=>a.id),['a','b','c']);
- delete t.records[0].meta.generationColumns;t.fields[1].generation.promptFieldId='deleted';assert.equal(generationMaterials(t,'g').assets.length,3);
-});
-test('only rows without usable image or video results are skipped',()=>{
- const t=fixture();t.records[0].values.g=[];t.records[1].values.g=[{kind:'text',url:'/view?filename=b.png&type=output'}];t.records[2].values.g[0].kind='video';
- const out=generationMaterials(t,'g');assert.equal(out.skipped,2);assert.deepEqual(out.assets.map(a=>a.id),['c']);t.records[2].values.g=[];assert.equal(generationMaterials(t,'g').ready,false);
+
+test('column output keeps row and cell order, skips invalid/empty content, and dedupes by stable material identity',()=>{
+    const out=tableMaterialSnapshot(fixture(),'mixed');
+    assert.equal(out.ready,true);
+    assert.equal(out.scope,'column');
+    assert.equal(out.skipped,1);
+    assert.equal(out.deduplicated,2);
+    assert.deepEqual(out.assets.map(a=>a.assetId),['a1','a2','b1']);
+    assert.deepEqual(out.groups.map(g=>[g.kind,g.count]),[['image',2],['video',1]]);
+    assert.deepEqual(out.groups[0].assetIndexes,[0,2]);
+    assert.deepEqual(out.groups[1].assetIndexes,[1]);
+    assert.deepEqual(out.assets.map(a=>a.provenance.recordId),['a','a','b']);
 });
 
-test('output groups keep task names, order and all results from each task',()=>{
- const t=fixture();t.records[0].name='镜头甲';t.records[1].name='镜头甲';
- t.records[0].values.g.push({id:'a2',kind:'video',url:'/view?filename=a2.mp4&type=output'});
- t.records[2].values.g=[];t.records.reverse();
- const out=generationMaterials(t,'g');
- assert.deepEqual(out.groups,[{label:'镜头甲',count:1},{label:'镜头甲',count:2}]);
- assert.deepEqual(out.assets.map(a=>a.id),['b','a','a2']);
- assert.equal(out.skipped,1);
- assert.equal(out.groups.reduce((sum,g)=>sum+g.count,0),out.assets.length);
+test('single-cell output is limited to that cell and splits text without inventing an empty group',()=>{
+    const table=fixture();
+    const text=tableMaterialSnapshot(table,'text','b');
+    assert.equal(text.scope,'cell');
+    assert.deepEqual(text.texts,['第二行']);
+    assert.deepEqual(text.groups,[{kind:'text',label:'描述 · 文本',assetIndexes:[],textIndexes:[0],count:1}]);
+    table.records[2].values.text='';
+    const empty=tableMaterialSnapshot(table,'text','c');
+    assert.equal(empty.ready,false);
+    assert.deepEqual(empty.groups,[]);
 });
 
-test('unnamed rows use their row number, with no groups for empty results',()=>{
- const t=fixture();t.records[0].values.g=[];
- assert.deepEqual(generationMaterials(t,'g').groups,[{label:'任务2',count:1},{label:'任务3',count:1}]);
- t.records.forEach(r=>r.values.g=[]);assert.deepEqual(generationMaterials(t,'g').groups,[]);
+test('generation results expose a same-type plan while preserving request provenance',()=>{
+    const table=fixture();
+    table.records[0].values.result=[asset('r1','image')];
+    table.records[0].meta={generationColumns:{result:{requestId:'request-a'}}};
+    table.records[1].values.result=[asset('r2','video')];
+    const out=tableMaterialSnapshot(table,'result');
+    assert.deepEqual(out.groups.map(group=>group.kind),['image','video']);
+    assert.equal(out.assets[0].provenance.requestId,'request-a');
+    assert.equal(out.assets[1].provenance.recordId,'b');
+});
+test('column and cell output keys round-trip IDs that contain URI separators',()=>{
+ for(const [fieldId,recordId] of [['a/b','row:1'],['列:二',null]]){
+  const key=tableOutputKey(fieldId,recordId);
+  assert.deepEqual(parseTableOutputKey(key),{fieldId,recordId});
+ }
+});
+test('generation-history grouping stays per task row while table output can consume indexed row sections',()=>{
+ const table=fixture();
+ table.records[0].values.result=[asset('r1','image'),asset('r2','video')];
+ table.records[1].values.result=[asset('r3','image')];
+ const grouped=generationMaterials(table,'result');
+ assert.deepEqual(grouped.groups,[{label:'镜头甲',count:2},{label:'镜头乙',count:1}]);
+ assert.deepEqual(grouped.outputGroups,[
+  {kind:'image',label:'镜头甲 · 图片',count:1,assetIndexes:[0],textIndexes:[]},
+  {kind:'video',label:'镜头甲 · 视频',count:1,assetIndexes:[1],textIndexes:[]},
+  {kind:'image',label:'镜头乙 · 图片',count:1,assetIndexes:[2],textIndexes:[]},
+ ]);
+});
+test('non-view and malformed media references are skipped instead of reaching the import endpoint',()=>{
+ const table=fixture();
+ table.records[0].values.mixed=[
+  {id:'bad-url',kind:'image',url:'not-a-view-url'},
+  {id:'absolute-url',kind:'image',url:'http://localhost/view?filename=absolute.png&type=output'},
+  {id:'bad-type',kind:'image',url:'/view?filename=bad.png&type=temp'},
+  {id:'bad-kind',kind:'video',url:'/view?filename=bad.png&type=output'},
+  asset('good','image'),
+ ];
+ const out=tableMaterialSnapshot(table,'mixed','a');
+ assert.equal(out.ready,true);
+ assert.deepEqual(out.assets.map(item=>item.id),['good']);
+});
+test('distinct table occurrences sharing an underlying asset identity remain distinct',()=>{
+ const table=fixture();
+ table.records[0].values.mixed=[
+  {...asset('occurrence-a','image'),assetId:'same-content'},
+  {...asset('occurrence-b','image'),assetId:'same-content'},
+ ];
+ const out=tableMaterialSnapshot(table,'mixed','a');
+ assert.deepEqual(out.assets.map(item=>item.id),['occurrence-a','occurrence-b']);
+ assert.equal(out.deduplicated,0);
+});
+test('missing instance identity is treated as independent, never merged by assetId or URL',()=>{
+ const table=fixture();
+ table.records[0].values.mixed=[
+  {...asset('','image'),id:undefined,assetId:'same-file'},
+  {...asset('','image'),id:undefined,assetId:'same-file'},
+ ];
+ const out=tableMaterialSnapshot(table,'mixed','a');
+ assert.equal(out.assets.length,2);
+ assert.equal(out.deduplicated,0);
 });

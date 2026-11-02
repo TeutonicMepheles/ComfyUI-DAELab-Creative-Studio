@@ -67,6 +67,9 @@ class ServicesTest(unittest.TestCase):
         self.create("pre-upgrade")
         with closing(sqlite3.connect(self.db)) as connection:
             saved_job = connection.execute('SELECT * FROM jobs WHERE request_id=?', ('pre-upgrade',)).fetchone()
+        # This fixture recreates schema v1; the control/progress columns were
+        # appended by migration v4 and must not be inserted into v1 directly.
+        saved_job = tuple(saved_job[:16])
         legacy = self.root / 'actual-v1.sqlite3'
         with closing(sqlite3.connect(legacy)) as connection:
             for statement in _MIGRATIONS[1]:

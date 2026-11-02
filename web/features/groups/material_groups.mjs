@@ -7,7 +7,7 @@ import {UPLOAD_TYPE} from '../assets/media_upload_model.mjs';
 import {inputSnapshot} from '../../canvas/creative_contract.mjs';
 import {normalizeAsset,saveFavorite} from '../assets/asset_library_model.mjs';
 
-import {GROUP_TYPE as TYPE,isGroupMember,selectedMaterialGroup} from './material_group_model.mjs?v=20261015-mixed1';
+import {GROUP_TYPE as TYPE,canJoinMaterialGroup,isGroupMember,selectedMaterialGroup,selectionMaterialType} from './material_group_model.mjs?v=20261102-typed1';
 const el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text)e.textContent=text;return e;};
 const copy=v=>JSON.parse(JSON.stringify(v));
 const widget=(node,name)=>node.widgets?.find(w=>w.name===name);
@@ -108,8 +108,8 @@ export function installMaterialGroups(host,view){
         change(()=>{for(const n of members){const c=card(n.id);if(c)c.style.display='';}host.removeNode(host.graph(),g);delete cards()[g.id];selected=null;selectionActive=false;view.sync();view.select(null);for(const n of members)view.select(n,{toggle:true});},'已解组，素材保留，可撤销。');
     }
     function createNode(type,title){const n=host.createNode(type);if(!n)throw new Error(`缺少节点 ${type}`);host.addNode(host.graph(),n);n.title=title;return n;}
-    function newGroup(title,ids,x,y){const n=createNode(TYPE,title);n.properties.members=ids;cards()[n.id]={x,y,width:800,expanded:false};return n;}
-    function createFromSelection(){const ids=[...world.querySelectorAll('.dae-creative-card[data-selected=true]')].map(c=>node(c.dataset.nodeId)?.id).filter(id=>isGroupMember(node(id)));if(!ids.length)return say('先选中素材，再使用 Ctrl+G 打组。');if(groups().some(g=>g.properties.locked&&g.properties.members.some(id=>ids.includes(id))))return say('请先解锁素材所在的组。');change(()=>{for(const g of groups())g.properties.members=g.properties.members.filter(id=>!ids.includes(id));const g=newGroup('新素材组',ids,Math.min(...ids.map(id=>cards()[id].x))-24,Math.min(...ids.map(id=>cards()[id].y))-80);selected=g.id;selectionActive=true;view.sync();view.select(g);},'已把选中的真实素材卡片组成新组。');}
+    function newGroup(title,ids,x,y,materialType){const n=createNode(TYPE,title);n.properties.members=ids;n.properties.materialType=materialType;cards()[n.id]={x,y,width:800,expanded:false};return n;}
+    function createFromSelection(){const chosen=[...world.querySelectorAll('.dae-creative-card[data-selected=true]')].map(c=>node(c.dataset.nodeId)).filter(isGroupMember),ids=chosen.map(n=>n.id);if(!ids.length)return say('先选中素材，再使用 Ctrl+G 打组。');const materialType=selectionMaterialType(chosen);if(!materialType)return say('素材组只能包含文本、图片或视频中的同一类型。');if(groups().some(g=>g.properties.locked&&g.properties.members.some(id=>ids.includes(id))))return say('请先解锁素材所在的组。');change(()=>{for(const g of groups())g.properties.members=g.properties.members.filter(id=>!ids.includes(id));const g=newGroup('新素材组',ids,Math.min(...ids.map(id=>cards()[id].x))-24,Math.min(...ids.map(id=>cards()[id].y))-80,materialType);selected=g.id;selectionActive=true;view.sync();view.select(g);},`已把选中的${materialType==='text'?'文本':materialType==='image'?'图片':'视频'}素材组成新组。`);}
     const layoutNames={grid:'宫格排列',horizontal:'水平排列',vertical:'垂直排列'};
     function icon(name){const i=el('i','dae-creative-icon');i.style.setProperty('--dae-icon',`url("${new URL('../../design/vendor/remixicon/'+name+'.svg',import.meta.url).href}")`);i.setAttribute('aria-hidden','true');return i;}
     function closeMenu(focus=false){menu?.remove();menu=null;if(menuTrigger){menuTrigger.setAttribute('aria-expanded','false');if(focus&&menuTrigger.isConnected)menuTrigger.focus();}menuTrigger=null;}
@@ -255,6 +255,7 @@ export function installMaterialGroups(host,view){
         if(disposed||!view.active){panel.hidden=true;createButton.hidden=true;selectionBox.hidden=true;closeMenu();return;}
         if(seenGraph!==host.graph().extra){seenGraph=host.graph().extra;selected=null;selectionActive=false;renderSignature='';closeMenu();}
         const chosen=view.selectedIds.map(node).filter(Boolean);positionCreateButton(chosen);const chosenGroup=selectedMaterialGroup(chosen,groups());
+        createAction.disabled=selectionMaterialType(chosen.filter(isGroupMember))===null;
         const next=chosenGroup?.id??null;if(next!==selected){selected=next;renderSignature='';closeMenu();}selectionActive=selected!=null;
         const g=group(),signature=JSON.stringify([selected,g?.title,g?.properties]);
         if(!colorEditing&&signature!==renderSignature){renderSignature=signature;buildPanel();}
@@ -279,7 +280,9 @@ export function installMaterialGroups(host,view){
         }
     }
     function updateDrop(e){
-        const target=drag.targets.find(t=>!node(t.id)?.properties.locked&&e.clientX>t.rect.left&&e.clientX<t.rect.right&&e.clientY>t.rect.top&&e.clientY<t.rect.bottom);
+        const hovered=drag.targets.find(t=>e.clientX>t.rect.left&&e.clientX<t.rect.right&&e.clientY>t.rect.top&&e.clientY<t.rect.bottom);
+        const target=hovered&&!node(hovered.id)?.properties.locked&&canJoinMaterialGroup(node(hovered.id),node(drag.ids[0]),{existingMember:(node(hovered.id)?.properties?.members||[]).some(id=>String(id)===String(drag.ids[0]))})?hovered:null;
+        drag.blockedGroup=hovered&&!target?hovered.id:null;
         drag.target=target?{id:target.id,index:target.collapsed?target.rects.length:materialInsertionIndex(target.layout,target.rects,e.clientX,e.clientY)}:null;
         for(const g of groups()){const gc=card(g.id);if(gc)gc.dataset.reviewOver=String(g.id===target?.id);}
     }
@@ -318,6 +321,7 @@ export function installMaterialGroups(host,view){
     function up(e){if(!drag||e.pointerId!==drag.pointerId)return;e.stopImmediatePropagation();const current=drag;if(current.kind==='member'&&current.moved&&e.type==='pointerup')updateDrop(e);drag=null;clearDragPreview(current);if(e.type!=='pointerup')return restoreDrag(current);if(!current.moved){history.end();return;}
 
         if(view.receiveMaterialGroup(node(current.ids[0]),e.clientX,e.clientY)){for(const [id,layout] of Object.entries(current.originals))if(cards()[id])Object.assign(cards()[id],layout);history.end();dirty();renderSignature='';view.sync();tick();return;}
+        if(current.kind==='member'&&current.blockedGroup!=null){restoreDrag(current);say('素材类型不同，未移动成员。');return;}
         if(current.kind==='member'){
             const id=current.ids[0],target=current.target&&node(current.target.id),at=current.target?.index||0;
             for(const g of groups())g.properties.members=g.properties.members.filter(x=>x!==id);

@@ -4,6 +4,33 @@ import {inputSnapshot} from '../../canvas/creative_input_exchange.mjs';
 export const GROUP_TYPE='DAELAB.MaterialGroup';
 export const GROUP_SOCKET='DAELAB_ASSETS';
 export const isGroupMember=node=>[UPLOAD_TYPE,'DAELAB.TextInput'].includes(node?.type);
+const materialKinds=new Set(['text','image','video']);
+export function materialType(node){
+    if(node?.type==='DAELAB.TextInput')return 'text';
+    if(node?.type!==UPLOAD_TYPE)return null;
+    try{const kind=readAsset(node.widgets?.find(w=>w.name==='asset_data')?.value)?.kind;return materialKinds.has(kind)?kind:null;}catch{return null;}
+}
+export function selectionMaterialType(nodes){
+    if(!Array.isArray(nodes)||!nodes.length)return null;
+    const kinds=nodes.map(materialType);
+    return kinds.every(kind=>kind&&kind===kinds[0])?kinds[0]:null;
+}
+export function groupMaterialType(group){
+    const declared=materialKinds.has(group?.properties?.materialType)?group.properties.materialType:null;
+    const kinds=(group?.properties?.members||[]).map(id=>materialType(group.graph?.getNodeById(id))).filter(Boolean);
+    if(new Set(kinds).size>1)return null;
+    if(declared&&kinds.some(kind=>kind!==declared))return null;
+    return kinds[0]||declared;
+}
+export function canJoinMaterialGroup(group,node,{existingMember=false}={}){
+    const kind=materialType(node);if(!kind)return false;
+    const ids=group?.properties?.members||[];
+    if(existingMember&&ids.some(id=>String(id)===String(node.id)))return true;
+    const kinds=ids.map(id=>materialType(group.graph?.getNodeById(id))).filter(Boolean),declared=materialKinds.has(group?.properties?.materialType)?group.properties.materialType:null;
+    if(new Set(kinds).size>1||ids.length&&kinds.length!==ids.length)return false;
+    const current=kinds[0]||declared;
+    return !current||current===kind;
+}
 // A group action requires one unambiguous owner for the entire selection.
 export function selectedMaterialGroup(chosen,groups){
     if(!chosen.length)return null;

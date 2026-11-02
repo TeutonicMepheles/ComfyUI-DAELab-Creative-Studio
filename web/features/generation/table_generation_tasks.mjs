@@ -3,8 +3,9 @@ import {createTableButton as button,tableIcon} from '../../ui/table_controls.mjs
 import {GenerationSession,generationInputDigest} from './generation_session.js';
 import {request,modelCapabilities} from './table_generation_api.mjs';
 import {generationReportNeedsApply,generationReceipt,recoveryJob,isLocalGenerationModel,needsGenerationProject,isGeneration,generationRows,generationInput,generationAttempts,applyGenerationResult,appendGenerationResult} from './table_generation_model.mjs';
+import {getModelCatalog} from '../models/model_catalog.mjs';
 const el=(tag,parent,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;parent?.append(node);return node;};
-const phaseNames={waiting:'等待提交',running:'生成中',pausing:'暂停中',paused:'已暂停',stopped:'已停止后续提交',failed:'生成失败',needs_input:'待补充',needs_recovery:'待恢复',complete:'已完成',stale:'输入已变化'};
+const phaseNames={waiting:'等待提交',running:'生成中',pausing:'暂停中',interrupting:'打断中',paused:'已暂停',interrupted:'已打断',stopped:'已停止后续提交',failed:'生成失败',needs_input:'待补充',needs_recovery:'待恢复',complete:'已完成',stale:'输入已变化'};
 const stageNames={local_queued:'本机排队',local_generating:'本机生成',preparing:'准备中',submitting:'提交平台',writing_back:'等待写回',verifying:'核对原任务',downloading:'下载中'};
 export function stageText(report,phase){
  if(phase==='pausing')return '正在中断本地任务';
@@ -32,7 +33,7 @@ export const generationTaskStyle=`
 `;
 
 export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,getConfig,onUpdate=()=>{},onPrepared=()=>{},onReports=()=>{},canGenerate=()=>true}){
- let alive=true,polling=false,submitting=false,epoch=0;
+ let alive=true,polling=false,submitting=false,epoch=0;const controlling=new Set();
   const live=new Map(),localErrors=new Map(),discovered=new Map(),discoveredByTarget=new Map(),editGroups=new Map(),missingRequests=new Set(),attemptGroups=new Map(),attemptTargets=new Map();
  const targetKey=(recordId,fieldId)=>JSON.stringify([recordId,fieldId]);
  const targetReferences=(row,fieldId)=>[...new Map([...(row?.meta?.studioGenerationRefs?.[fieldId]||[]),...(discoveredByTarget.get(targetKey(row?.id,fieldId))?.values()||[])].map(ref=>[ref.requestId,ref])).values()].sort((a,b)=>(a.source.createdAt||0)-(b.source.createdAt||0));
@@ -130,7 +131,34 @@ export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,
    if(alive&&captured===epoch)ingest(response);
   }catch(error){if(alive&&captured===epoch){notify(error.message);if(prepared.length)onReports(prepared.map(job=>({requestId:job.requestId,source:job.source,phase:'needs_recovery',error:error.message})));}}finally{for(const ticket of guards)editor.releaseAsync(ticket);submitting=false;decorate();}
  }
- async function pause(states){try{ingest(await request('pause',{requestIds:states.filter(state=>!state.legacy).map(state=>state.requestId)}));}catch(error){notify(error.message);}}
+ async function control(action,states){
+  const ids=[...new Set(states.filter(state=>!state.legacy&&state?.requestId&&!controlling.has(state.requestId)).map(state=>state.requestId))];if(!ids.length)return;
+  for(const id of ids)controlling.add(id);
+  try{ingest(await request(action,{requestIds:ids}));}catch(error){notify(error.message);}finally{for(const id of ids)controlling.delete(id);decorate();}
+ }
+ async function pause(states){return control('pause',states);}
+ async function interrupt(states){
+  if(!states.some(state=>!state.legacy))return;
+  const label=states.length===1?'确定打断当前生成？旧尝试和任何已产生费用会保留。':`确定打断这 ${states.length} 个生成任务？旧尝试和任何已产生费用会保留。`;
+  if(typeof window!=='undefined'&&typeof window.confirm==='function'&&!window.confirm(label))return;
+  return control('interrupt',states);
+ }
+ async function continueTasks(states){return control('continue',states);}
+ async function restartOriginal(fieldId,recordId,state){
+  if(!alive||submitting||!state?.requestId||state.legacy)return;
+  const captured=epoch,newRequestId=crypto.randomUUID(),ticket=editor.beginAsync({recordId,fieldId},newRequestId);submitting=true;decorate();
+  try{
+   const response=await request('restart',{jobs:[{requestId:state.requestId,newRequestId}]});if(!alive||captured!==epoch||!editor.canAsync(ticket))throw new Error('工作流已变化，重启结果仅保留在账本');
+   const report=response.jobs?.find(item=>item.requestId===newRequestId);if(!report)throw new Error('重启任务未返回新身份');
+   const ref={requestId:newRequestId,inputDigest:report.source?.inputDigest||report.inputFingerprint,source:report.source,model:report.source?.model};session.watch(ref);ingest({jobs:[report]});
+   editor.applyAsync(ticket,table=>{const row=table.records.find(item=>item.id===recordId);row.meta||={};row.meta.studioGenerationRefs||={};row.meta.studioGenerationRefs[fieldId]||=[];row.meta.studioGenerationRefs[fieldId].push(structuredClone(ref));});
+  }catch(error){notify(error.message);}finally{editor.releaseAsync(ticket);submitting=false;if(alive)decorate();}
+ }
+ function controlAllowed(state,name){
+  if(state?.controls&&Object.hasOwn(state.controls,name))return state.controls[name]===true;
+  if(name==='restart')return Boolean(getModelCatalog().get(state?.model)?.capability?.control?.restart);
+  return true;
+ }
  async function reviewResult(fieldId,recordId,requestId){
   const row=getTable().records.find(row=>row.id===recordId),ref=requestId?targetReferences(row,fieldId).find(ref=>ref.requestId===requestId):reference(row,fieldId);if(!ref)throw new Error('没有可审阅的新任务引用');
   const ticket=editor.beginAsync({recordId,fieldId},crypto.randomUUID());
@@ -139,7 +167,7 @@ export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,
    if(!session.review(ref.requestId,digest,{...identity(),nodeId:ticket.documentId}))throw new Error('原结果与当前输入不匹配或尚未完成');return true;
   }finally{editor.releaseAsync(ticket);}
  }
- async function resume(fieldId){return generate(fieldId,null,true);}
+ async function resume(fieldId){const states=getTable().records.map(row=>stateFor(row,fieldId)).filter(state=>state?.phase==='paused'&&['pending','cancelled'].includes(state.state)&&state.controlIntent==='pause');return states.length?control('continue',states):generate(fieldId,null,true);}
  async function poll(whileSubmitting=false){
   if(!alive||submitting&&!whileSubmitting)return;if(polling){if(whileSubmitting)throw new Error('任务查询尚未完成，请稍后重试');return;}const captured=epoch;let refs=allReferences();polling=true;
   try{const stable=identity();if(stable){let offset=0;do{const response=await request('status',{source:{documentId:stable.documentId,tableId:stable.tableId,nodeId:stable.nodeId},limit:500,offset});if(!alive||captured!==epoch)return;for(const report of response.jobs||[])if(report.source?.documentId===stable.documentId&&report.source.tableId===stable.tableId&&report.source.nodeId===stable.nodeId&&/^[a-f0-9]{64}$/.test(report.source.inputDigest||'')){const ref={requestId:report.requestId,inputDigest:report.source.inputDigest,source:report.source,model:report.source.model};discovered.set(ref.requestId,ref);const key=targetKey(ref.source.recordId,ref.source.fieldId),bucket=discoveredByTarget.get(key)||new Map();bucket.set(ref.requestId,ref);discoveredByTarget.set(key,bucket);session.watch(ref);}ingest(response);offset=response.nextOffset;}while(Number.isSafeInteger(offset)&&offset>0);}refs=allReferences();for(const ref of refs)session.watch(ref);const ids=[...new Set(refs.map(ref=>ref.requestId))];for(let offset=0;offset<ids.length;offset+=500){const response=await request('status',{requestIds:ids.slice(offset,offset+500)});if(!alive||captured!==epoch)return;ingest(response);}}
@@ -169,15 +197,15 @@ export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,
    const header=headers.get(field.id);
    const actions=header?.querySelector('.generation-actions');
    if(actions){
-    const states=table.records.map(r=>stateFor(r,field.id)),active=states.filter(s=>['waiting','running'].includes(s?.phase));
+    const states=table.records.map(r=>stateFor(r,field.id)),active=states.filter(s=>['waiting','running'].includes(s?.phase)),pausable=active.filter(s=>s.controls?.pause!==false);
     const pausing=states.some(s=>s?.phase==='pausing'),paused=states.some(s=>s?.phase==='paused');
-    const action=active.length?'pause':pausing?'pausing':paused?'resume':'';
+    const action=pausable.length?'pause':pausing?'pausing':paused?'resume':'';
     const previous=actions.querySelector('[data-generation-control]');
     if(previous?.dataset.generationControl!==action){
      previous?.remove();
      if(action){
       const label=action==='pause'?'暂停本列生成':action==='pausing'?'正在暂停':'继续本列生成';
-      const control=tableIcon(button(label,()=>action==='resume'?resume(field.id):pause(getTable().records.map(r=>stateFor(r,field.id)).filter(s=>['waiting','running'].includes(s?.phase)))),action==='resume'?'play-line':'pause-fill',label);
+      const control=tableIcon(button(label,()=>action==='resume'?resume(field.id):pause(pausable)),action==='resume'?'play-line':'pause-fill',label);
       control.dataset.generationControl=action;control.classList.add('generation-settings');control.disabled=action==='pausing';
       control.title=label+'；本地当前行中断后会重新生成，Comfy 已提交任务继续完成';
       actions.insertBefore(control,actions.querySelector('[data-generation-source]'));
@@ -187,8 +215,8 @@ export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,
    for(const cell of cells.get(field.id))if(!cell.querySelector('.generation-cell-state')){
     const row=rows.get(cell.dataset.record),state=stateFor(row,field.id);
     const preview=cell.querySelector('.content-display')||cell;
-    const phase=state?.phase||'idle',busy=['waiting','running','pausing'].includes(phase);
-    const label=(phaseNames[phase]||'尚未生成')+(state?.error?' · '+state.error:'');
+    const phase=state?.phase||'idle',busy=['waiting','running','pausing','interrupting'].includes(phase);
+    const label=(busy&&state?.controls?.interrupt===false?'已提交，无法中断，等待结果':(phaseNames[phase]||'尚未生成'))+(state?.error?' · '+state.error:'');
     const status=el('div',preview);status.className='generation-cell-state';status.dataset.phase=phase;status.dataset.error=String(Boolean(state?.error)&&!busy);status.setAttribute('role','status');status.setAttribute('aria-label',label);status.title=label;
     if(busy&&state?.error?.startsWith('无法同步任务状态：')){
      status.append(tableIcon(button(label,()=>notify(label)),'error-warning-line',label),tableIcon(button('刷新任务状态',()=>poll(true)),'restart-line','刷新任务状态'));
@@ -199,11 +227,14 @@ export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,
      el('span',status,stageText(live.get(state.requestId),phase)).className='generation-stage';
     }
     else if(state){const indicator=tableIcon(button(label,()=>notify(label)),phase==='complete'?'check-line':phase==='paused'?'pause-fill':'error-warning-line',label);indicator.classList.add('generation-state-icon');status.append(indicator);}
-    if(busy&&phase!=='pausing')status.append(tableIcon(button('暂停此行',()=>pause([state])),'pause-fill','暂停此行；本地中断后从头生成，Comfy 已提交任务继续完成'));
-    if(!busy){const recover=!state?.legacy&&(phase==='needs_recovery'||phase==='stopped'||phase==='paused'),retry=Boolean(state);const actionLabel=phase==='paused'?'查询原任务':recover?'恢复原任务':retry?'重新生成':'生成此行';status.append(tableIcon(button(actionLabel,()=>generate(field.id,row.id,recover)),retry&&phase!=='paused'?'restart-line':'play-line',actionLabel));
+    if(busy&&!['pausing','interrupting'].includes(phase)&&(controlAllowed(state,'pause')||controlAllowed(state,'interrupt'))){
+     status.append(tableIcon(button('暂停此行',()=>pause([state])),'pause-fill','暂停此行；保留继续意图'),tableIcon(button('打断此行',()=>interrupt([state])),'stop-line','打断当前任务；外部费用不会自动撤销'));
+    }
+    if(!busy){const continuablePause=state?.phase==='paused'&&['pending','cancelled'].includes(state?.state)&&state?.controlIntent==='pause',recover=!state?.legacy&&(phase==='needs_recovery'||phase==='stopped'||phase==='paused'&&!continuablePause),retry=Boolean(state);const actionLabel=continuablePause?'继续原任务':phase==='paused'?'查询原任务':recover?'恢复原任务':retry?'重新生成':'生成此行';status.append(tableIcon(button(actionLabel,()=>continuablePause?continueTasks([state]):generate(field.id,row.id,recover)),retry&&phase!=='paused'?'restart-line':'play-line',actionLabel));
     }
     if(state?.needsOriginalFence&&!state?.legacy)status.append(tableIcon(button('封存原请求',()=>fenceOriginal(field.id,row.id)),'stop-line','明确阻止原请求以后提交；已执行的任务不会被覆盖'));
-    if(phase==='paused'&&!state?.legacy)status.append(tableIcon(button('按当前输入重新生成',()=>generate(field.id,row.id,false)),'play-line','明确创建新的本地任务；原任务回执保留'));
+    if(phase==='paused'&&!state?.legacy)status.append(tableIcon(button('按当前输入重新生成',()=>generate(field.id,row.id,false)),'play-line','明确创建新任务；原任务回执保留'));
+    if(!busy&&state&&['complete','failed','paused','interrupted'].includes(phase)&&!state.legacy&&controlAllowed(state,'restart'))status.append(tableIcon(button('按原输入重启',()=>restartOriginal(field.id,row.id,state)),'restart-line','使用原冻结输入创建新请求；旧回执和结果保留'));
     const completedHistory=[...(state?.history||[]),...(['stale','complete'].includes(phase)&&state?.result?[state]:[])].filter(s=>s.result?.url&&!s.legacy);
     if(completedHistory.length)status.append(tableIcon(button('已有生成结果',()=>{
      const dialog=editor.openDialog('已有生成结果');el('p',dialog,'将此前已完成的结果追加到本行，已有素材和当前任务保留；同一结果不会重复添加。');
@@ -222,5 +253,5 @@ export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,
   if(refresh)refreshLive();
  }
  const timer=setInterval(()=>void poll(),3000);
-  return {reviewResult,fenceOriginal,stateFor,projectedTable,tasks:trackTaskCompletion(taskSnapshots),generate,pause,resume,decorate,get submitting(){return submitting;},invalidate(){epoch++;session.invalidate();},destroy(){alive=false;epoch++;session.dispose();clearInterval(timer);live.clear();localErrors.clear();discovered.clear();discoveredByTarget.clear();editGroups.clear();missingRequests.clear();attemptGroups.clear();attemptTargets.clear();}};
+  return {reviewResult,fenceOriginal,stateFor,projectedTable,tasks:trackTaskCompletion(taskSnapshots),generate,pause,interrupt,restartOriginal,resume,decorate,get submitting(){return submitting;},invalidate(){epoch++;session.invalidate();},destroy(){alive=false;epoch++;session.dispose();clearInterval(timer);controlling.clear();live.clear();localErrors.clear();discovered.clear();discoveredByTarget.clear();editGroups.clear();missingRequests.clear();attemptGroups.clear();attemptTargets.clear();}};
 }

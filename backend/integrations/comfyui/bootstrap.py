@@ -84,8 +84,20 @@ def assemble(entry_file: str):
         from ...generation.assembly import assemble_generation
         from .local_generation import assemble_host_generation, create_host_queue
         from ...media.export_service import ExportService
+        from ...jobs.host_lock import create_host_session, reconcile_owned_restart
         native_queue = create_host_queue(PromptServer.instance)
-        media_exports = ExportService(services.jobs, services.assets, native_queue=native_queue, resources=services.resources)
+        # Shared user directories can serve more than one live host. Each host
+        # holds its own lease; only attempts belonging to a reacquired former
+        # lease can be marked for recovery.
+        host_sessions = services.jobs.database.path.parent / 'studio.hosts'
+        host_session, host_lock = create_host_session(host_sessions)
+        restart_reconciliation = reconcile_owned_restart(
+            services.jobs, host_sessions, current_session=host_session)
+        PromptServer.instance._creative_studio_host_session = host_session
+        PromptServer.instance._creative_studio_host_lock = host_lock
+        PromptServer.instance._creative_studio_restart_reconciliation = restart_reconciliation
+        media_exports = ExportService(services.jobs, services.assets, native_queue=native_queue,
+                                      resources=services.resources, owner_session=host_session)
         PromptServer.instance._creative_studio_media_exports = media_exports
         # The shared ledger and HTTP surface are present independently of model readiness.
         # Local providers require a separate explicit, verified host configuration.
@@ -95,6 +107,7 @@ def assemble(entry_file: str):
             generation = assemble_generation(services)
             PromptServer.instance._creative_studio_generation_configuration_error = (
                 "local-generation.json is invalid or unreadable; repair the explicit local model configuration and restart ComfyUI. No provider was activated.")
+        generation.owner_session = host_session
         generation_nodes.register_routes(PromptServer.instance, generation)
         PromptServer.instance._creative_studio_generation = generation
         integrated.update(("prompt", "generation"))

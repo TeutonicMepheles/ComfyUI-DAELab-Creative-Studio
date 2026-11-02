@@ -31,6 +31,8 @@ class Observation:
     text: str | None = None
     files: tuple[dict, ...] = ()
     error_code: str | None = None
+    progress: float | None = None
+    stage: str | None = None
     metadata: dict = field(default_factory=dict)
 
 

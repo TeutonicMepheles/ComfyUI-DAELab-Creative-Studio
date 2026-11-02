@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {registerAdapter} from '../../frontend/src/canvas/creative_contract.mjs';
 import {groupInputSnapshot,collectionFor,isGroupMember} from '../../frontend/src/features/groups/material_group_model.mjs';
 import {textSnapshot} from '../../frontend/src/features/assets/text_input_model.mjs';
-test('mixed groups retain media contract and expose text as reverse instructions',()=>{
+test('legacy mixed groups remain readable without making mixed selection groupable',()=>{
     const nodes=[{id:1,type:'DAELAB.MediaUpload',widgets:[{name:'asset_data',value:'{"kind":"image","filename":"a.png"}'}]},{id:2,type:'DAELAB.TextInput',widgets:[{name:'text',value:'保留主体，改成黄昏'}]}];
     const dispose=registerAdapter('test-text',{matches:n=>n.type==='DAELAB.TextInput',inputSnapshot:n=>textSnapshot(n,()=>null)});
     const group={properties:{members:[1,2]},graph:{getNodeById:id=>nodes.find(n=>n.id===id)}};

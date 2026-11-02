@@ -59,10 +59,10 @@ function withLocalBatch(fn,{turbo=false}={}) {
 }
 
 test('catalog has exact approved scope, one task owner per feature, stable complete AC links',()=>{
-  assert.equal(catalog.features.length,118);assert.equal(catalog.usecases.length,41);assert.equal(catalog.tests.length,131);
+  assert.equal(catalog.features.length,126);assert.equal(catalog.usecases.length,48);assert.equal(catalog.tests.length,142);
   assert.equal(trace.acceptance.length,catalog.features.reduce((n,f)=>n+f.acceptance.length,0));
   const owners=trace.tasks.flatMap(t=>t.features);
-  assert.equal(owners.length,118);assert.equal(new Set(owners).size,118);
+  assert.equal(owners.length,126);assert.equal(new Set(owners).size,126);
   for (const a of trace.acceptance) { assert.ok(a.tests.length&&a.usecases.length&&a.evals.length);assert.equal(a.status,'not-executed');assert.deepEqual(a.evidence,[]); }
   const reordered=clone(catalog);const f=reordered.features[0];f.acceptance.reverse();f.acceptance_ids.reverse();
   assert.deepEqual(createTrace(reordered).acceptance.filter(a=>a.feature===f.id).map(a=>a.id).sort(),trace.acceptance.filter(a=>a.feature===f.id).map(a=>a.id).sort());

@@ -50,8 +50,12 @@ class IntegrationTests(unittest.IsolatedAsyncioTestCase):
     async def test_routes_idempotent_and_retired_channel_is_not_registered(self):
         from aiohttp import web
         service=assemble_generation(self.core);server=SimpleNamespace(routes=web.RouteTableDef())
-        self.assertEqual(len(register_routes(server,service)),23)
+        self.assertEqual(len(register_routes(server,service)),28)
+        self.assertTrue(any(r.path.endswith('/generation/models') for r in server.routes))
         self.assertTrue(any(r.path.endswith('/generation/fence-unsubmitted') for r in server.routes))
+        for action in ('pause', 'interrupt', 'continue', 'restart'):
+            self.assertTrue(any(r.path.endswith('/generation/' + action) for r in server.routes))
+        self.assertTrue(any(r.path.endswith('/prompt-optimization/interrupt') for r in server.routes))
         self.assertTrue(any(r.path.endswith('/prompt-optimization/fence') for r in server.routes))
         self.assertEqual(register_routes(server,service),())
         self.assertFalse(any('/libtv/' in r.path for r in server.routes))

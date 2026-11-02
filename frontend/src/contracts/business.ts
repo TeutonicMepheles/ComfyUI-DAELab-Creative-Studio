@@ -94,6 +94,9 @@ export interface GenerationReport {
   inputFingerprint: string; source: GenerationScope;
   taskId?: string | null; error?: string; result?: unknown; receipt?: unknown;
   replacementAllowed?: boolean; preparation?: 'ready' | 'rejected' | 'fenced';
+  controlIntent?: 'pause' | 'interrupt' | 'stop' | null;
+  controls?: {pause:boolean; resume:boolean; interrupt:boolean; restart:boolean};
+  progress?: number; stage?: string; progressUpdatedAt?: string;
   [key: string]: unknown;
 }
 export class BusinessRequestError extends Error {

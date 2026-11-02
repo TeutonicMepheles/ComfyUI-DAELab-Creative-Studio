@@ -73,7 +73,8 @@ class OptimizationFacade:
         return any(j['source']['batchId'] != batch_id
                    and digest(self._snapshot(j)['target']) in selected
                    and (j['state'] in ACTIVE or j['request_id'] in self.service._workers
-                        or j['state'] == 'pending' and not self._control(j['source']['batchId'])['stopped']) for j in jobs)
+                        or j['state'] == 'pending' and not self._control(j['source']['batchId'])['stopped']
+                        and j.get('control_intent') != 'stop') for j in jobs)
 
     def _lease(self, target, lease_id):
         lease = self.leases.get(digest(table_target(target)))
@@ -110,10 +111,12 @@ class OptimizationFacade:
     def _build_report(self, jobs, control, related=None):
         first = jobs[0]
         source = first['source']
+        stopped = control['stopped'] or any(j['state'] == 'pending' and j.get('control_intent') == 'stop' for j in jobs)
+        paused = control['paused'] or stopped
         rows = []
         for job in jobs:
             snapshot = self._snapshot(job)
-            status = {'pending': 'stopped' if control['stopped'] else 'queued', 'running': 'polling', 'fetching': 'polling', 'needs_recovery': 'submitted', 'cancelled': 'skipped'}.get(job['state'], job['state'])
+            status = {'pending': 'stopped' if stopped else 'queued', 'running': 'polling', 'fetching': 'polling', 'needs_recovery': 'submitted', 'cancelled': 'skipped'}.get(job['state'], job['state'])
             row = {'requestId': job['request_id'], 'snapshot': snapshot, 'status': status,
                    'remoteResponseId': job['provider_task_id'], 'actualCredits': None, 'error': job['error_code'],
                    'version': job['version'], 'inputFingerprint': job['fingerprint'], 'source': job['source'],
@@ -126,7 +129,7 @@ class OptimizationFacade:
             rows.append(row)
         return {'contractVersion': 1, 'batchId': source['batchId'], 'quoteId': control['quoteId'] or source['quoteId'],
                 'range': source['range'], 'provider': self._price(source['model'])['provider'], 'currency': self._price(source['model'])['currency'], 'price': source.get('price') or self._price(source['model']),
-                'budgetCredits': control.get('budgetCredits', source.get('budgetCredits', 0)), 'paused': control['paused'], 'stopped': control['stopped'], 'rows': rows,
+                'budgetCredits': control.get('budgetCredits', source.get('budgetCredits', 0)), 'paused': paused, 'stopped': stopped, 'rows': rows,
                 'preflightSkipped': source.get('skipped', []), 'updatedAt': max(int(datetime.fromisoformat(j['updated_at']).timestamp() * 1000) for j in jobs),
                 'unknownRequests': self._unknown([row['snapshot'] for row in rows], related)}
 
@@ -385,7 +388,7 @@ class OptimizationFacade:
             self._lease(self._target(jobs[0]), payload['leaseId'])
             control = self._control(payload['batchId'])
             job = next((j for j in jobs if j['request_id'] == payload['requestId']), None)
-            if control['paused'] or control['stopped'] or not job or self.service._barrier(job) or job['state'] != 'pending' or any(j['state'] in ACTIVE for j in jobs):
+            if control['paused'] or control['stopped'] or not job or job.get('control_intent') == 'stop' or self.service._barrier(job) or job['state'] != 'pending' or any(j['state'] in ACTIVE for j in jobs):
                 raise Conflict('此任务当前不能提交')
             snapshot = job['snapshot']['input']['optimization']
             if any(payload[k] != snapshot[k] for k in ('snapshotDigest', 'revision', 'requestSeq')):
@@ -410,7 +413,7 @@ class OptimizationFacade:
             if control['paused'] or control['stopped'] or any(j['state'] in ACTIVE or j['request_id'] in self.service._workers for j in jobs):
                 raise Conflict('任务已停止、暂停或有请求在途')
             job = next((j for j in jobs if j['request_id'] == payload['requestId']), None)
-            if not job or self.service._barrier(job) or job['state'] != 'pending' or payload.get('provider', 'qwen') != PROVIDERS[job['source']['model']]:
+            if not job or job.get('control_intent') == 'stop' or self.service._barrier(job) or job['state'] != 'pending' or payload.get('provider', 'qwen') != PROVIDERS[job['source']['model']]:
                 raise Conflict('此任务当前不能提交')
             self._quote(control['quoteId'], [j['snapshot']['input']['optimization'] for j in jobs], control.get('budgetCredits', job['source'].get('budgetCredits', 0)))
             def authorized():
@@ -436,8 +439,22 @@ class OptimizationFacade:
         async with self.lock:
             jobs = (await asyncio.to_thread(self._batch, payload['batchId']))
             self._lease(self._target(jobs[0]), payload['leaseId'])
+            for job in jobs:
+                if job['state'] == 'pending' and job.get('control_intent') != 'stop':
+                    await asyncio.to_thread(self.service.jobs.record_control, job['request_id'], 'stop',
+                                            expected_version=job['version'], scope='optimization-batch')
             self._control(payload['batchId']).update(paused=True, stopped=True)
-            return (await self._report(jobs))
+            return (await self._report((await asyncio.to_thread(self._batch, payload['batchId']))))
+
+    async def interrupt(self, payload):
+        async with self.lock:
+            jobs = (await asyncio.to_thread(self._batch, payload['batchId']))
+            self._lease(self._target(jobs[0]), payload['leaseId'])
+            self._control(payload['batchId']).update(paused=True, stopped=True)
+            for job in jobs:
+                if job['state'] not in ('succeeded', 'failed', 'cancelled'):
+                    await self.service.interrupt(job['request_id'])
+            return (await self._report((await asyncio.to_thread(self._batch, payload['batchId']))))
 
     async def continue_batch(self, payload):
         async with self.lock:
@@ -451,8 +468,12 @@ class OptimizationFacade:
             selected = {digest(j['snapshot']['input']['optimization']['target']) for j in jobs if j['state'] == 'pending'}
             if self._overlap((await asyncio.to_thread(self._jobs, **self._target(jobs[0]))), payload['batchId'], selected):
                 raise Conflict('范围已有其他活动批次；未继续旧任务。')
+            for job in jobs:
+                if job['state'] == 'pending' and job.get('control_intent') in {'pause', 'stop'}:
+                    await asyncio.to_thread(self.service.jobs.record_control, job['request_id'], 'resume',
+                                            expected_version=job['version'], scope='optimization-batch')
             self._control(payload['batchId']).update(paused=False, stopped=False, quoteId=payload['quoteId'], budgetCredits=payload['budgetCredits'])
-            return (await self._report(jobs))
+            return (await self._report((await asyncio.to_thread(self._batch, payload['batchId']))))
 
     async def skip(self, payload):
         async with self.lock:

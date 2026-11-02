@@ -24,11 +24,11 @@ function tree(){
   e.setAttribute=(name,value)=>e.attributes.set(name,String(value));
   e.getAttribute=name=>e.attributes.get(name)??null;
   e.classList={add(name){e.className=[...new Set(e.className.split(' ').filter(Boolean).concat(name))].join(' ');}};
-  e.matches=selector=>{
-   if(selector.startsWith('.'))return e.className.split(' ').includes(selector.slice(1));
-   const match=selector.match(/^(\w+)?(?:\[data-([a-z-]+)\])?$/);assert(match,'unsupported selector '+selector);
+  e.matches=selector=>selector.split(',').some(raw=>{
+   const part=raw.trim();if(part.startsWith('.'))return e.className.split(' ').includes(part.slice(1));
+   const match=part.match(/^(\w+)?(?:\[data-([a-z-]+)\])?$/);assert(match,'unsupported selector '+part);
    return (!match[1]||e.tagName===match[1])&&(!match[2]||Object.hasOwn(e.dataset,match[2].replace(/-([a-z])/g,(_,c)=>c.toUpperCase())));
-  };
+  });
   const walk=function*(parent){for(const child of parent.children){if(child.tagName==='tbody'||child.bodyDescendant)counts.bodyVisits++;yield child;yield*walk(child);}};
   e.querySelector=selector=>{for(const child of walk(e))if(child.matches(selector))return child;return null;};
   e.querySelectorAll=selector=>[...walk(e)].filter(child=>child.matches(selector));
@@ -102,3 +102,11 @@ test('panel replacement and externally moved header are observed on the next que
  b.table.fields=[];assert.deepEqual(materialSources(a.node),next);
  b.head.remove();assert.deepEqual(materialSources(a.node),[]);
 });
+test('ordinary table columns expose stable encoded output keys without reading body cells',()=>{
+ const f=fixture(1,['plain','a/b'],3);f.rebuild(['plain','a/b'],{generation:false});const header=f.head.children[0];
+ for(const id of ['plain','a/b']){const source=domSource(f.dom,id);header.append(source);}
+ f.dom.reset();
+ assert.deepEqual(materialSources(f.node).map(item=>item.key),['column:plain','column:a%2Fb']);
+ assert.equal(f.dom.counts.bodyVisits,0);
+});
+function domSource(dom,id){const source=dom.element('button');source.dataset.tableSource=id;return source;}

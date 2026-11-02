@@ -984,6 +984,120 @@
         "AC-BIZ-044-001",
         "AC-BIZ-044-002"
       ]
+    },
+    {
+      "id": "F-BIZ-045",
+      "title": "表内右键纵向操作菜单",
+      "decision": "重构",
+      "current": "选中后创建横向 content-context 工具栏；右键仅对部分文本列进入优化菜单，无统一表内上下文菜单。",
+      "source": [
+        "business:web/data_table_editor.mjs",
+        "canvas:docs/architecture/FRONTEND_INTERACTION.md"
+      ],
+      "target": "frontend/src/features/table; frontend/src/application",
+      "phase": "M3",
+      "rationale": "已确认单元格、行头、列头左键只选择，右键打开纵向菜单；横向菜单仅用于节点级操作。",
+      "acceptance": [
+        "左键选择单元格、行头或列头只更新焦点和选择，不自动打开操作菜单。",
+        "右键、Shift+F10 或键盘菜单键在指针或焦点对象打开纵向菜单；方向键移动、Enter 执行、Escape 关闭并归还焦点。",
+        "选项按逻辑分组，图标加文字、固定行高；菜单避开视口边缘且不被节点内容裁切。表内不再使用横向工具栏；素材组等节点横向菜单保持。"
+      ],
+      "acceptance_ids": [
+        "AC-BIZ-045-001",
+        "AC-BIZ-045-002",
+        "AC-BIZ-045-003"
+      ]
+    },
+    {
+      "id": "F-BIZ-046",
+      "title": "单元格与按列输出为素材组并保留来源连线",
+      "decision": "重构",
+      "current": "列输出 Slot 可创建独立素材节点和组并保存来源属性，但没有持久的表格到素材组原生连线；单元格和列菜单无统一输出入口。",
+      "source": [
+        "business:web/table_material_output.mjs",
+        "business:web/data_table_editor.mjs"
+      ],
+      "target": "frontend/src/application; frontend/src/features/table; frontend/src/canvas",
+      "phase": "M3",
+      "rationale": "只允许单格与按列输出；结果为素材组；表到组连线可保存、撤销、重载。整行和多单元格选区不输出。",
+      "acceptance": [
+        "单元格仅通过右键菜单输出；列通过列头菜单和列输出 Slot 输出，两入口范围与结果相同。",
+        "整行、多行或多单元格选择不提供有效输出动作，也不创建组。",
+        "每个结果组与表格来源之间建立可保存、可撤销、重载后仍有效的原生连线；失败时原子回滚新增成员、组和连线。"
+      ],
+      "acceptance_ids": [
+        "AC-BIZ-046-001",
+        "AC-BIZ-046-002",
+        "AC-BIZ-046-003"
+      ]
+    },
+    {
+      "id": "F-BIZ-047",
+      "title": "列输出过滤、身份去重与按类型拆组",
+      "decision": "重构",
+      "current": "现输出路径主要筛选带 URL 的图片/视频并按任务行分组，不处理文本、跨单元格去重或按类型拆分。",
+      "source": [
+        "business:web/table_material_output.mjs"
+      ],
+      "target": "frontend/src/application; frontend/src/features/table",
+      "phase": "M3",
+      "rationale": "按行序与格内顺序输出；跳过空值和失效引用；按素材身份去重保留首次出现；按文本、图片、视频自动拆成独立同类型组。",
+      "acceptance": [
+        "空单元格和失效引用跳过，不创建空占位，也不阻断后续有效内容。",
+        "同一素材身份在一次输出中只保留首次出现；后续重复不改变首次顺序。",
+        "按文本、图片、视频自动拆组，不增加类型筛选步骤；过滤后无有效成员则不创建空组。"
+      ],
+      "acceptance_ids": [
+        "AC-BIZ-047-001",
+        "AC-BIZ-047-002",
+        "AC-BIZ-047-003"
+      ]
+    },
+    {
+      "id": "F-BIZ-048",
+      "title": "生成与优化任务的作用域暂停、打断、继续和重启",
+      "decision": "重构",
+      "current": "主要入口仍以暂停表达，底层多通过取消实现；本地可中断后重跑，远端任务通常继续完成。持久暂停意图与显式打断/重启未完成。",
+      "source": [
+        "business:web/table_generation_tasks.mjs",
+        "business:web/task_snapshots.mjs"
+      ],
+      "target": "frontend/src/features/generation; frontend/src/features/tasks; backend/jobs",
+      "phase": "M4",
+      "rationale": "控制动作必须带明确范围并表达真实任务事实；刷新、重开和服务重启后从账本恢复暂停意图。F-BIZ-032 仍描述旧暂停/本地中断能力。",
+      "acceptance": [
+        "暂停、打断、继续、重启作用于声明范围，不误伤其他节点、表格实例或未选中任务。",
+        "暂停保留继续意图并持久化；打断结束当前执行且不自动派发替代任务；重启创建新请求身份并保留旧回执与结果。",
+        "无法取消的远端执行不得显示已停止或已退款；结果未知时禁止自动新提交。"
+      ],
+      "acceptance_ids": [
+        "AC-BIZ-048-001",
+        "AC-BIZ-048-002",
+        "AC-BIZ-048-003"
+      ]
+    },
+    {
+      "id": "F-BIZ-049",
+      "title": "单任务真实进度与成组完成计数",
+      "decision": "重构",
+      "current": "快照协议已有可选 progress，成组百分比尚未严格隐藏；现有测试主要使用合成报告。",
+      "source": [
+        "business:web/task_snapshots.mjs",
+        "business:web/table_generation_tasks.mjs"
+      ],
+      "target": "frontend/src/features/tasks; frontend/src/features/generation; backend/jobs",
+      "phase": "M4",
+      "rationale": "仅一个任务时可显示真实百分比和阶段；两个及以上任务不显示百分比，节点左上角只显示总数和已验证完成数。无真实进度时只显示不确定状态。",
+      "acceptance": [
+        "生成范围仅一个 requestId 时，可显示提供方或可核对计数换算的百分比，并同时给出数字与百分号。",
+        "生成范围两个及以上任务时，节点、胶囊和占位不显示百分比或进度圆环，左上角只显示总任务数和已完成数。",
+        "禁止用时间、动画或未经校准权重虚构百分比；排队不显示 0%；100% 不等于写回完成。"
+      ],
+      "acceptance_ids": [
+        "AC-BIZ-049-001",
+        "AC-BIZ-049-002",
+        "AC-BIZ-049-003"
+      ]
     }
   ],
   "usecases": [
@@ -1431,6 +1545,110 @@
       ],
       "exceptions": [
         "超预算保留复现夹具与 trace，不能用掩盖内容或放弃保存兼容通过。"
+      ]
+    },
+    {
+      "id": "UC-BIZ-017",
+      "title": "用右键和键盘操作表内单元格、行和列",
+      "features": [
+        "F-BIZ-045"
+      ],
+      "actor": "创作者",
+      "preconditions": [
+        "打开含素材列和文本列的多维表格，两个实例可见。"
+      ],
+      "steps": [
+        "左键选择单元格、行头和列头。",
+        "在对象上右键，再用 Shift+F10 打开菜单，键盘选择一项后 Escape。",
+        "在视口边缘打开菜单；确认素材组节点横向菜单仍可用。"
+      ],
+      "outcomes": [
+        "左键不弹出表内菜单；右键纵向菜单按分组显示图标和文字。",
+        "键盘可打开、移动、执行和关闭，焦点回到触发对象。",
+        "菜单保持在视口内；节点级横向菜单不受影响。"
+      ],
+      "exceptions": [
+        "选择后不再出现横向 content-context 工具栏。",
+        "两实例菜单与焦点互不串扰。"
+      ]
+    },
+    {
+      "id": "UC-BIZ-018",
+      "title": "从单元格或列输出同类型素材组",
+      "features": [
+        "F-BIZ-046",
+        "F-BIZ-047",
+        "F-CAN-040"
+      ],
+      "actor": "创作者",
+      "preconditions": [
+        "表格列中混有文本、图片、视频、空单元格、失效引用和重复素材身份。"
+      ],
+      "steps": [
+        "对单个单元格用右键输出；对同一列用菜单和 Slot 各输出一次。",
+        "尝试对整行和多单元格选择输出。",
+        "保存重载后检查表到组连线；模拟一次输出失败。"
+      ],
+      "outcomes": [
+        "单元格与列输出按类型拆成素材组，空值、失效和重复被正确处理。",
+        "列菜单与 Slot 结果一致；整行和多格无输出入口。",
+        "来源连线保存后仍在；失败不留下部分组或连线。"
+      ],
+      "exceptions": [
+        "不出现选择输出类型的步骤。",
+        "后续编辑单元格不自动改写已输出快照。"
+      ]
+    },
+    {
+      "id": "UC-BIZ-019",
+      "title": "按作用域暂停、打断、继续和重启生成任务",
+      "features": [
+        "F-BIZ-048",
+        "F-BIZ-032",
+        "F-BIZ-030"
+      ],
+      "actor": "创作者",
+      "preconditions": [
+        "两个表格或生成节点实例中各有等待与运行中的任务；使用假服务或已批准本地模型，不调用付费云。"
+      ],
+      "steps": [
+        "对实例 A 的当前任务暂停，确认实例 B 继续。",
+        "打断 A 中另一任务；刷新或重开工作流后继续剩余暂停任务。",
+        "对已完成任务重启，核对新旧请求身份。"
+      ],
+      "outcomes": [
+        "暂停与打断只作用于声明范围。",
+        "重开后暂停意图仍在，需显式继续。",
+        "重启使用新请求身份，旧结果保留。"
+      ],
+      "exceptions": [
+        "不可取消远端任务不显示已停止或已退款。",
+        "DeepSeek 与其他云通道本轮只用配置或假服务，不付费调用。"
+      ]
+    },
+    {
+      "id": "UC-BIZ-020",
+      "title": "查看单任务百分比与成组完成计数",
+      "features": [
+        "F-BIZ-049",
+        "F-BIZ-034"
+      ],
+      "actor": "创作者",
+      "preconditions": [
+        "可构造单任务批次和不少于两个任务的批次；进度可由测试替身提供真实数值或缺失。"
+      ],
+      "steps": [
+        "提交单任务并注入真实百分比；再提交多任务批次。",
+        "对无进度的单任务观察占位。",
+        "暂停或重启后核对进度身份。"
+      ],
+      "outcomes": [
+        "单任务显示数字百分比和阶段；多任务只显示总数和已完成数。",
+        "无真实进度时不出现虚构百分比。",
+        "迟到的旧尝试进度不覆盖新尝试。"
+      ],
+      "exceptions": [
+        "成组模式不在节点、胶囊或占位显示百分比圆环。"
       ]
     }
   ],
@@ -3128,6 +3346,229 @@
         "business:tests/table_node_install.test.mjs",
         "business:tests/llm_slot_model.test.mjs",
         "business:tests/test_daelab_comfytv_storyboard.py"
+      ]
+    },
+    {
+      "id": "TC-BIZ-051",
+      "title": "表内纵向菜单键盘、边缘与双实例隔离",
+      "features": [
+        "F-BIZ-045"
+      ],
+      "usecases": [
+        "UC-BIZ-017"
+      ],
+      "level": "host",
+      "priority": "P0",
+      "phase": "M3",
+      "fixture": "隔离 ComfyUI 双表格实例，含行头、列头、单元格。",
+      "setup": [
+        "记录焦点、菜单锚点和视口裁切。",
+        "不使用 Figma 稿作为通过证据。"
+      ],
+      "steps": [
+        "左键选择；右键与 Shift+F10 打开菜单；方向键、Enter、Escape。",
+        "在视口边缘与窄节点内打开菜单。",
+        "模式往返、保存重载；第二实例同时操作。"
+      ],
+      "expected": [
+        "左键不打开表内菜单；纵向菜单分组、固定行高、图标加文字。",
+        "Escape 归还焦点；菜单不被裁出视口。",
+        "两实例焦点与菜单互不干扰；节点横向菜单仍可用。"
+      ],
+      "automation": "混合",
+      "execution_policy": "不付费",
+      "existing_coverage": [
+        "business:web/data_table_editor.mjs"
+      ]
+    },
+    {
+      "id": "TC-BIZ-052",
+      "title": "选择后不再出现横向表内工具栏",
+      "features": [
+        "F-BIZ-045"
+      ],
+      "usecases": [
+        "UC-BIZ-017"
+      ],
+      "level": "contract",
+      "priority": "P0",
+      "phase": "M3",
+      "fixture": "表格内容呈现夹具，覆盖单元格、行头、列头选择。",
+      "setup": [
+        "以当前 content-context 工具栏行为为失败基线。"
+      ],
+      "steps": [
+        "程序化选中单元格、行头、列头。",
+        "断言未创建横向 content-context 工具栏。"
+      ],
+      "expected": [
+        "选择变化不创建表内横向工具栏。",
+        "输出与结构命令只从纵向菜单控制器进入。"
+      ],
+      "automation": "自动",
+      "execution_policy": "不付费",
+      "existing_coverage": [
+        "business:web/data_table_editor.mjs"
+      ]
+    },
+    {
+      "id": "TC-BIZ-053",
+      "title": "列输出过滤、去重与类型拆分纯函数",
+      "features": [
+        "F-BIZ-047"
+      ],
+      "usecases": [
+        "UC-BIZ-018"
+      ],
+      "level": "contract",
+      "priority": "P0",
+      "phase": "M3",
+      "fixture": "含空值、失效引用、重复身份、混排文本/图片/视频的列数据。",
+      "setup": [
+        "固定行序和格内顺序夹具。"
+      ],
+      "steps": [
+        "对单格和整列运行输出规划。",
+        "对全空列运行输出规划。"
+      ],
+      "expected": [
+        "空值与失效跳过；重复身份保留首次出现。",
+        "文本、图片、视频分成独立组；全空不创建组。"
+      ],
+      "automation": "自动",
+      "execution_policy": "不付费",
+      "existing_coverage": [
+        "business:tests/table_material_output.test.mjs",
+        "business:web/table_material_output.mjs"
+      ]
+    },
+    {
+      "id": "TC-BIZ-054",
+      "title": "表到组输出连线保存、失败回滚与双实例",
+      "features": [
+        "F-BIZ-046",
+        "F-BIZ-047"
+      ],
+      "usecases": [
+        "UC-BIZ-018"
+      ],
+      "level": "host",
+      "priority": "P0",
+      "phase": "M3",
+      "fixture": "隔离 ComfyUI 表格与空白画布，可注入输出失败。",
+      "setup": [
+        "两实例各有独立表格。"
+      ],
+      "steps": [
+        "单元格菜单输出与列 Slot 输出。",
+        "保存重载、模式往返、撤销。",
+        "在写入连线失败时重试并检查残留。"
+      ],
+      "expected": [
+        "结果仅为素材组且与来源连线在重载后仍在。",
+        "整行/多格无输出；失败无部分成员或孤立组。",
+        "两实例输出互不写入对方文档。"
+      ],
+      "automation": "混合",
+      "execution_policy": "不付费",
+      "existing_coverage": [
+        "business:tests/table_material_output.test.mjs"
+      ]
+    },
+    {
+      "id": "TC-BIZ-055",
+      "title": "任务控制命令与状态矩阵",
+      "features": [
+        "F-BIZ-048"
+      ],
+      "usecases": [
+        "UC-BIZ-019"
+      ],
+      "level": "contract",
+      "priority": "P0",
+      "phase": "M4",
+      "fixture": "账本替身覆盖等待、本地运行、可取消远端、不可取消远端、未知、完成、失败。",
+      "setup": [
+        "禁止真实云调用。"
+      ],
+      "steps": [
+        "对每种状态发出暂停、打断、继续、重启。",
+        "重复点击同一控制。"
+      ],
+      "expected": [
+        "动作与范围写入账本意图，不误伤其他任务。",
+        "重复点击不创建重复控制请求。",
+        "不可取消远端不进入已停止完成态。"
+      ],
+      "automation": "自动",
+      "execution_policy": "不付费",
+      "existing_coverage": [
+        "business:web/table_generation_tasks.mjs",
+        "business:tests/task_snapshots.test.mjs"
+      ]
+    },
+    {
+      "id": "TC-BIZ-056",
+      "title": "任务控制双实例隔离与恢复",
+      "features": [
+        "F-BIZ-048"
+      ],
+      "usecases": [
+        "UC-BIZ-019"
+      ],
+      "level": "host",
+      "priority": "P0",
+      "phase": "M4",
+      "fixture": "隔离 ComfyUI 双生成入口，假服务任务。",
+      "setup": [
+        "实例 A/B 各有独立任务集合。"
+      ],
+      "steps": [
+        "暂停 A，确认 B 继续。",
+        "刷新或重开后继续 A。",
+        "重启已完成任务并核对不同 requestId。"
+      ],
+      "expected": [
+        "B 的运行任务不被 A 的暂停取消。",
+        "重开后 A 仍为暂停直至显式继续。",
+        "重启保留旧结果。"
+      ],
+      "automation": "混合",
+      "execution_policy": "不付费",
+      "existing_coverage": [
+        "business:web/table_generation_tasks.mjs"
+      ]
+    },
+    {
+      "id": "TC-BIZ-057",
+      "title": "单任务百分比与成组完成计数切换",
+      "features": [
+        "F-BIZ-049"
+      ],
+      "usecases": [
+        "UC-BIZ-020"
+      ],
+      "level": "contract",
+      "priority": "P0",
+      "phase": "M4",
+      "fixture": "任务快照替身：单 requestId 带真实进度；两任务批次；无进度单任务。",
+      "setup": [
+        "禁止用时间或动画合成百分比。"
+      ],
+      "steps": [
+        "发布单任务真实进度；发布两任务批次；发布无进度单任务。",
+        "在新尝试开始后注入旧尝试迟到进度。"
+      ],
+      "expected": [
+        "单任务显示数字与百分号；两任务只显示总数和已完成数，无百分比圆环。",
+        "无真实进度时为不确定状态，排队不显示 0%。",
+        "迟到旧尝试进度不覆盖新尝试。"
+      ],
+      "automation": "自动",
+      "execution_policy": "不付费",
+      "existing_coverage": [
+        "business:web/task_snapshots.mjs",
+        "business:tests/task_snapshots.test.mjs"
       ]
     }
   ]

@@ -76,7 +76,7 @@ canvas:web/material_groups.mjs
 canvas:nodes/material_group.py
 canvas:docs/material-groups.md","frontend/src/features/groups; backend/integrations/comfyui/nodes","M2","保留有序集合语义与节点身份，组操作不应隐式改写已有业务连线。","多选后打组，拖入/移出保持成员唯一性、顺序和节点身份。
 不支持嵌套组时清楚拒绝，不能产生环或静默丢成员。
-单素材已有连线在打组后保留，除非用户显式建立组输入替代它。","UC-CAN-003 UC-CAN-006","TC-CAN-010 TC-CAN-012 TC-CAN-013 TC-CAN-016"
+单素材已有连线在打组后保留，除非用户显式建立组输入替代它。","UC-CAN-003 UC-CAN-006 UC-CAN-015","TC-CAN-010 TC-CAN-012 TC-CAN-013 TC-CAN-016"
 "F-CAN-016","素材组布局、颜色、序号与紧凑展示","保留","源码已有宫格/水平/垂直排列、五色及自选色、序号、组内标题与悬浮工具栏。","canvas:web/material_groups.mjs
 canvas:web/material_groups.css
 canvas:docs/architecture/FRONTEND_INTERACTION.md","frontend/src/features/groups/layout; frontend/src/design","M2","保留已有创作审阅体验，以共享令牌统一视觉。","三种排列按成员顺序布局且容器贴合内容。
@@ -103,7 +103,7 @@ canvas:nodes/material_group.py
 canvas:nodes/media_upload.py
 canvas:docs/adapter-contract.md","frontend/src/contracts/assets; frontend/src/features/groups; backend/assets","M2","保留单素材、整组与混合文本集合的区别，不把显示顺序等同于无序文件集合。","快照版本和顺序稳定，返回副本不可反向修改源状态。
 ready:false 与空集合不同，未就绪不删除下游已有编辑。
-停用来源不提供可消费快照，原生执行类型与前端约束一致。","UC-CAN-003 UC-CAN-004 UC-CAN-005 UC-CAN-006 UC-CAN-007 UC-CAN-010","TC-CAN-009 TC-CAN-013 TC-CAN-015 TC-CAN-016 TC-CAN-020 TC-CAN-022"
+停用来源不提供可消费快照，原生执行类型与前端约束一致。","UC-CAN-003 UC-CAN-004 UC-CAN-005 UC-CAN-006 UC-CAN-007 UC-CAN-010 UC-CAN-015","TC-CAN-009 TC-CAN-013 TC-CAN-015 TC-CAN-016 TC-CAN-020 TC-CAN-022 TC-CAN-047"
 "F-CAN-021","素材向业务落点的一次性填充","保留","已有 materialTargets/acceptMaterials、按类型声明接收、落点预览和原子历史边界。","canvas:web/creative_material_drop.mjs
 canvas:web/creative_canvas_view.mjs
 canvas:docs/adapter-contract.md:61","frontend/src/canvas/material-exchange; frontend/src/contracts/material-exchange","M3","宿主只管快照、命中与事务，表格列/行/单格规则由表格拥有。","直接落点优先于附近 Slot，按声明类型拒绝非法输入。
@@ -208,6 +208,11 @@ canvas:frontend/package.json
 canvas:README.md:82","frontend/src/design; frontend/src/ui; tests/fixtures/components","M1","保留离线资源与统一陈列，避免为新库重复造一套演示实现。","离线环境字体/图标加载完整并保留许可证与来源清单。
 陈列使用产品真实组件，状态样例覆盖交互而非另写行为副本。
 组件构建和陈列通过仅作为辅助证据，实际宿主验收另记录。","UC-CAN-001 UC-CAN-013 UC-CAN-014","TC-CAN-043"
+"F-CAN-040","新素材组同类型成员约束","重构","现实现允许媒体与非空文字混合成组，并以 image-instructions 表达图片反推要求；mixed_group 测试保留该行为。","canvas:web/material_group_model.mjs
+canvas:web/material_groups.mjs
+canvas:docs/material-groups.md","frontend/src/features/groups","M2","已确认产品规则要求新组只含文本、图片或视频中的同一类型；不迁入旧混合组改造。F-CAN-015 仍覆盖顺序、唯一性与嵌套拒绝。","当前选择全部为同一类型时允许打组；选择含两类及以上时打组不可用，不创建混合组。
+已有组只接收同类型成员；跨类型拖入或加入不改变组成员。
+图片与视频视为不同类型；不做旧混合组迁移或自动拆分。","UC-CAN-015 UC-BIZ-018","TC-CAN-046 TC-CAN-047"
 "F-BIZ-001","通用表格文档与稳定身份","保留","源码已存在；表格以 fields/records/meta 保存，字段、记录和素材具有 ID。","business:web/data_table_model.mjs
 business:nodes/daelab_comfytv_storyboard/table_node.py","frontend/src/features/table; backend/contracts/table","M3","保留成熟数据语义，通过单一编辑命令写回原生图的序列化数据。","字段、记录和素材身份不以名称、行号或 URL 替代。
 保存重载保留未知兼容字段；不建立与原生图并行可写的文档副本。","UC-BIZ-001 UC-BIZ-004 UC-BIZ-016","TC-BIZ-001 TC-BIZ-045"
@@ -335,7 +340,7 @@ business:nodes/libtv_bridge/runtime.py:74","backend/contracts/generation; backen
 "F-BIZ-030","统一持久任务账本与恢复状态机","重构","当前生成为原子 JSON 回执、表格优化为 SQLite 账本、画布润色为内存缓存；尚非统一任务服务。","business:nodes/libtv_bridge/table_generation_api.py
 business:nodes/prompt_optimization/service.py:140
 business:nodes/prompt_optimization/canvas.py:12","backend/jobs; frontend/src/features/tasks","M4","统一权威任务记录，前端/工作流仅保留引用和展示缓存。","每个状态转移、请求和执行身份均可追踪；重启不重置防重依据。
-提交响应未知独立于失败；没有可查询远端 ID 时禁止自动新提交。","UC-BIZ-007 UC-BIZ-011 UC-BIZ-012 UC-BIZ-015","TC-BIZ-021 TC-BIZ-033 TC-BIZ-034 TC-BIZ-035 TC-BIZ-040"
+提交响应未知独立于失败；没有可查询远端 ID 时禁止自动新提交。","UC-BIZ-007 UC-BIZ-011 UC-BIZ-012 UC-BIZ-015 UC-BIZ-019","TC-BIZ-021 TC-BIZ-033 TC-BIZ-034 TC-BIZ-035 TC-BIZ-040"
 "F-BIZ-031","原任务查询、结果下载恢复与结果完整性","重构","源码已存在；恢复已有执行与下载分开，缺失本地结果和不明任务有显式处理。","business:nodes/libtv_bridge/recovery.py
 business:nodes/libtv_bridge/table_generation_api.py
 business:nodes/libtv_bridge/table_local_execution.py","backend/jobs; backend/providers; backend/assets","M4","把当前可靠恢复语义收敛到统一服务并保留有界重试。","下载失败恢复仅查询/下载原结果，不再次创建生成。
@@ -343,7 +348,7 @@ business:nodes/libtv_bridge/table_local_execution.py","backend/jobs; backend/pro
 "F-BIZ-032","暂停、停止后续提交与本地中断","保留","源码已存在：本地当前任务可中断并在继续时重跑当前行；云端已提交任务继续完成。","business:nodes/libtv_bridge/table_generation_api.py
 business:nodes/libtv_bridge/table_local_execution.py:34
 business:web/table_generation_tasks.mjs","backend/jobs; backend/integrations/comfyui; frontend/src/features/tasks","M4","保留不同执行器的真实取消能力，禁止将停止等待队列宣传为撤销远端费用。","暂停只影响指定请求/批次；其他实例继续运行。
-本地继续创建明确的新原生执行记录；云端恢复关联原执行。","UC-BIZ-012","TC-BIZ-037"
+本地继续创建明确的新原生执行记录；云端恢复关联原执行。","UC-BIZ-012 UC-BIZ-019","TC-BIZ-037"
 "F-BIZ-033","结果写回、过期保护、历史结果与撤销隔离","保留","源码已存在；结果按请求/行/列/输入戳写回，历史结果可显式追加。","business:web/table_generation_model.mjs
 business:web/table_generation_tasks.mjs
 business:web/table_generation_history.mjs","frontend/src/application; frontend/src/features/generation; backend/jobs","M4","编辑历史不能倒退不可撤销的外部执行事实。","删除/改动目标或切换工作流后旧响应不覆盖当前内容。
@@ -351,7 +356,7 @@ business:web/table_generation_history.mjs","frontend/src/application; frontend/s
 "F-BIZ-034","任务进度、失败分类与节点汇总","重构","源码已存在；任务纯快照展示，生成每实例轮询 3 秒，优化/文稿各有提供者。","business:web/task_snapshots.mjs
 business:web/table_generation_tasks.mjs:178
 business:docs/architecture/NODE_TASKS.md","frontend/src/features/tasks; backend/jobs","M4","统一订阅和错误模型，减少实例级重复轮询但保留真实进度语义。","只有提供方报告百分比时显示百分比，其余显示阶段/计数。
-完成/失败/跳过/过期分开；刷新历史成功不反复发完成通知。","UC-BIZ-013 UC-BIZ-014 UC-BIZ-016","TC-BIZ-039 TC-BIZ-045"
+完成/失败/跳过/过期分开；刷新历史成功不反复发完成通知。","UC-BIZ-013 UC-BIZ-014 UC-BIZ-016 UC-BIZ-020","TC-BIZ-039 TC-BIZ-045"
 "F-BIZ-035","云并发、本地串行与 GPU 资源协调","重构","源码已存在：表格云预算 32、本地 1；native_admission 目前从优化模块提供，宿主进程内调度。","business:nodes/libtv_bridge/table_generation_api.py:22
 business:nodes/libtv_bridge/table_local_execution.py:54
 business:nodes/prompt_optimization/local_qwen.py","backend/jobs; backend/integrations/comfyui","M4","抽出公共资源协调；当前数字只作为盘点基线，新预算经测量确定。","跨表/节点共享预算，单行失败不阻塞无关任务。
@@ -400,6 +405,25 @@ business:docs/architecture/LLM_SLOT_IO.md","frontend/src/features/prompt; fronte
 business:web/llm_style_preview.js:12
 business:web/llm_style_preview.js:58","compat/workflows; compat/legacy","M6","分镜生成统一到通用表格/生成服务，原型数据可导入，避免生产继续暴露多套重叠执行入口。","旧分镜表/结果/输入可读取并预览转换差异，用户显式转换后才启用新生成入口。
 A/C/D/E 不作为新包生产节点注册；可恢复数据并显式转换到 B，不静默丢弃原型内容。","UC-BIZ-015","TC-BIZ-050"
+"F-BIZ-045","表内右键纵向操作菜单","重构","选中后创建横向 content-context 工具栏；右键仅对部分文本列进入优化菜单，无统一表内上下文菜单。","business:web/data_table_editor.mjs
+canvas:docs/architecture/FRONTEND_INTERACTION.md","frontend/src/features/table; frontend/src/application","M3","已确认单元格、行头、列头左键只选择，右键打开纵向菜单；横向菜单仅用于节点级操作。","左键选择单元格、行头或列头只更新焦点和选择，不自动打开操作菜单。
+右键、Shift+F10 或键盘菜单键在指针或焦点对象打开纵向菜单；方向键移动、Enter 执行、Escape 关闭并归还焦点。
+选项按逻辑分组，图标加文字、固定行高；菜单避开视口边缘且不被节点内容裁切。表内不再使用横向工具栏；素材组等节点横向菜单保持。","UC-BIZ-017","TC-BIZ-051 TC-BIZ-052"
+"F-BIZ-046","单元格与按列输出为素材组并保留来源连线","重构","列输出 Slot 可创建独立素材节点和组并保存来源属性，但没有持久的表格到素材组原生连线；单元格和列菜单无统一输出入口。","business:web/table_material_output.mjs
+business:web/data_table_editor.mjs","frontend/src/application; frontend/src/features/table; frontend/src/canvas","M3","只允许单格与按列输出；结果为素材组；表到组连线可保存、撤销、重载。整行和多单元格选区不输出。","单元格仅通过右键菜单输出；列通过列头菜单和列输出 Slot 输出，两入口范围与结果相同。
+整行、多行或多单元格选择不提供有效输出动作，也不创建组。
+每个结果组与表格来源之间建立可保存、可撤销、重载后仍有效的原生连线；失败时原子回滚新增成员、组和连线。","UC-BIZ-018","TC-BIZ-054"
+"F-BIZ-047","列输出过滤、身份去重与按类型拆组","重构","现输出路径主要筛选带 URL 的图片/视频并按任务行分组，不处理文本、跨单元格去重或按类型拆分。","business:web/table_material_output.mjs","frontend/src/application; frontend/src/features/table","M3","按行序与格内顺序输出；跳过空值和失效引用；按素材身份去重保留首次出现；按文本、图片、视频自动拆成独立同类型组。","空单元格和失效引用跳过，不创建空占位，也不阻断后续有效内容。
+同一素材身份在一次输出中只保留首次出现；后续重复不改变首次顺序。
+按文本、图片、视频自动拆组，不增加类型筛选步骤；过滤后无有效成员则不创建空组。","UC-BIZ-018","TC-BIZ-053 TC-BIZ-054"
+"F-BIZ-048","生成与优化任务的作用域暂停、打断、继续和重启","重构","主要入口仍以暂停表达，底层多通过取消实现；本地可中断后重跑，远端任务通常继续完成。持久暂停意图与显式打断/重启未完成。","business:web/table_generation_tasks.mjs
+business:web/task_snapshots.mjs","frontend/src/features/generation; frontend/src/features/tasks; backend/jobs","M4","控制动作必须带明确范围并表达真实任务事实；刷新、重开和服务重启后从账本恢复暂停意图。F-BIZ-032 仍描述旧暂停/本地中断能力。","暂停、打断、继续、重启作用于声明范围，不误伤其他节点、表格实例或未选中任务。
+暂停保留继续意图并持久化；打断结束当前执行且不自动派发替代任务；重启创建新请求身份并保留旧回执与结果。
+无法取消的远端执行不得显示已停止或已退款；结果未知时禁止自动新提交。","UC-BIZ-019","TC-BIZ-055 TC-BIZ-056"
+"F-BIZ-049","单任务真实进度与成组完成计数","重构","快照协议已有可选 progress，成组百分比尚未严格隐藏；现有测试主要使用合成报告。","business:web/task_snapshots.mjs
+business:web/table_generation_tasks.mjs","frontend/src/features/tasks; frontend/src/features/generation; backend/jobs","M4","仅一个任务时可显示真实百分比和阶段；两个及以上任务不显示百分比，节点左上角只显示总数和已验证完成数。无真实进度时只显示不确定状态。","生成范围仅一个 requestId 时，可显示提供方或可核对计数换算的百分比，并同时给出数字与百分号。
+生成范围两个及以上任务时，节点、胶囊和占位不显示百分比或进度圆环，左上角只显示总任务数和已完成数。
+禁止用时间、动画或未经校准权重虚构百分比；排队不显示 0%；100% 不等于写回完成。","UC-BIZ-020","TC-BIZ-057"
 "F-SYS-001","单仓库单安装入口","重构","当前两个仓库各自注册节点与扩展，完整创作依赖组合安装","canvas:__init__.py
 business:__init__.py","__init__.py; backend/integrations/comfyui; frontend/src/integrations/comfyui","M1","统一产品组装与版本，消除跨包发现与 fallback","干净环境只安装新包即可使用基础创作能力；节点、路由和菜单各注册一次","UC-SYS-001 UC-SYS-007","TC-SYS-001 TC-SYS-007 TC-SYS-034"
 "F-SYS-002","模块边界与公开接口","重构","已有公开 adapter 和分层草案，部分代码仍直接读取宿主及私有状态","canvas:docs/adapter-contract.md
@@ -449,6 +473,13 @@ business:nodes/libtv_bridge/table_generation_api.py","backend/jobs; backend/prov
 "F-SYS-020","文件范围与敏感数据边界","保留","素材导入与提供方输入已有路径/类型校验","canvas:nodes/material_output_api.py
 business:nodes/libtv_bridge/table_generation_api.py","backend/assets; backend/contracts; backend/providers","M2","迁移后继续服务端校验，保护用户本地文件和凭据","目录穿越、越界引用、畸形输入被拒绝；日志和工作流不保存凭据；原素材不受失败影响","UC-SYS-005 UC-SYS-009","TC-SYS-011 TC-SYS-020 TC-SYS-021"
 "F-SYS-021","旧库退出与数据回滚","重构","已有拆库回滚说明，新产品尚无完整切换演练","canvas:docs/migration.md","tools; compat; docs/releases","M6","达到单库维护目标并保留可恢复的历史状态","新包运行不加载旧库；回滚能恢复旧数据；新产生且旧版不识别的数据独立保全","UC-SYS-005 UC-SYS-006 UC-SYS-011","TC-SYS-012 TC-SYS-014 TC-SYS-015 TC-SYS-034"
+"F-SYS-022","统一只读模型目录与启动发现","重构","本地生成依赖显式装配文件，模型控件各自读取能力；无统一跨节点目录和完整启动/重连刷新。","business:web/table_generation_tasks.mjs
+business:web/llm_io_model.mjs","backend/providers; frontend/src/features/generation; frontend/src/features/prompt","M4","服务启动、应用打开或宿主重连后自动发现本机本地模型及已配置 DeepSeek；生成、LLM 优化和表格共用同一目录。已保存逻辑模型 ID 不自动回退。","启动、打开、重连、配置变化、手动重检和提交前复核使目录刷新，不加载 GPU、不发送计费请求。
+生成节点、LLM 优化节点和多维表格消费同一只读目录投影。
+已保存逻辑模型缺失时保持原 ID 并标为不可用，不静默换成其他模型。DeepSeek 仅配置与能力检查，不调用云或付费接口。","UC-SYS-012 UC-SYS-013","TC-SYS-037"
+"F-SYS-023","模型选项的隐式可用性状态","重构","现有控件可能显示不可用原因，未统一可选、检测中、待验证和不可用状态。","business:web/llm_io_model.mjs","frontend/src/ui; frontend/src/features/generation; frontend/src/features/prompt","M4","不可用置灰禁用，检测中显示加载圆环，可用保持默认；检测原因只写结构化日志，不出现在菜单、节点或 Toast。","选项只表达可选、检测中、待验证或不可用；不展示底层检测错误文本。
+不可用项禁用且可访问名称包含不可用状态；检测中显示加载指示。
+原因仅写入结构化日志，不进入菜单、节点正文或 Toast。","UC-SYS-013","TC-SYS-038"
 "F-OUT-001","展厅专用提示词、风格库与旧展厅 App Mode","不迁入","业务库注册 SeedreamExhibitionPromptBuilder，按展厅风格与空间参数拼接提示词，并依赖展厅样式资产。","business:nodes/seedream_exhibition_prompt_builder/node.py:353
 business:web/styles.json","旧仓库固定基线归档；新包不注册展厅节点、不携带展厅专用样式与界面。","M0","展厅业务不属于素材—分镜—表格—生成—剪辑创作闭环；通用文本能力由新产品已有文本与提示词模块承担。","新包节点目录不含 SeedreamExhibitionPromptBuilder。
 导入包含该节点的旧工作流时报告不支持范围并保留原始节点数据，不静默删除。","UC-SYS-005","TC-SYS-009 TC-SYS-034"

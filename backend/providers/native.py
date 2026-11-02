@@ -58,6 +58,7 @@ class ModelInventory:
 class NativeProvider:
     execution_kind = 'local'
     supports_query = supports_lookup = supports_cancel = True
+    supports_progress = True
     resource = 'native'
 
     def __init__(self, kind, *, inventory, queue, media_input, reference=False):
@@ -133,7 +134,7 @@ class NativeProvider:
     async def create(self, request_id, snapshot):
         task_id = snapshot['prepared']['native_task_id']
         try:
-            await self.queue.enqueue(task_id, snapshot['prepared']['graph'], owner=request_id)
+            task_id = await self.queue.enqueue(task_id, snapshot['prepared']['graph'], owner=request_id)
         except (SubmissionRejected, ProviderUnavailable):
             raise
         except BaseException:

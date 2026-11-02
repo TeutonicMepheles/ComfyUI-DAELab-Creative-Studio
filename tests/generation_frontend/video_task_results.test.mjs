@@ -50,14 +50,20 @@ test('material groups use the visible completed history in row order and preserv
  const state=createVideoTasks(),first=state.table.records[0],fieldId=state.fieldId;
  const historyVideo={...video,reference_id:'video-ref'},historyImage={...image,reference_id:'image-ref'};
  first.name='第一行';first.meta={generationColumns:{[fieldId]:{...completed('new',historyVideo),history:[completed('old',historyImage)]}}};first.values[fieldId]=[{...historyImage,id:'saved-image',provenance:{requestId:'old'}}];
- const second={id:'second',name:'第二行',values:{[fieldId]:[]},meta:{generationColumns:{[fieldId]:completed('second-video',{...video,url:'/view?filename=second.mp4',reference_id:'second-ref'})}}};
+ const second={id:'second',name:'第二行',values:{[fieldId]:[]},meta:{generationColumns:{[fieldId]:completed('second-video',{...video,url:'/view?filename=second.mp4&type=output',reference_id:'second-ref'})}}};
  const empty={id:'empty',values:{[fieldId]:[]}};
  state.table.records=[second,empty,first];const before=JSON.stringify(state),out=videoTaskAssets(state);
  assert.equal(out.ready,true);assert.equal(out.skipped,1);
  assert.deepEqual(out.groups,[{label:'第二行',count:1},{label:'第一行',count:2}]);
+ assert.deepEqual(out.outputGroups,[
+  {kind:'video',label:'第二行 · 视频',count:1,assetIndexes:[0],textIndexes:[]},
+  {kind:'image',label:'第一行 · 图片',count:1,assetIndexes:[1],textIndexes:[]},
+  {kind:'video',label:'第一行 · 视频',count:1,assetIndexes:[2],textIndexes:[]},
+ ]);
  assert.deepEqual(out.assets.map(a=>a.id),['second-ref','saved-image','video-ref']);
  assert.deepEqual(out.assets.map(a=>a.provenance.requestId),['second-video','old','new']);
  assert.deepEqual(out.assets.map(a=>a.provenance.recordId),['second',first.id,first.id]);
+ assert.deepEqual(out.assets.map(a=>state.table.records.find(row=>row.id===a.provenance.recordId)?.name),['第二行','第一行','第一行']);
  assert(out.assets.every(a=>a.provenance.fieldId===fieldId&&a.provenance.materialId===a.id));
  assert.equal(JSON.stringify(state),before);
  assert.deepEqual(videoTaskAssets(JSON.parse(before)),out);

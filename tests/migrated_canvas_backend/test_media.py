@@ -54,12 +54,12 @@ class LocalMediaTests(unittest.TestCase):
                     "/view?filename=red.png&type=input&type=output",
                     "/view?filename=red.png&filename=blue.png&type=input",
                     "/view?filename=red.png&type=temp"]:
-            with self.subTest(url=url), self.assertRaises(ValueError):
-                import_materials([dict(kind="image", url=url)], self.roots["input"], self.roots["output"])
-        with self.assertRaises(ValueError):
-            import_materials([dict(kind="image", url="/view?filename=red.png&type=input"),
-                              dict(kind="image", url="/view?filename=missing.png&type=input")],
-                             self.roots["input"], self.roots["output"])
+            with self.subTest(url=url):
+                self.assertEqual(import_materials([dict(kind="image", url=url)], self.roots["input"], self.roots["output"]), [])
+        result = import_materials([dict(kind="image", url="/view?filename=red.png&type=input"),
+                                   dict(kind="image", url="/view?filename=missing.png&type=input")],
+                                  self.roots["input"], self.roots["output"])
+        self.assertEqual([(item["filename"], item["sourceIndex"]) for item in result], [("red.png", 0)])
         self.assertEqual(sorted(p.name for p in self.roots["input"].iterdir()), ["red.png"])
 
     def test_editor_resolves_only_allowed_roots_and_accepts_legacy_default_input(self):

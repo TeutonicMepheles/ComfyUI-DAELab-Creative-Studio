@@ -405,6 +405,51 @@
       "acceptance_ids": [
         "AC-SYS-021-001"
       ]
+    },
+    {
+      "id": "F-SYS-022",
+      "title": "统一只读模型目录与启动发现",
+      "decision": "重构",
+      "current": "本地生成依赖显式装配文件，模型控件各自读取能力；无统一跨节点目录和完整启动/重连刷新。",
+      "source": [
+        "business:web/table_generation_tasks.mjs",
+        "business:web/llm_io_model.mjs"
+      ],
+      "target": "backend/providers; frontend/src/features/generation; frontend/src/features/prompt",
+      "phase": "M4",
+      "rationale": "服务启动、应用打开或宿主重连后自动发现本机本地模型及已配置 DeepSeek；生成、LLM 优化和表格共用同一目录。已保存逻辑模型 ID 不自动回退。",
+      "acceptance": [
+        "启动、打开、重连、配置变化、手动重检和提交前复核使目录刷新，不加载 GPU、不发送计费请求。",
+        "生成节点、LLM 优化节点和多维表格消费同一只读目录投影。",
+        "已保存逻辑模型缺失时保持原 ID 并标为不可用，不静默换成其他模型。DeepSeek 仅配置与能力检查，不调用云或付费接口。"
+      ],
+      "acceptance_ids": [
+        "AC-SYS-022-001",
+        "AC-SYS-022-002",
+        "AC-SYS-022-003"
+      ]
+    },
+    {
+      "id": "F-SYS-023",
+      "title": "模型选项的隐式可用性状态",
+      "decision": "重构",
+      "current": "现有控件可能显示不可用原因，未统一可选、检测中、待验证和不可用状态。",
+      "source": [
+        "business:web/llm_io_model.mjs"
+      ],
+      "target": "frontend/src/ui; frontend/src/features/generation; frontend/src/features/prompt",
+      "phase": "M4",
+      "rationale": "不可用置灰禁用，检测中显示加载圆环，可用保持默认；检测原因只写结构化日志，不出现在菜单、节点或 Toast。",
+      "acceptance": [
+        "选项只表达可选、检测中、待验证或不可用；不展示底层检测错误文本。",
+        "不可用项禁用且可访问名称包含不可用状态；检测中显示加载指示。",
+        "原因仅写入结构化日志，不进入菜单、节点正文或 Toast。"
+      ],
+      "acceptance_ids": [
+        "AC-SYS-023-001",
+        "AC-SYS-023-002",
+        "AC-SYS-023-003"
+      ]
     }
   ],
   "usecases": [
@@ -730,6 +775,54 @@
       ],
       "exceptions": [
         "缺少必测环境标阻塞，不用不适用绕过"
+      ]
+    },
+    {
+      "id": "UC-SYS-012",
+      "title": "打开应用后在各入口看到同一模型目录",
+      "features": [
+        "F-SYS-022"
+      ],
+      "actor": "创作者",
+      "preconditions": [
+        "本机有已配置本地模型和可选 DeepSeek 配置；可断开后重连宿主。"
+      ],
+      "steps": [
+        "启动或重连后打开生成节点、LLM 面板和表格模型选择。",
+        "保存引用某模型的工作流，移除该模型后重开。",
+        "触发手动重检。"
+      ],
+      "outcomes": [
+        "三处列表逻辑模型集合一致。",
+        "缺失模型仍显示原 ID 且不可选，不自动回退。",
+        "重检更新可用性，不发送计费请求。"
+      ],
+      "exceptions": [
+        "DeepSeek 无密钥时待验证或不可用，不发起优化请求。"
+      ]
+    },
+    {
+      "id": "UC-SYS-013",
+      "title": "选择不可用或检测中的模型",
+      "features": [
+        "F-SYS-023",
+        "F-SYS-022"
+      ],
+      "actor": "创作者",
+      "preconditions": [
+        "目录中同时存在可用、检测中和不可用模型。"
+      ],
+      "steps": [
+        "打开模型列表观察视觉状态。",
+        "尝试选择不可用项。",
+        "确认界面无检测错误 Toast。"
+      ],
+      "outcomes": [
+        "不可用置灰不可选；检测中有加载指示；可用为默认样式。",
+        "底层原因不出现在菜单或 Toast。"
+      ],
+      "exceptions": [
+        "屏幕阅读器名称包含禁用或忙碌状态。"
       ]
     }
   ],
@@ -1903,6 +1996,65 @@
         "Qwen-Image-2.1 Turbo（本地）",
         "MiniMax H3 FL（本地）"
       ]
+    },
+    {
+      "id": "TC-SYS-037",
+      "title": "生成、LLM 与表格共用模型目录投影",
+      "features": [
+        "F-SYS-022"
+      ],
+      "usecases": [
+        "UC-SYS-012"
+      ],
+      "level": "contract",
+      "priority": "P0",
+      "phase": "M4",
+      "fixture": "合成提供方清单：本地图片、本地视频、Qwen、已配置 DeepSeek。",
+      "setup": [
+        "DeepSeek 适配为非计费探测或待验证，禁止真实 HTTP 计费。"
+      ],
+      "steps": [
+        "发布目录后分别读取三个消费入口。",
+        "删除一个逻辑模型后再发布。"
+      ],
+      "expected": [
+        "三入口看到同一 ID 集合与能力快照。",
+        "已保存缺失 ID 保留且不可用，不替换为其他模型。"
+      ],
+      "automation": "自动",
+      "execution_policy": "不付费",
+      "existing_coverage": [
+        "business:web/llm_io_model.mjs"
+      ]
+    },
+    {
+      "id": "TC-SYS-038",
+      "title": "模型选项隐式状态且不展示检测错误",
+      "features": [
+        "F-SYS-023"
+      ],
+      "usecases": [
+        "UC-SYS-013"
+      ],
+      "level": "host",
+      "priority": "P1",
+      "phase": "M4",
+      "fixture": "隔离宿主中的生成与 LLM 模型选择器。",
+      "setup": [
+        "注入可用、检测中、不可用选项及一条检测失败日志。"
+      ],
+      "steps": [
+        "打开两处模型菜单。",
+        "尝试点选不可用项。",
+        "检查 Toast 与菜单文本。"
+      ],
+      "expected": [
+        "视觉符合置灰、圆环、默认三类，无常驻错误 Tag。",
+        "菜单和 Toast 不含底层检测错误；原因仅在日志。"
+      ],
+      "automation": "混合",
+      "execution_policy": "不付费",
+      "existing_coverage": []
     }
   ]
 }

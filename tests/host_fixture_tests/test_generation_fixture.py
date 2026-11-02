@@ -247,7 +247,7 @@ class FixtureTests(unittest.IsolatedAsyncioTestCase):
     async def test_registration_and_diagnostic_node_are_test_only_and_nonexecuting(self):
         from aiohttp import web
         server=SimpleNamespace(routes=web.RouteTableDef());paths=fixture.register_generation_fixture_routes(server,self.fixture)
-        self.assertEqual(len(paths),25);self.assertTrue(all(path.startswith(fixture.PREFIX) for path in paths))
+        self.assertEqual(len(paths),30);self.assertTrue(all(path.startswith(fixture.PREFIX) for path in paths))
         self.assertEqual(fixture.register_generation_fixture_routes(server,self.fixture),())
         mappings,_=nodes.register_generation_fixture_nodes(self.fixture);report=json.loads(mappings[nodes.NODE_ID]().read('test')[0])
         self.assertFalse(report['modelInference']);self.assertEqual(report['counts'],{})
