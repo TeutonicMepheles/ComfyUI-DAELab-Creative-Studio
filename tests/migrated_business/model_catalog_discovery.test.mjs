@@ -83,10 +83,16 @@ test('DeepSeek key add, remove and switch trigger fresh capability probes',async
   await waitFor(()=>deepseekCalls.length>=3&&catalog.get('deepseek-flash').status!==MODEL_STATUS.checking);
   assert.deepEqual(deepseekCalls.at(-1),{configured:true,available:true});
   assert.equal(catalog.get('deepseek-flash').status,MODEL_STATUS.available);
-  configured=false;available=false;
+  configured=false;available=true;
   keyApi.clearDeepSeekKey();
   await waitFor(()=>deepseekCalls.length>=4&&catalog.get('deepseek-flash').status!==MODEL_STATUS.checking);
-  assert.deepEqual(deepseekCalls.at(-1),{configured:false,available:false});
+  assert.deepEqual(deepseekCalls.at(-1),{configured:false,available:true});
+  assert.equal(catalog.get('deepseek-flash').status,MODEL_STATUS.unverified);
+  assert.equal(catalog.get('deepseek-flash').selectable,true);
+  configured=true;available=false;
+  keyApi.setDeepSeekKey('synthetic-provider-unavailable');
+  await waitFor(()=>deepseekCalls.length>=5&&catalog.get('deepseek-flash').status!==MODEL_STATUS.checking);
+  assert.deepEqual(deepseekCalls.at(-1),{configured:true,available:false});
   assert.equal(catalog.get('deepseek-flash').status,MODEL_STATUS.unavailable);
   assert.equal(catalog.get('deepseek-flash').selectable,false);
  }finally{releaseGeneration();releaseOptimization();resetModelCatalogForTests();}
