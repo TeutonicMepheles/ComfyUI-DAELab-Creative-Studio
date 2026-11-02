@@ -86,8 +86,9 @@
       "source": "web/creative_canvas_view.mjs",
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
       "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
-      "destinationSha256": "7d406333e2a807b112c937533896a3806ea01790ce9240bd4b1d6f6f35731c31",
+      "destinationSha256": "ab9f76fb717d5a555d363b6e76d3c467ac772043b3aed52c8d2d799f19843562",
       "changes": [
+        "2026-11-02: Preserve generated media URL resolution and materialize exported video snapshots with optional text collections.",
         "2026-11-02: route DOCX canvas file drops to the existing ScriptParser upload capability; preserve media routing and graph ownership.",
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "remove opt-in test gallery rendering; retain unrelated graph.extra data",

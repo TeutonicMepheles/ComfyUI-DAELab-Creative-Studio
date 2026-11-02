@@ -57,3 +57,18 @@ test('a missing local file is skipped while valid items in other groups still ma
  assert.equal(f.links.length,2);
  assert.match(f.messages.at(-1),/已输出 2 项素材.*跳过 1 项/);
 });
+
+test('an exported video snapshot without texts materializes its existing asset identity',async()=>{
+ const f=fixture(),asset={...f.plan.assets[0],referenceId:'export-reference',provenance:{requestId:'export-request'}};
+ for(const key of Object.keys(f.plan))delete f.plan[key];
+ Object.assign(f.plan,{version:1,ready:true,assets:[asset]});
+ f.sourceNode.type='DAELAB.VideoEdit';f.sourceNode.outputs=[];
+ await f.outputMaterials({node:f.sourceNode,element:{}},{x:100,y:100});
+ const upload=f.created.find(node=>node.type==='DAELAB.MediaUpload');
+ assert.ok(upload,f.messages.join('\n'));
+ const output=JSON.parse(upload.widgets.find(widget=>widget.name==='asset_data').value);
+ assert.equal(output.referenceId,'export-reference');
+ assert.deepEqual(output.provenance,{requestId:'export-request'});
+ assert.equal(f.created.filter(node=>node.type==='DAELAB.MaterialGroup').length,1);
+ assert.equal(f.links.length,0);
+});

@@ -14,14 +14,27 @@ from PIL import Image, ImageOps
 
 
 def resolve_media(asset, *, roots):
-    if isinstance(asset, str):
-        url = urlsplit(asset)
+    source = asset
+    address = asset if isinstance(asset, str) else asset.get('url') if isinstance(asset, dict) else None
+    if address is not None:
+        if not isinstance(address, str):
+            raise ValueError('Invalid local media URL.')
+        url = urlsplit(address)
         if url.scheme or url.netloc or url.path != '/view':
             raise ValueError('剪辑只接受本地素材')
         query = parse_qs(url.query)
         if len(query.get('filename', [])) != 1 or any(len(query.get(key, [])) > 1 for key in ('type', 'subfolder')):
             raise ValueError('素材地址无效')
-        asset = {k: v[0] for k, v in query.items()}
+        reference = {k: v[0] for k, v in query.items()}
+        if isinstance(source, dict):
+            # A URL and explicit locator must identify the same file. Never let
+            # an output URL silently resolve a filename against the input root.
+            for key, default in (('filename', ''), ('subfolder', ''), ('type', 'input')):
+                if key in source and source[key] != reference.get(key, default):
+                    raise ValueError('Conflicting local media references.')
+            asset = {**source, **reference}
+        else:
+            asset = reference
     if not isinstance(asset, dict):
         raise ValueError('素材引用格式无效')
     kind = asset.get('type', 'input')

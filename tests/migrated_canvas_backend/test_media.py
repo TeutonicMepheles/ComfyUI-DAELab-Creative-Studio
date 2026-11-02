@@ -73,6 +73,33 @@ class LocalMediaTests(unittest.TestCase):
             with self.subTest(asset=asset), self.assertRaises(ValueError):
                 media.resolve_media(asset, roots=self.roots)
 
+    def test_generated_url_object_resolves_output_and_does_not_mutate_source(self):
+        asset = {'kind': 'image', 'id': 'generated-output', 'name': 'Generated',
+                 'url': '/view?filename=blue.png&type=output',
+                 'provenance': {'requestId': 'original-request'}}
+        before = copy.deepcopy(asset)
+        info = media.media_info(asset, roots=self.roots)
+        self.assertEqual(info['type'], 'output')
+        self.assertEqual(info['filename'], 'blue.png')
+        self.assertEqual(info['name'], 'Generated')
+        clips, _ = media.edit_clips({'version': 1, 'clips': [
+            {'source': {'slot': 'videos.1'}, 'duration': .25}]},
+            videos={'videos.1': asset}, roots=self.roots)
+        self.assertEqual(clips[0]['asset']['type'], 'output')
+        self.assertEqual(asset, before)
+
+    def test_object_urls_keep_root_and_ambiguity_checks(self):
+        for asset in [
+            {'url': 'https://remote.invalid/view?filename=blue.png&type=output'},
+            {'url': '/view?filename=../output/blue.png&type=input'},
+            {'url': '/view?filename=blue.png&type=output&type=input'},
+            {'url': '/view?filename=blue.png&type=output', 'type': 'input'},
+            {'url': '/view?filename=blue.png&type=output', 'filename': 'red.png'},
+            {'url': '/view?filename=blue.png&type=output', 'subfolder': 'elsewhere'},
+        ]:
+            with self.subTest(asset=asset), self.assertRaises(ValueError):
+                media.resolve_media(asset, roots=self.roots)
+
     def test_group_member_identity_and_slot_order_survive_serialization(self):
         a = dict(id="same-file-id", nodeId="one", filename="red.png", type="input")
         b = dict(id="same-file-id", nodeId="two", filename="blue.png", type="output")
