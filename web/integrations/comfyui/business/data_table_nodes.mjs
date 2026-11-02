@@ -1,3 +1,4 @@
+import {uploadMedia} from '../../../application/media_upload.js';
 import {tableClipboard} from './table_capabilities.js';
 import {bindBusinessDocument,tableInputStamp} from './business_document_host.js';
 import {businessFetch} from '../../../contracts/business.js';
@@ -47,7 +48,7 @@ async function upload(file){
  // Keep the original display name on the asset; Comfy /view rejects names containing '..'.
  const extension=file.name.match(/\.(png|jpe?g|webp)$/i)?.[0].toLowerCase();
  if(!extension)throw new Error('上传暂支持 PNG、JPG、WebP');
- const body=new FormData();body.append('image',file,`${crypto.randomUUID()}${extension}`);body.append('type','input');body.append('subfolder','DAELAB/table');body.append('overwrite','false');const response=await businessFetch('/upload/image',{method:'POST',body});if(!response.ok)throw new Error(await response.text());const data=await response.json();return '/view?'+new URLSearchParams({filename:data.name,subfolder:data.subfolder||'',type:data.type||'input'});
+ const body=new FormData();body.append('image',file,`${crypto.randomUUID()}${extension}`);body.append('type','input');body.append('subfolder','DAELAB/table');body.append('overwrite','false');const response=await uploadMedia(businessFetch,file,body);if(!response.ok)throw new Error(await response.text());const data=await response.json();return '/view?'+new URLSearchParams({filename:data.name,subfolder:data.subfolder||'',type:data.type||'input'});
 }
 function linkedReport(node){return node.graph?._nodes.find(n=>n.type==='DAELAB.LibTV.StoryboardBatch'&&n.inputs?.some(i=>i.name==='storyboard_json'&&node.graph.links[i.link]?.origin_id===node.id))?.properties?.daelabLibTVBatch;}
 function save(node,table){

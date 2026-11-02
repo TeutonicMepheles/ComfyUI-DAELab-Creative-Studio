@@ -1,3 +1,4 @@
+import {uploadMedia} from '../../../application/media_upload.js';
 import {bindPanelAvailability} from '../../../ui/creative_panel_state.mjs';
 import {app} from '/scripts/app.js';
 import {createCreativeButton} from '../../../ui/creative_button.mjs';
@@ -66,7 +67,7 @@ function install(node){
         choose.disabled=true;root.setAttribute('aria-busy','true');status.textContent='正在上传…';task={id:'upload',label:'素材上传',state:'running',detail:'正在上传',startedAt:Date.now(),elapsed:true};
         try{
             const form=new FormData();form.append('image',file,crypto.randomUUID()+file.name.slice(file.name.lastIndexOf('.')).toLowerCase());form.append('type','input');form.append('subfolder','DAELAB/uploads');form.append('overwrite','false');
-            const response=await app.api.fetchApi('/upload/image',{method:'POST',body:form,signal:controller.signal});
+            const response=await uploadMedia((url,options)=>app.api.fetchApi(url,options),file,form,{signal:controller.signal});
             if(!response.ok)throw new Error(`上传失败（${response.status}），可重新选择文件重试`);
             const result=await response.json();
             if(!current())return;
