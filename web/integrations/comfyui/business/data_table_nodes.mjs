@@ -11,6 +11,7 @@ import {attachPromptOptimization} from '../../../features/prompt/prompt_optimiza
 import {assertTransition} from '../../../features/storyboard/script_parser_model.mjs';
 import {enableColumnPrompt,syncGenerationConfigOwners} from '../../../features/generation/table_generation_model.mjs';
 import {createMaterialTable} from '../../../application/table_material_columns.mjs';
+import {tableOutputKey} from '../../../application/table_material_output.mjs';
 import {attachGenerationColumns} from '../../../features/generation/table_generation_panel.mjs';
 import {isColumnPrompt,effectivePrompt} from '../../../features/prompt/table_prompt_template.mjs';
 import {installContentPresentation} from '../../../application/table_presentation.mjs';
@@ -142,7 +143,10 @@ function createPanel(node){
   const report=linkedReport(node);if(!report)return;
   const next=clone(node.__dataTable);writeGenerationResults(next,report);if(JSON.stringify(next)!==JSON.stringify(node.__dataTable)){editor.nativeDocument.replace(next,{derived:true,afterWrite:()=>{editor.render();updateSummary();}});}
  };
- const presentation=isGeneric(node)?installContentPresentation({root,editor,getTable:()=>node.__dataTable,notify,editPromptTemplate:id=>promptUI.editTemplate(id),extractText:selection=>createTextNodeFromCell(node,node.__dataTable,selection),onPresentationChange:active=>views.setContent(active)}):null;
+ const presentation=isGeneric(node)?installContentPresentation({root,editor,getTable:()=>node.__dataTable,notify,editPromptTemplate:id=>promptUI.editTemplate(id),extractText:selection=>createTextNodeFromCell(node,node.__dataTable,selection),outputTable:detail=>{
+  const key=tableOutputKey(detail.fieldId,detail.scope==='cell'?detail.recordId:null);
+  (detail.anchor||root).dispatchEvent(new CustomEvent('dae-table-output',{bubbles:true,detail:{...detail,key}}));
+ },onPresentationChange:active=>views.setContent(active)}):null;
  generationUI=isGeneric(node)?attachGenerationColumns({editor,getTable:()=>node.__dataTable,notify,editPromptTemplate:id=>promptUI.editTemplate(id)}):null;
  let sourceDisposed=false;
  const sourceTimer=isGeneric(node)?setInterval(()=>{

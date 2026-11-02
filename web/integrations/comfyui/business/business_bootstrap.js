@@ -6,6 +6,7 @@ import {comfySubmissionOptions,comfyAccountAuth} from './comfy_submission_auth.j
 import {createComfyPriceEstimator} from './comfy_pricing.js';
 import {canvasHistory} from '../canvas/creative_history.mjs';
 import {createCanvasHostPort} from '../canvas/canvas_host.js';
+import {startModelCatalogDiscovery} from './model_catalog_discovery.mjs';
 import {installBusinessDocuments,invalidateBusinessDocuments,loadedBusinessWorkflow} from './business_document_host.js';
 app.registerExtension({
     name:'DAELab.Business.Host',
@@ -29,6 +30,7 @@ app.registerExtension({
         });
         bindBusinessAuth(required=>comfyAccountAuth(app.extensionManager,required));
         bindBusinessHttp(fetchApi);
+        startModelCatalogDiscovery();
         // Provider availability is reported by the new backend; no legacy fallback.
     },
     beforeConfigureGraph(){invalidateBusinessDocuments();},

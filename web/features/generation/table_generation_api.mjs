@@ -1,5 +1,6 @@
 import {businessJson} from '../../contracts/business.js';
 import {isLocalGenerationModel,isComfyGenerationModel} from './table_generation_model.mjs';
+import {getModelCatalog} from '../models/model_catalog.mjs';
 
 export async function request(action,body){
  // First local capability inspection hashes the explicitly bound model files.
@@ -20,4 +21,11 @@ export async function modelCapabilities(config){
   if(isComfyGenerationModel(config.model)&&caps.provider!=='comfy')throw new Error('Comfy 积分生成服务尚未加载，请重启 ComfyUI 后刷新；未提交生成');
   return caps;
  }catch(error){if(local&&error.message==='Unsupported model')throw new Error(restart);throw error;}
+}
+export async function catalogModelCapabilities(config,{force=false}={}){
+ const catalog=getModelCatalog();
+ const entry=await catalog.check(config.model,()=>modelCapabilities(config),{force});
+ if(entry.status==='checking')throw new Error('正在检测模型，请稍候');
+ if(entry.status==='unavailable'||!entry.capability)throw new Error('模型不可用，请重新检测');
+ return entry.capability;
 }

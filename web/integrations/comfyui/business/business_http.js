@@ -24,8 +24,11 @@ function service(fetchApi, prefix, routes, capabilities = false) {
         },
     };
 }
-const GENERATION_ROUTES = new Map(['submit', 'status', 'recover', 'cancel', 'pause', 'retry-local', 'reconcile-resource', 'fence-unsubmitted'].map(action => [action, 'POST']));
-const OPTIMIZATION_ROUTES = new Map(['polish', 'capabilities', 'estimate', 'lease', 'submit', 'query', 'recover', 'permit', 'advance', 'stop', 'continue', 'skip', 'fence'].map(action => [action, 'POST']));
+const GENERATION_ROUTES = new Map([
+    ['models', 'GET'],
+    ...['submit', 'status', 'recover', 'cancel', 'pause', 'interrupt', 'continue', 'restart', 'retry-local', 'reconcile-resource', 'fence-unsubmitted'].map(action => [action, 'POST']),
+]);
+const OPTIMIZATION_ROUTES = new Map(['polish', 'capabilities', 'estimate', 'lease', 'submit', 'query', 'recover', 'permit', 'advance', 'stop', 'interrupt', 'continue', 'skip', 'fence'].map(action => [action, 'POST']));
 /** Explicit assembly only. A test namespace never becomes an automatic fallback. */
 export function bindGenerationHttp(fetchApi, { prefix = '' } = {}) {
     if (prefix && (!/^\/[a-zA-Z0-9/_-]+$/.test(prefix) || prefix.endsWith('/') || prefix.includes('//')))

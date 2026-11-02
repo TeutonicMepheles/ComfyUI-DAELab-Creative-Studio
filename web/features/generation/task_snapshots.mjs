@@ -11,13 +11,16 @@ export function generationTaskSnapshots(table,live=new Map()){
    const kind=config?.kind==='video'?'video':'image',list=groups.get(kind)||[];list.push({...receipt,...report,phase:receipt.phase==='stale'?'stale':report?.phase||receipt.phase,unverified:!report&&active.has(receipt.phase)});groups.set(kind,list);}
  }
  return [...groups].map(([kind,rows])=>{
-  const running=rows.filter(r=>active.has(r.phase)),failed=rows.filter(r=>['failed','needs_input','needs_recovery'].includes(r.phase)||r.error),paused=rows.filter(r=>['paused','stopped'].includes(r.phase));
-  const current=running.find(r=>r.phase==='running')||running[0],done=rows.filter(r=>r.phase==='complete').length;
-  const state=running.length?(running.every(r=>r.phase==='waiting'||r.unverified)?'queued':'running'):failed.length?'recovery':paused.length?'paused':rows.some(r=>r.phase==='stale')?'recovery':'success';
-  const detail=current?(current.unverified?'核对任务状态':current.phase==='pausing'?'正在暂停':stages[current.stage]||(current.phase==='waiting'?'等待提交':'启动中')):state==='paused'?'已暂停':state==='recovery'?'部分任务待处理':'生成完成';
-  return {id:'generation:'+kind,label:kind==='image'?'图片生成':'视频生成',order:kind==='image'?20:30,state,done,total:rows.length,countLabel:'已完成',unit:'行',
-   detail:detail+(running.length>1?` · 处理中 ${running.length} 行`:'')+(failed.length?` · 异常 ${failed.length} 行`:''),
-   progress:running.length===1&&current?.stage==='generating'&&Number.isFinite(current.progress)?current.progress:undefined};
+  const latest=Math.max(...rows.map(row=>Number(row.source?.createdAt)||0));
+  const scoped=rows.filter(row=>(Number(row.source?.createdAt)||0)===latest);
+  const running=scoped.filter(r=>active.has(r.phase)),failed=scoped.filter(r=>['failed','needs_input','needs_recovery'].includes(r.phase)||r.error),paused=scoped.filter(r=>['paused','interrupted','stopped'].includes(r.phase));
+  const current=running.find(r=>r.phase==='running')||running[0];
+  const completed=scoped.filter(r=>r.phase==='complete').length,total=Math.max(scoped.length,...scoped.map(row=>Number(row.source?.groupCount)||1)),grouped=total>1;
+  const state=running.length?(running.every(r=>r.phase==='waiting'||r.unverified)?'queued':'running'):failed.length?'recovery':paused.length?'paused':scoped.some(r=>r.phase==='stale')?'recovery':'success';
+  const detail=grouped?(running.length?`处理中 ${running.length}/${total}`:state==='success'?`已完成 ${completed}/${total}`:state==='paused'?'已暂停':'部分任务待处理'):current?(current.unverified?'核对任务状态':current.phase==='pausing'?'正在暂停':stages[current.stage]||(current.phase==='waiting'?'等待提交':'启动中')):state==='paused'?'已暂停':state==='recovery'?'任务待处理':'生成完成';
+  return {id:'generation:'+kind,label:kind==='image'?'图片生成':'视频生成',order:kind==='image'?20:30,state,done:completed,total,countLabel:'已完成',unit:'行',
+   detail:detail+(failed.length?` · 异常 ${failed.length}`:''),
+   progress:!grouped&&current?.stage==='generating'&&Number.isFinite(current.progress)?current.progress:undefined};
  });
 }
 export function optimizationTaskSnapshots(states){
