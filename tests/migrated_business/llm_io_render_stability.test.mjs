@@ -64,12 +64,12 @@ function environment(t){
  return {writes,reads,timers,Element,reset(){writes.length=0;},tick(){for(const timer of timers)if(!timer.cleared)timer.callback();}};
 }
 
-function panel(t,env,id,{proposal=false,nativeInstruction=false,nativeSource=false}={}){
+function panel(t,env,id,{proposal=false,provider='qwen',nativeInstruction=false,nativeSource=false}={}){
  const {Element}=env,upstream={id:id*10,type:'TestSyntheticInput',snapshot:{version:1,texts:[`输入 ${id}`]}},outputs=[];
  const node={id,type:'DAELAB.LLMStylePreviewB',mode:0,inputs:[{link:1}],outputs:[{},{}],properties:{llmStylePreview:{version:1,mode:'polish',model:'qwen',instruction:'手动要求',unknown:{kept:id}}},setOutputData(slot,value){outputs.push([slot,value]);}};
  node.graph={id:`llm-dom-${id}`,links:{1:{origin_id:upstream.id,origin_slot:0}},getNodeById:()=>upstream,change(){}};
  const state=()=>node.properties.llmStylePreview;
- if(proposal)state().ioResult={version:1,requestId:`review-${id}`,provider:'qwen',complete:true,signature:slotSignature(node),rows:[{id:'input-1',text:`输入 ${id}`,result:`结果 ${id}`} ]};
+ if(proposal)state().ioResult={version:1,requestId:`review-${id}`,provider,complete:true,signature:slotSignature(node),rows:[{id:'input-1',text:`输入 ${id}`,result:`结果 ${id}`} ]};
  const history={begins:0,amends:0,undo:[],redo:[]};let before;
  const nativeDocument=createBusinessDocument({read:state,write:value=>{node.properties.llmStylePreview=value;},current:()=>true,identity:()=>({workflowSession:`session-${id}`,epoch:0,documentId:`node-${id}`}),stamp:value=>[value.mode,value.model,value.instruction],historyStamp:()=>JSON.stringify(state()),history:{begin(){history.begins++;before=structuredClone(state());},end(){history.undo.push(before);history.redo.length=0;},amend(fn){history.amends++;fn();},undo(){if(history.undo.length){history.redo.push(structuredClone(state()));node.properties.llmStylePreview=history.undo.pop();}},redo(){if(history.redo.length){history.undo.push(structuredClone(state()));node.properties.llmStylePreview=history.redo.pop();}}}});
  const makeField=(label,key,fallback,cls)=>{
@@ -97,6 +97,16 @@ test('table connections disable reverse even with one row or invalid input; disc
  a.upstream.type='TestSyntheticInput';a.upstream.snapshot={version:1,assets:[{kind:'image',url:'/view?filename=single.png'}]};env.tick();
  assert.equal(a.root.modes[1].disabled,false);assert.equal(a.state().mode,'reverse');assert.equal(a.imageSection.hidden,false);
  env.reset();env.tick();assert.equal(env.writes.length,0);
+});
+
+test('completed optimization receipts label current model IDs and legacy aliases without rewriting saved results',t=>{
+ const env=environment(t);
+ for(const [index,[provider,label]] of [[QWEN_MODEL,'本地 Qwen 结果'],['qwen','本地 Qwen 结果'],['deepseek-flash','DeepSeek 结果'],['deepseek','DeepSeek 结果'],['gpt-6-luna','GPT-6 Luna 结果（Comfy）']].entries()){
+  const a=panel(t,env,50+index,{proposal:true,provider}),before=JSON.stringify(a.state());
+  assert.ok(a.status.textContent.startsWith(label),`${provider}: ${a.status.textContent}`);
+  assert.doesNotMatch(a.status.textContent,/示例结果|未调用模型/);
+  env.tick();assert.equal(JSON.stringify(a.state()),before);
+ }
 });
 
 test('LLM model options use logical catalog values while legacy aliases remain read-compatible',t=>{
