@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "8a335a6b42594d413f64c04cded39578e50f4c2eddb9bcd72ce16bf0bb435a57",
+  "specificationHash": "2d328b927cb04734c609f38ccd22284a822c4a50cd23ca9fb4934229303d6cd8",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -787,7 +787,8 @@
         "AC-BIZ-019-001",
         "AC-BIZ-019-002",
         "AC-BIZ-020-001",
-        "AC-BIZ-020-002"
+        "AC-BIZ-020-002",
+        "AC-BIZ-020-003"
       ],
       "usecases": [
         "UC-BIZ-003",
@@ -796,11 +797,13 @@
       "tests": [
         "TC-BIZ-023",
         "TC-BIZ-024",
-        "TC-BIZ-026"
+        "TC-BIZ-026",
+        "TC-BIZ-059"
       ],
       "evals": [
         "EV-DATA",
-        "EV-JOBS"
+        "EV-JOBS",
+        "EV-UI"
       ],
       "status": "not-started"
     },
@@ -827,6 +830,7 @@
         "AC-BIZ-003-002",
         "AC-BIZ-004-001",
         "AC-BIZ-004-002",
+        "AC-BIZ-004-003",
         "AC-BIZ-005-001",
         "AC-BIZ-005-002",
         "AC-BIZ-006-001",
@@ -857,7 +861,8 @@
         "TC-BIZ-011",
         "TC-BIZ-045",
         "TC-BIZ-051",
-        "TC-BIZ-052"
+        "TC-BIZ-052",
+        "TC-BIZ-058"
       ],
       "evals": [
         "EV-ARCH",
@@ -4271,7 +4276,8 @@
         "UC-BIZ-004"
       ],
       "tests": [
-        "TC-BIZ-004"
+        "TC-BIZ-004",
+        "TC-BIZ-058"
       ],
       "evals": [
         "EV-UI"
@@ -4291,7 +4297,29 @@
         "UC-BIZ-004"
       ],
       "tests": [
-        "TC-BIZ-004"
+        "TC-BIZ-004",
+        "TC-BIZ-058"
+      ],
+      "evals": [
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-004-003",
+      "feature": "F-BIZ-004",
+      "task": "TASK-M3-FEATURES-TABLE",
+      "owner": "features/table",
+      "requirement": "新建通用多维表格不默认选中前三行或多行；允许焦点在首格，但不形成默认多行选区。",
+      "requirementHash": "ae9097f67a9a0b6a731405c875626dd663637b0d0a99dcedcdc095109ea9c750",
+      "usecases": [
+        "UC-BIZ-001",
+        "UC-BIZ-004"
+      ],
+      "tests": [
+        "TC-BIZ-004",
+        "TC-BIZ-058"
       ],
       "evals": [
         "EV-UI"
@@ -4991,11 +5019,13 @@
       ],
       "tests": [
         "TC-BIZ-023",
-        "TC-BIZ-024"
+        "TC-BIZ-024",
+        "TC-BIZ-059"
       ],
       "evals": [
         "EV-DATA",
-        "EV-JOBS"
+        "EV-JOBS",
+        "EV-UI"
       ],
       "status": "not-executed",
       "evidence": []
@@ -5012,11 +5042,36 @@
       ],
       "tests": [
         "TC-BIZ-023",
-        "TC-BIZ-024"
+        "TC-BIZ-024",
+        "TC-BIZ-059"
       ],
       "evals": [
         "EV-DATA",
-        "EV-JOBS"
+        "EV-JOBS",
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-020-003",
+      "feature": "F-BIZ-020",
+      "task": "TASK-M3-FEATURES-STORYBOARD",
+      "owner": "features/storyboard",
+      "requirement": "分镜解析完成后以可编辑多维表格呈现（镜号/画面描述/画面参考/备注）；单元格与画面描述可原位编辑，撤销重做、保存重载，保留来源与修订保护。不改成普通 DAELAB.Table，不放开每表 10 行与固定四列。",
+      "requirementHash": "79125b7be66a8435be24e76a66cd4f68c0b6c5ff255af0f436acf9e66ed208dd",
+      "usecases": [
+        "UC-BIZ-003"
+      ],
+      "tests": [
+        "TC-BIZ-023",
+        "TC-BIZ-024",
+        "TC-BIZ-059"
+      ],
+      "evals": [
+        "EV-DATA",
+        "EV-JOBS",
+        "EV-UI"
       ],
       "status": "not-executed",
       "evidence": []
@@ -9759,7 +9814,7 @@
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "043fa54a99a0fec4beaba44d5b3a621e9050017aa98c9aef0e01bced3430db1d",
+      "specificationHash": "087b9c10a2c5e1dd32e1fc6d4c4cba2a00011c475f83f217af0f84592ee9795a",
       "assertions": [
         {
           "id": "AS-BIZ-001-001",
@@ -9799,7 +9854,7 @@
         "EV-DATA",
         "EV-JOBS"
       ],
-      "specificationHash": "aa90ecb94bf35051ab7faba1099d899129e49be69d60868df6fabe611f3888cf",
+      "specificationHash": "a554492e8a8e7eded954c6a6def2c2fab8b3fa79d1a96f78a8f9b85d6b55ee5f",
       "assertions": [
         {
           "id": "AS-BIZ-002-001",
@@ -9838,7 +9893,7 @@
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "396a9953e73955571fbde27147719d11b6d85b1212fdfa73ffa239913d3eb6a1",
+      "specificationHash": "9d4a6818e2ef736583a2a20c0e9898f28a2172927df633d7e760a2d44e06ec68",
       "assertions": [
         {
           "id": "AS-BIZ-003-001",
@@ -9865,12 +9920,13 @@
       ],
       "acceptance": [
         "AC-BIZ-004-001",
-        "AC-BIZ-004-002"
+        "AC-BIZ-004-002",
+        "AC-BIZ-004-003"
       ],
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "cb5ab26a43e895070078afed3e90ccdc5bebd9e91050aee1cec9eae3b03fd21a",
+      "specificationHash": "bc996a70042804f78d068e6075092efdbc4c4220fe85f06bd0ef8d8d57ce5766",
       "assertions": [
         {
           "id": "AS-BIZ-004-001",
@@ -10073,7 +10129,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "646ef086414546b853d1de6f88f3bbc45f3574048f09e84ffb60b2fc9ea7d12b",
+      "specificationHash": "0f419296f6f39c99b77a0061033267da2483bc9e0f6052bee11c7b6d08624a9b",
       "assertions": [
         {
           "id": "AS-BIZ-010-001",
@@ -10109,7 +10165,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "c59cdf420192b8f91859ced27c1e994f670bb29b6a7c2746c4aec4eec445d9af",
+      "specificationHash": "d7534bd50d44f876215dedac51f4bc3b2520c08817022d1e014e7fbc5973c766",
       "assertions": [
         {
           "id": "AS-BIZ-011-001",
@@ -10143,7 +10199,7 @@
         "EV-E2E",
         "EV-UI"
       ],
-      "specificationHash": "c9410cd5f9500c2207a7dbcc8bd55b73e8f36f8ebe9286ec50797e0d981ee870",
+      "specificationHash": "2c8fe43d16218dca8454b32e075aff6d5f62871c29101798e4598854d1698f1f",
       "assertions": [
         {
           "id": "AS-BIZ-012-001",
@@ -10489,7 +10545,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "06356857db0e319c0a5b4334bacbe8b16f971711d12181d9f29454e0a39eaae3",
+      "specificationHash": "afbab603b57f91cde05211d4c37bc9d9b11a88d253b4b2cb7f0fded021f9333e",
       "assertions": [
         {
           "id": "AS-BIZ-022-001",
@@ -10519,13 +10575,14 @@
         "AC-BIZ-019-001",
         "AC-BIZ-019-002",
         "AC-BIZ-020-001",
-        "AC-BIZ-020-002"
+        "AC-BIZ-020-002",
+        "AC-BIZ-020-003"
       ],
       "evals": [
         "EV-DATA",
         "EV-JOBS"
       ],
-      "specificationHash": "4271a81d8bf3f3cfa999a75fce800ad75b251d31388ffbbc10fae00067010b51",
+      "specificationHash": "43a0bc838237b34bc10945c59d44588a8c21381e4a68d8cfe1145fe6ae3b5dea",
       "assertions": [
         {
           "id": "AS-BIZ-023-001",
@@ -10554,6 +10611,7 @@
       "acceptance": [
         "AC-BIZ-020-001",
         "AC-BIZ-020-002",
+        "AC-BIZ-020-003",
         "AC-BIZ-029-001",
         "AC-BIZ-029-002"
       ],
@@ -10561,7 +10619,7 @@
         "EV-DATA",
         "EV-JOBS"
       ],
-      "specificationHash": "b43fbb9359109c6564abaaac899624657d0b966cf1f2d4b9ae509d36b6a395b4",
+      "specificationHash": "9c99a7961c7b28bd099472d3cccee56e596ebdd118a2260d39f1ba9ee7598be4",
       "assertions": [
         {
           "id": "AS-BIZ-024-001",
@@ -11816,6 +11874,76 @@
         {
           "id": "AS-BIZ-057-003",
           "expected": "迟到旧尝试进度不覆盖新尝试。"
+        }
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "TC-BIZ-058",
+      "phase": "M3",
+      "priority": "P0",
+      "level": "host",
+      "features": [
+        "F-BIZ-004"
+      ],
+      "usecases": [
+        "UC-BIZ-001"
+      ],
+      "acceptance": [
+        "AC-BIZ-004-001",
+        "AC-BIZ-004-002",
+        "AC-BIZ-004-003"
+      ],
+      "evals": [
+        "EV-UI"
+      ],
+      "specificationHash": "cc63487d037979816c131172e74a853f135aa0677ec5b41dcb332781e943b0ac",
+      "assertions": [
+        {
+          "id": "AS-BIZ-058-001",
+          "expected": "不默认选中前三行或多行。"
+        },
+        {
+          "id": "AS-BIZ-058-002",
+          "expected": "允许焦点在一个单元格；Shift/Ctrl 仍可手工多选。"
+        }
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "TC-BIZ-059",
+      "phase": "M3",
+      "priority": "P0",
+      "level": "host",
+      "features": [
+        "F-BIZ-020"
+      ],
+      "usecases": [
+        "UC-BIZ-003"
+      ],
+      "acceptance": [
+        "AC-BIZ-020-001",
+        "AC-BIZ-020-002",
+        "AC-BIZ-020-003"
+      ],
+      "evals": [
+        "EV-UI"
+      ],
+      "specificationHash": "8a59f4e929fac4d70a8fc9d66b10b08498a36bec4ee4ae6138b808c945ab64ca",
+      "assertions": [
+        {
+          "id": "AS-BIZ-059-001",
+          "expected": "解析结果是可编辑分镜多维表，单元格与画面描述可原位改。"
+        },
+        {
+          "id": "AS-BIZ-059-002",
+          "expected": "撤销重做与保存重载保留编辑；来源关系仍在。"
+        },
+        {
+          "id": "AS-BIZ-059-003",
+          "expected": "仍是解析节点与四列/每表最多 10 行，不改成普通 DAELAB.Table。"
         }
       ],
       "status": "not-executed",
@@ -13429,6 +13557,8 @@
         "TC-BIZ-051",
         "TC-BIZ-054",
         "TC-BIZ-056",
+        "TC-BIZ-058",
+        "TC-BIZ-059",
         "TC-SYS-001",
         "TC-SYS-004",
         "TC-SYS-005",

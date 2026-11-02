@@ -2,7 +2,7 @@
 
 本文件由 `catalog/*.json` 生成；修改目录中的源数据后运行 `node docs/migration-blueprint/render_catalog.mjs --write`。不要单独修改生成表。
 
-共 142 个测试定义。统一状态：**规格已定义；自动化与产品执行状态均待实施/待执行**。自动化列是目标执行方式，既有覆盖是复用候选，不表示此测试已经实现或运行。测试环境、夹具、公共前端矩阵、性能预算和证据格式见 [测试策略](TEST_STRATEGY.md)。
+共 144 个测试定义。统一状态：**规格已定义；自动化与产品执行状态均待实施/待执行**。自动化列是目标执行方式，既有覆盖是复用候选，不表示此测试已经实现或运行。测试环境、夹具、公共前端矩阵、性能预算和证据格式见 [测试策略](TEST_STRATEGY.md)。
 
 每个界面测试都叠加两实例、模式切换、保存重载、焦点溢出和相关缩放检查；表内和表外生成都需覆盖。真实生成仅使用本地 Qwen/MiniMax；其他通道只做协议模拟，不能据此声明真实效果通过。
 
@@ -112,6 +112,8 @@
 | [TC-BIZ-055](TEST_CASES.md#tc-biz-055) | 任务控制命令与状态矩阵 | M4 | P0 | contract | 自动 | 不付费 |
 | [TC-BIZ-056](TEST_CASES.md#tc-biz-056) | 任务控制双实例隔离与恢复 | M4 | P0 | host | 混合 | 不付费 |
 | [TC-BIZ-057](TEST_CASES.md#tc-biz-057) | 单任务百分比与成组完成计数切换 | M4 | P0 | contract | 自动 | 不付费 |
+| [TC-BIZ-058](TEST_CASES.md#tc-biz-058) | 新建表格不默认多行选中 | M3 | P0 | host | 混合 | 不付费 |
+| [TC-BIZ-059](TEST_CASES.md#tc-biz-059) | 分镜解析结果为可编辑多维表格 | M3 | P0 | host | 混合 | 不付费 |
 | [TC-SYS-001](TEST_CASES.md#tc-sys-001) | 仅新包的最小安装 | M1 | P0 | host | 混合 | 不付费 |
 | [TC-SYS-002](TEST_CASES.md#tc-sys-002) | 新旧包冲突可见且无覆盖 | M1 | P0 | integration | 自动 | 不付费 |
 | [TC-SYS-003](TEST_CASES.md#tc-sys-003) | 依赖方向及旧资源路径检查 | M1 | P0 | contract | 自动 | 不付费 |
@@ -3386,6 +3388,67 @@
 - 迟到旧尝试进度不覆盖新尝试。
 
 **旧测试复用候选：** [business:web/task_snapshots.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/task_snapshots.mjs)；[business:tests/task_snapshots.test.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/tests/task_snapshots.test.mjs)
+
+<a id="tc-biz-058"></a>
+
+## TC-BIZ-058 新建表格不默认多行选中
+
+**阶段：** M3；**优先级：** P0；**层级：** host；**方式：** 混合；**执行策略：** 不付费。
+
+**功能：** [F-BIZ-004](FEATURE_MATRIX.md#f-biz-004)
+
+**用例：** [UC-BIZ-001](USE_CASES.md#uc-biz-001)
+
+**真实模型白名单：** 无；本用例使用无模型调用的测试方法。
+
+**夹具：** 空画布新建通用多维表格。
+
+**准备**
+
+- 隔离宿主；不预先框选。
+
+**步骤**
+
+1. 新建一张通用多维表格。
+2. 观察行头/单元格选区。
+
+**可判断的期望**
+
+- 不默认选中前三行或多行。
+- 允许焦点在一个单元格；Shift/Ctrl 仍可手工多选。
+
+**旧测试复用候选：** [business:web/data_table_editor.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/data_table_editor.mjs)
+
+<a id="tc-biz-059"></a>
+
+## TC-BIZ-059 分镜解析结果为可编辑多维表格
+
+**阶段：** M3；**优先级：** P0；**层级：** host；**方式：** 混合；**执行策略：** 不付费。
+
+**功能：** [F-BIZ-020](FEATURE_MATRIX.md#f-biz-020)
+
+**用例：** [UC-BIZ-003](USE_CASES.md#uc-biz-003)
+
+**真实模型白名单：** 无；本用例使用无模型调用的测试方法。
+
+**夹具：** 固定 DOCX 分镜夹具。
+
+**准备**
+
+- 隔离宿主；解析器入口。
+
+**步骤**
+
+1. 完成一次分镜解析。
+2. 编辑一格文字，撤销/重做，保存并重载。
+
+**可判断的期望**
+
+- 解析结果是可编辑分镜多维表，单元格与画面描述可原位改。
+- 撤销重做与保存重载保留编辑；来源关系仍在。
+- 仍是解析节点与四列/每表最多 10 行，不改成普通 DAELAB.Table。
+
+**旧测试复用候选：** [business:web/script_parser_panel.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/script_parser_panel.mjs)；[business:web/data_table_editor.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/data_table_editor.mjs)
 
 <a id="tc-sys-001"></a>
 

@@ -21,9 +21,9 @@
 | [UC-CAN-013](USE_CASES.md#uc-can-013) | 跨模式、缩放和键盘持续编辑 | 创作者 | 15 |
 | [UC-CAN-014](USE_CASES.md#uc-can-014) | 迁入历史工作流并完成发布验收 | 维护者/既有用户 | 8 |
 | [UC-CAN-015](USE_CASES.md#uc-can-015) | 按同类型整理素材组并拒绝跨类型 | 创作者 | 2 |
-| [UC-BIZ-001](USE_CASES.md#uc-biz-001) | 建立并整理两个独立素材表 | 创作者 | 7 |
+| [UC-BIZ-001](USE_CASES.md#uc-biz-001) | 建立并整理两个独立素材表 | 创作者 | 8 |
 | [UC-BIZ-002](USE_CASES.md#uc-biz-002) | 从画布填充表格并整理单元格媒体 | 创作者 | 5 |
-| [UC-BIZ-003](USE_CASES.md#uc-biz-003) | 导入 DOCX 并修正文稿映射 | 创作者 | 3 |
+| [UC-BIZ-003](USE_CASES.md#uc-biz-003) | 导入 DOCX 并修正文稿映射 | 创作者 | 4 |
 | [UC-BIZ-004](USE_CASES.md#uc-biz-004) | 从既有表格/文本文件整理分镜 | 创作者 | 1 |
 | [UC-BIZ-005](USE_CASES.md#uc-biz-005) | 配置唯一提示词来源和同行引用 | 创作者 | 7 |
 | [UC-BIZ-006](USE_CASES.md#uc-biz-006) | 优化提示词并审阅后应用 | 创作者 | 6 |
@@ -521,13 +521,14 @@
 
 - A 恢复全部编辑、字段与宽度；B 未变化。
 - 焦点、中文输入、选择与菜单始终可达；文档数据以原生图序列化为权威。
+- 新建表后不默认选中前三行或多行。
 
 **异常与分支**
 
 - 不支持的类型转换提示原因并保留旧值。
 - 达到已冻结容量边界拒绝整次操作。
 
-**测试：** [TC-BIZ-001](TEST_CASES.md#tc-biz-001)、[TC-BIZ-002](TEST_CASES.md#tc-biz-002)、[TC-BIZ-003](TEST_CASES.md#tc-biz-003)、[TC-BIZ-004](TEST_CASES.md#tc-biz-004)、[TC-BIZ-010](TEST_CASES.md#tc-biz-010)、[TC-BIZ-011](TEST_CASES.md#tc-biz-011)、[TC-BIZ-012](TEST_CASES.md#tc-biz-012)
+**测试：** [TC-BIZ-001](TEST_CASES.md#tc-biz-001)、[TC-BIZ-002](TEST_CASES.md#tc-biz-002)、[TC-BIZ-003](TEST_CASES.md#tc-biz-003)、[TC-BIZ-004](TEST_CASES.md#tc-biz-004)、[TC-BIZ-010](TEST_CASES.md#tc-biz-010)、[TC-BIZ-011](TEST_CASES.md#tc-biz-011)、[TC-BIZ-012](TEST_CASES.md#tc-biz-012)、[TC-BIZ-058](TEST_CASES.md#tc-biz-058)
 
 <a id="uc-biz-002"></a>
 
@@ -578,13 +579,14 @@
 
 - 重复来源不重复创建；变化版本可追踪。
 - 手工编辑、行/素材 ID 和既有结果保持；inventory 与待处理项跨刷新保留。
+- 解析完成后得到可编辑分镜表，可原位改内容；不是只读预览，也不改成普通无约束表。
 
 **异常与分支**
 
 - 坏图保留原文和错误定位。
 - 活动任务、导入期间编辑或映射冲突阻止不安全覆盖。
 
-**测试：** [TC-BIZ-022](TEST_CASES.md#tc-biz-022)、[TC-BIZ-023](TEST_CASES.md#tc-biz-023)、[TC-BIZ-024](TEST_CASES.md#tc-biz-024)
+**测试：** [TC-BIZ-022](TEST_CASES.md#tc-biz-022)、[TC-BIZ-023](TEST_CASES.md#tc-biz-023)、[TC-BIZ-024](TEST_CASES.md#tc-biz-024)、[TC-BIZ-059](TEST_CASES.md#tc-biz-059)
 
 <a id="uc-biz-004"></a>
 
