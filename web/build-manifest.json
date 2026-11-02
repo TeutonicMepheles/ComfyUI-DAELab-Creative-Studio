@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "443f3cacaf80f8a1cdd57b8f3f3cd32f60f7f4ae0ff0102e85aece404818cd95",
+  "sourceFingerprint": "16591c93b136bc96646b63fc74315d38534fa3b81cb3db9252c48caca3552e77",
   "files": [
     {
       "path": "AGENTS.md",
@@ -96,7 +96,7 @@
     },
     {
       "path": "canvas/README.md",
-      "sha256": "6e9563efabcd37617862709362d2a1f5b971bf79cc82deb0672c1bef0b708e96"
+      "sha256": "893ffa3db589bcc5735b7cbeecdf3c0c3c8e92507ed817fb181552a29eb43690"
     },
     {
       "path": "canvas/creative_canvas.css",
@@ -112,7 +112,7 @@
     },
     {
       "path": "canvas/creative_canvas_view.mjs",
-      "sha256": "c777c58d18166127ed21e144ff318deeddb60928d63263261d79ec32689d540f"
+      "sha256": "7d406333e2a807b112c937533896a3806ea01790ce9240bd4b1d6f6f35731c31"
     },
     {
       "path": "canvas/creative_connections.mjs",
@@ -1044,7 +1044,7 @@
     },
     {
       "path": "integrations/comfyui/business/script_parser.js",
-      "sha256": "308942b7639a1e84e924d9e26e391e53863ae61114f406af4e7e031fb2c06267"
+      "sha256": "83a973eefc20afd858daf0b39bac96f783f4b50508c066817f5d627efda90340"
     },
     {
       "path": "integrations/comfyui/business/table_capabilities.js",
@@ -1140,7 +1140,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "e7fd0f42580bdf843f39bdb62ad56a59b2e041b07dc0b9fb99645925c8e50aa4"
+      "sha256": "c7614eee168c11841e5ca461c04559539dc08144c50565947aa0e5fdaa5f0c5d"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
