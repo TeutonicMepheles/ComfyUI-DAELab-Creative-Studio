@@ -276,9 +276,10 @@
       "source": "web/table_generation_panel.mjs",
       "destination": "frontend/src/features/generation/table_generation_panel.mjs",
       "sourceSha256": "547d0543ec0e6359f0146f429ca9a11f9d4cce5682e1c212f01439492b1c9a50",
-      "destinationSha256": "8f1e6202728c4619a18acccd4f4d3a6887f1d0de36908cddc6fb7326aa3369d8",
+      "destinationSha256": "038784ed639f169f6cf9e729170f181ed765fc7af87e70390a0a42fd92cca64b",
       "kind": "production-source",
       "changes": [
+        "2026-11-02: Explain the local one-image reference mode and explicit width/height scaling.",
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
         "Skip generation settings row-map and all-TD traversal only when current fields have no generation presentation and this attachment has never created a settings bar; retain onRefresh and header cleanup, and preserve the full path forever after any bar creation for detached-cell cleanup. Actual editor/input focused regressions preserve owner/history/configuration/error/lifecycle behavior; traversal counts do not establish browser latency or product acceptance.",

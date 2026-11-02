@@ -46,7 +46,11 @@ test('injected batch skips completed receipts and existing outputs',async t=>{
  for(const id of ['completed','remaining']){const row=structuredClone(f.original.records[0]);row.id=id;f.table.records.push(row);}
  f.table.records[1].values[f.field.id]=[{id:'previous-output',kind:'image',url:'/view?filename=previous.png&type=output'}];
  const pending=f.tasks.generate(f.field.id,null,false,true);
- for(let i=0;i<100&&!f.calls.some(call=>call.url.endsWith('/submit')&&call.body.jobs[0].input.recordId==='remaining');i++)await new Promise(setImmediate);
+ const deadline=Date.now()+5000;
+ while(!f.calls.some(call=>call.url.endsWith('/submit')&&call.body.jobs[0].input.recordId==='remaining')){
+  assert.ok(Date.now()<deadline,'Remaining row did not reach the submit handler');
+  await new Promise(resolve=>setTimeout(resolve,10));
+ }
  const submissions=f.calls.filter(call=>call.url.endsWith('/submit'));
  assert.deepEqual(submissions.at(-1).body.jobs.map(job=>job.input.recordId),['remaining']);
  assert.equal(f.table.records[0].meta.studioGenerationRefs[f.field.id][0].requestId,original);
