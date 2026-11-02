@@ -15,12 +15,13 @@ export function parseTableOutputKey(key){
 }
 
 function mediaIdentity(asset){
-    return String(asset?.id||asset?.assetId||asset?.referenceId||asset?.sourceNodeId||asset?.url||'');
+    return String(asset?.id||'');
 }
 
 function validMedia(asset){
     if(!asset||!mediaKinds.has(asset.kind)||typeof asset.url!=='string')return false;
     try{
+        if(/^[a-z][a-z0-9+.-]*:/i.test(asset.url)||asset.url.startsWith('//'))return false;
         const url=new URL(asset.url,'http://localhost'),params=url.searchParams;
         if(url.origin!=='http://localhost'||url.pathname!=='/view'||params.getAll('filename').length!==1||params.getAll('type').length!==1||params.getAll('subfolder').length>1||!['input','output'].includes(params.get('type')))return false;
         const filename=params.get('filename')||'';
@@ -71,9 +72,9 @@ export function tableMaterialSnapshot(table,fieldId,recordId=null){
             seen.add(identity);bucket('text').textIndexes.push(texts.length);texts.push(text.text);textSources.push({recordId:row.id,fieldId:field.id});
         }
         for(const asset of rowMedia){
-            const identity=`${asset.kind}:${mediaIdentity(asset)}`;
-            if(seen.has(identity)){deduplicated++;continue;}
-            seen.add(identity);
+            const occurrence=mediaIdentity(asset),identity=occurrence?`${asset.kind}:${occurrence}`:null;
+            if(identity&&seen.has(identity)){deduplicated++;continue;}
+            if(identity)seen.add(identity);
             const state=row.meta?.generationColumns?.[field.id];
             const material={...asset,provenance:{...asset.provenance,fieldId:field.id,recordId:row.id,requestId:asset.provenance?.requestId||state?.requestId,materialId:asset.id}};
             bucket(asset.kind).assetIndexes.push(assets.length);assets.push(material);
@@ -94,13 +95,14 @@ export function tableMaterialSnapshot(table,fieldId,recordId=null){
         texts,
         textSources,
         groups:outputGroups,
+        outputGroups,
         skipped,
         deduplicated,
         ...(generation?{generation:true}:{}),
     };
 }
 
-export function generationMaterials(table,fieldId,recordId=null,{includeIndexes=false}={}){
+export function generationMaterials(table,fieldId,recordId=null){
     const plan=tableMaterialSnapshot(table,fieldId,recordId),rows=new Map();
     for(const [index,asset] of plan.assets.entries()){
         const recordId=asset.provenance?.recordId;if(recordId==null)continue;
@@ -112,12 +114,12 @@ export function generationMaterials(table,fieldId,recordId=null,{includeIndexes=
         if(!rows.has(recordId))rows.set(recordId,{label:table.records.find(row=>row.id===recordId)?.name||`任务${table.records.findIndex(row=>row.id===recordId)+1}`,assetIndexes:[],textIndexes:[]});
         rows.get(recordId).textIndexes.push(index);
     }
-    const groups=[...rows.values()].flatMap(group=>{
-        const count=group.assetIndexes.length+group.textIndexes.length;if(!count)return [];
-        const kinds=new Set(group.assetIndexes.map(index=>plan.assets[index]?.kind).concat(group.textIndexes.length?['text']:[]));
-        return [{
-            label:group.label,count,...(includeIndexes?{kind:kinds.size===1?[...kinds][0]:'mixed',assetIndexes:group.assetIndexes,textIndexes:group.textIndexes}:{}),
-        }];
+    const rowGroups=[...rows.values()].flatMap(group=>{
+        const count=group.assetIndexes.length+group.textIndexes.length;return count?[{...group,count}]:[];
     });
-    return {...plan,groups};
+    const outputGroups=rowGroups.flatMap(group=>kinds.flatMap(kind=>{
+        const assetIndexes=group.assetIndexes.filter(index=>plan.assets[index]?.kind===kind),textIndexes=kind==='text'?group.textIndexes:[],count=assetIndexes.length+textIndexes.length;
+        return count?[{kind,label:`${group.label} · ${labels[kind]}`,count,assetIndexes,textIndexes}]:[];
+    }));
+    return {...plan,groups:rowGroups.map(({label,count})=>({label,count})),outputGroups};
 }

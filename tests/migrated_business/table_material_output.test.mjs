@@ -64,16 +64,19 @@ test('generation-history grouping stays per task row while table output can cons
  const table=fixture();
  table.records[0].values.result=[asset('r1','image'),asset('r2','video')];
  table.records[1].values.result=[asset('r3','image')];
- const legacy=generationMaterials(table,'result');
- assert.deepEqual(legacy.groups,[{label:'镜头甲',count:2},{label:'镜头乙',count:1}]);
- const indexed=generationMaterials(table,'result',null,{includeIndexes:true});
- assert.deepEqual(indexed.groups[0],{label:'镜头甲',count:2,kind:'mixed',assetIndexes:[0,1],textIndexes:[]});
- assert.deepEqual(indexed.groups[1],{label:'镜头乙',count:1,kind:'image',assetIndexes:[2],textIndexes:[]});
+ const grouped=generationMaterials(table,'result');
+ assert.deepEqual(grouped.groups,[{label:'镜头甲',count:2},{label:'镜头乙',count:1}]);
+ assert.deepEqual(grouped.outputGroups,[
+  {kind:'image',label:'镜头甲 · 图片',count:1,assetIndexes:[0],textIndexes:[]},
+  {kind:'video',label:'镜头甲 · 视频',count:1,assetIndexes:[1],textIndexes:[]},
+  {kind:'image',label:'镜头乙 · 图片',count:1,assetIndexes:[2],textIndexes:[]},
+ ]);
 });
 test('non-view and malformed media references are skipped instead of reaching the import endpoint',()=>{
  const table=fixture();
  table.records[0].values.mixed=[
   {id:'bad-url',kind:'image',url:'not-a-view-url'},
+  {id:'absolute-url',kind:'image',url:'http://localhost/view?filename=absolute.png&type=output'},
   {id:'bad-type',kind:'image',url:'/view?filename=bad.png&type=temp'},
   {id:'bad-kind',kind:'video',url:'/view?filename=bad.png&type=output'},
   asset('good','image'),
@@ -90,5 +93,15 @@ test('distinct table occurrences sharing an underlying asset identity remain dis
  ];
  const out=tableMaterialSnapshot(table,'mixed','a');
  assert.deepEqual(out.assets.map(item=>item.id),['occurrence-a','occurrence-b']);
+ assert.equal(out.deduplicated,0);
+});
+test('missing instance identity is treated as independent, never merged by assetId or URL',()=>{
+ const table=fixture();
+ table.records[0].values.mixed=[
+  {...asset('','image'),id:undefined,assetId:'same-file'},
+  {...asset('','image'),id:undefined,assetId:'same-file'},
+ ];
+ const out=tableMaterialSnapshot(table,'mixed','a');
+ assert.equal(out.assets.length,2);
  assert.equal(out.deduplicated,0);
 });
