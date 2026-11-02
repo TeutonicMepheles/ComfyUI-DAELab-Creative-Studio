@@ -127,6 +127,15 @@ test('the cell menu routes output to the owning table callback',t=>{
  output.onclick({preventDefault(){},stopPropagation(){}});
  assert.deepEqual(calls.map(call=>({scope:call.scope,fieldId:call.fieldId,recordId:call.recordId})),[{scope:'cell',fieldId:a.value.fields[0].id,recordId:a.value.records[0].id}]);
 });
+
+test('pointer context opening leaves items unfocused while keyboard opening owns visible focus',t=>{
+ const env=dom(t),a=table(env,0),cell=a.cells[0];
+ cell.focus();a.contextMenu(cell);
+ assert.equal(document.activeElement,cell);
+ assert.equal(a.toolbar.contains(document.activeElement),false);
+ a.root.fire('keydown',{target:cell,key:'F10',shiftKey:true,isComposing:false});env.flush();
+ assert.equal(a.toolbar.contains(document.activeElement),true);
+});
 test('native graph mode without a canvas panel still opens the table context menu',t=>{
  const env=dom(t),a=table(env,0),cell=a.cells[0];
  env.contexts.delete(a.root);

@@ -41,9 +41,9 @@ test('removed edited rows survive, repeated image occurrences stay distinct, bad
  first[0].table.records[1].values['sp-notes']='手改';n.tasks.pop();
  const result=planScriptImport(first,n,'revise');assert.equal(result.pages[0].table.records.length,2);assert.match(result.conflicts.join(),/保留原记录/);
 });
-test('row additions and paste cannot exceed ten; legacy remains readable without implicit conversion',()=>{
+test('import pagination does not lock subsequent ordinary row and column edits',()=>{
  const table=planScriptImport(start(),fixture(10)).pages[0].table,next=structuredClone(table);next.records.push({...structuredClone(next.records[0]),id:'extra'});
- assert.throws(()=>assertTransition(table,next),/最多 10 行/);assert.equal(table.records.length,10);
+ assert.doesNotThrow(()=>assertTransition(table,next));assert.equal(readScriptTable(JSON.stringify(next)).records.length,11);assert.equal(table.records.length,10);
  const legacy=structuredClone(next);legacy.meta.script_parser.field_policy='nonempty';assert.equal(readScriptTable(JSON.stringify(legacy)).records.length,11);
  assert.throws(()=>planScriptImport([{key:'old',title:'旧表',table:legacy}],fixture(1)),/先使用/);
  next.records.pop();next.fields.pop();assert.throws(()=>validateFixedScript(next),/固定/);
@@ -54,6 +54,28 @@ test('explicit legacy split retains original table and every edited value, activ
  assert.deepEqual(pages[0].table.meta.script_parser.legacy_table,before);assert.deepEqual(pages[0].table.records[0].meta.script_legacy_values.unknown,{keep:true});assert.equal(pages[1].table.records[0].id,'last');
  pages[0].table.records[0].meta.generationColumns={job:{phase:'running'}};
  assert.throws(()=>planScriptImport(pages,fixture(1)),/进行中/);assert.deepEqual(old,before);
+});
+
+test('reimport preserves edited layout, removed source fields, manual rows and prompt designation',()=>{
+ const n=fixture(2),pages=planScriptImport(start(),n).pages,t=pages[0].table;
+ t.fields=t.fields.filter(f=>f.id!=='sp-reference').reverse();
+ t.fields.push({id:'custom',name:'User column',type:'text'});
+ t.meta.generationInput.promptFieldId='sp-notes';
+ t.records[0].values.custom='keep';delete t.records[0].values['sp-reference'];
+ for(let i=0;i<10;i++)t.records.push({id:`manual-${i}`,values:{custom:`manual ${i}`},meta:{}});
+ assert.doesNotThrow(()=>assertTransition(t,t));
+ const revised=planScriptImport(pages,n,'revise');
+ assert.deepEqual(revised.pages[0].table.fields,t.fields);
+ assert.equal(revised.pages[0].table.meta.generationInput.promptFieldId,'sp-notes');
+ assert.equal(revised.pages[0].table.records.length,12);
+ assert.equal(revised.pages[0].table.records[0].values.custom,'keep');
+ assert.equal('sp-reference' in revised.pages[0].table.records[0].values,false);
+ assert.match(revised.conflicts.join(),/字段已调整/);
+ const appended=fixture(1);appended.document_id='other';appended.tasks[0].source_key='other-row';
+ const result=planScriptImport(revised.pages,appended);
+ assert.equal(result.pages[0].table.records.length,12);
+ assert.equal(result.pages.at(-1).table.fields.length,4);
+ assert.equal(result.pages.at(-1).table.meta.generationInput.promptFieldId,'sp-scene');
 });
 test('legacy reference columns combine without breaking positional or asset-ID prompt references',()=>{
  const old=emptyFixedScript();old.meta.script_parser.field_policy='nonempty';old.meta.script_parser.reference_fields=['left','right'];

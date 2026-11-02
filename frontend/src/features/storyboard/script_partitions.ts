@@ -44,13 +44,17 @@ function freshRow(task:Bag,n:NormalizedScript,index:number):ScriptRow {
  const values={'sp-shot_no':task.values.shot_no?.trim()?task.values.shot_no:String(index+1),'sp-scene':task.values.scene||'','sp-reference':refs,'sp-notes':task.values.notes||''};
  return {id:crypto.randomUUID(),selected:false,values,meta:{script_source:{source_key:task.source_key,document_id:n.document_id,filename:n.filename,row_id:task.row_id,table_id:task.table_id,chapter:task.chapter||'',chapter_key:task.chapter_key||`${n.document_id}:chapter:${task.chapter||''}`,issues,sources:copy(task.sources||{}),context:copy(task.context||[])},script_original:copy(task.original_cells||[]),script_import_values:copy(values),script_original_values:copy(task.values)}};
 }
-function reconcile(old:ScriptRow,next:ScriptRow,conflicts:string[]):ScriptRow {
+function reconcile(old:ScriptRow,next:ScriptRow,conflicts:string[],table:ScriptTable):ScriptRow {
  const baseline=old.meta?.script_import_values||{},fresh=copy(next.values),values=copy(old.values);
  if(!next.meta.script_original_values.shot_no?.trim()&&baseline['sp-shot_no'])fresh['sp-shot_no']=baseline['sp-shot_no'];
  // Occurrence identity survives reparsing even when the same binary occurs more than once.
  const previous=new Map((Array.isArray(old.values['sp-reference'])?old.values['sp-reference']:[]).map((a:Bag)=>[a.provenance?.occurrence_id,a]));
  for(const asset of fresh['sp-reference']){const match=previous.get(asset.provenance.occurrence_id) as Bag|undefined;if(match)asset.id=match.id;}
  for(const fid of ids){
+  const field=table.fields.find(f=>f.id===fid);
+  if(!field||(fid==='sp-reference'?field.type!=='content':!['text','longtext','json'].includes(field.type))){
+   conflicts.push(`${old.meta.script_source?.row_id||old.id} · ${fid} 字段已调整，保留当前表格`);continue;
+  }
   if(same(values[fid],baseline[fid]))values[fid]=fresh[fid];
   else if(!same(values[fid],fresh[fid]))conflicts.push(`${old.meta.script_source?.row_id||old.id} · ${fid} 已编辑，保留当前内容`);
  }
@@ -80,7 +84,7 @@ export function planScriptImport(current:ScriptPage[],normalized:NormalizedScrip
   const old=mode==='replace'?undefined:rows.get(task.source_key);
   if(old&&mode==='append'){skipped++;return;}
   let row=freshRow(task,normalized,index);
-  if(old){row=reconcile(old.row,row,conflicts);const i=old.page.table.records.indexOf(old.row);old.page.table.records[i]=row;
+  if(old){row=reconcile(old.row,row,conflicts,old.page.table);const i=old.page.table.records.indexOf(old.row);old.page.table.records[i]=row;
    if(rowChapter(row)!==old.page.table.meta.script_parser.chapter_key){old.page.table.records.splice(i,1);pending.push(row);}
   }else{pending.push(row);added++;}
  });
@@ -90,14 +94,13 @@ export function planScriptImport(current:ScriptPage[],normalized:NormalizedScrip
  });
  const doc=documentRecord(normalized);doc.conflicts=conflicts;
  for(const row of pending){
-  const chapter=rowChapter(row),candidates=pages.filter(p=>p.table.meta.script_parser.chapter_key===chapter);
+  const acceptsImport=(table:ScriptTable)=>ids.every(id=>{const f=table.fields.find(f=>f.id===id);return f&&!f.readonly&&(id==='sp-reference'?f.type==='content':['text','longtext','json'].includes(f.type));});
+  const chapter=rowChapter(row),candidates=pages.filter(p=>p.table.meta.script_parser.chapter_key===chapter&&acceptsImport(p.table));
   let page=candidates.at(-1);
   if(!page||page.table.records.length>=SCRIPT_ROW_LIMIT){
-   page=pages.find(p=>!p.table.records.length&&!p.table.meta.script_parser.chapter_key);
+   page=pages.find(p=>!p.table.records.length&&!p.table.meta.script_parser.chapter_key&&acceptsImport(p.table));
    if(!page){
-    const template=rows.get(row.meta.script_source.source_key)?.page.table||candidates.at(-1)?.table;
     const table=emptyFixedScript();
-    if(template){table.fields=copy(template.fields);table.meta.generationInput=copy(template.meta.generationInput);}
     page={key:crypto.randomUUID(),title:'',table};pages.push(page);
    }
    page.table.meta.script_parser.chapter_key=chapter;
@@ -109,7 +112,8 @@ export function planScriptImport(current:ScriptPage[],normalized:NormalizedScrip
  // Keep empty pages and their node connections after revision; never silently delete native nodes.
  for(const page of pages){
   if(page.table.records.some(r=>r.meta?.script_source?.document_id===normalized.document_id)||page.table.meta.script_parser.documents.some((d:Bag)=>d.document_id===normalized.document_id)||page===pages[0])addDocument(page.table,doc);
-  validateFixedScript(page.table);
+  // Existing pages are fully editable tables; never reapply the initial schema
+  // or shrink manually added rows when importing/revising another document.
  }
  return {pages,added,skipped,conflicts};
 }
