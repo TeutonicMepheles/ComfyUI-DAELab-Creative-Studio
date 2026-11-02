@@ -3446,7 +3446,7 @@
 
 - 解析结果是可编辑分镜多维表，单元格与画面描述可原位改。
 - 撤销重做与保存重载保留编辑；来源关系仍在。
-- 仍是解析节点；导入默认为四列且画面描述为提示词列。导入后该表可按标准多维表格完整编辑。
+- 仍是解析节点与四列/每表最多 10 行，不改成普通 DAELAB.Table。
 
 **旧测试复用候选：** [business:web/script_parser_panel.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/script_parser_panel.mjs)；[business:web/data_table_editor.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/data_table_editor.mjs)
 
