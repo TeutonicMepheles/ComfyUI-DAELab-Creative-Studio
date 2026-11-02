@@ -10,7 +10,8 @@ import {createMaterialTable} from '../../frontend/src/application/table_material
 import {addRecord} from '../../frontend/src/application/table_model.mjs';
 
 test('deselection and deletion archive task receipts, results and overrides across reload and restoration',()=>{
- const source=createMaterialTable(),state=importVideoTasks(source),peer=importVideoTasks(source),id=source.records[0].id;
+ const source=createMaterialTable();source.records.forEach(r=>r.selected=true);
+ const state=importVideoTasks(source),peer=importVideoTasks(source),id=source.records[0].id;
  const row=state.table.records[0],field=state.table.fields.find(f=>f.id===state.fieldId);
  row.values[state.fieldId]=[{id:'paid-result',kind:'video',url:'/view?filename=paid.mp4&type=output'}];
  row.meta.generationColumns={[state.fieldId]:{phase:'complete',requestId:'paid-once'}};
@@ -51,7 +52,7 @@ test('restoring a deleted configured source row does not mistake its absence for
 });
 
 test('checked rows drive task membership, including empty selection, new rows and independent instances',()=>{
- const source=createMaterialTable();source.records[1].selected=false;
+ const source=createMaterialTable();source.records[0].selected=source.records[2].selected=true;
  const a=importVideoTasks(source),b=importVideoTasks(source),kept=a.table.records[0],rowId=kept.id;
  assert.deepEqual(a.table.records.map(r=>r.id),[source.records[0].id,source.records[2].id]);
  kept.values[a.fieldId]=[{id:'done',url:'/view?filename=done.png'}];
@@ -63,7 +64,9 @@ test('checked rows drive task membership, including empty selection, new rows an
  assert.deepEqual(b.table.records[0].values[b.fieldId],[]);
  before=structuredClone(source);source.records.forEach(r=>r.selected=false);syncVideoTaskInputs(a,source,before);
  assert.deepEqual(a.table.records,[]);assert.equal(a.currentId,'');assert.equal(importVideoTasks(source).table.records.length,0);
- before=structuredClone(source);const added=addRecord(source);assert.equal(added.selected,true);syncVideoTaskInputs(a,source,before);
+ before=structuredClone(source);const added=addRecord(source);assert.equal(added.selected,false);syncVideoTaskInputs(a,source,before);
+ assert.deepEqual(a.table.records,[]);
+ before=structuredClone(source);added.selected=true;syncVideoTaskInputs(a,source,before);
  assert.deepEqual(a.table.records.map(r=>r.id),[added.id]);assert.equal(a.currentId,added.id);
  const saved=JSON.parse(JSON.stringify(a));syncVideoTaskInputs(saved,source,source);assert.deepEqual(saved,a);
 });

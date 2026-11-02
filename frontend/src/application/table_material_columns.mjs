@@ -28,7 +28,7 @@ export function addMaterialColumns(table,collection){
     const count=Math.max(texts.length,assets.length);
     if(!count)throw new Error('没有可填入的文字或图片／视频');
     if(count>500||table.fields.length+Number(!!texts.length)+Number(!!assets.length)>64)throw new Error('表格最多 500 行、64 列');
-    while(table.records.length<count)addRecord(table);
+    while(table.records.length<count)addRecord(table).selected=true;
     if(assets.length){
         const field=addField(table,{name:'图片/视频',type:'content',width:300});
         for(const row of table.records)row.values[field.id]=emptyValue(field);
@@ -47,7 +47,7 @@ export function fillMaterialColumn(table,fieldId,collection){
         if(collection.ready===false||collection.assets?.length||!Array.isArray(collection.texts)||collection.texts.some(text=>typeof text!=='string'))throw new Error('文本素材数据无效，未修改表格');
         const texts=collection.texts,count=columnFillCount(texts.length,table.records.length);
         if(count>500)throw new Error('每张表最多 500 行');
-        while(table.records.length<count)addRecord(table);
+        while(table.records.length<count)addRecord(table).selected=true;
         for(let index=0;index<count;index++)setValue(table,table.records[index].id,fieldId,texts[texts.length===1?0:index]);
         return;
     }
@@ -55,7 +55,7 @@ export function fillMaterialColumn(table,fieldId,collection){
     const assets=materialSnapshot(collection);
     const count=columnFillCount(assets.length,table.records.length);
     if(count>500)throw new Error('每张表最多 500 行');
-    while(table.records.length<count)addRecord(table);
+    while(table.records.length<count)addRecord(table).selected=true;
     for(let index=0;index<count;index++){
         const asset=assets[assets.length===1?0:index];
         const old=table.records[index].values[fieldId]?.[0];

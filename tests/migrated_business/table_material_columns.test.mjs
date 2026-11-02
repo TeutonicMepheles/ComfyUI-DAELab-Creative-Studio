@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createMaterialTable,fillMaterialColumn,fillMaterialCell,fillMaterialRow,removeMaterialItem,applyTextCellToColumn,columnFillCount,columnDropTypes} from '../../frontend/src/features/table/table_material_columns.mjs';
-import {clone,setValue,SnapshotHistory,normalizeTable,pasteMatrix,transferValue} from '../../frontend/src/features/table/data_table_model.mjs';
+import {clone,setValue,SnapshotHistory,normalizeTable,pasteMatrix,transferValue,addRecord} from '../../frontend/src/features/table/data_table_model.mjs';
 const group=n=>({assets:Array.from({length:n},(_,i)=>({filename:`${i}.${i%2?'webm':'png'}`,kind:i%2?'video':'image',nodeId:String(i)}))});
 const mediaTable=()=>normalizeTable({meta:{material_columns:true},fields:[{id:'a',name:'素材 A',type:'content'},{id:'b',name:'素材 B',type:'content'}],records:[{id:'r1',values:{a:[],b:[]}},{id:'r2',values:{a:[],b:[]}}]});
 
@@ -54,11 +54,20 @@ test('media cannot fill text or prompt columns and rejected inputs preserve the 
  for(const type of ['content','assets'])assert.deepEqual(columnDropTypes({type}),['image','video']);
 });
 test('new tables have independent image and prompt columns without a generation column',()=>{
- const a=createMaterialTable(),b=createMaterialTable();assert.deepEqual(a.fields.map(f=>f.name),['图片/视频','提示词']);assert.equal(a.records.length,3);assert.equal(a.records.every(r=>r.selected),true);assert.equal(a.fields[1].width,420);
+ const a=createMaterialTable(),b=createMaterialTable();assert.deepEqual(a.fields.map(f=>f.name),['图片/视频','提示词']);assert.equal(a.records.length,3);assert.equal(a.records.every(r=>r.selected===false),true);assert.equal(a.fields[1].width,420);
  assert.equal(a.fields[1].presentation,'prompt');assert.equal(a.fields[1].type,'json');assert.equal(a.meta.generationInput.promptFieldId,a.fields[1].id);assert.equal(a.fields.some(f=>f.presentation==='generation'),false);assert.equal(a.records[0].values[a.fields[1].id],'');
  fillMaterialColumn(a,a.fields[0].id,group(3));assert.equal(b.records.length,3);assert.equal(b.records[0].values[b.fields[0].id].length,0);
  setValue(a,a.records[0].id,a.fields[0].id,[{url:'/view?a'},{url:'/view?b'}]);assert.equal(a.records[0].values[a.fields[0].id].length,2);
 });
+test('new and inserted rows stay unchecked while saved selections and legacy defaults survive reload',()=>{
+ const table=createMaterialTable();table.records[0].selected=true;
+ const inserted=addRecord(table,{},table.records[0].id);assert.equal(inserted.selected,false);
+ const restored=normalizeTable(JSON.stringify(table));
+ assert.deepEqual(restored.records.map(r=>r.selected),[true,false,false,false]);
+ const legacy=normalizeTable({fields:[],records:[{id:'legacy',values:{}}]});
+ assert.equal(legacy.records[0].selected,true);
+});
+
 test('ordered mixed media grows rows and preserves trailing rows, other columns and undo',()=>{
  const t=mediaTable(),[a,b]=t.fields,ids=t.records.map(r=>r.id);
  fillMaterialColumn(t,b.id,group(2));const other=clone(t.records[0].values[b.id]);
