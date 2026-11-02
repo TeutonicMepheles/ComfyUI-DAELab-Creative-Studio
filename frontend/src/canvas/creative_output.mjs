@@ -6,6 +6,12 @@ export function connectedOutputNode(source,type,index=0){
     }
     return null;
 }
+export function connectTableOutput(source,group){
+    const output=source.outputs?.findIndex(slot=>slot.name==='table_json');
+    const input=group.inputs?.findIndex(slot=>slot.name==='source_report');
+    if(output<0||input<0||typeof source.connect!=='function')return false;
+    return Boolean(source.connect(output,group,input));
+}
 export function outputPosition(source,cards,width=350,height=240){
     const x=source.x+source.width+80;let y=source.y;
     for(let i=0;i<=cards.length;i++){

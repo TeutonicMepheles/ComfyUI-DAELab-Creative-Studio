@@ -32,9 +32,9 @@ export function clampMenuPosition(anchor,size,bounds){
 
 // One instance-owned menu. Selection, table editing and host history stay owned by
 // the existing editor; this module only presents commands for the current object.
-export function installContentPresentation({root,editor,getTable,notify,editPromptTemplate,extractText=null,enabled=()=>true,onPresentationChange=()=>{}}){
+export function installContentPresentation({root,editor,getTable,notify,editPromptTemplate,extractText=null,outputTable=null,enabled=()=>true,onPresentationChange=()=>{}}){
     const toolbar=el('aside','dae-ui content-context');toolbar.setAttribute('role','menu');toolbar.setAttribute('aria-label','表格操作菜单');toolbar.hidden=true;document.body.append(toolbar);
-    let selected=null,signature='',disposed=false,menuOpen=false,menuTrigger=null,menuPoint=null,columnGrid=null,columnSelection=null,rowGrid=null,rowSelection=null,cellAnchor=null,columnAnchor=null,rowAnchor=null,optimizationEntry=null;
+    let selected=null,signature='',disposed=false,menuOpen=false,menuTrigger=null,menuPoint=null,columnGrid=null,columnSelection=null,rowGrid=null,rowSelection=null,outputSignature='',cellAnchor=null,columnAnchor=null,rowAnchor=null,optimizationEntry=null;
     const context=()=>editor.panelContext?.();
     const active=()=>{const panel=context();return enabled()&&panel?.presentation==='content'&&root.isConnected&&(typeof panel.active==='boolean'?panel.active:!!panel.getViewport());};
     const menuAvailable=()=>enabled()&&root.isConnected&&(active()||!context());
@@ -56,6 +56,24 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
         return b;
     }
     function addGroup(groups,...items){const visible=items.filter(Boolean);if(visible.length)groups.push(visible);}
+    function decorateOutputSources(){
+        const fields=getTable().fields.filter(item=>!item.hidden),signatureKey=JSON.stringify(fields.map(item=>[item.id,item.name||'',isGeneration(item)]));
+        if(signatureKey===outputSignature)return;
+        const current=new Set(fields.map(item=>item.id)),headers=new Map([...root.querySelectorAll('th[data-column]')].map(header=>[header.dataset.column,header]));
+        for(const element of root.querySelectorAll('[data-table-source]'))if(!current.has(element.dataset.tableSource))element.remove();
+        for(const field of fields){
+            const header=headers.get(field.id);if(!header)continue;
+            let source=header.querySelector(`[data-table-source="${CSS.escape(field.id)}"]`);
+            if(isGeneration(field)&&header.querySelector('[data-generation-source]')){source?.remove();continue;}
+            if(!source){
+                source=el('button','content-column-output');source.type='button';source.dataset.tableSource=field.id;
+                header.append(source);
+            }
+            source.setAttribute('aria-label',`${field.name||'当前列'}输出为素材组`);
+            source.title=`${field.name||'当前列'} · 拖出或点击输出素材组`;
+        }
+        outputSignature=fields.every(field=>headers.has(field.id))?signatureKey:'';
+    }
     function rename(){
         const row=selected?.kind==='row',entry=row?getTable().records.find(r=>r.id===selected.record):field();if(!entry)return;
         const title=row?'行':'列',d=editor.openDialog('重命名'+title),input=el('input');input.value=entry.name||(row?'任务'+(getTable().records.indexOf(entry)+1):'');input.setAttribute('aria-label',title+'名称');
@@ -79,7 +97,9 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
                 const menuEditor={openPromptOptimization:target=>editor.openPromptOptimization({...target,anchor:columnAnchor||target.anchor})};
                 optimizationEntry=createPromptOptimizationEntry({editor:menuEditor,target:{scope:'column',fieldId:selected.field}});optimize=optimizationEntry.element;
             }
-            addGroup(groups,optimize,item('重命名',rename,'edit-line'),item('复制列',()=>mutate(t=>{const old=t.fields.find(f=>f.id===selected.field),next=addField(t,{...clone(old),id:uid(),name:old.name+' 副本'});reorder(t.fields,next.id,old.id,true);for(const r of t.records){r.values[next.id]=clone(r.values[old.id]??emptyValue(old));if(Array.isArray(r.values[next.id]))for(const a of r.values[next.id])a.id=uid();}selected={kind:'column',field:next.id};}),'file-copy-line'));
+            addGroup(groups,
+                outputTable?item('输出为素材组',()=>outputTable({scope:'column',fieldId:selected.field,anchor:columnAnchor}),'box-3-line'):null,
+                optimize,item('重命名',rename,'edit-line'),item('复制列',()=>mutate(t=>{const old=t.fields.find(f=>f.id===selected.field),next=addField(t,{...clone(old),id:uid(),name:old.name+' 副本'});reorder(t.fields,next.id,old.id,true);for(const r of t.records){r.values[next.id]=clone(r.values[old.id]??emptyValue(old));if(Array.isArray(r.values[next.id]))for(const a of r.values[next.id])a.id=uid();}selected={kind:'column',field:next.id};}),'file-copy-line'));
             addGroup(groups,item('删除列',()=>mutate(t=>{removeField(t,selected.field);selected={kind:'table'};}),'delete-bin-line',true));
         }else if(selected.kind==='row'){
             const recordId=selected.record;
@@ -94,6 +114,7 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
                 optimizationEntry=createPromptOptimizationEntry({editor:menuEditor,target:{scope:'cell',fieldId:selected.field,recordId:selected.record}});optimize=optimizationEntry.element;
             }
             addGroup(groups,
+                outputTable&&!many?item('输出为素材组',()=>outputTable({scope:'cell',fieldId:selected.field,recordId:selected.record,anchor:findCell()}),'box-3-line'):null,
                 extractText&&isTextColumn(getTable(),f)&&!f?.readonly?item('拆出文本',()=>{try{const table=getTable(),row=table.records.find(entry=>entry.id===selected.record),text=expandedCellText(table,row,selected.field);if(!text.trim())throw new Error('所选文本为空，未创建节点');extractText({recordId:selected.record,fieldId:selected.field,text,title:(field()?.name||'文本')+' · 拆出'});}catch(error){notify(error.message);}},'file-text-line'):null,
                 optimize);
             if(!many&&['assets','content'].includes(f?.type)&&!f?.readonly)addGroup(groups,item('添加图片',()=>findCell()?.dispatchEvent(new Event('dae-upload')),'image-line'));
@@ -148,6 +169,7 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
         if(grid!==columnGrid||column!==columnSelection){
             columnGrid=grid;columnSelection=column;
             root.querySelectorAll('th[data-column],td[data-field]').forEach(node=>{const activeColumn=String(Boolean(column)&&(node.dataset.column||node.dataset.field)===column);if(node.dataset.columnSelected!==activeColumn)node.dataset.columnSelected=activeColumn;if(node.matches('th')&&node.getAttribute('aria-selected')!==activeColumn)node.setAttribute('aria-selected',activeColumn);});
+            decorateOutputSources();
         }
         const row=selected?.kind==='row'?selected.record:null;
         if(grid!==rowGrid||row!==rowSelection){

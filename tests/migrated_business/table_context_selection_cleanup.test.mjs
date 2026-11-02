@@ -54,7 +54,7 @@ test('panel activity avoids geometry reads while idle or editing and follows dea
  assert.equal(b.root.dataset.contentPresentation,'true');
  a.context.active=true;env.tick();assert.equal(a.root.dataset.contentPresentation,'true');
 });
-function table(env,index){
+function table(env,index,options={}){
  const value=JSON.parse(fixture.nodes.filter(node=>node.type==='DAELAB.Table')[index].widgets_values[0]);
  const root=new env.Element('section'),grid=new env.Element('table'),head=new env.Element('thead'),body=new env.Element('tbody');root.append(grid);grid.append(head,body);document.body.append(root);
  const headers=value.fields.map(field=>{const th=new env.Element('th');th.dataset.column=field.id;head.append(th);return th;});
@@ -62,7 +62,7 @@ function table(env,index){
  const selection=attachCellSelection({root,shell:root,getTable:()=>value});
  const context={presentation:'content',selected:true,contains:node=>root.contains(node),getViewport:()=>({left:0,top:0,right:1200,bottom:800,width:1200}),getBounds:()=>root.getBoundingClientRect()};env.contexts.set(root,context);
  const editor={panelContext:()=>env.contexts.get(root),clearSelection:selection.clear,selectColumn:selection.selectColumn,selection:selection.selection,render(){}};
- const presentation=installContentPresentation({root,editor,getTable:()=>value});env.releases.push(()=>{presentation.destroy();selection.destroy();});
+ const presentation=installContentPresentation({root,editor,getTable:()=>value,outputTable:options.outputTable});env.releases.push(()=>{presentation.destroy();selection.destroy();});
  const toolbar=document.body.children.at(-1);env.tick();
  return {root,headers,cells,selection,toolbar,value,context,presentation,enter(cell=cells[0]){cell.dataset.inlineEditing='true';env.emit('focusin',cell);},leave(cell=cells[0]){delete cell.dataset.inlineEditing;},selectColumn(index){env.emit('pointerdown',headers[index]);env.flush();},contextMenu(cell=cells[0]){root.fire('contextmenu',{clientX:420,clientY:260,target:cell});env.flush();}};
 }
@@ -118,4 +118,12 @@ test('left selection keeps the menu closed; right click and keyboard open a focu
  assert.equal(a.root.dataset.contentSelected,'true','closing the menu keeps the table selection');
  cell.focus();a.root.fire('keydown',{target:cell,key:'F10',shiftKey:true,isComposing:false});
  env.flush();assert.equal(a.toolbar.hidden,false,'Shift+F10 opens the current object menu');
+});
+test('the cell menu routes output to the owning table callback',t=>{
+ const env=dom(t),calls=[],a=table(env,0,{outputTable:detail=>calls.push(detail)}),cell=a.cells[0];
+ a.contextMenu(cell);
+ const output=a.toolbar.querySelectorAll('[role=menuitem]').find(item=>item.textContent==='输出为素材组');
+ assert.ok(output);
+ output.onclick({preventDefault(){},stopPropagation(){}});
+ assert.deepEqual(calls.map(call=>({scope:call.scope,fieldId:call.fieldId,recordId:call.recordId})),[{scope:'cell',fieldId:a.value.fields[0].id,recordId:a.value.records[0].id}]);
 });

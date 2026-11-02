@@ -1,5 +1,5 @@
 import {NAMESPACE} from '../../../features/prompt/prompt_optimization_model.mjs';
-import {generationMaterials} from '../../../application/table_material_output.mjs';
+import {generationMaterials,parseTableOutputKey} from '../../../application/table_material_output.mjs';
 // Optional integration: business nodes work without the canvas extension.
 // This repository alone owns knowledge of its private panel implementations.
 import {createMaterialTable,addMaterialColumns,fillMaterialColumn,fillMaterialRow,fillMaterialCell,columnDropTypes,columnFillCount} from '../../../application/table_material_columns.mjs';
@@ -41,8 +41,8 @@ function register(){
             return cached?.targets===targets?cached.projectedTargets:targets;
         },
         // Generation output controls belong to the current header; never cache its DOM.
-        materialSources:node=>[...(node.__dataTablePanel?.root.querySelector('thead')?.querySelectorAll('[data-generation-source]')||[])].map(element=>({element,key:element.dataset.generationSource,label:'输出为素材组'})),
-        outputMaterials:(node,key)=>generationMaterials(node.__dataTable,key),
+        materialSources:node=>[...(node.__dataTablePanel?.root.querySelector('thead')?.querySelectorAll('[data-generation-source],[data-table-source]')||[])].map(element=>({element,key:element.dataset.generationSource||`column:${encodeURIComponent(element.dataset.tableSource)}`,label:'输出为素材组'})),
+        outputMaterials:(node,key)=>{const source=parseTableOutputKey(key);return generationMaterials(node.__dataTable,source.fieldId,source.recordId);},
         acceptMaterials(node,key,collection){if(node.type==='DAELAB.LibTV.VideoGenerate')return node.__libtvPanel.acceptMaterials(key,collection);const editor=node.__dataTablePanel?.editor;if(!editor)throw new Error('表格尚未就绪');editor.change(t=>{if(t.fields.some(f=>f.id===key))fillMaterialColumn(t,key,collection);else{const [kind,record,field]=JSON.parse(key);if(kind==='new-column')addMaterialColumns(t,collection);else if(kind==='row')fillMaterialRow(t,record,collection);else if(kind==='cell')fillMaterialCell(t,record,field,collection);else throw new Error('素材落点已失效');}});},
         tasks:node=>node.__dataTablePanel?.tasks?.()||node.__libtvPanel?.tasks?.()||[],
         matches:node=>tables.includes(node.type)||node.type==='DAELAB.LibTV.VideoGenerate',
