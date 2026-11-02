@@ -41,6 +41,13 @@ Legacy direct native prompts lack the HTTP queue ownership tag. Their renderer s
 
 ## Frontend lifecycle
 
+A direct videos.* or images.* connection may publish a version-1 asset collection
+when its source has multiple results. The export snapshot retains that entire
+collection, as the timeline does. Each saved clip resolves its rooted file locator
+against exactly one member of that frozen connection. Missing or ambiguous members
+fail; a collection never falls back to a single preview. Scalar inputs remain
+compatible. Clip order, trims and native slot names are unchanged.
+
 `MediaExportService` and `ExportSession` are typed application/view boundaries. The Comfy integration injects only `api.fetchApi`; it no longer composes native execution graphs, calls queuePrompt, polls native history or calls generic host cancellation. Sources are captured through the existing adapter `assets`/`preview` contract, preserving group member identities and native input names.
 
 Each explicit export creates one request identity and an immutable input snapshot. A DocumentController ticket captures workflow session, load epoch and input revision before asynchronous hashing/submission. The workflow stores only `daelabEditExport` (request ID, client input digest, source owner) and `daelabEditBinding` (matching reference, server fingerprint, verified asset receipt and output file). Task states stay as read-only server projections. Editing hides the old projection immediately while retaining historical file/binding evidence and all existing wires. Undo changes workflow bindings, not ledger facts.

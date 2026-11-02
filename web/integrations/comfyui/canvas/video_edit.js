@@ -155,8 +155,12 @@ function install(node){
                 if(input.name==='assets')result.assets=nativeSnapshot(collection);
                 else(result.groups??={})[input.name]=nativeSnapshot(collection);
             }else if(input.name.startsWith('videos.')||input.name.startsWith('images.')){
-                const media=collection?.assets?.length===1?collection.assets[0]:localAsset(adapter?.preview?.(source)?.url);
                 const group=input.name.startsWith('videos.')?'videos':'images';
+                if(collection){
+                    if(!Array.isArray(collection.assets)||!collection.assets.length)throw new Error('上游节点没有可导出的素材');
+                    if(collection.assets.length>1){(result[group]??={})[input.name]=nativeSnapshot(collection);continue;}
+                }
+                const media=collection?collection.assets[0]:localAsset(adapter?.preview?.(source)?.url);
                 (result[group]??={})[input.name]=nativeSnapshot(media.filename?media:{...media,...localAsset(media.url)});
             }else throw new Error('此剪辑输入尚未提供稳定素材快照');
         }

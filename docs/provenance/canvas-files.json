@@ -86,8 +86,9 @@
       "source": "web/creative_canvas_view.mjs",
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
       "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
-      "destinationSha256": "7d406333e2a807b112c937533896a3806ea01790ce9240bd4b1d6f6f35731c31",
+      "destinationSha256": "ab9f76fb717d5a555d363b6e76d3c467ac772043b3aed52c8d2d799f19843562",
       "changes": [
+        "2026-11-02: Preserve generated media URL resolution and materialize exported video snapshots with optional text collections.",
         "2026-11-02: route DOCX canvas file drops to the existing ScriptParser upload capability; preserve media routing and graph ownership.",
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "remove opt-in test gallery rendering; retain unrelated graph.extra data",
@@ -270,8 +271,9 @@
       "source": "web/video_edit.js",
       "destination": "frontend/src/integrations/comfyui/canvas/video_edit.js",
       "sourceSha256": "cff552275a3cdcc69a505a353801c0a9d781d82b7cef4ecc017ca35ca9f87aa6",
-      "destinationSha256": "16f9952e01007273c49ffbbba5f55160338eb5242d1200099586511fe6f7beff",
+      "destinationSha256": "ca5c03c8b09f73b160eadf3a2be76334bd69ed75d8cb587507cd08141046306c",
       "changes": [
+        "2026-11-02: Freeze all results of direct batch editing inputs and resolve each saved timeline member without a single-preview fallback.",
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "Traceability agent M5 HTTP export-service integration in progress; hash synchronized for asset-focused checks, final host freeze waits for that owner handoff.",
         "Unify native export-reference loading; preserve damaged raw properties, diagnose once per load, and hold an unresolved submission lock until reference identity is verified. Normal native/proxy JSON behavior retained.",

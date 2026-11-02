@@ -14,14 +14,27 @@ from PIL import Image, ImageOps
 
 
 def resolve_media(asset, *, roots):
-    if isinstance(asset, str):
-        url = urlsplit(asset)
+    source = asset
+    address = asset if isinstance(asset, str) else asset.get('url') if isinstance(asset, dict) else None
+    if address is not None:
+        if not isinstance(address, str):
+            raise ValueError('Invalid local media URL.')
+        url = urlsplit(address)
         if url.scheme or url.netloc or url.path != '/view':
             raise ValueError('剪辑只接受本地素材')
         query = parse_qs(url.query)
         if len(query.get('filename', [])) != 1 or any(len(query.get(key, [])) > 1 for key in ('type', 'subfolder')):
             raise ValueError('素材地址无效')
-        asset = {k: v[0] for k, v in query.items()}
+        reference = {k: v[0] for k, v in query.items()}
+        if isinstance(source, dict):
+            # A URL and explicit locator must identify the same file. Never let
+            # an output URL silently resolve a filename against the input root.
+            for key, default in (('filename', ''), ('subfolder', ''), ('type', 'input')):
+                if key in source and source[key] != reference.get(key, default):
+                    raise ValueError('Conflicting local media references.')
+            asset = {**source, **reference}
+        else:
+            asset = reference
     if not isinstance(asset, dict):
         raise ValueError('素材引用格式无效')
     kind = asset.get('type', 'input')
@@ -78,6 +91,16 @@ def edit_clips(data, assets=None, videos=None, images=None, groups=None, *, root
             if not slots.get(slot):
                 raise ValueError('片段来源连接已断开，请重新添加')
             asset = slots[slot]
+            if isinstance(asset, dict) and isinstance(asset.get('assets'), list):
+                # A single native input can expose several generated results.
+                # Resolve the timeline's saved locator against that frozen batch,
+                # never against the adapter's current single-result preview.
+                expected, _, _ = resolve_media(clip.get('asset'), roots=roots)
+                matches = [item for item in asset['assets']
+                           if resolve_media(item, roots=roots)[0] == expected]
+                if len(matches) != 1:
+                    raise ValueError('Timeline material is missing or ambiguous in the connected batch.')
+                asset = matches[0]
         else:
             asset = source.get('asset')
         if not asset:

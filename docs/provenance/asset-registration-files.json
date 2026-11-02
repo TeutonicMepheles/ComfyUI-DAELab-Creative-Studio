@@ -75,8 +75,9 @@
     },
     {
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
-      "destinationSha256": "e41c0438a045bd75d9a567f14fe7bef0dff99bf7a70695428b5b30a3fd233d82",
+      "destinationSha256": "ab9f76fb717d5a555d363b6e76d3c467ac772043b3aed52c8d2d799f19843562",
       "changes": [
+        "2026-11-02: Preserve generated media URL resolution and materialize exported video snapshots with optional text collections.",
         "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
       ]
     },
@@ -145,8 +146,10 @@
     },
     {
       "destination": "tests/migrated_canvas_backend/test_media.py",
-      "destinationSha256": "d34a5bf81efca04c889e06e024fdd41e1a1895ca299665d80cc027d9105ccf8b",
+      "destinationSha256": "ba5cc76a156e04e617c459ca20cc636420f38c08848e29c3fc9faba5aee8fe09",
       "changes": [
+        "2026-11-02: Freeze all results of direct batch editing inputs and resolve each saved timeline member without a single-preview fallback.",
+        "2026-11-02: Preserve generated media URL resolution and materialize exported video snapshots with optional text collections.",
         "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
       ]
     },

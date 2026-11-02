@@ -73,6 +73,33 @@ class LocalMediaTests(unittest.TestCase):
             with self.subTest(asset=asset), self.assertRaises(ValueError):
                 media.resolve_media(asset, roots=self.roots)
 
+    def test_generated_url_object_resolves_output_and_does_not_mutate_source(self):
+        asset = {'kind': 'image', 'id': 'generated-output', 'name': 'Generated',
+                 'url': '/view?filename=blue.png&type=output',
+                 'provenance': {'requestId': 'original-request'}}
+        before = copy.deepcopy(asset)
+        info = media.media_info(asset, roots=self.roots)
+        self.assertEqual(info['type'], 'output')
+        self.assertEqual(info['filename'], 'blue.png')
+        self.assertEqual(info['name'], 'Generated')
+        clips, _ = media.edit_clips({'version': 1, 'clips': [
+            {'source': {'slot': 'videos.1'}, 'duration': .25}]},
+            videos={'videos.1': asset}, roots=self.roots)
+        self.assertEqual(clips[0]['asset']['type'], 'output')
+        self.assertEqual(asset, before)
+
+    def test_object_urls_keep_root_and_ambiguity_checks(self):
+        for asset in [
+            {'url': 'https://remote.invalid/view?filename=blue.png&type=output'},
+            {'url': '/view?filename=../output/blue.png&type=input'},
+            {'url': '/view?filename=blue.png&type=output&type=input'},
+            {'url': '/view?filename=blue.png&type=output', 'type': 'input'},
+            {'url': '/view?filename=blue.png&type=output', 'filename': 'red.png'},
+            {'url': '/view?filename=blue.png&type=output', 'subfolder': 'elsewhere'},
+        ]:
+            with self.subTest(asset=asset), self.assertRaises(ValueError):
+                media.resolve_media(asset, roots=self.roots)
+
     def test_group_member_identity_and_slot_order_survive_serialization(self):
         a = dict(id="same-file-id", nodeId="one", filename="red.png", type="input")
         b = dict(id="same-file-id", nodeId="two", filename="blue.png", type="output")
@@ -90,6 +117,23 @@ class LocalMediaTests(unittest.TestCase):
         missing["clips"][0]["source"]["nodeId"] = "missing"
         with self.assertRaises(ValueError):
             media.edit_clips(missing, roots=self.roots)
+
+    def test_direct_batch_slot_exports_exact_timeline_members_and_trims(self):
+        assets = [{'id': 'a', 'url': '/view?filename=red.png&type=input'},
+                  {'id': 'b', 'url': '/view?filename=blue.png&type=output'}]
+        edit = {'version': 1, 'clips': [
+            {'source': {'slot': 'images.image0', 'nodeId': 'batch'},
+             'asset': {'filename': 'blue.png', 'type': 'output'}, 'duration': .25},
+            {'source': {'slot': 'images.image0', 'nodeId': 'batch'},
+             'asset': {'filename': 'red.png', 'type': 'input'}, 'duration': .5}]}
+        connection = {'images.image0': {'version': 1, 'assets': assets}}
+        clips, _ = media.edit_clips(edit, images=connection, roots=self.roots)
+        self.assertEqual([c['asset']['filename'] for c in clips], ['blue.png', 'red.png'])
+        self.assertEqual([c['duration'] for c in clips], [.25, .5])
+        changed = copy.deepcopy(connection)
+        changed['images.image0']['assets'].pop()
+        with self.assertRaises(ValueError):
+            media.edit_clips(edit, images=changed, roots=self.roots)
 
     def test_synthetic_export_decodes_in_sequence_and_cancel_removes_partial_output(self):
         data = {"version": 1, "clips": [
