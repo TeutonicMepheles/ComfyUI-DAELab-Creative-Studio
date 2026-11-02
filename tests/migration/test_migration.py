@@ -15,7 +15,8 @@ from unittest.mock import patch
 
 from backend.jobs.ledger import JobLedger
 from backend.assets.catalog import AssetCatalog
-from compat.receipts.reader import inspect_receipts, inspect_database, read_receipt
+from backend.contracts.database import SCHEMA_VERSION
+from compat.receipts.reader import READABLE_SCHEMA_MAX, inspect_receipts, inspect_database, read_receipt
 from compat.workflows.reader import READ_ONLY, inspect_workflow, read_compat_node, readonly_node_mappings
 from tools.migration.prepare import BASELINES, initialize_workspace, preflight, migrate, rollback
 from tools.migration.safety import MigrationError, canonical, file_hash, inventory, relative
@@ -311,6 +312,10 @@ class MigrationTests(unittest.TestCase):
         target = Path(migrate(self.plan)["path"])
         self.assertEqual(file_hash(path), file_hash(target / "backup/studio.sqlite3"))
         self.assertEqual(ledger.get("original-identity")["state"], "pending")
+
+    def test_offline_reader_verified_schema_max_must_be_updated_with_the_ledger(self):
+        self.assertEqual(READABLE_SCHEMA_MAX, 4)
+        self.assertEqual(READABLE_SCHEMA_MAX, SCHEMA_VERSION)
 
     def test_asset_catalog_references_check_snapshot_hashes_without_mutation(self):
         path = self.source / "studio.sqlite3"

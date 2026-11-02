@@ -7,7 +7,7 @@ import tempfile
 from types import SimpleNamespace
 import unittest
 
-from backend.providers.native import ModelInventory
+from backend.providers.native import ModelInventory, NativeProvider
 from backend.providers.qwen import QwenProvider
 from backend.providers.contracts import ProviderUnavailable, SubmissionUncertain, SubmissionRejected
 from backend.providers.parameters import QWEN_MODEL
@@ -68,6 +68,24 @@ class NativeTests(unittest.IsolatedAsyncioTestCase):
         self.host.validate_prompt = invalid
         with self.assertRaises(SubmissionRejected): await self.host.enqueue('a', {}, owner='row')
         self.assertEqual(self.queue.pending, [])
+
+    async def test_reattempt_of_same_request_uses_fresh_owned_provider_identity(self):
+        requested = 'native-stable-request'
+        old_item = (0, requested, {}, {'creative_studio_request_id': 'row'})
+        self.queue.history[requested] = {
+            'prompt': old_item,
+            'status': {'status_str': 'error', 'completed': False,
+                       'messages': [['execution_interrupted', {}]]},
+            'outputs': {},
+        }
+        provider = SimpleNamespace(queue=self.host, kind='image')
+        observation = await NativeProvider.create(
+            provider, 'row', {'prepared': {'native_task_id': requested, 'graph': {}}})
+        retried = observation.task_id
+        self.assertNotEqual(retried, requested)
+        self.assertTrue(retried.startswith(requested + '-reattempt-'))
+        self.assertEqual(self.queue.pending[-1][1], retried)
+        self.assertEqual((await self.host.query(retried, owner='row', kind='image')).state, 'submitted')
 
 
 class AdmissionTests(unittest.IsolatedAsyncioTestCase):

@@ -44,4 +44,12 @@ test('backend-provided definitions replace hardcoded identities without carrying
  const catalog=createModelCatalog();
  const entries=catalog.replaceDefinitions([{id:'backend-only',label:'Backend Only',family:'generation',kind:'image',provider:'local'}]);
  assert.deepEqual(entries.map(item=>[item.id,item.status,item.available,item.selectable]),[['backend-only','unverified',false,true]]);
+ assert.equal(catalog.replaceDefinitions([{id:'technical-id',family:'optimization',kind:'text',provider:'qwen'}])[0].label,'未知模型');
+});
+test('provider change for the same logical id clears stale availability and capability',async()=>{
+ const catalog=createModelCatalog();
+ await catalog.check('deepseek-flash',async()=>({available:true,provider:'deepseek',deepseekKeyConfigured:true}));
+ assert.equal(catalog.get('deepseek-flash').status,'available');
+ const changed=catalog.replaceDefinitions([{id:'deepseek-flash',label:'Server LLM',family:'optimization',kind:'text',provider:'qwen'}])[0];
+ assert.deepEqual([changed.status,changed.capability,changed.available,changed.selectable],['unverified',null,false,true]);
 });

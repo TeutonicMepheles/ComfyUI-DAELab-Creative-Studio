@@ -86,7 +86,7 @@
       "source": "web/creative_canvas_view.mjs",
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
       "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
-      "destinationSha256": "77ed6fbb62bd9632e5842688c3bac7f89ff7d68fb677c7af1cb0ed1fd79a52d0",
+      "destinationSha256": "c777c58d18166127ed21e144ff318deeddb60928d63263261d79ec32689d540f",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "remove opt-in test gallery rendering; retain unrelated graph.extra data",
@@ -107,6 +107,7 @@
         "2026-11-02: materialize table cell/column output as type-separated groups in one native history step and connect each group to the table lineage slot; rollback every created node on failure.",
         "2026-11-02: keep generation-history task grouping distinct from table-output type grouping while sharing filtering, ordering and identity dedupe.",
         "2026-11-02: materialize generated row history through its type-split indexed outputGroups, never creating mixed groups; reject listing-layer groups at the write boundary.",
+        "2026-11-02: skip individually invalid local files and omit empty result sections; missing files no longer abort otherwise valid output.",
         "Expose the leased panel active state without a geometry read; preserve viewport geometry and legacy adapter fallback. Two-instance table and mode checks are recorded in TABLE_PILOT_ACCEPTANCE_20261027.md; the 100 ms budget remains open.",
         "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained.",
       "2026-10-30: make group/member port ownership exclusive and prioritize direct hits without style or layout changes.",

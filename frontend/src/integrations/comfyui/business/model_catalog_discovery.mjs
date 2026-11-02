@@ -20,16 +20,16 @@ function optimizationProbe(model){
     };
 }
 
-async function loadDefinitions(catalog){
-    if(definitionsLoaded)return;
-    const result=await businessJson('generation','models');
+export async function loadModelDefinitions(catalog,{force=false,request=businessJson}={}){
+    if(definitionsLoaded&&!force)return;
+    const result=await request('generation','models');
     catalog.replaceDefinitions(result.models);
     definitionsLoaded=true;
 }
 
 export async function refreshModelCatalog({force=false}={}){
     const catalog=getModelCatalog();
-    if(!definitionsLoaded)await loadDefinitions(catalog);
+    await loadModelDefinitions(catalog,{force});
     lastRefresh=Date.now();
     return Promise.all([
         catalog.refresh(generationProbe,{force,filters:{family:'generation'}}),

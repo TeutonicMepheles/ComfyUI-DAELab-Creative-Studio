@@ -15,10 +15,11 @@ class MaterialOutputImportTest(unittest.TestCase):
    video=module.import_materials([dict(kind='video',url='/view?filename=b.mp4&type=input')],i,o)[0]
    self.assertEqual(video['type'],'input');self.assertEqual((i/video['subfolder']/video['filename']).resolve(),(i/'b.mp4').resolve());self.assertFalse((i/'DAELAB/results').exists())
    for url in ['/view?filename=../a.png&type=output','https://external/view?filename=a.png&type=output','/view?filename=a.png&type=output&type=input']:
-    with self.assertRaises(ValueError):module.import_materials([dict(kind='image',url=url)],i,o)
- def test_validation_failure_creates_no_partial_files(self):
+    self.assertEqual(module.import_materials([dict(kind='image',url=url)],i,o),[])
+ def test_invalid_items_are_skipped_without_dropping_valid_items(self):
   with tempfile.TemporaryDirectory() as tmp:
    root=Path(tmp);i=root/'input';o=root/'output';i.mkdir();o.mkdir();Image.new('RGB',(8,8)).save(o/'a.png')
-   with self.assertRaises(ValueError):module.import_materials([dict(kind='image',url='/view?filename=a.png&type=output'),dict(kind='image',url='/view?filename=missing.png&type=output')],i,o)
+   result=module.import_materials([dict(kind='image',url='/view?filename=a.png&type=output'),dict(kind='image',url='/view?filename=missing.png&type=output')],i,o)
+   self.assertEqual([(item['filename'],item['sourceIndex']) for item in result],[('a.png',0)])
    self.assertFalse((i/'DAELAB/results').exists())
 if __name__=='__main__':unittest.main()

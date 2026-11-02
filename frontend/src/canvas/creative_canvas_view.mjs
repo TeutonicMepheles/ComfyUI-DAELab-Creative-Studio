@@ -340,17 +340,19 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
             if(!Array.isArray(sections)||sections.some(section=>!['text','image','video'].includes(section.kind)||!Number.isInteger(section.count)||section.count<1||!Array.isArray(section.assetIndexes)||!Array.isArray(section.textIndexes)||section.count!==section.assetIndexes.length+section.textIndexes.length))throw new Error('素材分组数量不一致');
             if(sections.reduce((sum,section)=>sum+section.count,0)!==frozen.assets.length+frozen.texts.length)throw new Error('素材分组数量不一致');
             if(sections.some(section=>section.assetIndexes.some(index=>!Number.isInteger(index)||index<0||index>=frozen.assets.length)||section.textIndexes.some(index=>!Number.isInteger(index)||index<0||index>=frozen.texts.length)))throw new Error('素材分组索引无效');
-            let imported=[];
+            let imported=[],importedSkipped=0;
             if(frozen.assets.length){
                 message('正在引用本地素材…');
                 const response=await fetch('/daelab/creative/material-output',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({assets:frozen.assets,source:{operation:'material-output',documentId:String(graph.id||'unsaved'),nodeId:String(context.node.id)}})});
                 const data=await response.json();if(!response.ok)throw new Error(data.error||'素材导入失败');
-                imported=data.assets;
+                imported=data.assets;importedSkipped=Number.isInteger(data.skipped)?data.skipped:0;
             }
             if(!visible||graph!==ownerGraph||host.graph()!==ownerGraph||state!==ownerState||!validConnection(context)||JSON.stringify(snapshotFor(context))!==stamp)throw new Error('来源或结果已变化，请重新输出');
-            if(!Array.isArray(imported)||imported.length!==frozen.assets.length)throw new Error('素材导入数量不一致');
+            if(!Array.isArray(imported)||importedSkipped<0||imported.length+importedSkipped!==frozen.assets.length)throw new Error('素材导入数量不一致');
+            const importedByIndex=new Map(imported.map((asset,index)=>[Number.isInteger(asset?.sourceIndex)?asset.sourceIndex:importedSkipped?NaN:index,asset]));
+            if(importedByIndex.size!==imported.length||[...importedByIndex.keys()].some(index=>!Number.isInteger(index)||index<0||index>=frozen.assets.length))throw new Error('素材导入索引无效');
             if(!host.nodeDefinition('DAELAB.TextInput')||!host.nodeDefinition(GROUP_TYPE))throw new Error('文本或素材组节点未加载');
-            history.begin();
+            history.begin();let materialized=0;
             try{
                 for(const [index,section] of sections.entries()){
                     const origin={x:point.x+index*800*state.viewport.zoom,y:point.y},members=[];
@@ -358,18 +360,19 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
                         const node=createNode('DAELAB.TextInput',{x:origin.x+(members.length%2)*356*state.viewport.zoom,y:origin.y+Math.floor(members.length/2)*260*state.viewport.zoom});if(!node)throw new Error('文本节点未加载');created.push(node);members.push(node.id);
                         const widget=node.widgets?.find(item=>item.name==='text');if(!widget)throw new Error('文本节点格式不兼容');widget.value=frozen.texts[textIndex];widget.callback?.(widget.value);node.title=`${section.label} · ${members.length}`;adapterFor(node)?.refresh?.(node);
                     }
-                    for(const [assetIndex,asset] of section.assetIndexes.map(assetIndex=>[assetIndex,imported[assetIndex]])){
+                    for(const [assetIndex,asset] of section.assetIndexes.map(assetIndex=>[assetIndex,importedByIndex.get(assetIndex)]).filter(([,asset])=>asset)){
                         const i=members.length;
                         const node=createNode(UPLOAD_TYPE,{x:origin.x+(i%3)*300*state.viewport.zoom,y:origin.y+Math.floor(i/3)*240*state.viewport.zoom});if(!node)throw new Error('素材节点未加载');created.push(node);members.push(node.id);
                         const widget=node.widgets?.find(w=>w.name==='asset_data');if(!widget)throw new Error('素材节点格式不兼容');widget.value=JSON.stringify(asset);node.title=asset.name;node.properties.materialOutputSource={nodeId:String(context.node.id),key:context.materialKey??null,kind:section.kind,assetIndex,...frozen.assets[assetIndex]?.provenance};node.__mediaUpload?.reload?.();
                     }
+                    if(!members.length)continue;materialized+=members.length;
                     const group=createNode(GROUP_TYPE,origin);if(!group)throw new Error('素材组节点未加载');created.push(group);group.title=section.label||context.node.title+' · 输出';group.properties={...group.properties,members,materialType:section.kind,materialOutputSource:{nodeId:String(context.node.id),key:context.materialKey??null,kind:section.kind,scope:frozen.scope,fieldId:frozen.fieldId,...(frozen.recordId==null?{}:{recordId:frozen.recordId})}};group.properties.collapsed=false;
                     if(!connectTableOutput(context.node,group))throw new Error('无法建立表格到素材组的持久连线');
                     const collection=group.widgets?.find(w=>w.name==='collection_data');if(collection)collection.value=JSON.stringify(collectionFor(group));
                 }
             }catch(error){for(const node of created){host.removeNode(graph,node);delete state.cards[node.id];}throw error;}
             finally{dirty();sync();if(created.length&&graph.getNodeById(created.at(-1).id))select(created.at(-1));host.tickGroups();dirty();history.end();}
-            root.focus({preventScroll:true});message(`已输出 ${frozen.assets.length+frozen.texts.length} 项素材${frozen.skipped?'，跳过 '+frozen.skipped+' 行':''}${frozen.deduplicated?'，去重 '+frozen.deduplicated+' 项':''}`);
+            root.focus({preventScroll:true});message(`已输出 ${materialized} 项素材${frozen.skipped+importedSkipped?'，跳过 '+(frozen.skipped+importedSkipped)+' 项':''}${frozen.deduplicated?'，去重 '+frozen.deduplicated+' 项':''}`);
         }catch(error){message('输出失败：'+error.message);}finally{outputPending.delete(context.node);}
     }
     function tableOutput(e){

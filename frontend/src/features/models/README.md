@@ -1,6 +1,6 @@
 # 逻辑模型目录
 
-`model_catalog.mjs` owns the page-wide logical model identity catalog and availability state machine. Source identities come from the backend generation `models` endpoint; local static definitions are only the bootstrap fallback until that read succeeds. Generation, table and LLM controls share the singleton deliberately, while `invalidate()` and `markUnavailable()` are host-level actions and are not scoped to one table instance.
+`model_catalog.mjs` owns the page-wide logical model identity catalog and availability state machine. Source identities and display labels come from the backend generation `models` endpoint; local static definitions are only the bootstrap fallback until that read succeeds. Reconnects and forced refreshes replace the complete definition set, while unchanged provider bindings retain their last capability snapshot. Generation, table and LLM controls share the singleton deliberately, while `invalidate()` and `markUnavailable()` are host-level actions and are not scoped to one table instance.
 
 States are `checking`, `available`, `unverified` and `unavailable`. `unverified` remains selectable but is never reported as available; submission still performs provider preflight. `model_catalog_ui.mjs` owns the shared option presentation: loading ring, disabled semantics and generic accessible labels. Raw probe failures are logged as structured provider/model/stage/code events and never enter user-facing model menus, nodes or toasts.
 

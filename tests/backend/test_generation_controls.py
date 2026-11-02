@@ -1,12 +1,18 @@
 import asyncio
+import sys
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
 
 from backend.contracts.errors import InvalidTransition
 from backend.generation.service import GenerationService
+from backend.integrations.comfyui.generation_nodes.native_host import ComfyNativeQueue
+from backend.jobs.host_lock import HostExecutionLock, reconcile_owned_restart
+from backend.providers.native import NativeProvider
 from backend.jobs.ledger import JobLedger
-from backend.providers.parameters import IMAGE_MODEL
+from backend.providers.parameters import IMAGE_MODEL, QWEN_MODEL
 
 
 class NativeProgressProvider:
@@ -18,6 +24,9 @@ class NativeProgressProvider:
 
     async def capabilities(self, model):
         return {'model': model, 'provider': 'local', 'available': True}
+
+    async def cancel(self, _task_id, _snapshot):
+        return False
 
 
 class RemoteNoCancelProvider:
@@ -64,11 +73,51 @@ class TaskControlLedgerTests(unittest.TestCase):
         claimed = reopened.begin_submission('original-control', expected_version=resumed['version'])
         self.assertEqual((claimed['request_id'], claimed['attempt']), ('original-control', 1))
 
+    def test_second_host_cannot_reconcile_or_change_the_first_hosts_active_task(self):
+        claimed = self.jobs.begin_submission('original-control', expected_version=self.job['version'], owner_session='first')
+        self.jobs.mark_submitted('original-control', 'native-control', expected_version=claimed['version'], event_id='control-submitted')
+        lock_directory = Path(self.temp.name) / 'studio.hosts'
+        first = HostExecutionLock(lock_directory / 'host-first.lock')
+        self.assertTrue(first.acquire())
+        before = self.jobs.get('original-control')
+        report = reconcile_owned_restart(self.jobs, lock_directory, current_session='second')
+        self.assertEqual(report['liveSessions'], ['first'])
+        self.assertEqual(self.jobs.get('original-control'), before)
+        fresh, _ = self.jobs.create_or_get('second-host-new', provider='local-qwen-image', execution_kind='local', snapshot={'input': {}})
+        claimed_fresh = self.jobs.begin_submission(fresh['request_id'], expected_version=fresh['version'], owner_session='second')
+        self.assertEqual(claimed_fresh['state'], 'submitting')
+        legacy, _ = self.jobs.create_or_get('legacy-unattributed', provider='local-qwen-image', execution_kind='local', snapshot={'input': {}})
+        self.jobs.begin_submission(legacy['request_id'], expected_version=legacy['version'])
+        first.release()
+        report = reconcile_owned_restart(self.jobs, lock_directory, current_session='second')
+        self.assertEqual(self.jobs.get('original-control')['state'], 'needs_recovery')
+        self.assertEqual(self.jobs.get('second-host-new')['state'], 'submitting')
+        self.assertEqual(self.jobs.get('legacy-unattributed')['state'], 'submitting')
+        self.assertEqual(report['reconciled'], ['original-control'])
+        self.assertEqual(report['legacyUnattributed'], 1)
+
     def test_interrupt_before_dispatch_is_terminal_and_keeps_old_facts(self):
         interrupted = self.jobs.record_control('original-control', 'interrupt', expected_version=self.job['version'])
         self.assertEqual((interrupted['state'], interrupted['control_intent']), ('cancelled', 'interrupt'))
         self.assertEqual(interrupted['error_code'], 'interrupted_before_submit')
         self.assertEqual(self.jobs.attempts('original-control'), [])
+
+    def test_pause_after_running_can_continue_as_next_attempt_of_the_same_request(self):
+        claimed = self.jobs.begin_submission('original-control', expected_version=self.job['version'])
+        submitted = self.jobs.mark_submitted('original-control', 'native-pause', expected_version=claimed['version'], event_id='pause-submitted')
+        running = self.jobs.transition('original-control', 'running', expected_version=submitted['version'], event_id='pause-running')
+        paused = self.jobs.record_control('original-control', 'pause', expected_version=running['version'])
+        intent = self.jobs.request_cancel('original-control', expected_version=paused['version'])
+        cancelled = self.jobs.confirm_cancelled('original-control', expected_version=intent['job']['version'],
+                                                provider_task_id='native-pause', confirmation='owned_native_execution_stopped')
+        resumed = self.jobs.resume_paused('original-control', expected_version=cancelled['version'])
+        self.assertEqual((resumed['state'], resumed['attempt'], resumed['control_intent'], resumed['provider_task_id']),
+                         ('pending', 1, None, None))
+        next_attempt = self.jobs.begin_submission('original-control', expected_version=resumed['version'])
+        self.assertEqual(next_attempt['attempt'], 2)
+        submitted_again = self.jobs.mark_submitted('original-control', 'native-pause-next', expected_version=next_attempt['version'],
+                                                   event_id='pause-reattempt-submitted')
+        self.assertEqual((submitted_again['attempt'], submitted_again['provider_task_id']), (2, 'native-pause-next'))
 
 class TaskControlServiceTests(unittest.IsolatedAsyncioTestCase):
     async def test_capability_publishes_control_and_progress_boundaries(self):
@@ -82,6 +131,11 @@ class TaskControlServiceTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(caps['progress'], {'numeric': True})
         image = next(item for item in service.model_catalog()['models'] if item['id'] == IMAGE_MODEL)
         self.assertEqual((image['family'], image['kind'], image['provider']), ('generation', 'image', 'local'))
+        qwen = next(item for item in service.model_catalog()['models'] if item['id'] == QWEN_MODEL)
+        self.assertEqual((qwen['label'], qwen['provider']), ('Qwen3.5-9B（本地）', 'qwen'))
+        empty = GenerationService({}, None, providers={})
+        image_without_provider = next(item for item in empty.model_catalog()['models'] if item['id'] == IMAGE_MODEL)
+        self.assertEqual(image_without_provider['provider'], 'local')
 
     async def test_active_remote_without_cancel_exposes_no_false_pause_interrupt_or_restart(self):
         with tempfile.TemporaryDirectory(prefix='studio-remote-controls-') as folder:
@@ -95,6 +149,11 @@ class TaskControlServiceTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(report['controls'], {'pause': False, 'resume': False, 'interrupt': False, 'restart': False})
             with self.assertRaises(InvalidTransition):
                 await service.pause(job['request_id'])
+            queued, _ = jobs.create_or_get('remote-queued', provider=provider.id, execution_kind='remote', snapshot={'input': {}})
+            paused = await service.pause(queued['request_id'])
+            self.assertEqual(paused['control_intent'], 'pause')
+            resumed = jobs.record_control(queued['request_id'], 'resume', expected_version=paused['version'])
+            self.assertEqual((resumed['state'], resumed['control_intent']), ('pending', None))
 
     async def test_progress_is_transient_monotonic_and_attempt_scoped(self):
         from backend.providers.contracts import Observation
@@ -112,3 +171,31 @@ class TaskControlServiceTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(service.public(job['request_id'])['progress'], 20.0)
             await service._observe(jobs.get(job['request_id']), Observation('failed', 'native-progress'))
             self.assertNotIn('progress', service.public(job['request_id']))
+
+    async def test_interrupt_pending_confirmation_has_distinct_transition_phase(self):
+        from backend.providers.contracts import Observation
+        with tempfile.TemporaryDirectory(prefix='studio-interrupting-') as folder:
+            jobs = JobLedger(Path(folder) / 'studio.db')
+            provider = NativeProgressProvider()
+            service = GenerationService(jobs, None, providers={provider.id: provider}, admission=Admission())
+            job, _ = jobs.create_or_get('interrupt-row', provider=provider.id, execution_kind='local', snapshot={'input': {}})
+            claimed = jobs.begin_submission(job['request_id'], expected_version=job['version'])
+            await service._observe(claimed, Observation('submitted', 'native-interrupt'))
+            await service.interrupt(job['request_id'])
+            report = service.public(job['request_id'])
+            self.assertEqual((report['controlIntent'], report['phase']), ('interrupt', 'interrupting'))
+
+    def test_native_queue_derives_numeric_progress_from_comfy_execution_units(self):
+        self.assertTrue(NativeProvider.supports_progress)
+        def phase(value):
+            return SimpleNamespace(value=value)
+        registry = SimpleNamespace(prompt_id='native-progress', nodes={
+            'a': {'state': phase('finished'), 'value': 10, 'max': 10},
+            'b': {'state': phase('running'), 'value': 5, 'max': 10},
+            'c': {'state': phase('pending'), 'value': 0, 'max': 10},
+        })
+        module = SimpleNamespace(get_progress_state=lambda: registry)
+        with patch.dict(sys.modules, {'comfy_execution.progress': module}):
+            progress = ComfyNativeQueue._progress('native-progress')
+        self.assertEqual(progress['stage'], 'generating')
+        self.assertAlmostEqual(progress['progress'], 50.0)

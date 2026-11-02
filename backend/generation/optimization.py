@@ -436,6 +436,10 @@ class OptimizationFacade:
         async with self.lock:
             jobs = (await asyncio.to_thread(self._batch, payload['batchId']))
             self._lease(self._target(jobs[0]), payload['leaseId'])
+            for job in jobs:
+                if job['state'] == 'pending' and job.get('control_intent') != 'pause':
+                    await asyncio.to_thread(self.service.jobs.record_control, job['request_id'], 'pause',
+                                            expected_version=job['version'], scope='optimization-batch')
             self._control(payload['batchId']).update(paused=True, stopped=True)
             return (await self._report(jobs))
 
@@ -458,6 +462,10 @@ class OptimizationFacade:
             self._quote(payload['quoteId'], [j['snapshot']['input']['optimization'] for j in jobs], payload['budgetCredits'])
             if any(j['state'] in ACTIVE for j in jobs):
                 raise Conflict('仍有原请求在途，请继续查询')
+            for job in jobs:
+                if job['state'] == 'pending' and job.get('control_intent') == 'pause':
+                    await asyncio.to_thread(self.service.jobs.record_control, job['request_id'], 'resume',
+                                            expected_version=job['version'], scope='optimization-batch')
             selected = {digest(j['snapshot']['input']['optimization']['target']) for j in jobs if j['state'] == 'pending'}
             if self._overlap((await asyncio.to_thread(self._jobs, **self._target(jobs[0]))), payload['batchId'], selected):
                 raise Conflict('范围已有其他活动批次；未继续旧任务。')

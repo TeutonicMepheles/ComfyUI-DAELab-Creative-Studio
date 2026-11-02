@@ -26,10 +26,11 @@ async def output_materials(request):
             raise StorageError('资产目录不可用；原素材已保留')
         catalog = _catalog
         source = asset_source(body.get('source', {'operation':'material-output'}))
-        assets=await asyncio.to_thread(import_materials,body.get('assets'),
+        requested=body.get('assets')
+        assets=await asyncio.to_thread(import_materials,requested,
             folder_paths.get_input_directory(),folder_paths.get_output_directory(),
             register=lambda value:register_asset(catalog,{**value,'source':{**source,**value.get('source',{})}}))
-        return web.json_response({'assets':assets})
+        return web.json_response({'assets':assets,'skipped':len(requested)-len(assets)})
     except ContractError as error:
         return web.json_response({'error':error.public()['message']},status=503 if isinstance(error,StorageError) else 400)
     except (ValueError,TypeError,KeyError,OSError) as error:

@@ -27,7 +27,6 @@ export const OPTIMIZATION_MODEL_DEFINITIONS=Object.freeze([
 ]);
 
 export const MODEL_DEFINITIONS=Object.freeze([...GENERATION_MODEL_DEFINITIONS,...OPTIMIZATION_MODEL_DEFINITIONS]);
-const byId=new Map(MODEL_DEFINITIONS.map(item=>[item.id,item]));
 
 function publicEntry(entry){
     return Object.freeze({
@@ -96,8 +95,11 @@ export function createModelCatalog({now=()=>Date.now(),log=()=>{}}={}){
                     ||!['text','image','video'].includes(definition.kind)
                     ||typeof definition.provider!=='string'||!definition.provider)throw new Error('模型目录定义无效');
             const previous=entries.get(definition.id);
-            next.set(definition.id,previous?{...previous,definition:{...definition,label:definition.label||definition.id}}:{
-                definition:{...definition,label:definition.label||definition.id},status:MODEL_STATUS.unverified,capability:null,code:null,checkedAt:null,
+            const label=definition.label||'未知模型';
+            const sameBinding=previous&&previous.definition.provider===definition.provider
+                &&previous.definition.family===definition.family&&previous.definition.kind===definition.kind;
+            next.set(definition.id,sameBinding?{...previous,definition:{...definition,label}}:{
+                definition:{...definition,label},status:MODEL_STATUS.unverified,capability:null,code:null,checkedAt:null,
             });
         }
         entries.clear();for(const [id,entry] of next)entries.set(id,entry);emit();return snapshot();

@@ -30,9 +30,10 @@ class ExportCancelled(InterruptedError):
 
 
 class ExportService:
-    def __init__(self, jobs, assets, *, native_queue=None, resources=None):
+    def __init__(self, jobs, assets, *, native_queue=None, resources=None, owner_session=None):
         self.jobs, self.assets, self.native_queue = jobs, assets, native_queue
         self.resources = resources if resources is not None else ResourceAdmission(jobs=jobs)
+        self.owner_session = identity(owner_session, 'host session ID') if owner_session is not None else None
 
     @staticmethod
     def _native_id(request_id):
@@ -223,7 +224,7 @@ class ExportService:
         if job['state'] == 'succeeded':
             return self.output(job)
         if job['state'] == 'pending' and job['snapshot']['dispatch'] == 'native':
-            job = self.jobs.begin_submission(request_id, expected_version=job['version'])
+            job = self.jobs.begin_submission(request_id, expected_version=job['version'], owner_session=self.owner_session)
         if job['state'] == 'submitting' or marker is not None and job['state'] == 'unknown':
             job = self._submitted(job)
         if job['state'] != 'submitted':

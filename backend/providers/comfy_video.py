@@ -122,7 +122,7 @@ class ComfyVideoProvider:
     async def create(self, request_id, snapshot):
         task_id = snapshot['prepared']['native_task_id']
         try:
-            await self.queue.enqueue(task_id, snapshot['prepared']['graph'], owner=request_id)
+            task_id = await self.queue.enqueue(task_id, snapshot['prepared']['graph'], owner=request_id)
         except (SubmissionRejected, ProviderUnavailable):
             raise
         except BaseException:

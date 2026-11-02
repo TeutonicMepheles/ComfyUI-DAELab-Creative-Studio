@@ -18,7 +18,7 @@ export const needsGenerationPromptSelector=table=>!promptSourceId(table);
 // Unknown outer/field shapes retain the existing path and its diagnostics.
 const noGenerationWork=table=>table?.version===1&&Array.isArray(table.fields)&&Array.isArray(table.records)&&table.fields.every(field=>field&&typeof field.id==='string'&&FIELD_TYPES.includes(field.type)&&!field.generation);
 const modelCatalog=getModelCatalog();
-const generationModelIDs=kind=>{const ids=modelCatalog.snapshot({family:'generation',kind}).map(item=>item.id);return ids.length?ids:GENERATION_MODELS[kind];};
+const generationModelIDs=kind=>modelCatalog.snapshot({family:'generation',kind}).map(item=>item.id);
 function modelOption(model){return updateModelOption(new Option(generationModelLabel(model),model),modelCatalog.get(model));}
 function refreshModelControl(select,models,value){
  const existing=new Map([...(select.options||select.children||[])].map(option=>[option.value,option]));

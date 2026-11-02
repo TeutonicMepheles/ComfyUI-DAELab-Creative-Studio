@@ -30,7 +30,7 @@ _SCOPE_KEYS = _SCOPE_IDS | {'epoch', 'inputVersion', 'inputDigest', 'model', 'cr
 
 
 class GenerationService:
-    def __init__(self, jobs, assets, *, providers=None, admission=None, poll_interval=1.0, poll_limit=3600, barrier_namespace=None, resources=None):
+    def __init__(self, jobs, assets, *, providers=None, admission=None, poll_interval=1.0, poll_limit=3600, barrier_namespace=None, resources=None, owner_session=None):
         self.jobs, self.assets = jobs, assets
         self.providers = dict(providers or {})
         self.enabled_remote_providers = set()
@@ -41,6 +41,7 @@ class GenerationService:
         self._cancel_locks = weakref.WeakValueDictionary()
         self._progress = {}
         self.barrier_namespace = identity(barrier_namespace, 'barrier namespace') if barrier_namespace is not None else None
+        self.owner_session = identity(owner_session, 'host session ID') if owner_session is not None else None
 
     def provider(self, provider_id):
         provider = self.providers.get(provider_id)
@@ -70,13 +71,18 @@ class GenerationService:
         precise = bool(provider and (provider.execution_kind in {'local', 'media'} or getattr(provider, 'supports_cancel', False)))
         return {
             'pause': job['state'] == 'pending' or active and precise,
-            'resume': job['state'] == 'pending' and job.get('control_intent') == 'pause',
+            'resume': job.get('control_intent') == 'pause' and job['state'] in {'pending', 'cancelled'} and job.get('result') is None,
             'interrupt': job['state'] == 'pending' or active and precise,
             'restart': terminal and bool(provider and provider.execution_kind in {'local', 'media'}),
         }
 
     def model_catalog(self):
         """Stable logical identities; installation state is returned by capabilities."""
+        labels = {
+            QWEN_MODEL: 'Qwen3.5-9B（本地）',
+            'deepseek-flash': 'DeepSeek API',
+            'gpt-6-luna': 'GPT-6 Luna（Comfy）',
+        }
         models = []
         for model, provider_id in sorted(MODELS.items()):
             if model in {'qwen', 'deepseek'}:
@@ -92,8 +98,8 @@ class GenerationService:
             elif text:
                 provider_name = 'comfy'
             else:
-                provider_name = 'local' if getattr(provider, 'execution_kind', None) == 'local' else 'comfy'
-            models.append({'id': model, 'label': model, 'family': family, 'kind': kind,
+                provider_name = 'local' if provider_id.startswith('local-') else 'comfy'
+            models.append({'id': model, 'label': labels.get(model, model), 'family': family, 'kind': kind,
                            'provider': provider_name})
         return {'contractVersion': 1, 'models': models}
 
@@ -364,7 +370,8 @@ class GenerationService:
                             raise SubmissionRejected('Frozen input is unavailable.')
                     if before_submit is not None and not before_submit():
                         return (await complete_blocking(self.jobs.get, request_id))
-                    job = (await complete_blocking(self.jobs.begin_submission, request_id, expected_version=job['version']))
+                    job = (await complete_blocking(self.jobs.begin_submission, request_id, expected_version=job['version'],
+                                                  owner_session=self.owner_session))
                     # The durable claim may have waited on SQLite in a worker.
                     # Recheck loop-owned permission after that await, before any
                     # external call. A claim alone is not provider execution.
@@ -389,7 +396,8 @@ class GenerationService:
             except Exception:
                 current = (await complete_blocking(self.jobs.get, request_id))
                 if current['state'] == 'pending':
-                    claimed = (await complete_blocking(self.jobs.begin_submission, request_id, expected_version=current['version']))
+                    claimed = (await complete_blocking(self.jobs.begin_submission, request_id, expected_version=current['version'],
+                                                      owner_session=self.owner_session))
                     return (await complete_blocking(self._transition, claimed, 'failed', error_code='preflight_unavailable'))
                 if current['state'] == 'submitting':
                     return (await complete_blocking(self._transition, current, 'unknown', error_code='submission_observation_invalid'))
@@ -430,11 +438,11 @@ class GenerationService:
         if observation.state == 'failed':
             return (await complete_blocking(self._transition, job, 'failed', error_code=observation.error_code or 'provider_failed'))
         if observation.state in {'submitted', 'running'}:
-            progress = (observation.metadata or {}).get('progress') if isinstance(observation.metadata, dict) else None
+            progress = observation.progress if observation.progress is not None else (observation.metadata or {}).get('progress') if isinstance(observation.metadata, dict) else None
             if getattr(provider, 'supports_progress', False) and isinstance(progress, (int, float)) and not isinstance(progress, bool):
                 previous = self._progress.get(job['request_id'])
                 if 0 <= progress <= 100 and not (previous and previous['attempt'] == job['attempt'] and progress < previous['value']):
-                    self._progress[job['request_id']] = {'value': float(progress), 'stage': str((observation.metadata or {}).get('stage') or 'generating'),
+                    self._progress[job['request_id']] = {'value': float(progress), 'stage': str(observation.stage or (observation.metadata or {}).get('stage') or 'generating'),
                                                          'attempt': job['attempt'], 'updatedAt': datetime.now(timezone.utc).isoformat()}
             if job['state'] in {'submitted', 'needs_recovery'} and observation.state == 'running':
                 return (await complete_blocking(self._transition, job, 'running'))
@@ -557,7 +565,7 @@ class GenerationService:
 
     async def continue_task(self, request_id):
         job = (await complete_blocking(self.jobs.get, request_id))
-        resumed = (await complete_blocking(self.jobs.record_control, request_id, 'resume', expected_version=job['version']))
+        resumed = (await complete_blocking(self.jobs.resume_paused, request_id, expected_version=job['version']))
         self._schedule(request_id, self.dispatch(request_id))
         return resumed
 
@@ -680,7 +688,7 @@ class GenerationService:
             result.update(preparation=job['snapshot']['preparation'], error=job['snapshot']['rejectionCode'],
                           phase='needs_input' if result['replacementAllowed'] else 'needs_recovery')
         if job['cancel_requested'] and job['state'] not in TERMINAL_STATES:
-            result['phase'] = 'pausing'
+            result['phase'] = 'interrupting' if control_intent == 'interrupt' else 'pausing'
         if job['state'] == 'succeeded':
             try:
                 receipt = self.completed_result(request_id)

@@ -11,7 +11,7 @@ const connectTableOutput=function(sourceNode,group){
  return output>=0&&input>=0&&Boolean(sourceNode.connect(output,group,input));
 };
 
-function fixture(){
+function fixture(skipIndex=null){
  const asset=(id,kind)=>({id,assetId:id,kind,url:`/view?filename=${id}.${kind==='video'?'mp4':'png'}&type=output`,name:id});
  const table={fields:[{id:'result',name:'生成结果',type:'content',presentation:'generation',generation:{kind:'image'}}],records:[
   {id:'second',name:'第二行',values:{result:[asset('second-video','video')]},meta:{}},
@@ -32,7 +32,7 @@ function fixture(){
   'outputPending','snapshotFor','message','fetch','visible','graph','host','state','validConnection','history','GROUP_TYPE','createNode','UPLOAD_TYPE','adapterFor','collectionFor','connectTableOutput','dirty','sync','select','root',
   `${source.slice(start,end)}\nreturn outputMaterials;`,
  )(
-  new Set(),()=>structuredClone(plan),value=>messages.push(value),async()=>({ok:true,json:async()=>({assets:plan.assets.map(asset=>({...asset,name:asset.name||asset.id}))})}),
+  new Set(),()=>structuredClone(plan),value=>messages.push(value),async()=>({ok:true,json:async()=>({assets:plan.assets.flatMap((asset,index)=>index===skipIndex?[]:[{...asset,name:asset.name||asset.id,sourceIndex:index}]),skipped:skipIndex==null?0:1})}),
   true,graph,host,state,()=>true,{begin(){},end(){}},'DAELAB.MaterialGroup',createNode,'DAELAB.MediaUpload',()=>({}),group=>({version:1,assets:group.properties.members.map(id=>({nodeId:id}))}),connectTableOutput,()=>{},()=>{},()=>{}, {focus(){}},
  );
  return {table,plan,created,links,messages,outputMaterials,sourceNode};
@@ -47,4 +47,13 @@ test('generation row groups materialize as indexed, same-type canvas groups with
  assert.deepEqual(groups.map(group=>group.properties.members.length),[1,1,1]);
  assert.equal(f.links.length,3);
  assert.ok(f.messages.at(-1).startsWith('已输出 3 项素材'));
+});
+
+test('a missing local file is skipped while valid items in other groups still materialize',async()=>{
+ const f=fixture(0);
+ await f.outputMaterials({node:f.sourceNode,materialKey:'column:result',element:{},tableOutput:true},{x:100,y:100});
+ const groups=f.created.filter(node=>node.type==='DAELAB.MaterialGroup');
+ assert.deepEqual(groups.map(group=>group.title),['第一行 · 图片','第一行 · 视频']);
+ assert.equal(f.links.length,2);
+ assert.match(f.messages.at(-1),/已输出 2 项素材.*跳过 1 项/);
 });

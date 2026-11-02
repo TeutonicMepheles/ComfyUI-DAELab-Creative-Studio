@@ -105,6 +105,15 @@ class OptimizationTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.core.jobs.get('batch-1-request-0')['state'],'pending')
         self.assertEqual((await self.facade.query({'batchId':'batch-1'}))['rows'][0]['status'],'stopped')
 
+    async def test_stop_intent_survives_facade_restart_without_dispatch(self):
+        report,lease,_=await self.prepare(2)
+        await self.facade.stop({'batchId':'batch-1','leaseId':lease['leaseId']})
+        self.facade=OptimizationFacade(self.service)
+        restarted=await self.facade.query({'batchId':'batch-1'})
+        self.assertTrue(restarted['paused'])
+        self.assertEqual([row['status'] for row in restarted['rows']],['queued','queued'])
+        self.assertEqual(self.creates(),[])
+
     async def test_foreign_instance_stale_revision_expired_permit_and_overlap_reject(self):
         report,lease,p=await self.prepare()
         with self.assertRaises(Conflict):await self.facade.lease({'target':self.target,'instanceId':'view-2'})

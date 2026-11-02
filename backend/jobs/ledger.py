@@ -91,14 +91,16 @@ class JobLedger:
         connection.execute("INSERT INTO job_events(request_id,event_id,version,event_type,detail_json,created_at) VALUES(?,?,?,?,?,?)", (request_id, event_id, version, event_type, detail_json, _now()))
         return True
 
-    def begin_submission(self, request_id, *, expected_version):
+    def begin_submission(self, request_id, *, expected_version, owner_session=None):
         """Exactly one caller claims pending. Commit BEFORE calling a provider."""
         with self.database.transaction() as connection:
             job = self._get(connection, request_id)
             self._expect(job, expected_version)
             if job["state"] != "pending" or job["cancel_requested"] or job["control_intent"] in {"pause", "interrupt", "restart"}:
                 raise InvalidTransition("Only an uncancelled pending task may submit; recovery never resubmits.")
-            now, attempt_id = _now(), str(uuid.uuid4())
+            if owner_session is not None:
+                identity(owner_session, "host session ID")
+            now, attempt_id = _now(), (f'host:{owner_session}:{uuid.uuid4().hex}' if owner_session else str(uuid.uuid4()))
             attempt = job["attempt"] + 1
             connection.execute("INSERT INTO job_attempts(request_id,attempt,attempt_id,state,created_at,updated_at) VALUES(?,?,?,'submitting',?,?)", (request_id, attempt, attempt_id, now, now))
             connection.execute("UPDATE jobs SET state='submitting',attempt=?,version=version+1,updated_at=? WHERE request_id=?", (attempt, now, request_id))
@@ -221,6 +223,20 @@ class JobLedger:
                         {"action": action, "scope": scope, "previous": job["control_intent"]})
             return self._get(connection, request_id)
 
+    def resume_paused(self, request_id, *, expected_version):
+        """Requeue a user-paused task; begin_submission creates the next attempt."""
+        with self.database.transaction() as connection:
+            job = self._get(connection, request_id)
+            self._expect(job, expected_version)
+            if job["control_intent"] != "pause" or job["state"] not in {"pending", "cancelled"} or job["result"] is not None:
+                raise InvalidTransition("Only a user-paused task without a known result can continue.")
+            version = job["version"] + 1
+            connection.execute("UPDATE jobs SET state='pending',control_intent=NULL,cancel_requested=0,provider_task_id=NULL,error_code=NULL,version=?,updated_at=? WHERE request_id=?",
+                               (version, _now(), request_id))
+            self._event(connection, request_id, f"control:resume:{version}", version, "control_intent",
+                        {"action": "resume", "scope": "continue-new-attempt", "previous": "pause"})
+            return self._get(connection, request_id)
+
     def confirm_cancelled(self, request_id, *, expected_version, provider_task_id, confirmation):
         identity(provider_task_id, "provider task ID")
         if confirmation not in {"provider_cancelled", "owned_native_execution_stopped"}:
@@ -238,10 +254,42 @@ class JobLedger:
             self._event(connection, request_id, f"cancelled:{expected_version+1}", expected_version+1, "cancel_confirmed", {"provider_task_id": provider_task_id, "confirmation": confirmation})
             return self._get(connection, request_id)
 
-    def reconcile_restart(self):
+    @staticmethod
+    def attempt_owner_session(attempt_id):
+        if not isinstance(attempt_id, str) or not attempt_id.startswith('host:'):
+            return None
+        parts = attempt_id.split(':', 2)
+        return parts[1] if len(parts) == 3 and parts[1] and parts[2] else None
+
+    def active_attempt_owners(self):
+        with self.database.read() as connection:
+            rows = connection.execute("""
+                SELECT jobs.request_id,job_attempts.attempt_id
+                FROM jobs JOIN job_attempts
+                  ON jobs.request_id=job_attempts.request_id AND jobs.attempt=job_attempts.attempt
+                WHERE jobs.state IN ('submitting','submitted','running','fetching')""").fetchall()
+            return [(row["request_id"], row["attempt_id"]) for row in rows]
+
+    def active_attempt_count(self, *, unattributed_only=False):
+        rows = self.active_attempt_owners()
+        if unattributed_only:
+            return sum(self.attempt_owner_session(attempt_id) is None for _request_id, attempt_id in rows)
+        return len(rows)
+
+    def reconcile_restart(self, *, request_ids=None):
         """Call only after former workers are stopped; never invoke any provider."""
+        if request_ids is not None:
+            request_ids = sorted(set(request_ids))
+            if not request_ids:
+                return
         with self.database.transaction() as connection:
-            rows = connection.execute("SELECT * FROM jobs WHERE state IN ('submitting','submitted','running','fetching')").fetchall()
+            if request_ids is None:
+                rows = connection.execute("SELECT * FROM jobs WHERE state IN ('submitting','submitted','running','fetching')").fetchall()
+            else:
+                placeholders = ','.join('?' for _ in request_ids)
+                rows = connection.execute(
+                    f"SELECT * FROM jobs WHERE state IN ('submitting','submitted','running','fetching') AND request_id IN ({placeholders})",
+                    request_ids).fetchall()
             for row in rows:
                 job = _decode(row)
                 state = "needs_recovery" if job["provider_task_id"] else "unknown"
@@ -341,5 +389,5 @@ class JobLedger:
     def diagnostics(self, request_id):
         """Safe task correlation export; does not include prompt/result/source bodies."""
         job = self.get(request_id)
-        keys = ("request_id", "provider", "execution_kind", "fingerprint", "state", "version", "provider_task_id", "attempt", "cancel_requested", "error_code", "recovery_count", "created_at", "updated_at")
+        keys = ("request_id", "provider", "execution_kind", "fingerprint", "state", "version", "provider_task_id", "attempt", "cancel_requested", "control_intent", "error_code", "recovery_count", "created_at", "updated_at")
         return {"task": {key: job[key] for key in keys}, "attempts": self.attempts(request_id), "events": [{key: event[key] for key in ("sequence", "event_id", "version", "event_type", "created_at")} for event in self.events(request_id)]}
