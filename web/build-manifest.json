@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "4f9a498778f7be129dfcaf859d29e34d144b129f9574800362d44f91ebef57d4",
+  "sourceFingerprint": "ef80dc170c1c4cf96dea5ddd5a170dc1e9fb1c2acffbd32827b2089a2c3ae48d",
   "files": [
     {
       "path": "AGENTS.md",
@@ -76,7 +76,7 @@
     },
     {
       "path": "application/table_presentation.mjs",
-      "sha256": "fe540f79fa654e8c6a818a40ce958397342e61b71680973fa352f9e8b776db99"
+      "sha256": "bc5fa42493edfd92b007a020abc00b44ef2d5d3f2a2d5c4828a96771afc1a759"
     },
     {
       "path": "application/table_reference_options.mjs",
@@ -704,7 +704,7 @@
     },
     {
       "path": "features/prompt/table_prompt_source_header.mjs",
-      "sha256": "4b8841eea35fe8f529f25b5e8dbebcfb2ccd8b33b675f75dbd83b3153a4dcd6e"
+      "sha256": "b34a9c82b7e0258fb03f13db65b1495efadbf62781b258c600943cdb532386c1"
     },
     {
       "path": "features/prompt/table_prompt_template.mjs",
@@ -720,7 +720,7 @@
     },
     {
       "path": "features/storyboard/README.md",
-      "sha256": "747cc0e8f3a73a294ca735ce836db02558215f76ae3ee8d4b02bb36583ed3c8b"
+      "sha256": "657de1fbb5112516ebcf7412eebeaaaa5548220eeb5100e15c55ce3c54049db0"
     },
     {
       "path": "features/storyboard/daelab_storyboard_import.mjs",
@@ -732,7 +732,7 @@
     },
     {
       "path": "features/storyboard/script_parser.css",
-      "sha256": "b511ef161e6853825f30ed6d45f6668b8fc7dd0382d814b2927f46a6453f5c93"
+      "sha256": "94c46430d1cd3dacd084f83d14766c4de29aa41668f89e89e8fe3ef165fc814e"
     },
     {
       "path": "features/storyboard/script_parser_model.mjs",
@@ -740,7 +740,7 @@
     },
     {
       "path": "features/storyboard/script_parser_panel.mjs",
-      "sha256": "6cde8c658e7f8bab0fb6a8efb50d10fb02efa61fc45d12cfce0ab45834073828"
+      "sha256": "8f51b90452a99d6d5c24a1f23554075b1b510b99dcc64f5d3a189896f54a98ba"
     },
     {
       "path": "features/storyboard/script_partitions.js",
@@ -792,7 +792,7 @@
     },
     {
       "path": "features/table/editor_runtime.mjs",
-      "sha256": "5cfa05a37cd9775b11e5de5646cee16c54e3c465ecc01c8bdd099f38e44dcd2a"
+      "sha256": "8afe04865156c78486e11081c0e2a9e231c3bac138bee04a209e8fce5370263e"
     },
     {
       "path": "features/table/empty_row_state_scope.js",
@@ -892,7 +892,7 @@
     },
     {
       "path": "features/table/table_structure.mjs",
-      "sha256": "3953436886a19a3447dab1aa0984490cc59c66b26332ffd02ca5a7ac4f499aae"
+      "sha256": "711e8984fbf46c2adae87bb55da1b1666ca5787940f048ab06b7e53b4e37b0c2"
     },
     {
       "path": "features/table/table_structure_model.mjs",
@@ -1136,7 +1136,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "366e9439b42a74133729e05ddc763c47fe6ef0a01a9c72c54e7d601466d56525"
+      "sha256": "838dddbfa7ac5b55f17fec8cb022d1061aececcf14b52766a5490c28db64c83a"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

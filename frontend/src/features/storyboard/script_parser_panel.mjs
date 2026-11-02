@@ -64,13 +64,13 @@ export function createScriptParserPanel({node,app,getTable,setTable,notify,docum
   const r=await uploadMedia(businessFetch,file,body);if(!r.ok)throw new Error('素材上传失败');const a=await r.json();return '/view?'+new URLSearchParams({filename:a.name,subfolder:a.subfolder||'',type:a.type||'input'});
  }
  const editor=createTableEditor({getPanelContext,clipboard,documentFactory,getTable,setTable:t=>{assertTransition(getTable(),t);generation?.syncPromptChanges(t,getTable());setTable(t);updatePending();promptUI?.observe();},
-  validateChange:assertTransition,textPanelHost:()=>root.closest('dialog[open]')||document.body,upload:uploadAsset,notify,nativeHistory:tableHistory(app),
+  columnControls:false,validateChange:assertTransition,textPanelHost:()=>root.closest('dialog[open]')||document.body,upload:uploadAsset,notify,nativeHistory:tableHistory(app),
   displayContent:()=>getPanelContext(root)?.presentation==='content',
   renderCell:args=>promptUI?.renderCell(args),decorateAsset:(...args)=>promptUI?.decorateAsset(...args),
   onRestore:()=>{cancel();promptUI?.invalidate();generation?.invalidate();updatePending();message('已恢复历史版本');}});
  root.append(editor.root);
  promptUI=createPromptEditor({renderFrame:(segment,row)=>generation?.renderFrame(segment,row),getTable,editor,notify,request:()=>{throw new Error('请在文档预览中归类原文');}});
- presentation=installContentPresentation({root,editor,getTable,notify,enabled:()=>root.dataset.empty!=='true',editPromptTemplate:id=>promptUI.editTemplate(id)});
+ presentation=installContentPresentation({root,editor,getTable,notify,columnOutputs:false,enabled:()=>root.dataset.empty!=='true',editPromptTemplate:id=>promptUI.editTemplate(id)});
  generation=attachGenerationColumns({editor,getTable,notify,editPromptTemplate:id=>promptUI.editTemplate(id)});
  const picker=el('input',root);picker.type='file';picker.accept='.docx';picker.hidden=true;picker.setAttribute('aria-label','上传 DOCX 文档');
  picker.onchange=()=>{const file=picker.files?.[0];picker.value='';if(file)void actions.uploadDocument(file,{mode:uploadMode});};

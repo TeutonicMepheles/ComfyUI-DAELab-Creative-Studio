@@ -33,17 +33,31 @@ function dom(t){
 }
 
 const fixture=JSON.parse(readFileSync(new URL('../fixtures/performance/FX-PERF-M-no-video.json',import.meta.url),'utf8'));
-function harness(t,env,{index=0,optIn=true,validate=()=>{},state=null,afterWrite=()=>{}}={}){
+function harness(t,env,{index=0,optIn=true,columnControls=true,bindPrompt=false,validate=()=>{},state=null,afterWrite=()=>{}}={}){
  let table=JSON.parse(fixture.nodes.filter(n=>n.type==='DAELAB.Table')[index].widgets_values[0]),stamp=0,prior;const errors=[],states=[],events=[],undo=[];
+ if(bindPrompt)table.meta.generationInput={version:1,promptFieldId:table.fields[0].id};
  const getRowState=(value,row)=>{states.push(row.id);return state?state(value,row):{issues:[],hint:''};};
  const history={begin(){events.push('begin');prior=table;},end(){events.push('end');undo.push(prior);},amend(fn){events.push('amend');fn();},undo(){table=undo.pop();stamp++;},redo(){}};
- const editor=createTableEditor({getTable:()=>table,setTable:next=>{table=next;stamp++;events.push('write');afterWrite(table);},documentFactory:(read,write)=>createBusinessDocument({read,write,current:()=>true,identity:()=>({workflowSession:'test',epoch:0,documentId:'doc-'+index}),history,historyStamp:()=>stamp}),getRowState,isRowStateEmpty:optIn?value=>!value.meta.prompt_config:null,validateChange:validate,promptColumnsOnly:true,upload(){throw Error('not exercised');},notify:e=>errors.push(e)});
+ const editor=createTableEditor({getTable:()=>table,setTable:next=>{table=next;stamp++;events.push('write');afterWrite(table);},documentFactory:(read,write)=>createBusinessDocument({read,write,current:()=>true,identity:()=>({workflowSession:'test',epoch:0,documentId:'doc-'+index}),history,historyStamp:()=>stamp}),getRowState,isRowStateEmpty:optIn?value=>!value.meta.prompt_config:null,validateChange:validate,promptColumnsOnly:true,columnControls,upload(){throw Error('not exercised');},notify:e=>errors.push(e)});
  document.body.append(editor.root);env.cleanups.push(()=>editor.destroy());
  const target=()=>editor.root.querySelectorAll('td[data-field]').find(c=>c.dataset.record===table.records[0].id&&c.dataset.field===table.fields[0].id);
  function enter(){const cell=target();cell.emit('keydown',{key:'Enter'});return cell.firstChild;}
  function input(box,value){box.textContent=value;states.length=0;events.length=0;env.reset();box.emit('input');return env.traversal();}
  return {editor,states,events,errors,enter,input,get table(){return table;},replace(next){table=next;},get undo(){return undo;}};
 }
+
+test('fixed column view omits header settings and bindings while cells and a peer remain editable',t=>{
+ const env=dom(t),fixed=harness(t,env,{columnControls:false,bindPrompt:true}),generic=harness(t,env,{index:1});
+ assert.equal(fixed.editor.root.querySelectorAll('.table-prompt-toggle').length,0);
+ assert.equal(fixed.editor.root.querySelectorAll('.field-settings').length,0);
+ assert.equal(fixed.editor.root.querySelectorAll('.table-prompt-badge').length,1);
+ assert.ok(generic.editor.root.querySelectorAll('.table-prompt-toggle').length>0);
+ assert.ok(generic.editor.root.querySelectorAll('.field-settings').length>0);
+ const box=fixed.enter();fixed.input(box,'fixed schema edit');
+ assert.equal(fixed.table.records[0].values['field-00'],'fixed schema edit');
+ fixed.editor.render();assert.equal(fixed.editor.root.querySelectorAll('.table-prompt-toggle').length,0);
+ assert.deepEqual(fixed.errors,[]);
+});
 
 test('real 500x10 Enter/input refreshes only its known-empty row and preserves the peer/history',t=>{
  const env=dom(t),a=harness(t,env),b=harness(t,env,{index:1}),box=a.enter(),peer=JSON.stringify(b.table),unknown=JSON.parse('{"__proto__":{"preserved":true}}');a.table.future=unknown;

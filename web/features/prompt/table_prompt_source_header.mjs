@@ -1,11 +1,12 @@
 import {createTableButton,tableIcon} from '../../ui/table_controls.mjs';
 import {isTextColumn,promptSourceId,setPromptSource} from './table_prompt_source.mjs';
 
-export function promptSourceHeader({table,field,header,title,change,root,notify}) {
+export function promptSourceHeader({table,field,header,title,change,root,notify,interactive=true}) {
     if(!isTextColumn(table,field))return;
     const selected=promptSourceId(table)===field.id,label=selected?'整列模型配置':'设为提示词';
-    header.dataset.promptSource=String(selected);
     if(selected){const badge=document.createElement('span');badge.className='table-prompt-badge';badge.textContent='提示词';title.append(badge);}
+    if(!interactive)return;
+    header.dataset.promptSource=String(selected);
     const hint=document.createElement('span');hint.className='table-prompt-hint';hint.textContent=label;hint.setAttribute('aria-hidden','true');
     const toggle=tableIcon(createTableButton('',()=>{
         try{
