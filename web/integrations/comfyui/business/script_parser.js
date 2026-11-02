@@ -74,6 +74,7 @@ function register(){const api=globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v
  tasks:node=>node.__scriptPanel?.tasks?.()||[],
  panel:node=>node.__scriptPanel?{root:node.__scriptPanel.root,close:()=>node.__scriptPanel.close()}:null,
  selectionSurface:node=>node.__scriptPanel?.surface,
+ upload:async(node,file)=>{await Promise.resolve();if(!node.graph||node.mode)return;const panel=node.__scriptPanel;if(!panel)throw new Error('解析面板尚未就绪，请重新拖入 DOCX');await panel.actions.uploadDocument(file,{mode:'append'});},
  materialTargets:node=>tableColumnTargets(node.__scriptPanel?.root,node.__scriptTable?.fields||[]),
  acceptMaterials(node,key,collection){const editor=node.__scriptPanel?.editor;if(!editor)throw new Error('Parser table is not ready');editor.change(table=>fillMaterialColumn(table,key,collection));},
  materialSources:node=>[...(node.__scriptPanel?.root.querySelectorAll('[data-generation-source]')||[])].map(element=>({element,key:element.dataset.generationSource,label:'输出为素材组'})),

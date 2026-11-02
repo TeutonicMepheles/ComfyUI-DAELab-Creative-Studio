@@ -908,17 +908,17 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
     root.addEventListener('dragover',e=>{if(e.target.closest('.dae-library-overlay')||!e.dataTransfer?.types.includes('Files'))return;e.preventDefault();e.stopPropagation();e.dataTransfer.dropEffect='copy';},true);
     root.addEventListener('drop',async e=>{
         const files=[...(e.dataTransfer?.files||[])];if(!files.length||e.target.closest('.dae-library-overlay'))return;
-        if(files.length===1&&e.target.closest('.dae-upload'))return;
+        if(files.length===1&&mediaKind(files[0].name)&&e.target.closest('.dae-upload'))return;
         e.preventDefault();e.stopPropagation();closePicker();
-        const supported=files.filter(file=>mediaKind(file.name)),skipped=files.length-supported.length;
-        if(!supported.length){message('请选择 PNG、JPG、WebP、MP4、WebM 或 MOV 文件');return;}
-        const ownerGraph=graph,r=root.getBoundingClientRect(),point={x:e.clientX-r.left,y:e.clientY-r.top},step=(cardWidth(UPLOAD_TYPE)+32)*state.viewport.zoom,created=[];
+        const supported=files.flatMap(file=>{const type=/\.docx$/i.test(file.name)?'DAELAB.ScriptParser':mediaKind(file.name)?UPLOAD_TYPE:null;return type?[{file,type}]:[];}),skipped=files.length-supported.length;
+        if(!supported.length){message('请选择 DOCX 剧本，或 PNG、JPG、WebP、MP4、WebM、MOV 素材');return;}
+        const ownerGraph=graph,r=root.getBoundingClientRect(),point={x:e.clientX-r.left,y:e.clientY-r.top},created=[];let x=point.x;
         history.begin();
-        try{for(const [index,file] of supported.entries()){const node=add(UPLOAD_TYPE,{x:point.x+index*step,y:point.y});if(!node)break;created.push({node,file});}}
+        try{for(const {file,type} of supported){const node=add(type,{x,y:point.y});if(!node)break;created.push({node,file});x+=(cardWidth(type)+32)*state.viewport.zoom;}}
         finally{history.end();}
         selected=new Set(created.map(item=>item.node.id));paintSelection();
-        message(`已创建 ${created.length} 个上传节点${skipped?`，已跳过 ${skipped} 个不支持的文件`:''}`);
-        for(const {node,file} of created){if(host.graph()!==ownerGraph)break;if(node.graph===ownerGraph)await adapterFor(node).upload(node,file);}
+        message(`已创建 ${created.length} 个${supported.some(item=>item.type!==UPLOAD_TYPE)?'文件节点':'上传节点'}${skipped?`，已跳过 ${skipped} 个不支持的文件`:''}`);
+        for(const {node,file} of created){if(host.graph()!==ownerGraph)break;if(node.graph===ownerGraph)try{await adapterFor(node).upload(node,file);}catch(error){message(error.message);}}
     },true);
     root.addEventListener('wheel',e=>{
         if(e.target.closest('.dae-creative-picker,dialog,.dae-creative-toolbar'))return;
