@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "ef80dc170c1c4cf96dea5ddd5a170dc1e9fb1c2acffbd32827b2089a2c3ae48d",
+  "sourceFingerprint": "443f3cacaf80f8a1cdd57b8f3f3cd32f60f7f4ae0ff0102e85aece404818cd95",
   "files": [
     {
       "path": "AGENTS.md",
@@ -972,7 +972,7 @@
     },
     {
       "path": "integrations/comfyui/business/README.md",
-      "sha256": "34605ba95d90f2b6d96548870335d28c3eb8abbc80718987915ba601e62e2494"
+      "sha256": "e8a6ac2a7af419d7ce5f295d933f72451ae7ad1fdd57704b1ae88ea66ef2b4f3"
     },
     {
       "path": "integrations/comfyui/business/app_mode_bypass.js",
@@ -1004,7 +1004,7 @@
     },
     {
       "path": "integrations/comfyui/business/creative_canvas_adapter.js",
-      "sha256": "49c17d1ae83fdc0806bf71a6db93c80e8fa2bfd873435e0cc0336a75572d029f"
+      "sha256": "cba0b495d034c57889a009b31af86b6a602902fdc5f51a5fa42113f4b7cb642e"
     },
     {
       "path": "integrations/comfyui/business/daelab_comfytv_storyboard.js",
@@ -1044,11 +1044,15 @@
     },
     {
       "path": "integrations/comfyui/business/script_parser.js",
-      "sha256": "33459525fea545d4902d38f395a205a06e838b61cf808d7224e661b2ef51e47e"
+      "sha256": "308942b7639a1e84e924d9e26e391e53863ae61114f406af4e7e031fb2c06267"
     },
     {
       "path": "integrations/comfyui/business/table_capabilities.js",
       "sha256": "429f5e1ef449ae662226281dd7160c9a1b5f6f43055dc89aeef2c7560d118c65"
+    },
+    {
+      "path": "integrations/comfyui/business/table_column_targets.js",
+      "sha256": "028c00e9ed3aec92e6dc6511a9ffe7c8b0d8da33f1fc671eaf034929012aa534"
     },
     {
       "path": "integrations/comfyui/business/table_serializer.js",
@@ -1136,7 +1140,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "838dddbfa7ac5b55f17fec8cb022d1061aececcf14b52766a5490c28db64c83a"
+      "sha256": "e7fd0f42580bdf843f39bdb62ad56a59b2e041b07dc0b9fb99645925c8e50aa4"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
