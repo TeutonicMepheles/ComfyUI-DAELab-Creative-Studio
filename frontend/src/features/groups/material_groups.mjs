@@ -281,7 +281,7 @@ export function installMaterialGroups(host,view){
     }
     function updateDrop(e){
         const hovered=drag.targets.find(t=>e.clientX>t.rect.left&&e.clientX<t.rect.right&&e.clientY>t.rect.top&&e.clientY<t.rect.bottom);
-        const target=hovered&&!node(hovered.id)?.properties.locked&&canJoinMaterialGroup(node(hovered.id),node(drag.ids[0]))?hovered:null;
+        const target=hovered&&!node(hovered.id)?.properties.locked&&canJoinMaterialGroup(node(hovered.id),node(drag.ids[0]),{existingMember:(node(hovered.id)?.properties?.members||[]).some(id=>String(id)===String(drag.ids[0]))})?hovered:null;
         drag.blockedGroup=hovered&&!target?hovered.id:null;
         drag.target=target?{id:target.id,index:target.collapsed?target.rects.length:materialInsertionIndex(target.layout,target.rects,e.clientX,e.clientY)}:null;
         for(const g of groups()){const gc=card(g.id);if(gc)gc.dataset.reviewOver=String(g.id===target?.id);}

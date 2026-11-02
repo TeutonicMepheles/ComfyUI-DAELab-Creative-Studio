@@ -15,7 +15,17 @@ export function parseTableOutputKey(key){
 }
 
 function mediaIdentity(asset){
-    return String(asset?.assetId||asset?.referenceId||asset?.sourceNodeId||asset?.id||asset?.url||'');
+    return String(asset?.id||asset?.assetId||asset?.referenceId||asset?.sourceNodeId||asset?.url||'');
+}
+
+function validMedia(asset){
+    if(!asset||!mediaKinds.has(asset.kind)||typeof asset.url!=='string')return false;
+    try{
+        const url=new URL(asset.url,'http://localhost'),params=url.searchParams;
+        if(url.origin!=='http://localhost'||url.pathname!=='/view'||params.getAll('filename').length!==1||params.getAll('type').length!==1||params.getAll('subfolder').length>1||!['input','output'].includes(params.get('type')))return false;
+        const filename=params.get('filename')||'';
+        return asset.kind==='image'?/\.(png|jpe?g|webp)$/i.test(filename):/\.(mp4|webm|mov)$/i.test(filename);
+    }catch{return false;}
 }
 
 function cellTexts(table,row,field,value){
@@ -33,7 +43,7 @@ function cellTexts(table,row,field,value){
 
 function cellMedia(value){
     if(!Array.isArray(value))return [];
-    return value.filter(asset=>asset&&typeof asset.url==='string'&&asset.url&&mediaKinds.has(asset.kind));
+    return value.filter(validMedia);
 }
 
 /**

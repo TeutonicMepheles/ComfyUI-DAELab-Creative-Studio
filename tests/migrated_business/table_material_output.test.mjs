@@ -70,3 +70,25 @@ test('generation-history grouping stays per task row while table output can cons
  assert.deepEqual(indexed.groups[0],{label:'镜头甲',count:2,kind:'mixed',assetIndexes:[0,1],textIndexes:[]});
  assert.deepEqual(indexed.groups[1],{label:'镜头乙',count:1,kind:'image',assetIndexes:[2],textIndexes:[]});
 });
+test('non-view and malformed media references are skipped instead of reaching the import endpoint',()=>{
+ const table=fixture();
+ table.records[0].values.mixed=[
+  {id:'bad-url',kind:'image',url:'not-a-view-url'},
+  {id:'bad-type',kind:'image',url:'/view?filename=bad.png&type=temp'},
+  {id:'bad-kind',kind:'video',url:'/view?filename=bad.png&type=output'},
+  asset('good','image'),
+ ];
+ const out=tableMaterialSnapshot(table,'mixed','a');
+ assert.equal(out.ready,true);
+ assert.deepEqual(out.assets.map(item=>item.id),['good']);
+});
+test('distinct table occurrences sharing an underlying asset identity remain distinct',()=>{
+ const table=fixture();
+ table.records[0].values.mixed=[
+  {...asset('occurrence-a','image'),assetId:'same-content'},
+  {...asset('occurrence-b','image'),assetId:'same-content'},
+ ];
+ const out=tableMaterialSnapshot(table,'mixed','a');
+ assert.deepEqual(out.assets.map(item=>item.id),['occurrence-a','occurrence-b']);
+ assert.equal(out.deduplicated,0);
+});

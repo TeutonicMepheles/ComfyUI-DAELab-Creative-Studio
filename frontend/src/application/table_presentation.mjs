@@ -164,7 +164,7 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
         if(disposed)return;
         const showing=String(Boolean(active()));if(root.dataset.contentPresentation!==showing){root.dataset.contentPresentation=showing;onPresentationChange(showing==='true');editor.render();}
         const chosen=String(active()&&!!selected);if(root.dataset.contentSelected!==chosen)root.dataset.contentSelected=chosen;
-        if(!active()){selected=null;closeMenu();}
+        if(!menuAvailable()){selected=null;closeMenu();}
         const grid=root.querySelector('table'),column=selected?.kind==='column'?selected.field:null;
         if(grid!==columnGrid||column!==columnSelection){
             columnGrid=grid;columnSelection=column;

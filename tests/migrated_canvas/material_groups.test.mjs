@@ -71,3 +71,15 @@ test('new groups require one material type and only accept members of that type'
  assert.equal(canJoinMaterialGroup(empty,image('video')),true);
  assert.equal(canJoinMaterialGroup(empty,image('image')),false);
 });
+test('legacy mixed groups reject new members but still allow their existing members to reorder',()=>{
+ const image={id:'image',type:'DAELAB.MediaUpload',widgets:[{name:'asset_data',value:JSON.stringify({kind:'image',filename:'a.png'})}]};
+ const text={id:'text',type:'DAELAB.TextInput',widgets:[{name:'text',value:'caption'}]};
+ const byId=new Map([[image.id,image],[text.id,text]]);
+ const group={properties:{members:['image','text']},graph:{getNodeById:id=>byId.get(id)}};
+ assert.equal(canJoinMaterialGroup(group,image),false);
+ assert.equal(canJoinMaterialGroup(group,text),false);
+ assert.equal(canJoinMaterialGroup(group,image,{existingMember:true}),true);
+ assert.equal(canJoinMaterialGroup(group,text,{existingMember:true}),true);
+ const unknown={properties:{members:['missing']},graph:{getNodeById:()=>null}};
+ assert.equal(canJoinMaterialGroup(unknown,image),false,'unverifiable membership cannot accept a new type');
+});

@@ -22,9 +22,14 @@ export function groupMaterialType(group){
     if(declared&&kinds.some(kind=>kind!==declared))return null;
     return kinds[0]||declared;
 }
-export function canJoinMaterialGroup(group,node){
+export function canJoinMaterialGroup(group,node,{existingMember=false}={}){
     const kind=materialType(node);if(!kind)return false;
-    const current=groupMaterialType(group);return !current||current===kind;
+    const ids=group?.properties?.members||[];
+    if(existingMember&&ids.some(id=>String(id)===String(node.id)))return true;
+    const kinds=ids.map(id=>materialType(group.graph?.getNodeById(id))).filter(Boolean),declared=materialKinds.has(group?.properties?.materialType)?group.properties.materialType:null;
+    if(new Set(kinds).size>1||ids.length&&kinds.length!==ids.length)return false;
+    const current=kinds[0]||declared;
+    return !current||current===kind;
 }
 // A group action requires one unambiguous owner for the entire selection.
 export function selectedMaterialGroup(chosen,groups){
