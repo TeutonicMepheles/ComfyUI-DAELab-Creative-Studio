@@ -362,13 +362,14 @@
       "source": "web/material_group_model.mjs",
       "destination": "frontend/src/features/groups/material_group_model.mjs",
       "sourceSha256": "72c88b9a74a3ee7e8963e5ee711bb0780591110ad4ca9225c0201c67b650dc33",
-      "destinationSha256": "2a4dfb8486d987406a5543db06fd63ceb402d685b286f3f718515f41fa191aca",
+      "destinationSha256": "fb2c02969d31088d2f59a60c254a343264e601ec82f945e5ae5f5cef804bcc09",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "remove implicit prototype converter; explicit workflow migration belongs to compat",
         "Receive explicit native-node lists for selection identity and Slot suppression instead of reading private graph._nodes.",
         "Require one unambiguous group owner across the complete selection; revalidate before ungroup and close stale group menus.",
-        "2026-10-30: request-bound output placeholders, copy isolation and ready-only group material snapshots; see GENERATION_OUTPUTS_20261030 validation."
+        "2026-10-30: request-bound output placeholders, copy isolation and ready-only group material snapshots; see GENERATION_OUTPUTS_20261030 validation.",
+        "2026-11-02: enforce one material type for new groups and group joins while retaining legacy mixed-group reads."
       ],
       "kind": "production-source"
     },
@@ -392,7 +393,7 @@
       "source": "web/material_groups.mjs",
       "destination": "frontend/src/features/groups/material_groups.mjs",
       "sourceSha256": "91c47c4439efda72218a2749e00030e570bf1731a3eb100282347aecc463e144",
-      "destinationSha256": "424c3ba590c006fc22e6c8c53450ab43542abe8883e0067e3d32fda7e0f147bf",
+      "destinationSha256": "9d70c663bd99b5dac17b3ab96e5db3b655d1b8467c3ed694dbdfaa30a25b84d1",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "inject existing host history port at integration assembly boundary",
@@ -403,7 +404,8 @@
         "2026-10-30: icon and text selection toolbar, direct reversible ungroup, and public snapshot-based batch favorites.",
         "2026-10-30: add whole-group ZIP download, retain three preset colors plus custom colors, and compact submenu rows.",
         "2026-10-30: make group/member port ownership exclusive and prioritize direct hits without style or layout changes.",
-        "Require one unambiguous group owner across the complete selection; revalidate before ungroup and close stale group menus."
+        "Require one unambiguous group owner across the complete selection; revalidate before ungroup and close stale group menus.",
+        "2026-11-02: reject mixed-type group creation and incompatible drag targets while preserving legacy mixed-group reads."
       ],
       "kind": "production-source"
     },
@@ -917,13 +919,14 @@
       "source": "tests/material_groups.test.mjs",
       "destination": "tests/migrated_canvas/material_groups.test.mjs",
       "sourceSha256": "ad6489ea79bb78ca890d5ebb860c62ea79a7cf9e63888771599122f8e161c0b6",
-      "destinationSha256": "b1ec22c70d5385a4640ac61081fa056ada0a60f2bfe83f6009751d38a56ccaff",
+      "destinationSha256": "d7df97afcfd439095169e0244faeb39d7a16da0dfb5efe29f46f6101cf0d46a0",
       "changes": [
         "point existing rule regression tests at migrated production modules",
         "old implicit destructive prototype migration test superseded by production-boundary preservation test",
         "Pass explicit native nodes to mixed-ID group selection rules.",
         "Cover ungroup selection ownership, mixed groups, ungrouped nodes, ambiguous ownership and restored membership.",
-        "2026-10-30: request-bound output placeholders, copy isolation and ready-only group material snapshots; see GENERATION_OUTPUTS_20261030 validation."
+        "2026-10-30: request-bound output placeholders, copy isolation and ready-only group material snapshots; see GENERATION_OUTPUTS_20261030 validation.",
+        "2026-11-02: cover same-type selection, rejection of cross-type members and legacy mixed-group readability."
       ],
       "kind": "rule-regression"
     },
@@ -931,9 +934,10 @@
       "source": "tests/mixed_group.test.mjs",
       "destination": "tests/migrated_canvas/mixed_group.test.mjs",
       "sourceSha256": "372fd748b0fd2946777059145520c7ae5793ca9623247751f9dae6e12c828adf",
-      "destinationSha256": "53253dda3f36ca5cd6d4bd720d2f63585fac36cdd6ff4d634caeb6811532e3d2",
+      "destinationSha256": "7135a95d0b6d1e298b74631eb0a935363b620cdf1ea61181bcbec802682cbe4a",
       "changes": [
-        "point existing rule regression tests at migrated production modules"
+        "point existing rule regression tests at migrated production modules",
+        "2026-11-02: clarify that legacy mixed-group reads do not permit new mixed selections."
       ],
       "kind": "rule-regression"
     },
