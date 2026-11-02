@@ -105,8 +105,9 @@
       "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/script_document.py",
       "destination": "backend/storyboard/script_document.py",
       "sourceSha256": "f26f711e69eed675186640b68d011f376eea8f6df76bbc0314bd18b1fbe04188",
-      "destinationSha256": "8c28480f7a663b699a66fd6ffb1ec840ddba92b2def0b37f6ef6dafdbd3554d1",
+      "destinationSha256": "e050ca3ef88bf0b9447c5562e9e0419e9a6e09ad85c949fc618b4f3095b7c335",
       "changes": [
+        "2026-11-02: classify exact shot header alias as shot_no while preserving camera-note header roles and source values.",
         "retain physical XML cell/row/occurrence identity and merged anchors",
         "validate Office archive paths before parsing; preserve all confirmed task rows or reject limit",
         "1029 script parsing: fixed four columns, source-identified chapters, ten-row pages and native multi-table import history."

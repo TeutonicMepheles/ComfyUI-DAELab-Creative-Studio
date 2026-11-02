@@ -64,7 +64,7 @@ remain visible text but are flagged separately for manual attribution.
 
 def header_role(text):
     value = re.sub(r'\s+', '', text).strip('：:')
-    if re.fullmatch(r'(镜号[/／]序号|镜号|序号|编号|镜头号|分镜号|序)', value):
+    if re.fullmatch(r'(镜号[/／]序号|镜号|序号|编号|镜头|镜头号|分镜号|序)', value):
         return 'shot_no'
     if value in ('时间', '时长', '时间段', '时码', '秒数'):
         return 'time_range'
@@ -72,7 +72,7 @@ def header_role(text):
         return 'narration'
     if value in ('字幕', '屏幕文字'):
         return 'subtitle'
-    if value in ('备注', '镜头备注', '运镜', '镜头', '景别'):
+    if value in ('备注', '镜头备注', '运镜', '景别'):
         return 'notes'
     if value in ('章节', '段落', '篇章', '章节名称'):
         return 'chapter'
