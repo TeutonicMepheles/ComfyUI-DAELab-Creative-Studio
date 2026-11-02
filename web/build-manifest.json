@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "2eff0a3b144a08134b2b1eae8b9b0b372178751308b01a7426e1a8a14cd2c725",
+  "sourceFingerprint": "4c28c744d45ca75a4a685a6efda5a418c45e546390b86ce4a07babd8a5b0b7ef",
   "files": [
     {
       "path": "AGENTS.md",
@@ -1128,7 +1128,7 @@
     },
     {
       "path": "integrations/comfyui/canvas/video_edit.js",
-      "sha256": "16f9952e01007273c49ffbbba5f55160338eb5242d1200099586511fe6f7beff"
+      "sha256": "ca5c03c8b09f73b160eadf3a2be76334bd69ed75d8cb587507cd08141046306c"
     },
     {
       "path": "integrations/comfyui/compat_readonly.js",
@@ -1140,7 +1140,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "acc64986c8b85ce7eb1bb838ee01203837f7ad015a02e81cb28d26f99d714c8c"
+      "sha256": "dbcf38d4df1fdc0cec5dff5a595c67a4379ef7487ece6c169e60a0bc567cce56"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
