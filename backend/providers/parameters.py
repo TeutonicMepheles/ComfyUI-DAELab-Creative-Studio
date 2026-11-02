@@ -73,8 +73,10 @@ def settings_for(kind, mode, settings, media):
     if not isinstance(settings, dict):
         raise InvalidInput('Settings must be a JSON object.')
     if kind == 'image':
-        if mode != 'text2image' or media:
-            raise InvalidInput('Local Qwen supports text2image without media references.')
+        if (mode not in ('text2image', 'image2image')
+                or mode == 'text2image' and media
+                or mode == 'image2image' and (len(media) != 1 or media[0].get('kind') != 'image')):
+            raise InvalidInput('Local Qwen requires no references for text2image or exactly one image for image2image.')
         allowed = {'width', 'height', 'seed'}
         values = {'width': 1024, 'height': 1024, 'seed': -1, **settings}
         for key in ['width', 'height']:
@@ -101,10 +103,10 @@ def settings_for(kind, mode, settings, media):
     return values
 
 
-def image_graph(text, values, files, prefix):
+def image_graph(text, values, files, prefix, *, media=()):
     def node(kind, **inputs):
         return dict(class_type=kind, inputs=inputs)
-    return {
+    graph = {
         'model': node('UNETLoader', unet_name=files['diffusion_models'], weight_dtype='default'),
         'clip': node('CLIPLoaderGGUF', clip_name=files['text_encoders'], type='qwen_image'),
         'condition': node('TextEncodeQwenImage21', clip=['clip', 0], prompt=str(text), negative_prompt='', resolution=1024, images={}),
@@ -116,6 +118,19 @@ def image_graph(text, values, files, prefix):
         'decode': node('VAEDecode', samples=['sample', 0], vae=['vae', 0]),
         'save': node('SaveImage', images=['decode', 0], filename_prefix=prefix),
     }
+    if media:
+        # Match the explicitly frozen output size before encoding. No crop; the
+        # encoder returns the reference latent at this same 32-aligned geometry.
+        graph['reference'] = node('LoadImage', image=media[0]['native_input'])
+        graph['reference_size'] = node('ImageScale', image=['reference', 0],
+                                       upscale_method='lanczos', width=values['width'],
+                                       height=values['height'], crop='disabled')
+        condition = graph['condition']['inputs']
+        del condition['images']
+        condition.update({'images.image_1': ['reference_size', 0], 'vae': ['vae', 0], 'resolution': 0})
+        graph['sample']['inputs']['latent_image'] = ['condition', 2]
+        del graph['latent']
+    return graph
 
 
 def video_graph(text, values, media, files, prefix, *, reference=False):
