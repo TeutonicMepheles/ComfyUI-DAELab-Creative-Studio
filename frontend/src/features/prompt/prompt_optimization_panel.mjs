@@ -2,6 +2,8 @@ import {optimizationStatus} from './prompt_optimization_status.mjs';
 import {createTableButton as button,tableIcon} from '../../ui/table_controls.mjs';
 
 import {optimizationProvider} from './prompt_optimization_model.mjs';
+import {getModelCatalog} from '../models/model_catalog.mjs';
+import {updateModelOption} from '../models/model_catalog_ui.mjs';
 
 const taskLabels={queued:'等待提交',preparing:'准备中',submitting:'正在提交',submitted:'已提交',polling:'等待结果',succeeded:'已完成',failed:'失败',skipped:'已跳过',stopped:'已停止',unknown:'提交结果未知'};
 const suggestionLabels={valid:'有改动建议',unchanged:'未发现可安全改进的内容',stale:'建议已过期',invalid:'建议无效',applied:'已应用',reverted:'已撤销'};
@@ -58,6 +60,7 @@ export function createPromptOptimizationPanel({controller,container,renderPrompt
     requirements.addEventListener('compositionend',()=>{composing=false;controller.setRequirements(requirements.value);});
     requirements.addEventListener('input',()=>{if(!composing)controller.setRequirements(requirements.value);});
     model.addEventListener('change',()=>controller.setModel(model.value));
+    settingsBody.append(button('重新检测模型',()=>controller.refreshModels()));
     const pricing=node('details',settingsBody,undefined,'prompt-opt-pricing');node('summary',pricing,'费用估算依据');
     const pricingText=node('p',pricing),priceSource=node('a',pricing);priceSource.target='_blank';priceSource.rel='noopener noreferrer';
     const resultsHeading=node('h3',scroller,'优化结果','prompt-opt-results-title');resultsHeading.tabIndex=-1;
@@ -83,10 +86,10 @@ export function createPromptOptimizationPanel({controller,container,renderPrompt
     const quoteText=node('span',footer,undefined,'prompt-opt-hint'),footerRange=node('span',footer,undefined,'prompt-opt-hint');
     const inactiveReason=node('p',footer,'','prompt-opt-warning');inactiveReason.setAttribute('role','status');inactiveReason.hidden=true;
     const footerActions=node('div',footer,undefined,'prompt-opt-actions');
-    const estimate=button('更新估算',()=>run('estimate')),start=button('开始优化',()=>run('submit',{acknowledgeUnknown:ack.checked}),true),stop=button('停止剩余行',()=>run('stop'));
+    const estimate=button('更新估算',()=>run('estimate')),start=button('开始优化',()=>run('submit',{acknowledgeUnknown:ack.checked}),true),stop=button('暂停剩余行',()=>run('stop')),interrupt=button('打断剩余行',()=>{if(window.confirm('确定打断当前优化批次？已提交费用不会自动撤销。'))return run('interrupt');});
     const showResults=button('查看结果',()=>{settings.open=false;for(const v of rowViews.values())v.element.open=true;resultsHeading.scrollIntoView?.({block:'start',behavior:'auto'});resultsHeading.focus?.({preventScroll:true});});
     const showSettings=button('查看设置',()=>{settings.open=true;settings.scrollIntoView?.({block:'start',behavior:'auto'});provider.focus?.({preventScroll:true});});
-    footerActions.append(estimate,start,stop,resume,showResults,showSettings);
+    footerActions.append(estimate,start,stop,interrupt,resume,showResults,showSettings);
     const applyAll=button('应用全部有效建议',()=>run('applyAll'));footer.append(applyAll);
     const displayPrompt=(element,value)=>{if(element._prompt===value)return;element._prompt=value;element.replaceChildren();if(renderPrompt)renderPrompt(element,value);else element.textContent=value??'';};
     function rowView(row){
@@ -122,10 +125,14 @@ export function createPromptOptimizationPanel({controller,container,renderPrompt
         const selectedProvider=state.provider||optimizationProvider(state.model);provider.value=selectedProvider;provider.disabled=state.permissions?.canChangeProvider===false;
         keyArea.hidden=selectedProvider!=='deepseek';keyStatus.textContent=keyInput.value.trim()?'新输入的密钥尚未保存，请点击“保存到本页会话”。':state.pageDeepSeekKeyConfigured?'本页密钥已保存；刷新后需重新输入。':state.deepseekKeyConfigured?'服务器已配置密钥；本页尚未保存密钥。':'尚未配置密钥，可先查看估算；提交前请保存密钥。';
         saveKey.disabled=Boolean(state.busy||state.requestActivity)||!keyInput.value.trim();clearKey.disabled=!state.pageDeepSeekKeyConfigured;keyInput.disabled=Boolean(state.busy||state.requestActivity);
-        const models=(state.models||[]).filter(m=>(m.provider||optimizationProvider(m.id))===selectedProvider),newModelSignature=JSON.stringify([models,state.model]);
-        if(modelSignature!==newModelSignature){modelSignature=newModelSignature;model.replaceChildren();if(!models.some(m=>m.id===state.model)){const unavailable=node('option',model,`${state.model||'未选择'}（不可用）`);unavailable.value=state.model||'';unavailable.disabled=true;}for(const item of models){const option=node('option',model,`${item.label||item.id}${item.available===false?'（不可用）':''}`);option.value=item.id;option.disabled=item.available===false;}model.value=state.model||'';}
+        const models=(state.models||[]).filter(m=>(m.provider||optimizationProvider(m.id))===selectedProvider),newModelSignature=JSON.stringify([models.map(item=>[item.id,item.label,item.provider]),state.model]);
+        if(modelSignature!==newModelSignature){modelSignature=newModelSignature;model.replaceChildren();if(!models.some(m=>m.id===state.model)){const unavailable=node('option',model,state.model||'未选择');unavailable.value=state.model||'';unavailable.disabled=true;}for(const item of models){const option=node('option',model,item.label||item.id);option.value=item.id;}model.value=state.model||'';}
+        for(const option of model.options||model.children||[]){const item=models.find(candidate=>candidate.id===option.value);if(item)updateModelOption(option,item);}
         if(!composing&&document.activeElement!==requirements&&requirements.value!==(state.requirements||''))requirements.value=state.requirements||'';
-        model.disabled=state.permissions?.canChangeProvider===false;requirements.disabled=Boolean(state.busy||state.requestActivity)&&!composing;
+        const selectedStatus=getModelCatalog().get(state.model);
+        model.disabled=state.permissions?.canChangeProvider===false||selectedStatus?.status==='unavailable';
+        if(selectedStatus?.checking)model.setAttribute('aria-busy','true');else model.removeAttribute('aria-busy');
+        requirements.disabled=Boolean(state.busy||state.requestActivity)&&!composing;
         batchInfo.hidden=!state.batchId;batchInfo.textContent=state.batchId?`现有批次：${state.batchProvider==='deepseek'?'自有 DeepSeek API':'Comfy'} · ${state.batchModel||state.model} · ${state.batchCurrency==='USD'?'美元（USD）':'积分'}`:'';
         const expired=quote?.status==='expired'||Boolean(quote?.expiresAt&&quote.expiresAt<=Date.now());
         quoteText.textContent=batchView&&!state.continuationReady?'费用记录见各行结果':optimizationQuoteLabel(quote);
@@ -149,7 +156,8 @@ export function createPromptOptimizationPanel({controller,container,renderPrompt
         fence.hidden=!permissions.canFence;fence.disabled=Boolean(state.busy);
         retry.disabled=Boolean(state.busy)||rows.some(r=>['queued','preparing','submitting','submitted','polling'].includes(r.status))||(hasUnknown&&!ack.checked);retry.hidden=!rows.length;retry.title='先为新请求更新估算；点击开始优化才会收费';
         estimate.disabled=!permissions.canEstimate||Boolean(state.busy);start.disabled=!permissions.canSubmit||Boolean(state.busy)||composing||(hasUnknown&&!ack.checked)||Boolean(keyInput.value.trim())||expired||quote?.status!=='ready';start.title=start.disabled?display.detail:'提交付费优化请求';estimate.title='只计算费用，不调用模型';
-        stop.title='停止尚未发送的行；已发送请求仍可能返回并计费';stop.hidden=!permissions.canStop;stop.disabled=!permissions.canStop;
+        stop.title='暂停派发剩余行；保留继续意图，已发送请求仍可能返回并计费';stop.hidden=!permissions.canStop;stop.disabled=!permissions.canStop;
+        interrupt.title='打断当前批次；只保存提供方确认的终止事实';interrupt.hidden=!permissions.canInterrupt;interrupt.disabled=!permissions.canInterrupt;
         inactiveReason.textContent=state.inactiveReason||'';inactiveReason.hidden=!start.disabled||!state.inactiveReason;
         applyAll.hidden=state.scope!=='column'||!rows.length;applyAll.disabled=!permissions.canApplyAll||Boolean(state.busy);applyAll.textContent=`应用全部有效建议（${rows.filter(r=>r.canApply).length}）`;
         error.textContent=localError||state.error||'';error.hidden=!error.textContent;

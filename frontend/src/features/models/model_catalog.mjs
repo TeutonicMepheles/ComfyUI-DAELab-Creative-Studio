@@ -33,7 +33,7 @@ function publicEntry(entry){
     return Object.freeze({
         ...entry.definition,
         status:entry.status,
-        available:entry.status===MODEL_STATUS.available||entry.status===MODEL_STATUS.unverified,
+        available:entry.status===MODEL_STATUS.available,
         checking:entry.status===MODEL_STATUS.checking,
         selectable:entry.status!==MODEL_STATUS.checking&&entry.status!==MODEL_STATUS.unavailable,
         capability:entry.capability,
@@ -52,6 +52,12 @@ export function createModelCatalog({now=()=>Date.now(),log=()=>{}}={}){
         const entry=entries.get(id);if(!entry)return null;
         entry.status=status;entry.capability=capability;entry.code=code;entry.checkedAt=now();emit();return publicEntry(entry);
     }
+    function record(id,result){
+        const entry=entries.get(id);if(!entry)return null;
+        const provider=result?.provider||entry.definition.provider;
+        const status=result?.available===false?MODEL_STATUS.unavailable:provider==='deepseek'&&result?.deepseekKeyConfigured===false?MODEL_STATUS.unverified:MODEL_STATUS.available;
+        return setStatus(id,status,{capability:result||null});
+    }
     function check(id,probe,{force=false}={}){
         const entry=entries.get(id);if(!entry)throw new Error('未知逻辑模型');
         if(!force&&entry.checkedAt!=null)return Promise.resolve(publicEntry(entry));
@@ -60,9 +66,7 @@ export function createModelCatalog({now=()=>Date.now(),log=()=>{}}={}){
         const task=(async()=>{
             try{
                 const result=await probe(entry.definition);
-                const provider=result?.provider||entry.definition.provider;
-                const status=result?.available===false?MODEL_STATUS.unavailable:provider==='deepseek'&&result?.deepseekKeyConfigured===false?MODEL_STATUS.unverified:MODEL_STATUS.available;
-                return setStatus(id,status,{capability:result||null});
+                return record(id,result);
             }catch(error){
                 const code=typeof error?.code==='string'&&/^[a-z0-9_.-]{1,80}$/i.test(error.code)?error.code:'model_probe_failed';
                 log({version:MODEL_CATALOG_VERSION,provider:entry.definition.provider,model:id,stage:'probe',code,time:new Date(now()).toISOString()});
@@ -83,15 +87,32 @@ export function createModelCatalog({now=()=>Date.now(),log=()=>{}}={}){
         }
         emit();return snapshot(filters);
     }
+    function replaceDefinitions(definitions){
+        if(!Array.isArray(definitions)||!definitions.length)throw new Error('模型目录不能为空');
+        const next=new Map();
+        for(const definition of definitions){
+            if(!definition||typeof definition.id!=='string'||!definition.id||next.has(definition.id)
+                    ||!['generation','optimization'].includes(definition.family)
+                    ||!['text','image','video'].includes(definition.kind)
+                    ||typeof definition.provider!=='string'||!definition.provider)throw new Error('模型目录定义无效');
+            const previous=entries.get(definition.id);
+            next.set(definition.id,previous?{...previous,definition:{...definition,label:definition.label||definition.id}}:{
+                definition:{...definition,label:definition.label||definition.id},status:MODEL_STATUS.unverified,capability:null,code:null,checkedAt:null,
+            });
+        }
+        entries.clear();for(const [id,entry] of next)entries.set(id,entry);emit();return snapshot();
+    }
     return {
         version:MODEL_CATALOG_VERSION,
         snapshot,
         get,
+        record,
         check,
+        replaceDefinitions,
         refresh,
         invalidate,
         markUnavailable(id,code='model_rejected'){
-            log({version:MODEL_CATALOG_VERSION,provider:byId.get(id)?.provider||'unknown',model:id,stage:'submit',code,time:new Date(now()).toISOString()});
+            log({version:MODEL_CATALOG_VERSION,provider:entries.get(id)?.definition.provider||'unknown',model:id,stage:'submit',code,time:new Date(now()).toISOString()});
             return setStatus(id,MODEL_STATUS.unavailable,{code});
         },
         subscribe(listener){listeners.add(listener);listener(snapshot());return()=>listeners.delete(listener);},

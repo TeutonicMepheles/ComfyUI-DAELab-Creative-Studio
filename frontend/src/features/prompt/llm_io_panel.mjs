@@ -10,6 +10,8 @@ import {availableModes,applyIOResult,undoIOResult} from './llm_io_model.mjs';
 import {slotRows,slotSignature,outputText,hasTableInput} from './llm_slot_model.mjs';
 import {optimizeRow} from './llm_local_provider.mjs';
 import {createLLMTask} from './llm_task_model.mjs';
+import {getModelCatalog} from '../models/model_catalog.mjs';
+import {canSubmitModel,updateModelOption} from '../models/model_catalog_ui.mjs';
 // Reconcile against the actual controls, including shared-control changes. Do
 // not cache render inputs: Slot validation, task snapshots and native outputs
 // must still be refreshed on every render.
@@ -47,10 +49,19 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
     const sourceSection=source.closest('.llm-style-source');source.placeholder='输入原始文字，或连接文本节点';
     const imageSection=make('section','llm-style-section llm-style-image-source'),imageBox=make('div','llm-style-image-upload'),image=make('img','llm-style-image-preview'),imageText=make('span','llm-style-image-text','通过 Slot 连接参考图片');
     imageSection.append(make('span','llm-style-label','参考图片'),imageBox);imageBox.append(image,imageText);sourceSection.after(imageSection);materialHint.parentElement.hidden=true;
-    const models=OPTIMIZATION_MODELS.map(model=>({...model,id:model.logo==='qwen'?'qwen':model.logo==='deepseek'?'deepseek':model.id}));
+    const modelCatalog=getModelCatalog();
+    const logicalModel=model=>model==='qwen'?'qwen3.5:9b-q4_K_M':model==='deepseek'?'deepseek-flash':model;
+    const discovered=modelCatalog.snapshot({family:'optimization'});
+    const models=(discovered.length?discovered:OPTIMIZATION_MODELS).map(model=>({
+        id:model.provider==='qwen'||model.logo==='qwen'?'qwen':model.provider==='deepseek'||model.logo==='deepseek'?'deepseek':model.id,
+        label:model.label,
+        logo:model.provider==='comfy'?'openai':model.provider||model.logo,
+        logicalId:model.id,
+    }));
     const supported=model=>models.some(option=>option.id===model);
     const modelLabel=model=>models.find(option=>option.id===model)?.label||model;
-    select.replaceChildren(...models.map(model=>new Option(model.label+(model.logo==='openai'?' · Comfy':''),model.id)));
+    function refreshModelOptions(){for(const option of select.children||select.options||[]){const model=models.find(item=>item.id===option.value);if(model)updateModelOption(option,modelCatalog.get(logicalModel(model.id)));}const model=models.find(item=>item.id===saved().model);select.disabled=!model||!canSubmitModel(modelCatalog.get(logicalModel(model.id)));const status=model&&modelCatalog.get(logicalModel(model.id));if(status?.checking)select.setAttribute('aria-busy','true');else select.removeAttribute('aria-busy');}
+    select.replaceChildren(...models.map(model=>updateModelOption(new Option(model.label+(model.logo==='openai'?' · Comfy':''),model.id),modelCatalog.get(logicalModel(model.id)))));
     saved().model??='qwen';if(!supported(saved().model)){const legacy=new Option('旧模型配置（未接入）',saved().model);legacy.disabled=true;select.add(legacy);}select.value=saved().model;
     const generationTask=createLLMTask();
     const taskRail=make('div','llm-io-task-rail');taskRail.setAttribute('role','tablist');taskRail.setAttribute('aria-label','优化任务');root.append(taskRail);
@@ -118,8 +129,8 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
         for(const control of [source,instruction,select])setProperty(control,'disabled',disabled);
         setProperty(instruction,'readOnly',saved().slotInstruction!==undefined);
         for(const b of root.querySelectorAll('[data-mode]')){setProperty(b,'disabled',disabled||tableInput&&b.dataset.mode==='reverse');setProperty(b,'title',tableInput&&b.dataset.mode==='reverse'?'表格输入仅支持文字优化':'');}
-        const valid=modes[mode];
-        setProperty(run,'disabled',disabled||!!error||!valid);setProperty(run,'title','使用原始文字或连线输入生成建议；应用后输出');setProperty(run.lastChild,'textContent',busy?'生成中…':'生成');setAttribute(run,'aria-busy',String(busy));
+        const valid=modes[mode],modelReady=canSubmitModel(modelCatalog.get(logicalModel(saved().model)));
+        setProperty(run,'disabled',disabled||!!error||!valid||!modelReady);setProperty(run,'title','使用原始文字或连线输入生成建议；应用后输出');setProperty(run.lastChild,'textContent',busy?'生成中…':'生成');setAttribute(run,'aria-busy',String(busy));
         const d=displayed,stamp=signature(),stale=d?.signature!==stamp,isApplied=!!d?.requestId&&saved().appliedIO?.requestId===d.requestId;
         const result=selectedResult(d,rows);
         setProperty(paragraph,'textContent',result?.result||'');
@@ -146,7 +157,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
         const current=()=>!disposed&&node.graph===graph&&(!nativeDocument||nativeDocument.canApply(proposalTicket))&&!node.mode&&signature()===stamp;
         const rowTickets=[];
         try{
-            const rows=slotRows(node),provider=state.model;if(!supported(provider))throw new Error('该历史模型配置不可执行，请明确选择已接入的提供方');
+            const rows=slotRows(node),provider=state.model;if(!supported(provider))throw new Error('该历史模型配置不可执行，请明确选择已接入的提供方');if(!canSubmitModel(modelCatalog.get(logicalModel(provider))))throw new Error('模型不可用，请重新检测');
             assertBusinessService('optimization');generationTask.start(rows.length,state.mode,provider);render();
             const proposal={version:1,requestId:crypto.randomUUID(),rows:[],mode:state.mode,instruction:state.instruction||'',signature:stamp,provider,complete:false};if(proposalTicket)nativeDocument?.releaseRequest(proposalTicket);proposalTicket=nativeDocument?.beginRequest(proposal.requestId)||null;project(proposal);
             if(!nativeDocument)throw new Error('原生编辑会话尚未就绪，未提交');const identity=ensureIdentity(graph,node),inputDigest=await generationInputDigest(stamp);if(!current())throw new Error('输入或工作流已变化，未提交');const existing=[];let offset=0;do{const page=await businessJson('generation','status',{source:{...identity,nodeId:proposalTicket.documentId},limit:500,offset});existing.push(...page.jobs);offset=page.nextOffset;}while(Number.isSafeInteger(offset)&&offset>0);if(!current())throw new Error('输入或工作流已变化，未提交');if(existing.some(report=>report.source?.operation==='standalone-optimization'&&report.source.inputDigest===inputDigest&&!['succeeded','failed','cancelled'].includes(report.state)))throw new Error('原请求尚未确定，请先恢复原结果；未创建新请求');const createdAt=Date.now(),requests=rows.map((row,index)=>{const requestId=crypto.randomUUID(),ticket=nativeDocument.beginRequest(requestId,{recordId:String(row.id),fieldId:'instruction'});rowTickets.push(ticket);return {requestId,recordId:String(row.id),sourceScope:{...identity,nodeId:ticket.documentId,workflowSession:ticket.workflowSession,epoch:ticket.epoch,recordId:String(row.id),fieldId:'instruction',inputVersion:ticket.inputVersion,operation:'standalone-optimization',groupId:proposal.requestId,rowIndex:index,rowCount:rows.length,inputDigest,createdAt}};});nativeDocument.edit('记录优化请求',draft=>{draft.studioTextRequests={groupId:proposal.requestId,inputDigest,requests};});
@@ -176,6 +187,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
             project({version:1,requestId:latest.source.groupId,signature:stamp,provider:saved().model,mode:saved().mode,instruction:saved().instruction||'',complete:true,rows:rows.map((row,index)=>({...row,result:group[index].result,requestId:group[index].requestId,status:'completed'}))});message='原结果已恢复，请审阅后同意更改';
         }catch(error){message=error.message;}finally{nativeDocument.releaseRequest(ticket);busy=false;render();}
     }
+    const unsubscribeModels=modelCatalog.subscribe(()=>{refreshModelOptions();render();});
     const timer=setInterval(()=>{if(root.isConnected)render();},500);render();
-    const release=()=>{disposed=true;if(proposalTicket)nativeDocument?.releaseRequest(proposalTicket);clearInterval(timer);for(const off of listeners)off();};release.sync=render;release.tasks=()=>task;return release;
+    const release=()=>{disposed=true;if(proposalTicket)nativeDocument?.releaseRequest(proposalTicket);clearInterval(timer);unsubscribeModels();for(const off of listeners)off();};release.sync=render;release.tasks=()=>task;return release;
 }

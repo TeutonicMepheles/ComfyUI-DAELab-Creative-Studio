@@ -51,7 +51,7 @@ export function createPromptOptimizationApi({fetchApi, getAuth} = {}) {
     return result;
   }
   return {...Object.fromEntries(['capabilities', 'estimate', 'lease', 'submit', 'query', 'recover',
-    'permit', 'advance', 'stop', 'continue', 'skip', 'fence'].map(name => [name, (payload,options) => call(name, payload,options)])),
+    'permit', 'advance', 'stop', 'interrupt', 'continue', 'skip', 'fence'].map(name => [name, (payload,options) => call(name, payload,options)])),
     setDeepSeekKey(value){pageDeepSeekKey=String(value||'').trim();keyChanged();return Boolean(pageDeepSeekKey);},
     clearDeepSeekKey(){pageDeepSeekKey='';keyChanged();return false;},
     hasDeepSeekKey:()=>Boolean(pageDeepSeekKey),

@@ -439,6 +439,16 @@ class OptimizationFacade:
             self._control(payload['batchId']).update(paused=True, stopped=True)
             return (await self._report(jobs))
 
+    async def interrupt(self, payload):
+        async with self.lock:
+            jobs = (await asyncio.to_thread(self._batch, payload['batchId']))
+            self._lease(self._target(jobs[0]), payload['leaseId'])
+            self._control(payload['batchId']).update(paused=True, stopped=True)
+            for job in jobs:
+                if job['state'] not in ('succeeded', 'failed', 'cancelled'):
+                    await self.service.interrupt(job['request_id'])
+            return (await self._report((await asyncio.to_thread(self._batch, payload['batchId']))))
+
     async def continue_batch(self, payload):
         async with self.lock:
             jobs = (await asyncio.to_thread(self._batch, payload['batchId']))

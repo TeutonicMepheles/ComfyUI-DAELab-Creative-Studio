@@ -8,7 +8,7 @@ import json
 import re
 import uuid
 import weakref
-from datetime import datetime
+from datetime import datetime, timezone
 
 from ..contracts.errors import Conflict, InvalidInput, InvalidTransition, MissingRecord
 from ..contracts.validation import clean_json, digest, identity
@@ -39,6 +39,7 @@ class GenerationService:
         self.poll_interval, self.poll_limit = poll_interval, poll_limit
         self._workers, self._locks = {}, weakref.WeakValueDictionary()
         self._cancel_locks = weakref.WeakValueDictionary()
+        self._progress = {}
         self.barrier_namespace = identity(barrier_namespace, 'barrier namespace') if barrier_namespace is not None else None
 
     def provider(self, provider_id):
@@ -53,7 +54,48 @@ class GenerationService:
         capability = getattr(provider, 'capabilities', None)
         if not callable(capability):
             raise ProviderUnavailable('Provider capability inspection is not assembled.')
-        return await capability(model)
+        result = await capability(model)
+        return {**result, 'control': {
+                    'query': getattr(provider, 'supports_query', False),
+                    'lookup': getattr(provider, 'supports_lookup', False),
+                    'cancel': getattr(provider, 'supports_cancel', False),
+                    'interrupt': provider.execution_kind in {'local', 'media'},
+                    'restart': provider.execution_kind in {'local', 'media'},
+                }, 'progress': {'numeric': getattr(provider, 'supports_progress', False)}}
+
+    def _controls(self, job):
+        provider = self.providers.get(job['provider'])
+        terminal = job['state'] in TERMINAL_STATES
+        active = not terminal
+        precise = bool(provider and (provider.execution_kind in {'local', 'media'} or getattr(provider, 'supports_cancel', False)))
+        return {
+            'pause': job['state'] == 'pending' or active and precise,
+            'resume': job['state'] == 'pending' and job.get('control_intent') == 'pause',
+            'interrupt': job['state'] == 'pending' or active and precise,
+            'restart': terminal and bool(provider and provider.execution_kind in {'local', 'media'}),
+        }
+
+    def model_catalog(self):
+        """Stable logical identities; installation state is returned by capabilities."""
+        models = []
+        for model, provider_id in sorted(MODELS.items()):
+            if model in {'qwen', 'deepseek'}:
+                continue
+            provider = self.providers.get(provider_id)
+            text = provider_id.endswith('-text')
+            family = 'optimization' if text else 'generation'
+            kind = 'text' if text else 'image' if 'image' in provider_id else 'video'
+            if provider_id == 'local-qwen-text':
+                provider_name = 'qwen'
+            elif provider_id == 'deepseek-text':
+                provider_name = 'deepseek'
+            elif text:
+                provider_name = 'comfy'
+            else:
+                provider_name = 'local' if getattr(provider, 'execution_kind', None) == 'local' else 'comfy'
+            models.append({'id': model, 'label': model, 'family': family, 'kind': kind,
+                           'provider': provider_name})
+        return {'contractVersion': 1, 'models': models}
 
     def _owner(self, job):
         return self.provider(job['provider'])
@@ -363,6 +405,7 @@ class GenerationService:
             raise Conflict('Observation belongs to another native/provider execution.')
         if job['state'] in TERMINAL_STATES:
             return job
+        provider = self._owner(job)
         if observation.state == 'unknown':
             if job['state'] in {'submitting', 'needs_recovery'}:
                 return (await complete_blocking(self._transition, job, 'unknown', task_id=observation.task_id, error_code='original_execution_unknown'))
@@ -387,6 +430,12 @@ class GenerationService:
         if observation.state == 'failed':
             return (await complete_blocking(self._transition, job, 'failed', error_code=observation.error_code or 'provider_failed'))
         if observation.state in {'submitted', 'running'}:
+            progress = (observation.metadata or {}).get('progress') if isinstance(observation.metadata, dict) else None
+            if getattr(provider, 'supports_progress', False) and isinstance(progress, (int, float)) and not isinstance(progress, bool):
+                previous = self._progress.get(job['request_id'])
+                if 0 <= progress <= 100 and not (previous and previous['attempt'] == job['attempt'] and progress < previous['value']):
+                    self._progress[job['request_id']] = {'value': float(progress), 'stage': str((observation.metadata or {}).get('stage') or 'generating'),
+                                                         'attempt': job['attempt'], 'updatedAt': datetime.now(timezone.utc).isoformat()}
             if job['state'] in {'submitted', 'needs_recovery'} and observation.state == 'running':
                 return (await complete_blocking(self._transition, job, 'running'))
             return job
@@ -484,6 +533,53 @@ class GenerationService:
                 'source': {**original['source'], 'previous_request_id': request_id}}
         return (await self.submit([item]))[0]
 
+    async def pause(self, request_id):
+        job = (await complete_blocking(self.jobs.get, request_id))
+        if job['state'] in TERMINAL_STATES:
+            raise InvalidTransition('A terminal task cannot be paused.')
+        if job['state'] == 'pending':
+            return (await complete_blocking(self.jobs.record_control, request_id, 'pause', expected_version=job['version']))
+        if not self._controls(job)['pause']:
+            raise InvalidTransition('This provider cannot stop the submitted execution; continue tracking the original task.')
+        await complete_blocking(self.jobs.record_control, request_id, 'pause', expected_version=job['version'])
+        return await self.cancel(request_id)
+
+    async def interrupt(self, request_id):
+        job = (await complete_blocking(self.jobs.get, request_id))
+        if job['state'] in TERMINAL_STATES:
+            raise InvalidTransition('A terminal task cannot be interrupted.')
+        if not self._controls(job)['interrupt']:
+            raise InvalidTransition('This provider cannot interrupt the submitted execution; continue tracking the original task.')
+        controlled = (await complete_blocking(self.jobs.record_control, request_id, 'interrupt', expected_version=job['version']))
+        if controlled['state'] == 'cancelled':
+            return controlled
+        return await self.cancel(request_id)
+
+    async def continue_task(self, request_id):
+        job = (await complete_blocking(self.jobs.get, request_id))
+        resumed = (await complete_blocking(self.jobs.record_control, request_id, 'resume', expected_version=job['version']))
+        self._schedule(request_id, self.dispatch(request_id))
+        return resumed
+
+    async def restart(self, request_id, new_request_id):
+        original = (await complete_blocking(self.jobs.get, request_id))
+        if original['state'] not in TERMINAL_STATES:
+            raise InvalidTransition('Only a terminal task can restart with a new identity.')
+        if self._barrier(original):
+            raise InvalidTransition('A sealed preparation has no executable input.')
+        if not self._controls(original)['restart']:
+            raise InvalidTransition('This provider has no safe restart path; use the ordinary generation entry with fresh preflight.')
+        identity(new_request_id, 'new request ID')
+        if new_request_id == request_id:
+            raise Conflict('Restart requires a new request identity.')
+        data = json.loads(clean_json(original['snapshot']['input']))
+        data['assets'] = [{'reference_id': item['reference_id']} for item in original['snapshot']['media']]
+        resolved = original['snapshot']['prepared'].get('settings')
+        if resolved is not None:
+            data['config']['settings'] = dict(resolved)
+        return (await self.submit([{'requestId': new_request_id, 'input': data,
+                                    'source': {**original['source'], 'previous_request_id': request_id}}]))[0]
+
     async def cancel(self, request_id):
         try:
             return await self._cancel(request_id)
@@ -564,8 +660,21 @@ class GenerationService:
     def public(self, request_id):
         job = self.jobs.get(request_id)
         phases = {'pending': 'waiting', 'submitting': 'running', 'submitted': 'running', 'running': 'running', 'fetching': 'running', 'succeeded': 'complete', 'cancelled': 'paused', 'unknown': 'needs_recovery'}
-        result = {'requestId': request_id, 'phase': phases.get(job['state'], job['state']), 'state': job['state'], 'version': job['version'], 'taskId': job['provider_task_id'], 'error': job['error_code'] or '',
-                  'updatedAt': int(datetime.fromisoformat(job['updated_at']).timestamp() * 1000), 'inputFingerprint': job['fingerprint'], 'source': job['source']}
+        control_intent = job.get('control_intent')
+        result = {'requestId': request_id, 'phase': phases.get(job['state'], job['state']), 'state': job['state'], 'version': job['version'], 'taskId': job['provider_task_id'], 'error': job['error_code'] or '', 'controlIntent': control_intent,
+                  'updatedAt': int(datetime.fromisoformat(job['updated_at']).timestamp() * 1000), 'inputFingerprint': job['fingerprint'], 'source': job['source'],
+                  'controls': self._controls(job)}
+        if control_intent == 'pause' and job['state'] == 'pending':
+            result['phase'] = 'paused'
+        if control_intent == 'interrupt' and job['state'] == 'cancelled':
+            result['phase'] = 'interrupted'
+        progress = self._progress.get(request_id)
+        if progress and progress['attempt'] == job['attempt'] and job['state'] not in TERMINAL_STATES:
+            result['progress'] = progress['value']
+            result['stage'] = progress['stage']
+            result['progressUpdatedAt'] = progress['updatedAt']
+        elif job['state'] in TERMINAL_STATES:
+            self._progress.pop(request_id, None)
         result['replacementAllowed'] = job['state'] == 'cancelled' and job['cancel_requested'] and job['attempt'] == 0
         if self._barrier(job):
             result.update(preparation=job['snapshot']['preparation'], error=job['snapshot']['rejectionCode'],

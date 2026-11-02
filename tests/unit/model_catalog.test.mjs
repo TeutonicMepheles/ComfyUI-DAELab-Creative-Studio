@@ -40,3 +40,8 @@ test('catalog filtering and invalidation keep logical identities while rebuildin
  assert.equal(invalidated.every(model=>model.status==='unverified'&&model.capability===null),true);
  assert.equal(catalog.snapshot({family:'generation'}).length,11);
 });
+test('backend-provided definitions replace hardcoded identities without carrying stale capability',()=>{
+ const catalog=createModelCatalog();
+ const entries=catalog.replaceDefinitions([{id:'backend-only',label:'Backend Only',family:'generation',kind:'image',provider:'local'}]);
+ assert.deepEqual(entries.map(item=>[item.id,item.status,item.available,item.selectable]),[['backend-only','unverified',false,true]]);
+});

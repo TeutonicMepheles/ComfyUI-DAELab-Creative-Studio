@@ -33,6 +33,7 @@ def _decode(row):
     for source, target in [("input_json", "snapshot"), ("source_json", "source"), ("result_json", "result")]:
         value = result.pop(source)
         result[target] = json.loads(value) if value is not None else None
+    result["control_intent"] = result.get("control_intent") or None
     result["cancel_requested"] = bool(result["cancel_requested"])
     return result
 
@@ -95,7 +96,7 @@ class JobLedger:
         with self.database.transaction() as connection:
             job = self._get(connection, request_id)
             self._expect(job, expected_version)
-            if job["state"] != "pending" or job["cancel_requested"]:
+            if job["state"] != "pending" or job["cancel_requested"] or job["control_intent"] in {"pause", "interrupt", "restart"}:
                 raise InvalidTransition("Only an uncancelled pending task may submit; recovery never resubmits.")
             now, attempt_id = _now(), str(uuid.uuid4())
             attempt = job["attempt"] + 1
@@ -188,6 +189,37 @@ class JobLedger:
             self._event(connection, request_id, f"cancel:{expected_version+1}", expected_version+1, "cancel_intent", {"queued": queued})
             action = "none" if queued else "confirm_owned_local_interrupt" if job["execution_kind"] == "local" else "request_provider_cancel" if supports_remote_cancel else "continue_tracking_original"
             return {"job": self._get(connection, request_id), "action": action}
+
+    def record_control(self, request_id, action, *, expected_version=None, scope=None):
+        """Persist an explicit pause/interrupt/resume intent without provider IO."""
+        if action not in {"pause", "interrupt", "resume"}:
+            raise InvalidInput("Unknown task control intent.")
+        if scope is not None and (not isinstance(scope, str) or not scope or len(scope) > 200):
+            raise InvalidInput("Task control scope must be a bounded string.")
+        with self.database.transaction() as connection:
+            job = self._get(connection, request_id)
+            if expected_version is not None:
+                self._expect(job, expected_version)
+            if action == "resume":
+                if job["control_intent"] != "pause" or job["state"] != "pending":
+                    raise InvalidTransition("Only a queued paused task can resume its original identity.")
+                intent = None
+            else:
+                if job["state"] in TERMINAL_STATES and action == "pause":
+                    raise InvalidTransition("A terminal task cannot be paused.")
+                intent = action
+            if job["control_intent"] == intent:
+                return job
+            version = job["version"] + 1
+            event_id = f"control:{action}:{version}"
+            now = _now()
+            state = "cancelled" if action == "interrupt" and job["state"] == "pending" else job["state"]
+            error_code = "interrupted_before_submit" if state == "cancelled" else job["error_code"]
+            connection.execute("UPDATE jobs SET state=?,control_intent=?,version=?,error_code=?,updated_at=? WHERE request_id=?",
+                               (state, intent, version, error_code, now, request_id))
+            self._event(connection, request_id, event_id, version, "control_intent",
+                        {"action": action, "scope": scope, "previous": job["control_intent"]})
+            return self._get(connection, request_id)
 
     def confirm_cancelled(self, request_id, *, expected_version, provider_task_id, confirmation):
         identity(provider_task_id, "provider task ID")
