@@ -149,6 +149,7 @@
 .dae-ui.content-context .content-context-danger{color:#ffb4ab}
 .dae-ui [data-table-source]{display:none}
 [data-canvas-panel=true] .dae-ui [data-table-source]{display:grid}
+.dae-ui th[data-column]{position:relative}
 .dae-ui .content-column-output{position:absolute;right:8px;top:50%;width:24px;height:24px;padding:0;transform:translateY(-50%);place-items:center;border:1px solid var(--dae-border-control,#777);border-radius:50%;background:var(--dae-surface-raised,#292929);color:inherit;font:600 16px/1 var(--dae-font-family,sans-serif);cursor:crosshair}
 .dae-ui .content-column-output::before{content:'+'}
 .dae-ui .content-column-output:focus-visible{outline:2px solid var(--dae-focus,#b8c4ff);outline-offset:2px}

@@ -134,3 +134,20 @@ test('native graph mode without a canvas panel still opens the table context men
  assert.equal(a.toolbar.hidden,false);
  assert.equal(a.toolbar.querySelector('[role=menuitem]')!=null,true);
 });
+test('right-clicking nested cell content returns Escape focus to the focusable cell',t=>{
+ const env=dom(t),a=table(env,0),cell=a.cells[0],nested=new env.Element('span');
+ cell.append(nested);
+ a.root.fire('contextmenu',{clientX:420,clientY:260,target:nested});env.flush();
+ env.emit('keydown',a.toolbar.querySelector('[role=menuitem]'),{key:'Escape',isComposing:false});
+ assert.equal(document.activeElement,cell);
+});
+test('rebuilding a header without changing fields restores its output source button',t=>{
+ const env=dom(t),a=table(env,0),header=a.headers[0];
+ const before=header.querySelector('[data-table-source]');
+ assert.ok(before);before.remove();env.tick();
+ assert.ok(header.querySelector('[data-table-source]'),'missing per-header source must be rebuilt');
+});
+test('column output buttons have a positioned header containing block',()=>{
+ const css=readFileSync(new URL('../../frontend/src/features/table/table_ui.css',import.meta.url),'utf8');
+ assert.match(css,/\.dae-ui th\[data-column\]\{position:relative\}/);
+});

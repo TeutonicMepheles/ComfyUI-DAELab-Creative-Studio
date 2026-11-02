@@ -58,8 +58,13 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
     function addGroup(groups,...items){const visible=items.filter(Boolean);if(visible.length)groups.push(visible);}
     function decorateOutputSources(){
         const fields=getTable().fields.filter(item=>!item.hidden),signatureKey=JSON.stringify(fields.map(item=>[item.id,item.name||'',isGeneration(item)]));
-        if(signatureKey===outputSignature)return;
         const current=new Set(fields.map(item=>item.id)),headers=new Map([...root.querySelectorAll('th[data-column]')].map(header=>[header.dataset.column,header]));
+        const complete=fields.every(field=>{
+            const header=headers.get(field.id);if(!header)return false;
+            const own=header.querySelector(`[data-table-source="${CSS.escape(field.id)}"]`),generated=header.querySelector('[data-generation-source]');
+            return isGeneration(field)?Boolean(generated)&&!own:Boolean(own);
+        });
+        if(signatureKey===outputSignature&&complete)return;
         for(const element of root.querySelectorAll('[data-table-source]'))if(!current.has(element.dataset.tableSource))element.remove();
         for(const field of fields){
             const header=headers.get(field.id);if(!header)continue;
@@ -72,7 +77,7 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
             source.setAttribute('aria-label',`${field.name||'当前列'}输出为素材组`);
             source.title=`${field.name||'当前列'} · 拖出或点击输出素材组`;
         }
-        outputSignature=fields.every(field=>headers.has(field.id))?signatureKey:'';
+        outputSignature=signatureKey;
     }
     function rename(){
         const row=selected?.kind==='row',entry=row?getTable().records.find(r=>r.id===selected.record):field();if(!entry)return;
@@ -169,8 +174,8 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
         if(grid!==columnGrid||column!==columnSelection){
             columnGrid=grid;columnSelection=column;
             root.querySelectorAll('th[data-column],td[data-field]').forEach(node=>{const activeColumn=String(Boolean(column)&&(node.dataset.column||node.dataset.field)===column);if(node.dataset.columnSelected!==activeColumn)node.dataset.columnSelected=activeColumn;if(node.matches('th')&&node.getAttribute('aria-selected')!==activeColumn)node.setAttribute('aria-selected',activeColumn);});
-            decorateOutputSources();
         }
+        decorateOutputSources();
         const row=selected?.kind==='row'?selected.record:null;
         if(grid!==rowGrid||row!==rowSelection){
             rowGrid=grid;rowSelection=row;
@@ -196,7 +201,8 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
     const showPreview=e=>previewContentAsset(editor,e.detail);
     const contextMenu=e=>{
         const target=targetFor(e.target);if(!target||!menuAvailable()||e.target.closest('[data-inline-editing=true],input,textarea,select'))return;
-        e.preventDefault();e.stopPropagation();open(target,e.target,{x:e.clientX+8,y:e.clientY+8});
+        const trigger=e.target.closest('td[data-field],th[data-column],.table-choice[data-content-row],table')||e.target;
+        e.preventDefault();e.stopPropagation();open(target,trigger,{x:e.clientX+8,y:e.clientY+8});
     };
     const contextKey=e=>{
         if(e.key!=='ContextMenu'&&!(e.shiftKey&&e.key==='F10'))return;
