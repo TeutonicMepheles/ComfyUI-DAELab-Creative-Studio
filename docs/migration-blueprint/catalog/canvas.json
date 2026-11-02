@@ -949,6 +949,30 @@
         "AC-CAN-039-002",
         "AC-CAN-039-003"
       ]
+    },
+    {
+      "id": "F-CAN-040",
+      "title": "新素材组同类型成员约束",
+      "decision": "重构",
+      "current": "现实现允许媒体与非空文字混合成组，并以 image-instructions 表达图片反推要求；mixed_group 测试保留该行为。",
+      "source": [
+        "canvas:web/material_group_model.mjs",
+        "canvas:web/material_groups.mjs",
+        "canvas:docs/material-groups.md"
+      ],
+      "target": "frontend/src/features/groups",
+      "phase": "M2",
+      "rationale": "已确认产品规则要求新组只含文本、图片或视频中的同一类型；不迁入旧混合组改造。F-CAN-015 仍覆盖顺序、唯一性与嵌套拒绝。",
+      "acceptance": [
+        "当前选择全部为同一类型时允许打组；选择含两类及以上时打组不可用，不创建混合组。",
+        "已有组只接收同类型成员；跨类型拖入或加入不改变组成员。",
+        "图片与视频视为不同类型；不做旧混合组迁移或自动拆分。"
+      ],
+      "acceptance_ids": [
+        "AC-CAN-040-001",
+        "AC-CAN-040-002",
+        "AC-CAN-040-003"
+      ]
     }
   ],
   "usecases": [
@@ -1370,6 +1394,34 @@
       "exceptions": [
         "未知节点/版本不静默删除；失败可恢复原工作流与原数据目录。",
         "未通过必须项阻止发布，不以组件构建代替产品验收。"
+      ]
+    },
+    {
+      "id": "UC-CAN-015",
+      "title": "按同类型整理素材组并拒绝跨类型",
+      "features": [
+        "F-CAN-040",
+        "F-CAN-015",
+        "F-CAN-020"
+      ],
+      "actor": "创作者",
+      "preconditions": [
+        "画布上分别有图片、视频和文本素材，各有稳定身份。",
+        "可保存并重载当前工作流。"
+      ],
+      "steps": [
+        "多选若干图片并打组；对视频、文本分别重复。",
+        "同时选择图片与文本，尝试打组；向图片组拖入视频或文本。",
+        "保存、重载并撤销打组。"
+      ],
+      "outcomes": [
+        "同类型多选可打组，成员顺序与身份稳定。",
+        "跨类型选择无法打组；跨类型加入被拒绝且原组不变。",
+        "保存重载后同类型约束保持；撤销恢复打组前状态。"
+      ],
+      "exceptions": [
+        "旧工作流中的混合组本轮不自动迁移或拆分。",
+        "嵌套组仍按 F-CAN-015 拒绝。"
       ]
     }
   ],
@@ -2902,6 +2954,72 @@
       "automation": "自动",
       "execution_policy": "不付费",
       "existing_coverage": []
+    },
+    {
+      "id": "TC-CAN-046",
+      "title": "同类型打组、跨类型拒绝与保存重载",
+      "features": [
+        "F-CAN-040"
+      ],
+      "usecases": [
+        "UC-CAN-015"
+      ],
+      "level": "host",
+      "priority": "P0",
+      "phase": "M2",
+      "fixture": "隔离 ComfyUI 双实例：图片、视频、文本节点各若干。",
+      "setup": [
+        "两个创作画布实例互不共享选择。",
+        "不修改 8352/8311/8340/8000 现用宿主。"
+      ],
+      "steps": [
+        "分别用同类型选择打组；再用跨类型选择尝试打组。",
+        "向图片组拖入视频和文本；保存、重载、模式往返、撤销。",
+        "在第二实例重复并确认第一实例组成员不变。"
+      ],
+      "expected": [
+        "同类型打组成功；跨类型打组与加入均不可用且不创建混合组。",
+        "保存重载和撤销后约束与成员顺序保持。",
+        "两实例选择与组成员互不串扰。"
+      ],
+      "automation": "混合",
+      "execution_policy": "不付费",
+      "existing_coverage": [
+        "canvas:tests/material_groups.test.mjs",
+        "canvas:tests/mixed_group.test.mjs"
+      ]
+    },
+    {
+      "id": "TC-CAN-047",
+      "title": "混合组成组合同改为跨类型反例",
+      "features": [
+        "F-CAN-040",
+        "F-CAN-020"
+      ],
+      "usecases": [
+        "UC-CAN-015"
+      ],
+      "level": "contract",
+      "priority": "P0",
+      "phase": "M2",
+      "fixture": "素材组模型夹具：图片+文本、图片+视频、纯图片。",
+      "setup": [
+        "以当前 material_group_model 合同测试为起点，把混合组通过项改为期望拒绝。"
+      ],
+      "steps": [
+        "对跨类型选择调用打组；对已有图片组加入文本或视频。",
+        "对纯图片选择打组并读取快照类型。"
+      ],
+      "expected": [
+        "跨类型打组与加入失败，不产生 image-instructions 混合快照。",
+        "同类型组快照类型单一，顺序与身份保留。",
+        "本测试通过不代表旧混合工作流已迁移。"
+      ],
+      "automation": "自动",
+      "execution_policy": "不付费",
+      "existing_coverage": [
+        "canvas:tests/mixed_group.test.mjs"
+      ]
     }
   ]
 }

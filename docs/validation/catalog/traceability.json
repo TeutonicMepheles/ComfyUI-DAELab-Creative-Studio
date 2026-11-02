@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "4f3ef2d1fd054c927175fd34f7815888a9783197e1befa181da316aeab48d95f",
+  "specificationHash": "8a335a6b42594d413f64c04cded39578e50f4c2eddb9bcd72ce16bf0bb435a57",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -507,7 +507,8 @@
         "F-CAN-015",
         "F-CAN-016",
         "F-CAN-017",
-        "F-CAN-020"
+        "F-CAN-020",
+        "F-CAN-040"
       ],
       "acceptance": [
         "AC-CAN-015-001",
@@ -521,15 +522,20 @@
         "AC-CAN-017-003",
         "AC-CAN-020-001",
         "AC-CAN-020-002",
-        "AC-CAN-020-003"
+        "AC-CAN-020-003",
+        "AC-CAN-040-001",
+        "AC-CAN-040-002",
+        "AC-CAN-040-003"
       ],
       "usecases": [
+        "UC-BIZ-018",
         "UC-CAN-003",
         "UC-CAN-004",
         "UC-CAN-005",
         "UC-CAN-006",
         "UC-CAN-007",
-        "UC-CAN-010"
+        "UC-CAN-010",
+        "UC-CAN-015"
       ],
       "tests": [
         "TC-CAN-009",
@@ -541,7 +547,9 @@
         "TC-CAN-017",
         "TC-CAN-018",
         "TC-CAN-020",
-        "TC-CAN-022"
+        "TC-CAN-022",
+        "TC-CAN-046",
+        "TC-CAN-047"
       ],
       "evals": [
         "EV-ARCH",
@@ -578,27 +586,40 @@
       "owner": "application",
       "features": [
         "F-BIZ-007",
-        "F-BIZ-041"
+        "F-BIZ-041",
+        "F-BIZ-046",
+        "F-BIZ-047"
       ],
       "acceptance": [
         "AC-BIZ-007-001",
         "AC-BIZ-007-002",
         "AC-BIZ-041-001",
-        "AC-BIZ-041-002"
+        "AC-BIZ-041-002",
+        "AC-BIZ-046-001",
+        "AC-BIZ-046-002",
+        "AC-BIZ-046-003",
+        "AC-BIZ-047-001",
+        "AC-BIZ-047-002",
+        "AC-BIZ-047-003"
       ],
       "usecases": [
         "UC-BIZ-002",
         "UC-BIZ-010",
-        "UC-BIZ-016"
+        "UC-BIZ-016",
+        "UC-BIZ-018"
       ],
       "tests": [
         "TC-BIZ-009",
         "TC-BIZ-028",
-        "TC-BIZ-049"
+        "TC-BIZ-049",
+        "TC-BIZ-053",
+        "TC-BIZ-054"
       ],
       "evals": [
         "EV-ARCH",
-        "EV-JOBS"
+        "EV-E2E",
+        "EV-JOBS",
+        "EV-UI"
       ],
       "status": "not-started"
     },
@@ -794,7 +815,8 @@
         "F-BIZ-004",
         "F-BIZ-005",
         "F-BIZ-006",
-        "F-BIZ-008"
+        "F-BIZ-008",
+        "F-BIZ-045"
       ],
       "acceptance": [
         "AC-BIZ-001-001",
@@ -810,13 +832,17 @@
         "AC-BIZ-006-001",
         "AC-BIZ-006-002",
         "AC-BIZ-008-001",
-        "AC-BIZ-008-002"
+        "AC-BIZ-008-002",
+        "AC-BIZ-045-001",
+        "AC-BIZ-045-002",
+        "AC-BIZ-045-003"
       ],
       "usecases": [
         "UC-BIZ-001",
         "UC-BIZ-002",
         "UC-BIZ-004",
-        "UC-BIZ-016"
+        "UC-BIZ-016",
+        "UC-BIZ-017"
       ],
       "tests": [
         "TC-BIZ-001",
@@ -829,9 +855,12 @@
         "TC-BIZ-008",
         "TC-BIZ-010",
         "TC-BIZ-011",
-        "TC-BIZ-045"
+        "TC-BIZ-045",
+        "TC-BIZ-051",
+        "TC-BIZ-052"
       ],
       "evals": [
+        "EV-ARCH",
         "EV-DATA",
         "EV-JOBS",
         "EV-PERF",
@@ -908,6 +937,7 @@
         "UC-BIZ-012",
         "UC-BIZ-014",
         "UC-BIZ-015",
+        "UC-BIZ-019",
         "UC-SYS-003",
         "UC-SYS-004",
         "UC-SYS-008",
@@ -959,7 +989,8 @@
         "F-BIZ-025",
         "F-BIZ-026",
         "F-BIZ-027",
-        "F-BIZ-028"
+        "F-BIZ-028",
+        "F-SYS-022"
       ],
       "acceptance": [
         "AC-BIZ-025-001",
@@ -969,12 +1000,17 @@
         "AC-BIZ-027-001",
         "AC-BIZ-027-002",
         "AC-BIZ-028-001",
-        "AC-BIZ-028-002"
+        "AC-BIZ-028-002",
+        "AC-SYS-022-001",
+        "AC-SYS-022-002",
+        "AC-SYS-022-003"
       ],
       "usecases": [
         "UC-BIZ-009",
         "UC-BIZ-010",
-        "UC-BIZ-014"
+        "UC-BIZ-014",
+        "UC-SYS-012",
+        "UC-SYS-013"
       ],
       "tests": [
         "TC-BIZ-020",
@@ -987,7 +1023,8 @@
         "TC-BIZ-041",
         "TC-BIZ-046",
         "TC-BIZ-047",
-        "TC-SYS-036"
+        "TC-SYS-036",
+        "TC-SYS-037"
       ],
       "evals": [
         "EV-ARCH",
@@ -997,33 +1034,64 @@
       "status": "not-started"
     },
     {
+      "id": "TASK-M4-DESIGN-UI",
+      "phase": "M4",
+      "owner": "design/ui",
+      "features": [
+        "F-SYS-023"
+      ],
+      "acceptance": [
+        "AC-SYS-023-001",
+        "AC-SYS-023-002",
+        "AC-SYS-023-003"
+      ],
+      "usecases": [
+        "UC-SYS-013"
+      ],
+      "tests": [
+        "TC-SYS-038"
+      ],
+      "evals": [
+        "EV-UI"
+      ],
+      "status": "not-started"
+    },
+    {
       "id": "TASK-M4-FEATURES-GENERATION",
       "phase": "M4",
       "owner": "features/generation",
       "features": [
         "F-BIZ-023",
-        "F-BIZ-024"
+        "F-BIZ-024",
+        "F-BIZ-048"
       ],
       "acceptance": [
         "AC-BIZ-023-001",
         "AC-BIZ-023-002",
         "AC-BIZ-024-001",
-        "AC-BIZ-024-002"
+        "AC-BIZ-024-002",
+        "AC-BIZ-048-001",
+        "AC-BIZ-048-002",
+        "AC-BIZ-048-003"
       ],
       "usecases": [
         "UC-BIZ-009",
         "UC-BIZ-010",
-        "UC-BIZ-012"
+        "UC-BIZ-012",
+        "UC-BIZ-019"
       ],
       "tests": [
         "TC-BIZ-017",
         "TC-BIZ-027",
         "TC-BIZ-028",
-        "TC-BIZ-049"
+        "TC-BIZ-049",
+        "TC-BIZ-055",
+        "TC-BIZ-056"
       ],
       "evals": [
         "EV-ARCH",
-        "EV-JOBS"
+        "EV-JOBS",
+        "EV-UI"
       ],
       "status": "not-started"
     },
@@ -1033,11 +1101,15 @@
       "owner": "features/tasks",
       "features": [
         "F-BIZ-034",
+        "F-BIZ-049",
         "F-CAN-026"
       ],
       "acceptance": [
         "AC-BIZ-034-001",
         "AC-BIZ-034-002",
+        "AC-BIZ-049-001",
+        "AC-BIZ-049-002",
+        "AC-BIZ-049-003",
         "AC-CAN-026-001",
         "AC-CAN-026-002",
         "AC-CAN-026-003"
@@ -1046,12 +1118,14 @@
         "UC-BIZ-013",
         "UC-BIZ-014",
         "UC-BIZ-016",
+        "UC-BIZ-020",
         "UC-CAN-009",
         "UC-CAN-012"
       ],
       "tests": [
         "TC-BIZ-039",
         "TC-BIZ-045",
+        "TC-BIZ-057",
         "TC-CAN-015",
         "TC-CAN-029",
         "TC-CAN-037"
@@ -2314,7 +2388,8 @@
       "requirementHash": "c595abb440e2abe62d662d6b8943f8572cf912f001cdfa8d5aa9268e4f14e685",
       "usecases": [
         "UC-CAN-003",
-        "UC-CAN-006"
+        "UC-CAN-006",
+        "UC-CAN-015"
       ],
       "tests": [
         "TC-CAN-010",
@@ -2338,7 +2413,8 @@
       "requirementHash": "63e4fa83d333fb56058f1a195f61ff604ebf605b75db754274a89973bc4d7d84",
       "usecases": [
         "UC-CAN-003",
-        "UC-CAN-006"
+        "UC-CAN-006",
+        "UC-CAN-015"
       ],
       "tests": [
         "TC-CAN-010",
@@ -2362,7 +2438,8 @@
       "requirementHash": "f09dd840d2c4d03d3051c1ff4139b396d1b3bb054eef2ec8a3cfa14162d1586f",
       "usecases": [
         "UC-CAN-003",
-        "UC-CAN-006"
+        "UC-CAN-006",
+        "UC-CAN-015"
       ],
       "tests": [
         "TC-CAN-010",
@@ -2630,7 +2707,8 @@
         "UC-CAN-005",
         "UC-CAN-006",
         "UC-CAN-007",
-        "UC-CAN-010"
+        "UC-CAN-010",
+        "UC-CAN-015"
       ],
       "tests": [
         "TC-CAN-009",
@@ -2638,7 +2716,8 @@
         "TC-CAN-015",
         "TC-CAN-016",
         "TC-CAN-020",
-        "TC-CAN-022"
+        "TC-CAN-022",
+        "TC-CAN-047"
       ],
       "evals": [
         "EV-ARCH",
@@ -2661,7 +2740,8 @@
         "UC-CAN-005",
         "UC-CAN-006",
         "UC-CAN-007",
-        "UC-CAN-010"
+        "UC-CAN-010",
+        "UC-CAN-015"
       ],
       "tests": [
         "TC-CAN-009",
@@ -2669,7 +2749,8 @@
         "TC-CAN-015",
         "TC-CAN-016",
         "TC-CAN-020",
-        "TC-CAN-022"
+        "TC-CAN-022",
+        "TC-CAN-047"
       ],
       "evals": [
         "EV-ARCH",
@@ -2692,7 +2773,8 @@
         "UC-CAN-005",
         "UC-CAN-006",
         "UC-CAN-007",
-        "UC-CAN-010"
+        "UC-CAN-010",
+        "UC-CAN-015"
       ],
       "tests": [
         "TC-CAN-009",
@@ -2700,7 +2782,8 @@
         "TC-CAN-015",
         "TC-CAN-016",
         "TC-CAN-020",
-        "TC-CAN-022"
+        "TC-CAN-022",
+        "TC-CAN-047"
       ],
       "evals": [
         "EV-ARCH",
@@ -3977,6 +4060,72 @@
         "TC-CAN-043"
       ],
       "evals": [
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-CAN-040-001",
+      "feature": "F-CAN-040",
+      "task": "TASK-M2-FEATURES-GROUPS",
+      "owner": "features/groups",
+      "requirement": "当前选择全部为同一类型时允许打组；选择含两类及以上时打组不可用，不创建混合组。",
+      "requirementHash": "87c16081a95bdaa275d1d1f73f9b0c3db0a097a1673b03eb0cea13010eada600",
+      "usecases": [
+        "UC-CAN-015",
+        "UC-BIZ-018"
+      ],
+      "tests": [
+        "TC-CAN-046",
+        "TC-CAN-047"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-CAN-040-002",
+      "feature": "F-CAN-040",
+      "task": "TASK-M2-FEATURES-GROUPS",
+      "owner": "features/groups",
+      "requirement": "已有组只接收同类型成员；跨类型拖入或加入不改变组成员。",
+      "requirementHash": "a8d9421118915f8514d7bd96b34a9aa51f5b019caa1e388e90829841ae87d33a",
+      "usecases": [
+        "UC-CAN-015",
+        "UC-BIZ-018"
+      ],
+      "tests": [
+        "TC-CAN-046",
+        "TC-CAN-047"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-CAN-040-003",
+      "feature": "F-CAN-040",
+      "task": "TASK-M2-FEATURES-GROUPS",
+      "owner": "features/groups",
+      "requirement": "图片与视频视为不同类型；不做旧混合组迁移或自动拆分。",
+      "requirementHash": "6ed18ea5c4161f0d0bbdbc937afd3df56b4a543a94be72cb0ba040efa504940e",
+      "usecases": [
+        "UC-CAN-015",
+        "UC-BIZ-018"
+      ],
+      "tests": [
+        "TC-CAN-046",
+        "TC-CAN-047"
+      ],
+      "evals": [
+        "EV-ARCH",
         "EV-UI"
       ],
       "status": "not-executed",
@@ -5287,7 +5436,8 @@
         "UC-BIZ-007",
         "UC-BIZ-011",
         "UC-BIZ-012",
-        "UC-BIZ-015"
+        "UC-BIZ-015",
+        "UC-BIZ-019"
       ],
       "tests": [
         "TC-BIZ-021",
@@ -5314,7 +5464,8 @@
         "UC-BIZ-007",
         "UC-BIZ-011",
         "UC-BIZ-012",
-        "UC-BIZ-015"
+        "UC-BIZ-015",
+        "UC-BIZ-019"
       ],
       "tests": [
         "TC-BIZ-021",
@@ -5380,7 +5531,8 @@
       "requirement": "暂停只影响指定请求/批次；其他实例继续运行。",
       "requirementHash": "9df911c9132cb892709719fca5707cda67072f7ffa9bc646aefc31c61762b193",
       "usecases": [
-        "UC-BIZ-012"
+        "UC-BIZ-012",
+        "UC-BIZ-019"
       ],
       "tests": [
         "TC-BIZ-037"
@@ -5399,7 +5551,8 @@
       "requirement": "本地继续创建明确的新原生执行记录；云端恢复关联原执行。",
       "requirementHash": "fd7a0eb09f75155c51eea02e45981efd51f148ce44f926d83978435a07955b07",
       "usecases": [
-        "UC-BIZ-012"
+        "UC-BIZ-012",
+        "UC-BIZ-019"
       ],
       "tests": [
         "TC-BIZ-037"
@@ -5480,7 +5633,8 @@
       "usecases": [
         "UC-BIZ-013",
         "UC-BIZ-014",
-        "UC-BIZ-016"
+        "UC-BIZ-016",
+        "UC-BIZ-020"
       ],
       "tests": [
         "TC-BIZ-039",
@@ -5504,7 +5658,8 @@
       "usecases": [
         "UC-BIZ-013",
         "UC-BIZ-014",
-        "UC-BIZ-016"
+        "UC-BIZ-016",
+        "UC-BIZ-020"
       ],
       "tests": [
         "TC-BIZ-039",
@@ -5924,6 +6079,321 @@
       ],
       "evals": [
         "EV-DATA"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-045-001",
+      "feature": "F-BIZ-045",
+      "task": "TASK-M3-FEATURES-TABLE",
+      "owner": "features/table",
+      "requirement": "左键选择单元格、行头或列头只更新焦点和选择，不自动打开操作菜单。",
+      "requirementHash": "eb10f9022466bcd81c71ac44672a2f9922d86cab6f1d3f3b70be7ddf3ec372eb",
+      "usecases": [
+        "UC-BIZ-017"
+      ],
+      "tests": [
+        "TC-BIZ-051",
+        "TC-BIZ-052"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-045-002",
+      "feature": "F-BIZ-045",
+      "task": "TASK-M3-FEATURES-TABLE",
+      "owner": "features/table",
+      "requirement": "右键、Shift+F10 或键盘菜单键在指针或焦点对象打开纵向菜单；方向键移动、Enter 执行、Escape 关闭并归还焦点。",
+      "requirementHash": "21ee42e97135d59bc7f778090591f1f1cdb7091561ea721a6c474f548da88429",
+      "usecases": [
+        "UC-BIZ-017"
+      ],
+      "tests": [
+        "TC-BIZ-051",
+        "TC-BIZ-052"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-045-003",
+      "feature": "F-BIZ-045",
+      "task": "TASK-M3-FEATURES-TABLE",
+      "owner": "features/table",
+      "requirement": "选项按逻辑分组，图标加文字、固定行高；菜单避开视口边缘且不被节点内容裁切。表内不再使用横向工具栏；素材组等节点横向菜单保持。",
+      "requirementHash": "94f5ecec0986ace21265f5df1efe20bd3c69f9a1857c1ed597d87eddee96d893",
+      "usecases": [
+        "UC-BIZ-017"
+      ],
+      "tests": [
+        "TC-BIZ-051",
+        "TC-BIZ-052"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-046-001",
+      "feature": "F-BIZ-046",
+      "task": "TASK-M3-APPLICATION",
+      "owner": "application",
+      "requirement": "单元格仅通过右键菜单输出；列通过列头菜单和列输出 Slot 输出，两入口范围与结果相同。",
+      "requirementHash": "c45478def7c1732df7f5344636df82bc70c9e1c0e625e9b86f43e5cb54c5d68b",
+      "usecases": [
+        "UC-BIZ-018"
+      ],
+      "tests": [
+        "TC-BIZ-054"
+      ],
+      "evals": [
+        "EV-E2E",
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-046-002",
+      "feature": "F-BIZ-046",
+      "task": "TASK-M3-APPLICATION",
+      "owner": "application",
+      "requirement": "整行、多行或多单元格选择不提供有效输出动作，也不创建组。",
+      "requirementHash": "f56b7c012ec687f0e059add1be48d96fb0b5cb304de0216a057a1efd9838575b",
+      "usecases": [
+        "UC-BIZ-018"
+      ],
+      "tests": [
+        "TC-BIZ-054"
+      ],
+      "evals": [
+        "EV-E2E",
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-046-003",
+      "feature": "F-BIZ-046",
+      "task": "TASK-M3-APPLICATION",
+      "owner": "application",
+      "requirement": "每个结果组与表格来源之间建立可保存、可撤销、重载后仍有效的原生连线；失败时原子回滚新增成员、组和连线。",
+      "requirementHash": "3189deee2f5757102d6bc9ad8c5cfb9c93744874f30f26a1775ccc594f75b20e",
+      "usecases": [
+        "UC-BIZ-018"
+      ],
+      "tests": [
+        "TC-BIZ-054"
+      ],
+      "evals": [
+        "EV-E2E",
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-047-001",
+      "feature": "F-BIZ-047",
+      "task": "TASK-M3-APPLICATION",
+      "owner": "application",
+      "requirement": "空单元格和失效引用跳过，不创建空占位，也不阻断后续有效内容。",
+      "requirementHash": "0a8774abe876aafd51ddf349efe254a2f47e1950cf855f997bc613a1f01cb474",
+      "usecases": [
+        "UC-BIZ-018"
+      ],
+      "tests": [
+        "TC-BIZ-053",
+        "TC-BIZ-054"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-E2E",
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-047-002",
+      "feature": "F-BIZ-047",
+      "task": "TASK-M3-APPLICATION",
+      "owner": "application",
+      "requirement": "同一素材身份在一次输出中只保留首次出现；后续重复不改变首次顺序。",
+      "requirementHash": "9ebbc8d975a96a55c39ebce7d0937eb54103a32423e79cdcf23bc533178e9869",
+      "usecases": [
+        "UC-BIZ-018"
+      ],
+      "tests": [
+        "TC-BIZ-053",
+        "TC-BIZ-054"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-E2E",
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-047-003",
+      "feature": "F-BIZ-047",
+      "task": "TASK-M3-APPLICATION",
+      "owner": "application",
+      "requirement": "按文本、图片、视频自动拆组，不增加类型筛选步骤；过滤后无有效成员则不创建空组。",
+      "requirementHash": "a83304b3a20376073b43113aa471f559e7f6d103050f6443ff423ff3e575a000",
+      "usecases": [
+        "UC-BIZ-018"
+      ],
+      "tests": [
+        "TC-BIZ-053",
+        "TC-BIZ-054"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-E2E",
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-048-001",
+      "feature": "F-BIZ-048",
+      "task": "TASK-M4-FEATURES-GENERATION",
+      "owner": "features/generation",
+      "requirement": "暂停、打断、继续、重启作用于声明范围，不误伤其他节点、表格实例或未选中任务。",
+      "requirementHash": "34b6d27b2a620c326d3f7bab2769ac570cd33918aabc68ef3384797dc7df5572",
+      "usecases": [
+        "UC-BIZ-019"
+      ],
+      "tests": [
+        "TC-BIZ-055",
+        "TC-BIZ-056"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-JOBS",
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-048-002",
+      "feature": "F-BIZ-048",
+      "task": "TASK-M4-FEATURES-GENERATION",
+      "owner": "features/generation",
+      "requirement": "暂停保留继续意图并持久化；打断结束当前执行且不自动派发替代任务；重启创建新请求身份并保留旧回执与结果。",
+      "requirementHash": "cd2a9c0c188c19872e30ddc7ad34d2821c0b9e1b89f448f720d27a9914fa31a2",
+      "usecases": [
+        "UC-BIZ-019"
+      ],
+      "tests": [
+        "TC-BIZ-055",
+        "TC-BIZ-056"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-JOBS",
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-048-003",
+      "feature": "F-BIZ-048",
+      "task": "TASK-M4-FEATURES-GENERATION",
+      "owner": "features/generation",
+      "requirement": "无法取消的远端执行不得显示已停止或已退款；结果未知时禁止自动新提交。",
+      "requirementHash": "364b45482701586d9a8686069eb9f856e8370b47dc2cd8f1d920cd939fbb6d0a",
+      "usecases": [
+        "UC-BIZ-019"
+      ],
+      "tests": [
+        "TC-BIZ-055",
+        "TC-BIZ-056"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-JOBS",
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-049-001",
+      "feature": "F-BIZ-049",
+      "task": "TASK-M4-FEATURES-TASKS",
+      "owner": "features/tasks",
+      "requirement": "生成范围仅一个 requestId 时，可显示提供方或可核对计数换算的百分比，并同时给出数字与百分号。",
+      "requirementHash": "4434bce5ee2d77f4919b3560b195e6e765ce5c2f9358d7202c284fbc5a112885",
+      "usecases": [
+        "UC-BIZ-020"
+      ],
+      "tests": [
+        "TC-BIZ-057"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-JOBS"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-049-002",
+      "feature": "F-BIZ-049",
+      "task": "TASK-M4-FEATURES-TASKS",
+      "owner": "features/tasks",
+      "requirement": "生成范围两个及以上任务时，节点、胶囊和占位不显示百分比或进度圆环，左上角只显示总任务数和已完成数。",
+      "requirementHash": "b4008c7d59569306be1f65c5a0d620dac318b424b0d92032c4beb59b2b641f6a",
+      "usecases": [
+        "UC-BIZ-020"
+      ],
+      "tests": [
+        "TC-BIZ-057"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-JOBS"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-049-003",
+      "feature": "F-BIZ-049",
+      "task": "TASK-M4-FEATURES-TASKS",
+      "owner": "features/tasks",
+      "requirement": "禁止用时间、动画或未经校准权重虚构百分比；排队不显示 0%；100% 不等于写回完成。",
+      "requirementHash": "36d23419552b6a478e87658ef0241c6bb6b4a72c944cc4ff698182086205e21c",
+      "usecases": [
+        "UC-BIZ-020"
+      ],
+      "tests": [
+        "TC-BIZ-057"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-JOBS"
       ],
       "status": "not-executed",
       "evidence": []
@@ -6436,6 +6906,123 @@
         "EV-DATA",
         "EV-E2E",
         "EV-JOBS"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-SYS-022-001",
+      "feature": "F-SYS-022",
+      "task": "TASK-M4-BACKEND-PROVIDERS",
+      "owner": "backend/providers",
+      "requirement": "启动、打开、重连、配置变化、手动重检和提交前复核使目录刷新，不加载 GPU、不发送计费请求。",
+      "requirementHash": "451da1f89ba22a8c3d7fc92d1dac1a4bf32a27a09c04b9ea67f6ba858c77c071",
+      "usecases": [
+        "UC-SYS-012",
+        "UC-SYS-013"
+      ],
+      "tests": [
+        "TC-SYS-037"
+      ],
+      "evals": [
+        "EV-ARCH"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-SYS-022-002",
+      "feature": "F-SYS-022",
+      "task": "TASK-M4-BACKEND-PROVIDERS",
+      "owner": "backend/providers",
+      "requirement": "生成节点、LLM 优化节点和多维表格消费同一只读目录投影。",
+      "requirementHash": "099120433a87dd580f63920d36cd5e7ff132740cc37b056cbdfeeb0e77acc810",
+      "usecases": [
+        "UC-SYS-012",
+        "UC-SYS-013"
+      ],
+      "tests": [
+        "TC-SYS-037"
+      ],
+      "evals": [
+        "EV-ARCH"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-SYS-022-003",
+      "feature": "F-SYS-022",
+      "task": "TASK-M4-BACKEND-PROVIDERS",
+      "owner": "backend/providers",
+      "requirement": "已保存逻辑模型缺失时保持原 ID 并标为不可用，不静默换成其他模型。DeepSeek 仅配置与能力检查，不调用云或付费接口。",
+      "requirementHash": "5d598c4c322418ec5276558ab8df22861e8f918fb09c1511bf07b4d2980b192c",
+      "usecases": [
+        "UC-SYS-012",
+        "UC-SYS-013"
+      ],
+      "tests": [
+        "TC-SYS-037"
+      ],
+      "evals": [
+        "EV-ARCH"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-SYS-023-001",
+      "feature": "F-SYS-023",
+      "task": "TASK-M4-DESIGN-UI",
+      "owner": "design/ui",
+      "requirement": "选项只表达可选、检测中、待验证或不可用；不展示底层检测错误文本。",
+      "requirementHash": "55dec30e4b388f439c4c51d9ed5be64eb297e0a47fe13c5d7d053b7354d3ef76",
+      "usecases": [
+        "UC-SYS-013"
+      ],
+      "tests": [
+        "TC-SYS-038"
+      ],
+      "evals": [
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-SYS-023-002",
+      "feature": "F-SYS-023",
+      "task": "TASK-M4-DESIGN-UI",
+      "owner": "design/ui",
+      "requirement": "不可用项禁用且可访问名称包含不可用状态；检测中显示加载指示。",
+      "requirementHash": "fb990b25fb89c694086d32e2e36ea3682d1ce20eed79344181b9357b2ca2e11d",
+      "usecases": [
+        "UC-SYS-013"
+      ],
+      "tests": [
+        "TC-SYS-038"
+      ],
+      "evals": [
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-SYS-023-003",
+      "feature": "F-SYS-023",
+      "task": "TASK-M4-DESIGN-UI",
+      "owner": "design/ui",
+      "requirement": "原因仅写入结构化日志，不进入菜单、节点正文或 Toast。",
+      "requirementHash": "3a34cd1ce353476a149ff908703ea5746b71b41ba399a915c925e820ca505652",
+      "usecases": [
+        "UC-SYS-013"
+      ],
+      "tests": [
+        "TC-SYS-038"
+      ],
+      "evals": [
+        "EV-UI"
       ],
       "status": "not-executed",
       "evidence": []
@@ -9071,6 +9658,84 @@
       "evidence": []
     },
     {
+      "id": "TC-CAN-046",
+      "phase": "M2",
+      "priority": "P0",
+      "level": "host",
+      "features": [
+        "F-CAN-040"
+      ],
+      "usecases": [
+        "UC-CAN-015"
+      ],
+      "acceptance": [
+        "AC-CAN-040-001",
+        "AC-CAN-040-002",
+        "AC-CAN-040-003"
+      ],
+      "evals": [
+        "EV-UI"
+      ],
+      "specificationHash": "2693e63c18c812fb79db5e2bc6c5f13c9150c1d5dc490ee11e2c1fab99846b63",
+      "assertions": [
+        {
+          "id": "AS-CAN-046-001",
+          "expected": "同类型打组成功；跨类型打组与加入均不可用且不创建混合组。"
+        },
+        {
+          "id": "AS-CAN-046-002",
+          "expected": "保存重载和撤销后约束与成员顺序保持。"
+        },
+        {
+          "id": "AS-CAN-046-003",
+          "expected": "两实例选择与组成员互不串扰。"
+        }
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "TC-CAN-047",
+      "phase": "M2",
+      "priority": "P0",
+      "level": "contract",
+      "features": [
+        "F-CAN-040",
+        "F-CAN-020"
+      ],
+      "usecases": [
+        "UC-CAN-015"
+      ],
+      "acceptance": [
+        "AC-CAN-020-001",
+        "AC-CAN-020-002",
+        "AC-CAN-020-003",
+        "AC-CAN-040-001",
+        "AC-CAN-040-002",
+        "AC-CAN-040-003"
+      ],
+      "evals": [
+        "EV-ARCH"
+      ],
+      "specificationHash": "32d6dda4526cc4f11f2ed48903e4850584e939ee7b4c21b90b73a93e448c99db",
+      "assertions": [
+        {
+          "id": "AS-CAN-047-001",
+          "expected": "跨类型打组与加入失败，不产生 image-instructions 混合快照。"
+        },
+        {
+          "id": "AS-CAN-047-002",
+          "expected": "同类型组快照类型单一，顺序与身份保留。"
+        },
+        {
+          "id": "AS-CAN-047-003",
+          "expected": "本测试通过不代表旧混合工作流已迁移。"
+        }
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
       "id": "TC-BIZ-001",
       "phase": "M3",
       "priority": "P0",
@@ -10898,6 +11563,265 @@
       "evidence": []
     },
     {
+      "id": "TC-BIZ-051",
+      "phase": "M3",
+      "priority": "P0",
+      "level": "host",
+      "features": [
+        "F-BIZ-045"
+      ],
+      "usecases": [
+        "UC-BIZ-017"
+      ],
+      "acceptance": [
+        "AC-BIZ-045-001",
+        "AC-BIZ-045-002",
+        "AC-BIZ-045-003"
+      ],
+      "evals": [
+        "EV-UI"
+      ],
+      "specificationHash": "ed30ede7e8d2cec575781e8be793980413cc17b2187f6dce815b4fea4deab22c",
+      "assertions": [
+        {
+          "id": "AS-BIZ-051-001",
+          "expected": "左键不打开表内菜单；纵向菜单分组、固定行高、图标加文字。"
+        },
+        {
+          "id": "AS-BIZ-051-002",
+          "expected": "Escape 归还焦点；菜单不被裁出视口。"
+        },
+        {
+          "id": "AS-BIZ-051-003",
+          "expected": "两实例焦点与菜单互不干扰；节点横向菜单仍可用。"
+        }
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "TC-BIZ-052",
+      "phase": "M3",
+      "priority": "P0",
+      "level": "contract",
+      "features": [
+        "F-BIZ-045"
+      ],
+      "usecases": [
+        "UC-BIZ-017"
+      ],
+      "acceptance": [
+        "AC-BIZ-045-001",
+        "AC-BIZ-045-002",
+        "AC-BIZ-045-003"
+      ],
+      "evals": [
+        "EV-ARCH"
+      ],
+      "specificationHash": "cd30f546ec2e6346429d187768ca742598f80680c261ba3680d78c72ffe02d82",
+      "assertions": [
+        {
+          "id": "AS-BIZ-052-001",
+          "expected": "选择变化不创建表内横向工具栏。"
+        },
+        {
+          "id": "AS-BIZ-052-002",
+          "expected": "输出与结构命令只从纵向菜单控制器进入。"
+        }
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "TC-BIZ-053",
+      "phase": "M3",
+      "priority": "P0",
+      "level": "contract",
+      "features": [
+        "F-BIZ-047"
+      ],
+      "usecases": [
+        "UC-BIZ-018"
+      ],
+      "acceptance": [
+        "AC-BIZ-047-001",
+        "AC-BIZ-047-002",
+        "AC-BIZ-047-003"
+      ],
+      "evals": [
+        "EV-ARCH"
+      ],
+      "specificationHash": "0838856eeb49bf0c9ffdd22c737c2a2754f68b17de4aea365dca27d7eb7c7a1b",
+      "assertions": [
+        {
+          "id": "AS-BIZ-053-001",
+          "expected": "空值与失效跳过；重复身份保留首次出现。"
+        },
+        {
+          "id": "AS-BIZ-053-002",
+          "expected": "文本、图片、视频分成独立组；全空不创建组。"
+        }
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "TC-BIZ-054",
+      "phase": "M3",
+      "priority": "P0",
+      "level": "host",
+      "features": [
+        "F-BIZ-046",
+        "F-BIZ-047"
+      ],
+      "usecases": [
+        "UC-BIZ-018"
+      ],
+      "acceptance": [
+        "AC-BIZ-046-001",
+        "AC-BIZ-046-002",
+        "AC-BIZ-046-003",
+        "AC-BIZ-047-001",
+        "AC-BIZ-047-002",
+        "AC-BIZ-047-003"
+      ],
+      "evals": [
+        "EV-E2E",
+        "EV-UI"
+      ],
+      "specificationHash": "b4a7de7ac5ef0225f68e7fd07c02ad9a5dd2f7414c08b21f78cd0b69863a5e44",
+      "assertions": [
+        {
+          "id": "AS-BIZ-054-001",
+          "expected": "结果仅为素材组且与来源连线在重载后仍在。"
+        },
+        {
+          "id": "AS-BIZ-054-002",
+          "expected": "整行/多格无输出；失败无部分成员或孤立组。"
+        },
+        {
+          "id": "AS-BIZ-054-003",
+          "expected": "两实例输出互不写入对方文档。"
+        }
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "TC-BIZ-055",
+      "phase": "M4",
+      "priority": "P0",
+      "level": "contract",
+      "features": [
+        "F-BIZ-048"
+      ],
+      "usecases": [
+        "UC-BIZ-019"
+      ],
+      "acceptance": [
+        "AC-BIZ-048-001",
+        "AC-BIZ-048-002",
+        "AC-BIZ-048-003"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-JOBS"
+      ],
+      "specificationHash": "a2f47127ce676160990c53d5f5a010ab99576ad8360e1d36d61bfc2b1a85b9e0",
+      "assertions": [
+        {
+          "id": "AS-BIZ-055-001",
+          "expected": "动作与范围写入账本意图，不误伤其他任务。"
+        },
+        {
+          "id": "AS-BIZ-055-002",
+          "expected": "重复点击不创建重复控制请求。"
+        },
+        {
+          "id": "AS-BIZ-055-003",
+          "expected": "不可取消远端不进入已停止完成态。"
+        }
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "TC-BIZ-056",
+      "phase": "M4",
+      "priority": "P0",
+      "level": "host",
+      "features": [
+        "F-BIZ-048"
+      ],
+      "usecases": [
+        "UC-BIZ-019"
+      ],
+      "acceptance": [
+        "AC-BIZ-048-001",
+        "AC-BIZ-048-002",
+        "AC-BIZ-048-003"
+      ],
+      "evals": [
+        "EV-JOBS",
+        "EV-UI"
+      ],
+      "specificationHash": "fd61bc667b5e9c25cfe178160d3e2c4b942a1cbd541bac6e60f19785d23cc1f3",
+      "assertions": [
+        {
+          "id": "AS-BIZ-056-001",
+          "expected": "B 的运行任务不被 A 的暂停取消。"
+        },
+        {
+          "id": "AS-BIZ-056-002",
+          "expected": "重开后 A 仍为暂停直至显式继续。"
+        },
+        {
+          "id": "AS-BIZ-056-003",
+          "expected": "重启保留旧结果。"
+        }
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "TC-BIZ-057",
+      "phase": "M4",
+      "priority": "P0",
+      "level": "contract",
+      "features": [
+        "F-BIZ-049"
+      ],
+      "usecases": [
+        "UC-BIZ-020"
+      ],
+      "acceptance": [
+        "AC-BIZ-049-001",
+        "AC-BIZ-049-002",
+        "AC-BIZ-049-003"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-JOBS"
+      ],
+      "specificationHash": "4b58e958095578868612491ab489527df08ad5e4dc5532f864afce6176777180",
+      "assertions": [
+        {
+          "id": "AS-BIZ-057-001",
+          "expected": "单任务显示数字与百分号；两任务只显示总数和已完成数，无百分比圆环。"
+        },
+        {
+          "id": "AS-BIZ-057-002",
+          "expected": "无真实进度时为不确定状态，排队不显示 0%。"
+        },
+        {
+          "id": "AS-BIZ-057-003",
+          "expected": "迟到旧尝试进度不覆盖新尝试。"
+        }
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
       "id": "TC-SYS-001",
       "phase": "M1",
       "priority": "P0",
@@ -12360,6 +13284,72 @@
       ],
       "status": "not-executed",
       "evidence": []
+    },
+    {
+      "id": "TC-SYS-037",
+      "phase": "M4",
+      "priority": "P0",
+      "level": "contract",
+      "features": [
+        "F-SYS-022"
+      ],
+      "usecases": [
+        "UC-SYS-012"
+      ],
+      "acceptance": [
+        "AC-SYS-022-001",
+        "AC-SYS-022-002",
+        "AC-SYS-022-003"
+      ],
+      "evals": [
+        "EV-ARCH"
+      ],
+      "specificationHash": "972cdcf20aef1ee0113e0bd680513eadc1c6c26da2ee077202af684cb8a2bf52",
+      "assertions": [
+        {
+          "id": "AS-SYS-037-001",
+          "expected": "三入口看到同一 ID 集合与能力快照。"
+        },
+        {
+          "id": "AS-SYS-037-002",
+          "expected": "已保存缺失 ID 保留且不可用，不替换为其他模型。"
+        }
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "TC-SYS-038",
+      "phase": "M4",
+      "priority": "P1",
+      "level": "host",
+      "features": [
+        "F-SYS-023"
+      ],
+      "usecases": [
+        "UC-SYS-013"
+      ],
+      "acceptance": [
+        "AC-SYS-023-001",
+        "AC-SYS-023-002",
+        "AC-SYS-023-003"
+      ],
+      "evals": [
+        "EV-UI"
+      ],
+      "specificationHash": "e8506689222200f50d2e443576efd1fefbd5314f52b5eae281434c9ba6b3f876",
+      "assertions": [
+        {
+          "id": "AS-SYS-038-001",
+          "expected": "视觉符合置灰、圆环、默认三类，无常驻错误 Tag。"
+        },
+        {
+          "id": "AS-SYS-038-002",
+          "expected": "菜单和 Toast 不含底层检测错误；原因仅在日志。"
+        }
+      ],
+      "status": "not-executed",
+      "evidence": []
     }
   ],
   "evals": [
@@ -12373,6 +13363,7 @@
         "TC-CAN-029",
         "TC-CAN-031",
         "TC-CAN-042",
+        "TC-CAN-047",
         "TC-BIZ-009",
         "TC-BIZ-014",
         "TC-BIZ-015",
@@ -12385,12 +13376,17 @@
         "TC-BIZ-046",
         "TC-BIZ-048",
         "TC-BIZ-049",
+        "TC-BIZ-052",
+        "TC-BIZ-053",
+        "TC-BIZ-055",
+        "TC-BIZ-057",
         "TC-SYS-002",
         "TC-SYS-003",
         "TC-SYS-006",
         "TC-SYS-022",
         "TC-SYS-030",
-        "TC-SYS-034"
+        "TC-SYS-034",
+        "TC-SYS-037"
       ],
       "status": "not-executed"
     },
@@ -12423,18 +13419,23 @@
         "TC-CAN-038",
         "TC-CAN-039",
         "TC-CAN-043",
+        "TC-CAN-046",
         "TC-BIZ-004",
         "TC-BIZ-008",
         "TC-BIZ-010",
         "TC-BIZ-011",
         "TC-BIZ-012",
         "TC-BIZ-018",
+        "TC-BIZ-051",
+        "TC-BIZ-054",
+        "TC-BIZ-056",
         "TC-SYS-001",
         "TC-SYS-004",
         "TC-SYS-005",
         "TC-SYS-031",
         "TC-SYS-032",
-        "TC-SYS-033"
+        "TC-SYS-033",
+        "TC-SYS-038"
       ],
       "status": "not-executed"
     },
@@ -12507,6 +13508,9 @@
         "TC-BIZ-040",
         "TC-BIZ-041",
         "TC-BIZ-049",
+        "TC-BIZ-055",
+        "TC-BIZ-056",
+        "TC-BIZ-057",
         "TC-SYS-007",
         "TC-SYS-012",
         "TC-SYS-013",
@@ -12555,6 +13559,7 @@
         "TC-CAN-039",
         "TC-CAN-044",
         "TC-BIZ-012",
+        "TC-BIZ-054",
         "TC-SYS-001",
         "TC-SYS-015",
         "TC-SYS-030",
