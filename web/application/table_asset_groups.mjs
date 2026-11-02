@@ -12,7 +12,7 @@ export function applyAssetGroups(table) {
     const count=Math.max(table.records.length,...groups.filter(g=>g.mode==='sequence').map(g=>g.items.length),1);
     if(count>500)throw new Error('每张表最多 500 行');
     for(const g of groups){if(!table.fields.some(f=>f.id===g.field_id&&f.type==='assets'&&!f.readonly))throw new Error(`“${g.name}”需要可编辑的素材字段`);if(g.mode==='sequence'&&g.required!==false&&g.items.length!==count)throw new Error(`“${g.name}”有 ${g.items.length} 张图，需要 ${count} 张；公共参考请选择“每行共用”。`);}
-    while(table.records.length<count)addRecord(table);
+    while(table.records.length<count)addRecord(table).selected=true;
     table.records.forEach((r,i)=>{for(const g of groups)r.values[g.field_id]=clone(g.mode==='shared'?g.items:g.items[i]?[g.items[i]]:[]);});
 }
 export function createAssetGroups({getTable,change,upload,notify,beginAsync=()=>null,canAsync=()=>true,releaseAsync=()=>{}}) {
