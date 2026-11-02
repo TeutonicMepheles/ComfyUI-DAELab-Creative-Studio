@@ -78,7 +78,7 @@ export interface TableColumnPresentation {
   promptText(value: Json, table: TableData, row: TableRecord): string;
   bindColumnAssets(table: TableData, recordId: string, fieldId: string): void;
   preserveGenerationHistory(current: TableData, restored: TableData): TableData;
-  promptSourceHeader(context: {table: TableData; field: TableField; header: HTMLElement; title: HTMLElement; root: HTMLElement; change: TableChange; notify(message: string): void}): void;
+  promptSourceHeader(context: {table: TableData; field: TableField; header: HTMLElement; title: HTMLElement; root: HTMLElement; change: TableChange; notify(message: string): void; interactive?: boolean}): void;
   renderContentCell(cell: HTMLElement, row: TableRecord, field: TableField, ports: TableContentPorts): void;
   addGenerationColumn(table: TableData, spec: Partial<TableField>): TableField;
 }
@@ -93,6 +93,8 @@ export interface TableEditorOptions {
   prompt?(message: string, value: string): string | null;
   clipboard?: StructuredClipboardPort;
   displayContent?(): boolean; promptColumnsOnly?: boolean;
+  /** Fixed-schema views omit column structure and prompt binding controls. */
+  columnControls?: boolean;
   documentFactory?(read: () => TableData, write: (table: TableData) => void): ReturnType<typeof createBusinessDocument<TableData>>;
   validateChange?(previous: TableData, next: TableData): void;
   textPanelHost?(): HTMLElement;

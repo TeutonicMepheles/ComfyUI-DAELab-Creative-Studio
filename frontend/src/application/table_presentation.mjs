@@ -32,7 +32,7 @@ export function clampMenuPosition(anchor,size,bounds){
 
 // One instance-owned menu. Selection, table editing and host history stay owned by
 // the existing editor; this module only presents commands for the current object.
-export function installContentPresentation({root,editor,getTable,notify,editPromptTemplate,extractText=null,outputTable=null,enabled=()=>true,onPresentationChange=()=>{}}){
+export function installContentPresentation({root,editor,getTable,notify,editPromptTemplate,extractText=null,outputTable=null,columnOutputs=true,enabled=()=>true,onPresentationChange=()=>{}}){
     const toolbar=el('aside','dae-ui content-context');toolbar.setAttribute('role','menu');toolbar.setAttribute('aria-label','表格操作菜单');toolbar.hidden=true;document.body.append(toolbar);
     let selected=null,signature='',disposed=false,menuOpen=false,menuTrigger=null,menuPoint=null,columnGrid=null,columnSelection=null,rowGrid=null,rowSelection=null,outputSignature='',cellAnchor=null,columnAnchor=null,rowAnchor=null,optimizationEntry=null;
     const context=()=>editor.panelContext?.();
@@ -175,7 +175,7 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
             columnGrid=grid;columnSelection=column;
             root.querySelectorAll('th[data-column],td[data-field]').forEach(node=>{const activeColumn=String(Boolean(column)&&(node.dataset.column||node.dataset.field)===column);if(node.dataset.columnSelected!==activeColumn)node.dataset.columnSelected=activeColumn;if(node.matches('th')&&node.getAttribute('aria-selected')!==activeColumn)node.setAttribute('aria-selected',activeColumn);});
         }
-        decorateOutputSources();
+        if(columnOutputs)decorateOutputSources();
         const row=selected?.kind==='row'?selected.record:null;
         if(grid!==rowGrid||row!==rowSelection){
             rowGrid=grid;rowSelection=row;
