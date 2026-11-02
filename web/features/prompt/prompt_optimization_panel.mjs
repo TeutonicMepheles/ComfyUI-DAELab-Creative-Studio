@@ -21,13 +21,13 @@ export function optimizationQuoteLabel(quote,now=Date.now()){
 
 // Used by both canvas context menus and native table menus. Estimating never
 // opens a controller or submits an optimization request.
-export function createPromptOptimizationEntry({editor,target}){
+export function createPromptOptimizationEntry({editor,target,menu=false}){
     const element=node('span',null,undefined,'prompt-opt-entry');
     const label=target.scope==='column'?'优化整列文本':'优化此文本';
     const open=button(label,()=>editor.openPromptOptimization({...target,anchor:open}));
     tableIcon(open,'sparkling-line',label);
     node('span',open,target.scope==='column'?'AI 优化 · 列':'AI 优化');
-    open.classList.add('prompt-opt-trigger');element.append(open);
+    open.classList.add(menu?'content-context-item':'prompt-opt-trigger');if(menu)open.setAttribute('role','menuitem');element.append(open);
     return {element,destroy(){element.remove();}};
 }
 

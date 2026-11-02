@@ -1,9 +1,9 @@
-import {tableColumnTargets} from './table_column_targets.js';
+import {tableMaterialTargets,fillTableMaterialTarget} from './table_column_targets.js';
 import {NAMESPACE} from '../../../features/prompt/prompt_optimization_model.mjs';
 import {parseTableOutputKey,tableMaterialSnapshot} from '../../../application/table_material_output.mjs';
 // Optional integration: business nodes work without the canvas extension.
 // This repository alone owns knowledge of its private panel implementations.
-import {createMaterialTable,addMaterialColumns,fillMaterialColumn,fillMaterialRow,fillMaterialCell,columnDropTypes} from '../../../application/table_material_columns.mjs';
+import {createMaterialTable} from '../../../application/table_material_columns.mjs';
 import {app} from '/scripts/app.js';
 import {materialItem} from '../../../features/table/public_helpers.mjs';
 import {videoResultAssets} from '../../../features/generation/libtv_video_model.mjs';
@@ -24,15 +24,7 @@ function register(){
             const root=node.__dataTablePanel?.root;if(!root)return [];
             const grid=root.querySelector('table'),cached=materialTargetCache.get(node);if(cached?.grid===grid&&cached.cellsRevision===grid?.dataset.cellsRevision)return cached.targets;
             const fields=node.__dataTable?.fields||[];
-            const columns=[...root.querySelectorAll('th[data-column]')].filter(e=>columnDropTypes(fields.find(f=>f.id===e.dataset.column)).length),ids=new Set(columns.filter(e=>columnDropTypes(fields.find(f=>f.id===e.dataset.column)).includes('image')).map(e=>e.dataset.column));
-            const cells=[...root.querySelectorAll('td[data-field]')].filter(e=>ids.has(e.dataset.field));
-            const target=(element,key,label,project=true)=>({element,key,label,project,clipElement:element.closest('.dae-table-scroll')});
-            const projectedTargets=tableColumnTargets(root,fields);
-            const addColumn=root.querySelector('th.table-add-column');
-            const targets=[...projectedTargets,
-                ...(addColumn?[{...target(addColumn,JSON.stringify(['new-column']),'松开自动新建列，按顺序从首行填入',false),accepts:['image','video','text']}]:[]),
-                ...[...root.querySelectorAll('.table-choice[data-content-row]')].map(e=>({...target(e,JSON.stringify(['row',e.dataset.contentRow]),'松开按行向右填充',false),previewElements:[e,...cells.filter(c=>c.dataset.record===e.dataset.contentRow)]})),
-                ...cells.map(e=>target(e,JSON.stringify(['cell',e.dataset.record,e.dataset.field]),'松开将全部素材加入此格',false))];
+            const targets=tableMaterialTargets(root,fields),projectedTargets=targets.filter(target=>target.project);
             materialTargetCache.set(node,{grid,targets,projectedTargets,cellsRevision:grid?.dataset.cellsRevision});return targets;
         },
         projectedMaterialTargets(node){
@@ -44,7 +36,7 @@ function register(){
         // Generation output controls belong to the current header; never cache its DOM.
         materialSources:node=>[...(node.__dataTablePanel?.root.querySelector('thead')?.querySelectorAll('[data-generation-source],[data-table-source]')||[])].map(element=>({element,key:element.dataset.generationSource||`column:${encodeURIComponent(element.dataset.tableSource)}`,label:'输出为素材组'})),
         outputMaterials:(node,key)=>{const source=parseTableOutputKey(key);return tableMaterialSnapshot(node.__dataTable,source.fieldId,source.recordId);},
-        acceptMaterials(node,key,collection){if(node.type==='DAELAB.LibTV.VideoGenerate')return node.__libtvPanel.acceptMaterials(key,collection);const editor=node.__dataTablePanel?.editor;if(!editor)throw new Error('表格尚未就绪');editor.change(t=>{if(t.fields.some(f=>f.id===key))fillMaterialColumn(t,key,collection);else{const [kind,record,field]=JSON.parse(key);if(kind==='new-column')addMaterialColumns(t,collection);else if(kind==='row')fillMaterialRow(t,record,collection);else if(kind==='cell')fillMaterialCell(t,record,field,collection);else throw new Error('素材落点已失效');}});},
+        acceptMaterials(node,key,collection){if(node.type==='DAELAB.LibTV.VideoGenerate')return node.__libtvPanel.acceptMaterials(key,collection);const editor=node.__dataTablePanel?.editor;if(!editor)throw new Error('表格尚未就绪');editor.change(t=>fillTableMaterialTarget(t,key,collection));},
         tasks:node=>node.__dataTablePanel?.tasks?.()||node.__libtvPanel?.tasks?.()||[],
         matches:node=>tables.includes(node.type)||node.type==='DAELAB.LibTV.VideoGenerate',
         expanded:node=>tables.includes(node.type),

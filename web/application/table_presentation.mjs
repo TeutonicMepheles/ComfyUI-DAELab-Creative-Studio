@@ -100,7 +100,7 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
             let optimize=null;
             if(isTextColumn(getTable(),field())&&editor.openPromptOptimization){
                 const menuEditor={openPromptOptimization:target=>editor.openPromptOptimization({...target,anchor:columnAnchor||target.anchor})};
-                optimizationEntry=createPromptOptimizationEntry({editor:menuEditor,target:{scope:'column',fieldId:selected.field}});optimize=optimizationEntry.element;
+                optimizationEntry=createPromptOptimizationEntry({editor:menuEditor,target:{scope:'column',fieldId:selected.field},menu:true});optimize=optimizationEntry.element;
             }
             addGroup(groups,
                 outputTable?item('输出为素材组',()=>outputTable({scope:'column',fieldId:selected.field,anchor:columnAnchor}),'box-3-line'):null,
@@ -116,7 +116,7 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
             let optimize=null;
             if(isTextColumn(getTable(),f)&&editor.openPromptOptimization&&!many){
                 const menuEditor={openPromptOptimization:target=>editor.openPromptOptimization({...target,anchor:findCell()||target.anchor})};
-                optimizationEntry=createPromptOptimizationEntry({editor:menuEditor,target:{scope:'cell',fieldId:selected.field,recordId:selected.record}});optimize=optimizationEntry.element;
+                optimizationEntry=createPromptOptimizationEntry({editor:menuEditor,target:{scope:'cell',fieldId:selected.field,recordId:selected.record},menu:true});optimize=optimizationEntry.element;
             }
             addGroup(groups,
                 outputTable&&!many?item('输出为素材组',()=>outputTable({scope:'cell',fieldId:selected.field,recordId:selected.record,anchor:findCell()}),'box-3-line'):null,
@@ -149,10 +149,10 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
         selected=target;signature='';
         if(target.kind==='column')editor.selectColumn(target.field);else if(target.kind!=='cell')editor.clearSelection();
     }
-    function open(target,trigger,point=null){
+    function open(target,trigger,point=null,keyboard=false){
         if(!target||!menuAvailable())return;
         applyTarget(target);menuOpen=true;menuTrigger=trigger;menuPoint=point;signature='';tick();
-        queueMicrotask(()=>menuItems(toolbar)[0]?.focus({preventScroll:true}));
+        if(keyboard)queueMicrotask(()=>menuItems(toolbar)[0]?.focus({preventScroll:true}));
     }
     toolbar.addEventListener('click',e=>{if(e.target.closest?.('button'))closeMenu();});
     function choose(e){
@@ -209,7 +209,7 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
         if(!root.contains(e.target)||!menuAvailable()||e.target.closest('input,textarea,select,[contenteditable=true]'))return;
         const target=targetFor(e.target)||selected;if(!target)return;
         e.preventDefault();e.stopPropagation();const anchor=target.kind==='cell'?findCell():target.kind==='column'?root.querySelector(`th[data-column="${CSS.escape(target.field)}"]`):target.kind==='row'?root.querySelector(`.table-choice[data-content-row="${CSS.escape(target.record)}"]`):null;
-        const rect=anchor?.getBoundingClientRect();open(target,e.target,rect?{x:rect.left,y:rect.bottom+6}:null);
+        const rect=anchor?.getBoundingClientRect();open(target,e.target,rect?{x:rect.left,y:rect.bottom+6}:null,true);
     };
     const menuKey=e=>{
         if(!menuOpen)return;
