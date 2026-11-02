@@ -1,4 +1,3 @@
-import {OPTIMIZATION_MODELS} from './prompt_optimization_model.mjs';
 import {generationInputDigest} from '../generation/generation_session.js';
 import {ensureIdentity} from './prompt_optimization_model.mjs';
 import {assertBusinessService,businessJson} from '../../contracts/business.js';
@@ -50,19 +49,28 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
     const imageSection=make('section','llm-style-section llm-style-image-source'),imageBox=make('div','llm-style-image-upload'),image=make('img','llm-style-image-preview'),imageText=make('span','llm-style-image-text','通过 Slot 连接参考图片');
     imageSection.append(make('span','llm-style-label','参考图片'),imageBox);imageBox.append(image,imageText);sourceSection.after(imageSection);materialHint.parentElement.hidden=true;
     const modelCatalog=getModelCatalog();
-    const logicalModel=model=>model==='qwen'?'qwen3.5:9b-q4_K_M':model==='deepseek'?'deepseek-flash':model;
-    const discovered=modelCatalog.snapshot({family:'optimization'});
-    const models=(discovered.length?discovered:OPTIMIZATION_MODELS).map(model=>({
-        id:model.provider==='qwen'||model.logo==='qwen'?'qwen':model.provider==='deepseek'||model.logo==='deepseek'?'deepseek':model.id,
-        label:model.label,
-        logo:model.provider==='comfy'?'openai':model.provider||model.logo,
-        logicalId:model.id,
-    }));
+    const logicalModel=model=>models.find(option=>option.id===model)?.logicalId||model;
+    let models=[],modelListSignature='';
+    saved().model??='qwen';
+    function rebuildModelOptions(){
+        const discovered=modelCatalog.snapshot({family:'optimization'}),signature=JSON.stringify(discovered.map(model=>[model.id,model.label,model.provider]));
+        if(signature===modelListSignature)return;
+        modelListSignature=signature;
+        models=discovered.map(model=>({
+            id:model.provider==='qwen'?'qwen':model.provider==='deepseek'?'deepseek':model.id,
+            label:model.label,
+            logo:model.provider==='comfy'?'openai':model.provider,
+            logicalId:model.id,
+        }));
+        const previous=saved().model;
+        select.replaceChildren(...models.map(model=>updateModelOption(new Option(model.label+(model.logo==='openai'?' · Comfy':''),model.id),modelCatalog.get(model.logicalId))));
+        if(!models.some(model=>model.id===previous)){const legacy=new Option('未识别模型（历史任务）',previous||'');legacy.disabled=true;select.add(legacy);}
+        select.value=previous||'';
+    }
     const supported=model=>models.some(option=>option.id===model);
-    const modelLabel=model=>models.find(option=>option.id===model)?.label||model;
-    function refreshModelOptions(){for(const option of select.children||select.options||[]){const model=models.find(item=>item.id===option.value);if(model)updateModelOption(option,modelCatalog.get(logicalModel(model.id)));}const model=models.find(item=>item.id===saved().model);select.disabled=!model||!canSubmitModel(modelCatalog.get(logicalModel(model.id)));const status=model&&modelCatalog.get(logicalModel(model.id));if(status?.checking)select.setAttribute('aria-busy','true');else select.removeAttribute('aria-busy');}
-    select.replaceChildren(...models.map(model=>updateModelOption(new Option(model.label+(model.logo==='openai'?' · Comfy':''),model.id),modelCatalog.get(logicalModel(model.id)))));
-    saved().model??='qwen';if(!supported(saved().model)){const legacy=new Option('旧模型配置（未接入）',saved().model);legacy.disabled=true;select.add(legacy);}select.value=saved().model;
+    const modelLabel=model=>models.find(option=>option.id===model)?.label||'未识别模型';
+    function refreshModelOptions(){rebuildModelOptions();for(const option of select.children||select.options||[]){const model=models.find(item=>item.id===option.value);if(model)updateModelOption(option,modelCatalog.get(logicalModel(model.id)));}const model=models.find(item=>item.id===saved().model);select.disabled=!model||!canSubmitModel(modelCatalog.get(logicalModel(model.id)));const status=model&&modelCatalog.get(logicalModel(model.id));if(status?.checking)select.setAttribute('aria-busy','true');else select.removeAttribute('aria-busy');}
+    rebuildModelOptions();
     const generationTask=createLLMTask();
     const taskRail=make('div','llm-io-task-rail');taskRail.setAttribute('role','tablist');taskRail.setAttribute('aria-label','优化任务');root.append(taskRail);
     let selectedId='',railStamp='';

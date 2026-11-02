@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "33c60d619978d75db2f8afdd6c9a67fc79d554c67ae40f8d019536c1098a4a80",
+  "sourceFingerprint": "1ff20e4c673f12326d2fce67919bf07b446a23771bc97bfdd8cfadc81d4f9e3f",
   "files": [
     {
       "path": "AGENTS.md",
@@ -108,7 +108,7 @@
     },
     {
       "path": "canvas/creative_canvas_view.mjs",
-      "sha256": "77ed6fbb62bd9632e5842688c3bac7f89ff7d68fb677c7af1cb0ed1fd79a52d0"
+      "sha256": "c777c58d18166127ed21e144ff318deeddb60928d63263261d79ec32689d540f"
     },
     {
       "path": "canvas/creative_connections.mjs",
@@ -536,15 +536,15 @@
     },
     {
       "path": "features/generation/table_generation_panel.mjs",
-      "sha256": "d2b68662b65296600417657f64bf94000d949e9667e1fef5cf718d19bdbee592"
+      "sha256": "8d157c4860200ef7f1651164a072339a2ad4f6e68dc814fd7ad9d890c7222e49"
     },
     {
       "path": "features/generation/table_generation_tasks.mjs",
-      "sha256": "2f4b7a8849ac2b669382dd3f8a95f78602655ad3700a4db87d600d693e4ca256"
+      "sha256": "a71c0d87577a92125b05af8049a3d0cb6c3343352fc988f92b46b7799c77eba9"
     },
     {
       "path": "features/generation/task_snapshots.mjs",
-      "sha256": "9f697a09483eb0e79431980706c92cf635353755e93b3cef585f9d277864e115"
+      "sha256": "cee9ce7048ae32dccd9144c0ddb93d26dca1ee89a777d6397c141c4029492d8a"
     },
     {
       "path": "features/generation/video_task_linked_prompt.mjs",
@@ -596,11 +596,11 @@
     },
     {
       "path": "features/models/README.md",
-      "sha256": "ac992df7781876d45a958f989d80218c8ad2641d40a6582d9af0022405893d17"
+      "sha256": "c6923f053a054785974a0778f609fcb54db97c544b2c32369b68355a4942b18b"
     },
     {
       "path": "features/models/model_catalog.mjs",
-      "sha256": "2a37320f56b80295914a932bdc3a33e0267f37bf5a2b6df52d5463f2692fb42d"
+      "sha256": "023a15535cd538f472fc7c72b10458558738e3419a80f676729a3b740de35b0e"
     },
     {
       "path": "features/models/model_catalog_ui.mjs",
@@ -620,7 +620,7 @@
     },
     {
       "path": "features/prompt/llm_io_panel.mjs",
-      "sha256": "e3c0795d72d7fbdaececb64533003e175c49d2677dc8246427c368374104712d"
+      "sha256": "098a8ca0e8494beac02b15e1b648967857a60c19279efbc3b9d7aef43e17e5e6"
     },
     {
       "path": "features/prompt/llm_local_provider.mjs",
@@ -656,7 +656,7 @@
     },
     {
       "path": "features/prompt/prompt_optimization_composer.mjs",
-      "sha256": "f90121ff45654c6a7596eb22ea79a8a4305ada26b07851102cca2d6953bf7276"
+      "sha256": "8aa5226ce56eba6a9ab959dc91fd715b386f26fc1a5dfd781afb2f44f0e17605"
     },
     {
       "path": "features/prompt/prompt_optimization_context_copy.mjs",
@@ -664,11 +664,11 @@
     },
     {
       "path": "features/prompt/prompt_optimization_controller.mjs",
-      "sha256": "d9fe38ca291b9bb7414ffdd986bedb9d02c599f82530bf2f651945053e1ef2a9"
+      "sha256": "859f633a8370d42e0c90874dc7cc8fb68960da6580192de3da0c1f704b3f0da3"
     },
     {
       "path": "features/prompt/prompt_optimization_model.mjs",
-      "sha256": "20e8350e03f99c93f7ff0f3426fddaadb9f96ee0e7174c31e6b89fec74c4bbf7"
+      "sha256": "7fe6c445d77a15882eb691e313e607bedfd38fe832b98139ed4c2ff6e49e24c4"
     },
     {
       "path": "features/prompt/prompt_optimization_panel.mjs",
@@ -1024,7 +1024,7 @@
     },
     {
       "path": "integrations/comfyui/business/model_catalog_discovery.mjs",
-      "sha256": "95ab752132b1b0156d53136d9dd44a9cdaf10300569d602ec39143f21ee33428"
+      "sha256": "ee9b9f95a886eae2c147731fc065f545c18a1aabcc5078719c3e16b8cbf3e407"
     },
     {
       "path": "integrations/comfyui/business/native_edit_history_stamp.js",
@@ -1132,7 +1132,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "1f6078125cea7f8b2f47c9f63eea38e77c99757d01a9b593417c5b9eac3e1bd4"
+      "sha256": "ba4d51015d26dc4889d87274f80d70a3dfe37642d55d9228b0493bc669bc57fd"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

@@ -1,7 +1,7 @@
 // Business-owned mapping to the optional Canvas tasks v1 protocol.
 // No Canvas imports, DOM, polling, requests, or task execution.
 import {optimizationStatus} from '../prompt/prompt_optimization_status.mjs';
-const active=new Set(['waiting','running','pausing']);
+const active=new Set(['waiting','running','pausing','interrupting']);
 const stages={local_queued:'本机排队',local_generating:'本机生成',preparing:'准备中',submitting:'提交平台',writing_back:'等待写回',verifying:'核对原任务',downloading:'下载中',generating:'平台生成'};
 export function generationTaskSnapshots(table,live=new Map()){
  const groups=new Map();

@@ -154,7 +154,7 @@ export class OptimizationRevisions{
  serialize(){return Object.fromEntries([...this.entries].map(([k,v])=>[k,{...v}]));}
 }
 
-export async function freezeSnapshot(table,target,revisions,{model='gpt-4.1-mini',requirements='',maxOutputTokens=1024,begin=false,nonce=uuid().replaceAll('-','')}={}){
+export async function freezeSnapshot(table,target,revisions,{model=COMFY_GPT_MODEL,requirements='',maxOutputTokens=1024,begin=false,nonce=uuid().replaceAll('-','')}={}){
  const local=inspectTarget(table,target.recordId,target.fieldId),revision=(begin?revisions.begin(table,target.recordId,target.fieldId):revisions.current(table,target.recordId,target.fieldId));
  if(canonical(local.content).includes(`DAE_REF_${nonce}_`))throw new Error('保护标记与输入冲突');
  let n=0;const protected_tokens=[],reference_context=[],mapping=[];

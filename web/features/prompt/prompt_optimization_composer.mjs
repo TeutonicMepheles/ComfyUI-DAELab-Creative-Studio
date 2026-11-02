@@ -1,6 +1,7 @@
 import {createTableButton as button,tableIcon} from '../../ui/table_controls.mjs';
-import {OPTIMIZATION_MODELS,optimizationProvider,DEFAULT_REQUIREMENTS} from './prompt_optimization_model.mjs';
+import {optimizationProvider,DEFAULT_REQUIREMENTS} from './prompt_optimization_model.mjs';
 import {optimizationSummary} from './prompt_optimization_summary.mjs';
+import {getModelCatalog} from '../models/model_catalog.mjs';
 
 const el=(tag,parent,text,cls)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;parent?.append(e);return e;};
 export function composerStyle(){if(document.getElementById('prompt-opt-composer-style'))return;const link=el('link',document.head);link.id='prompt-opt-composer-style';link.rel='stylesheet';link.href=new URL('./prompt_optimization_composer.css',import.meta.url).href;}
@@ -43,8 +44,16 @@ export function createOptimizationComposer({controller,container,fieldName}){
  const model=button('选择优化模型',()=>{setKeyOpen(false);menu.hidden=!menu.hidden;model.setAttribute('aria-expanded',String(!menu.hidden));if(!menu.hidden)menu.querySelector('[aria-selected="true"]')?.focus();});model.classList.add('opt-model');model.setAttribute('aria-haspopup','listbox');model.setAttribute('aria-expanded','false');
  model.setAttribute('aria-label','选择优化模型');model.title='选择优化模型';model.replaceChildren();el('span',model,undefined,'opt-logo');const modelName=el('span',model);el('span',model,'↓','opt-down');modelArea.append(model);
  const menu=el('div',modelArea,undefined,'opt-model-menu');menu.hidden=true;menu.setAttribute('role','listbox');menu.setAttribute('aria-label','优化模型');el('span',menu,'模型','opt-muted');
- const modelButtons=OPTIMIZATION_MODELS.map(item=>{const b=button(item.label,()=>{if(controller.setModel(item.id)){menu.hidden=true;model.setAttribute('aria-expanded','false');model.focus();scheduleEstimate();}});b.replaceChildren();b.classList.add('opt-model-option');b.setAttribute('role','option');logo(b,item.logo);el('span',b,undefined,'opt-logo');el('span',b,item.label);el('span',b,'✓','opt-model-check');menu.append(b);return {b,item};});
- menu.addEventListener('keydown',e=>{if(['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();const buttons=modelButtons.map(v=>v.b),index=buttons.indexOf(document.activeElement);buttons[(index+(e.key==='ArrowDown'?1:buttons.length-1))%buttons.length].focus();}});
+ const modelCatalog=getModelCatalog();let modelButtons=[],modelMenuSignature='';
+ function optimizationModels(){return modelCatalog.snapshot({family:'optimization'}).map(item=>({...item,logo:item.provider==='comfy'?'openai':item.provider}));}
+ function rebuildModelMenu(){
+  const discovered=optimizationModels(),signature=JSON.stringify(discovered.map(item=>[item.id,item.label,item.provider]));
+  if(signature===modelMenuSignature)return;
+  modelMenuSignature=signature;modelButtons=[];
+  for(const element of [...menu.children])if(element!==menu.firstElementChild)element.remove();
+  for(const item of discovered){const b=button(item.label,()=>{if(controller.setModel(item.id)){menu.hidden=true;model.setAttribute('aria-expanded','false');model.focus();scheduleEstimate();}});b.replaceChildren();b.classList.add('opt-model-option');b.setAttribute('role','option');logo(b,item.logo);el('span',b,undefined,'opt-logo');el('span',b,item.label);el('span',b,'✓','opt-model-check');menu.append(b);modelButtons.push({b,item});}
+ }
+ menu.addEventListener('keydown',e=>{if(['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();const buttons=modelButtons.filter(v=>!v.b.disabled).map(v=>v.b),index=buttons.indexOf(document.activeElement);if(buttons.length)buttons[(index+(e.key==='ArrowDown'?1:buttons.length-1))%buttons.length].focus();}});
  const settings=icon('DeepSeek API 设置','settings-3-line',()=>{menu.hidden=true;model.setAttribute('aria-expanded','false');setKeyOpen(keyArea.hidden);if(!keyArea.hidden)keyInput.focus();});settings.classList.add('opt-settings');settings.setAttribute('aria-haspopup','dialog');settings.setAttribute('aria-expanded','false');modelControls.append(settings);
  const keyArea=el('section',modelControls,undefined,'opt-key-panel');keyArea.hidden=true;keyArea.id='opt-api-'+crypto.randomUUID();keyArea.setAttribute('role','dialog');keyArea.setAttribute('aria-label','DeepSeek API 设置');settings.setAttribute('aria-controls',keyArea.id);
  el('strong',keyArea,'DeepSeek API 设置');const keySummary=el('p',keyArea,'','opt-muted');keySummary.setAttribute('role','status');
@@ -68,13 +77,13 @@ export function createOptimizationComposer({controller,container,fieldName}){
  requirements.addEventListener('compositionend',()=>{composing=false;controller.setRequirements(requirements.value);scheduleEstimate();});
  requirements.addEventListener('input',()=>{if(!composing){controller.setRequirements(requirements.value);scheduleEstimate();}});
  function render(next){
-  if(!alive)return;state=next;const s=optimizationSummary(state),p=state.permissions||{},hasBatch=Boolean(state.batchId),waiting=s.pending>0&&!state.paused&&!state.stopped,locked=p.canChangeProvider===false;
-  const legacy=!OPTIMIZATION_MODELS.some(m=>m.id===state.model),selected=OPTIMIZATION_MODELS.find(m=>m.id===state.model);
+  if(!alive)return;state=next;rebuildModelMenu();const s=optimizationSummary(state),p=state.permissions||{},hasBatch=Boolean(state.batchId),waiting=s.pending>0&&!state.paused&&!state.stopped,locked=p.canChangeProvider===false;
+  const legacy=!modelButtons.some(m=>m.item.id===state.model),selected=modelButtons.find(m=>m.item.id===state.model)?.item;
   title.textContent=state.busy&&state.operationName==='apply'?'正在应用':waiting?'正在改写':hasBatch&&!state.draftActive?(s.failed||s.unknown?'改写结束':state.paused&&s.pending||s.stopped?'改写已暂停':'改写完成'):'改写要求';
   scope.textContent=`${fieldName} · ${s.total} ${state.scope==='cell'?'格':'行'}`;
   if(!composing&&document.activeElement!==requirements)requirements.value=state.requirements||'';
-  requirements.disabled=locked&&!composing;model.disabled=locked;modelName.textContent=selected?.label||`${state.model}（历史任务）`;logo(model,selected?.logo||'deepseek');
-  for(const {b,item} of modelButtons){b.setAttribute('aria-selected',String(state.model===item.id));b.disabled=locked;}
+  requirements.disabled=locked&&!composing;model.disabled=locked;modelName.textContent=selected?.label||'未识别模型';model.title=selected?`选择优化模型：${selected.label}`:'当前模型不在宿主目录中';logo(model,selected?.logo||'deepseek');
+  for(const {b,item} of modelButtons){b.setAttribute('aria-selected',String(state.model===item.id));b.disabled=locked||item.status==='unavailable';b.dataset.modelStatus=item.status;b.setAttribute('aria-label',item.status==='checking'?`正在检测此模型：${item.label}`:item.status==='unavailable'?`不可用：${item.label}`:item.label);}
   const applicationDetail=[[s.applied,'已应用'],[s.reverted,'已撤销']].filter(([n])=>n).map(([n,label])=>`${label} ${n} 行`).join(' · ');
   progressArea.hidden=!hasBatch;progressText.textContent=`${s.completed} / ${s.total} 行已完成`;progressDetail.textContent=waiting?`${s.percent}%`:applicationDetail||'尚未应用';bar.style.width=s.percent+'%';progress.setAttribute('aria-valuenow',String(s.percent));progress.setAttribute('aria-valuetext',`${s.completed} 行完成，${s.failed} 行失败，${s.skipped} 行跳过`);
   summary.textContent=[[s.failed,'失败'],[s.skipped,'跳过'],[s.stale,'过期'],[s.unknown,'结果未知'],[s.stopped,'停止'],[s.unchanged,'未改动']].filter(([n])=>n).map(([n,label])=>`${label} ${n} 行`).join(' · ')||(waiting?'完成后可统一应用结果。':s.valid?`待应用 ${s.valid} 行`:'');summary.hidden=!summary.textContent;

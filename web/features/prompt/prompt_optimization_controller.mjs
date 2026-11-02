@@ -1,5 +1,5 @@
 import {optimizationTaskSnapshots,trackTaskCompletion} from '../generation/task_snapshots.mjs';
-import {canonical,OptimizationRevisions,freezeSnapshot,matchesSnapshot,restoreSuggestion,applySuggestions,appliedSuggestionStatus,inspectTarget,displaySuggestion,NAMESPACE,optimizationProvider,OPTIMIZATION_MODELS} from './prompt_optimization_model.mjs';
+import {canonical,OptimizationRevisions,freezeSnapshot,matchesSnapshot,restoreSuggestion,applySuggestions,appliedSuggestionStatus,inspectTarget,displaySuggestion,NAMESPACE,optimizationProvider} from './prompt_optimization_model.mjs';
 import {getModelCatalog} from '../models/model_catalog.mjs';
 import {canSubmitModel} from '../models/model_catalog_ui.mjs';
 import {createPromptOptimizationApi} from './prompt_optimization_api.mjs';
@@ -17,7 +17,8 @@ export function createOptimizationController({getTable,identity,revisions,persis
  let blockingOperations=0,estimateEpoch=null,capabilityEpoch=0,submissionIntent=null,missingBatch=false;
  const operations=new Map();
  const modelCatalog=getModelCatalog();
- const state={scope,fieldId,recordId,requirements:preferences.requirements||'',model:preferences.model||'qwen3.5:9b-q4_K_M',models:modelCatalog.snapshot({family:'optimization'}),range:{total:0,processable:0,skipped:[]},quote:null,busy:false,error:'',rows:[],batchId:null,permissions:{},deepseekKeyConfigured:false,pageDeepSeekKeyConfigured:false};
+ const initialModels=modelCatalog.snapshot({family:'optimization'});
+ const state={scope,fieldId,recordId,requirements:preferences.requirements||'',model:preferences.model||(initialModels.find(model=>model.provider==='qwen'&&model.selectable)||initialModels.find(model=>model.selectable))?.id||'',models:initialModels,range:{total:0,processable:0,skipped:[]},quote:null,busy:false,error:'',rows:[],batchId:null,permissions:{},deepseekKeyConfigured:false,pageDeepSeekKeyConfigured:false};
  const batchProvider=()=>optimizationProvider(batch?.rows?.[0]?.snapshot?.model||state.model);
  const providerLocked=()=>missingBatch||blockingOperations>0||[...items.values()].some(i=>activeStatuses.has(i.status)||['queued','preparing'].includes(i.status));
  const unknownIds=()=> (state.unknownRequests||[]).map(r=>r.requestId);
@@ -150,7 +151,11 @@ export function createOptimizationController({getTable,identity,revisions,persis
   onPreferences({model:id,requirements:state.requirements});update();void loadCapabilities();return true;
  }
  const controller={getState:()=>state,subscribe(fn){listeners.add(fn);fn(state);return()=>listeners.delete(fn);},setRequirements(text){if(providerLocked())return false;state.draftActive=true;state.requirements=text;onPreferences({model:state.model,requirements:text});state.quote=null;epoch++;update();return true;},setModel,refreshModels:()=>loadCapabilities(true),
- setProvider(provider){return setModel(provider==='qwen'?'qwen3.5:9b-q4_K_M':provider==='deepseek'?'deepseek-flash':'gpt-4.1-mini');},
+ setProvider(provider){
+  const models=modelCatalog.snapshot({family:'optimization'}),selected=models.find(model=>model.provider===provider&&model.selectable)||models.find(model=>model.provider===provider);
+  if(!selected){state.error='该服务提供方没有已声明的模型。';update();return false;}
+  return setModel(selected.id);
+ },
  setDeepSeekKey(value){const configured=Boolean(api.setDeepSeekKey?.(value));state.error='';update();return configured;},
  clearDeepSeekKey(){api.clearDeepSeekKey?.();update();return false;},restoreIntent(value){if(dead||submissionIntent)return;submissionIntent=structuredClone(value);state.batchId=value.batchId;missingBatch=true;update();},estimate,submit,fenceOriginalBatch,stop:()=>operation(async()=>{requiresContinue=true;await controlLease();ingest(await api.stop({batchId:state.batchId,leaseId:lease.leaseId}));},'stop'),interrupt:()=>operation(async()=>{requiresContinue=true;await controlLease();ingest(await api.interrupt({batchId:state.batchId,leaseId:lease.leaseId}));},'interrupt'),recover,continue:()=>operation(async()=>{
   const life=lifecycle;
@@ -192,7 +197,11 @@ export function attachPromptOptimization({node,graph,editor,getTable,identity,fe
  const references=new Map((getTable().meta?.studioOptimizationRequests||[]).map(ref=>[ref.batchId,{...ref,...ref.range}])),persist=()=>{};
  const api=createPromptOptimizationApi({fetchApi});const controllers=new Map(),instanceId=uuid();let dead=false,popover=null,view=null,visibilityTimer=null,hasAttemptedController=false;
  const preferences=()=>getTable().meta?.studioOptimizationPreferences||saved().preferences||{};
- const defaultModel=()=>OPTIMIZATION_MODELS.some(model=>model.id===preferences().model)?preferences().model:'qwen3.5:9b-q4_K_M';
+ const defaultModel=()=>{
+  const models=getModelCatalog().snapshot({family:'optimization'}),preferred=preferences().model;
+  if(models.some(model=>model.id===preferred))return preferred;
+  return (models.find(model=>model.provider==='qwen'&&model.selectable)||models.find(model=>model.selectable)||models[0])?.id||'';
+ };
  const edits={begin:(target,id)=>{if(!editor.nativeDocument)throw new Error('原生编辑会话尚未就绪');return editor.beginAsync(target,id);},can:ticket=>editor.canAsync(ticket),release:ticket=>editor.releaseAsync(ticket),apply(tickets,update,refs){
   if(editor.applyAsync(tickets,table=>{const before=structuredClone(table);update(table);for(const ref of refs){const row=table.records.find(row=>row.id===ref.recordId),old=before.records.find(row=>row.id===ref.recordId);if(row&&JSON.stringify(row.values[ref.fieldId])!==JSON.stringify(old?.values[ref.fieldId])){row.meta||={};row.meta.studioOptimizationResults||={};row.meta.studioOptimizationResults[ref.fieldId]={requestId:ref.requestId,batchId:ref.batchId};}}})===false)throw new Error('输入或工作流已变化，建议未应用');
  }};
