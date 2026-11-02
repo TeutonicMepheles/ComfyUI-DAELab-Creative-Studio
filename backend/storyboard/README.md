@@ -6,6 +6,8 @@ archive.py bounds Office archives; script_document.py inventories DOCX tables; t
 
 Business nodes own native registration; parsing rules are independent of host globals and provider transport.
 
+Exact DOCX header `镜头` maps to the original shot number; `镜头备注`, `运镜` and `景别` remain notes. Original numbering and cell-source mappings are retained.
+
 Focused checks, from the repository root:
 
 ```powershell

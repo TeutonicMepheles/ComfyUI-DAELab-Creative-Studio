@@ -123,6 +123,30 @@ class BusinessTests(unittest.TestCase):
         self.assertEqual(result['tasks'][0]['values']['scene'], '画面 1：几何形状。\n保持原文。')
         self.assertNotEqual(result['tasks'][0]['images'][0]['id'], result['tasks'][1]['images'][0]['id'])
 
+    def test_exact_shot_header_preserves_original_numbers_and_separate_camera_notes(self):
+        for notes_header in ('镜头备注', '运镜', '景别'):
+            with self.subTest(notes_header=notes_header):
+                document = Document()
+                table = document.add_table(rows=3, cols=3)
+                for cell, text in zip(table.rows[0].cells, ('镜头', '画面描述', notes_header)):
+                    cell.text = text
+                for index, number in enumerate(('01', '2'), 1):
+                    table.cell(index, 0).text = number
+                    table.cell(index, 1).text = f'保留画面 {index}'
+                    table.cell(index, 2).text = f'保留运镜 {index}'
+                stream = io.BytesIO()
+                document.save(stream)
+                inventory, _ = parse_docx(stream.getvalue(), 'synthetic-shots.docx')
+                self.assertEqual(inventory['tables'][0]['mapping']['0'], 'shot_no')
+                self.assertEqual(inventory['tables'][0]['mapping']['2'], 'notes')
+                before = copy.deepcopy(inventory)
+                result = normalize_inventory(inventory, choices_for(inventory))
+                self.assertEqual([r['values']['shot_no'] for r in result['tasks']], ['01', '2'])
+                self.assertEqual([r['values']['notes'] for r in result['tasks']], ['保留运镜 1', '保留运镜 2'])
+                self.assertTrue(all(r['sources']['shot_no'] for r in result['tasks']))
+                self.assertTrue(all('缺原始镜号' not in r['issues'] for r in result['tasks']))
+                self.assertEqual(inventory, before)
+
     def test_chapter_identity_uses_source_boundaries_not_equal_titles(self):
         document = Document()
         for _ in range(2):
