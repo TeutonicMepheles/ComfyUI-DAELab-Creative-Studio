@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {parseTableOutputKey,tableMaterialSnapshot,tableOutputKey} from '../../frontend/src/application/table_material_output.mjs';
+import {generationMaterials,parseTableOutputKey,tableMaterialSnapshot,tableOutputKey} from '../../frontend/src/application/table_material_output.mjs';
 
 const asset=(id,kind,extra={})=>({id,assetId:id,kind,url:`/view?filename=${id}.${kind==='video'?'mp4':'png'}&type=output`,...extra});
 function fixture(){
@@ -59,4 +59,14 @@ test('column and cell output keys round-trip IDs that contain URI separators',()
   const key=tableOutputKey(fieldId,recordId);
   assert.deepEqual(parseTableOutputKey(key),{fieldId,recordId});
  }
+});
+test('generation-history grouping stays per task row while table output can consume indexed row sections',()=>{
+ const table=fixture();
+ table.records[0].values.result=[asset('r1','image'),asset('r2','video')];
+ table.records[1].values.result=[asset('r3','image')];
+ const legacy=generationMaterials(table,'result');
+ assert.deepEqual(legacy.groups,[{label:'镜头甲',count:2},{label:'镜头乙',count:1}]);
+ const indexed=generationMaterials(table,'result',null,{includeIndexes:true});
+ assert.deepEqual(indexed.groups[0],{label:'镜头甲',count:2,kind:'mixed',assetIndexes:[0,1],textIndexes:[]});
+ assert.deepEqual(indexed.groups[1],{label:'镜头乙',count:1,kind:'image',assetIndexes:[2],textIndexes:[]});
 });

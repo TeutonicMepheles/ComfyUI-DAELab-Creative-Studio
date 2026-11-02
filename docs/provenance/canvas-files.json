@@ -86,7 +86,7 @@
       "source": "web/creative_canvas_view.mjs",
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
       "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
-      "destinationSha256": "d30f069a64cd70371eaf9c3ae8fa7e46492fcb1cf048b32c43bdf3bb1ed392aa",
+      "destinationSha256": "f41139b96f6a7869fe6bec2b8cbe51e24f5f8a1884adc135e95b1d50529660ea",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "remove opt-in test gallery rendering; retain unrelated graph.extra data",
@@ -105,6 +105,7 @@
         "PERF selection-paint candidate: compare current selected/slotsSuppressed attributes and selection-surface class before writes; preserve every select/raise/focus/layout and per-card group projection call. Real closure tests cover 300-card selection, live group mutations and outside DOM repair; actual latency acceptance remains pending.",
         "Expose only the existing connected, visible direct-child asset dock bounds to focus reveal; retain native focus, owner leases and viewport-only navigation. The 1752 LLM B dock interception failure is retained; candidate browser reacceptance follows.",
         "2026-11-02: materialize table cell/column output as type-separated groups in one native history step and connect each group to the table lineage slot; rollback every created node on failure.",
+        "2026-11-02: keep generation-history task grouping distinct from table-output type grouping while sharing filtering, ordering and identity dedupe."
         "Expose the leased panel active state without a geometry read; preserve viewport geometry and legacy adapter fallback. Two-instance table and mode checks are recorded in TABLE_PILOT_ACCEPTANCE_20261027.md; the 100 ms budget remains open.",
         "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained.",
       "2026-10-30: make group/member port ownership exclusive and prioritize direct hits without style or layout changes.",

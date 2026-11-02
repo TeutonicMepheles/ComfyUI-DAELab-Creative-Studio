@@ -58,6 +58,7 @@ test('material groups use the visible completed history in row order and preserv
  assert.deepEqual(out.assets.map(a=>a.id),['second-ref','saved-image','video-ref']);
  assert.deepEqual(out.assets.map(a=>a.provenance.requestId),['second-video','old','new']);
  assert.deepEqual(out.assets.map(a=>a.provenance.recordId),['second',first.id,first.id]);
+ assert.deepEqual(out.assets.map(a=>state.table.records.find(row=>row.id===a.provenance.recordId)?.name),['第二行','第一行','第一行']);
  assert(out.assets.every(a=>a.provenance.fieldId===fieldId&&a.provenance.materialId===a.id));
  assert.equal(JSON.stringify(state),before);
  assert.deepEqual(videoTaskAssets(JSON.parse(before)),out);

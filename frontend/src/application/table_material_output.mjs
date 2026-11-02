@@ -45,7 +45,7 @@ export function tableMaterialSnapshot(table,fieldId,recordId=null){
     if(!field)throw new Error('输出列已不存在');
     const records=recordId==null?table.records||[]:[table.records?.find(row=>row.id===recordId)].filter(Boolean);
     if(recordId!=null&&!records.length)throw new Error('输出单元格已不存在');
-    const assets=[],texts=[],seen=new Set(),groups=new Map();
+    const assets=[],texts=[],textSources=[],seen=new Set(),groups=new Map();
     let skipped=0,deduplicated=0;
     const generation=isGeneration(field);
     const bucket=kind=>{
@@ -58,7 +58,7 @@ export function tableMaterialSnapshot(table,fieldId,recordId=null){
         for(const text of rowTexts){
             const identity=`text:${text.identity}`;
             if(seen.has(identity)){deduplicated++;continue;}
-            seen.add(identity);bucket('text').textIndexes.push(texts.length);texts.push(text.text);
+            seen.add(identity);bucket('text').textIndexes.push(texts.length);texts.push(text.text);textSources.push({recordId:row.id,fieldId:field.id});
         }
         for(const asset of rowMedia){
             const identity=`${asset.kind}:${mediaIdentity(asset)}`;
@@ -82,6 +82,7 @@ export function tableMaterialSnapshot(table,fieldId,recordId=null){
         ...(recordId==null?{}:{recordId}),
         assets,
         texts,
+        textSources,
         groups:outputGroups,
         skipped,
         deduplicated,
@@ -89,6 +90,24 @@ export function tableMaterialSnapshot(table,fieldId,recordId=null){
     };
 }
 
-export function generationMaterials(table,fieldId,recordId=null){
-    return tableMaterialSnapshot(table,fieldId,recordId);
+export function generationMaterials(table,fieldId,recordId=null,{includeIndexes=false}={}){
+    const plan=tableMaterialSnapshot(table,fieldId,recordId),rows=new Map();
+    for(const [index,asset] of plan.assets.entries()){
+        const recordId=asset.provenance?.recordId;if(recordId==null)continue;
+        if(!rows.has(recordId))rows.set(recordId,{label:table.records.find(row=>row.id===recordId)?.name||`任务${table.records.findIndex(row=>row.id===recordId)+1}`,assetIndexes:[],textIndexes:[]});
+        rows.get(recordId).assetIndexes.push(index);
+    }
+    for(const [index,source] of plan.textSources.entries()){
+        const recordId=source.recordId;if(recordId==null)continue;
+        if(!rows.has(recordId))rows.set(recordId,{label:table.records.find(row=>row.id===recordId)?.name||`任务${table.records.findIndex(row=>row.id===recordId)+1}`,assetIndexes:[],textIndexes:[]});
+        rows.get(recordId).textIndexes.push(index);
+    }
+    const groups=[...rows.values()].flatMap(group=>{
+        const count=group.assetIndexes.length+group.textIndexes.length;if(!count)return [];
+        const kinds=new Set(group.assetIndexes.map(index=>plan.assets[index]?.kind).concat(group.textIndexes.length?['text']:[]));
+        return [{
+            label:group.label,count,...(includeIndexes?{kind:kinds.size===1?[...kinds][0]:'mixed',assetIndexes:group.assetIndexes,textIndexes:group.textIndexes}:{}),
+        }];
+    });
+    return {...plan,groups};
 }

@@ -10,7 +10,7 @@ import {attachPromptOptimization} from '../../../features/prompt/prompt_optimiza
 import {app} from '/scripts/app.js';
 import {createScriptParserPanel} from '../../../features/storyboard/script_parser_panel.mjs';
 import {readScriptTable,assertTransition} from '../../../features/storyboard/script_parser_model.mjs';
-import {generationMaterials} from '../../../application/table_material_output.mjs';
+import {tableMaterialSnapshot} from '../../../application/table_material_output.mjs';
 const TYPE='DAELAB.ScriptParser',widget=node=>node.widgets?.find(w=>w.name==='table_data');
 const notify=(message,severity='info')=>app.extensionManager?.toast?.add?.({severity,summary:'分镜解析器',detail:message,life:8000});
 export function createScriptBatchImport(node){
@@ -73,7 +73,7 @@ function register(){const api=globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v
  panel:node=>node.__scriptPanel?{root:node.__scriptPanel.root,close:()=>node.__scriptPanel.close()}:null,
  selectionSurface:node=>node.__scriptPanel?.surface,
  materialSources:node=>[...(node.__scriptPanel?.root.querySelectorAll('[data-generation-source]')||[])].map(element=>({element,key:element.dataset.generationSource,label:'输出为素材组'})),
- outputMaterials:(node,key)=>generationMaterials(node.__scriptTable,key),summary:node=>`${node.__scriptTable?.records.length||0} 条已确认任务`,
+ outputMaterials:(node,key)=>{const fieldId=String(key).startsWith('column:')?decodeURIComponent(String(key).slice(7)):String(key);return tableMaterialSnapshot(node.__scriptTable,fieldId);},summary:node=>`${node.__scriptTable?.records.length||0} 条已确认任务`,
  prepareCopy(node,data){if(data.properties?.[NAMESPACE])delete data.properties[NAMESPACE];const index=node.widgets?.findIndex(w=>w.name==='table_data');if(index<0||!data.widgets_values?.[index])return;const table=readScriptTable(data.widgets_values[index]);for(const row of table.records)if(row.meta)delete row.meta.generationColumns;delete table.meta.generationProject;delete table.meta.script_parser.batch_id;delete table.meta.script_parser.page_key;data.widgets_values[index]=JSON.stringify(table);},
  });registered=true;
 }
