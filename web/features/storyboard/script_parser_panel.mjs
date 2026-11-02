@@ -1,3 +1,4 @@
+import {uploadMedia} from '../../application/media_upload.js';
 import {businessFetch} from '../../contracts/business.js';
 import {createTableEditor} from '../../application/table_editor.mjs';
 import {createTableButton as button,tableTheme} from '../../ui/table_controls.mjs';
@@ -60,7 +61,7 @@ export function createScriptParserPanel({node,app,getTable,setTable,notify,docum
  }
  async function uploadAsset(file){
   const body=new FormData();body.append('image',file,crypto.randomUUID()+'.'+file.name.split('.').at(-1));body.append('type','input');body.append('subfolder','DAELAB/script-parser');
-  const r=await businessFetch('/upload/image',{method:'POST',body});if(!r.ok)throw new Error('素材上传失败');const a=await r.json();return '/view?'+new URLSearchParams({filename:a.name,subfolder:a.subfolder||'',type:a.type||'input'});
+  const r=await uploadMedia(businessFetch,file,body);if(!r.ok)throw new Error('素材上传失败');const a=await r.json();return '/view?'+new URLSearchParams({filename:a.name,subfolder:a.subfolder||'',type:a.type||'input'});
  }
  const editor=createTableEditor({getPanelContext,clipboard,documentFactory,getTable,setTable:t=>{assertTransition(getTable(),t);generation?.syncPromptChanges(t,getTable());setTable(t);updatePending();promptUI?.observe();},
   validateChange:assertTransition,textPanelHost:()=>root.closest('dialog[open]')||document.body,upload:uploadAsset,notify,nativeHistory:tableHistory(app),

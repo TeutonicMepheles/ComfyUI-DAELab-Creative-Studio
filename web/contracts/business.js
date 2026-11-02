@@ -67,7 +67,7 @@ export async function businessFetch(url, options = {}) {
     for (const [prefix, domain] of routes)
         if (url.startsWith(prefix))
             return businessRequest(domain, url.slice(prefix.length), options);
-    if (url === '/upload/image' || url.startsWith('/view?') || /^data:image\/(png|jpeg|webp);base64,/.test(url))
+    if (url === '/features' || url === '/upload/image' || url.startsWith('/view?') || /^data:image\/(png|jpeg|webp);base64,/.test(url))
         return businessHost().fetchNative(url, options);
     throw new BusinessCapabilityUnavailable('unsupported-route');
 }
