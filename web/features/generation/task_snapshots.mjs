@@ -5,12 +5,12 @@ import {generationErrorText} from './control_labels.js';
 const active=new Set(['waiting','running','pausing','interrupting']);
 const confirmedStop=row=>row.state==='cancelled'&&['interrupted','paused'].includes(row.phase);
 const stages={local_queued:'本机排队',local_generating:'本机生成',preparing:'准备中',submitting:'提交平台',writing_back:'等待写回',verifying:'核对原任务',downloading:'下载中',generating:'平台生成'};
-export function generationTaskSnapshots(table,live=new Map()){
+export function generationTaskSnapshots(table,live=new Map(),localRequests=new Map()){
  const groups=new Map();
  for(const field of table.fields.filter(f=>f.presentation==='generation')){
   for(const row of table.records){const receipt=row.meta?.generationColumns?.[field.id];if(!receipt?.requestId)continue;
    const report=live.get(receipt.requestId),config=report?.input?.config||receipt.input?.config||row.meta?.generationSettings?.[field.generation?.promptFieldId]?.[field.id]||field.generation;
-   const kind=config?.kind==='video'?'video':'image',list=groups.get(kind)||[];list.push({...receipt,...report,phase:receipt.phase==='stale'?'stale':report?.phase||receipt.phase,unverified:!report&&active.has(receipt.phase)});groups.set(kind,list);}
+   const kind=config?.kind==='video'?'video':'image',list=groups.get(kind)||[];list.push({...receipt,...report,phase:receipt.phase==='stale'?'stale':report?.phase||receipt.phase,observed:Boolean(report),unverified:!report&&active.has(receipt.phase)});groups.set(kind,list);}
  }
  return [...groups].map(([kind,rows])=>{
   const latest=Math.max(...rows.map(row=>Number(row.source?.createdAt)||0));
@@ -25,6 +25,8 @@ export function generationTaskSnapshots(table,live=new Map()){
   const reason=state==='recovery'&&failed.find(r=>r.error)?.error;
   const detail=stopping?'中止中':state==='cancelled'?'已中止':reason?generationErrorText(reason):unverifiedStop?'执行状态待核实':grouped?(running.length?`处理中 ${running.length}/${total}`:state==='success'?`已完成 ${completed}/${total}`:'部分任务待处理'):current?(current.unverified?'核对任务状态':stages[current.stage]||(current.phase==='waiting'?'等待提交':'启动中')):state==='recovery'?'任务待处理':'生成完成';
   return {id:'generation:'+kind,label:kind==='image'?'图片生成':'视频生成',order:kind==='image'?20:30,state,done:completed,total,countLabel:'已完成',unit:'行',
+   notificationKey:scoped.map(row=>row.requestId).sort().join('|'),
+   notificationActive:scoped.some(row=>active.has(row.phase)&&(row.observed||localRequests.has(row.requestId))),
    detail:detail+(failed.length?` · 异常 ${failed.length}`:''),
    progress:!grouped&&current?.stage==='generating'&&Number.isFinite(current.progress)?current.progress:undefined};
  });
@@ -47,8 +49,11 @@ export function optimizationTaskSnapshots(states){
 export function trackTaskCompletion(read){
  const previous=new Map();
  return ()=>read().map(task=>{
-  const old=previous.get(task.id);let finishedAt=task.finishedAt;
-  if(['success','cancelled'].includes(task.state))finishedAt??=old?.state===task.state?old.finishedAt:old?Date.now():undefined;
-  const next={...task,finishedAt};previous.set(task.id,next);return next;
+  const prior=previous.get(task.id),old=prior?.task,tracked=Object.hasOwn(task,'notificationKey');
+  const same=!tracked||old?.notificationKey===task.notificationKey;
+  const armed=tracked?task.notificationActive===true||same&&prior?.armed===true:Boolean(old);
+  const terminal=['success','cancelled'].includes(task.state);let finishedAt=task.finishedAt;
+  if(terminal)finishedAt??=same&&old?.state===task.state?old.finishedAt:same&&armed?Date.now():undefined;
+  const next={...task,finishedAt};previous.set(task.id,{task:next,armed:!terminal&&armed});return next;
  });
 }
