@@ -70,6 +70,7 @@ app.registerExtension({name:'DAELab.ScriptParser',beforeRegisterNodeDef(type,dat
 let registered=false;
 function register(){const api=globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')];if(registered||api?.version!==1)return;
  api.registerAdapter('daelab.script-parser',{matches:node=>node.type===TYPE,menu:[{label:'分镜剧本解析器',type:TYPE,icon:'file-text-line'}],presentation:'content',expanded:true,collapsible:false,resizable:true,fullHeight:true,workspace:()=>false,compactWidth:0,width:1060,
+ initialAspectRatio:node=>node.__scriptTable?.records.length||node.__scriptTable?.meta.script_parser.documents.length?null:16/9,
  tasks:node=>node.__scriptPanel?.tasks?.()||[],
  panel:node=>node.__scriptPanel?{root:node.__scriptPanel.root,close:()=>node.__scriptPanel.close()}:null,
  selectionSurface:node=>node.__scriptPanel?.surface,

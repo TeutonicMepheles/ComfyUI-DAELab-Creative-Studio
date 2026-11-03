@@ -335,9 +335,10 @@
       "source": "web/video_tasks.css",
       "destination": "frontend/src/features/generation/video_tasks.css",
       "sourceSha256": "f662c345f3f44010d82961172cb0954db3b8ec2ffb086dfb65cf11c89a0cbf07",
-      "destinationSha256": "25d5251ac1da90d2d2b4bb294187b604894522f9e19faa3c95ec6c1c7273f0e9",
+      "destinationSha256": "72905433f01d54fddd245ea8272369fd618d86f3979de3e3e6280c1b1675917e",
       "kind": "production-source",
       "changes": [
+        "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
@@ -1125,9 +1126,10 @@
       "source": "web/creative_canvas_adapter.js",
       "destination": "frontend/src/integrations/comfyui/business/creative_canvas_adapter.js",
       "sourceSha256": "87d4a3ec66de9d84f4be88202779471a416ba4046a820ef1ce83780d3711f9b1",
-      "destinationSha256": "d4c6b42a16bc7849c97839846033d22c3659e70e35223e62654e0a60723a1bf6",
+      "destinationSha256": "0734cf58543c9bc700b524650e8098ab5124417c9249fee76e7636fdb079461f",
       "kind": "production-source",
       "changes": [
+        "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
         "2026-11-02: Treat parser layout as import defaults; reuse standard editing, material output and pointer/keyboard menu behavior while preserving provenance and edits.",
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Register only formal table/storyboard/video adapters; exclude GPT legacy menu and execution hooks.",
@@ -1223,9 +1225,10 @@
       "source": "web/script_parser.js",
       "destination": "frontend/src/integrations/comfyui/business/script_parser.js",
       "sourceSha256": "7920d6861d96d764a89c4bee1ff714cab3558857e854111146f240bc06b04fb0",
-      "destinationSha256": "0a55c0a22d4fa77d61ca77783fb0bb62bc675f18b210eca423211efe3d46e7d4",
+      "destinationSha256": "fc0352c2266d1a28ab9a2f3d05c2682b0d43c32fab828c6e690021e2e5eb450c",
       "kind": "production-source",
       "changes": [
+        "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
         "2026-11-02: Treat parser layout as import defaults; reuse standard editing, material output and pointer/keyboard menu behavior while preserving provenance and edits.",
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Use public BusinessPorts for document/prompt requests; retain source slots and lifecycle.",

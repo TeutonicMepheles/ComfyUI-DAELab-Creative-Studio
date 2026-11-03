@@ -19,10 +19,15 @@ export function zoomAt(v, point, factor) {
 }
 export const workspaceNode = type => !!adapterFor({type})?.workspace?.({type});
 export const cardWidth = type => { const width=adapterFor({type})?.width; return (typeof width==='function'?width({type}):width)||460; };
+export function initialCardSize(node){
+    const width=cardWidth(node.type),aspect=adapterFor(node)?.initialAspectRatio;
+    const ratio=typeof aspect==='function'?aspect(node):aspect;
+    return {width,...(Number.isFinite(ratio)&&ratio>0?{height:width/ratio}:{})};
+}
 export function cardState(state,node,index=0) {
     const resize=adapterFor(node)?.resizable;
     if(workspaceNode(node.type) && !(typeof resize==='function'?resize(node):resize) && state.cards[node.id]) state.cards[node.id].width=Math.max(cardWidth(node.type),state.cards[node.id].width||0);
-    return state.cards[node.id] ||= {x:index%3*530,y:Math.floor(index/3)*440,width:cardWidth(node.type),expanded:typeof adapterFor(node)?.expanded==='function'?adapterFor(node).expanded(node):!!adapterFor(node)?.expanded};
+    return state.cards[node.id] ||= {x:index%3*530,y:Math.floor(index/3)*440,...initialCardSize(node),expanded:typeof adapterFor(node)?.expanded==='function'?adapterFor(node).expanded(node):!!adapterFor(node)?.expanded};
 }
 export function socketCompatible(output,input) {
     const a=String(output),b=String(input);
