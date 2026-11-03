@@ -181,7 +181,7 @@ canvas:nodes/video_edit.py:28
 canvas:docs/video-edit.md","frontend/src/features/editor/output; frontend/src/contracts/assets; backend/media/results","M5","防止下游误用与当前编辑不匹配的成片，同时保留已有连接。","只有当前编辑成功导出的结果可新建下游连接。
 编辑变化使旧成片引用失效但保留已有连接；等待时不得按空集合删下游编辑。
 VIDEO 与 COMFYTV_VIDEO 指向同一成片，输出素材复用同一本地引用。
-导出成功后自动在画布创建独立视频素材节点并连上剪辑输出，用户不必再点「下载成片」。保留剪辑到该素材的连线；失败/取消不创建素材。不代提交生成。","UC-CAN-004 UC-CAN-012","TC-CAN-038"
+导出成功后自动在画布创建独立视频素材节点并连上剪辑输出，用户不必再点「下载成片」。保留剪辑到该素材的连线；失败/取消不创建素材。同一导出完成通知重复到达或保存重开不得再新增素材。不代提交生成。","UC-CAN-004 UC-CAN-012","TC-CAN-038"
 "F-CAN-035","ComfyTV 旧工作流的可选兼容","保留","已有可选适配器读取公开 widget/执行事件，未导入或修改上游 Python，菜单隐藏旧分镜工作台入口。","canvas:web/adapters/comfytv.mjs
 canvas:docs/adapter-contract.md
 canvas:README.md:100","frontend/src/integrations/comfyui/legacy; compat/workflows","M6","兼容既有工作流，但不把 ComfyTV 或其无关功能复制成产品依赖。","未安装 ComfyTV 时新产品基础功能完整且不出现失效入口。
