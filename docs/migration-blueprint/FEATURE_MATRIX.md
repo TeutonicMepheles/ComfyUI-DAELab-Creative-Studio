@@ -1401,6 +1401,7 @@
 
 - `AC-BIZ-026-001` 未登录、未知型号或非法参数在入队前失败。
 - `AC-BIZ-026-002` 认证仅传入 sensitive 数据；本轮云端通道只用假服务验证协议，真实输出、费用和水印效果保持未验收，不作为迁移退出门槛。
+- `AC-BIZ-026-003` 空任务、空提示词、必填输入未就绪或当前为本地 Qwen/MiniMax 时，不显示当前任务预计积分。仅可入队的付费请求显示估价；清空、换本地模型或换内容后旧估价不得回写。模型价目表不得冒充当前任务费用。
 
 **关联：** [UC-BIZ-009](USE_CASES.md#uc-biz-009)；[TC-BIZ-020](TEST_CASES.md#tc-biz-020)、[TC-BIZ-030](TEST_CASES.md#tc-biz-030)、[TC-BIZ-035](TEST_CASES.md#tc-biz-035)、[TC-BIZ-046](TEST_CASES.md#tc-biz-046)
 
