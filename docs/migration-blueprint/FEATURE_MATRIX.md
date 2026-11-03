@@ -1383,6 +1383,10 @@
 - `AC-BIZ-025-001` 前后端拒绝不支持参数、缺帧、错媒体类型和不存在模型。
 - `AC-BIZ-025-002` 本地/云端切换只按明确规则迁移兼容设置，不保留无效隐藏参数。
 - `AC-BIZ-025-003` 图片尺寸以可视比例/形状选择，像素数为辅助说明，不堆砌裸英文枚举。background 等选项使用中文标签，不改模型参数 ID。
+<<<<<<< HEAD
+=======
+- `AC-BIZ-025-004` 同一表格／同一生成节点的任务列表：任务类型与共用生成参数（kind、model、mode、尺寸/时长/质量/背景等 settings）改一处即同步全部任务。界面须区分「当前任务」专属项与「全部任务」共用项。不写提示词、参考素材、首尾帧与已有结果。运行中／暂停／待恢复行跳过共用写入，保留原快照。缺必填只令该任务预检失败，不得静默改其他行的 mode；不代提交。
+>>>>>>> 6db06bc (docs: AC-BIZ-025-004 skip in-flight rows and per-row content)
 
 **关联：** [UC-BIZ-009](USE_CASES.md#uc-biz-009)、[UC-BIZ-010](USE_CASES.md#uc-biz-010)；[TC-BIZ-027](TEST_CASES.md#tc-biz-027)、[TC-BIZ-029](TEST_CASES.md#tc-biz-029)、[TC-BIZ-031](TEST_CASES.md#tc-biz-031)、[TC-BIZ-032](TEST_CASES.md#tc-biz-032)、[TC-BIZ-046](TEST_CASES.md#tc-biz-046)
 
