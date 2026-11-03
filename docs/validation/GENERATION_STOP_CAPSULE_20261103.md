@@ -36,3 +36,25 @@ Controller builds the final source. Reviewer must rerun the original captured
 receipt and final host UI, including requested/unknown/confirmed states, terminal
 fade, reload, node/output consistency and the resource request. Preserve existing
 tasks and output; no new generation is needed.
+
+## Reopen follow-up
+
+Reviewer subsequently reproduced a host lifecycle gap: an unverified saved
+reference appeared before the first status response, then the old stopped result
+incorrectly received a new notification timestamp. The first implementation's
+terminal-first cold-start test did not cover this sequence.
+
+The generation snapshot now supplies ephemeral request-group notification
+identity and activity eligibility. Only a request prepared in this owner or an
+active request actually observed in this owner arms a new terminal notification.
+Loading an unverified reference cannot arm one. Request groups cannot inherit
+each other's timestamps; an armed live request can retain its notification
+eligibility through an intermediate recovery view. None of these hints are saved
+to the workflow or task ledger. Consumers without these generation hints retain
+their existing behavior.
+
+The exact reference-first/status-later lifecycle now has a task-controller test,
+alongside cancelled/success historical results and stopping a new local request
+before its first active response. Sixteen focused tests and 666 business tests,
+TypeScript and the architecture check passed. Reviewer must repeat the saved
+original request in the final host; the running task and output remain untouched.

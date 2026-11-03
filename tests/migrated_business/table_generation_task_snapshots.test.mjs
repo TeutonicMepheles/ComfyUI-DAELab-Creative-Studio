@@ -41,6 +41,26 @@ test('a pending remainder keeps the sequence stopping, while a success race stay
 });
 
 const clone = globalThis.structuredClone.bind(globalThis);
+test('reload verification of an old receipt does not announce its historical terminal result',t=>{
+ t.mock.method(Date,'now',()=>9000);
+ for(const [state,phase] of [['cancelled','interrupted'],['succeeded','complete']]){
+  const table={fields:[{id:'g',presentation:'generation'}],records:[{id:'r',meta:{generationColumns:{g:{requestId:'old',phase:'running'}}}}]},live=new Map();
+  const read=trackTaskCompletion(()=>generationTaskSnapshots(table,live));
+  assert.equal(read()[0].state,'queued'); // saved active receipt, not yet checked
+  live.set('old',{state,phase});
+  const terminal=read()[0];assert.equal(terminal.finishedAt,undefined);assert.equal(visibleTasks([terminal],9000).length,0);
+ }
+});
+test('a new local request can announce a stop before its first active status response',t=>{
+ t.mock.method(Date,'now',()=>12000);
+ const table={fields:[{id:'g',presentation:'generation'}],records:[{id:'r',meta:{generationColumns:{g:{requestId:'new',phase:'waiting'}}}}]},live=new Map(),localRequests=new Set(['new']);
+ const read=trackTaskCompletion(()=>generationTaskSnapshots(table,live,localRequests));
+ read();live.set('new',{state:'cancelled',phase:'interrupted'});
+ assert.equal(read()[0].finishedAt,12000);
+ table.records[0].meta.generationColumns.g={requestId:'different-old',phase:'running'};read();
+ live.set('different-old',{state:'cancelled',phase:'interrupted'});
+ assert.equal(read()[0].finishedAt,undefined);
+});
 test('grouped task scope hides numeric progress and counts only verified success in the submitted group',()=>{
  const field={id:'image',presentation:'generation',generation:{kind:'image'}},source={createdAt:10,groupCount:2};
  const table={fields:[field],records:[
@@ -83,6 +103,19 @@ function cloneObserver(t) {
  t.mock.method(globalThis,'structuredClone',value=>{values.push(value);return clone(value);});
  return values;
 }
+test('host reload first projects an unverified reference, then reads its old stopped fact without notification',async t=>{
+ t.mock.timers.enable({apis:['setInterval']});t.mock.method(Date,'now',()=>15000);
+ const table=addLegacyGeneration(tableFixture()),identity={documentId:'reopened',tableId:'table',nodeId:'node'},source={...identity,recordId:'row',fieldId:'image',createdAt:1};
+ const ref={requestId:'old-stopped',source,inputDigest:'a'.repeat(64),model:'synthetic'};
+ table.records[0].meta.studioGenerationRefs={image:[ref]};
+ const report={requestId:ref.requestId,source,inputFingerprint:ref.inputDigest,version:9,state:'cancelled',phase:'interrupted',controlIntent:'interrupt'};
+ const calls=[];t.after(bindBusinessService('generation',{request:async action=>{calls.push(action);return {ok:true,json:async()=>({jobs:[report],nextOffset:null})};}}));
+ const reopened=owner(t,table,{identity});
+ assert.equal(reopened.tasks.tasks()[0].state,'recovery');
+ t.mock.timers.tick(3000);await new Promise(setImmediate);
+ const stopped=reopened.tasks.tasks()[0];assert.equal(stopped.state,'cancelled');assert.equal(stopped.finishedAt,undefined);assert.deepEqual(visibleTasks([stopped],15000),[]);
+ assert.equal(reopened.state.edits,0);assert.ok(calls.every(action=>action==='status'));
+});
 function assertRead(owner,clones,expectedClones) {
  owner.state.reads=0;clones.length=0;
  const result=owner.tasks.tasks();

@@ -62,7 +62,7 @@ export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,
  const projectTable=source=>{const table=structuredClone(source);for(const row of table.records){row.meta||={};row.meta.generationColumns=Object.fromEntries(table.fields.filter(isGeneration).map(field=>[field.id,stateFor(row,field.id)]).filter(([,value])=>value));}return table;};
  const projectedTable=()=>projectTable(getTable());
  // No generation columns means no generation capsules; preserve the public full projection.
- const taskSnapshots=()=>{const table=getTable();return table.fields.some(field=>field.presentation==='generation')?generationTaskSnapshots(projectTable(table),live):[];};
+ const taskSnapshots=()=>{const table=getTable();return table.fields.some(field=>field.presentation==='generation')?generationTaskSnapshots(projectTable(table),live,editGroups):[];};
  function ingest(response){
   const accepted=[],touched=new Set();
   for(const report of response.jobs||[])if(session.ingest(report)){
