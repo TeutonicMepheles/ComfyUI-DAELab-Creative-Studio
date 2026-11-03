@@ -125,8 +125,9 @@
       "source": "web/creative_canvas.css",
       "destination": "frontend/src/canvas/creative_canvas.css",
       "sourceSha256": "a858f0328a4f03c28c98a9d6742cbfc615e4ce1a4db8f50f50b2a3e0bca420ee",
-      "destinationSha256": "c6be5a98f365752cc78c573140a1dff5473f5d6bd75b0a0c40a043af831d77d3",
+      "destinationSha256": "6f705b85e681e15390b36412a5dacbe5f2d0ff63ebf49a89df529cc321189609",
       "changes": [
+        "2026-11-03: Use a compact square empty parser with a matching visible workbench surface and the Script Document Parser display name; preserve populated tables and user sizing.",
         "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
         "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
         "relocate into owner layer; rewrite relative module/style/resource paths",

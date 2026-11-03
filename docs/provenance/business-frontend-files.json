@@ -698,9 +698,10 @@
       "source": "web/script_parser_panel.mjs",
       "destination": "frontend/src/features/storyboard/script_parser_panel.mjs",
       "sourceSha256": "4d89cbcdfb3b98d090bafaf0696f5022afc2e43977d0e21bca78e792a701654d",
-      "destinationSha256": "c5e6594acbad33aa6f3093848c6813e925274c76dbd1423b52dd277e34a8cef4",
+      "destinationSha256": "fade6a5a6fb0e3140287ea1bd03119ebc32d2079e0359ec87c5064b0f4c89322",
       "kind": "production-source",
       "changes": [
+        "2026-11-03: Use a compact square empty parser with a matching visible workbench surface and the Script Document Parser display name; preserve populated tables and user sizing.",
         "2026-11-02: Treat parser layout as import defaults; reuse standard editing, material output and pointer/keyboard menu behavior while preserving provenance and edits.",
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Use domain/native-upload HTTP port; preserve old document and normalization DTOs.",
@@ -1226,9 +1227,10 @@
       "source": "web/script_parser.js",
       "destination": "frontend/src/integrations/comfyui/business/script_parser.js",
       "sourceSha256": "7920d6861d96d764a89c4bee1ff714cab3558857e854111146f240bc06b04fb0",
-      "destinationSha256": "fc0352c2266d1a28ab9a2f3d05c2682b0d43c32fab828c6e690021e2e5eb450c",
+      "destinationSha256": "8a8bef723cc879c3a56bf12fabffc1229db29c0976930dfa285b1f2de7a201ad",
       "kind": "production-source",
       "changes": [
+        "2026-11-03: Use a compact square empty parser with a matching visible workbench surface and the Script Document Parser display name; preserve populated tables and user sizing.",
         "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
         "2026-11-02: Treat parser layout as import defaults; reuse standard editing, material output and pointer/keyboard menu behavior while preserving provenance and edits.",
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",

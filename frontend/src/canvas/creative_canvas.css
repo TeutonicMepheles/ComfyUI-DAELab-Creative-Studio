@@ -179,6 +179,9 @@
 .dae-creative-card[data-full-height=true]>.dae-creative-body{max-height:none;overflow:visible}
 .dae-creative-card[data-fixed-size=true]>.dae-creative-body{height:100%;max-height:100%;overflow:auto}
 .dae-creative-card[data-fixed-size=true]>.dae-creative-body>[data-canvas-panel=true]{height:100%;min-height:100%;max-height:none;overflow:auto}
+/* The empty parser's workbench has a native inline height. Its visible surface
+   must fill the saved canvas frame rather than retain that native height. */
+.dae-creative-card[data-fixed-size=true]>.dae-creative-body>.dae-table-host[data-canvas-panel=true]:has(>.script-parser[data-empty=true]){height:100%!important;min-height:100%!important;max-height:100%!important}
 .dae-creative .dae-creative-width-handle{position:absolute;right:-6px;top:52px;bottom:0;width:12px;cursor:ew-resize;touch-action:none;z-index:8;outline:none}
 .dae-creative .dae-creative-width-handle::after{content:'';position:absolute;top:0;bottom:0;left:5px;width:2px;background:var(--dae-accent);opacity:0}
 .dae-creative .dae-creative-width-handle:hover::after,.dae-creative .dae-creative-width-handle:focus-visible::after,.dae-creative .dae-creative-width-handle[data-dragging]::after{opacity:1}

@@ -268,8 +268,9 @@
       "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/script_node.py",
       "destination": "backend/integrations/comfyui/business_nodes/script_node.py",
       "sourceSha256": "23b2d9672bbed2b39df37c67ca3fa1ef5297fe1de7218cd7921295d97309bca1",
-      "destinationSha256": "8c2da0134de8aa29d64a765f13f41a69b1a739922c5f5143e73bd59c9983e3ba",
+      "destinationSha256": "a2250ce2148166b9bdd2fb1696f4a8512a4771cb99826f959fcce7e322885473",
       "changes": [
+        "2026-11-03: Use a compact square empty parser with a matching visible workbench surface and the Script Document Parser display name; preserve populated tables and user sizing.",
         "repoint pure imports; retain stable node identity and native slot ordering"
       ],
       "kind": "migrated-production"
