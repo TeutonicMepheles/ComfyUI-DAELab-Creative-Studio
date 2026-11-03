@@ -5,7 +5,7 @@ import ts from 'typescript';
 import {installDom} from './prompt_optimization_dom.mjs';
 import {generationDurationOptions,generationParameterSpecs,generationParameterModes,generationModes,generationModeChoice,promptSettingsItems,generationParametersSummary,createGenerationParameters,generationSettingSpecs} from '../../frontend/src/features/prompt/table_prompt_settings.mjs';
 import {generationModelIconURL} from '../../frontend/src/features/generation/generation_model_icons.mjs';
-import {LOCAL_VIDEO_MODEL,applyColumnGenerationConfig,promptGenerationOwner,rowGenerationConfig,generationAttempts,applyTaskGenerationConfig} from '../../frontend/src/features/generation/table_generation_model.mjs';
+import {LOCAL_VIDEO_MODEL,applyColumnGenerationConfig,promptGenerationOwner,rowGenerationConfig,generationAttempts,applyTaskGenerationConfig,syncGenerationPromptMode} from '../../frontend/src/features/generation/table_generation_model.mjs';
 import {createVideoTasks} from '../../frontend/src/features/generation/video_tasks_model.mjs';
 import {LOCAL_VIDEO_SIZE_PRESETS,localVideoSizePresets,normalizeLocalGenerationConfig} from '../../frontend/src/features/prompt/table_prompt_settings.mjs';
 import {applyGenerationModelDefaults,needsGenerationPromptSelector} from '../../frontend/src/features/generation/table_generation_panel.mjs';
@@ -35,6 +35,15 @@ test('sharing keeps protected tasks on their original default even when they hav
  applyTaskGenerationConfig(table,field.id,{...field.generation,mode:'mixed2video',settings:{duration:9}},{skip:new Set(['held'])});
  assert.equal(rowGenerationConfig(first,field.id,field.generation).mode,'mixed2video');
  assert.deepEqual(rowGenerationConfig(second,field.id,field.generation),before);
+});
+
+test('explicit shared text mode is not silently changed by an existing material reference',()=>{
+ const state=createVideoTasks({model:'Seedance 2.5'}),table=state.table,field=table.fields.find(f=>f.id===state.fieldId),row=table.records[0];
+ row.values[field.generation.promptFieldId]={kind:'column-template',version:1,segments:[{type:'text',text:'Independent prompt'},{type:'column',fieldId:'pictures',assetId:'own-picture'}]};
+ const before=structuredClone(table);applyTaskGenerationConfig(table,field.id,{...field.generation,mode:'text2video'});
+ syncGenerationPromptMode(table,before,field.id,field.generation);
+ assert.equal(rowGenerationConfig(row,field.id,field.generation).mode,'text2video');
+ assert.deepEqual(row.values,before.records[0].values);
 });
 
 test('H3 ratio presets use exact 32-aligned dimensions and obey live size bounds',()=>{

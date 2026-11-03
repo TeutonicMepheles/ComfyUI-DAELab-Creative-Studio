@@ -1396,7 +1396,7 @@
       "source": "tests/generation_parameters.test.mjs",
       "destination": "tests/migrated_business/generation_parameters.test.mjs",
       "sourceSha256": "a0a571d5104a647e742dbc3526407dcece0455699935dbe553f020d48bf9ae8f",
-      "destinationSha256": "8081fe638fd7fe97fdc6028d384f148faf8cca45360c6423eacbad4488099786",
+      "destinationSha256": "766814f47cdfd0ae5b2f17484fabfa16f8ad92a722ff633c793b3ac7bdee4650",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
