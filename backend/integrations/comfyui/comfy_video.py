@@ -68,6 +68,7 @@ class ComfyVideoQueue(ComfyNativeQueue):
         self.server.prompt_queue.put((number, task_id, graph,
             {'create_time': int(time.time() * 1000), 'creative_studio_request_id': owner},
             valid[2], dict(_submission_auth.get())))
+        return task_id
 
     async def query(self, task_id, *, owner, kind):
         observation = await super().query(task_id, owner=owner, kind=kind)
