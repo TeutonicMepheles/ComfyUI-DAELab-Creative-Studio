@@ -13,6 +13,19 @@ const template=()=>({kind:'column-template',version:1,segments:[{type:'column',f
 const fixture=()=>normalizeTable({fields:[{id:'scene',name:'画面描述',type:'json',presentation:'prompt'},{id:'motion',name:'镜头运动',type:'text'},{id:'final',name:'最终描述',type:'json',presentation:'prompt'}],records:[{id:'r1',name:'任务1',values:{scene:toColumnPrompt('地球在左。'),motion:'向前推进。',final:template()}},{id:'r2',name:'任务2',values:{scene:toColumnPrompt('卫星在右。'),motion:'向右横移。',final:template()}}]});
 const text=input=>input.segments.map(s=>s.text).join('');
 
+test('upstream shared parameters preserve downstream per-task attempts across reload and initialize new rows',()=>{
+ const table=createMaterialTable(),prompt=promptSourceId(table);table.records.forEach(row=>{row.selected=true;row.values[prompt]='Independent prompt';});
+ const config={version:1,kind:'video',model:LOCAL_VIDEO_MODEL,promptFieldId:prompt,mode:'text2video',settings:{duration:4}};applyColumnGenerationConfig(table,prompt,config);
+ const state=importVideoTasks(table),owner=state.table.fields.find(f=>f.id===state.fieldId);
+ for(const [index,row] of state.table.records.entries())setRowGenerationConfig(row,owner.id,{...rowGenerationConfig(row,owner.id,owner.generation),attempts:index+2});
+ const previous=structuredClone(table);applyColumnGenerationConfig(table,prompt,{...config,settings:{duration:9}});
+ const newRow=structuredClone(table.records[0]);newRow.id='new-task';newRow.meta={};setRowGenerationConfig(newRow,prompt,{...config,settings:{duration:9},attempts:4});table.records.push(newRow);
+ syncVideoTaskInputs(state,table,previous);
+ const reloaded=JSON.parse(JSON.stringify(state)),output=reloaded.table.fields.find(f=>f.id===reloaded.fieldId);
+ assert.deepEqual(reloaded.table.records.map(row=>rowGenerationConfig(row,output.id,output.generation).attempts),[2,3,4,4]);
+ assert(reloaded.table.records.every(row=>rowGenerationConfig(row,output.id,output.generation).settings.duration===9));
+});
+
 test('source column changes do not overwrite protected connected task inputs or execution configuration',()=>{
  const table=createMaterialTable(),prompt=promptSourceId(table);table.records.forEach(row=>{row.selected=true;row.values[prompt]='Own input';});
  const config={version:1,kind:'video',model:LOCAL_VIDEO_MODEL,promptFieldId:prompt,mode:'text2video',settings:{duration:4}};

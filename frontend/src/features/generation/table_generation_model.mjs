@@ -34,15 +34,18 @@ export function setRowGenerationConfig(row,fieldId,config){
  row.meta.generationSettings[config.promptFieldId][fieldId]=structuredClone(config);
 }
 // Share execution choices, never another row's prompt or material bindings.
+export function mergeTaskGenerationConfig(own,config){
+ const shared=Object.fromEntries(['kind','model','mode','settings'].filter(key=>key in config).map(key=>[key,structuredClone(config[key])]));
+ return {...own,...shared};
+}
 export function applyTaskGenerationConfig(table,fieldId,config,{skip=new Set()}={}){
  const field=table.fields.find(field=>field.id===fieldId);
  if(!field)throw new Error('生成配置已变化');
- const shared=Object.fromEntries(['kind','model','mode','settings'].filter(key=>key in config).map(key=>[key,structuredClone(config[key])]));
  for(const row of table.records){
   const own=rowGenerationConfig(row,fieldId,field.generation);
-  setRowGenerationConfig(row,fieldId,skip.has(row.id)?own:{...own,...structuredClone(shared)});
+  setRowGenerationConfig(row,fieldId,skip.has(row.id)?own:mergeTaskGenerationConfig(own,config));
  }
- field.generation={...field.generation,...structuredClone(shared)};
+ field.generation=mergeTaskGenerationConfig(field.generation,config);
  field.generationConfigRevision=(field.generationConfigRevision||0)+1;
 }
 export const promptColumns=table=>table.fields.filter(f=>isTextColumn(table,f));

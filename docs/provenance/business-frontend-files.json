@@ -265,13 +265,14 @@
       "source": "web/table_generation_model.mjs",
       "destination": "frontend/src/features/generation/table_generation_model.mjs",
       "sourceSha256": "eee30572bc581bfd1c90925935d73227ee29578d0dbfb8779bd6e763912b532d",
-      "destinationSha256": "f12f3ab28fa1b9e3e27bd2809f6a584c204499cf7dbb370573eaf7f08c371165",
+      "destinationSha256": "44a1292f03bc72d052644da1490ba03a88f80e2ff385f3f122afd02be8e0f547",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
         "2026-11-03 task49: share task execution choices while preserving per-row inputs, results and protected request configurations; scope labels and regression coverage.",
-        "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions."
+        "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions.",
+        "2026-11-03 task49 attempts follow-up: merge only shared execution keys when updating existing linked tasks, preserve per-task attempts before replacing defaults, initialize new rows and add regression."
       ]
     },
     {
@@ -353,12 +354,13 @@
       "source": "web/video_tasks_model.mjs",
       "destination": "frontend/src/features/generation/video_tasks_model.mjs",
       "sourceSha256": "3572671a035745a74966e2cdd6e7e6f421a49938218c7d03ee2f9601f902c684",
-      "destinationSha256": "c10c4d9ac3982cb466cc7d94d428dedef2cc49aed1664a7e0a8bdad2e5565c97",
+      "destinationSha256": "c9bf8a024ac0b3bd86142990dcf9cc80685fb23f7b0eebfda1ccd3ab1bd5dafe",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
-        "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions."
+        "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions.",
+        "2026-11-03 task49 attempts follow-up: merge only shared execution keys when updating existing linked tasks, preserve per-task attempts before replacing defaults, initialize new rows and add regression."
       ]
     },
     {
@@ -1797,13 +1799,14 @@
       "source": "tests/table_prompt_source.test.mjs",
       "destination": "tests/migrated_business/table_prompt_source.test.mjs",
       "sourceSha256": "a4b79750f191d5c0ec0f39fe2d518eb3785e6e9b7e6afc02b273a0c2f33ccafc",
-      "destinationSha256": "46448e63fa71685cc704d88742c167234cab4ed774a3514428e0575adae6d21e",
+      "destinationSha256": "a4d700b3089c525a35536a96fc230821426e2a9e271e0c1bc556ed4fe649c3d2",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
         "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
-        "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions."
+        "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions.",
+        "2026-11-03 task49 attempts follow-up: merge only shared execution keys when updating existing linked tasks, preserve per-task attempts before replacing defaults, initialize new rows and add regression."
       ]
     },
     {
