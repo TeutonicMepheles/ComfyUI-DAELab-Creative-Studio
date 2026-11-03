@@ -280,7 +280,7 @@
       "source": "web/table_generation_panel.mjs",
       "destination": "frontend/src/features/generation/table_generation_panel.mjs",
       "sourceSha256": "547d0543ec0e6359f0146f429ca9a11f9d4cce5682e1c212f01439492b1c9a50",
-      "destinationSha256": "12bff708a3c0de2d6af263dffda39de6d1feceda23aa6b479e9659485475a2f7",
+      "destinationSha256": "1dfbb945edc69d7b166004e3b4bdd2e905460b68ec7e3f1e3f56d4521f02f983",
       "kind": "production-source",
       "changes": [
         "2026-11-02: Explain the local one-image reference mode and explicit width/height scaling.",
@@ -291,7 +291,8 @@
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
         "2026-11-03 task49: share task execution choices while preserving per-row inputs, results and protected request configurations; scope labels and regression coverage.",
         "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions.",
-        "2026-11-03 task2: stop current generation sequence explicitly; preserve owned native interruption facts and unknown remote outcomes without masking recovery with pause intent."
+        "2026-11-03 task2: stop current generation sequence explicitly; preserve owned native interruption facts and unknown remote outcomes without masking recovery with pause intent.",
+        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs."
       ]
     },
     {
@@ -620,7 +621,7 @@
       "source": "web/table_prompt_settings.mjs",
       "destination": "frontend/src/features/prompt/table_prompt_settings.mjs",
       "sourceSha256": "bfe4726e48470729694c7a86878e50662a3ec0fad7837a9323bbb21a022c432a",
-      "destinationSha256": "8298e3505e702d86939be849db7aef1e67a01faeae5d254ed7b4c034236f18cb",
+      "destinationSha256": "670f5cf5df5605dfd767cbeeb4700777f68358cf9a1e6a0d3bbac08779bbdf51",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
@@ -629,7 +630,8 @@
         "Optimization popover resolves a replacement td/th only within its original editor/root and stable field/record; requirement and intent edits retain focus, while deletion, inactive mode and lifecycle release still close. Mock regressions do not replace actual ComfyUI acceptance.",
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
         "2026-11-03 task49: share task execution choices while preserving per-row inputs, results and protected request configurations; scope labels and regression coverage.",
-        "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions."
+        "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions.",
+        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs."
       ]
     },
     {
@@ -2142,6 +2144,26 @@
       "changes": [
         "2026-11-03 task2: Chinese execution-fact labels shared by generation node, table and request-bound output placeholder.",
         "2026-11-03 task4: idempotent unknown observation and explicit bounded recovery availability; preserve interruption facts, original request identity and the three-check budget."
+      ]
+    },
+    {
+      "source": null,
+      "sourceSha256": null,
+      "destination": "frontend/src/features/generation/local_image_sizes.ts",
+      "destinationSha256": "735cd60e092d135035ed940a87faf5696537a6742091985c5ad5f439caf8cbfa",
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "2026-11-04 task11: local Qwen size capability/preset integration and deterministic frozen-reference size checks; no copied upstream code claimed."
+      ]
+    },
+    {
+      "source": null,
+      "sourceSha256": null,
+      "destination": "tests/migrated_business/local_image_sizes.test.mjs",
+      "destinationSha256": "99e5003bc2087f3958918ce609b149d171c9cd7e38d4f40c005598bc3de2ec99",
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "2026-11-04 task11: local Qwen size capability/preset integration and deterministic frozen-reference size checks; no copied upstream code claimed."
       ]
     }
   ],

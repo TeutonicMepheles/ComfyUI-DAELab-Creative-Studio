@@ -1,7 +1,7 @@
 """Explicit dependency composition; importing or constructing never starts a model."""
 from .service import GenerationService
 from .admission import LocalAdmission
-from .media import read_frozen, stage_native_input
+from .media import read_frozen, stage_native_input, frozen_image_dimensions
 from ..providers.native import NativeProvider, ModelInventory
 from ..providers.qwen import QwenProvider, LoopbackOllama
 
@@ -20,6 +20,7 @@ def assemble_generation(core, *, native_queue=None, model_bindings=None, node_ty
             kind = 'video' if binding_kind == 'video_reference' else binding_kind
             inventory = ModelInventory((model_bindings or {}).get(binding_kind, {}), node_types, resolve_model)
             provider = NativeProvider(kind, inventory=inventory, queue=native_queue,
-                                      media_input=lambda item: stage_native_input(core.assets, item), reference=binding_kind == 'video_reference')
+                                      media_input=lambda item: stage_native_input(core.assets, item), reference=binding_kind == 'video_reference',
+                                      image_dimensions=lambda item: frozen_image_dimensions(core.assets, item))
             providers[provider.id] = provider
     return GenerationService(core.jobs, core.assets, providers=providers, admission=admission, resources=core.resources)

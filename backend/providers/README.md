@@ -13,6 +13,15 @@ height therefore also determine reference scaling; select the reference aspect
 ratio to avoid stretching. Text2image retains its original graph and settings.
 The reference mode is offered only when LoadImage and ImageScale are installed.
 
+Qwen's optional `ratio` setting accepts `auto` or the capability's declared fixed
+ratios. Automatic sizing uses the orientation-aware dimensions of the verified
+frozen reference; without a reference it uses the model's 1024-square default.
+The injected dimensions reader does not access arbitrary URLs. New tasks resolve
+their aligned dimensions before freezing the prepared graph. Existing explicit
+width/height settings without `ratio`, and all existing frozen requests, retain
+their original interpretation. The capability's `config.imageSize` provides the
+pixel presets used by the UI; `image_dimensions.py` owns the shared construction.
+
 comfy_text.py shares GPT-6 Luna optimization between standalone and table entrypoints. Native Comfy Responses transport, login and official credit pricing are injected from integrations/comfyui. Paid POST requests never retry automatically; an available original response ID can be queried without creating a replacement. Credentials never enter frozen inputs or the ledger.
 
 deepseek.py implements explicit DeepSeek Flash text optimization through the shared ledger. Its fixed HTTPS transport disables redirects, proxy inheritance and automatic retries. Request-scoped or host-configured credentials are resolved outside snapshots. Lost responses remain unknown; neither recovery nor lookup recreates a completion. Table requests retain protected-reference validation and require an accepted USD estimate before advance.

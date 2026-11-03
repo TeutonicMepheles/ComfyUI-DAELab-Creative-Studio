@@ -1,4 +1,5 @@
-import {LOCAL_VIDEO_MODEL,MAX_GENERATION_ATTEMPTS,generationAttempts,isLocalVideoModel,isComfyGenerationModel,isLocalGenerationModel} from '../generation/table_generation_model.mjs';
+import {LOCAL_IMAGE_MODEL,LOCAL_VIDEO_MODEL,MAX_GENERATION_ATTEMPTS,generationAttempts,isLocalVideoModel,isComfyGenerationModel,isLocalGenerationModel} from '../generation/table_generation_model.mjs';
+import {localImageSizePresets} from '../generation/local_image_sizes.js';
 import {createTableButton} from '../../ui/table_controls.mjs';
 import {stopCanvasPropagation} from '../../ui/list_editor_controls.mjs';
 import {generationModelIconURL,generationModelLabel} from '../generation/generation_model_icons.mjs';
@@ -14,6 +15,7 @@ export const PROMPT_SETTINGS_TEMPLATE=Object.freeze([
 ]);
 export const generationModeLabels={text2video:'文生视频',singleImage2video:'首帧',frames2video:'首尾帧',image2video:'全能参考',mixed2video:'全能参考',text2image:'文生图',image2image:'参考图',audio2video:'音频参考'};
 function sizeLabel(settings,config){
+ if(config.model===LOCAL_IMAGE_MODEL&&settings.ratio==='auto')return '自动比例';
  if(config.kind==='image'&&isComfyGenerationModel(config.model)&&settings.size)return settings.size==='Custom'?`${settings.custom_width||1024}×${settings.custom_height||1024}`:settings.size==='auto'?'自动尺寸':String(settings.size).replace('x','×');
  const width=Number(settings.width),height=Number(settings.height),dimensions=width>0&&height>0;
  let ratio=settings.ratio;
@@ -62,7 +64,7 @@ export const promptSettingsStyle=`
 :is(.dae-ui.generation-form,.dae-ui .generation-form) .generation-parameter-choices button[aria-pressed=true]{background:color-mix(in srgb,var(--dae-surface-high) 76%,var(--dae-text) 24%);box-shadow:none}
 :is(.dae-ui.generation-form,.dae-ui .generation-form) .generation-parameter-choices button[aria-pressed=true]::after{display:none}
 :is(.dae-ui.generation-form,.dae-ui .generation-form) .generation-ratio-choices button{flex-direction:column;gap:6px;flex-basis:42px;font-size:12px!important}
-.dae-ui .generation-ratio-shape{display:block;width:var(--ratio-width);height:var(--ratio-height);border:1.5px solid currentColor;border-radius:2px;opacity:.8}
+.dae-ui .generation-ratio-shape{box-sizing:border-box;display:block;width:var(--ratio-width);height:var(--ratio-height);border:1.5px solid currentColor;border-radius:2px;opacity:.8}
 .dae-ui .generation-image-size-choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr))}
 .dae-ui .generation-image-size-choices button{justify-content:center;text-align:center}
 .dae-ui .generation-image-size-choices small{display:block;font-size:10px;line-height:1.2;white-space:nowrap;opacity:.7}
@@ -187,6 +189,21 @@ export function createLocalVideoSizePicker(config,schema,onChange){
  if(!current&&settings.width&&settings.height){const saved=document.createElement('small');saved.textContent=`当前 ${settings.width}×${settings.height}，选择比例后应用预设`;root.append(saved);}
  return root;
 }
+export function createLocalImageSizePicker(config,schema,onChange){
+ const root=document.createElement('section'),title=document.createElement('div');root.className='generation-parameter-section';root.dataset.parameter='ratio';title.className='generation-parameter-title';title.textContent='比例';root.append(title);
+ const presets=localImageSizePresets(schema),size=schema.config?.imageSize,settings=config.settings||{};
+ if(!presets.length){const warning=document.createElement('p');warning.setAttribute('role','status');warning.textContent='模型尺寸选项尚未就绪，请重新检测模型。';root.append(warning);return root;}
+ const current=settings.ratio||presets.find(p=>p.width===settings.width&&p.height===settings.height)?.ratio;
+ const options=[['auto','自动'],...presets.map(p=>[p.ratio,p.ratio])];
+ const group=parameterChoices(root,'比例',options,current,id=>{
+  if(id==='auto')onChange({ratio:'auto',width:size.defaultWidth,height:size.defaultHeight});
+  else{const preset=presets.find(p=>p.ratio===id);if(preset)onChange({ratio:id,width:preset.width,height:preset.height});}
+ });decorateRatioChoices(group,options);group.classList.add('generation-image-size-choices');
+ [...group.children].forEach((control,index)=>{if(!index)return;const preset=presets[index-1],pixels=document.createElement('small');pixels.textContent=`${preset.width}×${preset.height}`;control.append(pixels);control.title=pixels.textContent+' 像素';control.setAttribute('aria-label',`${preset.ratio}，${pixels.textContent} 像素`);});
+ const hint=document.createElement('small');hint.textContent='自动跟随参考图比例；无参考图时采用模型默认比例。尺寸在提交时按32像素步长对齐。';root.append(hint);
+ if(!settings.ratio&&!presets.some(p=>p.width===settings.width&&p.height===settings.height)&&settings.width&&settings.height){const saved=document.createElement('small');saved.textContent=`保留原尺寸 ${settings.width}×${settings.height}；选择比例后才修改。`;root.append(saved);}
+ return root;
+}
 // One view over the existing schema and setting editor. It never saves or submits by itself.
 export function createGenerationParameters(config,schema,{onMode,onSetting,onSettings,onAttempts=()=>{},showAttempts=true}){
  const root=document.createElement('div');root.className='generation-parameter-sections';
@@ -201,9 +218,10 @@ export function createGenerationParameters(config,schema,{onMode,onSetting,onSet
  if(config.mode&&!modes.includes(selectedMode)){
   const warning=document.createElement('p');warning.setAttribute('role','status');warning.textContent='当前模型不支持已保存的生成方式，请重新选择。';modeSection.append(warning);
  }
- const localVideo=isLocalVideoModel(config.model);
+ const localVideo=isLocalVideoModel(config.model),localImage=config.model===LOCAL_IMAGE_MODEL;
  if(localVideo)root.append(createLocalVideoSizePicker(config,schema,onSettings));
- for(const spec of generationParameterSpecs(schema,config.mode).filter(spec=>!localVideo||!['width','height','ratio','resolution'].includes(spec.name))){
+ if(localImage)root.append(createLocalImageSizePicker(config,schema,onSettings));
+ for(const spec of generationParameterSpecs(schema,config.mode).filter(spec=>!(localVideo||localImage)||!['width','height','ratio','resolution'].includes(spec.name))){
   if(['custom_width','custom_height'].includes(spec.name)&&config.settings?.size!=='Custom')continue;
   const title=({resolution:'清晰度',duration:'生成时长',enableSound:'生成音频',sound:'生成音频',generateAudio:'生成音频'})[spec.name]||spec.displayName||spec.title||spec.name,block=section(title);block.dataset.parameter=spec.name;
   const value=config.settings?.[spec.name]??spec.default,items=spec.enum?.map(item=>typeof item==='object'?[item.value,String(item.displayName||item.label||item.value)]:[item,String(item)]);
@@ -260,6 +278,7 @@ export function normalizeLocalGenerationConfig(config,schema){
   else if(spec.default!==undefined)settings[spec.name]=structuredClone(spec.default);
  }
  if(isLocalVideoModel(config.model)&&previous.width===undefined&&previous.height===undefined){const preset=localVideoSizePresets(schema)[0];if(preset)Object.assign(settings,{width:preset.width,height:preset.height});}
+ if(config.model===LOCAL_IMAGE_MODEL&&schema.config?.imageSize&&previous.width===undefined&&previous.height===undefined&&previous.ratio===undefined)settings.ratio='auto';
  config.settings=settings;return config;
 }
 export function promptSettingSpecs(schema,mode,key,settings={}){
