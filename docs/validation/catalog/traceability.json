@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "34a0c350f0e9e4a2bdc85c49263fde8db1a0ba3dce7300bc81970997a65722c2",
+  "specificationHash": "0b670355422f3f51d6bfee3fe7340d9dccad6d4ad377febbf8a6d0f196a976bf",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -1004,6 +1004,7 @@
         "AC-BIZ-025-001",
         "AC-BIZ-025-002",
         "AC-BIZ-025-003",
+        "AC-BIZ-025-004",
         "AC-BIZ-026-001",
         "AC-BIZ-026-002",
         "AC-BIZ-026-003",
@@ -5343,6 +5344,31 @@
       "owner": "backend/providers",
       "requirement": "图片尺寸以可视比例/形状选择，像素数为辅助说明，不堆砌裸英文枚举。background 等选项使用中文标签，不改模型参数 ID。",
       "requirementHash": "86de3b7c962443923c2040f9fe8c93fc2ffb4aa466156d85bf20a49993689dda",
+      "usecases": [
+        "UC-BIZ-009",
+        "UC-BIZ-010"
+      ],
+      "tests": [
+        "TC-BIZ-027",
+        "TC-BIZ-029",
+        "TC-BIZ-031",
+        "TC-BIZ-032",
+        "TC-BIZ-046"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-JOBS"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-025-004",
+      "feature": "F-BIZ-025",
+      "task": "TASK-M4-BACKEND-PROVIDERS",
+      "owner": "backend/providers",
+      "requirement": "同一表格／同一生成节点的任务列表：任务类型与共用生成参数（kind、model、mode、尺寸/时长/质量/背景等 settings）改一处即同步全部任务。界面须区分「当前任务」专属项与「全部任务」共用项。不写提示词、参考素材、首尾帧与已有结果。运行中／暂停／待恢复行跳过共用写入，保留原快照。缺必填只令该任务预检失败，不得静默改其他行的 mode；不代提交。",
+      "requirementHash": "01b5baf95dc168f4acedb42576ceb026f6d97f63fc9c21678d5e786b8b75fbf7",
       "usecases": [
         "UC-BIZ-009",
         "UC-BIZ-010"
@@ -10870,12 +10896,13 @@
         "AC-BIZ-023-002",
         "AC-BIZ-025-001",
         "AC-BIZ-025-002",
-        "AC-BIZ-025-003"
+        "AC-BIZ-025-003",
+        "AC-BIZ-025-004"
       ],
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "9c90289d6506c2133ab57afe43c344a1a50e6237fdbe6bdc46f58a89a7beed51",
+      "specificationHash": "e3793253b07cb10e33787db23103ccb3e0566dbc654048c6f30f32d2ec6c10f5",
       "assertions": [
         {
           "id": "AS-BIZ-027-001",
@@ -10942,12 +10969,13 @@
         "AC-BIZ-013-002",
         "AC-BIZ-025-001",
         "AC-BIZ-025-002",
-        "AC-BIZ-025-003"
+        "AC-BIZ-025-003",
+        "AC-BIZ-025-004"
       ],
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "20dcdaa1542dbb28702cf60f6e099446c88d3e48239665d6ae3423d42e7841ef",
+      "specificationHash": "4658b438eec000b4cb6df53fc50be80bc46be6880820bb55a36e5c052e3d9014",
       "assertions": [
         {
           "id": "AS-BIZ-029-001",
@@ -11016,13 +11044,14 @@
         "AC-BIZ-025-001",
         "AC-BIZ-025-002",
         "AC-BIZ-025-003",
+        "AC-BIZ-025-004",
         "AC-BIZ-027-001",
         "AC-BIZ-027-002"
       ],
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "46cbb4348a62356c148aa23b351cd8473fcb1287b952794473d1283295cda27d",
+      "specificationHash": "4a86ea88d96c84db19494733aaded041e54a57ff2036a9c0d67349bb86eef1fe",
       "assertions": [
         {
           "id": "AS-BIZ-031-001",
@@ -11053,13 +11082,14 @@
         "AC-BIZ-025-001",
         "AC-BIZ-025-002",
         "AC-BIZ-025-003",
+        "AC-BIZ-025-004",
         "AC-BIZ-028-001",
         "AC-BIZ-028-002"
       ],
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "8b87b2ffdc88fd95b0d329197c460dadd4926c8997fd50e5ee84c8d71033acff",
+      "specificationHash": "745b177b6018705055590b26f94ca2701336c57e1efc839fa5d67c4c021acc7f",
       "assertions": [
         {
           "id": "AS-BIZ-032-001",
@@ -11588,6 +11618,7 @@
         "AC-BIZ-025-001",
         "AC-BIZ-025-002",
         "AC-BIZ-025-003",
+        "AC-BIZ-025-004",
         "AC-BIZ-026-001",
         "AC-BIZ-026-002",
         "AC-BIZ-026-003",
@@ -11597,7 +11628,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "7f2eb9490aa01f8bd5c1b2f8dd004e0c4239a4e39b2814f189135ee179d123ae",
+      "specificationHash": "c9bea9c602b5c06670897f5a89feec4a4d9c093e1d1ac57864a59fba189ea402",
       "assertions": [
         {
           "id": "AS-BIZ-046-001",
