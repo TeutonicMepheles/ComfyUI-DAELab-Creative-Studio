@@ -97,18 +97,18 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
  }
  function renderPrice(row,cfg){
   const request=priceRequest(row,cfg);
-  estimate.hidden=!request;
-  if(!request){priceStamp='';priceSequence++;estimate.textContent='';return;}
+  if(!request){estimate.hidden=true;priceStamp='';priceSequence++;estimate.textContent='';return;}
   const {input,stamp}=request;
   if(priceStamp===stamp)return;
   const sequence=++priceSequence;
   const currentRequest=()=>!disposed&&priceSequence===sequence&&priceStamp===stamp&&priceRequest(current(),config())?.stamp===stamp;
-  priceStamp=stamp;estimate.textContent='积分估算中…';
+  priceStamp=stamp;estimate.hidden=true;estimate.textContent='';
   Promise.resolve().then(()=>currentRequest()?businessHost().estimateGenerationCredits?.(input):null).then(price=>{
    if(!currentRequest())return;
    const format=value=>new Intl.NumberFormat('zh-CN',{maximumFractionDigits:2}).format(value);
-   estimate.textContent=price?'当前任务预计约 '+format(price.min)+(price.max!==price.min?'–'+format(price.max):'')+' 积分':'积分暂无法估算';
-  }).catch(()=>{if(currentRequest())estimate.textContent='积分暂无法估算';});
+   estimate.hidden=!price;estimate.textContent=price?format(price.min)+(price.max!==price.min?'–'+format(price.max):''):'';
+   estimate.setAttribute('aria-label',price?'当前任务预计 '+estimate.textContent+' 积分':'');
+  }).catch(()=>{if(currentRequest()){estimate.hidden=true;estimate.textContent='';}});
  }
  function notify(message){notice=message;status.textContent=message;}
  function acceptMaterials(key,collection){
