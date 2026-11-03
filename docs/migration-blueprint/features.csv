@@ -51,9 +51,10 @@ canvas:web/creative_canvas_view.mjs:105","frontend/src/canvas/viewport","M2","�
 纯视口移动不变更业务内容，不破坏撤销/重做链。","UC-CAN-006 UC-CAN-013","TC-CAN-007 TC-CAN-011 TC-CAN-041"
 "F-CAN-011","选择、框选、拖动与输入事件优先级","重构","主视图和素材组模块已实现单选/多选、框选及拖动，事件判定分布在多个入口。","canvas:web/creative_canvas_view.mjs
 canvas:web/material_groups.mjs
-canvas:docs/architecture/FRONTEND_INTERACTION.md","frontend/src/canvas/interaction","M2","以明确的交互状态机组织现有语义，避免标题、媒体、表格与画布争夺同一事件。","Shift/Ctrl 追加选择、空白框选与组内选择行为符合现有规范。
+canvas:docs/architecture/FRONTEND_INTERACTION.md","frontend/src/canvas/interaction","M2","以明确的交互状态机组织现有语义，避免标题、媒体、表格与画布争夺同一事件。","Shift/Ctrl 追加选择、空白框选与组内选择行为符合现有规范。框选到的所有创作画布节点（素材、生成、解析器、表格、剪辑等）使用与素材相同的 2 屏幕像素选中环。拖任一已选节点的非编辑区（标题、面板铬、空白，不含格/按钮/输入/播放条/端口）整组等距移动；已选标题拖动通路保留。
 按钮、下载链接、文本输入和媒体滑条操作不拖动节点。
-Esc/pointercancel 清理拖动、落点与连线预览，不留下捕获状态。","UC-CAN-003 UC-CAN-013","TC-CAN-008 TC-CAN-012"
+Esc/pointercancel 清理拖动、落点与连线预览，不留下捕获状态。
+虚线包围盒包全部 selected 卡片；打组工具栏仍只数上传素材或组成员，不把表格/生成写入编组合同。","UC-CAN-003 UC-CAN-013","TC-CAN-008 TC-CAN-012"
 "F-CAN-012","复制粘贴、组成员和内部连接重映射","保留","源码已有 DAELAB.CreativeNode.v1 剪贴板、节点复制及 prepareCopy/remapCopy 适配接口。","canvas:web/creative_navigation.mjs
 canvas:web/creative_canvas_view.mjs:790
 canvas:web/material_group_model.mjs
