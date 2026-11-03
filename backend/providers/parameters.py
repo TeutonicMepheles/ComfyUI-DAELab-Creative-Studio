@@ -6,6 +6,7 @@ import math
 import secrets
 
 from ..contracts.errors import InvalidInput
+from .image_dimensions import image_dimensions
 
 IMAGE_MODEL = 'Qwen-Image-2.1 Turbo（本地）'
 VIDEO_MODEL = 'MiniMax H3 FL（本地）'
@@ -69,7 +70,7 @@ def _number(value, minimum, maximum, *, integer=True, multiple=1):
     return int(value) if integer else value
 
 
-def settings_for(kind, mode, settings, media):
+def settings_for(kind, mode, settings, media, *, reference_size=None):
     if not isinstance(settings, dict):
         raise InvalidInput('Settings must be a JSON object.')
     if kind == 'image':
@@ -77,8 +78,12 @@ def settings_for(kind, mode, settings, media):
                 or mode == 'text2image' and media
                 or mode == 'image2image' and (len(media) != 1 or media[0].get('kind') != 'image')):
             raise InvalidInput('Local Qwen requires no references for text2image or exactly one image for image2image.')
-        allowed = {'width', 'height', 'seed'}
+        allowed = {'width', 'height', 'seed', 'ratio'}
         values = {'width': 1024, 'height': 1024, 'seed': -1, **settings}
+        if 'ratio' in settings:
+            if settings['ratio'] == 'auto' and media and reference_size is None:
+                raise InvalidInput('自动尺寸无法读取参考图，请选择固定比例或重新添加图片。')
+            values['width'], values['height'] = image_dimensions(settings['ratio'], reference_size)
         for key in ['width', 'height']:
             values[key] = _number(values[key], 256, 2048, multiple=32)
         if values['width'] * values['height'] > 2097152:

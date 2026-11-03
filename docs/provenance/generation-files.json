@@ -75,7 +75,7 @@
     },
     {
       "destination": "backend/generation/assembly.py",
-      "destinationSha256": "7b5e83134bce51ae7facaf8feeac9591a4ecb50d1218e8837991a6d91ca2d68e",
+      "destinationSha256": "babf344f5a7f2012652cba689a3f9a37e1d1e5dc376717d8036570b1c76bee95",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -83,7 +83,8 @@
       "changes": [
         "Explicit package boundary without import-time work.",
         "Accept an explicit qwen_binding; missing binding makes Qwen unavailable without startup work.",
-        "Shared CoreServices resource admission (GPU 1/cloud 3/transcode 2), retained uncertain executions, and off-loop persistence where asynchronous; existing native queue and JobLedger remain authoritative."
+        "Shared CoreServices resource admission (GPU 1/cloud 3/transcode 2), retained uncertain executions, and off-loop persistence where asynchronous; existing native queue and JobLedger remain authoritative.",
+        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs."
       ]
     },
     {
@@ -113,7 +114,7 @@
     },
     {
       "destination": "backend/generation/media.py",
-      "destinationSha256": "e84dc3cb08a9cb0cd39ccf5daa05b1ccdf95a5e259ffed502afb2b643827e118",
+      "destinationSha256": "6cd13d30d5a0baaf54005bea448ce4f111355669f87315010a58d0b303ffa187",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -130,7 +131,8 @@
         }
       ],
       "changes": [
-        "Freeze through existing AssetCatalog, validate local URLs, stage content-addressed native input atomically, reject path/format/hash changes."
+        "Freeze through existing AssetCatalog, validate local URLs, stage content-addressed native input atomically, reject path/format/hash changes.",
+        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs."
       ]
     },
     {
@@ -303,7 +305,7 @@
     },
     {
       "destination": "backend/providers/native.py",
-      "destinationSha256": "18e17a11305e89c618936082700bd172bd8e34e5e98068b7186aa1cd06dc0e6d",
+      "destinationSha256": "ec7801a4b8765c818405cdf93f47878898863b8f9e39cef3da4eb247c56bfd4e",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -321,7 +323,8 @@
       ],
       "changes": [
         "2026-11-02: Add one-image local Qwen reference conditioning through frozen media, explicit output-size scaling and encoder latent; keep text requests unchanged.",
-        "Explicit inventory/queue/media ports; hash and actual host-resolution validation; deterministic original native identity; preserved UI capabilities; no host singleton import."
+        "Explicit inventory/queue/media ports; hash and actual host-resolution validation; deterministic original native identity; preserved UI capabilities; no host singleton import.",
+        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs."
       ]
     },
     {
@@ -360,7 +363,7 @@
     },
     {
       "destination": "backend/providers/parameters.py",
-      "destinationSha256": "026983be5e23c8e927496a18a0001c4c53fcc674ab2c7e3fb60095204e918699",
+      "destinationSha256": "721964255ab0252b10bb250db7658c1f34b9dbb731c9ab5d1c4d99b19adac905",
       "kind": "migrated-pure-rule",
       "source": "nodes/libtv_bridge/table_generation.py",
       "sourceSha256": "0a79d391377741187a91f0a7aa641c13d5bd7c70837b21ad25752b7a376e1ca0",
@@ -383,7 +386,8 @@
       ],
       "changes": [
         "2026-11-02: Add one-image local Qwen reference conditioning through frozen media, explicit output-size scaling and encoder latent; keep text requests unchanged.",
-        "Extract only pure structured references, parameter validation and Qwen/H3 graph builders; accept explicit pinned model names; no discovery, fallback, native execution or old persistence."
+        "Extract only pure structured references, parameter validation and Qwen/H3 graph builders; accept explicit pinned model names; no discovery, fallback, native execution or old persistence.",
+        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs."
       ]
     },
     {
@@ -776,6 +780,26 @@
         "Fresh same-provider/task CAS cancellation confirmation preserves winning terminal facts; resource restoration consumes one consistent SQLite snapshot and preserves terminal-release ordering. Fixture restoration adapts only owned historical labels."
       ],
       "destinationSha256": "2bc3e828229819016e8bcbbf072c244c503d3964b41edba2a48912633e7756eb"
+    },
+    {
+      "source": null,
+      "sourceSha256": null,
+      "destination": "backend/providers/image_dimensions.py",
+      "destinationSha256": "479c16cfb2f12eb31059ab75f3f64bfa65583a4adbf6e5a941795d4bd2628e50",
+      "kind": "authored-production-adapter",
+      "changes": [
+        "2026-11-04 task11: local Qwen size capability/preset integration and deterministic frozen-reference size checks; no copied upstream code claimed."
+      ]
+    },
+    {
+      "source": null,
+      "sourceSha256": null,
+      "destination": "tests/generation/test_qwen_image_sizes.py",
+      "destinationSha256": "fe4b5d1f9e9078fc7b95349f6e2d66b5ae817a2c85f37c807162df15825aa1c6",
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "2026-11-04 task11: local Qwen size capability/preset integration and deterministic frozen-reference size checks; no copied upstream code claimed."
+      ]
     }
   ],
   "qwenWeightBinding": {

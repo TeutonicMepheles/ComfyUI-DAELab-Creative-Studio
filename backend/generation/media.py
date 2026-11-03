@@ -82,6 +82,26 @@ def read_frozen(assets, item):
     return file.read_bytes()
 
 
+def frozen_image_dimensions(assets, item):
+    """Read orientation-aware dimensions from verified frozen bytes, not a URL."""
+    import io
+    from PIL import Image
+    if item.get('kind') != 'image':
+        raise InvalidInput('自动尺寸需要有效的参考图片。')
+    try:
+        with Image.open(io.BytesIO(read_frozen(assets, item))) as image:
+            if image.format not in {'PNG', 'JPEG', 'WEBP'}:
+                raise InvalidInput('参考图格式不支持自动尺寸。')
+            width, height = image.size
+            if image.getexif().get(274) in {5, 6, 7, 8}:
+                width, height = height, width
+            return width, height
+    except (InvalidInput, Conflict):
+        raise
+    except Exception:
+        raise InvalidInput('无法读取参考图尺寸，请重新选择参考图或固定比例。') from None
+
+
 def stage_native_input(assets, item):
     content = read_frozen(assets, item)
     name = 'daelab/creative-studio/frozen/' + item['filename']

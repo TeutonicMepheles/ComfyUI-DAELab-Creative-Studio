@@ -3,10 +3,10 @@ import {setPromptSource,promptSourceId} from '../prompt/table_prompt_source.mjs'
 import {catalogModelCapabilities} from './table_generation_api.mjs';
 import {attachGenerationTasks,generationTaskStyle} from './table_generation_tasks.mjs';
 import {createTableButton as button,tableIcon} from '../../ui/table_controls.mjs';
-import {GENERATION_MODELS,LOCAL_VIDEO_MODEL,MAX_GENERATION_ATTEMPTS,generationAttempts,isLocalVideoModel,isLocalGenerationModel,isComfyGenerationModel,needsGenerationProject,isGeneration,rowGenerationConfig,setRowGenerationConfig,promptColumns,createGenerationPrompt,enableColumnPrompt,generationRows,generationFrameRoles,generationFrames,generationFrameTagKey,syncGenerationFrameTags,syncGenerationPromptMode,syncGenerationPromptSource,generationConfigField,syncGenerationConfigOwners} from './table_generation_model.mjs';
+import {GENERATION_MODELS,LOCAL_IMAGE_MODEL,LOCAL_VIDEO_MODEL,MAX_GENERATION_ATTEMPTS,generationAttempts,isLocalVideoModel,isLocalGenerationModel,isComfyGenerationModel,needsGenerationProject,isGeneration,rowGenerationConfig,setRowGenerationConfig,promptColumns,createGenerationPrompt,enableColumnPrompt,generationRows,generationFrameRoles,generationFrames,generationFrameTagKey,syncGenerationFrameTags,syncGenerationPromptMode,syncGenerationPromptSource,generationConfigField,syncGenerationConfigOwners} from './table_generation_model.mjs';
 import {effectivePrompt,toColumnPrompt} from '../prompt/table_prompt_template.mjs';
 import {frameReferenceOptions,createReferenceMenu,materialReferenceLabel} from '../../application/table_reference_options.mjs';
-import {PROMPT_SETTINGS_TEMPLATE,createPromptSettingsBar,promptSettingsStyle,normalizeLocalGenerationConfig,generationModeLabels,generationModeChoice,generationSettingSpecs,generationParameterSpecs,generationModes,promptSettingSpecs,generationSettingWarning,createGenerationSetting,createGenerationParameters,createLocalVideoSizePicker,createSettingsPopover} from '../prompt/table_prompt_settings.mjs';
+import {PROMPT_SETTINGS_TEMPLATE,createPromptSettingsBar,promptSettingsStyle,normalizeLocalGenerationConfig,generationModeLabels,generationModeChoice,generationSettingSpecs,generationParameterSpecs,generationModes,promptSettingSpecs,generationSettingWarning,createGenerationSetting,createGenerationParameters,createLocalVideoSizePicker,createLocalImageSizePicker,createSettingsPopover} from '../prompt/table_prompt_settings.mjs';
 import {prependGenerationModelIcon,generationModelLabel} from './generation_model_icons.mjs';
 import {promptGenerationOwner,applyColumnGenerationConfig,applyColumnFrameSources,applyTaskGenerationConfig} from './table_generation_model.mjs';
 import {getModelCatalog} from '../models/model_catalog.mjs';
@@ -419,9 +419,10 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
    function fillModels(){model.replaceChildren();if(draft.model==='Image-2')draft.model='Lib Image';const models=generationModelIDs(kind.value);if(!models.includes(draft.model)){const placeholder=new Option('请选择具体模型版本','');placeholder.disabled=true;model.add(placeholder);}refreshModelControl(model,models,draft.model);}
    function drawSettings(){
     const focus=document.activeElement?.dataset.focusKey;settings.replaceChildren();if(!schema)return;
-    const localVideo=isLocalVideoModel(draft.model);
+    const localVideo=isLocalVideoModel(draft.model),localImage=draft.model===LOCAL_IMAGE_MODEL;
+    if(localImage)settings.append(createLocalImageSizePicker(draft,schema,values=>{Object.assign(draft.settings,values);drawSettings();refreshSettingBars();}));
     if(localVideo)settings.append(createLocalVideoSizePicker(draft,schema,values=>{Object.assign(draft.settings,values);drawSettings();refreshSettingBars();}));
-    for(const spec of generationSettingSpecs(schema,draft.mode).filter(spec=>!localVideo||!['width','height'].includes(spec.name)))settings.append(createGenerationSetting(spec,draft,refreshSettingBars));
+    for(const spec of generationSettingSpecs(schema,draft.mode).filter(spec=>!(localVideo||localImage)||!['width','height','ratio'].includes(spec.name)))settings.append(createGenerationSetting(spec,draft,refreshSettingBars));
     if(focus)[...settings.querySelectorAll('[data-focus-key]')].find(e=>e.dataset.focusKey===focus)?.focus({preventScroll:true});
    }
 
@@ -432,7 +433,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
     try{const caps=await catalogModelCapabilities(draft,{force});if(!alive||!body.isConnected||token!==sequence)return;
      schema=caps.schema;if(local)normalizeLocalGenerationConfig(draft,schema);const modes=generationModes(schema,draft.kind);
 
-     for(const m of modes)mode.add(new Option(generationModeLabels[m]||m||'默认',m));const selected=local?draft.mode:generationModeChoice(draft.mode,schema);if(!modes.includes(selected))draft.mode=modes[0]||'';mode.value=local?draft.mode:generationModeChoice(draft.mode,schema);mode.disabled=!modes.length;drawSettings();refreshDefaults();status.textContent=local&&draft.kind==='image'?'本地 Qwen Turbo · 8 步。参考图模式使用一张图，按设置宽高缩放后生成。默认 1024×1024；宽高为 32 的倍数，总像素最多 2097152。所有本地生成共用串行队列。':local?'使用本机 FL 模型生成带声音的视频，按行排队。在表格中点击首尾帧标签选择同行图片；不支持视频参考。使用常用比例预设，默认 16:9、约 2 秒。':isComfyGenerationModel(draft.model)?'使用 ComfyUI 账户积分；视频请求关闭水印。首尾帧模式沿用参考图比例。':'参考素材请在表格提示词中通过 @ 或首尾帧标签选择。';
+     for(const m of modes)mode.add(new Option(generationModeLabels[m]||m||'默认',m));const selected=local?draft.mode:generationModeChoice(draft.mode,schema);if(!modes.includes(selected))draft.mode=modes[0]||'';mode.value=local?draft.mode:generationModeChoice(draft.mode,schema);mode.disabled=!modes.length;drawSettings();refreshDefaults();status.textContent=local&&draft.kind==='image'?'本地 Qwen Turbo · 8 步。自动跟随参考图比例；无参考图时使用模型默认比例。固定比例显示实际像素尺寸，本地任务按队列串行执行。':local?'使用本机 FL 模型生成带声音的视频，按行排队。在表格中点击首尾帧标签选择同行图片；不支持视频参考。使用常用比例预设，默认 16:9、约 2 秒。':isComfyGenerationModel(draft.model)?'使用 ComfyUI 账户积分；视频请求关闭水印。首尾帧模式沿用参考图比例。':'参考素材请在表格提示词中通过 @ 或首尾帧标签选择。';
     }catch(error){if(token===sequence&&body.isConnected)status.textContent=error.message;}
    }
    const loadCapabilities=(force=false)=>pendingCapabilities=capabilities(force);

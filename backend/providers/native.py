@@ -61,10 +61,11 @@ class NativeProvider:
     supports_progress = True
     resource = 'native'
 
-    def __init__(self, kind, *, inventory, queue, media_input, reference=False):
+    def __init__(self, kind, *, inventory, queue, media_input, reference=False, image_dimensions=None):
         if kind not in ('image', 'video'):
             raise InvalidInput('Unknown native output kind.')
         self.kind, self.inventory, self.queue, self.media_input = kind, inventory, queue, media_input
+        self.image_dimensions = image_dimensions
         self.id = 'local-qwen-image' if kind == 'image' else 'local-h3'
         self.model = IMAGE_MODEL if kind == 'image' else VIDEO_MODEL
         self.reference = reference
@@ -97,7 +98,13 @@ class NativeProvider:
             props.update(duration={'type': 'number', 'displayName': '时长（秒）', 'default': 2, 'min': .2, 'max': 15}, turbo={'type': 'boolean', 'displayName': '启用 8 步加速', 'default': turbo})
             if self.reference:
                 del props['turbo']
-        return {'model': model, 'kind': kind, 'local': True, 'available': True, 'schema': {'properties': props, 'config': {'strictModes': True, 'settings': ['width', 'height'] + (['duration'] + ([] if self.reference else ['turbo']) if kind == 'video' else []), 'advancedSettings': ['seed']}}}
+        schema_config = {'strictModes': True, 'settings': ['width', 'height'] + (['duration'] + ([] if self.reference else ['turbo']) if kind == 'video' else []), 'advancedSettings': ['seed']}
+        if kind == 'image':
+            from .image_dimensions import IMAGE_RATIOS, image_size_schema
+            props['ratio'] = {'type': 'string', 'displayName': '比例', 'enum': ['auto', *IMAGE_RATIOS]}
+            schema_config['settings'].insert(0, 'ratio')
+            schema_config['imageSize'] = image_size_schema()
+        return {'model': model, 'kind': kind, 'local': True, 'available': True, 'schema': {'properties': props, 'config': schema_config}}
 
     def build(self, data, media, request_id):
         config = data['config']
@@ -113,9 +120,14 @@ class NativeProvider:
     def _prepare(self, data, media, request_id):
         config = data['config']
         prompt = compile_segments(data.get('segments', []), media)
+        reference_size = None
+        if self.kind == 'image' and config.get('settings', {}).get('ratio') == 'auto' and len(media) == 1 and media[0].get('kind') == 'image':
+            if self.image_dimensions is None:
+                raise InvalidInput('自动尺寸无法读取参考图，请选择固定比例。')
+            reference_size = self.image_dimensions(media[0])
         values = settings_for(self.kind, 'text2video' if self.reference else config.get('mode'),
                               {'turbo': False, **config.get('settings', {})} if self.reference else config.get('settings', {}),
-                              [] if self.reference else media)
+                              [] if self.reference else media, reference_size=reference_size)
         keys = set(IMAGE_FILES if self.kind == 'image' else VIDEO_FILES)
         if self.kind == 'video' and not values['turbo']:
             keys.discard('loras')
