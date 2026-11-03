@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "27dc2168f5257acd9a7d862e70de5b85b1a32f11113b987b726592c917eece6a",
+  "sourceFingerprint": "59ddb96a5f6d5baa069ce7baf5c6457e42fd722d64dc344cf1062f6ed2acae47",
   "files": [
     {
       "path": "AGENTS.md",
@@ -535,6 +535,10 @@
       "sha256": "b6b726ede5f9864de0a92d0d2714c820b3647ffc734053e456f0a26a0eba78c0"
     },
     {
+      "path": "features/generation/local_image_sizes.js",
+      "sha256": "3537e30f4efd3632ad1c1d080279f3af70ecb3613ea0858b7669d8387eb70f6a"
+    },
+    {
       "path": "features/generation/table_generation_api.mjs",
       "sha256": "8c7066d90b47e0049b4874907a419dd01e0c2020250f0b9dbcf47a3731fefd57"
     },
@@ -548,7 +552,7 @@
     },
     {
       "path": "features/generation/table_generation_panel.mjs",
-      "sha256": "12bff708a3c0de2d6af263dffda39de6d1feceda23aa6b479e9659485475a2f7"
+      "sha256": "1dfbb945edc69d7b166004e3b4bdd2e905460b68ec7e3f1e3f56d4521f02f983"
     },
     {
       "path": "features/generation/table_generation_tasks.mjs",
@@ -624,7 +628,7 @@
     },
     {
       "path": "features/prompt/README.md",
-      "sha256": "503e31f50017ec61eacc2ebdc9817dabea2e49a37e1a71caa93408dd91e047e2"
+      "sha256": "61c1937bdf879bdbc3792d56420b6d3e863d5b9e47e7122f8aa907ef5065c917"
     },
     {
       "path": "features/prompt/llm_io_model.mjs",
@@ -704,7 +708,7 @@
     },
     {
       "path": "features/prompt/table_prompt_settings.mjs",
-      "sha256": "8298e3505e702d86939be849db7aef1e67a01faeae5d254ed7b4c034236f18cb"
+      "sha256": "670f5cf5df5605dfd767cbeeb4700777f68358cf9a1e6a0d3bbac08779bbdf51"
     },
     {
       "path": "features/prompt/table_prompt_source.mjs",
@@ -1152,7 +1156,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "910a984f720d9314ba3555ed239b21bc5e61c492cc808329fe9b9b21d1b48f56"
+      "sha256": "34eabbf016a8aa9e14a7ff0d617c905647deb61629f80888c662967458e3393a"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
