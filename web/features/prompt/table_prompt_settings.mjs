@@ -39,9 +39,10 @@ export function createPromptSettingsBar(onActivate,{combined=false}={}){
   icon.className='dae-table-icon';icon.setAttribute('aria-hidden','true');label.className='generation-prompt-setting-label';control.replaceChildren(icon,label);root.append(control);controls.set(item.key,{control,icon,label});
  }
  for(const event of ['pointerdown','mousedown','dblclick','keydown'])root.addEventListener(event,stopCanvasPropagation);
- return {root,update(config,name){
-  const next=JSON.stringify([config,name]);if(next===signature)return;signature=next;root.setAttribute('aria-label',name+' · 生成设置（当前单元格）');
-  for(const item of promptSettingsItems(config,{combined})){const {control,icon,label}=controls.get(item.key);const title=`${name} · ${item.label}：${item.text}（只修改当前单元格）`;
+ return {root,update(config,name,scope='cell'){
+  const suffix=scope==='all'?'同步全部任务':'只修改当前单元格';
+  const next=JSON.stringify([config,name,scope]);if(next===signature)return;signature=next;root.setAttribute('aria-label',name+' · 生成设置（'+suffix+'）');
+  for(const item of promptSettingsItems(config,{combined})){const {control,icon,label}=controls.get(item.key);const title=`${name} · ${item.label}：${item.text}（${item.key==='attempts'?'只修改当前任务':suffix}）`;
    label.textContent=item.text;control.hidden=Boolean(item.hidden);control.title=title;control.setAttribute('aria-label',title);icon.style.setProperty('--table-icon',`url("${item.key==='model'?generationModelIconURL(config.model):new URL('../../design/vendor/remixicon/'+item.icon+'.svg',import.meta.url).href}")`);
   }
  }};

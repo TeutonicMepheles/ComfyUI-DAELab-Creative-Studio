@@ -75,6 +75,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
  function clearMaterialPreviews(){for(const dispose of materialPreviews)dispose();materialPreviews=[];materialLabels=[];releaseThumbnails(materials);}
  const prompt=element('div',body,'video-task-prompt');prompt.tabIndex=0;
  const bottom=element('footer',body,'video-task-bottom');
+ const settingsScope=element('small',body,'video-task-settings-scope');
  const settings=createPromptSettingsBar((key,anchor)=>{if(current())void generation.chooseSetting(state.fieldId,state.currentId,key,anchor);},{combined:true});bottom.append(settings.root);
  const actions=element('div',bottom,'video-task-actions');
  const estimate=element('span',actions,'video-task-credit-estimate');estimate.hidden=true;estimate.setAttribute('role','status');estimate.title='当前任务单次生成的预计积分，实际扣费以平台为准';
@@ -392,7 +393,11 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
   emptyMaterial.disabled=locked||!!uploadController||!row;
   root.dataset.kind=cfg?.kind||'video';typeTabs.setAttribute('aria-busy',String(changingType));for(const [kind,control] of typeButtons){control.disabled=locked||!row;control.setAttribute('aria-pressed',String(cfg?.kind===kind));}
   prompt.inert=locked;
-  if(cfg)settings.update(cfg,'当前任务');settings.root.hidden=!row;settings.root.inert=locked;
+  const sharedSettings=state.table.records.length>1,settingsLocked=locked||['paused','needs_recovery'].includes(generation.stateFor(row,state.fieldId)?.phase);
+  typeTabs.setAttribute('aria-label',sharedSettings?'全部任务生成类型':'生成类型');typeTabs.title=sharedSettings?'修改后同步全部任务；提示词和参考素材分别保留':'';
+  for(const control of typeButtons.values())control.disabled=settingsLocked||!row;
+  settingsScope.hidden=!sharedSettings;settingsScope.textContent='全部任务共用生成设置 · 提示词与参考素材仅当前任务';
+  if(cfg)settings.update(cfg,sharedSettings?'全部任务':'当前任务',sharedSettings?'all':'cell');settings.root.hidden=!row;settings.root.inert=settingsLocked;
   const remaining=batchMode()?remainingTasks().length:0;
   const runLabel=busy?'暂停':remaining?`生成剩余 ${remaining} 个任务`:receipt?.needsOriginalFence?'封存原请求':['needs_recovery','stopped'].includes(receipt?.phase)?'恢复原任务':receipt?'重新生成':'运行';
   if(run.title!==runLabel)tableIcon(run,busy?'pause-fill':runLabel==='重新生成'?'restart-line':'play-line',runLabel);
