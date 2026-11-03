@@ -52,7 +52,9 @@ test('receipt mismatch and failure do not install media; unknown outcomes remain
  const f=fixture(),job=f.job('a');f.controller.prepare([job],f.options);const target=f.outputs()[0];
  f.controller.update([{...f.report(job,'complete'),receipt:{kind:'assets',items:[]}}]);assert.equal(target.widgets[0].value,'{}');
  f.controller.update([{...f.report(job,'failed'),error:'failure'}]);assert.equal(target.properties.materialPlaceholder.label,'生成失败');assert.equal(target.properties.materialPlaceholder.busy,false);
- f.controller.update([f.report(job,'needs_recovery')]);assert.equal(target.properties.materialPlaceholder.label,'待恢复');
+ f.controller.update([{...f.report(job,'needs_recovery'),error:'remote_execution_interrupted_unknown'}]);assert.equal(target.properties.materialPlaceholder.label,'执行状态待核实');
+ assert.equal(target.properties.materialPlaceholder.detail,'本地执行已中断，远端结果待核实');assert.equal(target.properties.materialPlaceholder.busy,false);
+ f.controller.update([f.report(job,'interrupting')]);assert.equal(target.properties.materialPlaceholder.label,'中止中');assert.equal(target.properties.materialPlaceholder.busy,true);
 });
 test('user replacement is not overwritten and separate instances stay independent',()=>{
  const f=fixture(),g=fixture(),job=f.job('a');f.controller.prepare([job],f.options);g.controller.prepare([g.job('b')],g.options);

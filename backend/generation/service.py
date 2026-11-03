@@ -417,8 +417,8 @@ class GenerationService:
         provider = self._owner(job)
         if observation.state == 'unknown':
             if job['state'] in {'submitting', 'needs_recovery'}:
-                return (await complete_blocking(self._transition, job, 'unknown', task_id=observation.task_id, error_code='original_execution_unknown'))
-            return (await complete_blocking(self._transition, job, 'needs_recovery', error_code='original_execution_missing'))
+                return (await complete_blocking(self._transition, job, 'unknown', task_id=observation.task_id, error_code=observation.error_code or 'original_execution_unknown'))
+            return (await complete_blocking(self._transition, job, 'needs_recovery', error_code=observation.error_code or 'original_execution_missing'))
         deferred_cancel = not job['provider_task_id'] and job['state'] in {'submitting', 'unknown'}
         if job['state'] in {'submitting', 'unknown'}:
             job = await complete_blocking(self._remember_submission, job, observation.task_id)
@@ -556,7 +556,7 @@ class GenerationService:
     async def interrupt(self, request_id):
         job = (await complete_blocking(self.jobs.get, request_id))
         if job['state'] in TERMINAL_STATES:
-            raise InvalidTransition('A terminal task cannot be interrupted.')
+            return job  # A completed item must not abort stopping the remaining sequence.
         if not self._controls(job)['interrupt']:
             raise InvalidTransition('This provider cannot interrupt the submitted execution; continue tracking the original task.')
         controlled = (await complete_blocking(self.jobs.record_control, request_id, 'interrupt', expected_version=job['version']))
@@ -698,7 +698,7 @@ class GenerationService:
         if self._barrier(job):
             result.update(preparation=job['snapshot']['preparation'], error=job['snapshot']['rejectionCode'],
                           phase='needs_input' if result['replacementAllowed'] else 'needs_recovery')
-        if job['cancel_requested'] and job['state'] not in TERMINAL_STATES:
+        if job['cancel_requested'] and job['state'] in {'submitting', 'submitted', 'running', 'fetching'} and not legacy_unattributed and not self._barrier(job):
             result['phase'] = 'interrupting' if control_intent == 'interrupt' else 'pausing'
         if job['state'] == 'succeeded':
             try:

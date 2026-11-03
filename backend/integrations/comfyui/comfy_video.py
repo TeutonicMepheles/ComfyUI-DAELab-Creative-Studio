@@ -74,9 +74,12 @@ class ComfyVideoQueue(ComfyNativeQueue):
         observation = await super().query(task_id, owner=owner, kind=kind)
         if observation.state in {'failed', 'cancelled'}:
             # A host interruption/transport error does not prove a billed remote job stopped.
-            return Observation('unknown', task_id, error_code='remote_video_outcome_unknown')
+            return Observation('unknown', task_id, error_code='remote_execution_interrupted_unknown' if observation.state == 'cancelled' else 'remote_video_outcome_unknown')
         return observation
 
     async def cancel(self, task_id, *, owner):
-        # Only a task still in the native waiting queue is provably unsubmitted.
-        return self.server.prompt_queue.delete_queue_item(lambda item: self._owned(item, task_id, owner))
+        # Queued deletion is proof of non-submission. Running interruption only
+        # stops the owned local poll; query preserves the unknown remote outcome.
+        if self.interrupt_owned is None and not callable(getattr(self.server.prompt_queue, 'interrupt_if_running', None)):
+            return self.server.prompt_queue.delete_queue_item(lambda item: self._owned(item, task_id, owner))
+        return await super().cancel(task_id, owner=owner)

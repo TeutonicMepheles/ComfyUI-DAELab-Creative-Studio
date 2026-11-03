@@ -125,7 +125,7 @@ def assemble_host_generation(server, core, folder_paths, *, native_queue=None):
     def schema(node_id):
         node = nodes.NODE_CLASS_MAPPINGS.get(node_id)
         return node.INPUT_TYPES() if node is not None else None
-    remote_queue = ComfyVideoQueue(server, queue.validate_prompt)
+    remote_queue = ComfyVideoQueue(server, queue.validate_prompt, interrupt_owned=getattr(queue, 'interrupt_owned', None))
     for provider_type in (SeedanceProvider, MinimaxProvider, ComfyImageProvider):
         media_input = stage_seedance_input if provider_type is SeedanceProvider else stage_native_input
         provider = provider_type(schema=schema, queue=remote_queue,

@@ -1,4 +1,5 @@
 import {uploadMedia} from '../../application/media_upload.js';
+import {generationErrorText} from './control_labels.js';
 import {businessHost,businessFetch} from '../../contracts/business.js';
 import {requirePromptSource} from '../prompt/table_prompt_source.mjs';
 import {replaceLinkedTaskText,bindLinkedTaskReference,clearLinkedTaskInput,linkedTaskTexts,mergeLinkedTaskDuplicates} from './video_task_linked_prompt.mjs';
@@ -25,7 +26,7 @@ import {videoTaskResultPreviews} from './video_task_results.js';
 
 const widget=(node,name)=>node.widgets?.find(w=>w.name===name);
 const element=(tag,parent,cls,text)=>{const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;parent?.append(el);return el;};
-const phases={waiting:'排队中',running:'生成中',pausing:'暂停中',paused:'已暂停',complete:'已完成',failed:'失败',needs_input:'待补充',needs_recovery:'待恢复',stopped:'已停止',stale:'输入已变化'};
+const phases={waiting:'排队中',running:'生成中',pausing:'中止中',interrupting:'中止中',interrupted:'已中止',paused:'原任务已停止',complete:'已完成',failed:'失败',needs_input:'待补充',needs_recovery:'执行状态待核实',stopped:'已停止',stale:'输入已变化'};
 
 export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocumentReady=()=>true,outputNodes}={}){
  tableTheme();
@@ -113,7 +114,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
  function notify(message){notice=message;status.textContent=message;}
  function acceptMaterials(key,collection){
   const row=state.table.records.find(r=>r.id===key);if(!row)throw new Error('任务已删除');
-  if(node.mode||generation.submitting||active(row))throw new Error('请先暂停当前任务');
+  if(node.mode||generation.submitting||active(row))throw new Error('请先中止当前生成');
   const existing=tableAssets(state.table,row),assets=collection.assets.filter(asset=>!existing.some(old=>asset.nodeId&&old.sourceNodeId===asset.nodeId||old.url==='/view?'+new URLSearchParams({filename:asset.filename,subfolder:asset.subfolder||'',type:asset.type||'input'})));
   if(!assets.length)return;
   editor.change(t=>{
@@ -146,7 +147,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
  const nativeDocument=documentFactory?.(()=>state,next=>{state=next;persist();promptStamp='';schedule();});
  const batchMode=()=>Boolean(state.source||state.approvedSource||state.table.records.length>1);
  const remainingTasks=()=>state.table.records.filter(row=>!generation?.stateFor(row,state.fieldId)&&!row.values[state.fieldId]?.length);
- const active=row=>['waiting','running','pausing'].includes(generation?.stateFor(row,state.fieldId)?.phase);
+ const active=row=>['waiting','running','pausing','interrupting'].includes(generation?.stateFor(row,state.fieldId)?.phase);
  state.sourceScope={...taskIdentity,nodeId:String(node.id)};
  let historyGroup=null;
  function mutate(update,{render:draw=true,group=null,writePrompts=false}={}){
@@ -398,21 +399,25 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
   for(const control of typeButtons.values())control.disabled=settingsLocked||!row;
   if(cfg)settings.update(cfg,sharedSettings?'全部任务':'当前任务',sharedSettings?'all':'cell');settings.root.hidden=!row;settings.root.inert=settingsLocked;
   const remaining=batchMode()?remainingTasks().length:0;
-  const runLabel=busy?'暂停':remaining?`生成剩余 ${remaining} 个任务`:receipt?.needsOriginalFence?'封存原请求':['needs_recovery','stopped'].includes(receipt?.phase)?'恢复原任务':receipt?'重新生成':'运行';
-  if(run.title!==runLabel)tableIcon(run,busy?'pause-fill':runLabel==='重新生成'?'restart-line':'play-line',runLabel);
-  run.disabled=!row||!!node.mode||generation.submitting||changingType||!!inputError;
+  const runLabel=busy?'中止':remaining?`生成剩余 ${remaining} 个任务`:receipt?.needsOriginalFence?'封存原请求':['needs_recovery','stopped'].includes(receipt?.phase)?'核对原任务':receipt?'重新生成':'运行';
+  if(run.title!==runLabel)tableIcon(run,busy?'stop-line':runLabel==='重新生成'?'restart-line':'play-line',runLabel);
+  run.disabled=!row||!!node.mode||generation.submitting||changingType||!!inputError&&!busy;
   const output=videoTaskResultPreviews(row?.values[state.fieldId]||[],receipt,row?.meta?.generationPreviewAfter?.[state.fieldId]).filter(asset=>!outputNodes?.owns(asset.provenance?.requestId)),stamp=JSON.stringify([row?.id,output]);
   if(resultsStamp!==stamp){resultsStamp=stamp;releaseThumbnails(results);results.replaceChildren();for(const asset of output){if(asset.kind==='image'){const media=element('img',results);media.src=asset.url;media.alt=asset.name||'生成图片';media.loading='lazy';}else{const media=videoThumb(asset,results);media.controls=true;media.muted=false;media.setAttribute('aria-label',asset.name||'生成视频');}}results.hidden=!output.length;}
-  status.textContent=inputError||notice||(receipt&&(receipt.phase!=='complete'||receipt.error)?(phases[receipt.phase]||receipt.phase)+(receipt.error?' · '+receipt.error:''):'');status.hidden=!status.textContent;
+  status.textContent=inputError||notice||(receipt&&(receipt.phase!=='complete'||receipt.error)?(phases[receipt.phase]||receipt.phase)+(receipt.error?' · '+generationErrorText(receipt.error):''):'');status.hidden=!status.textContent;
  }
  async function runTask(){
   syncSource();
-  if(node.mode||inputError||generation.submitting||changingType)return;
+  if(node.mode||generation.submitting||changingType)return;
   notice='';
   const row=current(),receipt=generation.stateFor(row,state.fieldId);
   if(!row)return;
   const running=(batchMode()?state.table.records:[row]).filter(active).map(item=>generation.stateFor(item,state.fieldId));
-  if(running.length){if(window.confirm('当前任务正在进行中，确认取消吗？'))return generation.pause(running);return;}
+  if(running.length){
+   const states=state.table.records.flatMap(item=>{const report=generation.stateFor(item,state.fieldId);return report?[report,...(report.history||[])]:[];}).filter(report=>['waiting','running','pausing','interrupting','paused'].includes(report.phase));
+   return generation.interrupt(states.sort((a,b)=>Number(b.state==='pending')-Number(a.state==='pending')));
+  }
+  if(inputError)return;
   if(batchMode()&&remainingTasks().length){binding?.finish();return generation.generate(state.fieldId,null,false,true);}
   if(receipt?.needsOriginalFence)return generation.fenceOriginal(state.fieldId,row.id);
   if(['needs_recovery','stopped'].includes(receipt?.phase))return generation.generate(state.fieldId,row.id,true);

@@ -130,6 +130,38 @@ class TaskControlLedgerTests(unittest.TestCase):
         self.assertEqual((submitted_again['attempt'], submitted_again['provider_task_id']), (2, 'native-pause-next'))
 
 class TaskControlServiceTests(unittest.IsolatedAsyncioTestCase):
+    async def test_interrupt_unknown_preserves_reason_and_does_not_mask_recovery(self):
+        from backend.providers.contracts import Observation
+        with tempfile.TemporaryDirectory(prefix='studio-interrupt-unknown-') as folder:
+            jobs = JobLedger(Path(folder) / 'studio.db')
+            provider = NativeProgressProvider()
+            service = GenerationService(jobs, None, providers={provider.id: provider}, admission=Admission())
+            job, _ = jobs.create_or_get('unknown-row', provider=provider.id, execution_kind='local', snapshot={'input': {}})
+            claimed = jobs.begin_submission(job['request_id'], expected_version=job['version'])
+            await service._observe(claimed, Observation('submitted', 'native-unknown'))
+            await service.interrupt(job['request_id'])
+            await service._observe(jobs.get(job['request_id']), Observation('unknown', 'native-unknown', error_code='remote_execution_interrupted_unknown'))
+            report = service.public(job['request_id'])
+            self.assertEqual((report['phase'], report['error'], report['controlIntent']), ('needs_recovery', 'remote_execution_interrupted_unknown', 'interrupt'))
+            self.assertEqual(jobs.get(job['request_id'])['attempt'], 1)
+            before = jobs.get(job['request_id'])
+            jobs.record_control(job['request_id'], 'pause', expected_version=before['version'])
+            self.assertEqual(service.public(job['request_id'])['phase'], 'needs_recovery')
+
+    async def test_repeated_stop_does_not_abort_remaining_pending_sequence_or_touch_other_node(self):
+        with tempfile.TemporaryDirectory(prefix='studio-stop-sequence-') as folder:
+            jobs = JobLedger(Path(folder) / 'studio.db')
+            provider = NativeProgressProvider()
+            service = GenerationService(jobs, None, providers={provider.id: provider}, admission=Admission())
+            for request_id in ('first', 'second', 'other-node'):
+                jobs.create_or_get(request_id, provider=provider.id, execution_kind='local', snapshot={'input': {}})
+            original = jobs.get('other-node')
+            await service.interrupt('first')
+            for request_id in ('first', 'second'):
+                await service.interrupt(request_id)
+            self.assertEqual([jobs.get(request_id)['state'] for request_id in ('first', 'second')], ['cancelled', 'cancelled'])
+            self.assertEqual(jobs.get('other-node'), original)
+
     async def test_capability_publishes_control_and_progress_boundaries(self):
         provider = NativeProgressProvider()
         service = GenerationService({}, None, providers={provider.id: provider}, admission=Admission())
