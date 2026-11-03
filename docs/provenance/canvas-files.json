@@ -1110,7 +1110,7 @@
       "source": null,
       "sourceSha256": null,
       "destination": "tests/migrated_canvas/panel_zoom_scope.test.mjs",
-      "destinationSha256": "7c9e8a7aab1b8a56b4537b53329f6e29724fd6f234d3d64c2b09cc705ad41a3c",
+      "destinationSha256": "a4f16285b2d4ea08f3910629c677dfae2ecfa5566a2149146d89f7aef4466fa2",
       "kind": "rule-regression",
       "changes": [
         "2026-11-03: Review selection ring consumers on outer cards/table scroll surfaces, outside isolated body and data-cell subtrees.",
