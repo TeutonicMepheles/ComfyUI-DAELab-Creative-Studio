@@ -39,9 +39,10 @@ export function createPromptSettingsBar(onActivate,{combined=false}={}){
   icon.className='dae-table-icon';icon.setAttribute('aria-hidden','true');label.className='generation-prompt-setting-label';control.replaceChildren(icon,label);root.append(control);controls.set(item.key,{control,icon,label});
  }
  for(const event of ['pointerdown','mousedown','dblclick','keydown'])root.addEventListener(event,stopCanvasPropagation);
- return {root,update(config,name){
-  const next=JSON.stringify([config,name]);if(next===signature)return;signature=next;root.setAttribute('aria-label',name+' · 生成设置（当前单元格）');
-  for(const item of promptSettingsItems(config,{combined})){const {control,icon,label}=controls.get(item.key);const title=`${name} · ${item.label}：${item.text}（只修改当前单元格）`;
+ return {root,update(config,name,scope='cell'){
+  const suffix=scope==='all'?'同步全部任务':'只修改当前单元格';
+  const next=JSON.stringify([config,name,scope]);if(next===signature)return;signature=next;root.setAttribute('aria-label',name+' · 生成设置（'+suffix+'）');
+  for(const item of promptSettingsItems(config,{combined})){const {control,icon,label}=controls.get(item.key);const title=`${name} · ${item.label}：${item.text}（${item.key==='attempts'?'只修改当前任务':suffix}）`;
    label.textContent=item.text;control.hidden=Boolean(item.hidden);control.title=title;control.setAttribute('aria-label',title);icon.style.setProperty('--table-icon',`url("${item.key==='model'?generationModelIconURL(config.model):new URL('../../design/vendor/remixicon/'+item.icon+'.svg',import.meta.url).href}")`);
   }
  }};
@@ -187,13 +188,13 @@ export function createLocalVideoSizePicker(config,schema,onChange){
  return root;
 }
 // One view over the existing schema and setting editor. It never saves or submits by itself.
-export function createGenerationParameters(config,schema,{onMode,onSetting,onSettings,onAttempts=()=>{}}){
+export function createGenerationParameters(config,schema,{onMode,onSetting,onSettings,onAttempts=()=>{},showAttempts=true}){
  const root=document.createElement('div');root.className='generation-parameter-sections';
  const cleanups=[];root.dispose=()=>{for(const cleanup of cleanups.splice(0))cleanup();};
  const section=(name,parent=root)=>{const block=document.createElement('section'),title=document.createElement('div');block.className='generation-parameter-section';title.className='generation-parameter-title';title.textContent=name;block.append(title);parent.append(block);return block;};
  const choices=parameterChoices;
-  const attemptSection=section('抽卡次数');
-  choices(attemptSection,'抽卡次数',Array.from({length:MAX_GENERATION_ATTEMPTS},(_,index)=>[index+1,`${index+1} 次`]),generationAttempts(config),id=>onAttempts(id));
+  if(showAttempts){const attemptSection=section('抽卡次数');
+   choices(attemptSection,'抽卡次数',Array.from({length:MAX_GENERATION_ATTEMPTS},(_,index)=>[index+1,`${index+1} 次`]),generationAttempts(config),id=>onAttempts(id));}
  const modes=generationParameterModes(config,schema),modeSection=section('生成方式');
  const selectedMode=isLocalGenerationModel(config.model)?config.mode:generationModeChoice(config.mode,schema);
  choices(modeSection,'生成方式',modes.map(id=>[id,generationModeLabels[id]||id||'默认']),selectedMode,id=>{if(id!==config.mode)return onMode(id);});

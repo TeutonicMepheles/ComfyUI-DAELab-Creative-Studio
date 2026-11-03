@@ -5,12 +5,46 @@ import ts from 'typescript';
 import {installDom} from './prompt_optimization_dom.mjs';
 import {generationDurationOptions,generationParameterSpecs,generationParameterModes,generationModes,generationModeChoice,promptSettingsItems,generationParametersSummary,createGenerationParameters,generationSettingSpecs} from '../../frontend/src/features/prompt/table_prompt_settings.mjs';
 import {generationModelIconURL} from '../../frontend/src/features/generation/generation_model_icons.mjs';
-import {LOCAL_VIDEO_MODEL,applyColumnGenerationConfig,promptGenerationOwner,rowGenerationConfig,generationAttempts} from '../../frontend/src/features/generation/table_generation_model.mjs';
+import {LOCAL_VIDEO_MODEL,applyColumnGenerationConfig,promptGenerationOwner,rowGenerationConfig,generationAttempts,applyTaskGenerationConfig,syncGenerationPromptMode} from '../../frontend/src/features/generation/table_generation_model.mjs';
 import {createVideoTasks} from '../../frontend/src/features/generation/video_tasks_model.mjs';
 import {LOCAL_VIDEO_SIZE_PRESETS,localVideoSizePresets,normalizeLocalGenerationConfig} from '../../frontend/src/features/prompt/table_prompt_settings.mjs';
 import {applyGenerationModelDefaults,needsGenerationPromptSelector} from '../../frontend/src/features/generation/table_generation_panel.mjs';
 import {normalizeTable} from '../../frontend/src/features/table/data_table_model.mjs';
 import {OPTIMIZATION_MODELS} from '../../frontend/src/features/prompt/prompt_optimization_model.mjs';
+
+test('shared task choices preserve each row inputs, bindings and existing results across reload',()=>{
+ const state=createVideoTasks(),table=state.table,field=table.fields.find(f=>f.id===state.fieldId),first=table.records[0];
+ first.values[field.generation.promptFieldId]='first prompt';first.values[field.id]=[{id:'existing-result'}];
+ first.meta={generationFrames:{[field.id]:{first:{assetId:'image-one'}}},generationReferences:{[field.id]:[{assetId:'image-one'}]}};
+ const second=structuredClone(first);second.id='second';second.selected=false;second.values[field.generation.promptFieldId]='second prompt';second.meta.generationFrames[field.id].first.assetId='image-two';second.meta.generationReferences[field.id][0].assetId='image-two';table.records.push(second);
+ const values=structuredClone(table.records.map(row=>row.values)),bindings=structuredClone(table.records.map(row=>row.meta));
+ applyTaskGenerationConfig(table,field.id,{...field.generation,model:'Seedance 2.0',mode:'mixed2video',settings:{duration:8},attempts:3});
+ const reloaded=JSON.parse(JSON.stringify(table));
+ for(const [index,row] of reloaded.records.entries()){
+  const config=rowGenerationConfig(row,field.id,reloaded.fields.find(f=>f.id===field.id).generation);
+  assert.equal(config.mode,'mixed2video');assert.equal(config.model,'Seedance 2.0');assert.equal(config.settings.duration,8);assert.equal(generationAttempts(config),1);
+  assert.deepEqual(row.values,values[index]);assert.deepEqual(row.meta.generationFrames,bindings[index].generationFrames);assert.deepEqual(row.meta.generationReferences,bindings[index].generationReferences);
+ }
+ first.meta.generationSettings[field.generation.promptFieldId][field.id].settings.duration=99;
+ assert.equal(rowGenerationConfig(second,field.id,field.generation).settings.duration,8);
+});
+
+test('sharing keeps protected tasks on their original default even when they have no row override',()=>{
+ const state=createVideoTasks(),table=state.table,field=table.fields.find(f=>f.id===state.fieldId),first=table.records[0],second=structuredClone(first);second.id='held';table.records.push(second);
+ const before=structuredClone(rowGenerationConfig(second,field.id,field.generation));
+ applyTaskGenerationConfig(table,field.id,{...field.generation,mode:'mixed2video',settings:{duration:9}},{skip:new Set(['held'])});
+ assert.equal(rowGenerationConfig(first,field.id,field.generation).mode,'mixed2video');
+ assert.deepEqual(rowGenerationConfig(second,field.id,field.generation),before);
+});
+
+test('explicit shared text mode is not silently changed by an existing material reference',()=>{
+ const state=createVideoTasks({model:'Seedance 2.5'}),table=state.table,field=table.fields.find(f=>f.id===state.fieldId),row=table.records[0];
+ row.values[field.generation.promptFieldId]={kind:'column-template',version:1,segments:[{type:'text',text:'Independent prompt'},{type:'column',fieldId:'pictures',assetId:'own-picture'}]};
+ const before=structuredClone(table);applyTaskGenerationConfig(table,field.id,{...field.generation,mode:'text2video'});
+ syncGenerationPromptMode(table,before,field.id,field.generation);
+ assert.equal(rowGenerationConfig(row,field.id,field.generation).mode,'text2video');
+ assert.deepEqual(row.values,before.records[0].values);
+});
 
 test('H3 ratio presets use exact 32-aligned dimensions and obey live size bounds',()=>{
  const schema={properties:{width:{min:32,max:8192,step:32},height:{min:32,max:8192,step:32}}};
@@ -171,23 +205,27 @@ function drawColumn({draft,schema,table}){
 const attemptButton=(settings,label)=>descendants(settings).find(node=>node.tagName==='button'&&node.textContent===label);
 const pressAttempts=button=>button.onclick({preventDefault(){},stopPropagation(){}});
 
-test('the prompt-column apply-all popover records attempts, saves them and reopens with them selected',t=>{
+test('the prompt-column apply-all popover excludes per-task attempts and preserves their saved values',t=>{
  const dom=installDom(t);t.after(()=>dom.restore());
  const state=createVideoTasks({prompt:'任务'}),table=state.table,field=table.fields.find(item=>item.generation),promptFieldId=field.generation.promptFieldId;
  const schema={properties:{modeType:{items:{text2video:[]}}}};
  const draft={...structuredClone(field.generation),kind:'video',model:'Seedance 2.5',mode:'text2video',settings:{}};
  const column=drawColumn({draft,schema,table});
- const four=attemptButton(column.settings,'4 次');
- assert.equal(four.getAttribute('aria-pressed'),'false','one attempt is the saved default');
- pressAttempts(four);
- assert.equal(draft.attempts,4,'choosing four attempts must update the draft');
- assert.equal(column.draws.count,2,'choosing attempts must redraw the parameter view');
- assert.equal(attemptButton(column.settings,'4 次').getAttribute('aria-pressed'),'true');
- assert.equal(attemptButton(column.settings,'1 次').getAttribute('aria-pressed'),'false');
+ assert.equal(attemptButton(column.settings,'4 次'),undefined);
+ const row=table.records[0];row.meta||={};row.meta.generationSettings={[promptFieldId]:{[field.id]:{...field.generation,attempts:4}}};
  applyColumnGenerationConfig(table,promptFieldId,draft);
  const saved=promptGenerationOwner(table,promptFieldId);
- assert.equal(generationAttempts(saved.generation),4,'apply all must persist the chosen attempts');
- for(const row of table.records)assert.equal(generationAttempts(rowGenerationConfig(row,saved.id,saved.generation)),4);
+ assert.equal(generationAttempts(saved.generation),1);
+ assert.equal(generationAttempts(rowGenerationConfig(row,saved.id,saved.generation)),4);
  const reopened=drawColumn({draft:structuredClone(saved.generation),schema,table});
- assert.equal(attemptButton(reopened.settings,'4 次').getAttribute('aria-pressed'),'true','reopening must show the saved attempts');
+ assert.equal(attemptButton(reopened.settings,'4 次'),undefined);
+});
+
+test('column apply uses shared keys and leaves protected row configuration and frame bindings intact',()=>{
+ const state=createVideoTasks(),table=state.table,field=table.fields.find(f=>f.id===state.fieldId),prompt=field.generation.promptFieldId;
+ const first=table.records[0],held=structuredClone(first);held.id='protected';held.meta={generationFrames:{[field.id]:{first:{fieldId:'pictures',assetId:'keep-me'}}}};table.records.push(held);
+ const before=structuredClone(rowGenerationConfig(held,field.id,field.generation)),values=structuredClone(held.values),frames=structuredClone(held.meta.generationFrames);
+ applyColumnGenerationConfig(table,prompt,{...field.generation,mode:'mixed2video',settings:{duration:8},attempts:4,reference:'must-not-copy'},{skip:new Set([held.id])});
+ assert.equal(rowGenerationConfig(first,field.id,field.generation).mode,'mixed2video');assert.equal(rowGenerationConfig(first,field.id,field.generation).reference,undefined);
+ assert.deepEqual(rowGenerationConfig(held,field.id,field.generation),before);assert.deepEqual(held.values,values);assert.deepEqual(held.meta.generationFrames,frames);
 });
