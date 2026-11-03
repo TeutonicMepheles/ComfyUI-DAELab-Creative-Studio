@@ -416,9 +416,14 @@ class GenerationService:
             return job
         provider = self._owner(job)
         if observation.state == 'unknown':
+            error = observation.error_code or job['error_code'] or ('original_execution_unknown' if job['state'] in {'submitting', 'unknown', 'needs_recovery'} else 'original_execution_missing')
+            if job['state'] == 'unknown':
+                if error == job['error_code']:
+                    return job
+                return await complete_blocking(self._transition, job, 'unknown', error_code=error)
             if job['state'] in {'submitting', 'needs_recovery'}:
-                return (await complete_blocking(self._transition, job, 'unknown', task_id=observation.task_id, error_code=observation.error_code or 'original_execution_unknown'))
-            return (await complete_blocking(self._transition, job, 'needs_recovery', error_code=observation.error_code or 'original_execution_missing'))
+                return (await complete_blocking(self._transition, job, 'unknown', task_id=observation.task_id, error_code=error))
+            return (await complete_blocking(self._transition, job, 'needs_recovery', error_code=error))
         deferred_cancel = not job['provider_task_id'] and job['state'] in {'submitting', 'unknown'}
         if job['state'] in {'submitting', 'unknown'}:
             job = await complete_blocking(self._remember_submission, job, observation.task_id)
@@ -491,12 +496,14 @@ class GenerationService:
                 continue
         raise Conflict('Original submission receipt is contended; reconcile the same request identity.')
 
-    async def _query(self, job, provider):
+    async def _query(self, job, provider, *, report_failure=False):
         try:
             observation = await provider.query(job['provider_task_id'], job['snapshot'])
             return await self._observe((await complete_blocking(self.jobs.get, job['request_id'])), observation)
         except Exception:
             current = (await complete_blocking(self.jobs.get, job['request_id']))
+            if report_failure and current['state'] not in TERMINAL_STATES:
+                raise ProviderUnavailable('暂时无法查询原任务，请稍后核对；原任务状态和已有结果已保留，未重新提交生成。') from None
             if current['state'] in {'submitted', 'running', 'fetching'}:
                 return (await complete_blocking(self._transition, current, 'needs_recovery', error_code='query_unavailable'))
             return current
@@ -507,11 +514,25 @@ class GenerationService:
         finally:
             await self._release_terminal_capacity(request_id)
 
+    def _recovery_availability(self, job):
+        provider = self.providers.get(job['provider'])
+        queryable = bool(provider and (job['provider_task_id'] and getattr(provider, 'supports_query', False) or job['state'] == 'unknown' and getattr(provider, 'supports_lookup', False)))
+        limited = job['state'] in {'unknown', 'needs_recovery', 'fetching'} and job['recovery_count'] >= 3
+        reason = 'recovery_limit_reached' if limited else 'original_query_unavailable' if not queryable or job['state'] in TERMINAL_STATES or job['state'] == 'pending' else ''
+        messages = {'recovery_limit_reached': '原任务核对次数已用尽，远端结果仍待确认；仍可查看旧任务与已有结果。未重新提交生成。',
+                    'original_query_unavailable': '当前无法查询原任务，请查看原任务记录及已有结果。未重新提交生成。'}
+        return {'available': not reason, 'reason': reason, 'message': messages.get(reason, ''), 'attempts': job['recovery_count'], 'limit': 3}
+
     async def _recover(self, request_id):
         async with self._lock(request_id):
             job = (await complete_blocking(self.jobs.get, request_id))
             if job['state'] in TERMINAL_STATES or job['state'] == 'pending':
                 return job
+            availability = self._recovery_availability(job)
+            if not availability['available']:
+                if availability['reason'] == 'recovery_limit_reached':
+                    raise InvalidTransition(availability['message'])
+                return job  # Read-only response carries the explicit unqueryable reason.
             provider = self._owner(job)
             action = (await complete_blocking(self.jobs.recovery_action, request_id, supports_query=provider.supports_query, supports_idempotency_lookup=provider.supports_lookup))['action']
             if action == 'manual_reconciliation':
@@ -519,9 +540,12 @@ class GenerationService:
             if job['state'] in {'unknown', 'needs_recovery', 'fetching'}:
                 job = (await complete_blocking(self.jobs.claim_recovery, request_id, expected_version=job['version']))
             if action == 'lookup_original_request':
-                observation = await provider.lookup(request_id, job['snapshot'])
+                try:
+                    observation = await provider.lookup(request_id, job['snapshot'])
+                except Exception:
+                    raise ProviderUnavailable('暂时无法查询原任务，请稍后核对；原任务状态和已有结果已保留，未重新提交生成。') from None
                 return await self._observe(job, observation) if observation is not None else job
-            return await self._query(job, provider)
+            return await self._query(job, provider, report_failure=True)
 
     async def retry_local(self, request_id, new_request_id):
         """Explicit new execution after a confirmed stop; never recovery replay."""
@@ -673,6 +697,7 @@ class GenerationService:
         result = {'requestId': request_id, 'phase': phases.get(job['state'], job['state']), 'state': job['state'], 'version': job['version'], 'taskId': job['provider_task_id'], 'error': job['error_code'] or '', 'controlIntent': control_intent,
                   'updatedAt': int(datetime.fromisoformat(job['updated_at']).timestamp() * 1000), 'inputFingerprint': job['fingerprint'], 'source': job['source'],
                   'controls': self._controls(job)}
+        result['recovery'] = self._recovery_availability(job)
         if control_intent == 'pause' and job['state'] == 'pending':
             result['phase'] = 'paused'
         if control_intent == 'stop' and job['state'] == 'pending':

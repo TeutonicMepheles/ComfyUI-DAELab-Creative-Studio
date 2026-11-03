@@ -130,6 +130,53 @@ class TaskControlLedgerTests(unittest.TestCase):
         self.assertEqual((submitted_again['attempt'], submitted_again['provider_task_id']), (2, 'native-pause-next'))
 
 class TaskControlServiceTests(unittest.IsolatedAsyncioTestCase):
+    async def test_unknown_queries_preserve_interruption_fact_and_exhaust_budget_without_resubmission(self):
+        from backend.providers.contracts import Observation
+        with tempfile.TemporaryDirectory(prefix='studio-query-budget-') as folder:
+            jobs = JobLedger(Path(folder) / 'studio.db')
+            provider = NativeProgressProvider()
+            queries = []
+            async def query(task_id, snapshot):
+                queries.append(task_id)
+                return Observation('unknown', task_id)  # memory history gone after host restart
+            provider.query = query
+            service = GenerationService(jobs, None, providers={provider.id: provider}, admission=Admission())
+            job, _ = jobs.create_or_get('query-only', provider=provider.id, execution_kind='local', snapshot={'input': {}})
+            claimed = jobs.begin_submission(job['request_id'], expected_version=job['version'])
+            await service._observe(claimed, Observation('submitted', 'native-query-only'))
+            await service._observe(jobs.get(job['request_id']), Observation('unknown', 'native-query-only', error_code='remote_execution_interrupted_unknown'))
+            await service._observe(jobs.get(job['request_id']), Observation('unknown', 'native-query-only'))
+            for _ in range(3):
+                await service.recover('query-only')
+            before = jobs.get('query-only')
+            self.assertEqual((before['state'], before['error_code'], before['recovery_count']), ('unknown', 'remote_execution_interrupted_unknown', 3))
+            for _ in range(5):
+                self.assertFalse(service.public('query-only')['recovery']['available'])
+            with self.assertRaises(InvalidTransition):
+                await service.recover('query-only')
+            self.assertEqual(jobs.get('query-only'), before)
+            self.assertEqual(queries, ['native-query-only'] * 3)
+            self.assertEqual(service.public('query-only')['recovery']['reason'], 'recovery_limit_reached')
+
+    async def test_temporary_query_failure_keeps_proven_interruption_separate_from_availability(self):
+        from backend.providers.contracts import Observation, ProviderUnavailable
+        with tempfile.TemporaryDirectory(prefix='studio-query-error-') as folder:
+            jobs = JobLedger(Path(folder) / 'studio.db')
+            provider = NativeProgressProvider()
+            async def query(task_id, snapshot):
+                raise OSError('synthetic transport failure')
+            provider.query = query
+            service = GenerationService(jobs, None, providers={provider.id: provider}, admission=Admission())
+            job, _ = jobs.create_or_get('query-error', provider=provider.id, execution_kind='local', snapshot={'input': {}})
+            claimed = jobs.begin_submission(job['request_id'], expected_version=job['version'])
+            await service._observe(claimed, Observation('submitted', 'native-query-error'))
+            await service._observe(jobs.get(job['request_id']), Observation('unknown', 'native-query-error', error_code='remote_execution_interrupted_unknown'))
+            with self.assertRaises(ProviderUnavailable):
+                await service.recover('query-error')
+            self.assertEqual(jobs.get('query-error')['error_code'], 'remote_execution_interrupted_unknown')
+            self.assertEqual(jobs.get('query-error')['recovery_count'], 1)
+            self.assertTrue(service.public('query-error')['recovery']['available'])
+
     async def test_interrupt_unknown_preserves_reason_and_does_not_mask_recovery(self):
         from backend.providers.contracts import Observation
         with tempfile.TemporaryDirectory(prefix='studio-interrupt-unknown-') as folder:

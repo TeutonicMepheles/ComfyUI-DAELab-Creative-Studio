@@ -11,7 +11,7 @@ from backend.contracts.errors import Conflict, InvalidInput, InvalidTransition
 from backend.generation.admission import ResourceAdmission
 from backend.generation.service import GenerationService
 from backend.integrations.comfyui.services import CoreServices
-from backend.providers.contracts import Observation, SubmissionUncertain
+from backend.providers.contracts import Observation, SubmissionUncertain, ProviderUnavailable
 from test_service import FakeProvider, png
 import test_service as fixtures
 
@@ -111,7 +111,7 @@ class LedgerCapacityTests(unittest.IsolatedAsyncioTestCase):
         await until(lambda: restarted_gate.snapshot()['resources']['cloud']['queued'] == 1)
         self.assertEqual(self.fake.creates, ['unknown'])
         self.fake.query_error = True
-        with self.assertRaises(OSError): await restarted.recover('unknown')
+        with self.assertRaises(ProviderUnavailable): await restarted.recover('unknown')
         self.assertEqual(restarted_gate.snapshot()['resources']['cloud']['retained'], 1)
         self.fake.query_error = False
         await restarted.recover('unknown'); await restarted.wait_idle()

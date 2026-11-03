@@ -96,7 +96,7 @@ export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,
   try{
    if(!editor.nativeDocument||!identity())throw new Error('原生编辑会话尚未就绪，未提交');
    if(recover){const refs=getTable().records.filter(row=>!recordId||row.id===recordId).map(row=>reference(row,fieldId)).filter(Boolean);if(!refs.length)throw new Error('旧回执只读；没有新任务账本引用');const existing=[];
-    for(const ref of refs){session.watch(ref);try{ingest(await request('status',{requestIds:[ref.requestId]}));existing.push(ref.requestId);}catch(error){if(error.status===404&&error.code==='record_not_found'){missingRequests.add(ref.requestId);localErrors.set(ref.requestId,'暂未查到原请求；可能仍在预检。请继续查询，或明确封存原请求');notify('暂未查到原请求，尚不能重新生成；可明确封存原请求后再创建新请求');}else throw error;}}
+    for(const ref of refs){session.watch(ref);try{ingest(await request('status',{requestIds:[ref.requestId]}));const report=live.get(ref.requestId);if(report?.recovery?.available===false)notify(report.recovery.message||generationErrorText(report.recovery.reason));else existing.push(ref.requestId);}catch(error){if(error.status===404&&error.code==='record_not_found'){missingRequests.add(ref.requestId);localErrors.set(ref.requestId,'暂未查到原请求；可能仍在预检。请继续查询，或明确封存原请求');notify('暂未查到原请求，尚不能重新生成；可明确封存原请求后再创建新请求');}else throw error;}}
     if(existing.length)ingest(await request('recover',{requestIds:existing}));return;}
    if(unsubmittedOnly)await poll(true);
    await prepareGeneration(fieldId,recordId);
@@ -230,7 +230,7 @@ export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,
     if(busy&&!['pausing','interrupting'].includes(phase)&&(controlAllowed(state,'pause')||controlAllowed(state,'interrupt'))){
      status.append(tableIcon(button('中止此行',()=>interrupt([state])),'stop-line','中止当前任务；外部费用不会自动撤销'));
     }
-    if(!busy){const pausedPending=state?.phase==='paused'&&state?.state==='pending',recover=!state?.legacy&&(phase==='needs_recovery'||phase==='stopped'),retry=Boolean(state);const actionLabel=pausedPending?'中止原序列':recover?'核对原任务':retry?'重新生成':'生成此行';status.append(tableIcon(button(actionLabel,()=>pausedPending?interrupt([state]):generate(field.id,row.id,recover)),retry?'restart-line':'play-line',actionLabel));
+    if(!busy){const pausedPending=state?.phase==='paused'&&state?.state==='pending',recover=!state?.legacy&&(phase==='needs_recovery'||phase==='stopped'),retry=Boolean(state);const actionLabel=pausedPending?'中止原序列':recover?'核对原任务':retry?'重新生成':'生成此行';const actionButton=tableIcon(button(actionLabel,()=>pausedPending?interrupt([state]):generate(field.id,row.id,recover)),retry?'restart-line':'play-line',actionLabel);if(recover&&state?.recovery?.available===false){actionButton.disabled=true;actionButton.title=state.recovery.message||generationErrorText(state.recovery.reason);}status.append(actionButton);
     }
     if(state?.needsOriginalFence&&!state?.legacy)status.append(tableIcon(button('封存原请求',()=>fenceOriginal(field.id,row.id)),'stop-line','明确阻止原请求以后提交；已执行的任务不会被覆盖'));
     if(phase==='paused'&&!state?.legacy)status.append(tableIcon(button('按当前输入重新生成',()=>generate(field.id,row.id,false)),'play-line','明确创建新任务；原任务回执保留'));

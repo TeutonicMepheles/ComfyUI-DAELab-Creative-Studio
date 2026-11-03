@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "9aa5a78fac0bef22ec27d775b4018ac8cd7203a3b3bb4482a6121c98f4c5158f",
+  "sourceFingerprint": "8db1f41ef2e67ca3157fc8c316cda624fe0e511fa603e1aece0505ef1903ca06",
   "files": [
     {
       "path": "AGENTS.md",
@@ -516,7 +516,7 @@
     },
     {
       "path": "features/generation/control_labels.js",
-      "sha256": "34944cff74b558163b566053fad7aa4cb5e7bbef63aed3a1003472ac9b8d9830"
+      "sha256": "dd5c5f474f441d20035e2e1397a02fd8a2dd4873ee56939bd6c45606b5d8faad"
     },
     {
       "path": "features/generation/generation_input.js",
@@ -552,7 +552,7 @@
     },
     {
       "path": "features/generation/table_generation_tasks.mjs",
-      "sha256": "dd1daeb41c60bc8efa84cdb7f24cef08bf04390745a99ae57f8af795a6a4f7d1"
+      "sha256": "345bb7cac071e6f15f5f18adbb81ff47a0f529de0c68ae9ba6d12ad713a0dc55"
     },
     {
       "path": "features/generation/task_snapshots.mjs",
@@ -580,7 +580,7 @@
     },
     {
       "path": "features/generation/video_tasks_panel.mjs",
-      "sha256": "35c9d5089d7adb886d81ca819576f6827619b87dfe17af1dcf3f3bd66717ea70"
+      "sha256": "f3e833396d809a4ae18870c32fa97621a822924a9b34aa1eace4aefcea8552f7"
     },
     {
       "path": "features/groups/AGENTS.md",
@@ -1152,7 +1152,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "b954bbcdac7866a51711ae557b96b3a774437c2f9d5214391167ad52ccb66e26"
+      "sha256": "07d2dcafe86608d605c3fca286cb2ed51e76fc0c4aa0bffb138af0bee77b09f6"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
