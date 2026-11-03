@@ -8,11 +8,13 @@
       "source": "nodes/media_upload.py",
       "destination": "backend/integrations/comfyui/canvas_nodes/media_upload.py",
       "sourceSha256": "958cdebf5c07cd9aebef35ba3242985ca4f2aee62db12792fcbd2e9e312885c3",
-      "destinationSha256": "2a90aa0cdf4e4c66ed53d0de4c9a1475146d852ee43a71c13c6d896be447857b",
+      "destinationSha256": "40046775c6d124290ab08e06352709947822df3a85428bf169ef55732186def4",
       "changes": [
         "relocate to owning backend module without changing node identifiers or declared slot order",
         "reject non-object material JSON without changing valid material interpretation",
-        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources."
+        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources.",
+        "2026-11-03 task51: hide duplicate generation success/scope copy; automatically materialize verified editor exports once with persistent lazy video lineage and original asset identity; preserve lifecycle and error feedback.",
+        "2026-11-03 task51 host-schema follow-up: remove unsupported force_input from Custom Input, retain lazy optional lineage, tighten Custom IO contract and check real installed SDK metadata."
       ],
       "kind": "migrated-production"
     },
@@ -140,11 +142,13 @@
       "source": null,
       "destination": "tests/migrated_canvas_backend/test_registration.py",
       "sourceSha256": null,
-      "destinationSha256": "46f67cb55db2c310c9b05b43cdbac62574252d7364cea56a92a40c664741bf81",
+      "destinationSha256": "210c80271f786e2299b346bd44e9e9b61c27c0faf48a76828a7c433115acebe2",
       "kind": "authored-migration",
       "changes": [
         "inert host contract and HTTP security tests; not actual host acceptance",
-        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources."
+        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources.",
+        "2026-11-03 task51: hide duplicate generation success/scope copy; automatically materialize verified editor exports once with persistent lazy video lineage and original asset identity; preserve lifecycle and error feedback.",
+        "2026-11-03 task51 host-schema follow-up: remove unsupported force_input from Custom Input, retain lazy optional lineage, tighten Custom IO contract and check real installed SDK metadata."
       ]
     },
     {
@@ -157,6 +161,17 @@
       "changes": [
         "Explicit registration lifetime/binding; no secondary editable document or import-time service side effects."
       ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "destination": "tests/migrated_canvas_backend/test_real_host_schema.py",
+      "sourceSha256": null,
+      "destinationSha256": "60ad2b4b02a2066c8b41e7177cacb315c2f52ff45e2bb6dc85d23b8ef0e13f29",
+      "changes": [
+        "2026-11-03 task51: opt-in installed Comfy SDK metadata check in CPU-only subprocess; no server or model execution."
+      ],
+      "kind": "rule-regression"
     }
   ],
   "validation": {

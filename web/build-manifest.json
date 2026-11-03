@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "778d4e4033230ec12a2f0e8e7f2b57a11827174cffb47ec92e1776a593babee1",
+  "sourceFingerprint": "a7cea0d29fbe0f7b4c719fb2601e1b7c21514f36be3509e7326f44996714deae",
   "files": [
     {
       "path": "AGENTS.md",
@@ -484,7 +484,7 @@
     },
     {
       "path": "features/editor/README.md",
-      "sha256": "6db6d0a4809330f2a5f14f0ff839004d7e2c1d23ec26add4efa8077b187ab579"
+      "sha256": "ab75aeb7ff16766f41fbd941f9b07f33612bc7eed4300e46efc36ddb9bde21a0"
     },
     {
       "path": "features/editor/export_session.js",
@@ -500,7 +500,7 @@
     },
     {
       "path": "features/editor/video_edit_panel.mjs",
-      "sha256": "26b901628c4877023e43ae57b8a5bf05ec0d753a64a3ca1dc5e0892c7831aafa"
+      "sha256": "5a1943541cb3d89cb9eb3125ffdf377692c145ab3c395ecc188020a4e2a58c75"
     },
     {
       "path": "features/generation/AGENTS.md",
@@ -572,7 +572,7 @@
     },
     {
       "path": "features/generation/video_tasks_panel.mjs",
-      "sha256": "12d5f4f62b302119fa7f090a18bcf8989b97e7d66ecdf5a762eb619313d4a1cf"
+      "sha256": "433d5ada47c4f8500b745842987f327068b6e017ba81029c3052e9e3c105b584"
     },
     {
       "path": "features/groups/AGENTS.md",
@@ -1072,7 +1072,7 @@
     },
     {
       "path": "integrations/comfyui/canvas/README.md",
-      "sha256": "aa929969bdeb62ed92999363a668b5ddb27e9d33993269c1a427767d2ef11a69"
+      "sha256": "7d786f7780dd5d4863ceac3921810e369098e441174680e89947f1fa9bf6bd76"
     },
     {
       "path": "integrations/comfyui/canvas/adapters/AGENTS.md",
@@ -1088,7 +1088,7 @@
     },
     {
       "path": "integrations/comfyui/canvas/adapters/upload.mjs",
-      "sha256": "7a7b20e7b326fc9ae12409252f7b52b974299b651285063977359ade633329ff"
+      "sha256": "ea341c80ff2a00e5f96b68f86f03c8cac94fefc59f7a8b601af69afbf46247f5"
     },
     {
       "path": "integrations/comfyui/canvas/canvas_host.css",
@@ -1105,6 +1105,10 @@
     {
       "path": "integrations/comfyui/canvas/creative_history.mjs",
       "sha256": "f205d18dfdf1598273089a377ecbd8eb4c24dd47f40e27adacaf051e4b52e247"
+    },
+    {
+      "path": "integrations/comfyui/canvas/editor_output_nodes.js",
+      "sha256": "f580d6d9e2eb31d35723fc84464dc64a9fdd4c3d625d7adf70d3175c73c9fa90"
     },
     {
       "path": "integrations/comfyui/canvas/generation_output_binding.js",
@@ -1128,7 +1132,7 @@
     },
     {
       "path": "integrations/comfyui/canvas/video_edit.js",
-      "sha256": "ca5c03c8b09f73b160eadf3a2be76334bd69ed75d8cb587507cd08141046306c"
+      "sha256": "cc9f3bbafc0e1ded53ce678e08658299f5974501ae12aa905330df6f2b758012"
     },
     {
       "path": "integrations/comfyui/compat_readonly.js",
@@ -1140,7 +1144,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "756032ccbab76cd1026a2157c418c3c57fd678810238e52243c79f0eba98b2f5"
+      "sha256": "9e1722192e269501c20c964195b0df6f9a5ed32a431ec72913dea8ab1462b45b"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

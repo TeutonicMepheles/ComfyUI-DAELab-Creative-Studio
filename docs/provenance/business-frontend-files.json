@@ -367,7 +367,7 @@
       "source": "web/video_tasks_panel.mjs",
       "destination": "frontend/src/features/generation/video_tasks_panel.mjs",
       "sourceSha256": "1f567635a4b88ab672b6f656d1c2ede14a5a79432592e26ccf2c39775281452d",
-      "destinationSha256": "12d5f4f62b302119fa7f090a18bcf8989b97e7d66ecdf5a762eb619313d4a1cf",
+      "destinationSha256": "433d5ada47c4f8500b745842987f327068b6e017ba81029c3052e9e3c105b584",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
@@ -379,7 +379,8 @@
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
         "Defer generation panel installation/input sync until native workflow loading settles; preserve history capability diagnostics and original source hash.",
         "2026-11-03 task49: share task execution choices while preserving per-row inputs, results and protected request configurations; scope labels and regression coverage.",
-        "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions."
+        "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions.",
+        "2026-11-03 task51: hide duplicate generation success/scope copy; automatically materialize verified editor exports once with persistent lazy video lineage and original asset identity; preserve lifecycle and error feedback."
       ]
     },
     {

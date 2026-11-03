@@ -281,13 +281,14 @@
       "source": "web/video_edit.js",
       "destination": "frontend/src/integrations/comfyui/canvas/video_edit.js",
       "sourceSha256": "cff552275a3cdcc69a505a353801c0a9d781d82b7cef4ecc017ca35ca9f87aa6",
-      "destinationSha256": "ca5c03c8b09f73b160eadf3a2be76334bd69ed75d8cb587507cd08141046306c",
+      "destinationSha256": "cc9f3bbafc0e1ded53ce678e08658299f5974501ae12aa905330df6f2b758012",
       "changes": [
         "2026-11-02: Freeze all results of direct batch editing inputs and resolve each saved timeline member without a single-preview fallback.",
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "Traceability agent M5 HTTP export-service integration in progress; hash synchronized for asset-focused checks, final host freeze waits for that owner handoff.",
         "Unify native export-reference loading; preserve damaged raw properties, diagnose once per load, and hold an unresolved submission lock until reference identity is verified. Normal native/proxy JSON behavior retained.",
-        "Save As owner rebinding and verified copied-output projection preserve original source/request/asset provenance; explicit copy export establishes a new owner identity; legacy prepareCopy/remapCopy behavior remains unchanged."
+        "Save As owner rebinding and verified copied-output projection preserve original source/request/asset provenance; explicit copy export establishes a new owner identity; legacy prepareCopy/remapCopy behavior remains unchanged.",
+        "2026-11-03 task51: hide duplicate generation success/scope copy; automatically materialize verified editor exports once with persistent lazy video lineage and original asset identity; preserve lifecycle and error feedback."
       ],
       "kind": "production-source"
     },
@@ -448,11 +449,12 @@
       "source": "web/video_edit_panel.mjs",
       "destination": "frontend/src/features/editor/video_edit_panel.mjs",
       "sourceSha256": "bd2db748565ba29cd09dddfa682146c1a7cb9335d7fd0aaebc3718a2703bc132",
-      "destinationSha256": "26b901628c4877023e43ae57b8a5bf05ec0d753a64a3ca1dc5e0892c7831aafa",
+      "destinationSha256": "5a1943541cb3d89cb9eb3125ffdf377692c145ab3c395ecc188020a4e2a58c75",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "Actual-host keyboard follow-up: reuse shared save propagation for root and clip menu; preserve existing timeline/editor shortcuts and IME ownership.",
-        "Expose explicit copy-export action and original-source read-only preview/download labels; shared asynchronous disabled rule and keyboard behavior retained."
+        "Expose explicit copy-export action and original-source read-only preview/download labels; shared asynchronous disabled rule and keyboard behavior retained.",
+        "2026-11-03 task51: hide duplicate generation success/scope copy; automatically materialize verified editor exports once with persistent lazy video lineage and original asset identity; preserve lifecycle and error feedback."
       ],
       "kind": "production-source"
     },
@@ -500,11 +502,12 @@
       "source": "web/adapters/upload.mjs",
       "destination": "frontend/src/integrations/comfyui/canvas/adapters/upload.mjs",
       "sourceSha256": "d7f056a0370ab81a251090b665d6481c337534a28e94fcd0ebf684a4e73c27c4",
-      "destinationSha256": "7a7b20e7b326fc9ae12409252f7b52b974299b651285063977359ade633329ff",
+      "destinationSha256": "ea341c80ff2a00e5f96b68f86f03c8cac94fefc59f7a8b601af69afbf46247f5",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "2026-10-30: request-bound output placeholders, copy isolation and ready-only group material snapshots; see GENERATION_OUTPUTS_20261030 validation.",
-        "Grouped generation members expose lineage only through their group container."
+        "Grouped generation members expose lineage only through their group container.",
+        "2026-11-03 task51: hide duplicate generation success/scope copy; automatically materialize verified editor exports once with persistent lazy video lineage and original asset identity; preserve lifecycle and error feedback."
       ],
       "kind": "production-source"
     },
@@ -1204,6 +1207,28 @@
         "2026-10-31: provide the table prompt-source capability to the extracted decorator harness.",
         "2026-11-02: cover stable encoded output keys for ordinary table columns without body scans."
       ]
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "destination": "frontend/src/integrations/comfyui/canvas/editor_output_nodes.ts",
+      "sourceSha256": null,
+      "destinationSha256": "ce22f2c45820e5af56f09d2370ac35d989216dd4a945e4cfd105a45657aea511",
+      "changes": [
+        "2026-11-03 task51: verified export materialization with request identity, persistent lineage, rollback, copy/workflow guards and idempotence."
+      ],
+      "kind": "production-source"
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "destination": "tests/migrated_business/editor_output_nodes.test.mjs",
+      "sourceSha256": null,
+      "destinationSha256": "3bfa4f89525cfa24726388ac8fab9c8a47e706c126682c21556f599b0c5ef23f",
+      "changes": [
+        "2026-11-03 task51: verified export materialization with request identity, persistent lineage, rollback, copy/workflow guards and idempotence."
+      ],
+      "kind": "rule-regression"
     }
   ],
   "hostBoundary": {

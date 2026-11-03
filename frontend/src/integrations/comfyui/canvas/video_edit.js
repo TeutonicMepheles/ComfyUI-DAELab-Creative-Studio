@@ -8,6 +8,7 @@ import {createVideoEditor} from '../../../features/editor/video_edit_panel.mjs?v
 import {createBusinessDocument} from '../../../application/business_document.js';
 import {ExportSession} from '../../../features/editor/export_session.js';
 import {createMediaExportHttp} from '../media_exports.js';
+import {createEditorOutputs} from './editor_output_nodes.js';
 
 const sheet=document.createElement('link');sheet.rel='stylesheet';sheet.href=new URL('../../../features/editor/video_edit.css?v=20261001-timeline-background2',import.meta.url).href;document.head.append(sheet);
 const resultFor=node=>node.properties?.daelabEditBinding||node.properties?.daelabEditExport?node.__videoEdit?.currentResult?.()||null:node.properties?.daelabEditResultData===node.widgets?.find(w=>w.name==='edit_data')?.value?node.properties?.daelabEditResult:null;
@@ -36,6 +37,7 @@ function install(node){
     let disposed=false,sourceSignature=null,sourceSync=null,syncTimer=null,playhead=null,playheadWorkflow=null,currentResult=null,displayedResult=null,currentBinding=null;
     let session,resumedWorkflow=null,resumedEpoch=-1,resumedOwner=null,referenceLoadReady=false,liveRequestId=null,finishedAt=null;
     const current=()=>!disposed&&app.isGraphReady!==false&&!!node.graph&&node.graph===app.graph&&node.graph.getNodeById?.(node.id)===node&&!app.configuringGraph;
+    const materialOutputs=createEditorOutputs(node,app,history,type=>globalThis.LiteGraph.createNode(type),current);
     const owner=()=>{if(node.graph?.id==null||String(node.graph.id)===''||node.id==null)throw new Error('宿主缺少稳定工作流身份，暂不能导出');return {documentId:String(node.graph.id),nodeId:String(node.id)};};
     const document=createBusinessDocument({
         read:()=>nativeSnapshot({edit_data:widget.value,reference:node.properties.daelabEditExport,binding:node.properties.daelabEditBinding,result:node.properties.daelabEditResult,resultData:node.properties.daelabEditResultData}),
@@ -122,6 +124,7 @@ function install(node){
             panel.exportState(view,view.reference||view.error?detail:'');
             if(report?.requestId===liveRequestId&&['succeeded','cancelled'].includes(report.state)&&finishedAt===null)finishedAt=Date.now();
             exportTask=report?{id:'edit-export',label:view.copied?'原来源成片（只读）':'成片导出',state:taskStates[report.state],detail,order:40,...(report.requestId===liveRequestId&&finishedAt!==null?{finishedAt}:{})}:view.reference||view.unresolved?{id:'edit-export',label:view.copied?'副本成片引用':'成片导出',state:view.rejected?'error':'recovery',detail,order:40}:null;
+            if(view.currentOutput&&!view.copied)try{materialOutputs.publish(view.currentOutput);}catch(error){panel.error('成片已导出，素材输出失败：'+error.message);}
         },
     });
     const lifecycle={invalidate(){document.invalidate();session.invalidate();currentResult=null;displayedResult=null;panel.output(null);}};
@@ -208,7 +211,7 @@ function install(node){
             if(report?.state==='succeeded')panel.error('原生剪辑已完成；请从导出任务核对成片引用');
         },
         reload(){sourceSync=null;sourceSignature=null;resumedWorkflow=null;liveRequestId=null;document.invalidate();bindPlayhead();panel.reload(playhead?.time);currentResult=null;displayedResult=null;panel.output(resultFor(node));resumeExport();},
-        destroy(){disposed=true;sourceSync=null;clearInterval(syncTimer);exportOwners.delete(lifecycle);session.dispose();document.dispose();availability();panel.destroy();}};
+        destroy(){disposed=true;sourceSync=null;clearInterval(syncTimer);exportOwners.delete(lifecycle);materialOutputs.dispose();session.dispose();document.dispose();availability();panel.destroy();}};
     node.setSize([820,760]);if(resultFor(node))panel.output(resultFor(node));queueMicrotask(resumeExport);
 }
 registerAdapter('daelab.video-edit',{

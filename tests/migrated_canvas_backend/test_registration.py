@@ -24,6 +24,15 @@ class Port:
         return {"kind": self.kind, "name": name, **kwargs}
 
 
+class CustomPort(Port):
+    # Match the installed Comfy V3 connection Input, not WidgetInput.
+    def Input(self, name, display_name=None, optional=False, tooltip=None, lazy=None,
+              extra_dict=None, raw_link=None, advanced=None):
+        values = dict(display_name=display_name, optional=optional, tooltip=tooltip,
+                      lazy=lazy, raw_link=raw_link, advanced=advanced)
+        return super().Input(name, **{key: value for key, value in values.items() if value is not None}, **(extra_dict or {}))
+
+
 class Output:
     def __init__(self, *result, **kwargs):
         self.result = result
@@ -43,7 +52,7 @@ class RegistrationTests(unittest.TestCase):
             setattr(folders, f"get_{name}_directory", lambda value=path: str(value))
         io = types.SimpleNamespace(ComfyNode=object, Schema=lambda **kw: types.SimpleNamespace(**kw),
                                    String=Port("STRING"), Image=Port("IMAGE"), Video=Port("VIDEO"),
-                                   Custom=Port, NodeOutput=Output)
+                                   Custom=CustomPort, NodeOutput=Output)
         io.Autogrow = Port("AUTOGROW")
         io.Autogrow.TemplatePrefix = lambda port, **kw: {"port": port, **kw}
         latest = types.ModuleType("comfy_api.latest")
@@ -73,11 +82,14 @@ class RegistrationTests(unittest.TestCase):
     def test_upload_lineage_input_is_lazy_without_changing_material_outputs(self):
         upload = importlib.import_module("backend.integrations.comfyui.canvas_nodes.media_upload").MediaUpload
         schema = upload.define_schema()
-        self.assertEqual([slot["name"] for slot in schema.inputs], ["asset_data", "source_report"])
+        self.assertEqual([slot["name"] for slot in schema.inputs], ["asset_data", "source_report", "source_video"])
         self.assertTrue(schema.inputs[1]["lazy"])
         self.assertTrue(schema.inputs[1]["optional"])
+        self.assertEqual(schema.inputs[2]["kind"], "COMFYTV_VIDEO")
+        self.assertTrue(schema.inputs[2]["lazy"])
+        self.assertTrue(schema.inputs[2]["optional"])
         self.assertEqual([slot["name"] for slot in schema.outputs], ["image_ref", "image_refs", "video_ref", "image", "video"])
-        self.assertEqual(upload.check_lazy_status(asset_data="{}", source_report=None), [])
+        self.assertEqual(upload.check_lazy_status(asset_data="{}", source_report=None, source_video=None), [])
 
     def test_import_and_node_lookup_do_not_register_routes(self):
         self.assertEqual(list(self.server.routes), [])

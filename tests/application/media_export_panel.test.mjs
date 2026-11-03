@@ -53,5 +53,5 @@ test('actual copied-output renderer labels original source as text and removing 
     assert.equal(panel.result.querySelector('p').textContent,'原来源：文档 old-doc<script> · 剪辑 node-1');
     assert.equal(panel.result.querySelector('a').href,'/view?filename=verified.mp4');
     panel.output(null);assert.equal(panel.result.hidden,true);assert.equal(panel.result.children.length,0);
-    panel.output('/view?filename=own.mp4');assert.equal(panel.result.querySelector('a').textContent,'下载成片');assert.equal(panel.result.querySelector('p'),undefined);
+    panel.output('/view?filename=own.mp4');assert.equal(panel.result.hidden,true);assert.equal(panel.result.querySelector('a'),undefined);assert.equal(panel.result.querySelector('p'),undefined);assert.equal(panel.message,'');
 });
