@@ -61,6 +61,9 @@ test('new CSS zoom consumers require reviewing both owned body boundaries',()=>{
  assert.deepEqual(actual.sort(),[
   'canvas/creative_canvas.css :: .dae-creative .dae-creative-card:is([data-floating-header=true],[data-upload=true],[data-presentation=content])>.dae-creative-heading',
   'canvas/creative_canvas.css :: .dae-creative-card[data-compact=true]>.dae-creative-heading, .dae-creative-card[data-compact=true]>.dae-creative-summary',
+  // Rings are on the outer card or table scroll surface, outside both panel reset roots and table data cells.
+  'canvas/creative_canvas.css :: .dae-creative .dae-creative-selection-active',
+  'canvas/creative_canvas.css :: .dae-creative .dae-creative-world>.dae-creative-card[data-selected=true]:not([data-upload=true]):not(:has(.dae-creative-selection-active))',
   'canvas/creative_canvas.css :: .dae-creative .dae-creative-width-handle',
   'canvas/creative_canvas.css :: .dae-creative .dae-creative-width-handle::after',
   'canvas/creative_canvas.css :: .dae-creative .dae-creative-width-handle::before',

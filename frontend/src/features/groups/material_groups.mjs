@@ -231,9 +231,9 @@ export function installMaterialGroups(host,view){
     root.addEventListener('dae-canvas-wires-changed',updateWirePulse);
     function positionCreateButton(chosen){
         const members=chosen.filter(n=>isGroupMember(n)),bounds=root.getBoundingClientRect();
-        const allRects=members.map(n=>card(n.id)?.getBoundingClientRect()).filter(r=>r&&r.width&&r.height);
+        const allRects=chosen.map(n=>card(n.id)?.getBoundingClientRect()).filter(r=>r&&r.width&&r.height);
         const rects=allRects.filter(r=>r.right>bounds.left&&r.left<bounds.right&&r.bottom>bounds.top&&r.top<bounds.bottom);
-        selectionBox.hidden=members.length<2||!rects.length;
+        selectionBox.hidden=chosen.length<2||!rects.length;
         if(!selectionBox.hidden){
             const left=Math.min(...allRects.map(r=>r.left))-bounds.left-10,top=Math.min(...allRects.map(r=>r.top))-bounds.top-36;
             Object.assign(selectionBox.style,{left:left+'px',top:top+'px',width:(Math.max(...allRects.map(r=>r.right))-bounds.left+10-left)+'px',height:(Math.max(...allRects.map(r=>r.bottom))-bounds.top+10-top)+'px'});

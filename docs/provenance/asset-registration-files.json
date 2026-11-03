@@ -75,8 +75,9 @@
     },
     {
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
-      "destinationSha256": "9d28e001d5c73ced5fd6b660239d56be0b3e9e9f19983a6904531d6439eae3a2",
+      "destinationSha256": "93740784014f67600c717744e9366660c9ae727e80ef0637c5d5520974ea616e",
       "changes": [
+        "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
         "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
         "2026-11-02: Preserve generated media URL resolution and materialize exported video snapshots with optional text collections.",
         "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."

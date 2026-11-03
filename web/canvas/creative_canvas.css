@@ -197,4 +197,5 @@
 .dae-creative-card[data-presentation=content]>.dae-creative-heading>button,.dae-creative-card[data-presentation=content]>.dae-creative-type{display:none}
 .dae-creative-card[data-presentation=content]:has(>.dae-creative-body[hidden])>.dae-creative-heading>button{display:block}
 .dae-creative-card[data-presentation=content]>.dae-creative-body{padding:0;border:0;background:transparent}
-.dae-creative .dae-creative-selection-active{outline:1px solid var(--dae-focus);outline-offset:0}
+.dae-creative .dae-creative-selection-active{outline:calc(2px * var(--dae-canvas-inverse-zoom,1)) solid var(--dae-accent);outline-offset:calc(3px * var(--dae-canvas-inverse-zoom,1))}
+.dae-creative .dae-creative-world>.dae-creative-card[data-selected=true]:not([data-upload=true]):not(:has(.dae-creative-selection-active)){outline:calc(2px * var(--dae-canvas-inverse-zoom,1)) solid var(--dae-accent);outline-offset:calc(3px * var(--dae-canvas-inverse-zoom,1))}

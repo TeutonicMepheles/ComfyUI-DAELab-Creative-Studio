@@ -87,8 +87,9 @@
       "source": "web/creative_canvas_view.mjs",
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
       "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
-      "destinationSha256": "9d28e001d5c73ced5fd6b660239d56be0b3e9e9f19983a6904531d6439eae3a2",
+      "destinationSha256": "93740784014f67600c717744e9366660c9ae727e80ef0637c5d5520974ea616e",
       "changes": [
+        "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
         "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
         "2026-11-02: Enable text-only material output through the same picker eligibility rule as media; empty and unready snapshots remain disabled.",
         "2026-11-02: Preserve generated media URL resolution and materialize exported video snapshots with optional text collections.",
@@ -115,8 +116,8 @@
         "2026-11-02: skip individually invalid local files and omit empty result sections; missing files no longer abort otherwise valid output.",
         "Expose the leased panel active state without a geometry read; preserve viewport geometry and legacy adapter fallback. Two-instance table and mode checks are recorded in TABLE_PILOT_ACCEPTANCE_20261027.md; the 100 ms budget remains open.",
         "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained.",
-      "2026-10-30: make group/member port ownership exclusive and prioritize direct hits without style or layout changes.",
-      "2026-10-31: preserve native text selection ownership for copy, paste, delete and blank-pointer interactions."
+        "2026-10-30: make group/member port ownership exclusive and prioritize direct hits without style or layout changes.",
+        "2026-10-31: preserve native text selection ownership for copy, paste, delete and blank-pointer interactions."
       ],
       "kind": "production-source"
     },
@@ -124,8 +125,9 @@
       "source": "web/creative_canvas.css",
       "destination": "frontend/src/canvas/creative_canvas.css",
       "sourceSha256": "a858f0328a4f03c28c98a9d6742cbfc615e4ce1a4db8f50f50b2a3e0bca420ee",
-      "destinationSha256": "d9ce795745e37516aa50562f9d389876f535fc75c4f75f9c529c2c0745202d75",
+      "destinationSha256": "c6be5a98f365752cc78c573140a1dff5473f5d6bd75b0a0c40a043af831d77d3",
       "changes": [
+        "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
         "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "Move host-private DOM selectors unchanged to integration CSS and map host sidebar variable through an explicit integration variable.",
@@ -409,8 +411,9 @@
       "source": "web/material_groups.mjs",
       "destination": "frontend/src/features/groups/material_groups.mjs",
       "sourceSha256": "91c47c4439efda72218a2749e00030e570bf1731a3eb100282347aecc463e144",
-      "destinationSha256": "2a2e678d5e6567bd8efbb7b975f42daa510603d00b8d1897e2b04f5cc0a1d5d9",
+      "destinationSha256": "2b9554a3e7c615fb16474a628cbcff82f9dd63a3d4a7230a538c7793411418bb",
       "changes": [
+        "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "inject existing host history port at integration assembly boundary",
         "Inject CanvasHostPort plus view; delegate native graph commands; return controller for integration-owned registration; retain UI/layout behavior.",
@@ -419,7 +422,7 @@
         "2026-10-29: retain a non-interactive dashed, tinted bounding box around selected materials; dispose with group controller.",
         "2026-10-30: icon and text selection toolbar, direct reversible ungroup, and public snapshot-based batch favorites.",
         "2026-10-30: add whole-group ZIP download, retain three preset colors plus custom colors, and compact submenu rows.",
-      "2026-10-30: make group/member port ownership exclusive and prioritize direct hits without style or layout changes.",
+        "2026-10-30: make group/member port ownership exclusive and prioritize direct hits without style or layout changes.",
         "Require one unambiguous group owner across the complete selection; revalidate before ungroup and close stale group menus.",
         "2026-11-02: reject mixed-type group creation and incompatible drag targets while preserving legacy mixed-group reads.",
         "2026-11-02: distinguish existing-member reordering from adding to legacy mixed or unverifiable groups."
@@ -1107,9 +1110,10 @@
       "source": null,
       "sourceSha256": null,
       "destination": "tests/migrated_canvas/panel_zoom_scope.test.mjs",
-      "destinationSha256": "3c2c03bba5159fd2b399b991b5972dceb0b5ec79590c9082058a6753cdf80ddb",
+      "destinationSha256": "a4f16285b2d4ea08f3910629c677dfae2ecfa5566a2149146d89f7aef4466fa2",
       "kind": "rule-regression",
       "changes": [
+        "2026-11-03: Review selection ring consumers on outer cards/table scroll surfaces, outside isolated body and data-cell subtrees.",
         "Guard the two exact owned body scopes, actual root constructor/lease identity, preserved public sibling controls, and exhaustive CSS/JS zoom dependencies; no browser layout or performance pass claimed.",
         "2026-10-29: reviewed upload-only selection outline inverse zoom; TextInput and LLM reset boundaries remain unchanged."
       ]
