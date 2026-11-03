@@ -298,7 +298,7 @@
       "source": "web/table_generation_tasks.mjs",
       "destination": "frontend/src/features/generation/table_generation_tasks.mjs",
       "sourceSha256": "3812afeff3c3738abb6799f9e96812fe76e1e078262612efe9aa59b9163e765f",
-      "destinationSha256": "345bb7cac071e6f15f5f18adbb81ff47a0f529de0c68ae9ba6d12ad713a0dc55",
+      "destinationSha256": "774ea1128ea176a916980c99ee1504e8c09b3d1db506073d67492b43df09f0d8",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -306,17 +306,20 @@
         "Post-snapshot hardblock review: immutable receipt digest, exact missing-task recovery, no automatic replay; tests include original-scope and storage-unavailable rejection.",
         "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
         "2026-11-03 task2: stop current generation sequence explicitly; preserve owned native interruption facts and unknown remote outcomes without masking recovery with pause intent.",
-        "2026-11-03 task4: idempotent unknown observation and explicit bounded recovery availability; preserve interruption facts, original request identity and the three-check budget."
+        "2026-11-03 task4: idempotent unknown observation and explicit bounded recovery availability; preserve interruption facts, original request identity and the three-check budget.",
+        "2026-11-03 task8 reopen follow-up: unverified loaded references do not arm terminal notifications; scope live notification activity to the current request group."
       ]
     },
     {
       "source": "web/task_snapshots.mjs",
       "destination": "frontend/src/features/generation/task_snapshots.mjs",
       "sourceSha256": "4911f0d2226cd7d0969e5b87824d5f1acacdadd8e1dd719497593f638d9ed642",
-      "destinationSha256": "e2f7af9ed24c454da99b99a44279f0f94576f8048a9ea1736e081243330dbd37",
+      "destinationSha256": "0efbe7ccfddfad98a60b9d55ed18abe4d9a3e7de871718263afee0c8b684f6f2",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "2026-11-03 task8: confirmed generation stops use cancelled task presentation and the stop marker; preserve unconfirmed outcomes, truthful counts and terminal notification lifecycle.",
+        "2026-11-03 task8 reopen follow-up: unverified loaded references do not arm terminal notifications; scope live notification activity to the current request group."
       ]
     },
     {

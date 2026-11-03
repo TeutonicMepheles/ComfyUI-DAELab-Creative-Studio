@@ -2,9 +2,65 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {bindBusinessService} from '../../frontend/src/contracts/business.js';
 import {attachGenerationTasks} from '../../frontend/src/features/generation/table_generation_tasks.mjs';
-import {generationTaskSnapshots} from '../../frontend/src/features/generation/task_snapshots.mjs';
+import {generationTaskSnapshots,trackTaskCompletion} from '../../frontend/src/features/generation/task_snapshots.mjs';
+import {visibleTasks} from '../../frontend/src/features/tasks/creative_tasks_model.mjs';
+
+test('confirmed local interruption becomes a short stop notification, not a paused capsule',t=>{
+ let now=1000;t.mock.method(Date,'now',()=>now);
+ const table={fields:[{id:'g',presentation:'generation',generation:{kind:'video'}}],records:[{id:'r',meta:{generationColumns:{g:{requestId:'request',phase:'running'}}}}]};
+ const live=new Map([['request',{state:'running',phase:'running'}]]),read=trackTaskCompletion(()=>generationTaskSnapshots(table,live));
+ assert.equal(read()[0].state,'running');
+ live.set('request',{state:'running',phase:'interrupting',controlIntent:'interrupt'});
+ assert.equal(read()[0].detail,'中止中');
+ live.set('request',{state:'cancelled',phase:'interrupted',controlIntent:'interrupt',error:'interrupted_before_submit'});
+ now=2000;const stopped=read()[0];
+ assert.equal(stopped.state,'cancelled');assert.equal(stopped.detail,'已中止');assert.equal(stopped.done,0);assert.equal(stopped.finishedAt,2000);
+ assert.match(visibleTasks([stopped],2000)[0].text,/已中止/);
+ now=3000;assert.equal(read()[0].finishedAt,2000);
+ assert.equal(visibleTasks(read(),6000).length,0);
+ assert.equal(visibleTasks(trackTaskCompletion(()=>generationTaskSnapshots(table,live))(),6000).length,0);
+});
+
+test('mixed completed/stopped rows retain success counts, and unknown stop outcomes remain recovery',()=>{
+ const source={createdAt:1,groupCount:2},table={fields:[{id:'g',presentation:'generation'}],records:['a','b'].map(id=>({id,meta:{generationColumns:{g:{requestId:id,phase:'running',source}}}}))};
+ const live=new Map([['a',{phase:'complete',state:'succeeded',source}],['b',{phase:'interrupted',state:'cancelled',controlIntent:'interrupt',source}]]);
+ const stopped=generationTaskSnapshots(table,live)[0];assert.equal(stopped.state,'cancelled');assert.equal(stopped.detail,'已中止');assert.equal(stopped.done,1);assert.equal(stopped.total,2);
+ live.set('b',{phase:'needs_recovery',state:'unknown',error:'remote_execution_interrupted_unknown',source});
+ const unknown=generationTaskSnapshots(table,live)[0];assert.equal(unknown.state,'recovery');assert.doesNotMatch(unknown.detail,/已中止|已暂停/);
+ assert.match(unknown.detail,/本地执行已中断，远端结果待核实/);
+ live.delete('b');table.records[1].meta.generationColumns.g.phase='interrupted';
+ assert.equal(generationTaskSnapshots(table,live)[0].state,'recovery');
+});
+
+test('a pending remainder keeps the sequence stopping, while a success race stays success',()=>{
+ const source={createdAt:1,groupCount:2},table={fields:[{id:'g',presentation:'generation'}],records:['a','b'].map(id=>({id,meta:{generationColumns:{g:{requestId:id,phase:'running',source}}}}))};
+ const live=new Map([['a',{phase:'interrupted',state:'cancelled',source}],['b',{phase:'waiting',state:'pending',source}]]);
+ const stopping=generationTaskSnapshots(table,live)[0];assert.equal(stopping.state,'running');assert.equal(stopping.detail,'中止中');
+ live.set('a',{phase:'complete',state:'succeeded',controlIntent:'interrupt',source});live.set('b',{phase:'complete',state:'succeeded',source});
+ const completed=generationTaskSnapshots(table,live)[0];assert.equal(completed.state,'success');assert.equal(completed.done,2);assert.doesNotMatch(completed.detail,/中止|暂停/);
+});
 
 const clone = globalThis.structuredClone.bind(globalThis);
+test('reload verification of an old receipt does not announce its historical terminal result',t=>{
+ t.mock.method(Date,'now',()=>9000);
+ for(const [state,phase] of [['cancelled','interrupted'],['succeeded','complete']]){
+  const table={fields:[{id:'g',presentation:'generation'}],records:[{id:'r',meta:{generationColumns:{g:{requestId:'old',phase:'running'}}}}]},live=new Map();
+  const read=trackTaskCompletion(()=>generationTaskSnapshots(table,live));
+  assert.equal(read()[0].state,'queued'); // saved active receipt, not yet checked
+  live.set('old',{state,phase});
+  const terminal=read()[0];assert.equal(terminal.finishedAt,undefined);assert.equal(visibleTasks([terminal],9000).length,0);
+ }
+});
+test('a new local request can announce a stop before its first active status response',t=>{
+ t.mock.method(Date,'now',()=>12000);
+ const table={fields:[{id:'g',presentation:'generation'}],records:[{id:'r',meta:{generationColumns:{g:{requestId:'new',phase:'waiting'}}}}]},live=new Map(),localRequests=new Set(['new']);
+ const read=trackTaskCompletion(()=>generationTaskSnapshots(table,live,localRequests));
+ read();live.set('new',{state:'cancelled',phase:'interrupted'});
+ assert.equal(read()[0].finishedAt,12000);
+ table.records[0].meta.generationColumns.g={requestId:'different-old',phase:'running'};read();
+ live.set('different-old',{state:'cancelled',phase:'interrupted'});
+ assert.equal(read()[0].finishedAt,undefined);
+});
 test('grouped task scope hides numeric progress and counts only verified success in the submitted group',()=>{
  const field={id:'image',presentation:'generation',generation:{kind:'image'}},source={createdAt:10,groupCount:2};
  const table={fields:[field],records:[
@@ -47,6 +103,19 @@ function cloneObserver(t) {
  t.mock.method(globalThis,'structuredClone',value=>{values.push(value);return clone(value);});
  return values;
 }
+test('host reload first projects an unverified reference, then reads its old stopped fact without notification',async t=>{
+ t.mock.timers.enable({apis:['setInterval']});t.mock.method(Date,'now',()=>15000);
+ const table=addLegacyGeneration(tableFixture()),identity={documentId:'reopened',tableId:'table',nodeId:'node'},source={...identity,recordId:'row',fieldId:'image',createdAt:1};
+ const ref={requestId:'old-stopped',source,inputDigest:'a'.repeat(64),model:'synthetic'};
+ table.records[0].meta.studioGenerationRefs={image:[ref]};
+ const report={requestId:ref.requestId,source,inputFingerprint:ref.inputDigest,version:9,state:'cancelled',phase:'interrupted',controlIntent:'interrupt'};
+ const calls=[];t.after(bindBusinessService('generation',{request:async action=>{calls.push(action);return {ok:true,json:async()=>({jobs:[report],nextOffset:null})};}}));
+ const reopened=owner(t,table,{identity});
+ assert.equal(reopened.tasks.tasks()[0].state,'recovery');
+ t.mock.timers.tick(3000);await new Promise(setImmediate);
+ const stopped=reopened.tasks.tasks()[0];assert.equal(stopped.state,'cancelled');assert.equal(stopped.finishedAt,undefined);assert.deepEqual(visibleTasks([stopped],15000),[]);
+ assert.equal(reopened.state.edits,0);assert.ok(calls.every(action=>action==='status'));
+});
 function assertRead(owner,clones,expectedClones) {
  owner.state.reads=0;clones.length=0;
  const result=owner.tasks.tasks();

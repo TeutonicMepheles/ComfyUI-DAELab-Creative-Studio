@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "8db1f41ef2e67ca3157fc8c316cda624fe0e511fa603e1aece0505ef1903ca06",
+  "sourceFingerprint": "27dc2168f5257acd9a7d862e70de5b85b1a32f11113b987b726592c917eece6a",
   "files": [
     {
       "path": "AGENTS.md",
@@ -552,11 +552,11 @@
     },
     {
       "path": "features/generation/table_generation_tasks.mjs",
-      "sha256": "345bb7cac071e6f15f5f18adbb81ff47a0f529de0c68ae9ba6d12ad713a0dc55"
+      "sha256": "774ea1128ea176a916980c99ee1504e8c09b3d1db506073d67492b43df09f0d8"
     },
     {
       "path": "features/generation/task_snapshots.mjs",
-      "sha256": "cee9ce7048ae32dccd9144c0ddb93d26dca1ee89a777d6397c141c4029492d8a"
+      "sha256": "0efbe7ccfddfad98a60b9d55ed18abe4d9a3e7de871718263afee0c8b684f6f2"
     },
     {
       "path": "features/generation/video_task_linked_prompt.mjs",
@@ -944,7 +944,7 @@
     },
     {
       "path": "features/tasks/creative_tasks.css",
-      "sha256": "d152b3deba5203a64905f14a5beb7b340f47a0184f04c0c926fa390340d9ca46"
+      "sha256": "b069fdcb3205406eec2984c1c271343034b48e2b7332cc78297b60a3a903469b"
     },
     {
       "path": "features/tasks/creative_tasks.mjs",
@@ -1152,7 +1152,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "07d2dcafe86608d605c3fca286cb2ed51e76fc0c4aa0bffb138af0bee77b09f6"
+      "sha256": "910a984f720d9314ba3555ed239b21bc5e61c492cc808329fe9b9b21d1b48f56"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
