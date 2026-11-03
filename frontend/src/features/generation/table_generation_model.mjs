@@ -33,6 +33,18 @@ export function setRowGenerationConfig(row,fieldId,config){
  row.meta||={};row.meta.generationSettings||={};row.meta.generationSettings[config.promptFieldId]||={};
  row.meta.generationSettings[config.promptFieldId][fieldId]=structuredClone(config);
 }
+// Share execution choices, never another row's prompt or material bindings.
+export function applyTaskGenerationConfig(table,fieldId,config,{skip=new Set()}={}){
+ const field=table.fields.find(field=>field.id===fieldId);
+ if(!field)throw new Error('生成配置已变化');
+ const shared=Object.fromEntries(['kind','model','mode','settings'].filter(key=>key in config).map(key=>[key,structuredClone(config[key])]));
+ for(const row of table.records){
+  const own=rowGenerationConfig(row,fieldId,field.generation);
+  setRowGenerationConfig(row,fieldId,skip.has(row.id)?own:{...own,...structuredClone(shared)});
+ }
+ field.generation={...field.generation,...structuredClone(shared)};
+ field.generationConfigRevision=(field.generationConfigRevision||0)+1;
+}
 export const promptColumns=table=>table.fields.filter(f=>isTextColumn(table,f));
 export function generationConfigField(table,fieldId,promptFieldId){
  const field=table.fields.find(f=>f.id===fieldId);if(!isGeneration(field))return field;
@@ -204,7 +216,7 @@ export function syncGenerationPromptMode(table,before,fieldId,defaults){
  for(const row of table.records){
   const old=oldRows.get(row.id);if(!old)continue;
   const config=rowGenerationConfig(row,fieldId,defaults),previous=rowGenerationConfig(old,fieldId,defaults);
-  if(config.kind==='video'&&config.mode==='text2video'&&COMFY_VIDEO_MODELS.includes(config.model)){
+  if(config.kind==='video'&&config.mode==='text2video'&&COMFY_VIDEO_MODELS.includes(config.model)&&JSON.stringify(config)===JSON.stringify(previous)&&JSON.stringify(effectivePrompt(table,row,config.promptFieldId))!==JSON.stringify(effectivePrompt(before,old,config.promptFieldId))){
    const doc=toColumnPrompt(effectivePrompt(table,row,config.promptFieldId),row);
    if(doc.segments.some(s=>s.type==='column'&&(s.assetId||Array.isArray(row.values[s.fieldId])))){
     setRowGenerationConfig(row,fieldId,{...config,mode:'mixed2video'});continue;

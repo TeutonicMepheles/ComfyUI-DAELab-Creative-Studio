@@ -5,12 +5,37 @@ import ts from 'typescript';
 import {installDom} from './prompt_optimization_dom.mjs';
 import {generationDurationOptions,generationParameterSpecs,generationParameterModes,generationModes,generationModeChoice,promptSettingsItems,generationParametersSummary,createGenerationParameters,generationSettingSpecs} from '../../frontend/src/features/prompt/table_prompt_settings.mjs';
 import {generationModelIconURL} from '../../frontend/src/features/generation/generation_model_icons.mjs';
-import {LOCAL_VIDEO_MODEL,applyColumnGenerationConfig,promptGenerationOwner,rowGenerationConfig,generationAttempts} from '../../frontend/src/features/generation/table_generation_model.mjs';
+import {LOCAL_VIDEO_MODEL,applyColumnGenerationConfig,promptGenerationOwner,rowGenerationConfig,generationAttempts,applyTaskGenerationConfig} from '../../frontend/src/features/generation/table_generation_model.mjs';
 import {createVideoTasks} from '../../frontend/src/features/generation/video_tasks_model.mjs';
 import {LOCAL_VIDEO_SIZE_PRESETS,localVideoSizePresets,normalizeLocalGenerationConfig} from '../../frontend/src/features/prompt/table_prompt_settings.mjs';
 import {applyGenerationModelDefaults,needsGenerationPromptSelector} from '../../frontend/src/features/generation/table_generation_panel.mjs';
 import {normalizeTable} from '../../frontend/src/features/table/data_table_model.mjs';
 import {OPTIMIZATION_MODELS} from '../../frontend/src/features/prompt/prompt_optimization_model.mjs';
+
+test('shared task choices preserve each row inputs, bindings and existing results across reload',()=>{
+ const state=createVideoTasks(),table=state.table,field=table.fields.find(f=>f.id===state.fieldId),first=table.records[0];
+ first.values[field.generation.promptFieldId]='first prompt';first.values[field.id]=[{id:'existing-result'}];
+ first.meta={generationFrames:{[field.id]:{first:{assetId:'image-one'}}},generationReferences:{[field.id]:[{assetId:'image-one'}]}};
+ const second=structuredClone(first);second.id='second';second.selected=false;second.values[field.generation.promptFieldId]='second prompt';second.meta.generationFrames[field.id].first.assetId='image-two';second.meta.generationReferences[field.id][0].assetId='image-two';table.records.push(second);
+ const values=structuredClone(table.records.map(row=>row.values)),bindings=structuredClone(table.records.map(row=>row.meta));
+ applyTaskGenerationConfig(table,field.id,{...field.generation,model:'Seedance 2.0',mode:'mixed2video',settings:{duration:8},attempts:3});
+ const reloaded=JSON.parse(JSON.stringify(table));
+ for(const [index,row] of reloaded.records.entries()){
+  const config=rowGenerationConfig(row,field.id,reloaded.fields.find(f=>f.id===field.id).generation);
+  assert.equal(config.mode,'mixed2video');assert.equal(config.model,'Seedance 2.0');assert.equal(config.settings.duration,8);assert.equal(generationAttempts(config),1);
+  assert.deepEqual(row.values,values[index]);assert.deepEqual(row.meta.generationFrames,bindings[index].generationFrames);assert.deepEqual(row.meta.generationReferences,bindings[index].generationReferences);
+ }
+ first.meta.generationSettings[field.generation.promptFieldId][field.id].settings.duration=99;
+ assert.equal(rowGenerationConfig(second,field.id,field.generation).settings.duration,8);
+});
+
+test('sharing keeps protected tasks on their original default even when they have no row override',()=>{
+ const state=createVideoTasks(),table=state.table,field=table.fields.find(f=>f.id===state.fieldId),first=table.records[0],second=structuredClone(first);second.id='held';table.records.push(second);
+ const before=structuredClone(rowGenerationConfig(second,field.id,field.generation));
+ applyTaskGenerationConfig(table,field.id,{...field.generation,mode:'mixed2video',settings:{duration:9}},{skip:new Set(['held'])});
+ assert.equal(rowGenerationConfig(first,field.id,field.generation).mode,'mixed2video');
+ assert.deepEqual(rowGenerationConfig(second,field.id,field.generation),before);
+});
 
 test('H3 ratio presets use exact 32-aligned dimensions and obey live size bounds',()=>{
  const schema={properties:{width:{min:32,max:8192,step:32},height:{min:32,max:8192,step:32}}};

@@ -8,7 +8,7 @@ import {effectivePrompt,toColumnPrompt} from '../prompt/table_prompt_template.mj
 import {frameReferenceOptions,createReferenceMenu,materialReferenceLabel} from '../../application/table_reference_options.mjs';
 import {PROMPT_SETTINGS_TEMPLATE,createPromptSettingsBar,promptSettingsStyle,normalizeLocalGenerationConfig,generationModeLabels,generationModeChoice,generationSettingSpecs,generationParameterSpecs,generationModes,promptSettingSpecs,generationSettingWarning,createGenerationSetting,createGenerationParameters,createLocalVideoSizePicker,createSettingsPopover} from '../prompt/table_prompt_settings.mjs';
 import {prependGenerationModelIcon,generationModelLabel} from './generation_model_icons.mjs';
-import {promptGenerationOwner,applyColumnGenerationConfig,applyColumnFrameSources} from './table_generation_model.mjs';
+import {promptGenerationOwner,applyColumnGenerationConfig,applyColumnFrameSources,applyTaskGenerationConfig} from './table_generation_model.mjs';
 import {getModelCatalog} from '../models/model_catalog.mjs';
 import {canSubmitModel,updateModelOption} from '../models/model_catalog_ui.mjs';
 const el=(tag,parent,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;parent?.append(node);return node;};
@@ -153,11 +153,20 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
    if(!entry){if(state){state.root.remove();settingBars.delete(cell);delete cell.dataset.generationSettings;cell.style.removeProperty('--generation-settings-height');}continue;}
    const {field,config}=entry;
    if(state?.fieldId!==field.id){mayHaveSettingBars=true;state?.root.remove();const root=el('div',cell),bar=createPromptSettingsBar((key,anchor)=>void chooseSetting(field.id,cell.dataset.record,key,anchor));root.className='generation-prompt-settings-list';root.append(bar.root);state={root,bar,fieldId:field.id};settingBars.set(cell,state);cell.dataset.generationSettings='true';}
-   state.bar.update(rowGenerationConfig(row,field.id,config),field.name);
+   state.bar.update(rowGenerationConfig(row,field.id,config),field.name,'all');
    cell.style.setProperty('--generation-settings-height','38px');
   }
  }
  function closeSettings(){settingsMenu?.close();}
+ const protectedSettings=row=>['waiting','running','pausing','paused','needs_recovery'].includes(row?.phase);
+ function assertSettingsEditable(fieldId,recordId){
+  if(!canGenerate()||tasks.submitting||protectedSettings(tasks.stateFor(getTable().records.find(row=>row.id===recordId),fieldId)))throw new Error('当前任务执行或待恢复中，请切换到可编辑任务');
+ }
+ function shareSettings(fieldId,config){
+  const skip=new Set(getTable().records.filter(row=>protectedSettings(tasks.stateFor(row,fieldId))).map(row=>row.id));
+  editor.change(t=>applyTaskGenerationConfig(t,fieldId,config,{skip}),{render:false});
+  if(skip.size)notify(`已同步可编辑任务，保留 ${skip.size} 条执行、暂停或待恢复任务的配置`);
+ }
  async function setKind(fieldId,recordId,kind){
   const row=()=>getTable().records.find(r=>r.id===recordId),field=findField(fieldId);if(!field||!row()||!kinds.includes(kind))return;
   const before=JSON.stringify(frameConfig(fieldId,row())),config=structuredClone(frameConfig(fieldId,row()));if(config.kind===kind)return;
@@ -167,7 +176,8 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
   applyGenerationModelDefaults(config,schema);
   if(!alive||!row()||!findField(fieldId))return;
   if(!canGenerate()||tasks.submitting||JSON.stringify(frameConfig(fieldId,row()))!==before)throw new Error('任务已变化，请重新选择生成类型');
-  editor.change(t=>setRowGenerationConfig(t.records.find(r=>r.id===recordId),fieldId,config),{render:false});
+  assertSettingsEditable(fieldId,recordId);
+  shareSettings(fieldId,config);
   syncFrameTags();refreshFrameTokens();refreshSettingBars();if(warning)notify(warning);
  }
  async function chooseSetting(fieldId,recordId,key,anchor){
@@ -178,6 +188,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
   const menu=createSettingsPopover(anchor,key==='duration'?'选择视频时长':spec.label,()=>{parameterView?.dispose?.();parameterView=null;if(settingsMenu===menu)settingsMenu=null;});settingsMenu=menu;
   if(combined)menu.root.classList.add('generation-parameters-popover');
   const content=el('div',menu.root),status=el('p',menu.root);if(key==='size'||key==='duration')content.className='generation-settings-fields';status.setAttribute('role','status');
+  if(getTable().records.length>1)el('small',menu.root,'全部任务共用：类型、模型和生成参数。提示词、参考素材及抽卡次数分别保留；执行、暂停或待恢复任务跳过。');
   const draft=structuredClone(currentConfig()),localSize=key==='size'&&isLocalVideoModel(draft.model);let baseline=JSON.stringify(currentConfig()),schema=null,schemaError='',busy=false;
   const active=()=>alive&&settingsMenu===menu&&Boolean(findField(fieldId)&&row());
   const current=()=>{if(JSON.stringify(currentConfig())!==baseline)throw new Error('配置已变化，请重新打开选择面板');};
@@ -192,14 +203,16 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
   async function commit(update,reset=false){
    if(busy)return;busy=true;menu.root.setAttribute('aria-busy','true');content.querySelectorAll('button,input,select').forEach(input=>input.disabled=true);
    try{
-    current();const next=structuredClone(draft);update(next);
+    assertSettingsEditable(fieldId,recordId);current();const next=structuredClone(draft);update(next);
     if(reset){
      status.textContent='正在读取模型选项…';
      if(!schema||next.kind!==draft.kind||next.model!==draft.model){try{const caps=await catalogModelCapabilities(next);schema=caps.schema;schemaError='';}catch(error){schema={};schemaError='模型不可用';if(isLocalGenerationModel(next.model))throw error;}if(!active())return;}
      applyGenerationModelDefaults(next,schema);
     }
     if(!active())return;current();
-    editor.change(t=>setRowGenerationConfig(t.records.find(r=>r.id===recordId),fieldId,next),{render:false});
+    assertSettingsEditable(fieldId,recordId);
+    if(key==='attempts'||next.attempts!==draft.attempts)editor.change(t=>setRowGenerationConfig(t.records.find(row=>row.id===recordId),fieldId,next),{render:false});
+    else shareSettings(fieldId,next);
     baseline=JSON.stringify(currentConfig());Object.assign(draft,structuredClone(next));syncFrameTags();refreshFrameTokens();refreshSettingBars();
     const warning=schemaError?'已保存，但未能确认模型兼容性：'+schemaError:generationSettingWarning(next,schema||{});
     if(combined||localSize){status.textContent=warning;drawParameters();}else if(key==='size'||key==='duration')status.textContent=warning;else menu.close();
