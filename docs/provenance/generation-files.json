@@ -164,7 +164,7 @@
     },
     {
       "destination": "backend/generation/service.py",
-      "destinationSha256": "cfb319d3ac57be2fb9c3462b02c431d1c400a5c1c65a7e73202e16c8370e7e7e",
+      "destinationSha256": "3023e2e626cae8e2f20117d7714f19080fbb2cc8e912f866445e88cf71c87fa2",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -185,7 +185,8 @@
         "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
         "Shared CoreServices resource admission (GPU 1/cloud 3/transcode 2), retained uncertain executions, and off-loop persistence where asynchronous; existing native queue and JobLedger remain authoritative.",
         "Cancellation-safe blocking completion holds capacity through repeated caller cancellation; async native VideoEdit captures host context before entering its synchronous renderer. Ordered regressions retain initial failure evidence.",
-        "Fresh same-provider/task CAS cancellation confirmation preserves winning terminal facts; resource restoration consumes one consistent SQLite snapshot and preserves terminal-release ordering. Fixture restoration adapts only owned historical labels."
+        "Fresh same-provider/task CAS cancellation confirmation preserves winning terminal facts; resource restoration consumes one consistent SQLite snapshot and preserves terminal-release ordering. Fixture restoration adapts only owned historical labels.",
+        "2026-11-03 task2: stop current generation sequence explicitly; preserve owned native interruption facts and unknown remote outcomes without masking recovery with pause intent."
       ]
     },
     {
@@ -201,7 +202,7 @@
     },
     {
       "destination": "backend/integrations/comfyui/generation_nodes/native_host.py",
-      "destinationSha256": "abf8e2ce98d493bb489d05616b85e02efabfbe1a7c126071d2aaa77631328eb0",
+      "destinationSha256": "37dafd6559bed67da0314709646bc78ae7b0df16b5d048e0d21b1fd41b99bf95",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -213,7 +214,8 @@
         }
       ],
       "changes": [
-        "Confine prompt validation/queue/history/interruption to integration; verify request and native identity, atomic owned interrupt, explicit middleware installation."
+        "Confine prompt validation/queue/history/interruption to integration; verify request and native identity, atomic owned interrupt, explicit middleware installation.",
+        "2026-11-03 task2: stop current generation sequence explicitly; preserve owned native interruption facts and unknown remote outcomes without masking recovery with pause intent."
       ]
     },
     {
@@ -649,13 +651,14 @@
     },
     {
       "destination": "tests/generation/test_native_and_admission.py",
-      "destinationSha256": "212fc85ebd18897f86c8f36e9976eb07889bbe4c4700273169c996e3ac322fac",
+      "destinationSha256": "6c538845ed0f18ab228a35fd5269b7c3a70e1e5767d7fa346cc4298cfa640a27",
       "kind": "offline-test-evidence",
       "source": null,
       "sourceSha256": null,
       "sourceReferences": [],
       "changes": [
-        "Deterministic public synthetic validation; no live inference or product acceptance claim."
+        "Deterministic public synthetic validation; no live inference or product acceptance claim.",
+        "2026-11-03 task2: stop current generation sequence explicitly; preserve owned native interruption facts and unknown remote outcomes without masking recovery with pause intent."
       ]
     },
     {

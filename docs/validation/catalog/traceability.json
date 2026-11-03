@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "b72cdb8cc459a20843bcf5c55dd1100bb502a45af585aa73a12d34ff7df99d1d",
+  "specificationHash": "2b472f3526a652d9156ea6fc0c4591d4d678a2914266660fc6e5352fe3b7a8e5",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -6518,8 +6518,8 @@
       "feature": "F-BIZ-048",
       "task": "TASK-M4-FEATURES-GENERATION",
       "owner": "features/generation",
-      "requirement": "暂停、打断、继续、重启作用于声明范围，不误伤其他节点、表格实例或未选中任务。",
-      "requirementHash": "34b6d27b2a620c326d3f7bab2769ac570cd33918aabc68ef3384797dc7df5572",
+      "requirement": "生成节点运行时右下角使用中止图标，不提供暂停/继续；单任务与多任务均中止当前节点本轮整个序列，不影响其他节点。LLM 优化仍按既有作用域合同。",
+      "requirementHash": "a3e2642c2034ba953bcdf895c40cf3a4325769c7a481874a145eea9f0be2c6d2",
       "usecases": [
         "UC-BIZ-019"
       ],
@@ -6540,8 +6540,8 @@
       "feature": "F-BIZ-048",
       "task": "TASK-M4-FEATURES-GENERATION",
       "owner": "features/generation",
-      "requirement": "暂停保留继续意图并持久化；打断结束当前执行且不自动派发替代任务；重启创建新请求身份并保留旧回执与结果。",
-      "requirementHash": "cd2a9c0c188c19872e30ddc7ad34d2821c0b9e1b89f448f720d27a9914fa31a2",
+      "requirement": "中止停止剩余派发，按能力请求移出原生排队项或中断执行；刷新重开不恢复本轮派发。已完成结果保留，仅用户主动重新生成创建新请求并保留旧记录，不继续旧序列。",
+      "requirementHash": "7b2f789390ca8f882f6fae3a39395a60d8497e563e5e033b5af1723a7466f9f1",
       "usecases": [
         "UC-BIZ-019"
       ],
@@ -6562,8 +6562,8 @@
       "feature": "F-BIZ-048",
       "task": "TASK-M4-FEATURES-GENERATION",
       "owner": "features/generation",
-      "requirement": "无法取消的远端执行不得显示已停止或已退款；结果未知时禁止自动新提交。",
-      "requirementHash": "364b45482701586d9a8686069eb9f856e8370b47dc2cd8f1d920cd939fbb6d0a",
+      "requirement": "工作室和 Comfy 列表中断均按匹配事实刷新节点及占位输出；终态或待核实优先于控制意图。本地中断但远端未知须区分，不宣称远端已取消或退款，禁止自动重提。",
+      "requirementHash": "b226a0ec3300dc0bc2ec3e97eaa1080338fdf6ac96fea1001c6943718d283455",
       "usecases": [
         "UC-BIZ-019"
       ],
@@ -12002,19 +12002,19 @@
         "EV-ARCH",
         "EV-JOBS"
       ],
-      "specificationHash": "a2f47127ce676160990c53d5f5a010ab99576ad8360e1d36d61bfc2b1a85b9e0",
+      "specificationHash": "c1f9ac411c1d2de9f00ee7084e1523ae7eef03239b6cb07801cf6e5c9532e600",
       "assertions": [
         {
           "id": "AS-BIZ-055-001",
-          "expected": "动作与范围写入账本意图，不误伤其他任务。"
+          "expected": "本轮剩余项不再提交，按身份及能力控制，不误伤其他节点。"
         },
         {
           "id": "AS-BIZ-055-002",
-          "expected": "重复点击不创建重复控制请求。"
+          "expected": "重复点击不重复请求，成功结果保留；本地中断不冒充远端取消或退款。"
         },
         {
           "id": "AS-BIZ-055-003",
-          "expected": "不可取消远端不进入已停止完成态。"
+          "expected": "终态及待核实原因优先，不持续显示暂停中，不自动重提。"
         }
       ],
       "status": "not-executed",
@@ -12037,22 +12037,21 @@
         "AC-BIZ-048-003"
       ],
       "evals": [
-        "EV-JOBS",
         "EV-UI"
       ],
-      "specificationHash": "fd61bc667b5e9c25cfe178160d3e2c4b942a1cbd541bac6e60f19785d23cc1f3",
+      "specificationHash": "51da675c43a7fb31f5c3b33cb81f6bc8b29246b2f6a9f3fcad91444f2e0c7b83",
       "assertions": [
         {
           "id": "AS-BIZ-056-001",
-          "expected": "B 的运行任务不被 A 的暂停取消。"
+          "expected": "右下角为中止图标，无暂停/继续；A 本轮剩余项不派发，B 不受影响。"
         },
         {
           "id": "AS-BIZ-056-002",
-          "expected": "重开后 A 仍为暂停直至显式继续。"
+          "expected": "重开不恢复本轮派发；外部中断状态收敛，远端未知明确呈现。"
         },
         {
           "id": "AS-BIZ-056-003",
-          "expected": "重启保留旧结果。"
+          "expected": "新请求身份独立，旧结果保留，不自动重提或复用旧图报成功。"
         }
       ],
       "status": "not-executed",
@@ -13856,7 +13855,6 @@
         "TC-BIZ-041",
         "TC-BIZ-049",
         "TC-BIZ-055",
-        "TC-BIZ-056",
         "TC-BIZ-057",
         "TC-SYS-007",
         "TC-SYS-012",

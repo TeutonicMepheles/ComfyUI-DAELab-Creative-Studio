@@ -71,7 +71,8 @@ class ComfyNativeQueue:
                 raise SubmissionRejected('Native history belongs to another task; ownership was not inferred.')
             status = history.get('status', {})
             events = {event for event, _detail in status.get('messages', [])}
-            if 'execution_interrupted' in events:
+            interrupted_error = any(event == 'execution_error' and isinstance(detail, dict) and str(detail.get('exception_type', '')).split('.')[-1] == 'ProcessingInterrupted' for event, detail in status.get('messages', []))
+            if 'execution_interrupted' in events or interrupted_error:
                 return Observation('cancelled', task_id)
             if status.get('status_str') == 'error':
                 return Observation('failed', task_id, error_code='native_execution_failed')

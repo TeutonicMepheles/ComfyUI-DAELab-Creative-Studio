@@ -29,6 +29,31 @@ class Queue:
 
 
 class NativeTests(unittest.IsolatedAsyncioTestCase):
+    async def test_processing_interrupted_error_is_local_stop_but_cloud_outcome_unknown(self):
+        from backend.integrations.comfyui.comfy_video import ComfyVideoQueue
+        await self.host.enqueue('owned-error', {}, owner='row-error')
+        self.queue.history['owned-error'] = {
+            'prompt': self.queue.pending.pop(), 'outputs': {},
+            'status': {'status_str': 'error', 'completed': False,
+                       'messages': [('execution_error', {'exception_type': 'comfy.model_management.ProcessingInterrupted', 'exception_message': 'Task cancelled'})]},
+        }
+        self.assertEqual((await self.host.query('owned-error', owner='row-error', kind='image')).state, 'cancelled')
+        remote = ComfyVideoQueue(self.host.server, self.host.validate_prompt)
+        observation = await remote.query('owned-error', owner='row-error', kind='image')
+        self.assertEqual((observation.state, observation.error_code), ('unknown', 'remote_execution_interrupted_unknown'))
+
+    async def test_cloud_interrupt_is_owned_local_request_and_not_remote_cancel_confirmation(self):
+        from backend.integrations.comfyui.comfy_video import ComfyVideoQueue
+        interrupted = []
+        remote = ComfyVideoQueue(self.host.server, self.host.validate_prompt, interrupt_owned=lambda task, owner: interrupted.append((task, owner)))
+        await self.host.enqueue('running-cloud', {}, owner='owner-cloud')
+        self.queue.running.append(self.queue.pending.pop())
+        self.assertFalse(await remote.cancel('running-cloud', owner='another-owner'))
+        self.assertEqual(interrupted, [])
+        self.assertFalse(await remote.cancel('running-cloud', owner='owner-cloud'))
+        self.assertEqual(interrupted, [('running-cloud', 'owner-cloud')])
+        self.assertEqual((await remote.query('running-cloud', owner='owner-cloud', kind='image')).state, 'running')
+
     async def asyncSetUp(self):
         self.queue = Queue()
         async def validate(*_args): return (True, None, ['save'], {})

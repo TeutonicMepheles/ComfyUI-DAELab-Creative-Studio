@@ -279,7 +279,7 @@
       "source": "web/table_generation_panel.mjs",
       "destination": "frontend/src/features/generation/table_generation_panel.mjs",
       "sourceSha256": "547d0543ec0e6359f0146f429ca9a11f9d4cce5682e1c212f01439492b1c9a50",
-      "destinationSha256": "72361718733296b63d16bb37b23ed480b78d485a6f08c80576756b9a51cc42ec",
+      "destinationSha256": "12bff708a3c0de2d6af263dffda39de6d1feceda23aa6b479e9659485475a2f7",
       "kind": "production-source",
       "changes": [
         "2026-11-02: Explain the local one-image reference mode and explicit width/height scaling.",
@@ -289,20 +289,22 @@
         "At the private normalized-table boundary, skip frame/source synchronization when known field descriptors contain no generation field; avoid otherwise unused prompt-column row-value qualification. Unknown outer/field shapes and generation-bearing tables retain the original path; public validation, frame-token refresh, stale metadata and configured updates are unchanged. Focused mechanism counts do not establish browser performance.",
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
         "2026-11-03 task49: share task execution choices while preserving per-row inputs, results and protected request configurations; scope labels and regression coverage.",
-        "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions."
+        "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions.",
+        "2026-11-03 task2: stop current generation sequence explicitly; preserve owned native interruption facts and unknown remote outcomes without masking recovery with pause intent."
       ]
     },
     {
       "source": "web/table_generation_tasks.mjs",
       "destination": "frontend/src/features/generation/table_generation_tasks.mjs",
       "sourceSha256": "3812afeff3c3738abb6799f9e96812fe76e1e078262612efe9aa59b9163e765f",
-      "destinationSha256": "6c9cb526934f56e5dadc8471feb44c72aca41e67382e8a927b5d2c22a10b549c",
+      "destinationSha256": "dd1daeb41c60bc8efa84cdb7f24cef08bf04390745a99ae57f8af795a6a4f7d1",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
         "Post-snapshot hardblock review: immutable receipt digest, exact missing-task recovery, no automatic replay; tests include original-scope and storage-unavailable rejection.",
-        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
+        "2026-11-03 task2: stop current generation sequence explicitly; preserve owned native interruption facts and unknown remote outcomes without masking recovery with pause intent."
       ]
     },
     {
@@ -367,7 +369,7 @@
       "source": "web/video_tasks_panel.mjs",
       "destination": "frontend/src/features/generation/video_tasks_panel.mjs",
       "sourceSha256": "1f567635a4b88ab672b6f656d1c2ede14a5a79432592e26ccf2c39775281452d",
-      "destinationSha256": "433d5ada47c4f8500b745842987f327068b6e017ba81029c3052e9e3c105b584",
+      "destinationSha256": "35c9d5089d7adb886d81ca819576f6827619b87dfe17af1dcf3f3bd66717ea70",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
@@ -380,7 +382,8 @@
         "Defer generation panel installation/input sync until native workflow loading settles; preserve history capability diagnostics and original source hash.",
         "2026-11-03 task49: share task execution choices while preserving per-row inputs, results and protected request configurations; scope labels and regression coverage.",
         "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions.",
-        "2026-11-03 task51: hide duplicate generation success/scope copy; automatically materialize verified editor exports once with persistent lazy video lineage and original asset identity; preserve lifecycle and error feedback."
+        "2026-11-03 task51: hide duplicate generation success/scope copy; automatically materialize verified editor exports once with persistent lazy video lineage and original asset identity; preserve lifecycle and error feedback.",
+        "2026-11-03 task2: stop current generation sequence explicitly; preserve owned native interruption facts and unknown remote outcomes without masking recovery with pause intent."
       ]
     },
     {
@@ -2121,6 +2124,16 @@
       "changes": [
         "Authored local cell snapshot isolation, rollback, unknown JSON, width/derived/ticket fallback and encoding-count contracts. These do not establish actual latency or UI acceptance.",
         "Table performance integration: reuse completed native history snapshots and preserve row controls across viewport remounts; original source hashes retained."
+      ]
+    },
+    {
+      "source": null,
+      "destination": "frontend/src/features/generation/control_labels.ts",
+      "sourceSha256": null,
+      "destinationSha256": "32943f58afbed5a8641fe96d1094dc2f7564026d3aa804e852c68d389f9885b9",
+      "kind": "authored-contract-or-integration",
+      "changes": [
+        "2026-11-03 task2: Chinese execution-fact labels shared by generation node, table and request-bound output placeholder."
       ]
     }
   ],

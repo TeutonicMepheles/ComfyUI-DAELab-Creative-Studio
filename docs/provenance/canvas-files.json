@@ -1229,6 +1229,18 @@
         "2026-11-03 task51: verified export materialization with request identity, persistent lineage, rollback, copy/workflow guards and idempotence."
       ],
       "kind": "rule-regression"
+    },
+    {
+      "source": "icons/Media/stop-line.svg",
+      "sourceUrl": "https://github.com/Remix-Design/RemixIcon/blob/9fb7967c0a4c09910161192bde99efd3df09f5eb/icons/Media/stop-line.svg",
+      "sourceCommit": "9fb7967c0a4c09910161192bde99efd3df09f5eb",
+      "sourceSha256": "da22575900a1d70bc2a57c8ddad97b672d5f30a3c42c542d17912886a6de4e6e",
+      "destination": "frontend/src/design/vendor/remixicon/stop-line.svg",
+      "destinationSha256": "da22575900a1d70bc2a57c8ddad97b672d5f30a3c42c542d17912886a6de4e6e",
+      "kind": "production-resource",
+      "changes": [
+        "2026-11-03 task2 follow-up: bundle the official visible stop mask referenced by generation controls; preserve upstream SVG and bundled Remix Icon License v1.0."
+      ]
     }
   ],
   "hostBoundary": {

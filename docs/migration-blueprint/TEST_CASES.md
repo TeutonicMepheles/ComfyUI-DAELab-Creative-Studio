@@ -110,7 +110,7 @@
 | [TC-BIZ-053](TEST_CASES.md#tc-biz-053) | 列输出过滤、去重与类型拆分纯函数 | M3 | P0 | contract | 自动 | 不付费 |
 | [TC-BIZ-054](TEST_CASES.md#tc-biz-054) | 表到组输出连线保存、失败回滚与双实例 | M3 | P0 | host | 混合 | 不付费 |
 | [TC-BIZ-055](TEST_CASES.md#tc-biz-055) | 任务控制命令与状态矩阵 | M4 | P0 | contract | 自动 | 不付费 |
-| [TC-BIZ-056](TEST_CASES.md#tc-biz-056) | 任务控制双实例隔离与恢复 | M4 | P0 | host | 混合 | 不付费 |
+| [TC-BIZ-056](TEST_CASES.md#tc-biz-056) | 生成整序列中止、双实例隔离与重开 | M4 | P0 | host | 混合 | 不付费 |
 | [TC-BIZ-057](TEST_CASES.md#tc-biz-057) | 单任务百分比与成组完成计数切换 | M4 | P0 | contract | 自动 | 不付费 |
 | [TC-BIZ-058](TEST_CASES.md#tc-biz-058) | 新建表格不默认多行选中 | M3 | P0 | host | 混合 | 不付费 |
 | [TC-BIZ-059](TEST_CASES.md#tc-biz-059) | 分镜解析结果为可编辑多维表格 | M3 | P0 | host | 混合 | 不付费 |
@@ -3319,20 +3319,20 @@
 
 **步骤**
 
-1. 对每种状态发出暂停、打断、继续、重启。
-2. 重复点击同一控制。
+1. 中止单任务和多任务序列，覆盖未派发、原生排队、运行、未知和完成状态。
+2. 重复点击；模拟外部中断、成功竞态、本地中断但远端未知。
 
 **可判断的期望**
 
-- 动作与范围写入账本意图，不误伤其他任务。
-- 重复点击不创建重复控制请求。
-- 不可取消远端不进入已停止完成态。
+- 本轮剩余项不再提交，按身份及能力控制，不误伤其他节点。
+- 重复点击不重复请求，成功结果保留；本地中断不冒充远端取消或退款。
+- 终态及待核实原因优先，不持续显示暂停中，不自动重提。
 
 **旧测试复用候选：** [business:web/table_generation_tasks.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/table_generation_tasks.mjs)；[business:tests/task_snapshots.test.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/tests/task_snapshots.test.mjs)
 
 <a id="tc-biz-056"></a>
 
-## TC-BIZ-056 任务控制双实例隔离与恢复
+## TC-BIZ-056 生成整序列中止、双实例隔离与重开
 
 **阶段：** M4；**优先级：** P0；**层级：** host；**方式：** 混合；**执行策略：** 不付费。
 
@@ -3350,15 +3350,15 @@
 
 **步骤**
 
-1. 暂停 A，确认 B 继续。
-2. 刷新或重开后继续 A。
-3. 重启已完成任务并核对不同 requestId。
+1. 分别中止 A 的单任务和多任务本轮序列，观察 B。
+2. 从 Comfy 列表中断，核对节点及占位输出并刷新重开。
+3. 核实原执行后主动重新生成，核对不同 requestId 和旧结果。
 
 **可判断的期望**
 
-- B 的运行任务不被 A 的暂停取消。
-- 重开后 A 仍为暂停直至显式继续。
-- 重启保留旧结果。
+- 右下角为中止图标，无暂停/继续；A 本轮剩余项不派发，B 不受影响。
+- 重开不恢复本轮派发；外部中断状态收敛，远端未知明确呈现。
+- 新请求身份独立，旧结果保留，不自动重提或复用旧图报成功。
 
 **旧测试复用候选：** [business:web/table_generation_tasks.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/web/table_generation_tasks.mjs)
 
