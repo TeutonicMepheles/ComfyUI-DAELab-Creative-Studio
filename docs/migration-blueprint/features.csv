@@ -180,7 +180,8 @@ canvas:web/creative_connections.mjs
 canvas:nodes/video_edit.py:28
 canvas:docs/video-edit.md","frontend/src/features/editor/output; frontend/src/contracts/assets; backend/media/results","M5","防止下游误用与当前编辑不匹配的成片，同时保留已有连接。","只有当前编辑成功导出的结果可新建下游连接。
 编辑变化使旧成片引用失效但保留已有连接；等待时不得按空集合删下游编辑。
-VIDEO 与 COMFYTV_VIDEO 指向同一成片，输出素材复用同一本地引用。","UC-CAN-004 UC-CAN-012","TC-CAN-038"
+VIDEO 与 COMFYTV_VIDEO 指向同一成片，输出素材复用同一本地引用。
+导出成功后自动在画布创建独立视频素材节点并连上剪辑输出，用户不必再点「下载成片」。保留剪辑到该素材的连线；失败/取消不创建素材。不代提交生成。","UC-CAN-004 UC-CAN-012","TC-CAN-038"
 "F-CAN-035","ComfyTV 旧工作流的可选兼容","保留","已有可选适配器读取公开 widget/执行事件，未导入或修改上游 Python，菜单隐藏旧分镜工作台入口。","canvas:web/adapters/comfytv.mjs
 canvas:docs/adapter-contract.md
 canvas:README.md:100","frontend/src/integrations/comfyui/legacy; compat/workflows","M6","兼容既有工作流，但不把 ComfyTV 或其无关功能复制成产品依赖。","未安装 ComfyTV 时新产品基础功能完整且不出现失效入口。
@@ -326,7 +327,7 @@ business:nodes/libtv_bridge/table_local_models.py
 business:web/table_prompt_settings.mjs","backend/providers; backend/contracts/generation; frontend/src/features/generation","M4","参数模型与提供方能力统一管理，禁止静默选替代型号。","前后端拒绝不支持参数、缺帧、错媒体类型和不存在模型。
 本地/云端切换只按明确规则迁移兼容设置，不保留无效隐藏参数。
 图片尺寸以可视比例/形状选择，像素数为辅助说明，不堆砌裸英文枚举。background 等选项使用中文标签，不改模型参数 ID。
-同一表格／同一生成节点的任务列表：任务类型与共用生成参数（kind、model、mode、尺寸/时长/质量/背景等 settings）改一处即同步全部任务。界面须区分「当前任务」专属项与「全部任务」共用项。不写提示词、参考素材、首尾帧与已有结果。运行中／暂停／待恢复行跳过共用写入，保留原快照。缺必填只令该任务预检失败，不得静默改其他行的 mode；不代提交。","UC-BIZ-009 UC-BIZ-010","TC-BIZ-027 TC-BIZ-029 TC-BIZ-031 TC-BIZ-032 TC-BIZ-046"
+同一表格／同一生成节点的任务列表：任务类型与共用生成参数（kind、model、mode、尺寸/时长/质量/背景等 settings）改一处即同步全部任务。不向用户展示「全部任务共用…」说明条或底部重复完成文案；任务卡片上的状态保留。不写提示词、参考素材、首尾帧、抽卡次数与已有结果。运行中／暂停／待恢复行跳过共用写入，保留原快照。缺必填只令该任务预检失败，不得静默改其他行的 mode；不代提交。","UC-BIZ-009 UC-BIZ-010","TC-BIZ-027 TC-BIZ-029 TC-BIZ-031 TC-BIZ-032 TC-BIZ-046"
 "F-BIZ-026","Comfy 账户积分图片和视频生成","保留","源码已存在；经原生 Comfy API 节点执行，旧 LibTV 服务已退役；本清单不声明真实付费输出验收。","business:nodes/libtv_bridge/table_comfy_video.py
 business:nodes/libtv_bridge/table_comfy_image.py
 business:docs/comfy-credit-generation.md","backend/providers/comfy_partner; backend/integrations/comfyui","M4","继续依托 ComfyUI 的执行和认证，单仓库不内置第二套 Comfy 引擎。","未登录、未知型号或非法参数在入队前失败。
