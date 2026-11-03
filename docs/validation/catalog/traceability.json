@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "604d018676db5a792b9e72a0a9340ec92e9b2488d9037dddf1d9ca08f0d9e1fb",
+  "specificationHash": "4b29657d4d75c20765f4f8ac7045d0ad517f8ce6d50391affded294bb9bddbc1",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -1004,6 +1004,7 @@
         "AC-BIZ-025-002",
         "AC-BIZ-026-001",
         "AC-BIZ-026-002",
+        "AC-BIZ-026-003",
         "AC-BIZ-027-001",
         "AC-BIZ-027-002",
         "AC-BIZ-028-001",
@@ -5362,6 +5363,29 @@
       "owner": "backend/providers",
       "requirement": "认证仅传入 sensitive 数据；本轮云端通道只用假服务验证协议，真实输出、费用和水印效果保持未验收，不作为迁移退出门槛。",
       "requirementHash": "16a07d6b672d9166f58f2ed1cb1b1a6dcfb3099625b34325450a97b5ea73e0fc",
+      "usecases": [
+        "UC-BIZ-009"
+      ],
+      "tests": [
+        "TC-BIZ-020",
+        "TC-BIZ-030",
+        "TC-BIZ-035",
+        "TC-BIZ-046"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-JOBS"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-026-003",
+      "feature": "F-BIZ-026",
+      "task": "TASK-M4-BACKEND-PROVIDERS",
+      "owner": "backend/providers",
+      "requirement": "空任务、空提示词、必填输入未就绪或当前为本地 Qwen/MiniMax 时，不显示当前任务预计积分。仅可入队的付费请求显示估价；清空、换本地模型或换内容后旧估价不得回写。模型价目表不得冒充当前任务费用。",
+      "requirementHash": "4f6bc96140c6e0aa63497ce1588fabe2a71558709886fbf75bc04cd788279d56",
       "usecases": [
         "UC-BIZ-009"
       ],
@@ -10531,12 +10555,13 @@
         "AC-BIZ-016-001",
         "AC-BIZ-016-002",
         "AC-BIZ-026-001",
-        "AC-BIZ-026-002"
+        "AC-BIZ-026-002",
+        "AC-BIZ-026-003"
       ],
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "5ee51465f39077587eac2e061dd538f587f41bd56c1d95117dcfa38c29acb75c",
+      "specificationHash": "e7e9203babfc24a731854c425ef62a566f97beb9a319484d815a360bb47219a9",
       "assertions": [
         {
           "id": "AS-BIZ-020-001",
@@ -10881,13 +10906,14 @@
       "acceptance": [
         "AC-BIZ-026-001",
         "AC-BIZ-026-002",
+        "AC-BIZ-026-003",
         "AC-BIZ-042-001",
         "AC-BIZ-042-002"
       ],
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "7747a499b138a4c2e544e02e56de4f79d78a2a8a4329fcba4cd0900408a0f811",
+      "specificationHash": "8b469ae8817bbd43d85c607ee5e4306607f573c37d97407bc98f635cc7a39b44",
       "assertions": [
         {
           "id": "AS-BIZ-030-001",
@@ -11065,13 +11091,14 @@
         "AC-BIZ-016-002",
         "AC-BIZ-026-001",
         "AC-BIZ-026-002",
+        "AC-BIZ-026-003",
         "AC-BIZ-030-001",
         "AC-BIZ-030-002"
       ],
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "7a4f47d50f3d390294d05bed832c81b5869378cebb4c52d59a96aea7d924f03b",
+      "specificationHash": "dd013d3158f64c0b9ad107140602aafa8d58de99d8da3f1bb9378ba9b2f10775",
       "assertions": [
         {
           "id": "AS-BIZ-035-001",
@@ -11487,13 +11514,14 @@
         "AC-BIZ-025-002",
         "AC-BIZ-026-001",
         "AC-BIZ-026-002",
+        "AC-BIZ-026-003",
         "AC-BIZ-031-001",
         "AC-BIZ-031-002"
       ],
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "0e46cc2769c30a1bbd209485a5fc159e764062f4a3301c5bc7f94bc4aad034bc",
+      "specificationHash": "8ac4526d9c3ed88f5b13416dad483ecfe6c6e0560bd5a207c5d821678f5dcf4b",
       "assertions": [
         {
           "id": "AS-BIZ-046-001",

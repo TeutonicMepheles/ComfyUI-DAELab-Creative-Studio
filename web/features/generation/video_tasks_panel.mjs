@@ -78,29 +78,37 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
  const settings=createPromptSettingsBar((key,anchor)=>{if(current())void generation.chooseSetting(state.fieldId,state.currentId,key,anchor);},{combined:true});bottom.append(settings.root);
  const actions=element('div',bottom,'video-task-actions');
  const estimate=element('span',actions,'video-task-credit-estimate');estimate.hidden=true;estimate.setAttribute('role','status');estimate.title='当前任务单次生成的预计积分，实际扣费以平台为准';
- let priceStamp='';
+ let priceStamp='',priceSequence=0;
  const run=button('运行',()=>runTask(),true);actions.append(run);
  const status=element('div',root,'video-task-status');status.setAttribute('role','status');
  const results=element('div',root,'video-task-results');results.setAttribute('aria-label','当前任务生成结果与历史结果');
  const side=createTextSide({root}),dialogs=new Set();
  const getTable=()=>state.table,current=()=>state.table.records.find(r=>r.id===state.currentId),field=()=>state.table.fields.find(f=>f.id===state.fieldId);
  const config=()=>rowGenerationConfig(current(),state.fieldId,field()?.generation);
+ function priceRequest(row,cfg){
+  if(!row||!isComfyGenerationModel(cfg?.model)||node.mode||inputError||!isDocumentReady())return null;
+  try{
+   const frozen=generationInput(state.table,state.fieldId,row.id);
+   if(!frozen.segments.some(segment=>segment.type==='text'&&segment.text?.trim()))return null;
+   if(['image2image','image2video','mixed2video'].includes(cfg.mode)&&!frozen.assets.length)return null;
+   const input={model:cfg.model,kind:cfg.kind,mode:cfg.mode,settings:cfg.settings,media:frozen.assets.map(asset=>({kind:asset.kind}))};
+   return {input,stamp:JSON.stringify(frozen)};
+  }catch{return null;}
+ }
  function renderPrice(row,cfg){
-  estimate.hidden=!row||!isComfyGenerationModel(cfg?.model);
-  if(estimate.hidden){priceStamp='';estimate.textContent='';return;}
-  let media=[];
-  if(cfg.kind==='image'||['mixed2video','image2video'].includes(cfg.mode)){
-   try{media=generationInput(state.table,state.fieldId,row.id,{allowEmptyPrompt:true}).assets.map(asset=>({kind:asset.kind}));}
-   catch{priceStamp='';estimate.textContent='积分暂无法估算';return;}
-  }
-  const input={model:cfg.model,kind:cfg.kind,mode:cfg.mode,settings:cfg.settings,media},stamp=JSON.stringify(input);
+  const request=priceRequest(row,cfg);
+  estimate.hidden=!request;
+  if(!request){priceStamp='';priceSequence++;estimate.textContent='';return;}
+  const {input,stamp}=request;
   if(priceStamp===stamp)return;
+  const sequence=++priceSequence;
+  const currentRequest=()=>!disposed&&priceSequence===sequence&&priceStamp===stamp&&priceRequest(current(),config())?.stamp===stamp;
   priceStamp=stamp;estimate.textContent='积分估算中…';
-  Promise.resolve().then(()=>businessHost().estimateGenerationCredits?.(input)).then(price=>{
-   if(disposed||priceStamp!==stamp)return;
+  Promise.resolve().then(()=>currentRequest()?businessHost().estimateGenerationCredits?.(input):null).then(price=>{
+   if(!currentRequest())return;
    const format=value=>new Intl.NumberFormat('zh-CN',{maximumFractionDigits:2}).format(value);
    estimate.textContent=price?'当前任务预计约 '+format(price.min)+(price.max!==price.min?'–'+format(price.max):'')+' 积分':'积分暂无法估算';
-  }).catch(()=>{if(!disposed&&priceStamp===stamp)estimate.textContent='积分暂无法估算';});
+  }).catch(()=>{if(currentRequest())estimate.textContent='积分暂无法估算';});
  }
  function notify(message){notice=message;status.textContent=message;}
  function acceptMaterials(key,collection){

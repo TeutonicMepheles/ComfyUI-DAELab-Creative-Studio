@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "38c1e02c1f4b9301e1c624c89eb952b5ca61305c586903c872152cff77239752",
+  "sourceFingerprint": "1569bccbb20af07843b3faaa3b8dfb9aeb49ed8d426719b29af9378089bacb4d",
   "files": [
     {
       "path": "AGENTS.md",
@@ -572,7 +572,7 @@
     },
     {
       "path": "features/generation/video_tasks_panel.mjs",
-      "sha256": "c699b354716fe91fba686dcc1224ba61f61c0d70b5cd404d541b6441338db218"
+      "sha256": "e84e88a55cc844928becd2f9fa8487efb837e3ee6261eba05c1d1bd1db189ba6"
     },
     {
       "path": "features/groups/AGENTS.md",
@@ -1140,7 +1140,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "770eeea7d2ef206f1371ed72c1f3a75c91451f178f37b46a077801030ded514c"
+      "sha256": "5fb3f6e16b2df5de5a1b6f4046ecdcf1ad0bfa90daeeb0dd8c1c26788798f612"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
