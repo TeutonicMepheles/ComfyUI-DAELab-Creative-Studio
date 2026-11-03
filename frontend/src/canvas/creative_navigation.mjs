@@ -13,7 +13,7 @@ export function copySnapshot(node,layout){
     delete data.id;
     for(const input of data.inputs||[])input.link=null;
     for(const output of data.outputs||[])output.links=null;
-    return {kind:CLIPBOARD_KIND,node:data,layout:{width:layout.width,expanded:layout.expanded}};
+    return {kind:CLIPBOARD_KIND,node:data,layout:{width:layout.width,...(Number.isFinite(layout.height)?{height:layout.height}:{}),expanded:layout.expanded}};
 }
 export function hasCanvasTextSelection(root,selection=globalThis.getSelection?.()){
     if(!root||!selection||selection.isCollapsed)return false;

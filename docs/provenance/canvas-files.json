@@ -76,8 +76,9 @@
       "source": "web/creative_canvas_model.mjs",
       "destination": "frontend/src/canvas/creative_canvas_model.mjs",
       "sourceSha256": "c530f4b6e14c9b4ef2e08dd7cf130ce8bcdb46fc5ca17792f0a01bbee98089de",
-      "destinationSha256": "c530f4b6e14c9b4ef2e08dd7cf130ce8bcdb46fc5ca17792f0a01bbee98089de",
+      "destinationSha256": "819deb17478115459611ac8fd6b4c7588682608601623ed3f40391d3543c3780",
       "changes": [
+        "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
         "relocate into owner layer; rewrite relative module/style/resource paths"
       ],
       "kind": "production-source"
@@ -86,8 +87,9 @@
       "source": "web/creative_canvas_view.mjs",
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
       "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
-      "destinationSha256": "452c9533d00ca56eb2bd0e015a7937871ab4a87f3532a9826248e52227351a87",
+      "destinationSha256": "9d28e001d5c73ced5fd6b660239d56be0b3e9e9f19983a6904531d6439eae3a2",
       "changes": [
+        "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
         "2026-11-02: Enable text-only material output through the same picker eligibility rule as media; empty and unready snapshots remain disabled.",
         "2026-11-02: Preserve generated media URL resolution and materialize exported video snapshots with optional text collections.",
         "2026-11-02: route DOCX canvas file drops to the existing ScriptParser upload capability; preserve media routing and graph ownership.",
@@ -122,8 +124,9 @@
       "source": "web/creative_canvas.css",
       "destination": "frontend/src/canvas/creative_canvas.css",
       "sourceSha256": "a858f0328a4f03c28c98a9d6742cbfc615e4ce1a4db8f50f50b2a3e0bca420ee",
-      "destinationSha256": "53ce6981c324c2c5320097dba8dd24b498f4c35b04859cb98cd9d5a240b6c0d3",
+      "destinationSha256": "d9ce795745e37516aa50562f9d389876f535fc75c4f75f9c529c2c0745202d75",
       "changes": [
+        "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "Move host-private DOM selectors unchanged to integration CSS and map host sidebar variable through an explicit integration variable.",
         "PERF-01 candidate: stop unused inherited Canvas zoom variables only at the owned leased TextInput body; preserve public root, headings, Slots, widths, native lease return and geometry. Actual browser/performance reacceptance pending.",
@@ -179,8 +182,9 @@
       "source": "web/creative_navigation.mjs",
       "destination": "frontend/src/canvas/creative_navigation.mjs",
       "sourceSha256": "795f510d8fb6bde4b6bba99297818595bb4ae4070491607ab7d16d49b49e2a2f",
-      "destinationSha256": "29be211c392b6ffac0e6a6d5eb3e0ce868abde8b36d0a88c2e8614e6fb742c17",
+      "destinationSha256": "e822c0f6692f6e65f82e54af6688a39714c6f0c4d5a94fddda6dae98813b2a3f",
       "changes": [
+        "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "2026-10-31: expose a pure helper for owned non-collapsed text selections."
       ],
