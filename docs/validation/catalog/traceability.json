@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "5f5ccb5f9216dc831ce4f0a235c2f61f3af133009c03ed1c6556a3eb0e50e832",
+  "specificationHash": "0bcce2335278ce60667eec6ee241b941aad82501cfa076589e06227e630d6bf5",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -403,6 +403,7 @@
         "AC-CAN-011-001",
         "AC-CAN-011-002",
         "AC-CAN-011-003",
+        "AC-CAN-011-004",
         "AC-CAN-012-001",
         "AC-CAN-012-002",
         "AC-CAN-012-003",
@@ -2111,8 +2112,8 @@
       "feature": "F-CAN-011",
       "task": "TASK-M2-CANVAS",
       "owner": "canvas",
-      "requirement": "Shift/Ctrl 追加选择、空白框选与组内选择行为符合现有规范。",
-      "requirementHash": "5431e10af9f5afa993ef709fc59afb336ae7ac7d64a57c064b4d6cd9d3ddec4d",
+      "requirement": "Shift/Ctrl 追加选择、空白框选与组内选择行为符合现有规范。框选到的所有创作画布节点（素材、生成、解析器、表格、剪辑等）使用与素材相同的 2 屏幕像素选中环。拖任一已选节点的非编辑区（标题、面板铬、空白，不含格/按钮/输入/播放条/端口）整组等距移动；已选标题拖动通路保留。",
+      "requirementHash": "c2019e3d20a39af5dfc4974161112c152973d77e846e70f29fa6e928a0f992f2",
       "usecases": [
         "UC-CAN-003",
         "UC-CAN-013"
@@ -2155,6 +2156,27 @@
       "owner": "canvas",
       "requirement": "Esc/pointercancel 清理拖动、落点与连线预览，不留下捕获状态。",
       "requirementHash": "8835035d220e3d92fab211e0cb091367319b44baa0e13e3bed9c64befa94a99c",
+      "usecases": [
+        "UC-CAN-003",
+        "UC-CAN-013"
+      ],
+      "tests": [
+        "TC-CAN-008",
+        "TC-CAN-012"
+      ],
+      "evals": [
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-CAN-011-004",
+      "feature": "F-CAN-011",
+      "task": "TASK-M2-CANVAS",
+      "owner": "canvas",
+      "requirement": "虚线包围盒包全部 selected 卡片；打组工具栏仍只数上传素材或组成员，不把表格/生成写入编组合同。",
+      "requirementHash": "944a78fcb38f5725417fa1049f56d4e71fd10ced4e36511eeb678dd684f45c4f",
       "usecases": [
         "UC-CAN-003",
         "UC-CAN-013"
@@ -8146,6 +8168,7 @@
         "AC-CAN-011-001",
         "AC-CAN-011-002",
         "AC-CAN-011-003",
+        "AC-CAN-011-004",
         "AC-CAN-027-001",
         "AC-CAN-027-002",
         "AC-CAN-027-003"
@@ -8153,7 +8176,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "a6578b04a23cf5a50da1215645e2b7ffdc3c980d4ccefc431c57cc0549e6dfa5",
+      "specificationHash": "cda7ae268e2fcf9b86a9e1ee7fbc7d28622e0ceaf931b82185c3be397c3c3037",
       "assertions": [
         {
           "id": "AS-CAN-008-001",
@@ -8318,6 +8341,7 @@
         "AC-CAN-011-001",
         "AC-CAN-011-002",
         "AC-CAN-011-003",
+        "AC-CAN-011-004",
         "AC-CAN-015-001",
         "AC-CAN-015-002",
         "AC-CAN-015-003"
@@ -8325,7 +8349,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "8568f513e6c59d8155c9d9987974a358fdf53bd59d92881c735aeeee942243c9",
+      "specificationHash": "5f0a43dd7793776f9752e32c3dfe04aff7a6b18153ee72f17cd732575cb1ac52",
       "assertions": [
         {
           "id": "AS-CAN-012-001",
@@ -8338,6 +8362,10 @@
         {
           "id": "AS-CAN-012-003",
           "expected": "后续普通点击可重新选择，无必须刷新才能恢复的状态。"
+        },
+        {
+          "id": "AS-CAN-012-004",
+          "expected": "混合选区每类节点均有 2 屏幕像素环；非编辑区拖动整组等距移动；包围盒包全部选中卡片；打组只数素材。"
         }
       ],
       "status": "not-executed",

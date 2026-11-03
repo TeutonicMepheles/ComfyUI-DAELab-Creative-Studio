@@ -411,8 +411,9 @@
       "source": "web/material_groups.mjs",
       "destination": "frontend/src/features/groups/material_groups.mjs",
       "sourceSha256": "91c47c4439efda72218a2749e00030e570bf1731a3eb100282347aecc463e144",
-      "destinationSha256": "2a2e678d5e6567bd8efbb7b975f42daa510603d00b8d1897e2b04f5cc0a1d5d9",
+      "destinationSha256": "2b9554a3e7c615fb16474a628cbcff82f9dd63a3d4a7230a538c7793411418bb",
       "changes": [
+        "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "inject existing host history port at integration assembly boundary",
         "Inject CanvasHostPort plus view; delegate native graph commands; return controller for integration-owned registration; retain UI/layout behavior.",
@@ -1109,9 +1110,10 @@
       "source": null,
       "sourceSha256": null,
       "destination": "tests/migrated_canvas/panel_zoom_scope.test.mjs",
-      "destinationSha256": "3c2c03bba5159fd2b399b991b5972dceb0b5ec79590c9082058a6753cdf80ddb",
+      "destinationSha256": "7c9e8a7aab1b8a56b4537b53329f6e29724fd6f234d3d64c2b09cc705ad41a3c",
       "kind": "rule-regression",
       "changes": [
+        "2026-11-03: Review selection ring consumers on outer cards/table scroll surfaces, outside isolated body and data-cell subtrees.",
         "Guard the two exact owned body scopes, actual root constructor/lease identity, preserved public sibling controls, and exhaustive CSS/JS zoom dependencies; no browser layout or performance pass claimed.",
         "2026-10-29: reviewed upload-only selection outline inverse zoom; TextInput and LLM reset boundaries remain unchanged."
       ]
