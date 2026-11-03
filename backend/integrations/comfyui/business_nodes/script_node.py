@@ -6,7 +6,7 @@ from ....storyboard.script_contract import confirmed_table, storyboard_projectio
 class ScriptParser(io.ComfyNode):
     @classmethod
     def define_schema(cls):
-        return io.Schema(node_id='DAELAB.ScriptParser', display_name='DAELAB - 分镜剧本解析器', category='DAELab/Table',
+        return io.Schema(node_id='DAELAB.ScriptParser', display_name='剧本文档解析器', category='DAELab/Table',
                          inputs=[io.String.Input('table_data', default='', socketless=True, extra_dict={'hidden': True})],
                          outputs=[io.String.Output('table_json'), io.String.Output('storyboard_json')], is_output_node=True)
 
