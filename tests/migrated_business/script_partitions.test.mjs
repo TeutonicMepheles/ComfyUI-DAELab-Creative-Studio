@@ -4,6 +4,17 @@ import {emptyFixedScript,planScriptImport,planLegacySplit,validateFixedScript} f
 import {assertTransition,readScriptTable} from '../../frontend/src/features/storyboard/script_parser_model.mjs';
 import {resolveColumnPrompt} from '../../frontend/src/features/prompt/table_prompt_template.mjs';
 const start=()=>[{key:'node-1',title:'解析器',table:emptyFixedScript()}];
+test('import and replacement preserve user titles while tracked default names can update',()=>{
+ const custom=start();custom[0].title='我的剧本';
+ const first=planScriptImport(custom,fixture(1)).pages;assert.equal(first[0].title,'我的剧本');
+ const loaded=JSON.parse(JSON.stringify(first));assert.equal(planScriptImport(loaded,fixture(2),'replace').pages[0].title,'我的剧本');
+ const defaults=start();defaults[0].title='剧本文档解析器';
+ const named=planScriptImport(defaults,fixture(1)).pages;assert.equal(named[0].title,'同名章节 · 1');assert.equal(named[0].table.meta.script_parser.import_title,named[0].title);
+ const changed=fixture(1);changed.tasks[0].chapter='New chapter';
+ assert.equal(planScriptImport(named,changed,'replace').pages[0].title,'New chapter · 1');
+ named[0].title='用户改名';assert.equal(planScriptImport(named,changed,'replace').pages[0].title,'用户改名');
+ const split=planScriptImport(custom,fixture(11)).pages;assert.equal(split[0].title,'我的剧本');assert.equal(split[1].title,'同名章节 · 2');
+});
 function fixture(count,chapter='chapter-1'){
  return {document_id:'doc',filename:'synthetic.docx',assets:{a:{id:'a',url:'/view?filename=a.png',filename:'a.png'}},unassigned:[],audit:[],paragraphs:[{id:'p1',text:'主题原文'}],tables:[],tasks:Array.from({length:count},(_,i)=>({source_key:`doc:r${i}`,row_id:`r${i}`,table_id:'t1',values:{shot_no:'',scene:`画面 ${i}`,notes:'',narration:'未展示的旁白'},chapter:'同名章节',chapter_key:chapter,sources:{scene:[{cell_id:`c${i}`}]},context:['p1'],original_cells:[{text:`原文 ${i}`}],images:[{id:`o${i}`,asset_id:'a'}],issues:[]}))};
 }

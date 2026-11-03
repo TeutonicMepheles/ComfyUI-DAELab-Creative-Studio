@@ -26,3 +26,18 @@ creates another square. A generation card remains 16:9. No models ran.
 Type checking, architecture checks, 259 canvas tests, 639 business tests and
 22 storyboard backend tests passed. Final generated build, server schema and
 independent deployed interaction verification belong to Controller/Reviewer.
+
+## Import title follow-up
+
+Independent review found that importing DOCX after a user rename still replaced
+the title with a file/chapter name. The import planner now changes only default
+names or its own recorded automatic title. It preserves a different user title
+on first import, replace and subsequent import; additional split pages still get
+automatic names. The automatic title marker is saved with parser metadata.
+
+Workspace `parser-import-title-check.mjs` first reproduces the failure, then uses
+the actual title editor, width handle, save/reload and DOCX upload button. The
+test document imports four rows while retaining “我的剧本” and width 660; another
+reload retains the title. Planner tests cover automatic/default naming, custom
+renames, replacement and pagination. Type checks, 640 business tests, 259 canvas
+tests and architecture checks pass. Final build and independent review remain.

@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "81d221cde54d4c36c43f91d66f52f939840e99ca00c3602b3b5ca02d26b02574",
+  "sourceFingerprint": "1569bccbb20af07843b3faaa3b8dfb9aeb49ed8d426719b29af9378089bacb4d",
   "files": [
     {
       "path": "AGENTS.md",
@@ -744,7 +744,7 @@
     },
     {
       "path": "features/storyboard/script_partitions.js",
-      "sha256": "fb5bb0f20f158859bde259ec6c3c149d5d3b0d001214b015e1c52d4a1bb1ab61"
+      "sha256": "2241eb6c623c6975b48dea38ed44fe04a58bafbe601079cb9a23f80fc7f4165d"
     },
     {
       "path": "features/storyboard/storyboard_import_assets.mjs",
@@ -1140,7 +1140,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "9a108aab56f77e90f58dbee4154c20f92505f8d24644d985c10119bdaa3e3f48"
+      "sha256": "5fb3f6e16b2df5de5a1b6f4046ecdcf1ad0bfa90daeeb0dd8c1c26788798f612"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
