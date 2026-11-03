@@ -509,7 +509,7 @@
 - `AC-CAN-023-001` 借用和归还同一面板，不克隆独立业务状态；release/abandon 幂等清理。
 - `AC-CAN-023-002` 面板宽度可按能力调整、取消和保存；fullHeight 不被通用高度裁切。
 - `AC-CAN-023-003` 失效上下文的 focus/pan/resize 返回失败且不操作别的节点。
-- `AC-CAN-023-004` 新建生成节点与空分镜剧本解析器外框初始宽高比 16:9；已保存或手调尺寸保留。解析落表后按表格撑高可调宽，不再钉死 16:9。不改变生成分辨率。通用多维表格不在此条。
+- `AC-CAN-023-004` 新建生成节点外框初始 16:9；新建空剧本文档解析器外框初始 1:1。展示名无 DAELAB 前缀，稳定类型 ID 仍为 DAELAB.ScriptParser。已保存或手调尺寸保留。解析落表后按表格撑高可调宽，不再钉死正方形。不改变生成分辨率。通用多维表格不在此条。
 
 **关联：** [UC-CAN-007](USE_CASES.md#uc-can-007)、[UC-CAN-013](USE_CASES.md#uc-can-013)；[TC-CAN-002](TEST_CASES.md#tc-can-002)、[TC-CAN-025](TEST_CASES.md#tc-can-025)、[TC-CAN-042](TEST_CASES.md#tc-can-042)
 
