@@ -8,7 +8,8 @@
 @container dae-task-heading (max-width:110px){.dae-creative .dae-task-capsules{display:none}}
 .dae-creative .dae-task-marker{display:block;flex:none;width:14px;height:14px;border:2px solid var(--dae-accent);border-right-color:transparent;border-radius:50%;animation:dae-task-spin 1s linear infinite}
 .dae-creative .dae-task-capsule[data-state=queued] .dae-task-marker{border:2px dotted var(--dae-text-muted);animation:none}
-.dae-creative .dae-task-capsule:is([data-state=paused],[data-state=cancelled]) .dae-task-marker{border:0;border-radius:0;background:var(--dae-warning);mask:url('../../design/vendor/remixicon/pause-fill.svg') center/contain no-repeat;animation:none}
+.dae-creative .dae-task-capsule[data-state=paused] .dae-task-marker{border:0;border-radius:0;background:var(--dae-warning);mask:url('../../design/vendor/remixicon/pause-fill.svg') center/contain no-repeat;animation:none}
+.dae-creative .dae-task-capsule[data-state=cancelled] .dae-task-marker{border:0;border-radius:0;background:var(--dae-warning);mask:url('../../design/vendor/remixicon/stop-line.svg') center/contain no-repeat;animation:none}
 .dae-creative .dae-task-capsule:is([data-state=error],[data-state=recovery]) .dae-task-marker{border:0;border-radius:0;background:var(--dae-danger);mask:url('../../design/vendor/remixicon/error-warning-line.svg') center/contain no-repeat;animation:none}
 .dae-creative .dae-task-capsule[data-state=success] .dae-task-marker{border:0;border-radius:0;background:var(--dae-success);mask:url('../../design/vendor/remixicon/check-line.svg') center/contain no-repeat;animation:none}
 @keyframes dae-task-spin{to{transform:rotate(360deg)}}

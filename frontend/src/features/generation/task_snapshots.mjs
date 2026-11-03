@@ -1,7 +1,9 @@
 // Business-owned mapping to the optional Canvas tasks v1 protocol.
 // No Canvas imports, DOM, polling, requests, or task execution.
 import {optimizationStatus} from '../prompt/prompt_optimization_status.mjs';
+import {generationErrorText} from './control_labels.js';
 const active=new Set(['waiting','running','pausing','interrupting']);
+const confirmedStop=row=>row.state==='cancelled'&&['interrupted','paused'].includes(row.phase);
 const stages={local_queued:'本机排队',local_generating:'本机生成',preparing:'准备中',submitting:'提交平台',writing_back:'等待写回',verifying:'核对原任务',downloading:'下载中',generating:'平台生成'};
 export function generationTaskSnapshots(table,live=new Map()){
  const groups=new Map();
@@ -13,11 +15,15 @@ export function generationTaskSnapshots(table,live=new Map()){
  return [...groups].map(([kind,rows])=>{
   const latest=Math.max(...rows.map(row=>Number(row.source?.createdAt)||0));
   const scoped=rows.filter(row=>(Number(row.source?.createdAt)||0)===latest);
-  const running=scoped.filter(r=>active.has(r.phase)),failed=scoped.filter(r=>['failed','needs_input','needs_recovery'].includes(r.phase)||r.error),paused=scoped.filter(r=>['paused','interrupted','stopped'].includes(r.phase));
+  const stopped=scoped.filter(confirmedStop);
+  const unverifiedStop=scoped.some(r=>['paused','interrupted','stopped'].includes(r.phase)&&!confirmedStop(r));
+  const running=scoped.filter(r=>active.has(r.phase)),failed=scoped.filter(r=>['failed','needs_input','needs_recovery'].includes(r.phase)||r.error&&!confirmedStop(r));
+  const stopping=running.some(r=>!r.unverified&&(['pausing','interrupting'].includes(r.phase)||r.controlIntent==='interrupt'))||stopped.length>0&&running.length>0;
   const current=running.find(r=>r.phase==='running')||running[0];
   const completed=scoped.filter(r=>r.phase==='complete').length,total=Math.max(scoped.length,...scoped.map(row=>Number(row.source?.groupCount)||1)),grouped=total>1;
-  const state=running.length?(running.every(r=>r.phase==='waiting'||r.unverified)?'queued':'running'):failed.length?'recovery':paused.length?'paused':scoped.some(r=>r.phase==='stale')?'recovery':'success';
-  const detail=grouped?(running.length?`处理中 ${running.length}/${total}`:state==='success'?`已完成 ${completed}/${total}`:state==='paused'?'已暂停':'部分任务待处理'):current?(current.unverified?'核对任务状态':current.phase==='pausing'?'正在暂停':stages[current.stage]||(current.phase==='waiting'?'等待提交':'启动中')):state==='paused'?'已暂停':state==='recovery'?'任务待处理':'生成完成';
+  const state=running.length?(stopping?'running':running.every(r=>r.phase==='waiting'||r.unverified)?'queued':'running'):failed.length||unverifiedStop?'recovery':stopped.length?'cancelled':scoped.some(r=>r.phase==='stale')?'recovery':'success';
+  const reason=state==='recovery'&&failed.find(r=>r.error)?.error;
+  const detail=stopping?'中止中':state==='cancelled'?'已中止':reason?generationErrorText(reason):unverifiedStop?'执行状态待核实':grouped?(running.length?`处理中 ${running.length}/${total}`:state==='success'?`已完成 ${completed}/${total}`:'部分任务待处理'):current?(current.unverified?'核对任务状态':stages[current.stage]||(current.phase==='waiting'?'等待提交':'启动中')):state==='recovery'?'任务待处理':'生成完成';
   return {id:'generation:'+kind,label:kind==='image'?'图片生成':'视频生成',order:kind==='image'?20:30,state,done:completed,total,countLabel:'已完成',unit:'行',
    detail:detail+(failed.length?` · 异常 ${failed.length}`:''),
    progress:!grouped&&current?.stage==='generating'&&Number.isFinite(current.progress)?current.progress:undefined};
@@ -42,7 +48,7 @@ export function trackTaskCompletion(read){
  const previous=new Map();
  return ()=>read().map(task=>{
   const old=previous.get(task.id);let finishedAt=task.finishedAt;
-  if(task.state==='success')finishedAt??=old?.state==='success'?old.finishedAt:old?Date.now():undefined;
+  if(['success','cancelled'].includes(task.state))finishedAt??=old?.state===task.state?old.finishedAt:old?Date.now():undefined;
   const next={...task,finishedAt};previous.set(task.id,next);return next;
  });
 }

@@ -313,10 +313,11 @@
       "source": "web/task_snapshots.mjs",
       "destination": "frontend/src/features/generation/task_snapshots.mjs",
       "sourceSha256": "4911f0d2226cd7d0969e5b87824d5f1acacdadd8e1dd719497593f638d9ed642",
-      "destinationSha256": "e2f7af9ed24c454da99b99a44279f0f94576f8048a9ea1736e081243330dbd37",
+      "destinationSha256": "81bb7b458be729855b8af6af63c32d0082c010b38cce4c73809f5ccb47700859",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "2026-11-03 task8: confirmed generation stops use cancelled task presentation and the stop marker; preserve unconfirmed outcomes, truthful counts and terminal notification lifecycle."
       ]
     },
     {

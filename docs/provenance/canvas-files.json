@@ -482,9 +482,10 @@
       "source": "web/creative_tasks.css",
       "destination": "frontend/src/features/tasks/creative_tasks.css",
       "sourceSha256": "05fa49eef2d346892c0be25e973e0f63a3c43359b5a087a84e0c93b9fcd1c7b6",
-      "destinationSha256": "d152b3deba5203a64905f14a5beb7b340f47a0184f04c0c926fa390340d9ca46",
+      "destinationSha256": "b069fdcb3205406eec2984c1c271343034b48e2b7332cc78297b60a3a903469b",
       "changes": [
-        "relocate into owner layer; rewrite relative module/style/resource paths"
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "2026-11-03 task8: confirmed generation stops use cancelled task presentation and the stop marker; preserve unconfirmed outcomes, truthful counts and terminal notification lifecycle."
       ],
       "kind": "production-source"
     },
