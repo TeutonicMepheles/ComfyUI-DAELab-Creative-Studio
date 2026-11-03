@@ -22,3 +22,11 @@ task #51 对应 AC-BIZ-025-004 / AC-CAN-034-004。用户截图要求移除生成
 首次浏览器自检因宿主将出口名显示为中文而报接口未就绪；匹配改为稳定 COMFYTV_VIDEO 类型并新增回归后通过。证据在 Implementer 工作区 `editor-auto-output-check.mjs/json/png`。新增输入的真实后端接线及重新导出全流程仍须 Reviewer 在同版本最终构建上复验；源码覆盖与 object_info 模拟不代表测试服部署完成。
 
 自动检查：658 项业务、262 项画布及导出面板、28 项原生画布后端、TypeScript 和架构（191 模块）。来源清单在提交前更新为 LF 字节哈希；首次画布检查中未更新的来源哈希失败保留于本地日志，更新后复验。
+
+## 真实宿主元数据补修
+
+最终构建独立复验发现 `/object_info/DAELAB.MediaUpload` 500：自定义连接的 `Input` 不接受 `force_input`。此前 IO 桩吞掉任意参数，浏览器新增入口元数据又是模拟，未覆盖这项宿主兼容问题。
+
+补修仅移除自定义 `source_video` 上的 `force_input`；保留 `optional=True`、`lazy=True`、末尾位置及空 `check_lazy_status`，既有 String 入口不变。自定义输入桩改为真实连接 Input 的严格参数签名。
+
+新增可选真实宿主回归，使用本机 ComfyUI 安装的 SDK，在 CPU 子进程执行与 object_info 相同的 `GET_NODE_INFO_V1()`：旧代码先复现 TypeError，补修后通过，确认原五个输出、可选入口顺序及 `source_video` 的惰性元数据。证据 `.local-real-schema-before.log`、`.local-real-test-before.log`、`.local-real-test-after.log`、`.local-real-metadata.json` 在补修工作树。该检查未启动服务器或运行模型；实际 HTTP 元数据和原四段导出仍交 Reviewer 在同版本最终构建复验。

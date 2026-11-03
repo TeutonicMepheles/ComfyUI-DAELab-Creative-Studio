@@ -40,10 +40,11 @@
     },
     {
       "destination": "backend/integrations/comfyui/canvas_nodes/media_upload.py",
-      "destinationSha256": "6ce374cb7ffab3f87ce50c9e0cd53df6cfad2c65b8e3bb9bec0189458dd5587f",
+      "destinationSha256": "40046775c6d124290ab08e06352709947822df3a85428bf169ef55732186def4",
       "changes": [
         "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable.",
-        "2026-11-03 task51: hide duplicate generation success/scope copy; automatically materialize verified editor exports once with persistent lazy video lineage and original asset identity; preserve lifecycle and error feedback."
+        "2026-11-03 task51: hide duplicate generation success/scope copy; automatically materialize verified editor exports once with persistent lazy video lineage and original asset identity; preserve lifecycle and error feedback.",
+        "2026-11-03 task51 host-schema follow-up: remove unsupported force_input from Custom Input, retain lazy optional lineage, tighten Custom IO contract and check real installed SDK metadata."
       ]
     },
     {
@@ -160,10 +161,11 @@
     },
     {
       "destination": "tests/migrated_canvas_backend/test_registration.py",
-      "destinationSha256": "3c0f57aeb0174f43b02acbbb9cfc3dda054bc004be5e7b1563422cf619eefb61",
+      "destinationSha256": "210c80271f786e2299b346bd44e9e9b61c27c0faf48a76828a7c433115acebe2",
       "changes": [
         "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable.",
-        "2026-11-03 task51: hide duplicate generation success/scope copy; automatically materialize verified editor exports once with persistent lazy video lineage and original asset identity; preserve lifecycle and error feedback."
+        "2026-11-03 task51: hide duplicate generation success/scope copy; automatically materialize verified editor exports once with persistent lazy video lineage and original asset identity; preserve lifecycle and error feedback.",
+        "2026-11-03 task51 host-schema follow-up: remove unsupported force_input from Custom Input, retain lazy optional lineage, tighten Custom IO contract and check real installed SDK metadata."
       ]
     },
     {

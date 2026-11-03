@@ -24,6 +24,15 @@ class Port:
         return {"kind": self.kind, "name": name, **kwargs}
 
 
+class CustomPort(Port):
+    # Match the installed Comfy V3 connection Input, not WidgetInput.
+    def Input(self, name, display_name=None, optional=False, tooltip=None, lazy=None,
+              extra_dict=None, raw_link=None, advanced=None):
+        values = dict(display_name=display_name, optional=optional, tooltip=tooltip,
+                      lazy=lazy, raw_link=raw_link, advanced=advanced)
+        return super().Input(name, **{key: value for key, value in values.items() if value is not None}, **(extra_dict or {}))
+
+
 class Output:
     def __init__(self, *result, **kwargs):
         self.result = result
@@ -43,7 +52,7 @@ class RegistrationTests(unittest.TestCase):
             setattr(folders, f"get_{name}_directory", lambda value=path: str(value))
         io = types.SimpleNamespace(ComfyNode=object, Schema=lambda **kw: types.SimpleNamespace(**kw),
                                    String=Port("STRING"), Image=Port("IMAGE"), Video=Port("VIDEO"),
-                                   Custom=Port, NodeOutput=Output)
+                                   Custom=CustomPort, NodeOutput=Output)
         io.Autogrow = Port("AUTOGROW")
         io.Autogrow.TemplatePrefix = lambda port, **kw: {"port": port, **kw}
         latest = types.ModuleType("comfy_api.latest")
