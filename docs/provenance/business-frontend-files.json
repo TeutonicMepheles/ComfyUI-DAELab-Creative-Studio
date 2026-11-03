@@ -1227,9 +1227,10 @@
       "source": "web/script_parser.js",
       "destination": "frontend/src/integrations/comfyui/business/script_parser.js",
       "sourceSha256": "7920d6861d96d764a89c4bee1ff714cab3558857e854111146f240bc06b04fb0",
-      "destinationSha256": "8a8bef723cc879c3a56bf12fabffc1229db29c0976930dfa285b1f2de7a201ad",
+      "destinationSha256": "b1c7249d245617221d540974533486bcd2edacc34f69fdf6c00bade5ddb4fe23",
       "kind": "production-source",
       "changes": [
+        "2026-11-03: Use the existing outer-card selection ring for empty parser panels to avoid workbench overflow clipping; retain the table surface after import.",
         "2026-11-03: Use a compact square empty parser with a matching visible workbench surface and the Script Document Parser display name; preserve populated tables and user sizing.",
         "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
         "2026-11-02: Treat parser layout as import defaults; reuse standard editing, material output and pointer/keyboard menu behavior while preserving provenance and edits.",
