@@ -1,6 +1,14 @@
 export const SCRIPT_ROW_LIMIT = 10;
 const ids = ['sp-shot_no', 'sp-scene', 'sp-reference', 'sp-notes'];
 const copy = (value) => structuredClone(value);
+function setImportTitle(page, title) {
+    const parser = page.table.meta.script_parser;
+    const defaults = ['剧本文档解析器', '分镜剧本解析器', 'DAELAB - 分镜剧本解析器', 'DAELAB.ScriptParser'];
+    if (!page.title || defaults.includes(page.title) || page.title === parser.import_title) {
+        page.title = title;
+        parser.import_title = title;
+    }
+}
 const same = (a, b) => JSON.stringify(a ?? '') === JSON.stringify(b ?? '');
 const active = new Set(['waiting', 'running', 'queued', 'preparing', 'submitting', 'recovering', 'pausing']);
 export const isFixedScript = (table) => table.meta?.script_parser?.field_policy === 'fixed-four';
@@ -156,7 +164,7 @@ export function planScriptImport(current, normalized, mode = 'append') {
             }
             page.table.meta.script_parser.chapter_key = chapter;
             page.table.meta.script_parser.chapter = row.meta.script_source.chapter;
-            page.title = `${row.meta.script_source.chapter || normalized.filename.replace(/\.docx$/i, '')} · ${candidates.length + 1}`;
+            setImportTitle(page, `${row.meta.script_source.chapter || normalized.filename.replace(/\.docx$/i, '')} · ${candidates.length + 1}`);
         }
         page.table.records.push(row);
     }
