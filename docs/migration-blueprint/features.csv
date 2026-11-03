@@ -330,7 +330,7 @@ business:web/table_prompt_settings.mjs","backend/providers; backend/contracts/ge
 business:nodes/libtv_bridge/table_comfy_image.py
 business:docs/comfy-credit-generation.md","backend/providers/comfy_partner; backend/integrations/comfyui","M4","继续依托 ComfyUI 的执行和认证，单仓库不内置第二套 Comfy 引擎。","未登录、未知型号或非法参数在入队前失败。
 认证仅传入 sensitive 数据；本轮云端通道只用假服务验证协议，真实输出、费用和水印效果保持未验收，不作为迁移退出门槛。
-空任务、空提示词、必填输入未就绪或当前为本地 Qwen/MiniMax 时，不显示当前任务预计积分。仅可入队的付费请求显示估价：数字加 Comfy 积分图标，不要整句说明；区间仍可用 min–max。清空、换本地模型或换内容后旧估价不得回写。模型价目表不得冒充当前任务费用。","UC-BIZ-009","TC-BIZ-020 TC-BIZ-030 TC-BIZ-035 TC-BIZ-046"
+空任务、空提示词、必填输入未就绪或当前为本地 Qwen/MiniMax 时，不显示当前任务预计积分。仅可入队的付费请求显示估价：数字加 Comfy 账户余额旁的黄色双硬币图形（Lucide coins 同款，可内联 SVG，不依赖宿主字体类），不要整句说明，不得用四菱形或其他图形冒充同款；区间仍可用 min–max。清空、换本地模型或换内容后旧估价不得回写。模型价目表不得冒充当前任务费用。","UC-BIZ-009","TC-BIZ-020 TC-BIZ-030 TC-BIZ-035 TC-BIZ-046"
 "F-BIZ-027","本地 Qwen 图片生成","保留","源码已存在；依赖已安装模型和 Comfy 节点，缺依赖需清晰预检。","business:nodes/libtv_bridge/table_local_image.py
 business:nodes/libtv_bridge/table_local_models.py
 business:docs/table-local-qwen.md","backend/providers/local_image; backend/integrations/comfyui","M4","迁移模型工作流构建与校验，不把模型权重和 GPU 环境视为单包自带。","缺模型/节点不下载替代物或入队；提示确切缺项。

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "0743c23e42726f45ed35340eec7091a731be17c4262e2ef6b60a58d0ce522904",
+  "specificationHash": "035a6ab4f497ee7eab8cc24b1274c7dcba78af6963a27f58ca27671836ac31ef",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -5411,8 +5411,8 @@
       "feature": "F-BIZ-026",
       "task": "TASK-M4-BACKEND-PROVIDERS",
       "owner": "backend/providers",
-      "requirement": "空任务、空提示词、必填输入未就绪或当前为本地 Qwen/MiniMax 时，不显示当前任务预计积分。仅可入队的付费请求显示估价：数字加 Comfy 积分图标，不要整句说明；区间仍可用 min–max。清空、换本地模型或换内容后旧估价不得回写。模型价目表不得冒充当前任务费用。",
-      "requirementHash": "91d00a06c99ae555cdf185eb349534981b4b5ad582d0867886b1dc407acddd36",
+      "requirement": "空任务、空提示词、必填输入未就绪或当前为本地 Qwen/MiniMax 时，不显示当前任务预计积分。仅可入队的付费请求显示估价：数字加 Comfy 账户余额旁的黄色双硬币图形（Lucide coins 同款，可内联 SVG，不依赖宿主字体类），不要整句说明，不得用四菱形或其他图形冒充同款；区间仍可用 min–max。清空、换本地模型或换内容后旧估价不得回写。模型价目表不得冒充当前任务费用。",
+      "requirementHash": "5d5fdb6f6f2551c7465c2bdc776b8e4d8708631515729782ce48cd43ba184de2",
       "usecases": [
         "UC-BIZ-009"
       ],
@@ -10608,7 +10608,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "fbf323e51640a7e867e33497acc7a27cd4373d9baec63c5de608d9ac746f209c",
+      "specificationHash": "2b112a560412640de2a01b43a80d344e4376bd48e94cb5342b7019947c63dd3e",
       "assertions": [
         {
           "id": "AS-BIZ-020-001",
@@ -10962,7 +10962,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "628d0c0a91a18a29c29ff6dd8dfb602059e2f434aeeb4981ad02576b301b11b8",
+      "specificationHash": "332c062de8c115509097b5c13ccf896b2d6d4eac4f603f421cbcf906cb215227",
       "assertions": [
         {
           "id": "AS-BIZ-030-001",
@@ -11149,7 +11149,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "3f1549c8b5aec375324499f8a1d246936a72f426956fe494d7a4b9f0210703aa",
+      "specificationHash": "7572f1b1a3a85291ad1edba957c4cac27fa4272ecd237974c2cf7b506f6d864a",
       "assertions": [
         {
           "id": "AS-BIZ-035-001",
@@ -11573,7 +11573,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "d97faeee8a347178168d890beb95402611b7eab04df82483d24f645dd51e54d7",
+      "specificationHash": "7f2eb9490aa01f8bd5c1b2f8dd004e0c4239a4e39b2814f189135ee179d123ae",
       "assertions": [
         {
           "id": "AS-BIZ-046-001",
