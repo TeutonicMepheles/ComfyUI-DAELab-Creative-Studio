@@ -1,5 +1,8 @@
 .dae-ui.dae-video-tasks{box-sizing:border-box;width:100%;min-width:0;padding:20px;display:flex;flex-direction:column;gap:14px;background:var(--dae-surface,#242424);color:var(--dae-text,#eee);border-radius:var(--dae-radius-card,16px);font:400 15px/1.5 var(--dae-font-family);overflow:auto}
 .dae-video-tasks[data-canvas-full-height=true]{height:auto!important;overflow:visible}
+.dae-video-tasks[data-canvas-panel=true][data-canvas-full-height=false] .video-task-body{flex:1 0 280px;min-height:280px;overflow:hidden}
+.dae-video-tasks[data-canvas-panel=true][data-canvas-full-height=false] .video-task-body-top{flex:none}
+.dae-video-tasks[data-canvas-panel=true][data-canvas-full-height=false] .video-task-prompt{min-height:0;overflow:auto}
 .dae-video-tasks *{box-sizing:border-box}
 .dae-video-tasks [hidden]{display:none!important}
 .dae-ui.dae-video-tasks button{cursor:pointer;min-height:36px;padding:8px 12px;border:0!important;border-radius:10px!important;background:transparent!important;color:inherit!important;font:500 15px/1.5 var(--dae-font-family)!important}

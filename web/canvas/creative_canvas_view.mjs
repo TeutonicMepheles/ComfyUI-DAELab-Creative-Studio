@@ -15,7 +15,7 @@ import {registerAsset} from '../application/asset_library_service.js';
 import {assetURL} from '../features/assets/media_upload_model.mjs';
 import {connectedOutputNode,connectTableOutput,outputPosition} from './creative_output.mjs';
 import {createCreativeButton,bindCreativeButton} from '../ui/creative_button.mjs';
-import {canvasState,cardState,supportedNode,workspaceNode,cardWidth,zoomAt,socketCompatible,graphLinks} from './creative_canvas_model.mjs?v=20260929-layout1';
+import {canvasState,cardState,supportedNode,workspaceNode,cardWidth,initialCardSize,zoomAt,socketCompatible,graphLinks} from './creative_canvas_model.mjs?v=20260929-layout1';
 
 const el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text)e.textContent=text;return e;};
 const button=(text,action)=>{const b=el('button','',text);b.type='button';b.onclick=action;return b;};
@@ -541,7 +541,10 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         // Optional read-only interface. A broken provider must not break the canvas.
         try{c.tasks.update(adapter?.tasks?.(node)||[]);}catch{c.tasks.update([]);}
         setViewProperty(c.element.dataset,'presentation',(typeof presentation==='function'?presentation(node):presentation)==='content'?'content':'card');
-        const fullHeight=adapter?.fullHeight;setViewProperty(c.element.dataset,'fullHeight',String(typeof fullHeight==='function'?fullHeight(node):!!fullHeight));
+        const aspect=adapter?.initialAspectRatio,ratio=typeof aspect==='function'?aspect(node):aspect;
+        const fixedSize=Number.isFinite(layout.height)&&layout.height>0&&Number.isFinite(ratio)&&ratio>0;
+        setViewProperty(c.element.dataset,'fixedSize',String(fixedSize));setViewProperty(c.element.style,'height',fixedSize?`${layout.height}px`:'');
+        const fullHeight=adapter?.fullHeight;setViewProperty(c.element.dataset,'fullHeight',String(!fixedSize&&(typeof fullHeight==='function'?fullHeight(node):!!fullHeight)));
         if(c.panel){
             if(c.panel.dataset.canvasPanel!=='true')c.panel.dataset.canvasPanel='true';setViewProperty(c.panel.dataset,'canvasFullHeight',c.element.dataset.fullHeight);setViewProperty(c.panel.dataset,'canvasWorkspace',String(workspace?.c===c));
             const surface=adapter?.selectionSurface?.(node);
@@ -676,7 +679,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         const node=host.createNode(type);if(!node){message('当前服务没有加载此节点，请检查扩展或重启服务');return;}
         host.addNode(graph,node);node.pos=[Math.max(0,...host.nodes(graph).map(n=>n===node?0:n.pos[0]+n.size[0]))+80,100];
         adapterFor(node)?.onCreate?.(node);
-        const v=state.viewport;state.cards[node.id]={x:((point?.x??root.clientWidth/2)-v.x)/v.zoom,y:((point?.y??root.clientHeight/3)-v.y)/v.zoom,width:cardWidth(type),expanded:true};
+        const v=state.viewport;state.cards[node.id]={x:((point?.x??root.clientWidth/2)-v.x)/v.zoom,y:((point?.y??root.clientHeight/3)-v.y)/v.zoom,...initialCardSize(node),expanded:true};
         return node;
     }
     function add(type,point=addPoint){
@@ -1000,7 +1003,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
                 adapterFor(node)?.prepareCopy?.(node,data);
                 host.configureNode(node,data);host.addNode(graph,node);mapping.set(item.sourceId,node);
                 node.pos=[Math.max(0,...host.nodes(graph).filter(n=>n!==node).map(n=>n.pos[0]+n.size[0]))+80,100];
-                state.cards[node.id]={x:(point.x-v.x)/v.zoom+offset+(item.offset?.x||0),y:(point.y-v.y)/v.zoom+offset+(item.offset?.y||0),width:Number(item.layout?.width)||cardWidth(node.type),expanded:item.layout?.expanded!==false};
+                state.cards[node.id]={x:(point.x-v.x)/v.zoom+offset+(item.offset?.x||0),y:(point.y-v.y)/v.zoom+offset+(item.offset?.y||0),width:Number(item.layout?.width)||cardWidth(node.type),...(Number.isFinite(item.layout?.height)?{height:item.layout.height}:{}),expanded:item.layout?.expanded!==false};
             }
             remapGroupMembers(created,mapping);
             for(const node of created)adapterFor(node)?.remapCopy?.(node,mapping);

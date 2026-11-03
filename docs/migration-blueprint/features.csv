@@ -295,7 +295,7 @@ business:docs/script-parser.md","backend/storyboard; frontend/src/features/story
 "F-BIZ-019","分镜字段映射、来源追踪与待分配图片","保留","源码已存在；原文、inventory、未分配图片及映射随文档保存。","business:web/script_parser_model.mjs
 business:web/script_parser_panel.mjs
 business:nodes/daelab_comfytv_storyboard/script_api.py
-business:docs/script-parser.md","frontend/src/features/storyboard; backend/storyboard","M3","避免把无法定位的图片强塞到错误分镜，保留可复查来源。","同一图片多次出现保留多个实例及顺序；仅处理 DOCX 表格内内容。表外文字/图忽略，不进解析表、不进待分配。待分配只保留表格内对不上单元格或引用缺失的图。
+business:docs/script-parser.md","frontend/src/features/storyboard; backend/storyboard","M3","避免把无法定位的图片强塞到错误分镜，保留可复查来源。","同一图片多次出现保留多个实例及顺序；表外图片保留待分配项。
 刷新后可查看原文并调整映射，不依赖 temp 缓存；缺 inventory 的旧文件明确提示补充。","UC-BIZ-003 UC-BIZ-008","TC-BIZ-023 TC-BIZ-026"
 "F-BIZ-020","文稿追加、去重、修订及原子导入","保留","源码已存在；文档指纹加来源定位去重，映射调整保护手工编辑与生成结果。","business:web/script_parser_model.mjs
 business:web/script_parser_panel.mjs
