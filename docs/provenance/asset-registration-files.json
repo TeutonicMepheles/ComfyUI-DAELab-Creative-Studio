@@ -40,9 +40,10 @@
     },
     {
       "destination": "backend/integrations/comfyui/canvas_nodes/media_upload.py",
-      "destinationSha256": "2a90aa0cdf4e4c66ed53d0de4c9a1475146d852ee43a71c13c6d896be447857b",
+      "destinationSha256": "6ce374cb7ffab3f87ce50c9e0cd53df6cfad2c65b8e3bb9bec0189458dd5587f",
       "changes": [
-        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable.",
+        "2026-11-03 task51: hide duplicate generation success/scope copy; automatically materialize verified editor exports once with persistent lazy video lineage and original asset identity; preserve lifecycle and error feedback."
       ]
     },
     {
@@ -159,9 +160,10 @@
     },
     {
       "destination": "tests/migrated_canvas_backend/test_registration.py",
-      "destinationSha256": "957f0970f994247a87d8aec278c3b262c37fcdaf82e495681a3dada0eaf10174",
+      "destinationSha256": "3c0f57aeb0174f43b02acbbb9cfc3dda054bc004be5e7b1563422cf619eefb61",
       "changes": [
-        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable.",
+        "2026-11-03 task51: hide duplicate generation success/scope copy; automatically materialize verified editor exports once with persistent lazy video lineage and original asset identity; preserve lifecycle and error feedback."
       ]
     },
     {

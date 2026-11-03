@@ -73,11 +73,14 @@ class RegistrationTests(unittest.TestCase):
     def test_upload_lineage_input_is_lazy_without_changing_material_outputs(self):
         upload = importlib.import_module("backend.integrations.comfyui.canvas_nodes.media_upload").MediaUpload
         schema = upload.define_schema()
-        self.assertEqual([slot["name"] for slot in schema.inputs], ["asset_data", "source_report"])
+        self.assertEqual([slot["name"] for slot in schema.inputs], ["asset_data", "source_report", "source_video"])
         self.assertTrue(schema.inputs[1]["lazy"])
         self.assertTrue(schema.inputs[1]["optional"])
+        self.assertEqual(schema.inputs[2]["kind"], "COMFYTV_VIDEO")
+        self.assertTrue(schema.inputs[2]["lazy"])
+        self.assertTrue(schema.inputs[2]["optional"])
         self.assertEqual([slot["name"] for slot in schema.outputs], ["image_ref", "image_refs", "video_ref", "image", "video"])
-        self.assertEqual(upload.check_lazy_status(asset_data="{}", source_report=None), [])
+        self.assertEqual(upload.check_lazy_status(asset_data="{}", source_report=None, source_video=None), [])
 
     def test_import_and_node_lookup_do_not_register_routes(self):
         self.assertEqual(list(self.server.routes), [])

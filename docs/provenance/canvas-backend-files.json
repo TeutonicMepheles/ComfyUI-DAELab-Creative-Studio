@@ -8,11 +8,12 @@
       "source": "nodes/media_upload.py",
       "destination": "backend/integrations/comfyui/canvas_nodes/media_upload.py",
       "sourceSha256": "958cdebf5c07cd9aebef35ba3242985ca4f2aee62db12792fcbd2e9e312885c3",
-      "destinationSha256": "2a90aa0cdf4e4c66ed53d0de4c9a1475146d852ee43a71c13c6d896be447857b",
+      "destinationSha256": "6ce374cb7ffab3f87ce50c9e0cd53df6cfad2c65b8e3bb9bec0189458dd5587f",
       "changes": [
         "relocate to owning backend module without changing node identifiers or declared slot order",
         "reject non-object material JSON without changing valid material interpretation",
-        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources."
+        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources.",
+        "2026-11-03 task51: hide duplicate generation success/scope copy; automatically materialize verified editor exports once with persistent lazy video lineage and original asset identity; preserve lifecycle and error feedback."
       ],
       "kind": "migrated-production"
     },
@@ -140,11 +141,12 @@
       "source": null,
       "destination": "tests/migrated_canvas_backend/test_registration.py",
       "sourceSha256": null,
-      "destinationSha256": "46f67cb55db2c310c9b05b43cdbac62574252d7364cea56a92a40c664741bf81",
+      "destinationSha256": "3c0f57aeb0174f43b02acbbb9cfc3dda054bc004be5e7b1563422cf619eefb61",
       "kind": "authored-migration",
       "changes": [
         "inert host contract and HTTP security tests; not actual host acceptance",
-        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources."
+        "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources.",
+        "2026-11-03 task51: hide duplicate generation success/scope copy; automatically materialize verified editor exports once with persistent lazy video lineage and original asset identity; preserve lifecycle and error feedback."
       ]
     },
     {
