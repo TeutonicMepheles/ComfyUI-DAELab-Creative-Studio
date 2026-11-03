@@ -1,6 +1,6 @@
 import {createMaterialTable} from '../../application/table_material_columns.mjs';
 import {addField,uid,normalizeTable} from '../../application/table_model.mjs';
-import {LOCAL_VIDEO_MODEL,isGeneration,addGenerationColumn,promptColumns,rowGenerationConfig,setRowGenerationConfig,promptGenerationOwner,syncGenerationFrameTags,applyPromptContent} from './table_generation_model.mjs';
+import {LOCAL_VIDEO_MODEL,mergeTaskGenerationConfig,isGeneration,addGenerationColumn,promptColumns,rowGenerationConfig,setRowGenerationConfig,promptGenerationOwner,syncGenerationFrameTags,applyPromptContent} from './table_generation_model.mjs';
 import {effectivePrompt,toColumnPrompt,promptContent} from '../prompt/table_prompt_template.mjs';
 import {generationMaterials} from '../../application/table_material_output.mjs';
 import {videoTaskResultPreviews} from './video_task_results.js';
@@ -76,6 +76,7 @@ export function syncVideoTaskInputs(state,source,previous,{skipConfig=new Set()}
  state.table.meta.generationInput=structuredClone(normalized.meta.generationInput);
  const output=state.table.fields.find(f=>f.id===state.fieldId);
  for(const row of [...state.table.records,...(state.archivedTasks||[])])if(skipConfig.has(row.id))setRowGenerationConfig(row,state.fieldId,rowGenerationConfig(row,state.fieldId,output.generation));
+ const ownConfigs=new Map([...state.table.records,...(state.archivedTasks||[])].map(row=>[row.id,structuredClone(rowGenerationConfig(row,state.fieldId,output.generation))]));
  const owner=promptGenerationOwner(normalized,id),oldOwner=promptGenerationOwner(previous,promptSourceId(previous));
  if(owner)output.generation=taskConfig(owner.generation,id);
  // Selection changes membership, not the serialized task identity or receipts.
@@ -114,7 +115,7 @@ export function syncVideoTaskInputs(state,source,previous,{skipConfig=new Set()}
   if(!origin)continue;
   if(owner){
    const incoming=rowGenerationConfig(origin,owner.id,owner.generation),oldRow=previous.records.find(r=>r.id===row.id),oldConfig=oldOwner&&oldRow&&rowGenerationConfig(oldRow,oldOwner.id,oldOwner.generation);
-   if(!existing.has(row.id)||owner.generationConfigRevision!==oldOwner?.generationConfigRevision||oldRow&&JSON.stringify(incoming)!==JSON.stringify(oldConfig))setRowGenerationConfig(row,state.fieldId,taskConfig(incoming,id));
+   if(!existing.has(row.id)||owner.generationConfigRevision!==oldOwner?.generationConfigRevision||oldRow&&JSON.stringify(incoming)!==JSON.stringify(oldConfig))setRowGenerationConfig(row,state.fieldId,existing.has(row.id)?{...mergeTaskGenerationConfig(ownConfigs.get(row.id),incoming),promptFieldId:id}:taskConfig(incoming,id));
   }
   if(row.meta)delete row.meta.generationSourceMissing;
   for(const key of Object.keys(row.values))if(key!==state.fieldId&&previousIds.has(key)&&!incomingIds.has(key))delete row.values[key];
