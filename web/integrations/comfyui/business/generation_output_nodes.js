@@ -1,8 +1,9 @@
+import { generationErrorText } from '../../../features/generation/control_labels.js';
 import { generationOutputConnected } from '../canvas/generation_output_binding.js';
 const UPLOAD = 'DAELAB.MediaUpload', GROUP = 'DAELAB.MaterialGroup';
 const KEY = 'daelabCreativeCanvasV1';
-const names = { waiting: '排队中', running: '生成中', pausing: '暂停中', paused: '已暂停', failed: '生成失败', needs_input: '待补充', needs_recovery: '待恢复', stopped: '已停止', complete: '已完成', stale: '输入已变化' };
-const ranks = { running: 0, pausing: 0, waiting: 1, needs_recovery: 2, failed: 2, needs_input: 2, paused: 3, stopped: 3, stale: 3, complete: 4 };
+const names = { waiting: '排队中', running: '生成中', pausing: '中止中', interrupting: '中止中', interrupted: '已中止', paused: '原任务已停止', failed: '生成失败', needs_input: '待补充', needs_recovery: '执行状态待核实', stopped: '已停止', complete: '已完成', stale: '输入已变化' };
+const ranks = { running: 0, pausing: 0, interrupting: 0, interrupted: 3, waiting: 1, needs_recovery: 2, failed: 2, needs_input: 2, paused: 3, stopped: 3, stale: 3, complete: 4 };
 /** Immutable request-bound output targets. Only prepare creates nodes; polling never does. */
 export function createGenerationOutputs(node, app, history, createNode, ready) {
     const graph = node.graph;
@@ -116,7 +117,7 @@ export function createGenerationOutputs(node, app, history, createNode, ready) {
                     // A disconnected, replaced or manually filled target is no longer owned by this run.
                     if (!connected(target))
                         continue;
-                    const status = { phase: report.phase, label: (names[report.phase] || '待恢复') + (report.phase === 'running' && typeof report.progress === 'number' ? ` · ${Math.round(Math.max(0, Math.min(100, report.progress)))}%` : ''), detail: String(report.error || report.detail || ''), busy: ['waiting', 'running', 'pausing'].includes(report.phase), ...(typeof report.progress === 'number' ? { progress: Math.max(0, Math.min(100, report.progress)) } : {}) };
+                    const status = { phase: report.phase, label: (names[report.phase] || '待恢复') + (report.phase === 'running' && typeof report.progress === 'number' ? ` · ${Math.round(Math.max(0, Math.min(100, report.progress)))}%` : ''), detail: generationErrorText(report.error || report.detail), busy: ['waiting', 'running', 'pausing', 'interrupting'].includes(report.phase), ...(typeof report.progress === 'number' ? { progress: Math.max(0, Math.min(100, report.progress)) } : {}) };
                     let asset = null;
                     const result = report.result, receipt = report.receipt;
                     if (report.phase === 'complete' && report.state === 'succeeded' && result?.url?.startsWith('/view?') && ['image', 'video'].includes(result.kind) && receipt?.kind === 'assets' && receipt.items?.some((item) => item.asset_id === result.asset_id && item.reference_id === result.reference_id && item.asset_id && item.reference_id)) {
