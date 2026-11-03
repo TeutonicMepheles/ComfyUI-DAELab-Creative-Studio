@@ -335,9 +335,10 @@
       "source": "web/video_tasks.css",
       "destination": "frontend/src/features/generation/video_tasks.css",
       "sourceSha256": "f662c345f3f44010d82961172cb0954db3b8ec2ffb086dfb65cf11c89a0cbf07",
-      "destinationSha256": "29f45dfeaa054c6f44fdf62627b3ff3220adf47cf7fc7715a9715bca30f1960b",
+      "destinationSha256": "ad8558bd2936df4d4c4ceea6e686a5a7726a2a2901e70b875a78e6b0b4e1b5ff",
       "kind": "production-source",
       "changes": [
+        "2026-11-03: Correct the credit graphic to the host account balance Lucide coins icon, inlined as a yellow mask without host CSS/font dependencies.",
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
         "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",

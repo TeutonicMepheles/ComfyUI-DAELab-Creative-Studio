@@ -25,8 +25,8 @@ before any host update. This source handoff does not authorize an interruption.
 - Image size values retain their exact provider IDs. Buttons show a proportional
   shape and aspect ratio, with pixels in a smaller secondary line. Automatic and
   custom options, plus background choices, display Chinese labels.
-- Ready paid-task estimates display the number/range with the same four-diamond
-  Comfy credits badge graphic used by the installed frontend. Empty, local,
+- Ready paid-task estimates display the number/range with the yellow Lucide coins
+  graphic used beside the host account balance. Empty, local,
   incomplete and pending estimates remain hidden. Accessible text and the tooltip
   retain the estimate meaning and actual-billing qualification.
 - A cell snapshot containing one text/media item creates that standalone node.
@@ -50,3 +50,12 @@ No generation POST occurred. Raw evidence stays in the agent workspace.
 Type checking, architecture checks, 260 canvas tests, 644 business tests and 139
 generation backend tests pass. Controller owns final build/CI; Reviewer owns
 independent deployed verification and the live-task update boundary.
+
+## Account icon correction
+
+Independent review found that the initial four-diamond graphic came from native
+node price badges and differed from the user's account-balance screenshot. The
+CSS now inlines the installed host's `lucide--coins` SVG as a yellow mask. It
+needs no host icon font/class, and keeps the number/range and visibility rules.
+The reference screenshot and candidate glyph were visually compared. Final
+independent verification must use this corrected account icon.
