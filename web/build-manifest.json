@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "83605576d3f2fcf3a9598d107de5491197bedf40a3858f67b2df04aa04d86bde",
+  "sourceFingerprint": "9aa5a78fac0bef22ec27d775b4018ac8cd7203a3b3bb4482a6121c98f4c5158f",
   "files": [
     {
       "path": "AGENTS.md",
@@ -204,7 +204,7 @@
     },
     {
       "path": "design/vendor/README.md",
-      "sha256": "f0c044c171d51ed899f37d80c243e2597829eac7c0b20b8cc81824aa57f97fb9"
+      "sha256": "d246799bb1d11639e23425fc088d87c36fc86353f534be9a4e17e1d97f4bf467"
     },
     {
       "path": "design/vendor/alibaba-puhuiti-3/AlibabaPuHuiTi-3-55-Regular.woff2",
@@ -417,6 +417,10 @@
     {
       "path": "design/vendor/remixicon/star-line.svg",
       "sha256": "bf10036893a04a9a68d69be5c5150d856f1aab34b771f7d49a3bf9c39688c5e7"
+    },
+    {
+      "path": "design/vendor/remixicon/stop-line.svg",
+      "sha256": "da22575900a1d70bc2a57c8ddad97b672d5f30a3c42c542d17912886a6de4e6e"
     },
     {
       "path": "design/vendor/remixicon/time-line.svg",
@@ -1148,7 +1152,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "5f56ebae30f81027a7b8a709a1beaffd9a8ef51ea4bcf917e3043cac9f37217e"
+      "sha256": "b954bbcdac7866a51711ae557b96b3a774437c2f9d5214391167ad52ccb66e26"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
