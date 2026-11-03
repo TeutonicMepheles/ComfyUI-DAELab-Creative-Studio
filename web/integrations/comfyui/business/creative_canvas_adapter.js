@@ -43,6 +43,7 @@ function register(){
         resizable:node=>tables.includes(node.type)||node.type==='DAELAB.LibTV.VideoGenerate',
         minWidth:node=>node.type==='DAELAB.Table'?168+160*(node.__dataTable?.fields.filter(field=>!field.hidden).length||0):640,
         fullHeight:node=>tables.includes(node.type)||node.type==='DAELAB.LibTV.VideoGenerate',
+        initialAspectRatio:node=>node.type==='DAELAB.LibTV.VideoGenerate'?16/9:null,
         presentation:node=>node.type==='DAELAB.Table'?'content':'card',
         floatingHeader:node=>node.type==='DAELAB.LibTV.VideoGenerate',
         selectionSurface:node=>node.type==='DAELAB.Table'?node.__dataTablePanel?.root.querySelector('.dae-table-scroll'):null,

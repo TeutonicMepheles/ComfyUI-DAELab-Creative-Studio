@@ -119,7 +119,8 @@ canvas:docs/adapter-contract.md:75","frontend/src/canvas/material-exchange; back
 canvas:web/creative_panel_context.mjs
 canvas:docs/adapter-contract.md:83","frontend/src/ui/panels; frontend/src/integrations/comfyui/panels; frontend/src/contracts/panels","M1","保留真实编辑器状态，抽离挂载/归还和宿主布局，禁止业务查私有宿主 DOM。","借用和归还同一面板，不克隆独立业务状态；release/abandon 幂等清理。
 面板宽度可按能力调整、取消和保存；fullHeight 不被通用高度裁切。
-失效上下文的 focus/pan/resize 返回失败且不操作别的节点。","UC-CAN-007 UC-CAN-013","TC-CAN-002 TC-CAN-025 TC-CAN-042"
+失效上下文的 focus/pan/resize 返回失败且不操作别的节点。
+新建生成节点与空分镜剧本解析器外框初始宽高比 16:9；已保存或手调尺寸保留。解析落表后按表格撑高可调宽，不再钉死 16:9。不改变生成分辨率。通用多维表格不在此条。","UC-CAN-007 UC-CAN-013","TC-CAN-002 TC-CAN-025 TC-CAN-042"
 "F-CAN-024","收藏快照与资产目录持久化迁移","重构","现有收藏目录保存在当前站点 localStorage，媒体仅存本地引用、文本存内容快照，尚无统一后端资产目录。","canvas:web/asset_library_model.mjs
 canvas:web/asset_favorite.mjs
 canvas:docs/asset-library.md:7","backend/assets/catalog; frontend/src/features/assets/library; compat/workflows/assets","M2","在同一产品数据目录内持久化收藏，迁入浏览器旧目录，避免换端口导致收藏不可见。","收藏去重采用内容身份；取消收藏不删除源文件或已建节点。
