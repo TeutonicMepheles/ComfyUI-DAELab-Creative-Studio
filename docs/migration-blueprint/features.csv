@@ -426,10 +426,10 @@ business:web/data_table_editor.mjs","frontend/src/application; frontend/src/feat
 "F-BIZ-047","列输出过滤、身份去重与按类型拆组","重构","现输出路径主要筛选带 URL 的图片/视频并按任务行分组，不处理文本、跨单元格去重或按类型拆分。","business:web/table_material_output.mjs","frontend/src/application; frontend/src/features/table","M3","按行序与格内顺序输出；跳过空值和失效引用；按素材身份去重保留首次出现；按文本、图片、视频自动拆成独立同类型组。","空单元格和失效引用跳过，不创建空占位，也不阻断后续有效内容。
 同一素材身份在一次输出中只保留首次出现；后续重复不改变首次顺序。
 按文本、图片、视频自动拆组，不增加类型筛选步骤；过滤后无有效成员则不创建空组。","UC-BIZ-018","TC-BIZ-053 TC-BIZ-054"
-"F-BIZ-048","生成与优化任务的作用域暂停、打断、继续和重启","重构","主要入口仍以暂停表达，底层多通过取消实现；本地可中断后重跑，远端任务通常继续完成。持久暂停意图与显式打断/重启未完成。","business:web/table_generation_tasks.mjs
-business:web/task_snapshots.mjs","frontend/src/features/generation; frontend/src/features/tasks; backend/jobs","M4","控制动作必须带明确范围并表达真实任务事实；刷新、重开和服务重启后从账本恢复暂停意图。F-BIZ-032 仍描述旧暂停/本地中断能力。","暂停、打断、继续、重启作用于声明范围，不误伤其他节点、表格实例或未选中任务。
-暂停保留继续意图并持久化；打断结束当前执行且不自动派发替代任务；重启创建新请求身份并保留旧回执与结果。
-无法取消的远端执行不得显示已停止或已退款；结果未知时禁止自动新提交。","UC-BIZ-019","TC-BIZ-055 TC-BIZ-056"
+"F-BIZ-048","生成节点整序列中止与重新生成；优化任务作用域控制","重构","主要入口仍以暂停表达，底层多通过取消实现；本地可中断后重跑，远端任务通常继续完成。持久暂停意图与显式打断/重启未完成。","business:web/table_generation_tasks.mjs
+business:web/task_snapshots.mjs","frontend/src/features/generation; frontend/src/features/tasks; backend/jobs","M4","2026-11-03 用户要求生成节点取消暂停/继续，改为中止当前节点本轮整个序列。LLM 优化仍按既有合同；F-BIZ-032 保留旧能力记录。","生成节点运行时右下角使用中止图标，不提供暂停/继续；单任务与多任务均中止当前节点本轮整个序列，不影响其他节点。LLM 优化仍按既有作用域合同。
+中止停止剩余派发，按能力请求移出原生排队项或中断执行；刷新重开不恢复本轮派发。已完成结果保留，仅用户主动重新生成创建新请求并保留旧记录，不继续旧序列。
+工作室和 Comfy 列表中断均按匹配事实刷新节点及占位输出；终态或待核实优先于控制意图。本地中断但远端未知须区分，不宣称远端已取消或退款，禁止自动重提。","UC-BIZ-019","TC-BIZ-055 TC-BIZ-056"
 "F-BIZ-049","单任务真实进度与成组完成计数","重构","快照协议已有可选 progress，成组百分比尚未严格隐藏；现有测试主要使用合成报告。","business:web/task_snapshots.mjs
 business:web/table_generation_tasks.mjs","frontend/src/features/tasks; frontend/src/features/generation; backend/jobs","M4","仅一个任务时可显示真实百分比和阶段；两个及以上任务不显示百分比，节点左上角只显示总数和已验证完成数。无真实进度时只显示不确定状态。","生成范围仅一个 requestId 时，可显示提供方或可核对计数换算的百分比，并同时给出数字与百分号。
 生成范围两个及以上任务时，节点、胶囊和占位不显示百分比或进度圆环，左上角只显示总任务数和已完成数。
