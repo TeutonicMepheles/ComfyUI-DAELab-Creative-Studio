@@ -22,7 +22,7 @@ function install(node){
     const info=document.createElement('span');info.className='dae-upload-info';
     const stage=document.createElement('div');stage.className='dae-upload-stage';
     const status=document.createElement('p');status.className='dae-upload-status';status.setAttribute('role','status');
-    const picker=document.createElement('input');picker.type='file';picker.accept=ACCEPT;picker.hidden=true;picker.setAttribute('aria-label','上传图片或视频');
+    const picker=document.createElement('input');picker.type='file';picker.accept=ACCEPT;picker.multiple=true;picker.hidden=true;picker.setAttribute('aria-label','上传图片或视频');
     let task=null;
     let epoch=0,controller=null,disposed=false,signature=null,asset=null,releasePlayer=null;
     const choose=createCreativeButton('上传图片 / 视频',()=>{picker.value='';picker.click();});
@@ -83,7 +83,25 @@ function install(node){
         }catch(e){if(token===epoch&&!disposed&&e.name!=='AbortError'){status.textContent=e.message;task={...task,state:'error',detail:e.message};}}
         finally{if(token===epoch&&!disposed){if(task?.state==='running')task=null;choose.disabled=false;root.removeAttribute('aria-busy');}}
     }
-    picker.onchange=()=>void upload(picker.files[0]);
+    async function uploadFiles(files){
+        const supported=files.filter(file=>mediaKind(file.name)),owner=node.graph;
+        if(disposed||node.mode||!owner)return;
+        if(!supported.length){status.textContent='请选择 PNG、JPG、WebP、MP4、WebM 或 MOV 文件';return;}
+        const targets=[node],layout=owner.extra?.daelabCreativeCanvasV1?.cards?.[node.id],origin=layout||{x:node.pos[0],y:node.pos[1]};
+        if(supported.length>1){
+            history.begin();
+            try{for(let i=1;i<supported.length;i++){
+                const next=LiteGraph.createNode(UPLOAD_TYPE);if(!next)throw new Error('上传节点未加载');
+                next.pos=[node.pos[0]+i*382,node.pos[1]];owner.add(next);targets.push(next);
+                globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.placeNode(next,{x:origin.x+i*382,y:origin.y,width:350});
+            }}finally{history.end();owner.setDirtyCanvas?.(true,true);}
+        }
+        for(const [index,target] of targets.entries()){
+            if(disposed||node.graph!==owner||app.graph!==owner)break;
+            if(target.graph===owner)await target.__mediaUpload?.upload(supported[index]);
+        }
+    }
+    picker.onchange=()=>void uploadFiles([...picker.files]).catch(error=>{status.textContent=error.message;});
     root.addEventListener('dragover',e=>{e.preventDefault();e.stopPropagation();root.dataset.dragging='true';});
     root.addEventListener('dragleave',()=>delete root.dataset.dragging);
     root.addEventListener('drop',e=>{e.preventDefault();e.stopPropagation();delete root.dataset.dragging;if(e.dataTransfer.files.length!==1)return;void upload(e.dataTransfer.files[0]);});

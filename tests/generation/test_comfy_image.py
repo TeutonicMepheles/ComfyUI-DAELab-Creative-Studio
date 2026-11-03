@@ -1,5 +1,7 @@
 """Official GPT Image graph contracts; no paid calls."""
 import unittest
+from types import SimpleNamespace
+from backend.integrations.comfyui.comfy_video import ComfyVideoQueue, _submission_auth
 from backend.contracts.errors import InvalidInput
 from backend.generation.service import MODELS
 from backend.providers.comfy_image import ComfyImageProvider
@@ -31,6 +33,23 @@ class ComfyImageTests(unittest.IsolatedAsyncioTestCase):
     def data(self, model='GPT Image 2', mode='text2image'):
         return {'config': {'model': model, 'mode': mode, 'kind': 'image', 'settings': {'quality': 'high'}},
                 'segments': [{'type': 'text', 'text': 'red sphere'}]}
+
+    async def test_native_enqueue_ack_keeps_original_image_task_identity(self):
+        pending = []
+        async def validate(task_id, graph, partial):
+            return True, None, ['save'], {}
+        queue = ComfyVideoQueue(SimpleNamespace(number=0, prompt_queue=SimpleNamespace(put=pending.append)), validate)
+        self.provider.queue = queue
+        token = _submission_auth.set({'auth_token_comfy_org': 'synthetic-test-token'})
+        try:
+            prepared = self.provider.build(self.data(), [], 'image-original')
+            observation = await self.provider.create('image-original', {'prepared': prepared})
+        finally:
+            _submission_auth.reset(token)
+        self.assertEqual(observation.task_id, prepared['native_task_id'])
+        self.assertEqual(observation.state, 'submitted')
+        self.assertEqual(len(pending), 1)
+        self.assertEqual(pending[0][1], observation.task_id)
 
     async def test_all_models_schema_dispatch_defaults_and_one_output(self):
         for model, native in self.provider.models.items():

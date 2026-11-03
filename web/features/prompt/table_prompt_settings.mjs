@@ -62,6 +62,9 @@ export const promptSettingsStyle=`
 :is(.dae-ui.generation-form,.dae-ui .generation-form) .generation-parameter-choices button[aria-pressed=true]::after{display:none}
 :is(.dae-ui.generation-form,.dae-ui .generation-form) .generation-ratio-choices button{flex-direction:column;gap:6px;flex-basis:42px;font-size:12px!important}
 .dae-ui .generation-ratio-shape{display:block;width:var(--ratio-width);height:var(--ratio-height);border:1.5px solid currentColor;border-radius:2px;opacity:.8}
+.dae-ui .generation-image-size-choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr))}
+.dae-ui .generation-image-size-choices button{justify-content:center;text-align:center}
+.dae-ui .generation-image-size-choices small{display:block;font-size:10px;line-height:1.2;white-space:nowrap;opacity:.7}
 .dae-ui.generation-settings-popover .generation-parameter-sections>section:first-child button[aria-pressed=true]{box-shadow:inset 0 0 0 2px var(--dae-text)}
 .dae-ui .generation-duration-viewport{min-width:0;overflow:hidden;border-radius:14px;background:color-mix(in srgb,var(--dae-surface-high) 88%,var(--dae-text) 12%)}
 .dae-ui.generation-settings-popover .generation-duration-choices{position:relative;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;background:transparent;mask-image:linear-gradient(to right,var(--duration-edge-left,#000) 0,var(--duration-edge-left,#000) 8px,#000 52px,#000 calc(100% - 52px),var(--duration-edge-right,#000) calc(100% - 8px),var(--duration-edge-right,#000) 100%)}
@@ -164,6 +167,16 @@ function decorateRatioChoices(group,options){
  group.classList.add('generation-ratio-choices');
  [...group.children].forEach((control,index)=>{const ratio=String(options[index][0]).match(/^(\d+):(\d+)$/);if(!ratio)return;const shape=document.createElement('span'),r=Number(ratio[1])/Number(ratio[2]);shape.className='generation-ratio-shape';shape.setAttribute('aria-hidden','true');shape.style.setProperty('--ratio-width',`${r>=1?20:20*r}px`);shape.style.setProperty('--ratio-height',`${r>=1?20/r:20}px`);control.prepend(shape);});
 }
+function decorateImageSizeChoices(group,options){
+ group.classList.add('generation-ratio-choices','generation-image-size-choices');
+ [...group.children].forEach((control,index)=>{
+  const value=String(options[index][0]),size=value.match(/^(\d+)[x×](\d+)$/i);
+  if(!size){control.textContent=({auto:'自动',Custom:'自定义'})[value]||options[index][1];return;}
+  const width=Number(size[1]),height=Number(size[2]),gcd=(a,b)=>b?gcd(b,a%b):a,unit=gcd(width,height),shape=document.createElement('span'),label=document.createElement('span'),pixels=document.createElement('small'),ratio=width/height;
+  shape.className='generation-ratio-shape';shape.setAttribute('aria-hidden','true');shape.style.setProperty('--ratio-width',`${ratio>=1?20:20*ratio}px`);shape.style.setProperty('--ratio-height',`${ratio>=1?20/ratio:20}px`);
+  label.textContent=`${width/unit}:${height/unit}`;pixels.textContent=`${width}×${height}`;control.replaceChildren(shape,label,pixels);control.setAttribute('aria-label',`${label.textContent}，${pixels.textContent} 像素`);control.title=pixels.textContent+' 像素';
+ });
+}
 export function createLocalVideoSizePicker(config,schema,onChange){
  const root=document.createElement('section'),title=document.createElement('div');root.className='generation-parameter-section';root.dataset.parameter='ratio';title.className='generation-parameter-title';title.textContent='比例';root.append(title);
  const presets=localVideoSizePresets(schema),settings=config.settings||{};
@@ -212,8 +225,10 @@ export function createGenerationParameters(config,schema,{onMode,onSetting,onSet
    const options=items||((spec.component==='switch'&&spec.type!=='boolean')?[[1,'开启'],[0,'关闭']]:[[true,'开启'],[false,'关闭']]);
    if(spec.name==='ratio')for(const item of options){if(item[0]==='adaptive')item[1]='自动';}
    if(spec.name==='enableSound')for(const item of options){if(item[0]==='on')item[1]='开启';if(item[0]==='off')item[1]='关闭';}
+   if(spec.name==='background')for(const item of options)item[1]=({auto:'自动',opaque:'不透明',transparent:'透明'})[item[0]]||item[1];
    const group=choices(block,title,options,value,id=>onSetting(spec.name,id));
    if(spec.name==='ratio')decorateRatioChoices(group,options);
+   if(spec.name==='size'&&config.kind==='image')decorateImageSizeChoices(group,options);
   }else{
    const edit=structuredClone(config),control=createGenerationSetting(spec,edit,()=>onSetting(spec.name,edit.settings[spec.name]),!isLocalGenerationModel(config.model));
    if(control.tagName==='LABEL'&&control.firstChild?.nodeType===3)control.firstChild.remove();block.append(control);

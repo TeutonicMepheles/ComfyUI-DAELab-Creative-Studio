@@ -382,7 +382,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
                     const origin={x:point.x+index*800*state.viewport.zoom,y:point.y},members=[];
                     for(const textIndex of section.textIndexes){
                         const node=createNode('DAELAB.TextInput',{x:origin.x+(members.length%2)*356*state.viewport.zoom,y:origin.y+Math.floor(members.length/2)*260*state.viewport.zoom});if(!node)throw new Error('文本节点未加载');created.push(node);members.push(node.id);
-                        const widget=node.widgets?.find(item=>item.name==='text');if(!widget)throw new Error('文本节点格式不兼容');widget.value=frozen.texts[textIndex];widget.callback?.(widget.value);node.title=`${section.label} · ${members.length}`;adapterFor(node)?.refresh?.(node);
+                        const widget=node.widgets?.find(item=>item.name==='text');if(!widget)throw new Error('文本节点格式不兼容');widget.value=frozen.texts[textIndex];widget.callback?.(widget.value);node.title=`${section.label} · ${members.length}`;node.properties.materialOutputSource={nodeId:String(context.node.id),key:context.materialKey??null,kind:'text',scope:frozen.scope,fieldId:frozen.fieldId,...frozen.textSources?.[textIndex]};adapterFor(node)?.refresh?.(node);
                     }
                     for(const [assetIndex,asset] of section.assetIndexes.map(assetIndex=>[assetIndex,importedByIndex.get(assetIndex)]).filter(([,asset])=>asset)){
                         const i=members.length;
@@ -390,6 +390,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
                         const widget=node.widgets?.find(w=>w.name==='asset_data');if(!widget)throw new Error('素材节点格式不兼容');widget.value=JSON.stringify(asset);node.title=asset.name;node.properties.materialOutputSource={nodeId:String(context.node.id),key:context.materialKey??null,kind:section.kind,assetIndex,...frozen.assets[assetIndex]?.provenance};node.__mediaUpload?.reload?.();
                     }
                     if(!members.length)continue;materialized+=members.length;
+                    if(frozen.scope==='cell'&&frozen.assets.length+frozen.texts.length===1)continue;
                     const group=createNode(GROUP_TYPE,origin);if(!group)throw new Error('素材组节点未加载');created.push(group);group.title=section.label||context.node.title+' · 输出';group.properties={...group.properties,members,materialType:section.kind,materialOutputSource:{nodeId:String(context.node.id),key:context.materialKey??null,kind:section.kind,scope:frozen.scope,fieldId:frozen.fieldId,...(frozen.recordId==null?{}:{recordId:frozen.recordId})}};group.properties.collapsed=false;
                     if(context.node.outputs?.some(slot=>slot.name==='table_json')&&!connectTableOutput(context.node,group))throw new Error('无法建立表格到素材组的持久连线');
                     const collection=group.widgets?.find(w=>w.name==='collection_data');if(collection)collection.value=JSON.stringify(collectionFor(group));

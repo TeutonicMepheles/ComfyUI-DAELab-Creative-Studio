@@ -22,7 +22,7 @@ canvas:docs/architecture/FRONTEND_INTERACTION.md","frontend/src/canvas/commands;
 "F-CAN-005","单文件与批量本地媒体上传","保留","源码已有选择文件上传、拖入空白创建节点、多文件顺序创建及支持格式筛选。","canvas:web/media_upload.js
 canvas:web/creative_canvas_view.mjs
 canvas:web/media_upload_model.mjs","frontend/src/features/assets/upload; backend/assets","M2","保留低门槛素材入口和部分失败不阻断整批的行为。","PNG/JPG/WebP/MP4/WebM/MOV 按已声明格式处理。
-多文件按来源顺序各建一个素材节点，拖到已有卡片也不覆盖原素材。
+文件选择器与拖入一致：可多选；多文件按来源顺序各建一个素材节点并在落点旁排开，不自动打组。拖到已有卡片也不覆盖原素材。
 不支持文件显示原因；同批支持文件继续处理。","UC-CAN-002","TC-CAN-004 TC-CAN-006"
 "F-CAN-006","替换素材、连线类型保护与失败保留","保留","上传实现包含原值、请求 epoch、AbortController 和跨类型已连线拒绝。","canvas:web/media_upload.js:49
 canvas:web/media_upload_model.mjs","frontend/src/features/assets/upload; frontend/src/contracts/assets","M2","保留用户资产与连接安全，避免新异步服务改写后丢失竞态保护。","单文件替换成功才提交新的素材引用；失败保留原值和原媒体。
@@ -324,12 +324,13 @@ business:web/video_task_linked_prompt.mjs","frontend/src/features/generation; fr
 business:nodes/libtv_bridge/table_comfy_image.py
 business:nodes/libtv_bridge/table_local_models.py
 business:web/table_prompt_settings.mjs","backend/providers; backend/contracts/generation; frontend/src/features/generation","M4","参数模型与提供方能力统一管理，禁止静默选替代型号。","前后端拒绝不支持参数、缺帧、错媒体类型和不存在模型。
-本地/云端切换只按明确规则迁移兼容设置，不保留无效隐藏参数。","UC-BIZ-009 UC-BIZ-010","TC-BIZ-027 TC-BIZ-029 TC-BIZ-031 TC-BIZ-032 TC-BIZ-046"
+本地/云端切换只按明确规则迁移兼容设置，不保留无效隐藏参数。
+图片尺寸以可视比例/形状选择，像素数为辅助说明，不堆砌裸英文枚举。background 等选项使用中文标签，不改模型参数 ID。","UC-BIZ-009 UC-BIZ-010","TC-BIZ-027 TC-BIZ-029 TC-BIZ-031 TC-BIZ-032 TC-BIZ-046"
 "F-BIZ-026","Comfy 账户积分图片和视频生成","保留","源码已存在；经原生 Comfy API 节点执行，旧 LibTV 服务已退役；本清单不声明真实付费输出验收。","business:nodes/libtv_bridge/table_comfy_video.py
 business:nodes/libtv_bridge/table_comfy_image.py
 business:docs/comfy-credit-generation.md","backend/providers/comfy_partner; backend/integrations/comfyui","M4","继续依托 ComfyUI 的执行和认证，单仓库不内置第二套 Comfy 引擎。","未登录、未知型号或非法参数在入队前失败。
 认证仅传入 sensitive 数据；本轮云端通道只用假服务验证协议，真实输出、费用和水印效果保持未验收，不作为迁移退出门槛。
-空任务、空提示词、必填输入未就绪或当前为本地 Qwen/MiniMax 时，不显示当前任务预计积分。仅可入队的付费请求显示估价；清空、换本地模型或换内容后旧估价不得回写。模型价目表不得冒充当前任务费用。","UC-BIZ-009","TC-BIZ-020 TC-BIZ-030 TC-BIZ-035 TC-BIZ-046"
+空任务、空提示词、必填输入未就绪或当前为本地 Qwen/MiniMax 时，不显示当前任务预计积分。仅可入队的付费请求显示估价：数字加 Comfy 账户余额旁的黄色双硬币图形（Lucide coins 同款，可内联 SVG，不依赖宿主字体类），不要整句说明，不得用四菱形或其他图形冒充同款；区间仍可用 min–max。清空、换本地模型或换内容后旧估价不得回写。模型价目表不得冒充当前任务费用。","UC-BIZ-009","TC-BIZ-020 TC-BIZ-030 TC-BIZ-035 TC-BIZ-046"
 "F-BIZ-027","本地 Qwen 图片生成","保留","源码已存在；依赖已安装模型和 Comfy 节点，缺依赖需清晰预检。","business:nodes/libtv_bridge/table_local_image.py
 business:nodes/libtv_bridge/table_local_models.py
 business:docs/table-local-qwen.md","backend/providers/local_image; backend/integrations/comfyui","M4","迁移模型工作流构建与校验，不把模型权重和 GPU 环境视为单包自带。","缺模型/节点不下载替代物或入队；提示确切缺项。
@@ -415,9 +416,10 @@ canvas:docs/architecture/FRONTEND_INTERACTION.md","frontend/src/features/table; 
 右键、Shift+F10 或键盘菜单键在指针或焦点对象打开纵向菜单；方向键移动、Enter 执行、Escape 关闭并归还焦点。
 选项按逻辑分组，图标加文字、固定行高；菜单避开视口边缘且不被节点内容裁切。表内不再使用横向工具栏；素材组等节点横向菜单保持。","UC-BIZ-017","TC-BIZ-051 TC-BIZ-052"
 "F-BIZ-046","单元格与按列输出为素材组并保留来源连线","重构","列输出 Slot 可创建独立素材节点和组并保存来源属性，但没有持久的表格到素材组原生连线；单元格和列菜单无统一输出入口。","business:web/table_material_output.mjs
-business:web/data_table_editor.mjs","frontend/src/application; frontend/src/features/table; frontend/src/canvas","M3","只允许单格与按列输出；结果为素材组；表到组连线可保存、撤销、重载。整行和多单元格选区不输出。","单元格仅通过右键菜单输出；列通过列头菜单和列输出 Slot 输出，两入口范围与结果相同。
+business:web/data_table_editor.mjs","frontend/src/application; frontend/src/features/table; frontend/src/canvas","M3","只允许单格与按列输出；单格一份有效素材输出独立素材节点，列与多份/多类型仍按类型成组；表到来源连线可保存、撤销、重载。整行和多单元格选区不输出。","单元格仅通过右键菜单输出；列通过列头菜单和列输出 Slot 输出，两入口范围与结果相同。
 整行、多行或多单元格选择不提供有效输出动作，也不创建组。
-每个结果组与表格来源之间建立可保存、可撤销、重载后仍有效的原生连线；失败时原子回滚新增成员、组和连线。","UC-BIZ-018","TC-BIZ-054"
+每个结果与表格来源之间建立可保存、可撤销、重载后仍有效的原生连线；失败时原子回滚新增成员、组和连线。
+单元格仅一份有效素材或一份文本时输出独立素材/文本节点，不包素材组；列输出与单元格多份/多类型仍按类型成组且不丢内容。","UC-BIZ-018","TC-BIZ-054"
 "F-BIZ-047","列输出过滤、身份去重与按类型拆组","重构","现输出路径主要筛选带 URL 的图片/视频并按任务行分组，不处理文本、跨单元格去重或按类型拆分。","business:web/table_material_output.mjs","frontend/src/application; frontend/src/features/table","M3","按行序与格内顺序输出；跳过空值和失效引用；按素材身份去重保留首次出现；按文本、图片、视频自动拆成独立同类型组。","空单元格和失效引用跳过，不创建空占位，也不阻断后续有效内容。
 同一素材身份在一次输出中只保留首次出现；后续重复不改变首次顺序。
 按文本、图片、视频自动拆组，不增加类型筛选步骤；过滤后无有效成员则不创建空组。","UC-BIZ-018","TC-BIZ-053 TC-BIZ-054"
