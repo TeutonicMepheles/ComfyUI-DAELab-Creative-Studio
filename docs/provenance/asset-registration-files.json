@@ -75,8 +75,9 @@
     },
     {
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
-      "destinationSha256": "93740784014f67600c717744e9366660c9ae727e80ef0637c5d5520974ea616e",
+      "destinationSha256": "6f3ee935b72419fbe7ac022d05de37fc9099c641612f33e30fb5e8b280909fcc",
       "changes": [
+        "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
         "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
         "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
         "2026-11-02: Preserve generated media URL resolution and materialize exported video snapshots with optional text collections.",
@@ -113,8 +114,9 @@
     },
     {
       "destination": "frontend/src/integrations/comfyui/canvas/media_upload.js",
-      "destinationSha256": "93c63be487e472f4d9b80835a7b5adf9b833e93345bbbcb89cb2e4171d360091",
+      "destinationSha256": "455849c37e214dbca8d528b2bd9ee96717a6254ec512594fa73c0cded39f466c",
       "changes": [
+        "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
         "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
       ]
     },

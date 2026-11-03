@@ -122,7 +122,7 @@ test('left selection keeps the menu closed; right click and keyboard open a focu
 test('the cell menu routes output to the owning table callback',t=>{
  const env=dom(t),calls=[],a=table(env,0,{outputTable:detail=>calls.push(detail)}),cell=a.cells[0];
  a.contextMenu(cell);
- const output=a.toolbar.querySelectorAll('[role=menuitem]').find(item=>item.textContent==='输出为素材组');
+ const output=a.toolbar.querySelectorAll('[role=menuitem]').find(item=>item.textContent==='输出为素材');
  assert.ok(output);
  output.onclick({preventDefault(){},stopPropagation(){}});
  assert.deepEqual(calls.map(call=>({scope:call.scope,fieldId:call.fieldId,recordId:call.recordId})),[{scope:'cell',fieldId:a.value.fields[0].id,recordId:a.value.records[0].id}]);

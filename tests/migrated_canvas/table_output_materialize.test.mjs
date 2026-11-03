@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {generationMaterials} from '../../frontend/src/application/table_material_output.mjs';
+import {generationMaterials,tableMaterialSnapshot} from '../../frontend/src/application/table_material_output.mjs';
 
 const source=readFileSync(new URL('../../frontend/src/canvas/creative_canvas_view.mjs',import.meta.url),'utf8');
 const start=source.indexOf('    async function outputMaterials('),end=source.indexOf('\n    function tableOutput(',start);
@@ -11,13 +11,13 @@ const connectTableOutput=function(sourceNode,group){
  return output>=0&&input>=0&&Boolean(sourceNode.connect(output,group,input));
 };
 
-function fixture(skipIndex=null){
+function fixture(skipIndex=null,cell=false){
  const asset=(id,kind)=>({id,assetId:id,kind,url:`/view?filename=${id}.${kind==='video'?'mp4':'png'}&type=output`,name:id});
  const table={fields:[{id:'result',name:'生成结果',type:'content',presentation:'generation',generation:{kind:'image'}}],records:[
   {id:'second',name:'第二行',values:{result:[asset('second-video','video')]},meta:{}},
   {id:'first',name:'第一行',values:{result:[asset('first-image','image'),asset('first-video','video')]},meta:{}},
  ],meta:{}};
- const plan=generationMaterials(table,'result'),created=[],links=[],messages=[];
+ const plan=cell?tableMaterialSnapshot(table,'result','second'):generationMaterials(table,'result'),created=[],links=[],messages=[];
  const byId=new Map(),sourceNode={id:'table',type:'DAELAB.Table',outputs:[{name:'table_json'}],inputs:[],connect(output,group,input){links.push([output,group,input]);return {id:links.length};}};byId.set(sourceNode.id,sourceNode);
  let serial=0;
  const createNode=type=>{
@@ -37,6 +37,11 @@ function fixture(skipIndex=null){
  );
  return {table,plan,created,links,messages,outputMaterials,sourceNode};
 }
+
+test('single-cell single media materializes directly without a wrapper group',async()=>{
+ const f=fixture(null,true);await f.outputMaterials({node:f.sourceNode,side:'output',materialKey:'cell:second:result'},{x:0,y:0});
+ assert.deepEqual(f.created.map(n=>n.type),['DAELAB.MediaUpload']);assert.equal(f.created[0].properties.materialOutputSource.recordId,'second');assert.equal(f.links.length,0);
+});
 
 test('generation row groups materialize as indexed, same-type canvas groups with persistent table lineage',async()=>{
  const f=fixture();

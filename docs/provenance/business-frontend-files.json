@@ -335,9 +335,10 @@
       "source": "web/video_tasks.css",
       "destination": "frontend/src/features/generation/video_tasks.css",
       "sourceSha256": "f662c345f3f44010d82961172cb0954db3b8ec2ffb086dfb65cf11c89a0cbf07",
-      "destinationSha256": "72905433f01d54fddd245ea8272369fd618d86f3979de3e3e6280c1b1675917e",
+      "destinationSha256": "29f45dfeaa054c6f44fdf62627b3ff3220adf47cf7fc7715a9715bca30f1960b",
       "kind": "production-source",
       "changes": [
+        "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
         "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
@@ -358,9 +359,10 @@
       "source": "web/video_tasks_panel.mjs",
       "destination": "frontend/src/features/generation/video_tasks_panel.mjs",
       "sourceSha256": "1f567635a4b88ab672b6f656d1c2ede14a5a79432592e26ccf2c39775281452d",
-      "destinationSha256": "e84e88a55cc844928becd2f9fa8487efb837e3ee6261eba05c1d1bd1db189ba6",
+      "destinationSha256": "344d07d5e44df610a0b8f45559e8e634a96ef41c534ed72e372b129c79901893",
       "kind": "production-source",
       "changes": [
+        "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
         "2026-11-03: Gate task credit estimates on validated nonempty paid inputs; bind asynchronous prices to the full current input and a request sequence.",
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Native selection and upload use BusinessHostPort; legacy generation channel is unreachable.",
@@ -598,9 +600,10 @@
       "source": "web/table_prompt_settings.mjs",
       "destination": "frontend/src/features/prompt/table_prompt_settings.mjs",
       "sourceSha256": "bfe4726e48470729694c7a86878e50662a3ec0fad7837a9323bbb21a022c432a",
-      "destinationSha256": "6ec169ce4703cc97b19d05b3818a4a75711d89c277a5a0e3cfbbd8efbfd74944",
+      "destinationSha256": "e984a954fa6a6bc51ab508576ea08abf81da16b896057bd6f981cfba35f18435",
       "kind": "production-source",
       "changes": [
+        "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Allow host save through nested prompt/editor controls while retaining IME and text editing key ownership.",
         "Optimization popover resolves a replacement td/th only within its original editor/root and stable field/record; requirement and intent edits retain focus, while deletion, inactive mode and lifecycle release still close. Mock regressions do not replace actual ComfyUI acceptance.",
