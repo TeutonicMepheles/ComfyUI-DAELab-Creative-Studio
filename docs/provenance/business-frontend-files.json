@@ -265,19 +265,20 @@
       "source": "web/table_generation_model.mjs",
       "destination": "frontend/src/features/generation/table_generation_model.mjs",
       "sourceSha256": "eee30572bc581bfd1c90925935d73227ee29578d0dbfb8779bd6e763912b532d",
-      "destinationSha256": "80e3a0b5bdd22998bda1d219e4a35e4ff3940376cb3b072e8b566239722c5005",
+      "destinationSha256": "f12f3ab28fa1b9e3e27bd2809f6a584c204499cf7dbb370573eaf7f08c371165",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
-        "2026-11-03 task49: share task execution choices while preserving per-row inputs, results and protected request configurations; scope labels and regression coverage."
+        "2026-11-03 task49: share task execution choices while preserving per-row inputs, results and protected request configurations; scope labels and regression coverage.",
+        "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions."
       ]
     },
     {
       "source": "web/table_generation_panel.mjs",
       "destination": "frontend/src/features/generation/table_generation_panel.mjs",
       "sourceSha256": "547d0543ec0e6359f0146f429ca9a11f9d4cce5682e1c212f01439492b1c9a50",
-      "destinationSha256": "48fdd2a2931141bf26e87020b7302a7a6d77c269af57a33c0f17e9913f0071e8",
+      "destinationSha256": "72361718733296b63d16bb37b23ed480b78d485a6f08c80576756b9a51cc42ec",
       "kind": "production-source",
       "changes": [
         "2026-11-02: Explain the local one-image reference mode and explicit width/height scaling.",
@@ -286,7 +287,8 @@
         "Skip generation settings row-map and all-TD traversal only when current fields have no generation presentation and this attachment has never created a settings bar; retain onRefresh and header cleanup, and preserve the full path forever after any bar creation for detached-cell cleanup. Actual editor/input focused regressions preserve owner/history/configuration/error/lifecycle behavior; traversal counts do not establish browser latency or product acceptance.",
         "At the private normalized-table boundary, skip frame/source synchronization when known field descriptors contain no generation field; avoid otherwise unused prompt-column row-value qualification. Unknown outer/field shapes and generation-bearing tables retain the original path; public validation, frame-token refresh, stale metadata and configured updates are unchanged. Focused mechanism counts do not establish browser performance.",
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
-        "2026-11-03 task49: share task execution choices while preserving per-row inputs, results and protected request configurations; scope labels and regression coverage."
+        "2026-11-03 task49: share task execution choices while preserving per-row inputs, results and protected request configurations; scope labels and regression coverage.",
+        "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions."
       ]
     },
     {
@@ -351,18 +353,19 @@
       "source": "web/video_tasks_model.mjs",
       "destination": "frontend/src/features/generation/video_tasks_model.mjs",
       "sourceSha256": "3572671a035745a74966e2cdd6e7e6f421a49938218c7d03ee2f9601f902c684",
-      "destinationSha256": "dea66ac511c6a9760f846de67f76504fb3e117eb832f4921c91fff6587de1420",
+      "destinationSha256": "c10c4d9ac3982cb466cc7d94d428dedef2cc49aed1664a7e0a8bdad2e5565c97",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
+        "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions."
       ]
     },
     {
       "source": "web/video_tasks_panel.mjs",
       "destination": "frontend/src/features/generation/video_tasks_panel.mjs",
       "sourceSha256": "1f567635a4b88ab672b6f656d1c2ede14a5a79432592e26ccf2c39775281452d",
-      "destinationSha256": "e06a127eea7c00d91b0da897fd90bbe0cfca32bf5f1a9d460067d8d17e96b58d",
+      "destinationSha256": "12d5f4f62b302119fa7f090a18bcf8989b97e7d66ecdf5a762eb619313d4a1cf",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
@@ -373,7 +376,8 @@
         "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
         "Defer generation panel installation/input sync until native workflow loading settles; preserve history capability diagnostics and original source hash.",
-        "2026-11-03 task49: share task execution choices while preserving per-row inputs, results and protected request configurations; scope labels and regression coverage."
+        "2026-11-03 task49: share task execution choices while preserving per-row inputs, results and protected request configurations; scope labels and regression coverage.",
+        "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions."
       ]
     },
     {
@@ -604,7 +608,7 @@
       "source": "web/table_prompt_settings.mjs",
       "destination": "frontend/src/features/prompt/table_prompt_settings.mjs",
       "sourceSha256": "bfe4726e48470729694c7a86878e50662a3ec0fad7837a9323bbb21a022c432a",
-      "destinationSha256": "af995efd8e80f7aef7be578eac7317b33d51a20e5ef701332df3708d429d92ed",
+      "destinationSha256": "8298e3505e702d86939be849db7aef1e67a01faeae5d254ed7b4c034236f18cb",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
@@ -612,7 +616,8 @@
         "Allow host save through nested prompt/editor controls while retaining IME and text editing key ownership.",
         "Optimization popover resolves a replacement td/th only within its original editor/root and stable field/record; requirement and intent edits retain focus, while deletion, inactive mode and lifecycle release still close. Mock regressions do not replace actual ComfyUI acceptance.",
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
-        "2026-11-03 task49: share task execution choices while preserving per-row inputs, results and protected request configurations; scope labels and regression coverage."
+        "2026-11-03 task49: share task execution choices while preserving per-row inputs, results and protected request configurations; scope labels and regression coverage.",
+        "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions."
       ]
     },
     {
@@ -1396,13 +1401,14 @@
       "source": "tests/generation_parameters.test.mjs",
       "destination": "tests/migrated_business/generation_parameters.test.mjs",
       "sourceSha256": "a0a571d5104a647e742dbc3526407dcece0455699935dbe553f020d48bf9ae8f",
-      "destinationSha256": "766814f47cdfd0ae5b2f17484fabfa16f8ad92a722ff633c793b3ac7bdee4650",
+      "destinationSha256": "2f1fd437d271f4b7e8b7fd43e279ed66d7b3737f85b914a4ac5bb388eccfc9d8",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
         "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
-        "2026-11-03 task49: share task execution choices while preserving per-row inputs, results and protected request configurations; scope labels and regression coverage."
+        "2026-11-03 task49: share task execution choices while preserving per-row inputs, results and protected request configurations; scope labels and regression coverage.",
+        "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions."
       ]
     },
     {
@@ -1791,12 +1797,13 @@
       "source": "tests/table_prompt_source.test.mjs",
       "destination": "tests/migrated_business/table_prompt_source.test.mjs",
       "sourceSha256": "a4b79750f191d5c0ec0f39fe2d518eb3785e6e9b7e6afc02b273a0c2f33ccafc",
-      "destinationSha256": "cc4f79f851a1a9b699df8ba61ceb7d8bfe2d834c99c8e193a0dc411b9e214d16",
+      "destinationSha256": "46448e63fa71685cc704d88742c167234cab4ed774a3514428e0575adae6d21e",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
         "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
-        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
+        "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions."
       ]
     },
     {

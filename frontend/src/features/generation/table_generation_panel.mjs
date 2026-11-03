@@ -346,8 +346,9 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
     if(!canGenerate()||tasks.submitting)throw new Error('任务提交中，请稍后应用');
     const inputs=[...settings.querySelectorAll('input,select')];if(inputs.some(input=>!input.reportValidity()))return;
     for(const input of inputs)input.onchange?.();
-    editor.change(t=>{applyColumnGenerationConfig(t,fieldId,draft);applyColumnFrameSources(t,fieldId,frameColumns);});
-    menu.close();refreshFrameTokens();refreshSettingBars();notify('已应用整列全部行的模型配置');
+    const skip=new Set(getTable().records.filter(row=>protectedSettings(tasks.stateFor(row,current?.id||fieldId))).map(row=>row.id));
+    editor.change(t=>{applyColumnGenerationConfig(t,fieldId,draft,{skip});applyColumnFrameSources(t,fieldId,frameColumns,{skip});});
+    menu.close();refreshFrameTokens();refreshSettingBars();notify(skip.size?`已同步可编辑任务，保留 ${skip.size} 条执行、暂停或待恢复任务的配置`:'已应用整列全部行的模型配置');
    }catch(error){status.textContent=error.message;}
   },true);
   tableIcon(apply,'check-line','应用全部');apply.title='应用全部：将模型配置应用到本列所有行（包括未勾选行）';
@@ -360,7 +361,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
     onMode:id=>{draft.mode=id;draft.settings={};applyGenerationModelDefaults(draft,schema);drawSettings();},
     onSetting:(name,value)=>{if(value===undefined)delete draft.settings[name];else draft.settings[name]=value;drawSettings();},
     onSettings:values=>{Object.assign(draft.settings,values);drawSettings();},
-    onAttempts:value=>{draft.attempts=value;drawSettings();}
+    showAttempts:false
    });settings.append(parameterView);
    const roles=generationFrameRoles(draft);
    if(roles.length){

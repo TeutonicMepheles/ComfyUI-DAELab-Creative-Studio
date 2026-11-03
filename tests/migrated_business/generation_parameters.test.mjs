@@ -205,23 +205,27 @@ function drawColumn({draft,schema,table}){
 const attemptButton=(settings,label)=>descendants(settings).find(node=>node.tagName==='button'&&node.textContent===label);
 const pressAttempts=button=>button.onclick({preventDefault(){},stopPropagation(){}});
 
-test('the prompt-column apply-all popover records attempts, saves them and reopens with them selected',t=>{
+test('the prompt-column apply-all popover excludes per-task attempts and preserves their saved values',t=>{
  const dom=installDom(t);t.after(()=>dom.restore());
  const state=createVideoTasks({prompt:'任务'}),table=state.table,field=table.fields.find(item=>item.generation),promptFieldId=field.generation.promptFieldId;
  const schema={properties:{modeType:{items:{text2video:[]}}}};
  const draft={...structuredClone(field.generation),kind:'video',model:'Seedance 2.5',mode:'text2video',settings:{}};
  const column=drawColumn({draft,schema,table});
- const four=attemptButton(column.settings,'4 次');
- assert.equal(four.getAttribute('aria-pressed'),'false','one attempt is the saved default');
- pressAttempts(four);
- assert.equal(draft.attempts,4,'choosing four attempts must update the draft');
- assert.equal(column.draws.count,2,'choosing attempts must redraw the parameter view');
- assert.equal(attemptButton(column.settings,'4 次').getAttribute('aria-pressed'),'true');
- assert.equal(attemptButton(column.settings,'1 次').getAttribute('aria-pressed'),'false');
+ assert.equal(attemptButton(column.settings,'4 次'),undefined);
+ const row=table.records[0];row.meta||={};row.meta.generationSettings={[promptFieldId]:{[field.id]:{...field.generation,attempts:4}}};
  applyColumnGenerationConfig(table,promptFieldId,draft);
  const saved=promptGenerationOwner(table,promptFieldId);
- assert.equal(generationAttempts(saved.generation),4,'apply all must persist the chosen attempts');
- for(const row of table.records)assert.equal(generationAttempts(rowGenerationConfig(row,saved.id,saved.generation)),4);
+ assert.equal(generationAttempts(saved.generation),1);
+ assert.equal(generationAttempts(rowGenerationConfig(row,saved.id,saved.generation)),4);
  const reopened=drawColumn({draft:structuredClone(saved.generation),schema,table});
- assert.equal(attemptButton(reopened.settings,'4 次').getAttribute('aria-pressed'),'true','reopening must show the saved attempts');
+ assert.equal(attemptButton(reopened.settings,'4 次'),undefined);
+});
+
+test('column apply uses shared keys and leaves protected row configuration and frame bindings intact',()=>{
+ const state=createVideoTasks(),table=state.table,field=table.fields.find(f=>f.id===state.fieldId),prompt=field.generation.promptFieldId;
+ const first=table.records[0],held=structuredClone(first);held.id='protected';held.meta={generationFrames:{[field.id]:{first:{fieldId:'pictures',assetId:'keep-me'}}}};table.records.push(held);
+ const before=structuredClone(rowGenerationConfig(held,field.id,field.generation)),values=structuredClone(held.values),frames=structuredClone(held.meta.generationFrames);
+ applyColumnGenerationConfig(table,prompt,{...field.generation,mode:'mixed2video',settings:{duration:8},attempts:4,reference:'must-not-copy'},{skip:new Set([held.id])});
+ assert.equal(rowGenerationConfig(first,field.id,field.generation).mode,'mixed2video');assert.equal(rowGenerationConfig(first,field.id,field.generation).reference,undefined);
+ assert.deepEqual(rowGenerationConfig(held,field.id,field.generation),before);assert.deepEqual(held.values,values);assert.deepEqual(held.meta.generationFrames,frames);
 });

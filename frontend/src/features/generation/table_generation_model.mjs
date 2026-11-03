@@ -58,12 +58,13 @@ export function promptGenerationOwner(table,promptFieldId){
  if(linked)return generationConfigField(table,linked.id);
  const prompt=table.fields.find(f=>f.id===promptFieldId);return prompt?.generation?prompt:null;
 }
-export function applyColumnGenerationConfig(table,promptFieldId,config){
+export function applyColumnGenerationConfig(table,promptFieldId,config,{skip=new Set()}={}){
  const prompt=requirePromptSource(table);if(prompt.id!==promptFieldId)throw new Error('提示词列已变化，请重新打开配置');
  const owner=promptGenerationOwner(table,promptFieldId)||prompt;
- owner.generation={...structuredClone(config),promptFieldId};
- owner.generationConfigRevision=(owner.generationConfigRevision||0)+1;
+ owner.generation||={version:1,promptFieldId};
+ applyTaskGenerationConfig(table,owner.id,config,{skip});
  for(const row of table.records){
+  if(skip.has(row.id))continue;
   const document=toColumnPrompt(effectivePrompt(table,row,promptFieldId),row),frames=document.segments.filter(segment=>segment.type==='frame');
   if(frames.length){
    const bindings={};for(const tag of frames){const binding=row.meta?.generationFrames?.[tag.generationFieldId]?.[tag.role];if(binding)bindings[tag.role]=structuredClone(binding);}
@@ -71,16 +72,16 @@ export function applyColumnGenerationConfig(table,promptFieldId,config){
    row.values[promptFieldId]=document;row.meta||={};row.meta.generationFrames||={};row.meta.generationFrames[owner.id]=bindings;
    row.meta.generationFrameTags||={};row.meta.generationFrameTags[owner.id]=JSON.stringify([promptFieldId,[...roles]]);
   }
-  setRowGenerationConfig(row,owner.id,owner.generation);
+  syncGenerationFrameTags(table,owner.id,rowGenerationConfig(row,owner.id,owner.generation),row.id);
  }
- syncGenerationFrameTags(table,owner.id,owner.generation);
 }
-export function applyColumnFrameSources(table,promptFieldId,sources){
+export function applyColumnFrameSources(table,promptFieldId,sources,{skip=new Set()}={}){
  const owner=promptGenerationOwner(table,promptFieldId),roles=generationFrameRoles(owner.generation);
  for(const role of roles)if(sources[role]&&!table.fields.some(field=>field.id===sources[role]&&['content','assets'].includes(field.type)&&field.presentation!=='prompt'&&field.id!==owner.id))throw new Error('图片列已变化，请重新选择');
  if(!roles.length)return;
  owner.generationFrameColumns=Object.fromEntries(roles.filter(role=>sources[role]).map(role=>[role,sources[role]]));
  for(const row of table.records)for(const role of roles){
+  if(skip.has(row.id))continue;
   const fieldId=sources[role];if(!fieldId)continue;
   const value=row.values[fieldId],asset=Array.isArray(value)?value.find(item=>!item.kind||item.kind==='image'):null;
   row.meta||={};row.meta.generationFrames||={};const frames=row.meta.generationFrames[owner.id]||={};

@@ -71,10 +71,11 @@ export function videoTaskAssets(state){
  const table={...state.table,records:state.table.records.map(row=>({...row,values:{...row.values,[state.fieldId]:videoTaskResultPreviews(row.values[state.fieldId]||[],row.meta?.generationColumns?.[state.fieldId],row.meta?.generationPreviewAfter?.[state.fieldId])}}))};
  return generationMaterials(table,state.fieldId);
 }
-export function syncVideoTaskInputs(state,source,previous){
+export function syncVideoTaskInputs(state,source,previous,{skipConfig=new Set()}={}){
  const normalized=normalizeTable(source),id=promptSourceId(normalized);
  state.table.meta.generationInput=structuredClone(normalized.meta.generationInput);
  const output=state.table.fields.find(f=>f.id===state.fieldId);
+ for(const row of [...state.table.records,...(state.archivedTasks||[])])if(skipConfig.has(row.id))setRowGenerationConfig(row,state.fieldId,rowGenerationConfig(row,state.fieldId,output.generation));
  const owner=promptGenerationOwner(normalized,id),oldOwner=promptGenerationOwner(previous,promptSourceId(previous));
  if(owner)output.generation=taskConfig(owner.generation,id);
  // Selection changes membership, not the serialized task identity or receipts.
@@ -100,6 +101,7 @@ export function syncVideoTaskInputs(state,source,previous){
  if(id&&state.table.fields.some(f=>f.id===id)){
   const field=state.table.fields.find(f=>f.id===id);field.readonly=false;setPromptSource(state.table,id);
   for(const row of [...state.table.records,...state.archivedTasks]){
+   if(skipConfig.has(row.id))continue;
    const config=rowGenerationConfig(row,output.id,output.generation);
    if(config.promptFieldId!==id){setRowGenerationConfig(row,output.id,{...config,promptFieldId:id});if(row.meta?.generationPromptFields)delete row.meta.generationPromptFields[output.id];}
   }
@@ -107,6 +109,7 @@ export function syncVideoTaskInputs(state,source,previous){
  }
  const origins=new Map(normalized.records.map(row=>[row.id,row]));
  for(const row of [...state.table.records,...state.archivedTasks]){
+  if(skipConfig.has(row.id))continue;
   const origin=origins.get(row.id);
   if(!origin)continue;
   if(owner){

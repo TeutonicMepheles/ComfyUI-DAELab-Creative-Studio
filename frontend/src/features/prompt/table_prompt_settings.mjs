@@ -188,13 +188,13 @@ export function createLocalVideoSizePicker(config,schema,onChange){
  return root;
 }
 // One view over the existing schema and setting editor. It never saves or submits by itself.
-export function createGenerationParameters(config,schema,{onMode,onSetting,onSettings,onAttempts=()=>{}}){
+export function createGenerationParameters(config,schema,{onMode,onSetting,onSettings,onAttempts=()=>{},showAttempts=true}){
  const root=document.createElement('div');root.className='generation-parameter-sections';
  const cleanups=[];root.dispose=()=>{for(const cleanup of cleanups.splice(0))cleanup();};
  const section=(name,parent=root)=>{const block=document.createElement('section'),title=document.createElement('div');block.className='generation-parameter-section';title.className='generation-parameter-title';title.textContent=name;block.append(title);parent.append(block);return block;};
  const choices=parameterChoices;
-  const attemptSection=section('抽卡次数');
-  choices(attemptSection,'抽卡次数',Array.from({length:MAX_GENERATION_ATTEMPTS},(_,index)=>[index+1,`${index+1} 次`]),generationAttempts(config),id=>onAttempts(id));
+  if(showAttempts){const attemptSection=section('抽卡次数');
+   choices(attemptSection,'抽卡次数',Array.from({length:MAX_GENERATION_ATTEMPTS},(_,index)=>[index+1,`${index+1} 次`]),generationAttempts(config),id=>onAttempts(id));}
  const modes=generationParameterModes(config,schema),modeSection=section('生成方式');
  const selectedMode=isLocalGenerationModel(config.model)?config.mode:generationModeChoice(config.mode,schema);
  choices(modeSection,'生成方式',modes.map(id=>[id,generationModeLabels[id]||id||'默认']),selectedMode,id=>{if(id!==config.mode)return onMode(id);});

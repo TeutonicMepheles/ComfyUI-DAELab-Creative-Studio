@@ -270,7 +270,8 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
     const cancelled=state.table.records.filter(row=>!selected.has(row.id)).map(row=>generation.stateFor(row,state.fieldId)).filter(task=>task&&!task.legacy&&['waiting','running','pausing','needs_recovery'].includes(task.phase));
     if(cancelled.length)void generation.pause(cancelled);
     mutate(next=>{
-     syncVideoTaskInputs(next,source,previous);next.source.stamp=linked.raw;
+     const skipConfig=new Set([...state.table.records,...(state.archivedTasks||[])].filter(row=>['waiting','running','pausing','paused','needs_recovery'].includes(generation.stateFor(row,state.fieldId)?.phase)).map(row=>row.id));
+     syncVideoTaskInputs(next,source,previous,{skipConfig});next.source.stamp=linked.raw;
      if(JSON.stringify(current()?.values[config()?.promptFieldId])!==JSON.stringify(next.table.records.find(r=>r.id===next.currentId)?.values[config()?.promptFieldId]))binding?.finish();
     },{group:'table-input-sync'});
    }catch(error){inputError=error.message;}

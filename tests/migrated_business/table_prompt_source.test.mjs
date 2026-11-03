@@ -13,6 +13,28 @@ const template=()=>({kind:'column-template',version:1,segments:[{type:'column',f
 const fixture=()=>normalizeTable({fields:[{id:'scene',name:'画面描述',type:'json',presentation:'prompt'},{id:'motion',name:'镜头运动',type:'text'},{id:'final',name:'最终描述',type:'json',presentation:'prompt'}],records:[{id:'r1',name:'任务1',values:{scene:toColumnPrompt('地球在左。'),motion:'向前推进。',final:template()}},{id:'r2',name:'任务2',values:{scene:toColumnPrompt('卫星在右。'),motion:'向右横移。',final:template()}}]});
 const text=input=>input.segments.map(s=>s.text).join('');
 
+test('source column changes do not overwrite protected connected task inputs or execution configuration',()=>{
+ const table=createMaterialTable(),prompt=promptSourceId(table);table.records.forEach(row=>{row.selected=true;row.values[prompt]='Own input';});
+ const config={version:1,kind:'video',model:LOCAL_VIDEO_MODEL,promptFieldId:prompt,mode:'text2video',settings:{duration:4}};
+ applyColumnGenerationConfig(table,prompt,config);
+ const state=importVideoTasks(table),protectedRow=state.table.records[0],owner=state.table.fields.find(f=>f.id===state.fieldId),before=structuredClone(table);
+ const original=structuredClone(rowGenerationConfig(protectedRow,state.fieldId,owner.generation)),values=structuredClone(protectedRow.values);
+ applyColumnGenerationConfig(table,prompt,{...config,mode:'singleImage2video',settings:{duration:9}});
+ syncVideoTaskInputs(state,table,before,{skipConfig:new Set([protectedRow.id])});
+ assert.deepEqual(rowGenerationConfig(protectedRow,state.fieldId,owner.generation),original);assert.deepEqual(protectedRow.values,values);
+ assert.equal(rowGenerationConfig(state.table.records[1],state.fieldId,owner.generation).mode,'singleImage2video');
+});
+
+test('explicit column frame selection skips protected rows without clearing their existing frame choice',()=>{
+ const table=createMaterialTable(),prompt=promptSourceId(table),pictures=table.fields[0].id,held=table.records[0];
+ for(const row of table.records)row.values[pictures]=[{id:'new-'+row.id,kind:'image',url:'/view?filename=new.png'}];
+ const config={version:1,kind:'video',model:LOCAL_VIDEO_MODEL,promptFieldId:prompt,mode:'singleImage2video',settings:{duration:4}};
+ applyColumnGenerationConfig(table,prompt,config);held.meta.generationFrames[prompt]={first:{fieldId:pictures,assetId:'original-choice'}};
+ const before=structuredClone(held.meta.generationFrames);
+ applyColumnFrameSources(table,prompt,{first:pictures},{skip:new Set([held.id])});
+ assert.deepEqual(held.meta.generationFrames,before);assert.equal(table.records[1].meta.generationFrames[prompt].first.assetId,'new-'+table.records[1].id);
+});
+
 test('column frame sources select the first image in each row and retain individual overrides until explicitly reapplied',()=>{
  const table=createMaterialTable();table.records[0].selected=true;
  const prompt=promptSourceId(table),first=table.fields[0].id,last=addField(table,{name:'结束图片',type:'content'}).id;
