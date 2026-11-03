@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "0b670355422f3f51d6bfee3fe7340d9dccad6d4ad377febbf8a6d0f196a976bf",
+  "specificationHash": "b72cdb8cc459a20843bcf5c55dd1100bb502a45af585aa73a12d34ff7df99d1d",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -1255,7 +1255,8 @@
         "AC-CAN-032-003",
         "AC-CAN-034-001",
         "AC-CAN-034-002",
-        "AC-CAN-034-003"
+        "AC-CAN-034-003",
+        "AC-CAN-034-004"
       ],
       "usecases": [
         "UC-CAN-004",
@@ -3765,6 +3766,26 @@
       "evidence": []
     },
     {
+      "id": "AC-CAN-034-004",
+      "feature": "F-CAN-034",
+      "task": "TASK-M5-FEATURES-EDITOR",
+      "owner": "features/editor",
+      "requirement": "导出成功后自动在画布创建独立视频素材节点并连上剪辑输出，用户不必再点「下载成片」。保留剪辑到该素材的连线；失败/取消不创建素材。同一导出完成通知重复到达或保存重开不得再新增素材。不代提交生成。",
+      "requirementHash": "802e5ddaa5f3e727dcfe94cbc5ecfe18a38f805dd383ed821789a281e2f8f8c3",
+      "usecases": [
+        "UC-CAN-004",
+        "UC-CAN-012"
+      ],
+      "tests": [
+        "TC-CAN-038"
+      ],
+      "evals": [
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
       "id": "AC-CAN-035-001",
       "feature": "F-CAN-035",
       "task": "TASK-M6-INTEGRATIONS-COMFYUI",
@@ -5367,8 +5388,8 @@
       "feature": "F-BIZ-025",
       "task": "TASK-M4-BACKEND-PROVIDERS",
       "owner": "backend/providers",
-      "requirement": "同一表格／同一生成节点的任务列表：任务类型与共用生成参数（kind、model、mode、尺寸/时长/质量/背景等 settings）改一处即同步全部任务。界面须区分「当前任务」专属项与「全部任务」共用项。不写提示词、参考素材、首尾帧与已有结果。运行中／暂停／待恢复行跳过共用写入，保留原快照。缺必填只令该任务预检失败，不得静默改其他行的 mode；不代提交。",
-      "requirementHash": "01b5baf95dc168f4acedb42576ceb026f6d97f63fc9c21678d5e786b8b75fbf7",
+      "requirement": "同一表格／同一生成节点的任务列表：任务类型与共用生成参数（kind、model、mode、尺寸/时长/质量/背景等 settings）改一处即同步全部任务。不向用户展示「全部任务共用…」说明条或底部重复完成文案；任务卡片上的状态保留。不写提示词、参考素材、首尾帧、抽卡次数与已有结果。运行中／暂停／待恢复行跳过共用写入，保留原快照。缺必填只令该任务预检失败，不得静默改其他行的 mode；不代提交。",
+      "requirementHash": "e3ecc29624fbad05f354542a7b104f60e1d22e175db84536723f7bb3ea6b482e",
       "usecases": [
         "UC-BIZ-009",
         "UC-BIZ-010"
@@ -9541,12 +9562,13 @@
         "AC-CAN-033-003",
         "AC-CAN-034-001",
         "AC-CAN-034-002",
-        "AC-CAN-034-003"
+        "AC-CAN-034-003",
+        "AC-CAN-034-004"
       ],
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "4be9e7bc696c3d0eb893f1e3a977514cec89527bfb3626f8668279b94fa0d098",
+      "specificationHash": "ad991ae3be609ce27568fe9708a3a2db918f1109ddfcac09d12fae4b146d146c",
       "assertions": [
         {
           "id": "AS-CAN-038-001",
@@ -10902,7 +10924,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "e3793253b07cb10e33787db23103ccb3e0566dbc654048c6f30f32d2ec6c10f5",
+      "specificationHash": "85c92e1113090dbeb2816fb4c9001ebd763f077fc1ac4f335b3c5f5b3e48bacc",
       "assertions": [
         {
           "id": "AS-BIZ-027-001",
@@ -10975,7 +10997,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "4658b438eec000b4cb6df53fc50be80bc46be6880820bb55a36e5c052e3d9014",
+      "specificationHash": "6c77fd943fa89b569f19147173c3df7b7ed80d00dd0fca2e1a4d35788a455c88",
       "assertions": [
         {
           "id": "AS-BIZ-029-001",
@@ -11051,7 +11073,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "4a86ea88d96c84db19494733aaded041e54a57ff2036a9c0d67349bb86eef1fe",
+      "specificationHash": "90c4655543a7348c443d232f2408c4d619a478d81509199eb9226419637b3a05",
       "assertions": [
         {
           "id": "AS-BIZ-031-001",
@@ -11089,7 +11111,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "745b177b6018705055590b26f94ca2701336c57e1efc839fa5d67c4c021acc7f",
+      "specificationHash": "452701821475d770483634e575897b7bd9efd15b5aa33813ab8325550a73f25c",
       "assertions": [
         {
           "id": "AS-BIZ-032-001",
@@ -11628,7 +11650,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "c9bea9c602b5c06670897f5a89feec4a4d9c093e1d1ac57864a59fba189ea402",
+      "specificationHash": "8a13d679ad2779e21aa37db51b5ef28c2e0789508fbde2b745eca47914a960e2",
       "assertions": [
         {
           "id": "AS-BIZ-046-001",
