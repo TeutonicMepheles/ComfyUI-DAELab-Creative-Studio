@@ -401,7 +401,7 @@ business:web/libtv_video_model.mjs
 business:tests/libtv_canvas_result.test.mjs
 business:docs/comfy-credit-generation.md","backend/integrations/comfyui; frontend/src/features/generation; compat/legacy","M4","单包仍是 ComfyUI 扩展，原生图的类型化输出与创作面板保持一致。","无完成结果、结果来源变化或文件缺失时返回明确错误而非悄悄生成。
 已完成结果通过原槽位输出，输出不会触发第二次付费请求。
-用户清除原生历史后：账本不得因缺失记录而重提或改写成 succeeded。从 running 落到未知/已中断，保留原 request_id，文案说明历史已被清除。","UC-BIZ-010","TC-BIZ-030 TC-BIZ-042"
+用户清除原生历史后：账本不得因缺失记录而重提或改写成 succeeded。通过正常恢复路径从 running 转为待恢复／原执行记录缺失，保留未知结果、原 request_id、尝试及取消记录，不另造成功或取消状态。","UC-BIZ-010","TC-BIZ-030 TC-BIZ-042"
 "F-BIZ-043","LLM 优化节点的多源输入与审阅后输出","保留","LLMStylePreviewB 是当前生产入口，支持文本、图片、素材组、表格和其他输入，提供结果与逐行结果两个输出；后端执行只读已应用结果。","business:web/llm_style_preview.js
 business:web/llm_slot_model.mjs
 business:web/llm_io_model.mjs

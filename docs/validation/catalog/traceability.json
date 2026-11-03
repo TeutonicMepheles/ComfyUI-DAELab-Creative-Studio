@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "035a6ab4f497ee7eab8cc24b1274c7dcba78af6963a27f58ca27671836ac31ef",
+  "specificationHash": "34a0c350f0e9e4a2bdc85c49263fde8db1a0ba3dce7300bc81970997a65722c2",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -1157,7 +1157,8 @@
       ],
       "acceptance": [
         "AC-BIZ-042-001",
-        "AC-BIZ-042-002"
+        "AC-BIZ-042-002",
+        "AC-BIZ-042-003"
       ],
       "usecases": [
         "UC-BIZ-010"
@@ -6160,6 +6161,27 @@
       "evidence": []
     },
     {
+      "id": "AC-BIZ-042-003",
+      "feature": "F-BIZ-042",
+      "task": "TASK-M4-INTEGRATIONS-COMFYUI",
+      "owner": "integrations/comfyui",
+      "requirement": "用户清除原生历史后：账本不得因缺失记录而重提或改写成 succeeded。通过正常恢复路径从 running 转为待恢复／原执行记录缺失，保留未知结果、原 request_id、尝试及取消记录，不另造成功或取消状态。",
+      "requirementHash": "49c20667f7fcb1571917ebc9960f8d4d673e05ede8fb7808b39d0b094491290d",
+      "usecases": [
+        "UC-BIZ-010"
+      ],
+      "tests": [
+        "TC-BIZ-030",
+        "TC-BIZ-042"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-JOBS"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
       "id": "AC-BIZ-043-001",
       "feature": "F-BIZ-043",
       "task": "TASK-M3-FEATURES-PROMPT",
@@ -10957,12 +10979,13 @@
         "AC-BIZ-026-002",
         "AC-BIZ-026-003",
         "AC-BIZ-042-001",
-        "AC-BIZ-042-002"
+        "AC-BIZ-042-002",
+        "AC-BIZ-042-003"
       ],
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "332c062de8c115509097b5c13ccf896b2d6d4eac4f603f421cbcf906cb215227",
+      "specificationHash": "4dd9835ddfcded9a8bdba4bb9094048a0ac9a08c538f3b43fc904565da8b8ea5",
       "assertions": [
         {
           "id": "AS-BIZ-030-001",
@@ -11401,12 +11424,13 @@
         "AC-BIZ-036-001",
         "AC-BIZ-036-002",
         "AC-BIZ-042-001",
-        "AC-BIZ-042-002"
+        "AC-BIZ-042-002",
+        "AC-BIZ-042-003"
       ],
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "75a0611529ff421f5dbd653d2b2b9ab79b3849966606a0b9c921b910573ec393",
+      "specificationHash": "234631c6d547448a228a8468138bdd376e397e8b7785e31fba0eca9551f6410d",
       "assertions": [
         {
           "id": "AS-BIZ-042-001",
