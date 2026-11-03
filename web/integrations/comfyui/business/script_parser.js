@@ -75,7 +75,9 @@ function register(){const api=globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v
  refresh(node){const layout=node.graph&&canvasState(node.graph).cards[node.id];if(node.__scriptTable?.records.length&&layout?.width===560&&layout.height===560)layout.width=1060;},
  tasks:node=>node.__scriptPanel?.tasks?.()||[],
  panel:node=>node.__scriptPanel?{root:node.__scriptPanel.root,close:()=>node.__scriptPanel.close()}:null,
- selectionSurface:node=>node.__scriptPanel?.surface,
+ // The square empty panel fills a scrolling host; its outside outline would
+ // be clipped there. Let the canvas draw its outer-card ring until a table exists.
+ selectionSurface:node=>node.__scriptPanel?.surface?.dataset.empty==='false'?node.__scriptPanel.surface:null,
  upload:async(node,file)=>{await Promise.resolve();if(!node.graph||node.mode)return;const panel=node.__scriptPanel;if(!panel)throw new Error('解析面板尚未就绪，请重新拖入 DOCX');await panel.actions.uploadDocument(file,{mode:'append'});},
  materialTargets:node=>tableMaterialTargets(node.__scriptPanel?.root,node.__scriptTable?.fields||[]),
  acceptMaterials(node,key,collection){const editor=node.__scriptPanel?.editor;if(!editor)throw new Error('Parser table is not ready');editor.change(table=>fillTableMaterialTarget(table,key,collection));},
