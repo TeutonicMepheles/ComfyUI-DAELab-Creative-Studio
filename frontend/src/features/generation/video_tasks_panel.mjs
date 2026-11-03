@@ -401,10 +401,12 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
   const remaining=batchMode()?remainingTasks().length:0;
   const runLabel=busy?'中止':remaining?`生成剩余 ${remaining} 个任务`:receipt?.needsOriginalFence?'封存原请求':['needs_recovery','stopped'].includes(receipt?.phase)?'核对原任务':receipt?'重新生成':'运行';
   if(run.title!==runLabel)tableIcon(run,busy?'stop-line':runLabel==='重新生成'?'restart-line':'play-line',runLabel);
-  run.disabled=!row||!!node.mode||generation.submitting||changingType||!!inputError&&!busy;
+  const recoveryBlocked=receipt?.phase==='needs_recovery'&&receipt?.recovery?.available===false;
+  run.disabled=!row||!!node.mode||generation.submitting||changingType||!!inputError&&!busy||recoveryBlocked;
+  if(recoveryBlocked)run.title=receipt.recovery.message||generationErrorText(receipt.recovery.reason);
   const output=videoTaskResultPreviews(row?.values[state.fieldId]||[],receipt,row?.meta?.generationPreviewAfter?.[state.fieldId]).filter(asset=>!outputNodes?.owns(asset.provenance?.requestId)),stamp=JSON.stringify([row?.id,output]);
   if(resultsStamp!==stamp){resultsStamp=stamp;releaseThumbnails(results);results.replaceChildren();for(const asset of output){if(asset.kind==='image'){const media=element('img',results);media.src=asset.url;media.alt=asset.name||'生成图片';media.loading='lazy';}else{const media=videoThumb(asset,results);media.controls=true;media.muted=false;media.setAttribute('aria-label',asset.name||'生成视频');}}results.hidden=!output.length;}
-  status.textContent=inputError||notice||(receipt&&(receipt.phase!=='complete'||receipt.error)?(phases[receipt.phase]||receipt.phase)+(receipt.error?' · '+generationErrorText(receipt.error):''):'');status.hidden=!status.textContent;
+  status.textContent=inputError||notice||(receipt&&(receipt.phase!=='complete'||receipt.error)?(phases[receipt.phase]||receipt.phase)+(receipt.error?' · '+generationErrorText(receipt.error):''):'')+(recoveryBlocked?' · '+(receipt.recovery.message||generationErrorText(receipt.recovery.reason)):'');status.hidden=!status.textContent;
  }
  async function runTask(){
   syncSource();
@@ -420,7 +422,10 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
   if(inputError)return;
   if(batchMode()&&remainingTasks().length){binding?.finish();return generation.generate(state.fieldId,null,false,true);}
   if(receipt?.needsOriginalFence)return generation.fenceOriginal(state.fieldId,row.id);
-  if(['needs_recovery','stopped'].includes(receipt?.phase))return generation.generate(state.fieldId,row.id,true);
+  if(['needs_recovery','stopped'].includes(receipt?.phase)){
+   if(receipt?.recovery?.available===false){notice=receipt.recovery.message||generationErrorText(receipt.recovery.reason);schedule();return;}
+   return generation.generate(state.fieldId,row.id,true);
+  }
   binding?.finish();return generation.generate(state.fieldId,row.id);
  }
  prompt.addEventListener('click',event=>{if(!event.target.closest('.dae-prompt-ref'))binding?.start(event);});

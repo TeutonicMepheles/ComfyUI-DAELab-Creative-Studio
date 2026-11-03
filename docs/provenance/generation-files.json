@@ -164,7 +164,7 @@
     },
     {
       "destination": "backend/generation/service.py",
-      "destinationSha256": "3023e2e626cae8e2f20117d7714f19080fbb2cc8e912f866445e88cf71c87fa2",
+      "destinationSha256": "44e17bae0507cdcc2a4a138d2ab7d54ed83b0bacdf1f07c177450e778f7b60e4",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -186,7 +186,8 @@
         "Shared CoreServices resource admission (GPU 1/cloud 3/transcode 2), retained uncertain executions, and off-loop persistence where asynchronous; existing native queue and JobLedger remain authoritative.",
         "Cancellation-safe blocking completion holds capacity through repeated caller cancellation; async native VideoEdit captures host context before entering its synchronous renderer. Ordered regressions retain initial failure evidence.",
         "Fresh same-provider/task CAS cancellation confirmation preserves winning terminal facts; resource restoration consumes one consistent SQLite snapshot and preserves terminal-release ordering. Fixture restoration adapts only owned historical labels.",
-        "2026-11-03 task2: stop current generation sequence explicitly; preserve owned native interruption facts and unknown remote outcomes without masking recovery with pause intent."
+        "2026-11-03 task2: stop current generation sequence explicitly; preserve owned native interruption facts and unknown remote outcomes without masking recovery with pause intent.",
+        "2026-11-03 task4: idempotent unknown observation and explicit bounded recovery availability; preserve interruption facts, original request identity and the three-check budget."
       ]
     },
     {
@@ -774,7 +775,7 @@
         "Serialize terminal recovery release with restart reservation commit so stale scanned facts cannot resurrect capacity; ordered real-SQLite regression preserves the initial failure.",
         "Fresh same-provider/task CAS cancellation confirmation preserves winning terminal facts; resource restoration consumes one consistent SQLite snapshot and preserves terminal-release ordering. Fixture restoration adapts only owned historical labels."
       ],
-      "destinationSha256": "46ddcfcd14e72b900d15444316c326c55ab3f89e7b319f188bc377b7fb911c5d"
+      "destinationSha256": "2bc3e828229819016e8bcbbf072c244c503d3964b41edba2a48912633e7756eb"
     }
   ],
   "qwenWeightBinding": {

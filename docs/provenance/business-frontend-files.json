@@ -24,9 +24,10 @@
         "New typed port, explicit HTTP assembly, focused migration regression or sanitized evidence; no copied upstream source claimed.",
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
         "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
-        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
+        "2026-11-03 task4: idempotent unknown observation and explicit bounded recovery availability; preserve interruption facts, original request identity and the three-check budget."
       ],
-      "destinationSha256": "7c6b7520a5ba5738baf652130c1b031a9389d617130003ead0945e29838febfd"
+      "destinationSha256": "859919aeffc3b026ef36423733bb713f323f797b41ed9eab22b27142222dafb1"
     },
     {
       "source": "web/vendor/model-icons/LICENSE",
@@ -297,14 +298,15 @@
       "source": "web/table_generation_tasks.mjs",
       "destination": "frontend/src/features/generation/table_generation_tasks.mjs",
       "sourceSha256": "3812afeff3c3738abb6799f9e96812fe76e1e078262612efe9aa59b9163e765f",
-      "destinationSha256": "dd1daeb41c60bc8efa84cdb7f24cef08bf04390745a99ae57f8af795a6a4f7d1",
+      "destinationSha256": "345bb7cac071e6f15f5f18adbb81ff47a0f529de0c68ae9ba6d12ad713a0dc55",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
         "Post-snapshot hardblock review: immutable receipt digest, exact missing-task recovery, no automatic replay; tests include original-scope and storage-unavailable rejection.",
         "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
-        "2026-11-03 task2: stop current generation sequence explicitly; preserve owned native interruption facts and unknown remote outcomes without masking recovery with pause intent."
+        "2026-11-03 task2: stop current generation sequence explicitly; preserve owned native interruption facts and unknown remote outcomes without masking recovery with pause intent.",
+        "2026-11-03 task4: idempotent unknown observation and explicit bounded recovery availability; preserve interruption facts, original request identity and the three-check budget."
       ]
     },
     {
@@ -369,7 +371,7 @@
       "source": "web/video_tasks_panel.mjs",
       "destination": "frontend/src/features/generation/video_tasks_panel.mjs",
       "sourceSha256": "1f567635a4b88ab672b6f656d1c2ede14a5a79432592e26ccf2c39775281452d",
-      "destinationSha256": "35c9d5089d7adb886d81ca819576f6827619b87dfe17af1dcf3f3bd66717ea70",
+      "destinationSha256": "f3e833396d809a4ae18870c32fa97621a822924a9b34aa1eace4aefcea8552f7",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
@@ -383,7 +385,8 @@
         "2026-11-03 task49: share task execution choices while preserving per-row inputs, results and protected request configurations; scope labels and regression coverage.",
         "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions.",
         "2026-11-03 task51: hide duplicate generation success/scope copy; automatically materialize verified editor exports once with persistent lazy video lineage and original asset identity; preserve lifecycle and error feedback.",
-        "2026-11-03 task2: stop current generation sequence explicitly; preserve owned native interruption facts and unknown remote outcomes without masking recovery with pause intent."
+        "2026-11-03 task2: stop current generation sequence explicitly; preserve owned native interruption facts and unknown remote outcomes without masking recovery with pause intent.",
+        "2026-11-03 task4: idempotent unknown observation and explicit bounded recovery availability; preserve interruption facts, original request identity and the three-check budget."
       ]
     },
     {
@@ -1701,12 +1704,13 @@
       "source": "tests/table_generation_polling.test.mjs",
       "destination": "tests/migrated_business/table_generation_polling.test.mjs",
       "sourceSha256": "8b82ec32823c6be374a980659ce5ea0e7e3b0d99421433f96a17af7d5e82b754",
-      "destinationSha256": "738ee7d6e9a412f9d9b4715f2c4a7141930e822096d57b1cb4596be890aa1f8a",
+      "destinationSha256": "e3b384cb2c27b34105d114e54565f5dae0362ccf8abae795167761265dc5234d",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
         "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
-        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending."
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
+        "2026-11-03 task4: idempotent unknown observation and explicit bounded recovery availability; preserve interruption facts, original request identity and the three-check budget."
       ]
     },
     {
@@ -2130,10 +2134,11 @@
       "source": null,
       "destination": "frontend/src/features/generation/control_labels.ts",
       "sourceSha256": null,
-      "destinationSha256": "32943f58afbed5a8641fe96d1094dc2f7564026d3aa804e852c68d389f9885b9",
+      "destinationSha256": "02ef0d7a32e78ec29917b68ce751bae5f8cd2ca520b3d909421a7196f1daa6be",
       "kind": "authored-contract-or-integration",
       "changes": [
-        "2026-11-03 task2: Chinese execution-fact labels shared by generation node, table and request-bound output placeholder."
+        "2026-11-03 task2: Chinese execution-fact labels shared by generation node, table and request-bound output placeholder.",
+        "2026-11-03 task4: idempotent unknown observation and explicit bounded recovery availability; preserve interruption facts, original request identity and the three-check budget."
       ]
     }
   ],

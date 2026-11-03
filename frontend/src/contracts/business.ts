@@ -96,6 +96,7 @@ export interface GenerationReport {
   replacementAllowed?: boolean; preparation?: 'ready' | 'rejected' | 'fenced';
   controlIntent?: 'pause' | 'interrupt' | 'stop' | null;
   controls?: {pause:boolean; resume:boolean; interrupt:boolean; restart:boolean};
+    recovery?: {available:boolean; reason:string; message:string; attempts:number; limit:number};
   progress?: number; stage?: string; progressUpdatedAt?: string;
   [key: string]: unknown;
 }

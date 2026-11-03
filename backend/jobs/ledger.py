@@ -17,7 +17,7 @@ _NEXT = {
     "running": {"fetching", "failed", "needs_recovery"},
     "fetching": {"succeeded", "failed", "needs_recovery"},
     "needs_recovery": {"running", "fetching", "failed", "unknown"},
-    "unknown": {"submitted", "failed"},
+    "unknown": {"unknown", "submitted", "failed"},
     "succeeded": set(), "failed": set(), "cancelled": set(),
 }
 
@@ -333,7 +333,7 @@ class JobLedger:
             job = self._get(connection, request_id)
             self._expect(job, expected_version)
             if job["state"] not in {"needs_recovery", "unknown", "fetching"} or job["recovery_count"] >= limit:
-                raise InvalidTransition("Recovery is unavailable or its retry limit was reached; inspect the original task.")
+                raise InvalidTransition("原任务核对暂不可用，或核对次数已用尽；请检查原任务和已有结果。未重新提交生成。")
             connection.execute("UPDATE jobs SET recovery_count=recovery_count+1,version=version+1,updated_at=? WHERE request_id=?", (_now(), request_id))
             self._event(connection, request_id, f"recovery:{job['recovery_count']+1}", expected_version+1, "recovery_claimed", {"count": job["recovery_count"]+1})
             return self._get(connection, request_id)
