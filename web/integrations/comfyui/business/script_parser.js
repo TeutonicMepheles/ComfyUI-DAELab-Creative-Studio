@@ -13,7 +13,7 @@ import {createScriptParserPanel} from '../../../features/storyboard/script_parse
 import {readScriptTable,assertTransition} from '../../../features/storyboard/script_parser_model.mjs';
 import {parseTableOutputKey,tableMaterialSnapshot} from '../../../application/table_material_output.mjs';
 const TYPE='DAELAB.ScriptParser',widget=node=>node.widgets?.find(w=>w.name==='table_data');
-const notify=(message,severity='info')=>app.extensionManager?.toast?.add?.({severity,summary:'分镜解析器',detail:message,life:8000});
+const notify=(message,severity='info')=>app.extensionManager?.toast?.add?.({severity,summary:'剧本文档解析器',detail:message,life:8000});
 export function createScriptBatchImport(node){
  const graph=node.graph,host=businessHost();
  const readTable=n=>n.__scriptTable||readScriptTable(widget(n)?.value);
@@ -64,13 +64,15 @@ function install(node){
 }
 app.registerExtension({name:'DAELab.ScriptParser',beforeRegisterNodeDef(type,data){
  if(data.name!==TYPE)return;
+ data.display_name='剧本文档解析器';type.title='剧本文档解析器';
  for(const method of ['onNodeCreated','onAdded','onConfigure']){const prev=type.prototype[method];type.prototype[method]=function(...args){const result=prev?.apply(this,args);if(method==='onConfigure'){this.__scriptPanel?.close();this.__scriptPanel?.editor.invalidateAsync();}scheduleTableInstall(this,install);return result;};}
  const removed=type.prototype.onRemoved;type.prototype.onRemoved=function(...args){this.__scriptPanel?.destroy();delete this.__scriptPanel;delete this.__scriptTable;return removed?.apply(this,args);};
 }});
 let registered=false;
 function register(){const api=globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')];if(registered||api?.version!==1)return;
- api.registerAdapter('daelab.script-parser',{matches:node=>node.type===TYPE,menu:[{label:'分镜剧本解析器',type:TYPE,icon:'file-text-line'}],presentation:'content',expanded:true,collapsible:false,resizable:true,fullHeight:true,workspace:()=>false,compactWidth:0,width:1060,
- initialAspectRatio:node=>node.__scriptTable?.records.length||node.__scriptTable?.meta.script_parser.documents.length?null:16/9,
+ api.registerAdapter('daelab.script-parser',{matches:node=>node.type===TYPE,menu:[{label:'剧本文档解析器',type:TYPE,icon:'file-text-line'}],presentation:'content',expanded:true,collapsible:false,resizable:true,fullHeight:true,workspace:()=>false,compactWidth:0,width:560,minWidth:560,
+ initialAspectRatio:node=>node.__scriptTable?.records.length||node.__scriptTable?.meta.script_parser.documents.length?null:1,
+ refresh(node){const layout=node.graph&&canvasState(node.graph).cards[node.id];if(node.__scriptTable?.records.length&&layout?.width===560&&layout.height===560)layout.width=1060;},
  tasks:node=>node.__scriptPanel?.tasks?.()||[],
  panel:node=>node.__scriptPanel?{root:node.__scriptPanel.root,close:()=>node.__scriptPanel.close()}:null,
  selectionSurface:node=>node.__scriptPanel?.surface,

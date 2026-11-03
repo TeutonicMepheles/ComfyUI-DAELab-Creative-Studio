@@ -21,7 +21,7 @@ function select(parent,label,options,value,onChange){const wrap=el('label',paren
 export function createScriptParserPanel({node,app,getTable,setTable,notify,documentFactory=null,getPanelContext=()=>null,clipboard=null,batchImport=null}){
  tableTheme();workbenchTheme();studioTheme();
  if(!document.getElementById('dae-script-parser-css')){const link=el('link',document.head);link.id='dae-script-parser-css';link.rel='stylesheet';link.href=new URL('./script_parser.css',import.meta.url).href;}
- const root=el('div');root.className='dae-ui dae-table-panel script-parser';root.setAttribute('aria-label','分镜剧本解析器');
+ const root=el('div');root.className='dae-ui dae-table-panel script-parser';root.setAttribute('aria-label','剧本文档解析器');
  const empty=el('section',root);empty.className='script-empty';
  const emptyTitle=el('p',empty,'上传分镜文档，生成多维表格');
  const feedback=el('div',root);feedback.className='script-feedback';feedback.hidden=true;
@@ -198,7 +198,7 @@ export function createScriptParserPanel({node,app,getTable,setTable,notify,docum
   for(const doc of getTable().meta.script_parser.documents)for(const conflict of doc.conflicts||[]){count++;el('p',d,`${doc.filename} · ${conflict}`);}
   if(!count)el('p',d,'没有待处理项。');d.append(button('关闭待处理项',()=>d.remove()));
  }
- workbench=createWorkbench(node,root,{title:'分镜剧本解析器',onClose:()=>{menu?.close();promptUI.close();editor.closeDialogs();}});
+ workbench=createWorkbench(node,root,{title:'剧本文档解析器',onClose:()=>{menu?.close();promptUI.close();editor.closeDialogs();}});
  editor.toolbar.append(workbench.trigger);
  // The Canvas owns vertical browsing. Native mode keeps the shared workbench.
  const stop=e=>{if(e.type==='keydown'&&(e.ctrlKey||e.metaKey)&&e.key?.toLowerCase()==='s'&&!e.isComposing&&e.keyCode!==229)return;if((e.type==='wheel'&&e.ctrlKey)||(['pointerdown','mousedown'].includes(e.type)&&e.button===1))return;e.stopPropagation();};
