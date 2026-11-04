@@ -1,3 +1,5 @@
+import {getModelCatalog} from '../models/model_catalog.mjs';
+import {modelSourceBadge} from '../models/source_badge.js';
 import {LOCAL_IMAGE_MODEL,LOCAL_VIDEO_MODEL,MAX_GENERATION_ATTEMPTS,generationAttempts,isLocalVideoModel,isComfyGenerationModel,isLocalGenerationModel} from '../generation/table_generation_model.mjs';
 import {localImageSizePresets} from '../generation/local_image_sizes.js';
 import {createTableButton} from '../../ui/table_controls.mjs';
@@ -32,24 +34,29 @@ export function promptSettingsItems(config,{combined=false}={}){
  const items=PROMPT_SETTINGS_TEMPLATE.map(item=>({...item,icon:item.key==='kind'&&!video?'image-line':item.icon,text:labels[item.key],hidden:item.key==='duration'&&!video}));
  return combined?[...items.slice(0,2),{key:'parameters',label:'生成参数',icon:'settings-3-line',text:generationParametersSummary(config)}]:items;
 }
-export function createPromptSettingsBar(onActivate,{combined=false}={}){
+export function createPromptSettingsBar(onActivate,{combined=false,fixedKind=null}={}){
  const root=document.createElement('div');root.className='generation-prompt-settings';root.setAttribute('role','group');
  const controls=new Map();let signature='';
  for(const item of promptSettingsItems({settings:{}},{combined})){
   const control=createTableButton(item.label,()=>onActivate(item.key,control)),icon=document.createElement('span'),label=document.createElement('span');
   control.className='generation-prompt-setting';control.dataset.setting=item.key;control.setAttribute('aria-haspopup','dialog');
-  icon.className='dae-table-icon';icon.setAttribute('aria-hidden','true');label.className='generation-prompt-setting-label';control.replaceChildren(icon,label);root.append(control);controls.set(item.key,{control,icon,label});
+  icon.className='dae-table-icon';icon.setAttribute('aria-hidden','true');label.className='generation-prompt-setting-label';const badge=document.createElement('span');badge.className='generation-model-source';badge.hidden=item.key!=='model';control.replaceChildren(icon,label,badge);root.append(control);controls.set(item.key,{control,icon,label,badge});
  }
  for(const event of ['pointerdown','mousedown','dblclick','keydown'])root.addEventListener(event,stopCanvasPropagation);
  return {root,update(config,name,scope='cell'){
   const suffix=scope==='all'?'同步全部任务':'只修改当前单元格';
-  const next=JSON.stringify([config,name,scope]);if(next===signature)return;signature=next;root.setAttribute('aria-label',name+' · 生成设置（'+suffix+'）');
-  for(const item of promptSettingsItems(config,{combined})){const {control,icon,label}=controls.get(item.key);const title=`${name} · ${item.label}：${item.text}（${item.key==='attempts'?'只修改当前任务':suffix}）`;
-   label.textContent=item.text;control.hidden=Boolean(item.hidden);control.title=title;control.setAttribute('aria-label',title);icon.style.setProperty('--table-icon',`url("${item.key==='model'?generationModelIconURL(config.model):new URL('../../design/vendor/remixicon/'+item.icon+'.svg',import.meta.url).href}")`);
+  const next=JSON.stringify([config,name,scope,getModelCatalog().get(config.model)?.provider]);if(next===signature)return;signature=next;root.setAttribute('aria-label',name+' · 生成设置（'+suffix+'）');
+  for(const item of promptSettingsItems(config,{combined})){const {control,icon,label,badge}=controls.get(item.key);const title=`${name} · ${item.label}：${item.text}（${item.key==='attempts'?'只修改当前任务':suffix}）`;
+   label.textContent=item.key==='model'?item.text.replace(/（(?:本地|Comfy|来源未知)）$/,''):item.text;badge.textContent=item.key==='model'?modelSourceBadge(getModelCatalog().get(config.model)):'';control.hidden=Boolean(item.hidden)||item.key==='kind'&&!!fixedKind;control.title=title;control.setAttribute('aria-label',title);icon.style.setProperty('--table-icon',`url("${item.key==='model'?generationModelIconURL(config.model):new URL('../../design/vendor/remixicon/'+item.icon+'.svg',import.meta.url).href}")`);
   }
  }};
 }
 export const promptSettingsStyle=`
+.dae-ui .generation-prompt-settings [hidden]{display:none!important}
+
+.dae-ui .generation-model-source{flex:none;display:inline-flex;align-items:center;border-radius:999px;padding:2px 7px;font-size:11px;line-height:1.4;background:color-mix(in srgb,var(--dae-text) 12%,transparent);color:var(--dae-text-muted);white-space:nowrap}
+.dae-ui .generation-model-source[hidden]{display:none}
+
 .dae-ui.generation-settings-popover .generation-model-icon{display:block;flex:0 0 20px;width:20px;height:20px;background:currentColor;mask:var(--table-icon) center/contain no-repeat}
 .dae-ui.generation-settings-popover.generation-parameters-popover{width:400px;gap:0;padding:18px;border-radius:20px}
 .dae-ui.generation-parameters-popover>strong{display:none}

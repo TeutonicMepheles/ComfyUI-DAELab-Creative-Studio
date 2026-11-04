@@ -7,7 +7,7 @@ import {bindBusinessDocument,tableInputStamp} from './business_document_host.js'
 import {installWorkflowNodeLifecycle} from './workflow_node_lifecycle.js';
 import {generationInputNames} from '../../../features/generation/generation_input.js';
 
-const TYPE='DAELAB.LibTV.VideoGenerate';
+import {isGenerationNode} from '../../../features/generation/node_families.js';
 const lifecycle=()=>installWorkflowNodeLifecycle(app);
 const schedule=node=>lifecycle().schedule(node,install);
 function dispose(node){
@@ -26,7 +26,7 @@ function install(node){
     node.__libtvPanel=installVideoTasks(node,app,{taskIdentity,outputNodes:node.__generationOutputs,isDocumentReady:()=>lifecycle().ready(node),documentFactory:(read,write)=>bindBusinessDocument(node,read,write,(value,target)=>tableInputStamp(value.table,target))});
 }
 app.registerExtension({name:'DAELab.Studio.GenerationPanel',setup(){lifecycle();},beforeRegisterNodeDef(type,data){
-    if(data.name!==TYPE)return;
+    if(!isGenerationNode(data.name))return;
     const connectInput=type.prototype.onConnectInput;
     type.prototype.onConnectInput=function(index,outputType,output,source,sourceSlot){
         if(!generationInputNames(this,source,sourceSlot,index).includes(this.inputs[index]?.name))return false;

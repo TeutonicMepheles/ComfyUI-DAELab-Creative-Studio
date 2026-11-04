@@ -1,6 +1,6 @@
 export const MODE_ALWAYS = 0;
 
-export const DAELAB_NODE_TYPES = Object.freeze(["DAELAB.Table","DAELAB.StoryboardImport","DAELAB.ScriptParser","DAELAB.LibTV.VideoGenerate","DAELAB.LLMStylePreviewB"]);
+export const DAELAB_NODE_TYPES = Object.freeze(["DAELAB.Table","DAELAB.StoryboardImport","DAELAB.ScriptParser","DAELAB.LibTV.VideoGenerate","DAELAB.ImageGenerate","DAELAB.VideoGenerate","DAELAB.LLMStylePreviewB"]);
 
 const DAELAB_NODE_TYPE_SET = new Set(DAELAB_NODE_TYPES);
 

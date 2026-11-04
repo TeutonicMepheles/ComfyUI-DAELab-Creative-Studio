@@ -1,5 +1,7 @@
 # 创作画布核心
 
+新建菜单按“输入 / 生成 / 剪辑”显示分区标题、图标与分隔线。生成分区只列现有文本入口和新增图片、视频入口；旧通用生成类型仍可加载，不再出现在新建菜单。拉线新建继续沿用已有接口兼容检查。
+
 负责卡片位置、视口、选择、导航、真实 Slot 连线和素材投放。节点业务内容由公开适配器声明。
 
 源码入口：creative_canvas_view.mjs：视图和布局同步；creative_canvas_model.mjs：daelabCreativeCanvasV1；creative_connections.mjs：原生槽位连接；creative_material_drop.mjs、creative_input_exchange.mjs：素材交换。
