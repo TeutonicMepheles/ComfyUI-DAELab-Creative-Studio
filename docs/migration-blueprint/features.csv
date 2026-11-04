@@ -424,7 +424,7 @@ business:nodes/prompt_optimization/approved_result.py
 business:docs/architecture/LLM_SLOT_IO.md","frontend/src/features/prompt; frontend/src/application; backend/prompt; backend/integrations/comfyui","M3","不能把生产 LLM 节点缩减为一次性润色弹窗；保留组合输入、逐行身份和显式审阅。","多源输入按稳定身份读取；不得因缺来源取其他预览作替代。
 只有应用后的结果可接线；逐行结果保留唯一行 ID；原生执行不触发模型调用。
 2026-11-04：文本生成复用现有节点；外接来源时原文框置灰禁用且保留内部草稿，断线后恢复；外部输入为空不回退旧草稿。表格勾选行及素材组沿用现有批量、顺序、审阅与确认输出，各行内容和参考独立。
-内置画面描述、镜头运动、参考图引用三类默认模板；正文和模板草稿可编辑，保持主体事实及参考编号/顺序，不编造缺失参考，不跨行套用内容；新模板不改旧冻结任务或已确认结果。千问3.8 27B本轮不接入。
+内置画面描述、镜头运动、参考图引用三类默认模板；正文和模板草稿可编辑，保持主体事实及参考编号/顺序，不编造缺失参考，不跨行套用内容；新模板不改旧冻结任务或已确认结果。千问 3.8 27B 纳入本轮本机配置范围，加载与运行按本机条件验证；不可用时报告具体限制与尝试结果，不预标不做，也不静默换用其他模型。
 2026-11-04：应用文本优化结果前显示确认弹窗，列出将写入的范围与行；确认后写入并保留原有连线与来源，取消不改动原文与连线。","UC-BIZ-007","TC-BIZ-048"
 "F-BIZ-044","旧独立分镜生成与 LLM 样式原型的收敛","重构","GPTImageStoryboardStage 当前仍有 Comfy 图片执行实现；LLM A/C/D/E 为前端虚拟样式原型。新库只读兼容/显式转换是拟定收敛决策，并非当前都已退役。","business:nodes/daelab_comfytv_storyboard/node.py
 business:web/llm_style_preview.js:12

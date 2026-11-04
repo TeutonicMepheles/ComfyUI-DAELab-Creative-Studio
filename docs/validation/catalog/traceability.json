@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "2b60468a0603aedcb58dd522c39aa82c7766e2cec9f5d56d2de6d734c9b38010",
+  "specificationHash": "0e92f03b906d1e8770c4582000863df347239f08ad61bcf359cbdf5b1d74d014",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -6588,8 +6588,8 @@
       "feature": "F-BIZ-043",
       "task": "TASK-M3-FEATURES-PROMPT",
       "owner": "features/prompt",
-      "requirement": "内置画面描述、镜头运动、参考图引用三类默认模板；正文和模板草稿可编辑，保持主体事实及参考编号/顺序，不编造缺失参考，不跨行套用内容；新模板不改旧冻结任务或已确认结果。千问3.8 27B本轮不接入。",
-      "requirementHash": "f0ed827702a07f63a6ff77e45af7c469a9ff885be587112be1fca6bb76cf517a",
+      "requirement": "内置画面描述、镜头运动、参考图引用三类默认模板；正文和模板草稿可编辑，保持主体事实及参考编号/顺序，不编造缺失参考，不跨行套用内容；新模板不改旧冻结任务或已确认结果。千问 3.8 27B 纳入本轮本机配置范围，加载与运行按本机条件验证；不可用时报告具体限制与尝试结果，不预标不做，也不静默换用其他模型。",
+      "requirementHash": "aeab15433e7137ef5629449a50e16c18af222a9aab4f5156d631133e9a15023e",
       "usecases": [
         "UC-BIZ-007"
       ],
@@ -12199,7 +12199,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "4b6cb5f7610d447c30eab11bd09dcb4a8610ce8a33c64e50e2b168979ade9063",
+      "specificationHash": "3d7431c9119f252125ba35acfa4e2bd47c169b80c7ee4ce7f7cec65414cf1cf8",
       "assertions": [
         {
           "id": "AS-BIZ-048-001",

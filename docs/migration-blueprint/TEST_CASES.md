@@ -3119,7 +3119,7 @@
 
 - 未应用不提供有效输出；应用后逐行 ID 唯一且与原来源一致。
 - 原生执行只读取应用快照，零模型调用；来源失效不使用别的预览；Comfy 积分通道仅协议模拟，本地Qwen真实结果由TC-BIZ-047验收。
-- 外接时禁止内部编辑，断开恢复草稿，空来源不回退；模板和逐行参考正确，旧结果不被模板变更覆盖；不新增27B模型调用。
+- 外接时禁止内部编辑，断开恢复草稿，空来源不回退；模板和逐行参考正确，旧结果不被模板变更覆盖；本用例不新增模型调用；27B 的加载与运行由独立的本地模型验证负责，不在此用例内判定。
 
 **旧测试复用候选：** [business:tests/llm_slot_model.test.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/tests/llm_slot_model.test.mjs)；[business:tests/llm_io_model.test.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/tests/llm_io_model.test.mjs)；[business:tests/llm_task_model.test.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/tests/llm_task_model.test.mjs)；[business:tests/test_canvas_polish.py](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/tests/test_canvas_polish.py)
 
