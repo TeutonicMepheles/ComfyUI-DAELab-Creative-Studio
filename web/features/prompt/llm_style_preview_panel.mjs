@@ -58,7 +58,7 @@ export function createLLMStylePanel(node,variant,{nativeDocument=null}={}){
         }
         resultHead.append(actions);
     }
-    const footer=el('footer','llm-style-footer');const select=el('select');select.setAttribute('aria-label',`${variant.id} 模型`);select.add(new Option('DeepSeek','deepseek'));select.add(new Option('Qwen · 待接入','qwen'));select.add(new Option('GPT · 待接入','gpt'));select.value=saved().model||'deepseek';select.addEventListener('change',()=>write('model',select.value));fields.push(select);const fieldRelease=sharedFields?.bindCreativeField(select);if(fieldRelease)releases.push(fieldRelease);
+    const footer=el('footer','llm-style-footer');const select=el('select');select.setAttribute('aria-label',`${variant.id} 模型`);select.add(new Option('Qwen · 待接入','qwen'));select.add(new Option('GPT · 待接入','gpt'));select.value=saved().model||'qwen';select.addEventListener('change',()=>write('model',select.value));fields.push(select);const fieldRelease=sharedFields?.bindCreativeField(select);if(fieldRelease)releases.push(fieldRelease);
     const run=button('生成',()=>{},true);run.prepend(icon('sparkling-line'));run.disabled=true;run.title='仅样式预览，未接入生成逻辑';footer.append(select,run);
     const body=el('div','llm-style-body');
     const foldedResult=()=>{const d=el('details','llm-style-details');d.append(el('summary','','优化结果 · 示例'),result);return d;};
@@ -71,7 +71,7 @@ export function createLLMStylePanel(node,variant,{nativeDocument=null}={}){
     const note=el('div','llm-style-note','仅供样式确认 · 不会调用模型');if(variant.id!=='B')root.append(note);
     for(const event of ['pointerdown','dblclick','keydown','wheel'])root.addEventListener(event,stopCanvasPropagation);
     const availability=sharedPanels?.bindPanelAvailability(node,root);if(availability)releases.push(availability);
-    function sync(){for(const b of modeButtons){const selected=b.dataset.mode===(saved().mode||'polish');b.setAttribute('aria-pressed',String(selected));b.toggleAttribute('data-primary',selected);}for(const field of [source,instruction])if(document.activeElement!==field.input)field.input.value=saved()[field.key]??field.fallback;select.value=saved().model||(variant.id==='B'?'qwen':'deepseek');interaction?.sync();}
+    function sync(){for(const b of modeButtons){const selected=b.dataset.mode===(saved().mode||'polish');b.setAttribute('aria-pressed',String(selected));b.toggleAttribute('data-primary',selected);}for(const field of [source,instruction])if(document.activeElement!==field.input)field.input.value=saved()[field.key]??field.fallback;select.value=saved().model||'qwen';interaction?.sync();}
     sync();
     if(variant.id==='B')releases.push(interaction=bindIOPanel({node,nativeDocument,root,source:source.input,instruction:instruction.input,select,run,upload,result,materialHint,sync,example:RESULT}));
     return {root,fields,buttons,sync,invalidate:()=>nativeDocument?.invalidate(),tasks:()=>interaction?.tasks?.()||[],acceptMaterials:collection=>interaction?.acceptMaterials?.(collection),destroy(){nativeDocument?.dispose();for(const release of releases)release();root.remove();}};
