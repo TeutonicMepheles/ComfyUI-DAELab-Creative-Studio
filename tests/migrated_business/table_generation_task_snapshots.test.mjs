@@ -61,7 +61,7 @@ test('a new local request can announce a stop before its first active status res
  live.set('different-old',{state:'cancelled',phase:'interrupted'});
  assert.equal(read()[0].finishedAt,undefined);
 });
-test('grouped task scope hides numeric progress and counts only verified success in the submitted group',()=>{
+test('grouped task scope reports verified aggregate progress and counts only verified success in the submitted group',()=>{
  const field={id:'image',presentation:'generation',generation:{kind:'image'}},source={createdAt:10,groupCount:2};
  const table={fields:[field],records:[
   {id:'a',meta:{generationColumns:{image:{requestId:'a',phase:'running',source,groupIndex:0}}}},
@@ -71,11 +71,11 @@ test('grouped task scope hides numeric progress and counts only verified success
   ['b',{requestId:'b',phase:'running',stage:'generating',progress:20,source}],
  ]);
  const task=generationTaskSnapshots(table,live)[0];
- assert.equal(task.total,2);assert.equal(task.done,0);assert.equal(task.progress,undefined);
+ assert.equal(task.total,2);assert.equal(task.done,0);assert.equal(task.progress,30);
  assert.match(task.detail,/处理中 2\/2/);
  live.set('a',{requestId:'a',phase:'complete',source,result:{url:'/view?filename=a.png&type=output'}});
  const updated=generationTaskSnapshots(table,live)[0];
- assert.equal(updated.done,1);assert.equal(updated.total,2);assert.equal(updated.progress,undefined);
+ assert.equal(updated.done,1);assert.equal(updated.total,2);assert.equal(updated.progress,60);
 });
 function tableFixture(label='A') {
  return {version:1,fields:[{id:'content',type:'content',generation:{kind:'image'},unknown:{keep:label}}],records:[{

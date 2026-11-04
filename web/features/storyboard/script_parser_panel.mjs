@@ -24,6 +24,7 @@ export function createScriptParserPanel({node,app,getTable,setTable,notify,docum
  const root=el('div');root.className='dae-ui dae-table-panel script-parser';root.setAttribute('aria-label','剧本文档解析器');
  const empty=el('section',root);empty.className='script-empty';
  const emptyTitle=el('p',empty,'上传分镜文档，生成多维表格');
+ let chapterCollapsed=false;const chapterToggle=button('',()=>{chapterCollapsed=!chapterCollapsed;updatePending();});chapterToggle.hidden=true;root.append(chapterToggle);
  const feedback=el('div',root);feedback.className='script-feedback';feedback.hidden=true;
  const status=el('p',feedback);status.className='script-status';status.setAttribute('role','status');
  const notice=button('',()=>showIssues());notice.className='script-notice';notice.hidden=true;root.append(notice);
@@ -41,7 +42,7 @@ export function createScriptParserPanel({node,app,getTable,setTable,notify,docum
   const t=getTable(),docs=t.meta.script_parser.documents;
   const hasTable=Boolean((!isFixedScript(t)&&t.fields.length)||t.records.length||docs.length);
   if(!hasTable&&root.dataset.expanded==='true')workbench?.close();
-  root.dataset.empty=String(!hasTable);empty.hidden=hasTable;editor.root.hidden=!hasTable;
+  root.dataset.empty=String(!hasTable);empty.hidden=hasTable;editor.root.hidden=!hasTable||chapterCollapsed;const chapter=t.meta.script_parser.chapter;chapterToggle.hidden=!hasTable||!chapter;chapterToggle.textContent=(chapterCollapsed?'▸ ':'▾ ')+(chapter||'');chapterToggle.setAttribute('aria-expanded',String(!chapterCollapsed));
   if(!hasTable)empty.append(feedback);else root.insertBefore(feedback,editor.root);
   emptyTitle.hidden=busy;uploadButton.hidden=busy;cancelButton.hidden=!busy;
   root.setAttribute('aria-busy',String(busy));

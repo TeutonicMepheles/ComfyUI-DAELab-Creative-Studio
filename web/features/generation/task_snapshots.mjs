@@ -28,7 +28,7 @@ export function generationTaskSnapshots(table,live=new Map(),localRequests=new M
    notificationKey:scoped.map(row=>row.requestId).sort().join('|'),
    notificationActive:scoped.some(row=>active.has(row.phase)&&(row.observed||localRequests.has(row.requestId))),
    detail:detail+(failed.length?` · 异常 ${failed.length}`:''),
-   progress:!grouped&&current?.stage==='generating'&&Number.isFinite(current.progress)?current.progress:undefined};
+   progress:grouped?Math.floor(scoped.reduce((sum,row)=>sum+(row.phase==='complete'?100:active.has(row.phase)&&row.stage==='generating'&&Number.isFinite(row.progress)?Math.max(0,Math.min(100,row.progress)):0),0)/scoped.length):current?.stage==='generating'&&Number.isFinite(current.progress)?current.progress:undefined};
  });
 }
 export function optimizationTaskSnapshots(states){

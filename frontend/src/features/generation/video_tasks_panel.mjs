@@ -65,7 +65,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
  }
  const importButton=tableIcon(button('重新导入表格',()=>importSource()),'restart-line','重新导入表格');importButton.classList.add('video-task-import');header.append(importButton);importButton.hidden=true;
  const rail=element('section',root,'video-task-rail');rail.setAttribute('aria-label','生成任务');rail.hidden=true;
- const cards=element('div',rail,'video-task-cards');cards.setAttribute('role','tablist');cards.setAttribute('aria-label','选择任务');
+ const totalLabel=element('span',rail,'video-task-total');totalLabel.setAttribute('role','status');const cards=element('div',rail,'video-task-cards');cards.setAttribute('role','tablist');cards.setAttribute('aria-label','选择任务');
  const body=element('section',root,'video-task-body');
  const bodyTop=element('div',body,'video-task-body-top');
  const materials=element('div',bodyTop,'video-task-materials');materials.setAttribute('aria-label','当前任务参考素材');materials.tabIndex=-1;materials.dataset.selected=String(!node.mode);
@@ -116,13 +116,13 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
   }).catch(()=>{if(currentRequest()){estimate.hidden=true;estimate.textContent='';}});
  }
  function notify(message){notice=message;status.textContent=message;}
- function acceptMaterials(key,collection){
+ function acceptMaterials(key,collection,{replace=true}={}){
   const row=state.table.records.find(r=>r.id===key);if(!row)throw new Error('任务已删除');
   if(node.mode||generation.submitting||active(row))throw new Error('请先中止当前生成');
-  const existing=tableAssets(state.table,row),assets=collection.assets.filter(asset=>!existing.some(old=>asset.nodeId&&old.sourceNodeId===asset.nodeId||old.url==='/view?'+new URLSearchParams({filename:asset.filename,subfolder:asset.subfolder||'',type:asset.type||'input'})));
+  const existing=tableAssets(state.table,row),assets=replace?collection.assets:collection.assets.filter(asset=>!existing.some(old=>asset.nodeId&&old.sourceNodeId===asset.nodeId||old.url==='/view?'+new URLSearchParams({filename:asset.filename,subfolder:asset.subfolder||'',type:asset.type||'input'})));
   if(!assets.length)return;
   editor.change(t=>{
-   const target=t.fields.find(f=>!f.readonly&&['content','assets'].includes(f.type))||addField(t,{name:'参考素材',type:'content'});fillMaterialCell(t,key,target.id,{...collection,assets});
+   const target=t.fields.find(f=>!f.readonly&&['content','assets'].includes(f.type))||addField(t,{name:'参考素材',type:'content'});if(replace)t.records.find(record=>record.id===key).values[target.id]=[];fillMaterialCell(t,key,target.id,{...collection,assets});
    const row=t.records.find(r=>r.id===key),cfg=rowGenerationConfig(row,state.fieldId,field().generation);
    bindLinkedTaskReference(t,row,state.fieldId,cfg,target,{preserveMode:true});
   });
@@ -140,7 +140,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
    }
    if(disposed)return;
    if(state.currentId!==recordId||JSON.stringify(state.table.records.find(r=>r.id===recordId))!==snapshot)throw new Error('任务已变化，请重新添加素材');
-   acceptMaterials(recordId,{version:1,assets});
+   acceptMaterials(recordId,{version:1,assets},{replace:false});
   }catch(error){if(!disposed&&error.name!=='AbortError')notify(error.message);}
   finally{uploadController=null;if(!disposed)schedule();}
  }
@@ -354,10 +354,10 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
    if(card.dataset.stamp!==stamp){
     card.dataset.stamp=stamp;releaseThumbnails(card);card.replaceChildren();
     const select=button('',()=>selectTask(row.id));select.className='video-task-select';select.setAttribute('role','tab');select.ondblclick=()=>{selectTask(row.id);renameTask();};card.append(select);
-    element('span',select,'video-task-number',String(index+1));const thumbnails=element('span',select,'video-task-thumbs');for(const asset of assets)mediaThumb(asset,thumbnails);const label=element('span',select,'video-task-card-label');element('strong',label,'',row.name||`任务${index+1}`);element('span',label,'video-task-card-prompt');if(phase)element('small',label,'',phases[phase]||phase);
+    element('span',select,'video-task-number',String(index+1));const thumbnails=element('span',select,'video-task-thumbs');if(!linkedTable)for(const asset of assets)mediaThumb(asset,thumbnails);const label=element('span',select,'video-task-card-label');element('strong',label,'',row.name||`任务${index+1}`);element('span',label,'video-task-card-prompt');if(phase)element('small',label,'',phases[phase]||phase);
     const remove=tableIcon(button('删除任务',()=>removeTask(row.id)),'delete-bin-line',`删除${row.name||`任务${index+1}`}`);remove.classList.add('video-task-remove');card.append(remove);
    }
-   const summary=card.querySelector('.video-task-card-prompt'),summaryText=text||'输入提示词…';if(summary.textContent!==summaryText)summary.textContent=summaryText;
+   const summary=card.querySelector('.video-task-card-prompt'),summaryText=text||'输入提示词…';if(summary.textContent!==summaryText)summary.textContent=summaryText;summary.hidden=Boolean(linkedTable);
    const selected=row.id===state.currentId,select=card.querySelector('[role=tab]');card.dataset.selected=String(selected);select.setAttribute('aria-selected',String(selected));select.tabIndex=selected?0:-1;select.title=row.name||`任务${index+1}`;
    card.querySelector('.video-task-remove').disabled=!!node.mode||generation.submitting;
    if(cards.children[index]!==card)cards.insertBefore(card,cards.children[index]||null);
@@ -388,6 +388,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
   renderPrice(row,cfg);
   header.hidden=!!fixedKind&&importButton.hidden;
   if(!rail.hidden)renderCards();else if(cards.children.length){releaseThumbnails(cards);cards.replaceChildren();}
+  totalLabel.textContent=linkedTable?'共 '+state.table.records.length+' 个任务':'';totalLabel.hidden=!linkedTable;
   renderPrompt();syncRowHighlight();body.hidden=!row;bodyTop.hidden=!linkedTable&&!state.source&&!materials.children.length;
   const frames=row&&cfg?generationFrames(state.table,row,state.fieldId,cfg):[];
   for(const {asset,index,badge} of materialLabels){
@@ -410,7 +411,8 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
   run.disabled=!row||!!node.mode||generation.submitting||changingType||!!inputError&&!busy||recoveryBlocked;
   if(recoveryBlocked)run.title=receipt.recovery.message||generationErrorText(receipt.recovery.reason);
   const output=videoTaskResultPreviews(row?.values[state.fieldId]||[],receipt,row?.meta?.generationPreviewAfter?.[state.fieldId]).filter(asset=>!outputNodes?.owns(asset.provenance?.requestId)),stamp=JSON.stringify([row?.id,output]);
-  if(resultsStamp!==stamp){resultsStamp=stamp;releaseThumbnails(results);results.replaceChildren();for(const asset of output){if(asset.kind==='image'){const media=element('img',results);media.src=asset.url;media.alt=asset.name||'生成图片';media.loading='lazy';}else{const media=videoThumb(asset,results);media.controls=true;media.muted=false;media.setAttribute('aria-label',asset.name||'生成视频');}}results.hidden=!output.length;}
+  if(resultsStamp!==stamp){resultsStamp=stamp;releaseThumbnails(results);results.replaceChildren();if(output.length){const open=button('查看结果（'+output.length+'）',()=>{const dialog=editor.openDialog('生成结果');for(const asset of output){const media=element(asset.kind==='image'?'img':'video',dialog);media.src=asset.url;media.style.cssText='display:block;max-width:100%;max-height:65vh;object-fit:contain';media.setAttribute('aria-label',asset.name||'生成结果');const select=button('选择此结果',()=>{for(const control of dialog.querySelectorAll('[data-result-choice]'))control.setAttribute('aria-pressed',String(control===select));results.dataset.selectedAsset=asset.assetId||asset.id||asset.url;});select.dataset.resultChoice='true';select.setAttribute('aria-pressed',String(results.dataset.selectedAsset===(asset.assetId||asset.id||asset.url)));dialog.append(select);if(asset.kind==='video'){media.controls=true;media.preload='metadata';dialog.addEventListener('close',()=>{media.pause();media.removeAttribute('src');media.load();},{once:true});}}dialog.append(button('关闭',()=>dialog.close()));});results.append(open);}results.hidden=!output.length;}
+
   status.textContent=inputError||notice||(receipt&&(receipt.phase!=='complete'||receipt.error)?(phases[receipt.phase]||receipt.phase)+(receipt.error?' · '+generationErrorText(receipt.error):''):'')+(recoveryBlocked?' · '+(receipt.recovery.message||generationErrorText(receipt.recovery.reason)):'');status.hidden=!status.textContent;
  }
  async function runTask(){

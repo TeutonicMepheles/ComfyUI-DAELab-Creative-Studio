@@ -49,10 +49,11 @@ export function fillMaterialColumn(table,fieldId,collection){
         if(count>500)throw new Error('每张表最多 500 行');
         while(table.records.length<count)addRecord(table).selected=true;
         for(let index=0;index<count;index++)setValue(table,table.records[index].id,fieldId,texts[texts.length===1?0:index]);
+        for(let index=count;index<table.records.length;index++)setValue(table,table.records[index].id,fieldId,'');
         return;
     }
     if(!accepts(field))throw new Error('此列不能接收素材');
-    const assets=materialSnapshot(collection);
+    const assets=materialSnapshot(collection);if(!assets.length)return;
     const count=columnFillCount(assets.length,table.records.length);
     if(count>500)throw new Error('每张表最多 500 行');
     while(table.records.length<count)addRecord(table).selected=true;
@@ -61,6 +62,7 @@ export function fillMaterialColumn(table,fieldId,collection){
         const old=table.records[index].values[fieldId]?.[0];
         table.records[index].values[fieldId]=[{...asset,id:old?.url===asset.url?old.id:assets.length===1?uid():asset.id}];
     }
+    for(let index=count;index<table.records.length;index++)table.records[index].values[fieldId]=[];
 }
 export function fillMaterialCell(table,recordId,fieldId,collection){
     const row=table.records.find(r=>r.id===recordId),field=table.fields.find(f=>f.id===fieldId);

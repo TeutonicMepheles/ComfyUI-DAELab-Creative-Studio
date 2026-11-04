@@ -3036,7 +3036,7 @@
 
 **真实模型白名单：** 无；本用例使用无模型调用的测试方法。
 
-**夹具：** 拟建 providers/cloud-contract.json：Comfy/DeepSeek 图片、视频与优化通道的确定性假响应；禁止访问真实端点。
+**夹具：** 拟建 providers/cloud-contract.json：Comfy 积分通道的确定性假响应与本地 Qwen 文本替身；禁止访问真实端点。
 
 **准备**
 
@@ -3118,8 +3118,8 @@
 **可判断的期望**
 
 - 未应用不提供有效输出；应用后逐行 ID 唯一且与原来源一致。
-- 原生执行只读取应用快照，零模型调用；来源失效不使用别的预览；DeepSeek/Comfy仅协议模拟，本地Qwen真实结果由TC-BIZ-047验收。
-- 外接时禁止内部编辑，断开恢复草稿，空来源不回退；模板和逐行参考正确，旧结果不被模板变更覆盖；不新增27B模型调用。
+- 原生执行只读取应用快照，零模型调用；来源失效不使用别的预览；Comfy 积分通道仅协议模拟，本地Qwen真实结果由TC-BIZ-047验收。
+- 外接时禁止内部编辑，断开恢复草稿，空来源不回退；模板和逐行参考正确，旧结果不被模板变更覆盖；本用例不新增模型调用，27B 的加载与运行由独立的本地模型验证负责。
 
 **旧测试复用候选：** [business:tests/llm_slot_model.test.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/tests/llm_slot_model.test.mjs)；[business:tests/llm_io_model.test.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/tests/llm_io_model.test.mjs)；[business:tests/llm_task_model.test.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/tests/llm_task_model.test.mjs)；[business:tests/test_canvas_polish.py](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/tests/test_canvas_polish.py)
 
@@ -4626,11 +4626,11 @@
 
 **真实模型白名单：** 无；本用例使用无模型调用的测试方法。
 
-**夹具：** 合成提供方清单：本地图片、本地视频、Qwen、已配置 DeepSeek。
+**夹具：** 合成提供方清单：本地图片、本地视频、本地 Qwen。
 
 **准备**
 
-- DeepSeek 适配为非计费探测或待验证，禁止真实 HTTP 计费。
+- 文本提供方只有本地 Qwen；不再有云 API 文本通道，禁止任何真实云端 HTTP。
 
 **步骤**
 

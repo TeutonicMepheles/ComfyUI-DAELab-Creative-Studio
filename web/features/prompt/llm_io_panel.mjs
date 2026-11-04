@@ -32,6 +32,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
     const changed=()=>{node.graph?.change?.();render();};
     const apply=createTableButton('',()=>{
         if(disposed||busy||node.mode||apply.disabled)return;
+        if(typeof globalThis.confirm==='function'&&!globalThis.confirm('确认应用文本结果？将应用 '+(saved().ioResult?.rows?.length||1)+' 行，保留来源和连线。'))return;
         try{
             const confirm=()=>{if(!nativeDocument)return applyIOResult(saved(),signature());if(!proposalTicket&&restoredProposal===saved().ioResult?.requestId)proposalTicket=nativeDocument.beginRequest(restoredProposal);if(!proposalTicket||!nativeDocument.canApply(proposalTicket))throw new Error('输入或工作流已变化，请重新生成');let applied=false;nativeDocument.controller.applyResult(proposalTicket,'应用 LLM 审阅结果',draft=>{const historical=draft.ioResult;if(proposalState)draft.ioResult=snapshotJson(proposalState);applied=applyIOResult(draft,signature());if(historical===undefined)delete draft.ioResult;else draft.ioResult=historical;});return applied;};
             const context=globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root);
@@ -72,12 +73,13 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
         const selectedModel=models.some(model=>model.id===previous)?previous:
             (previous==='qwen'||previous==='deepseek'?models.find(model=>model.provider===previous)?.id||previous:previous);
         select.replaceChildren(...models.map(model=>updateModelOption(new Option(model.label+(model.logo==='openai'?' · Comfy':''),model.id),modelCatalog.get(model.id))));
-        if(!models.some(model=>model.id===selectedModel)){const legacy=new Option('未识别模型（历史任务）',previous||'');legacy.disabled=true;select.add(legacy);}
+        if(!models.some(model=>model.id===selectedModel)){const legacy=new Option('已保存但不可用（历史模型）',previous||'');legacy.disabled=true;select.add(legacy);}
         select.value=selectedModel||'';
     }
     const supported=model=>models.some(option=>option.id===logicalModel(model));
     const modelLabel=model=>models.find(option=>option.id===logicalModel(model))?.label||'未识别模型';
-    function refreshModelOptions(){rebuildModelOptions();sourceBadge.textContent=modelSourceBadge(modelCatalog.get(logicalModel(saved().model)));sourceBadge.dataset.source=modelSourceKind(modelCatalog.get(logicalModel(saved().model)));const current=logicalModel(saved().model);for(const option of select.children||select.options||[]){const model=models.find(item=>item.id===option.value);if(model)updateModelOption(option,modelCatalog.get(model.id));}const model=models.find(item=>item.id===current);select.disabled=!model||!canSubmitModel(modelCatalog.get(current));const status=model&&modelCatalog.get(current);if(status?.checking)select.setAttribute('aria-busy','true');else select.removeAttribute('aria-busy');}
+    const syncSourceBadge=model=>{const status=modelCatalog.get(logicalModel(model));sourceBadge.textContent=modelSourceBadge(status);sourceBadge.dataset.source=modelSourceKind(status);};
+    function refreshModelOptions(){rebuildModelOptions();syncSourceBadge(saved().model);const current=logicalModel(saved().model);for(const option of select.children||select.options||[]){const model=models.find(item=>item.id===option.value);if(model)updateModelOption(option,modelCatalog.get(model.id));}const model=models.find(item=>item.id===current);select.disabled=!model||!canSubmitModel(modelCatalog.get(current));const status=model&&modelCatalog.get(current);if(status?.checking)select.setAttribute('aria-busy','true');else select.removeAttribute('aria-busy');}
     rebuildModelOptions();
     const generationTask=createLLMTask();
     const taskRail=make('div','llm-io-task-rail');taskRail.setAttribute('role','tablist');taskRail.setAttribute('aria-label','优化任务');root.append(taskRail);
@@ -149,7 +151,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
         const valid=modes[mode],modelReady=canSubmitModel(modelCatalog.get(logicalModel(saved().model)));
         setProperty(run,'disabled',disabled||!!error||!valid||!modelReady);setProperty(run,'title','使用原始文字或连线输入生成建议；应用后输出');setProperty(run.lastChild,'textContent',busy?'生成中…':'生成');setAttribute(run,'aria-busy',String(busy));
         const d=displayed,stamp=signature(),stale=d?.signature!==stamp,isApplied=!!d?.requestId&&saved().appliedIO?.requestId===d.requestId;
-        const result=selectedResult(d,rows),resultProvider=models.find(model=>model.id===logicalModel(d?.provider))?.provider||d?.provider;
+        const result=selectedResult(d,rows),resultProvider=models.find(model=>model.id===logicalModel(d?.provider))?.provider||(String(d?.provider||'').startsWith('deepseek')?'deepseek':d?.provider);
         setProperty(paragraph,'textContent',result?.result||'');
         setProperty(paragraph,'contentEditable',disabled||!d?.complete||stale||isApplied?'false':'plaintext-only');
         setProperty(apply,'disabled',disabled||!d?.complete||stale||isApplied||!!nativeDocument&&(proposalTicket?!nativeDocument.canApply(proposalTicket):restoredProposal!==d?.requestId));setProperty(apply,'hidden',isApplied);
@@ -158,7 +160,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
         task=[...generationTask.snapshot(),...(!busy&&error?[{id:'llm-input',label:waiting?'等待输入':'输入异常',state:waiting?'queued':'error',detail:error}]:[])];
         try{node.setOutputData?.(0,outputText(node));}catch{node.setOutputData?.(0,null);}
     }
-    on(select,'change',()=>{message='';changed();});for(const field of [source,instruction])on(field,'input',()=>{message='';changed();});
+    on(select,'change',()=>{message='';saved().model=select.value;syncSourceBadge(select.value);changed();});for(const field of [source,instruction])on(field,'input',()=>{message='';changed();});
     on(paragraph,'input',()=>{
         if(disposed||busy||node.mode)return;
         let rows=[];try{rows=slotRows(node);}catch{}

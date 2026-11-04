@@ -40,10 +40,6 @@ export function startModelCatalogDiscovery(){
     started=true;
     optimizationApi||=createPromptOptimizationApi();
     const catalog=getModelCatalog();
-    optimizationApi.subscribeDeepSeekKey(()=>{
-        catalog.invalidate({family:'optimization',provider:'deepseek'});
-        void catalog.check('deepseek-flash',optimizationProbe,{force:true}).catch(()=>{});
-    });
     const refresh=()=>{if(Date.now()-lastRefresh<1000)return;catalog.invalidate();void refreshModelCatalog({force:true}).catch(()=>{});};
     globalThis.addEventListener?.('online',refresh);
     globalThis.addEventListener?.('pageshow',refresh);

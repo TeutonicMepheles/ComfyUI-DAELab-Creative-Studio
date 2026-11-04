@@ -103,8 +103,8 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
                 optimizationEntry=createPromptOptimizationEntry({editor:menuEditor,target:{scope:'column',fieldId:selected.field},menu:true});optimize=optimizationEntry.element;
             }
             addGroup(groups,
-                outputTable?item('输出为素材组',()=>outputTable({scope:'column',fieldId:selected.field,anchor:columnAnchor}),'box-3-line'):null,
-                optimize,item('重命名',rename,'edit-line'),item('复制列',()=>mutate(t=>{const old=t.fields.find(f=>f.id===selected.field),next=addField(t,{...clone(old),id:uid(),name:old.name+' 副本'});reorder(t.fields,next.id,old.id,true);for(const r of t.records){r.values[next.id]=clone(r.values[old.id]??emptyValue(old));if(Array.isArray(r.values[next.id]))for(const a of r.values[next.id])a.id=uid();}selected={kind:'column',field:next.id};}),'file-copy-line'));
+                menuPoint&&outputTable?item('输出为素材组',()=>outputTable({scope:'column',fieldId:selected.field,anchor:columnAnchor}),'box-3-line'):null,
+                menuPoint?optimize:null,item('重命名',rename,'edit-line'),item('复制列',()=>mutate(t=>{const old=t.fields.find(f=>f.id===selected.field),next=addField(t,{...clone(old),id:uid(),name:old.name+' 副本'});reorder(t.fields,next.id,old.id,true);for(const r of t.records){r.values[next.id]=clone(r.values[old.id]??emptyValue(old));if(Array.isArray(r.values[next.id]))for(const a of r.values[next.id])a.id=uid();}selected={kind:'column',field:next.id};}),'file-copy-line'));
             addGroup(groups,item('删除列',()=>mutate(t=>{removeField(t,selected.field);selected={kind:'table'};}),'delete-bin-line',true));
         }else if(selected.kind==='row'){
             const recordId=selected.record;
@@ -163,7 +163,10 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
             closeMenu();selected=null;editor.clearSelection();queueMicrotask(tick);return;
         }
         if(e.target.closest('[data-inline-editing=true]')){closeMenu();selected=null;editor.clearSelection();root.querySelectorAll('[data-column-selected=true]').forEach(node=>delete node.dataset.columnSelected);queueMicrotask(tick);return;}
-        const target=targetFor(e.target);if(target)applyTarget(target);closeMenu();tick();
+        if(menuOpen&&menuTrigger?.isConnected){const scope=menuTrigger.closest?.('th[data-column],.table-choice')||menuTrigger;if(scope.contains(e.target)){if(e.type==='pointerdown'&&e.target.closest?.('.field-title,.content-row-number'))closeMenu();return;}}
+        const target=targetFor(e.target),capsule=e.type==='pointerdown'&&!e.target.closest('input,textarea,select')?e.target.closest('.field-title,.content-row-number'):null;
+        if(capsule&&target&&['column','row'].includes(target.kind)&&menuAvailable()){e.preventDefault();open(target,capsule);return;}
+        if(target)applyTarget(target);closeMenu();tick();
     }
     function tick(){
         if(disposed)return;
@@ -198,6 +201,7 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
         const placed=clampMenuPosition(point,size,bounds);toolbar.style.left=placed.left+'px';toolbar.style.top=placed.top+'px';
     }
     const double=e=>{if(e.target.closest('button,input,.dae-column-divider'))return;const row=e.target.closest('.table-choice[data-content-row]');if(row&&root.contains(row)&&active()){e.preventDefault();e.stopPropagation();selected={kind:'row',record:row.dataset.contentRow};rename();return;}const th=e.target.closest('th[data-column]');if(th&&root.contains(th)&&active()){e.preventDefault();e.stopPropagation();selected={kind:'column',field:th.dataset.column};rename();}};
+    const capsule=e=>{const trigger=e.target.closest?.('.field-title,.content-row-number');if(!trigger||!menuAvailable()||e.target.closest('input,textarea,select'))return;const target=targetFor(trigger);if(!target||!['column','row'].includes(target.kind))return;e.preventDefault();e.stopPropagation();if(menuOpen)return;open(target,trigger);};
     const showPreview=e=>previewContentAsset(editor,e.detail);
     const contextMenu=e=>{
         const target=targetFor(e.target);if(!target||!menuAvailable()||e.target.closest('[data-inline-editing=true],input,textarea,select'))return;
@@ -222,11 +226,11 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
     const escape=e=>{if(e.defaultPrevented||e.key!=='Escape'||e.isComposing||e.target.matches?.('input,textarea,select'))return;if(menuOpen){e.preventDefault();closeMenu(true);}else{selected=null;editor.clearSelection();if(!toolbar.hidden)toolbar.hidden=true;tick();}};
     for(const type of ['pointerdown','focusin'])document.addEventListener(type,choose,true);
     document.addEventListener('keydown',menuKey,true);document.addEventListener('keydown',escape,true);
-    root.addEventListener('dblclick',double,true);root.addEventListener('dae-preview',showPreview);root.addEventListener('contextmenu',contextMenu);root.addEventListener('keydown',contextKey,true);
+    root.addEventListener('click',capsule);root.addEventListener('dblclick',double,true);root.addEventListener('dae-preview',showPreview);root.addEventListener('contextmenu',contextMenu);root.addEventListener('keydown',contextKey,true);
     globalThis.addEventListener('dae-canvas-layout',layout);
     const timer=setInterval(tick,100);
     return {
         close(){closeMenu();if(selected)editor.clearSelection();selected=null;if(!toolbar.hidden)toolbar.hidden=true;},
-        destroy(){disposed=true;clearInterval(timer);optimizationEntry?.destroy();toolbar.remove();for(const type of ['pointerdown','focusin'])document.removeEventListener(type,choose,true);document.removeEventListener('keydown',menuKey,true);document.removeEventListener('keydown',escape,true);root.removeEventListener('dblclick',double,true);root.removeEventListener('dae-preview',showPreview);root.removeEventListener('contextmenu',contextMenu);root.removeEventListener('keydown',contextKey,true);globalThis.removeEventListener('dae-canvas-layout',layout);}
+        destroy(){disposed=true;clearInterval(timer);optimizationEntry?.destroy();toolbar.remove();for(const type of ['pointerdown','focusin'])document.removeEventListener(type,choose,true);document.removeEventListener('keydown',menuKey,true);document.removeEventListener('keydown',escape,true);root.removeEventListener('click',capsule);root.removeEventListener('dblclick',double,true);root.removeEventListener('dae-preview',showPreview);root.removeEventListener('contextmenu',contextMenu);root.removeEventListener('keydown',contextKey,true);globalThis.removeEventListener('dae-canvas-layout',layout);}
     };
 }

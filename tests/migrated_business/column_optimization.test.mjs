@@ -16,7 +16,7 @@ test('generic legacy content text optimizes without claiming the unique prompt r
 });
 test('local API never reads or forwards either cloud credential, including recovery',async()=>{
  const calls=[];const api=createPromptOptimizationApi({getAuth:()=>{throw new Error('Native auth forbidden');},fetchApi:async(url,options)=>{calls.push({url,...options});return {ok:true,json:async()=>({batchId:'batch',rows:[{snapshot:{model:QWEN_MODEL}}]})};}});
- api.setDeepSeekKey('dummy-private-key');await api.advance({provider:'qwen',batchId:'batch'});await api.query({batchId:'batch'});await api.recover({batchId:'batch'});api.clearDeepSeekKey();
+ assert.equal(api.setDeepSeekKey,undefined);await api.advance({provider:'qwen',batchId:'batch'});await api.query({batchId:'batch'});await api.recover({batchId:'batch'});
  assert.equal(calls.length,3);for(const call of calls){assert.deepEqual(call.headers,{'Content-Type':'application/json'});assert(!call.body.includes('dummy-private-key'));}
 });
 test('aggregate progress separates failures, skipped and stale from completed success',()=>{

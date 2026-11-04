@@ -1,8 +1,8 @@
 import {businessFetch,businessAuth} from '../../contracts/business.js';
 // Provider adapter only; UI, review, apply and undo stay in the shared IO panel.
 export async function optimizeRow(row,mode,instruction,{fetcher=businessFetch,model='qwen',requestId=crypto.randomUUID(),sourceScope}={}){
-    model=({'qwen3.5:9b-q4_K_M':'qwen','deepseek-flash':'deepseek','gpt-6-luna':'gpt-6-luna',qwen:'qwen',deepseek:'deepseek'})[model]||model;
-    if(!['qwen','deepseek','gpt-6-luna'].includes(model))throw new Error('不支持的模型提供者');
+    model=({'qwen3.5:9b-q4_K_M':'qwen','gpt-6-luna':'gpt-6-luna',qwen:'qwen'})[model]||model;
+    if(!['qwen','gpt-6-luna'].includes(model))throw new Error('不支持的模型提供者');
     let imageDataUrl;
     if(mode==='reverse'){
         const url=row.image?.url;

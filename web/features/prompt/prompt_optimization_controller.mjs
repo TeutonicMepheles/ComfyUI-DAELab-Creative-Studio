@@ -18,7 +18,7 @@ export function createOptimizationController({getTable,identity,revisions,persis
  const operations=new Map();
  const modelCatalog=getModelCatalog();
  const initialModels=modelCatalog.snapshot({family:'optimization'});
- const state={scope,fieldId,recordId,requirements:preferences.requirements||'',model:preferences.model||(initialModels.find(model=>model.provider==='qwen'&&model.selectable)||initialModels.find(model=>model.selectable))?.id||'',models:initialModels,range:{total:0,processable:0,skipped:[]},quote:null,busy:false,error:'',rows:[],batchId:null,permissions:{},deepseekKeyConfigured:false,pageDeepSeekKeyConfigured:false};
+ const state={scope,fieldId,recordId,requirements:preferences.requirements||'',model:preferences.model||(initialModels.find(model=>model.provider==='qwen'&&model.selectable)||initialModels.find(model=>model.selectable))?.id||'',models:initialModels,range:{total:0,processable:0,skipped:[]},quote:null,busy:false,error:'',rows:[],batchId:null,permissions:{}};
  const batchProvider=()=>optimizationProvider(batch?.rows?.[0]?.snapshot?.model||state.model);
  const providerLocked=()=>missingBatch||blockingOperations>0||[...items.values()].some(i=>activeStatuses.has(i.status)||['queued','preparing'].includes(i.status));
  const unknownIds=()=> (state.unknownRequests||[]).map(r=>r.requestId);
@@ -31,8 +31,7 @@ export function createOptimizationController({getTable,identity,revisions,persis
   if(dead)return;state.busy=blockingOperations>0||estimateEpoch===epoch;revisions.observe(getTable());persist();state.inactiveReason=isActive()?'':'节点处于停用模式或视图已释放，请恢复 Active 后继续';
   state.paused=Boolean(requiresContinue||batch?.paused);state.stopped=Boolean(batch?.stopped);
   state.operationName=[...operations.values()].at(-1)||'';
-  state.provider=optimizationProvider(state.model);state.pageDeepSeekKeyConfigured=Boolean(api.hasDeepSeekKey?.());
-  state.deepseekKeyRequired=state.provider==='deepseek'&&!state.pageDeepSeekKeyConfigured&&!state.deepseekKeyConfigured;
+  state.provider=optimizationProvider(state.model);
   const rowNumbers=new Map(getTable().records.map((row,index)=>[row.id,index+1]));
   state.rows=[...items.values()].map(item=>{const s=item.frozen?.wire||item.snapshot;const match=(!edits||item.editTicket&&edits.can(item.editTicket))&&item.frozen&&matchesSnapshot(getTable(),identity,revisions,item.frozen,{observed:true});const suggestionStatus=item.applied?appliedSuggestionStatus(getTable(),item):item.suggestion?.status==='valid'&&!match?'stale':item.suggestion?.status;
    const provider=optimizationProvider(s?.model),currency=provider==='qwen'?'local':provider==='deepseek'?'USD':'credits';
@@ -43,7 +42,7 @@ export function createOptimizationController({getTable,identity,revisions,persis
   const quoteValid=state.quote?.status==='ready'&&state.quote.expiresAt>Date.now();
   state.continuationReady=Boolean(quoteValid&&state.quote.quoteId===continuationQuoteId&&state.quote.quoteId!==batch?.quoteId);
     const modelControls=modelCatalog.get(state.model)?.capability?.control;
-    state.permissions={canChangeProvider:!providerLocked(),canEstimate:!missingBatch&&!state.busy&&!inFlight&&!queued,canSubmit:!missingBatch&&!state.busy&&quoteValid&&prepared.length>0&&!inFlight&&!queued&&isActive()&&!state.deepseekKeyRequired&&canSubmitModel(modelCatalog.get(state.model)),canStop:!!batch&&(inFlight||queued)&&!batch.stopped,canInterrupt:!!batch&&(inFlight||queued)&&!batch.stopped&&(modelControls?.interrupt===true||modelControls?.cancel===true),canContinue:!!batch&&!inFlight&&resumable&&(requiresContinue||batch.paused||batch.stopped)&&isActive(),canRecover:!!state.batchId,canFence:missingBatch&&submissionIntent?.batchId===state.batchId&&(submissionIntent.references||submissionIntent.rows).every(row=>row.source),canApplyAll:state.rows.some(i=>i.canApply)};
+    state.permissions={canChangeProvider:!providerLocked(),canEstimate:!missingBatch&&!state.busy&&!inFlight&&!queued,canSubmit:!missingBatch&&!state.busy&&quoteValid&&prepared.length>0&&!inFlight&&!queued&&isActive()&&Boolean(modelCatalog.get(state.model))&&canSubmitModel(modelCatalog.get(state.model)),canStop:!!batch&&(inFlight||queued)&&!batch.stopped,canInterrupt:!!batch&&(inFlight||queued)&&!batch.stopped&&(modelControls?.interrupt===true||modelControls?.cancel===true),canContinue:!!batch&&!inFlight&&resumable&&(requiresContinue||batch.paused||batch.stopped)&&isActive(),canRecover:!!state.batchId,canFence:missingBatch&&submissionIntent?.batchId===state.batchId&&(submissionIntent.references||submissionIntent.rows).every(row=>row.source),canApplyAll:state.rows.some(i=>i.canApply)};
   for(const listener of listeners)listener(state);
  }
  async function operation(fn,name='processing'){if(dead)return;const token={};operations.set(token,name);blockingOperations++;state.error='';update();try{return await fn();}catch(e){state.error=e.message||String(e);}finally{operations.delete(token);blockingOperations--;update();}}
@@ -96,7 +95,6 @@ export function createOptimizationController({getTable,identity,revisions,persis
   }catch(e){state.error=e.message;requiresContinue=true;}finally{state.requestActivity=null;running=false;update();schedule();}
  }
  async function submit({acknowledgeUnknown=false}={}){const life=lifecycle;const canSubmit=state.permissions.canSubmit;return operation(async()=>{
-  if(state.deepseekKeyRequired)throw new Error('请先保存本页 DeepSeek API 密钥，或配置服务器 DEEPSEEK_API_KEY');
   if(!canSubmit)throw new Error('请先取得当前范围的有效费用估算');
   const risks=unknownIds();
   if(acknowledgeUnknown)acknowledgeUnknownRequestIds=risks;
@@ -156,8 +154,7 @@ export function createOptimizationController({getTable,identity,revisions,persis
   if(!selected){state.error='该服务提供方没有已声明的模型。';update();return false;}
   return setModel(selected.id);
  },
- setDeepSeekKey(value){const configured=Boolean(api.setDeepSeekKey?.(value));state.error='';update();return configured;},
- clearDeepSeekKey(){api.clearDeepSeekKey?.();update();return false;},restoreIntent(value){if(dead||submissionIntent)return;submissionIntent=structuredClone(value);state.batchId=value.batchId;missingBatch=true;update();},estimate,submit,fenceOriginalBatch,stop:()=>operation(async()=>{requiresContinue=true;await controlLease();ingest(await api.stop({batchId:state.batchId,leaseId:lease.leaseId}));},'stop'),interrupt:()=>operation(async()=>{requiresContinue=true;await controlLease();ingest(await api.interrupt({batchId:state.batchId,leaseId:lease.leaseId}));},'interrupt'),recover,continue:()=>operation(async()=>{
+ restoreIntent(value){if(dead||submissionIntent)return;submissionIntent=structuredClone(value);state.batchId=value.batchId;missingBatch=true;update();},estimate,submit,fenceOriginalBatch,stop:()=>operation(async()=>{requiresContinue=true;await controlLease();ingest(await api.stop({batchId:state.batchId,leaseId:lease.leaseId}));},'stop'),interrupt:()=>operation(async()=>{requiresContinue=true;await controlLease();ingest(await api.interrupt({batchId:state.batchId,leaseId:lease.leaseId}));},'interrupt'),recover,continue:()=>operation(async()=>{
   const life=lifecycle;
   if(!state.quote||state.quote.status!=='ready'||state.quote.quoteId!==continuationQuoteId||state.quote.expiresAt<=Date.now()||state.quote.quoteId===batch.quoteId){
    prepared=[];
@@ -172,8 +169,7 @@ export function createOptimizationController({getTable,identity,revisions,persis
   const unknown=state.unknownRequests||[];
   if(unknown.length&&!acknowledgeUnknown){state.error='原请求结果未知，可能已产生费用；请明确确认新请求可能重复收费。';update();return;}
   acknowledgeUnknownRequestIds=unknown.map(i=>i.requestId);return estimate();
- },apply:id=>apply([id]),applyAll:()=>apply(state.rows.filter(r=>r.canApply).map(r=>r.requestId)),observe,pause(){requiresContinue=true;lifecycle++;update();},destroy(){submissionIntent=null;dead=true;epoch++;clearTimeout(timer);unsubscribeKey?.();for(const item of [...items.values(),...prepared])if(item.editTicket)edits?.release(item.editTicket);listeners.clear();}};
-  const unsubscribeKey=api.subscribeDeepSeekKey?.(()=>{modelCatalog.invalidate({family:'optimization',provider:'deepseek'});void loadCapabilities(true);update();});
+ },apply:id=>apply([id]),applyAll:()=>apply(state.rows.filter(r=>r.canApply).map(r=>r.requestId)),observe,pause(){requiresContinue=true;lifecycle++;update();},destroy(){submissionIntent=null;dead=true;epoch++;clearTimeout(timer);for(const item of [...items.values(),...prepared])if(item.editTicket)edits?.release(item.editTicket);listeners.clear();}};
 async function loadCapabilities(force=false){
   const c=++capabilityEpoch,model=state.model;
   try{
@@ -181,7 +177,7 @@ async function loadCapabilities(force=false){
    modelCatalog.record(model,{...caps,...selected,available:selected?.available??caps.available===true,provider:selected?.provider||optimizationProvider(model)});
    if(dead||c!==capabilityEpoch||model!==state.model)return;
    const current=modelCatalog.get(model);
-   state.models=modelCatalog.snapshot({family:'optimization'});state.deepseekKeyConfigured=Boolean(current?.capability?.deepseekKeyConfigured);if(!canSubmitModel(current))state.error='模型不可用，请重新检测。';
+   state.models=modelCatalog.snapshot({family:'optimization'});if(!canSubmitModel(current))state.error='模型不可用，请重新检测。';
   }catch{ if(!dead&&c===capabilityEpoch&&model===state.model){modelCatalog.markUnavailable(model,'model_probe_failed');state.error='模型不可用，请重新检测。';}}
   finally{if(!dead&&c===capabilityEpoch&&model===state.model)update();}
  }

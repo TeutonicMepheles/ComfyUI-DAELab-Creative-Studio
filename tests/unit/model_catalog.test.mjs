@@ -22,19 +22,15 @@ test('model catalog coalesces checks and publishes selectable, checking, unverif
  assert.ok(seen.some(value=>value.some(([id,status])=>id==='Qwen-Image-2.1 Turbo（本地）'&&status==='checking')));
 });
 
-test('DeepSeek remains selectable but unverified without a key and becomes available after safe capability discovery',async()=>{
- const catalog=createModelCatalog();
- assert.equal((await catalog.check('deepseek-flash',async()=>({available:true,provider:'deepseek',deepseekKeyConfigured:false}))).status,MODEL_STATUS.unverified);
- assert.equal(catalog.get('deepseek-flash').selectable,true);
- const ready=await catalog.check('deepseek-flash',async()=>({available:true,provider:'deepseek',deepseekKeyConfigured:true}),{force:true});
- assert.equal(ready.status,MODEL_STATUS.available);
- assert.equal(catalog.get('deepseek-flash').capability.deepseekKeyConfigured,true);
+test('retired DeepSeek is absent and cannot be probed or reintroduced',()=>{
+ const catalog=createModelCatalog();assert.equal(catalog.get('deepseek-flash'),null);assert.throws(()=>catalog.check('deepseek-flash',()=>{throw Error('must not probe');}));
+ catalog.replaceDefinitions([{id:'deepseek-flash',family:'optimization',kind:'text',provider:'deepseek'}]);assert.equal(catalog.snapshot().length,0);
 });
 
 test('catalog filtering and invalidation keep logical identities while rebuilding readiness',async()=>{
  const catalog=createModelCatalog(),probes=[];
  await catalog.refresh(async model=>{probes.push(model.id);return {available:true};},{filters:{family:'optimization'}});
- assert.deepEqual(probes,['deepseek-flash','qwen3.5:9b-q4_K_M','gpt-6-luna']);
+ assert.deepEqual(probes,['qwen3.5:9b-q4_K_M','gpt-6-luna']);
  assert.equal(catalog.snapshot({family:'optimization'}).every(model=>model.status==='available'),true);
  const invalidated=catalog.invalidate({family:'optimization'});
  assert.equal(invalidated.every(model=>model.status==='unverified'&&model.capability===null),true);
@@ -48,9 +44,9 @@ test('backend-provided definitions replace hardcoded identities without carrying
 });
 test('provider change for the same logical id clears stale availability and capability',async()=>{
  const catalog=createModelCatalog();
- await catalog.check('deepseek-flash',async()=>({available:true,provider:'deepseek',deepseekKeyConfigured:true}));
- assert.equal(catalog.get('deepseek-flash').status,'available');
- const changed=catalog.replaceDefinitions([{id:'deepseek-flash',label:'Server LLM',family:'optimization',kind:'text',provider:'qwen'}])[0];
+ await catalog.check('gpt-6-luna',async()=>({available:true,provider:'comfy'}));
+ assert.equal(catalog.get('gpt-6-luna').status,'available');
+ const changed=catalog.replaceDefinitions([{id:'gpt-6-luna',label:'Server LLM',family:'optimization',kind:'text',provider:'qwen'}])[0];
  assert.deepEqual([changed.status,changed.capability,changed.available,changed.selectable],['unverified',null,false,true]);
 });
 test('non-capability probe results are rejected as unavailable and never become available',async()=>{

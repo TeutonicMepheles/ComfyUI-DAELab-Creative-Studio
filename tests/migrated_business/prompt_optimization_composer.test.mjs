@@ -19,17 +19,10 @@ test('aggregate applied label follows undo and redo without offering a second ap
  assert.equal(progress.children[1].textContent,'已应用 3 行');assert.equal(message.hidden,true);
 });
 
-test('DeepSeek settings are opt-in, close on provider switch, and discard unsaved key drafts',t=>{
- const dom=installDom(t);t.after(()=>dom.restore());let notify;
- let state={provider:'deepseek',model:'deepseek-flash',range:{total:12},rows:[],permissions:{canChangeProvider:true},quote:{status:'ready',estimatedCredits:.1,budgetUpperCredits:.2,expiresAt:Date.now()+10000}};
- const controller={getState:()=>state,subscribe(fn){notify=fn;fn(state);return()=>{};}};
- const container=new Element('div'),view=createOptimizationComposer({controller,container,fieldName:'画面'});t.after(()=>view.destroy());
- const gear=find(container,e=>e['aria-label']==='DeepSeek API 设置'&&e.tagName==='button'),panel=find(container,e=>e.className==='opt-key-panel'),key=find(container,e=>e.type==='password'),message=find(container,e=>e.className==='opt-message');
- assert.equal(panel.hidden,true);assert.equal(gear.hidden,false);assert.equal(message.hidden,true);
- gear.onclick({preventDefault(){},stopPropagation(){}});assert.equal(panel.hidden,false);assert.match(find(panel,e=>e.className==='opt-muted'&&e.textContent.includes('预计')).textContent,/\$0.1/);
- key.value='unsaved-dummy';state={...state,provider:'comfy',model:COMFY_GPT_MODEL};notify(state);assert.equal(panel.hidden,true);assert.equal(gear.hidden,true);assert.equal(key.value,'');assert.match(message.textContent,/积分/);assert.doesNotMatch(message.textContent,/\$/);
- state={...state,provider:'deepseek',model:'deepseek-flash'};notify(state);assert.equal(panel.hidden,true);gear.onclick({preventDefault(){},stopPropagation(){}});assert.equal(view.closeNested(),true);assert.equal(panel.hidden,true);assert.equal(view.closeNested(),false);
- state={...state,provider:'qwen',model:'qwen3.5:9b-q4_K_M'};notify(state);assert.equal(gear.hidden,true);
+test('retired DeepSeek does not expose key settings or password inputs',t=>{
+ const dom=installDom(t);t.after(()=>dom.restore());const state={provider:'deepseek',model:'deepseek-flash',range:{total:1},rows:[],permissions:{canChangeProvider:true}};
+ const controller={getState:()=>state,subscribe(fn){fn(state);return()=>{};}};const container=new Element('div'),view=createOptimizationComposer({controller,container,fieldName:'Historical'});t.after(()=>view.destroy());
+ assert.equal(find(container,e=>e.type==='password'),undefined);assert.equal(find(container,e=>e.className==='opt-key-panel'),undefined);
 });
 
 test('Comfy GPT is a real native-credit model and prices cannot be labelled as USD',()=>{
@@ -43,7 +36,7 @@ test('optimization model menu rebuilds from the backend catalog with stable disp
  const controller={getState:()=>state,subscribe(fn){notify=fn;fn(state);return()=>{};},setModel(){return true;}};
  const container=new Element('div'),view=createOptimizationComposer({controller,container,fieldName:'画面'});t.after(()=>view.destroy());
  assert.ok(find(container,e=>e.tagName==='button'&&e.textContent.includes('Server Model A')));
- catalog.replaceDefinitions([{id:'backend-opt-b',label:'Server Model B',family:'optimization',kind:'text',provider:'deepseek'}]);
+ catalog.replaceDefinitions([{id:'backend-opt-b',label:'Server Model B',family:'optimization',kind:'text',provider:'qwen'}]);
  state={...state,provider:'deepseek',model:'backend-opt-b'};notify(state);
  assert.equal(find(container,e=>e.tagName==='button'&&e.textContent.includes('Server Model A')),undefined);
  assert.ok(find(container,e=>e.tagName==='button'&&e.textContent.includes('Server Model B')));
