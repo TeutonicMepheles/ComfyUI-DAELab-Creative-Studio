@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "4fc5862808d9262c47864f2057559d98723ee2ee7ecc4cd17db8a4d637f33420",
+  "specificationHash": "a24926a2b24f6173d328fe5cb0c166c0d1b22d49016b7894a27716ced5eb71f1",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -7571,8 +7571,8 @@
       "feature": "F-SYS-022",
       "task": "TASK-M4-BACKEND-PROVIDERS",
       "owner": "backend/providers",
-      "requirement": "已保存逻辑模型缺失时保持原 ID 并标为不可用，不静默换成其他模型。2026-11-04 起文本提供方只有本地 Qwen，不再接入云 API 文本通道，也不发起任何云请求。",
-      "requirementHash": "efc4c85797e7c4f41bad66553948fcf0c095704550ba2141062026344c2f0988",
+      "requirement": "已保存逻辑模型缺失时保持原 ID 并标为不可用，不静默换成其他模型。2026-11-04 起移除 DeepSeek 云 API 文本通道；Comfy 工作区积分的文本模型（如 GPT-6 Luna）保留，本地 Qwen 仍是默认文本模型。",
+      "requirementHash": "9919af573582ab1d0f0d557f7379ab8114a75812a1283d77eca166acfe9531b8",
       "usecases": [
         "UC-SYS-012",
         "UC-SYS-013"
@@ -7611,8 +7611,8 @@
       "feature": "F-SYS-022",
       "task": "TASK-M4-BACKEND-PROVIDERS",
       "owner": "backend/providers",
-      "requirement": "2026-11-04：移除 DeepSeek 云 API 文本通道。模型目录、模型列表、能力快照与健康诊断不再出现 DeepSeek 行、密钥字段或连接状态；已保存工作流引用 DeepSeek 模型时保留原 ID 并标为不可用，不静默换成 Qwen，不改写用户配置；宿主残留的旧密钥不被读取，也不写入工作流、任务快照、账本、日志或诊断导出。",
-      "requirementHash": "986aac7d77ae2854ac5966af29b3bdca6eb6ab921662f6a28c05e58d4e0e7b07",
+      "requirement": "2026-11-04：移除 DeepSeek 云 API 文本通道。模型目录、模型列表、能力快照与健康诊断不再出现 DeepSeek 行、密钥字段或连接状态；已保存工作流引用 DeepSeek 模型时保留原 ID 并标为不可用，不静默换成 Qwen 或其他模型，不改写用户配置；宿主残留的旧密钥不被读取，也不写入工作流、任务快照、账本、日志或诊断导出。本次只移除 DeepSeek 独立密钥通道，Comfy 积分文本模型（GPT-6 Luna，走官方 OpenAIChatNode / Partner Responses，不读 OpenAI 密钥）与图片/视频云能力保持不变。",
+      "requirementHash": "c8ece3dff6b4a0802c85597d041c68eb61be77b9d2f0da488482cf230adaa986",
       "usecases": [
         "UC-SYS-012",
         "UC-SYS-013"
@@ -14119,7 +14119,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "f33a839cd92f470a35b08cc8b7deacb337b0d1420f129be55921f46939b1c814",
+      "specificationHash": "1fcb932b90e0dc235f06253eefb7372409cfc1775e96dfca1c199455f88aa5e4",
       "assertions": [
         {
           "id": "AS-SYS-037-001",
