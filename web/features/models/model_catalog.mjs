@@ -25,6 +25,7 @@ export const GENERATION_MODEL_DEFINITIONS=Object.freeze([
 ]);
 
 export const OPTIMIZATION_MODEL_DEFINITIONS=Object.freeze([
+    {id:'qwen3.8-27b-w4a8',label:'Qwen3.8-27B（本地）',family:'optimization',kind:'text',provider:'local'},
     {id:'qwen-image-2.1-pe',label:'Qwen-Image-2.1 PE（本地）',family:'optimization',kind:'text',provider:'local'},
     {id:'qwen3.5:9b-q4_K_M',label:'Qwen3.5-9B（本地）',family:'optimization',kind:'text',provider:'qwen'},
     {id:'gpt-6-luna',label:'GPT-6 Luna（Comfy）',family:'optimization',kind:'text',provider:'comfy'},
