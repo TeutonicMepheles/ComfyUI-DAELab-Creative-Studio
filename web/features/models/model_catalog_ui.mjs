@@ -4,11 +4,11 @@ export function modelOptionPresentation(model){
     const checking=model?.status===MODEL_STATUS.checking;
     return {
         text:`${model?.label||model?.id||'模型'}${checking?' ◌':''}`,
-        disabled:model?.status===MODEL_STATUS.unavailable,
+        disabled:model?.status===MODEL_STATUS.unavailable||model?.status===MODEL_STATUS.unknown,
         checking,
         available:model?.status===MODEL_STATUS.available,
         unverified:model?.status===MODEL_STATUS.unverified,
-        statusLabel:checking?'正在检测此模型':model?.status===MODEL_STATUS.unavailable?'不可用':'',
+        statusLabel:checking?'正在检测此模型':model?.status===MODEL_STATUS.unknown?'检测超时·结果未知，可重新检测':model?.status===MODEL_STATUS.unavailable?'不可用':'',
     };
 }
 
@@ -24,5 +24,5 @@ export function updateModelOption(option,model){
 }
 
 export function canSubmitModel(model){
-    return model?.status!==MODEL_STATUS.checking&&model?.status!==MODEL_STATUS.unavailable;
+    return model?.status!==MODEL_STATUS.checking&&model?.status!==MODEL_STATUS.unavailable&&model?.status!==MODEL_STATUS.unknown;
 }

@@ -4,6 +4,7 @@ export const MODEL_STATUS=Object.freeze({
     available:'available',
     unverified:'unverified',
     unavailable:'unavailable',
+    unknown:'unknown',
 });
 
 export const GENERATION_MODEL_DEFINITIONS=Object.freeze([
@@ -37,7 +38,7 @@ function publicEntry(entry){
         status:entry.status,
         available:entry.status===MODEL_STATUS.available,
         checking:entry.status===MODEL_STATUS.checking,
-        selectable:entry.status!==MODEL_STATUS.checking&&entry.status!==MODEL_STATUS.unavailable,
+        selectable:entry.status!==MODEL_STATUS.checking&&entry.status!==MODEL_STATUS.unavailable&&entry.status!==MODEL_STATUS.unknown,
         capability:entry.capability,
     });
 }
@@ -77,7 +78,10 @@ export function createModelCatalog({now=()=>Date.now(),log=()=>{}}={}){
             }catch(error){
                 const code=typeof error?.code==='string'&&/^[a-z0-9_.-]{1,80}$/i.test(error.code)?error.code:'model_probe_failed';
                 log({version:MODEL_CATALOG_VERSION,provider:entry.definition.provider,model:id,stage:'probe',code,time:new Date(now()).toISOString()});
-                return setStatus(id,MODEL_STATUS.unavailable,{code});
+                // A probe that never answered (timeout, abort, transport) is an unknown
+                // result, not a pinned-model failure: keep it distinguishable and retryable.
+                const unknownResult=error?.name==='AbortError'||/timeout|timedout|abort|unknown|unavailablenetwork|network/i.test(String(error?.code||error?.message||''));
+                return setStatus(id,unknownResult?MODEL_STATUS.unknown:MODEL_STATUS.unavailable,{code:unknownResult?'probe_timeout_unknown':code});
             }finally{inFlight.delete(id);}
         })();
         inFlight.set(id,task);return task;
