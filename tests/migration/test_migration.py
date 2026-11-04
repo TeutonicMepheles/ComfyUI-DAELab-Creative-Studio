@@ -314,7 +314,7 @@ class MigrationTests(unittest.TestCase):
         self.assertEqual(ledger.get("original-identity")["state"], "pending")
 
     def test_offline_reader_verified_schema_max_must_be_updated_with_the_ledger(self):
-        self.assertEqual(READABLE_SCHEMA_MAX, 4)
+        self.assertEqual(READABLE_SCHEMA_MAX, 5)
         self.assertEqual(READABLE_SCHEMA_MAX, SCHEMA_VERSION)
 
     def test_asset_catalog_references_check_snapshot_hashes_without_mutation(self):
