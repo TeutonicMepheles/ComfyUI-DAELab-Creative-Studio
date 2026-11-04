@@ -280,7 +280,7 @@
       "source": "web/table_generation_panel.mjs",
       "destination": "frontend/src/features/generation/table_generation_panel.mjs",
       "sourceSha256": "547d0543ec0e6359f0146f429ca9a11f9d4cce5682e1c212f01439492b1c9a50",
-      "destinationSha256": "bfa913c86d7cd23069c24d2af8e36ce8e60bf9861cd745137b89fe1cc9109141",
+      "destinationSha256": "e18bd213befca861697a6de355c76b3f8ff42964a891c9f57d1d18efd37cec56",
       "kind": "production-source",
       "changes": [
         "2026-11-02: Explain the local one-image reference mode and explicit width/height scaling.",
@@ -294,7 +294,8 @@
         "2026-11-03 task2: stop current generation sequence explicitly; preserve owned native interruption facts and unknown remote outcomes without masking recovery with pause intent.",
         "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs.",
         "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending.",
-        "2026-11-04 task24: compact typed media surface, new 5:4 defaults, provider colors and matching model menu typography/icon alignment; upward constrained popovers. Original source identity retained."
+        "2026-11-04 task24: compact typed media surface, new 5:4 defaults, provider colors and matching model menu typography/icon alignment; upward constrained popovers. Original source identity retained.",
+        "2026-11-04 task29: scale the complete node popover once with its anchor; use screen bounds for upward placement and logical limits for scrolling. Reference submenus convert viewport coordinates inside transformed parents; independent asset overlays remain unchanged."
       ]
     },
     {
@@ -633,7 +634,7 @@
       "source": "web/table_prompt_settings.mjs",
       "destination": "frontend/src/features/prompt/table_prompt_settings.mjs",
       "sourceSha256": "bfe4726e48470729694c7a86878e50662a3ec0fad7837a9323bbb21a022c432a",
-      "destinationSha256": "9d8e33323dc2e8d4d5ceb8630ce70b281731f9c3d9c1fa5f094cddad2622dcb1",
+      "destinationSha256": "c3c619b78ff8bcea91c81dc6718b2c52b4dc858ce95ec124d46b1de2e17c6460",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
@@ -645,7 +646,8 @@
         "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions.",
         "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs.",
         "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending.",
-        "2026-11-04 task24: compact typed media surface, new 5:4 defaults, provider colors and matching model menu typography/icon alignment; upward constrained popovers. Original source identity retained."
+        "2026-11-04 task24: compact typed media surface, new 5:4 defaults, provider colors and matching model menu typography/icon alignment; upward constrained popovers. Original source identity retained.",
+        "2026-11-04 task29: scale the complete node popover once with its anchor; use screen bounds for upward placement and logical limits for scrolling. Reference submenus convert viewport coordinates inside transformed parents; independent asset overlays remain unchanged."
       ]
     },
     {
