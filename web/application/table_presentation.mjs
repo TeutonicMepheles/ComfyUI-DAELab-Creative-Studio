@@ -163,7 +163,9 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
             closeMenu();selected=null;editor.clearSelection();queueMicrotask(tick);return;
         }
         if(e.target.closest('[data-inline-editing=true]')){closeMenu();selected=null;editor.clearSelection();root.querySelectorAll('[data-column-selected=true]').forEach(node=>delete node.dataset.columnSelected);queueMicrotask(tick);return;}
-        const target=targetFor(e.target);if(target)applyTarget(target);closeMenu();tick();
+        const target=targetFor(e.target),capsule=e.type==='pointerdown'&&!e.target.closest('input,textarea,select')?e.target.closest('.field-title,.content-row-number'):null;
+        if(capsule&&target&&['column','row'].includes(target.kind)&&menuAvailable()){e.preventDefault();open(target,capsule);return;}
+        if(target)applyTarget(target);closeMenu();tick();
     }
     function tick(){
         if(disposed)return;
@@ -198,7 +200,7 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
         const placed=clampMenuPosition(point,size,bounds);toolbar.style.left=placed.left+'px';toolbar.style.top=placed.top+'px';
     }
     const double=e=>{if(e.target.closest('button,input,.dae-column-divider'))return;const row=e.target.closest('.table-choice[data-content-row]');if(row&&root.contains(row)&&active()){e.preventDefault();e.stopPropagation();selected={kind:'row',record:row.dataset.contentRow};rename();return;}const th=e.target.closest('th[data-column]');if(th&&root.contains(th)&&active()){e.preventDefault();e.stopPropagation();selected={kind:'column',field:th.dataset.column};rename();}};
-    const capsule=e=>{const trigger=e.target.closest?.('.field-title,.content-row-number');if(!trigger||!menuAvailable()||e.target.closest('input,textarea,select'))return;const target=targetFor(trigger);if(!target||!['column','row'].includes(target.kind))return;e.preventDefault();e.stopPropagation();open(target,trigger);};
+    const capsule=e=>{const trigger=e.target.closest?.('.field-title,.content-row-number');if(!trigger||!menuAvailable()||e.target.closest('input,textarea,select'))return;const target=targetFor(trigger);if(!target||!['column','row'].includes(target.kind))return;e.preventDefault();e.stopPropagation();if(menuOpen)return;open(target,trigger);};
     const showPreview=e=>previewContentAsset(editor,e.detail);
     const contextMenu=e=>{
         const target=targetFor(e.target);if(!target||!menuAvailable()||e.target.closest('[data-inline-editing=true],input,textarea,select'))return;
