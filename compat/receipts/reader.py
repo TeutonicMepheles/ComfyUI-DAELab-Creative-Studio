@@ -23,7 +23,7 @@ STATES = TERMINAL | {"pending", "waiting", "queued", "preparing", "prepared", "r
                      "submitted", "polling", "fetching", "unknown", "needs_recovery", "needs_input",
                      "paused", "pausing", "stopped", "submitted_or_uncertain", "prepare_uncertain", "generated"}
 EXECUTION_KINDS = frozenset({"local", "remote", "media"})
-READABLE_SCHEMA_MAX = 4
+READABLE_SCHEMA_MAX = 5
 # Explicit owned IDs from the generation composition contract, not prefix/name
 # guessing. A conflicting legacy declaration must never grant remote recovery.
 OWNED_LOCAL_PROVIDERS = frozenset({"local-qwen-image", "local-h3", "local-qwen-text"})
