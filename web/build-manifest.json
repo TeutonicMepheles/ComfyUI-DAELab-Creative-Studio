@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "65072713200b57fbc64a02f1db421e1b4872c67a8b401b007d0ba5e707b92d8c",
+  "sourceFingerprint": "a922b02f1cd17db31ae7365403976cbdb1b576058eff1e85d2a564f85e64b387",
   "files": [
     {
       "path": "AGENTS.md",
@@ -624,7 +624,7 @@
     },
     {
       "path": "features/models/model_catalog.mjs",
-      "sha256": "94771aac0f11ef25fb6737b36017f8d11091b71dd5a519f8b94010b7921a7bdb"
+      "sha256": "feedf99e66144893a7ff05c39a5b83c412ba76eee008f4d290a9e857cdc166d0"
     },
     {
       "path": "features/models/model_catalog_ui.mjs",
@@ -648,11 +648,11 @@
     },
     {
       "path": "features/prompt/llm_io_panel.mjs",
-      "sha256": "d2c13b1220f2fe01650d693c60865ee4013d8415ab4a70292043d90414215945"
+      "sha256": "280c207b882ea77d7d7c984e0a46d247da08a645bae2e73a61b1f88cc8f2c9d6"
     },
     {
       "path": "features/prompt/llm_local_provider.mjs",
-      "sha256": "55e7ace14ac1965461538ab2f2043dc10da4b3022d1d469817790ef0111cba6c"
+      "sha256": "0b7ea70742937cf43ce9f8cf8284ad588019b6d50b140f9b7da55225413f51c2"
     },
     {
       "path": "features/prompt/llm_slot_model.mjs",
@@ -684,7 +684,7 @@
     },
     {
       "path": "features/prompt/prompt_optimization_composer.mjs",
-      "sha256": "86b5d1c615c79136de03b3b7ab63444841e4bd4e44c621a4558e942766eb76da"
+      "sha256": "b5f87cceb9cdcb5c8091e8912788ed751c65566469e09ad5b0e2d10b97d256fd"
     },
     {
       "path": "features/prompt/prompt_optimization_context_copy.mjs",
@@ -692,7 +692,7 @@
     },
     {
       "path": "features/prompt/prompt_optimization_controller.mjs",
-      "sha256": "0bc28a81216ee85710d6447f8a8edfeaf4387f41d8835eceab4fa6f376b7cbec"
+      "sha256": "ed2c832cef21cf818a73bd6feb0e1bf123f56581765b25378781b1e2d16e3748"
     },
     {
       "path": "features/prompt/prompt_optimization_model.mjs",
@@ -1060,7 +1060,7 @@
     },
     {
       "path": "integrations/comfyui/business/model_catalog_discovery.mjs",
-      "sha256": "92846034ab6a2a8f9cd88441abc015ebe5f22469f4ce0251c331815a747d14bd"
+      "sha256": "70f40e7ce4c47e4f53c1137ad990f01f4a08937118142f15c98853da6b308a8c"
     },
     {
       "path": "integrations/comfyui/business/native_edit_history_stamp.js",
@@ -1176,7 +1176,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "39c7a63d3e2ccd7b50c463382dd045d21ea1aa15ef9298d48f3431cef5a6c866"
+      "sha256": "d8f512c315e014a1d1a0da27ae0cc376ae02e32ed0298256462d651bb68ca111"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
