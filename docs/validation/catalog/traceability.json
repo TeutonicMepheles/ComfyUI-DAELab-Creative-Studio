@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "68ead28e7e8e16960255d2f74aea6b867f2ca98f96e4bcbbc84a06270684d72c",
+  "specificationHash": "4fc5862808d9262c47864f2057559d98723ee2ee7ecc4cd17db8a4d637f33420",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -12109,7 +12109,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "990a57378c65d133a52a76e8ad578b89a7d57ae419e584a4e75df0a57da31ceb",
+      "specificationHash": "05668d609f7b1681aaa35e0a8780bf94bec16e2f272f22a00e475ff94609cd24",
       "assertions": [
         {
           "id": "AS-BIZ-046-001",
@@ -12199,7 +12199,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "3d7431c9119f252125ba35acfa4e2bd47c169b80c7ee4ce7f7cec65414cf1cf8",
+      "specificationHash": "d25716e793e5ab56efe01796df2abf4bbde12d4306a4897e2857cdf03c9e0106",
       "assertions": [
         {
           "id": "AS-BIZ-048-001",
@@ -12207,11 +12207,11 @@
         },
         {
           "id": "AS-BIZ-048-002",
-          "expected": "原生执行只读取应用快照，零模型调用；来源失效不使用别的预览；DeepSeek/Comfy仅协议模拟，本地Qwen真实结果由TC-BIZ-047验收。"
+          "expected": "原生执行只读取应用快照，零模型调用；来源失效不使用别的预览；Comfy 积分通道仅协议模拟，本地Qwen真实结果由TC-BIZ-047验收。"
         },
         {
           "id": "AS-BIZ-048-003",
-          "expected": "外接时禁止内部编辑，断开恢复草稿，空来源不回退；模板和逐行参考正确，旧结果不被模板变更覆盖；不新增27B模型调用。"
+          "expected": "外接时禁止内部编辑，断开恢复草稿，空来源不回退；模板和逐行参考正确，旧结果不被模板变更覆盖；本用例不新增模型调用，27B 的加载与运行由独立的本地模型验证负责。"
         }
       ],
       "status": "not-executed",
@@ -12469,7 +12469,7 @@
         "EV-ARCH",
         "EV-JOBS"
       ],
-      "specificationHash": "6287c141f31b9698f473e9ccbc9f44f81899460f7ddc0844f176cf5675932cf5",
+      "specificationHash": "ea115690b169ddf13971f79f839962d932746a87a6ac6628fb33c1b85e6df4b4",
       "assertions": [
         {
           "id": "AS-BIZ-055-001",
@@ -12506,7 +12506,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "6e590a57b59cff3e970f3b04b8a52f4caa153a97fb03717c962a3c3797427c8b",
+      "specificationHash": "f95c19fd2ad7cb6efdf76e8fe12851b528af671a8910afd64b83c377ae4cb340",
       "assertions": [
         {
           "id": "AS-BIZ-056-001",
@@ -14119,7 +14119,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "dac7e92ec450d64c224ccf1be8d7e01a21bc20908e321931493e1b796f19ef1b",
+      "specificationHash": "f33a839cd92f470a35b08cc8b7deacb337b0d1420f129be55921f46939b1c814",
       "assertions": [
         {
           "id": "AS-SYS-037-001",
