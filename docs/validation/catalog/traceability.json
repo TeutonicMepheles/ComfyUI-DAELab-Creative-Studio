@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "5bd86f47555dde570a8594342d449612c272ce91a9dd3bd2ddeb5487cea50256",
+  "specificationHash": "862b92c349028d5c1309f1a09bae23ec6c1054e0832c2b0d68e2c83e4158e587",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -9178,7 +9178,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "5adfdd2a2345cc8fabfe7d45df75c60d7dd1f0c5ea6cd5e187e25df110d2f418",
+      "specificationHash": "dd4a281f3430069af9d015de822a8eeb680c010c59d5d572b973f0815252a7af",
       "assertions": [
         {
           "id": "AS-CAN-025-001",
@@ -9203,6 +9203,10 @@
         {
           "id": "AS-CAN-025-006",
           "expected": "节点弹层框/字/图标/胶囊使用同一缩放比例，无混合缩放导致的异常换行；锚点和向上内滚按显示尺寸计算。独立资产库不随画布缩放，浏览器自身缩放仍正常。"
+        },
+        {
+          "id": "AS-CAN-025-007",
+          "expected": "图片与视频的配置面板使用同一分段控件与选中态；比例项只有图标与比例文字，比例项与底部状态行都没有像素或分辨率，底部无常驻说明；视频时长只有整数秒且无0.5秒档，范围与模型能力一致；旧任务保留原参数。"
         }
       ],
       "status": "not-executed",
