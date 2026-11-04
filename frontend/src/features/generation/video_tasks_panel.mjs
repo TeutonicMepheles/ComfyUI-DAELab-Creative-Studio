@@ -53,6 +53,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
   if(source){releaseRowHighlight=previewTableRow(source,state.currentId);if(releaseRowHighlight){highlightedNode=source;highlightedRecord=state.currentId;}}
  }
  const history=tableHistory(app),root=element('div',null,'dae-ui dae-video-tasks');
+ root.dataset.fixedKind=String(!!fixedKind);
  const header=element('header',root,'video-task-heading');
  let changingType=false;
  const typeTabs=element('div',header,'video-task-types');typeTabs.setAttribute('role','group');typeTabs.setAttribute('aria-label','生成类型');
@@ -385,6 +386,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
   if(!current())state.currentId=state.table.records[0]?.id||'';
   const row=current(),cfg=config(),receipt=generation.stateFor(row,state.fieldId),busy=batchMode()?state.table.records.some(active):!!row&&active(row);
   renderPrice(row,cfg);
+  header.hidden=!!fixedKind&&importButton.hidden;
   if(!rail.hidden)renderCards();else if(cards.children.length){releaseThumbnails(cards);cards.replaceChildren();}
   renderPrompt();syncRowHighlight();body.hidden=!row;bodyTop.hidden=!linkedTable&&!state.source&&!materials.children.length;
   const frames=row&&cfg?generationFrames(state.table,row,state.fieldId,cfg):[];

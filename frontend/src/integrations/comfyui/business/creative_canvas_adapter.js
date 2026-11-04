@@ -44,7 +44,7 @@ function register(){
         resizable:node=>tables.includes(node.type)||isGenerationNode(node.type),
         minWidth:node=>node.type==='DAELAB.Table'?168+160*(node.__dataTable?.fields.filter(field=>!field.hidden).length||0):640,
         fullHeight:node=>tables.includes(node.type)||isGenerationNode(node.type),
-        initialAspectRatio:node=>isGenerationNode(node.type)?16/9:null,
+        initialAspectRatio:node=>[IMAGE_GENERATION_NODE,VIDEO_GENERATION_NODE].includes(node.type)?5/4:isGenerationNode(node.type)?16/9:null,
         presentation:node=>node.type==='DAELAB.Table'?'content':'card',
         floatingHeader:node=>isGenerationNode(node.type),
         selectionSurface:node=>node.type==='DAELAB.Table'?node.__dataTablePanel?.root.querySelector('.dae-table-scroll'):null,

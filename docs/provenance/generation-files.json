@@ -818,10 +818,11 @@
       "source": null,
       "destination": "frontend/src/features/models/source_badge.ts",
       "sourceSha256": null,
-      "destinationSha256": "89b886eb883be193c12bbf80f665b6b6c1e2be424c611e5e6ab2c7453d46a0bd",
+      "destinationSha256": "75fe535ee85308abc97dcffa2a826542f3db6c17688fc6f094c875661b5ca00c",
       "origin": "authored",
       "changes": [
-        "2026-11-04: typed entry identity, provider source presentation and editable template contracts with focused regression coverage."
+        "2026-11-04: typed entry identity, provider source presentation and editable template contracts with focused regression coverage.",
+        "2026-11-04 task24: compact typed media surface, new 5:4 defaults, provider colors and matching model menu typography/icon alignment; upward constrained popovers. Original source identity retained."
       ],
       "kind": "production-source"
     },
@@ -844,6 +845,28 @@
       "origin": "authored",
       "changes": [
         "2026-11-04: typed entry identity, provider source presentation and editable template contracts with focused regression coverage."
+      ],
+      "kind": "rule-regression"
+    },
+    {
+      "source": null,
+      "destination": "frontend/src/features/prompt/settings_popover_layout.ts",
+      "sourceSha256": null,
+      "destinationSha256": "68c270c835c3fa9958c5352b8b2d7120af99417519e219e82281f3f5dc4af1c2",
+      "origin": "authored",
+      "changes": [
+        "2026-11-04 task24: bounded above-only layout and provider/default-layout regression."
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": null,
+      "destination": "tests/migrated_business/compact_generation_layout.test.mjs",
+      "sourceSha256": null,
+      "destinationSha256": "9c015279ce230b705838e9c917a36cd14f9ec560eb087b8f2e3d4b3c58ecd8ed",
+      "origin": "authored",
+      "changes": [
+        "2026-11-04 task24: bounded above-only layout and provider/default-layout regression."
       ],
       "kind": "rule-regression"
     }

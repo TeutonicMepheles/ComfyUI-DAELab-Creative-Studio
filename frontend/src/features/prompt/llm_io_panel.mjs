@@ -1,4 +1,4 @@
-import {modelSourceBadge} from '../models/source_badge.js';
+import {modelSourceBadge,modelSourceKind} from '../models/source_badge.js';
 import {generationInputDigest} from '../generation/generation_session.js';
 import {ensureIdentity} from './prompt_optimization_model.mjs';
 import {assertBusinessService,businessJson} from '../../contracts/business.js';
@@ -77,7 +77,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
     }
     const supported=model=>models.some(option=>option.id===logicalModel(model));
     const modelLabel=model=>models.find(option=>option.id===logicalModel(model))?.label||'未识别模型';
-    function refreshModelOptions(){rebuildModelOptions();sourceBadge.textContent=modelSourceBadge(modelCatalog.get(logicalModel(saved().model)));const current=logicalModel(saved().model);for(const option of select.children||select.options||[]){const model=models.find(item=>item.id===option.value);if(model)updateModelOption(option,modelCatalog.get(model.id));}const model=models.find(item=>item.id===current);select.disabled=!model||!canSubmitModel(modelCatalog.get(current));const status=model&&modelCatalog.get(current);if(status?.checking)select.setAttribute('aria-busy','true');else select.removeAttribute('aria-busy');}
+    function refreshModelOptions(){rebuildModelOptions();sourceBadge.textContent=modelSourceBadge(modelCatalog.get(logicalModel(saved().model)));sourceBadge.dataset.source=modelSourceKind(modelCatalog.get(logicalModel(saved().model)));const current=logicalModel(saved().model);for(const option of select.children||select.options||[]){const model=models.find(item=>item.id===option.value);if(model)updateModelOption(option,modelCatalog.get(model.id));}const model=models.find(item=>item.id===current);select.disabled=!model||!canSubmitModel(modelCatalog.get(current));const status=model&&modelCatalog.get(current);if(status?.checking)select.setAttribute('aria-busy','true');else select.removeAttribute('aria-busy');}
     rebuildModelOptions();
     const generationTask=createLLMTask();
     const taskRail=make('div','llm-io-task-rail');taskRail.setAttribute('role','tablist');taskRail.setAttribute('aria-label','优化任务');root.append(taskRail);
