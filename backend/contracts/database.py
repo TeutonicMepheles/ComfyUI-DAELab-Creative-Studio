@@ -6,7 +6,7 @@ from pathlib import Path
 
 from .errors import StorageError
 
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 APPLICATION_ID = 0x43535431
 
 _SCHEMA = [
@@ -54,6 +54,12 @@ _MIGRATIONS = {
     3: ["ALTER TABLE favorites ADD COLUMN removed_at TEXT",
         "CREATE INDEX favorites_active ON favorites(removed_at,created_at)"],
     4: ["ALTER TABLE jobs ADD COLUMN control_intent TEXT"],
+    5: ["""CREATE TABLE asset_folders (
+        folder_id TEXT PRIMARY KEY, parent_id TEXT REFERENCES asset_folders(folder_id),
+        name TEXT NOT NULL, name_key TEXT NOT NULL, relative_path TEXT NOT NULL UNIQUE,
+        created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+        UNIQUE(parent_id,name_key))""",
+        "INSERT INTO asset_folders(folder_id,parent_id,name,name_key,relative_path) VALUES('root',NULL,'root','root','')"],
 }
 
 

@@ -23,7 +23,7 @@ STATES = TERMINAL | {"pending", "waiting", "queued", "preparing", "prepared", "r
                      "submitted", "polling", "fetching", "unknown", "needs_recovery", "needs_input",
                      "paused", "pausing", "stopped", "submitted_or_uncertain", "prepare_uncertain", "generated"}
 EXECUTION_KINDS = frozenset({"local", "remote", "media"})
-READABLE_SCHEMA_MAX = 4
+READABLE_SCHEMA_MAX = 5
 # Explicit owned IDs from the generation composition contract, not prefix/name
 # guessing. A conflicting legacy declaration must never grant remote recovery.
 OWNED_LOCAL_PROVIDERS = frozenset({"local-qwen-image", "local-h3", "local-qwen-text"})
@@ -144,9 +144,9 @@ def inspect_database(path):
                         issues.append("corrupt_receipt_record")
                 return {"records": rows, "issues": sorted(set(issues)), "format": "legacy-optimization-v1", "execution": "disabled"}
             if "jobs" in tables:
-                if tables - {"jobs", "job_attempts", "job_events", "assets", "asset_references", "favorites", "favorite_origins", "asset_provenance", "sqlite_sequence"}:
+                if tables - {"jobs", "job_attempts", "job_events", "assets", "asset_references", "favorites", "favorite_origins", "asset_provenance", "asset_folders", "sqlite_sequence"}:
                     return {"records": [], "issues": ["unknown_database_schema"]}
-                # Frozen storage contract v1-v4. v4 only appends the recoverable
+                # Frozen storage contract v1-v5. v4 only appends the recoverable
                 # task control intent and remains readable through this adapter.
                 if (connection.execute("PRAGMA application_id").fetchone()[0] != 0x43535431 or
                         connection.execute("PRAGMA user_version").fetchone()[0] not in range(1, READABLE_SCHEMA_MAX + 1)):

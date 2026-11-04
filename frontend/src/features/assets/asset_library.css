@@ -73,3 +73,32 @@ dialog.dae-library-preview::backdrop{background:color-mix(in srgb,var(--dae-bg-c
 
 /* Keep the dock and drawer clear of ComfyUI's persistent navigation rail. */
 @media(max-width:800px){.dae-creative[data-asset-library=true]{left:58px}}
+/* Approved expanded library layout; screen-space geometry and shared type tokens. */
+.dae-creative .dae-library-drawer{left:50%;right:auto;transform:translateX(-50%);width:min(960px,calc(100% - 40px));height:min(720px,calc(100% - 110px))}
+.dae-library-drawer .library-layout{display:grid;grid-template-columns:220px minmax(0,1fr);flex:1;min-height:0;border-top:1px solid var(--dae-border)}
+.dae-library-drawer .library-sidebar{overflow:auto;border-right:1px solid var(--dae-border);padding:12px;background:var(--dae-surface-low)}
+.dae-library-drawer .library-main{display:flex;flex-direction:column;min-height:0;min-width:0}
+.dae-library-drawer .library-content{overflow:auto;min-height:0;flex:1;padding:0 16px 12px}
+.dae-library-drawer .library-content .dae-library-grid{padding:12px 0;overflow:visible;flex:none}
+.dae-library-drawer .library-content .dae-library-empty{grid-column:1/-1}
+.dae-library-drawer .library-path{display:flex;align-items:center;gap:8px;min-height:44px;padding:6px 16px;overflow:auto;border-bottom:1px solid var(--dae-border);flex:none}
+.dae-library-drawer .library-path button{white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis}
+.dae-library-drawer .sidebar-heading{display:flex;justify-content:space-between;align-items:center;color:var(--dae-text-muted);margin-bottom:10px}
+.dae-library-drawer .folder-tree-row{display:flex;align-items:center;min-height:40px;border-radius:var(--dae-radius-control)}
+.dae-library-drawer .folder-tree-row[data-current=true],.dae-library-drawer .folder-card[data-selected=true]{background:var(--dae-primary-container);color:var(--dae-on-primary-container)}
+.dae-library-drawer .folder-enter{display:flex;align-items:center;gap:8px;min-width:0;flex:1;text-align:left;background:transparent;border:0;padding:8px}
+.dae-library-drawer .folder-enter span,.dae-library-drawer .folder-card strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;font-weight:400}
+.dae-library-drawer .folder-glyph{width:24px;height:24px;flex:none}
+.dae-library-drawer .ref-icon-button{flex:none;width:30px;min-height:30px;padding:4px;border:0;background:transparent}
+.dae-library-drawer .folder-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(154px,1fr));gap:10px;padding:12px 0}
+.dae-library-drawer .folder-card{display:flex;align-items:center;gap:10px;min-height:68px;padding:12px;border:1px solid var(--dae-border);border-radius:var(--dae-radius-control);background:var(--dae-surface-raised);text-align:left}
+.dae-library-drawer .folder-editor{display:grid;grid-template-columns:minmax(70px,1fr) 30px 30px;gap:4px}
+.dae-library-drawer .folder-editor input{width:100%;min-width:0;padding:6px;border:1px solid var(--dae-border);border-radius:var(--dae-radius-control);background:var(--dae-surface-low);color:var(--dae-text)}
+.dae-library-drawer .create-location,.dae-library-drawer .form-error{grid-column:1/-1;overflow-wrap:anywhere;color:var(--dae-text-muted);font:400 var(--dae-font-caption)/1.5 var(--dae-font-family)}
+.dae-library-drawer .form-error{color:var(--dae-error,#ffb4ab)}
+.dae-library-drawer .directory-toggle{display:none}
+.dae-creative .dae-library-drawer :is(button,input,.folder-card strong,.folder-enter span){font:400 var(--dae-font-body)/1.5 var(--dae-font-family)}
+.dae-creative .dae-library-drawer .dae-library-filters button{font-size:var(--dae-font-body)!important}
+.dae-library-drawer :is(button,input):focus-visible{outline:var(--dae-focus-width) solid var(--dae-focus);outline-offset:var(--dae-focus-offset)}
+.dae-library-drawer [hidden]{display:none!important}
+@media(max-width:700px){.dae-creative .dae-library-drawer{left:50%;right:auto;width:calc(100% - 16px);height:calc(100% - 110px)}.dae-library-drawer .library-layout{grid-template-columns:minmax(0,1fr)}.dae-library-drawer .library-sidebar{display:none}.dae-library-drawer .directory-toggle{display:block}.dae-library-drawer .library-layout[data-tree=true] .library-sidebar{display:block}.dae-library-drawer .library-layout[data-tree=true] .library-main{display:none}.dae-library-drawer .dae-library-tools{flex-wrap:wrap}.dae-library-drawer .new-folder{white-space:nowrap}}

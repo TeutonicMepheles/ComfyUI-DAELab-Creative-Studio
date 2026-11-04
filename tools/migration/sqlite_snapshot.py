@@ -86,7 +86,7 @@ def sqlite_logical_digest(raw):
             if any(row[0] not in {"table", "index"} for row in schema) or any(not re.fullmatch(r"[a-z_]+", name) for name in tables):
                 raise MigrationError("SQLite executable or unknown schema requires review.")
             allowed = ({"objects", "sqlite_sequence"} if "objects" in tables else
-                       {"jobs", "job_attempts", "job_events", "assets", "asset_references", "favorites", "favorite_origins", "asset_provenance", "sqlite_sequence"} if "jobs" in tables else
+                       {"jobs", "job_attempts", "job_events", "assets", "asset_references", "favorites", "favorite_origins", "asset_provenance", "asset_folders", "sqlite_sequence"} if "jobs" in tables else
                        {"alembic_version", "asset_contents", "assets", "asset_tags", "tags", "asset_system_state"} if "alembic_version" in tables else set())
             if not tables or set(tables) - allowed:
                 raise MigrationError("Unknown SQLite storage family requires review.")

@@ -9,6 +9,7 @@ export const model=await import(modelURL);
 export function memoryPort(){
   let entries=[],next=0;
   return {
+    async listFolders(){return [];},
     async search({q='',kind,limit=48,offset=0}={}){const matches=entries.filter(e=>(!kind||e.kind===kind)&&e.name.includes(q));return {schemaVersion:1,entries:structuredClone(matches.slice(offset,offset+limit)),total:matches.length,offset,limit,hasMore:offset+limit<matches.length};},
     async lookup(input){return structuredClone(entries.find(e=>model.assetKey(e)===model.assetKey(input))||null);},
     async save(input){let entry=entries.find(e=>model.assetKey(e)===model.assetKey(input));if(!entry){entry={...structuredClone(input),id:'favorite-'+ ++next,assetId:'asset-'+next,createdAt:'fixture'};entries.unshift(entry);}return structuredClone(entry);},
@@ -23,6 +24,7 @@ export function moduleURL(relative,replacements={}){
   return uri(text);
 }
 export const favoriteURL=moduleURL('features/assets/asset_favorite.mjs',{'./asset_library_model.mjs':modelURL});
-export const libraryURL=moduleURL('features/assets/asset_library.mjs',{'./asset_library_model.mjs':modelURL,'./asset_favorite.mjs':favoriteURL});
+export const foldersURL=moduleURL('features/assets/asset_folders_panel.mjs',{'../../application/asset_library_service.js':serviceURL,'./asset_favorite.mjs':favoriteURL});
+export const libraryURL=moduleURL('features/assets/asset_library.mjs',{'./asset_library_model.mjs':modelURL,'./asset_favorite.mjs':favoriteURL,'./asset_folders_panel.mjs':foldersURL});
 const creationMenuURL=uri(ts.transpileModule(readFileSync(new URL('canvas/creation_menu.ts',root),'utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText);
 export const canvasViewURL=moduleURL('canvas/creative_canvas_view.mjs',{'./creation_menu.js':creationMenuURL,'../features/assets/asset_library.mjs':libraryURL,'../application/asset_library_service.js':serviceURL,'./creative_focus_reveal.js':uri(ts.transpileModule(readFileSync(new URL('canvas/creative_focus_reveal.ts',root),'utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText)});
