@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {registerHooks} from 'node:module';
 import {readdirSync} from 'node:fs';
+import {registerAdapter} from '../../frontend/src/canvas/creative_contract.mjs';
+import {cardState} from '../../frontend/src/canvas/creative_canvas_model.mjs';
 
 test('production entry closure loads before graph initialization and exposes only formal business nodes',async t=>{
  const extensions=[],adapters=[],types=new Map();let graphReads=0;
@@ -41,6 +43,13 @@ test('production entry closure loads before graph initialization and exposes onl
  for(const extension of extensions)extension.registerCustomNodes?.();
  assert.deepEqual([...types.keys()],['DAELAB.LLMStylePreviewB']);
  const formal=new Set(['DAELAB.Table','DAELAB.StoryboardImport','DAELAB.ScriptParser','DAELAB.LLMStylePreviewB','DAELAB.LibTV.VideoGenerate','DAELAB.ImageGenerate','DAELAB.VideoGenerate']);
+ const media=adapters.find(adapter=>adapter.matches({type:'DAELAB.ImageGenerate'})),release=registerAdapter('test.actual-media-defaults',media);t.after(release);
+ for(const type of ['DAELAB.ImageGenerate','DAELAB.VideoGenerate']){
+  const node={id:77,type,properties:{outputRatio:'16:9'}},state={cards:{}};
+  const fresh=cardState(state,node);assert.equal(fresh.width/fresh.height,5/4);assert.equal(node.properties.outputRatio,'16:9');
+  const saved={cards:{77:{x:1,y:2,width:777,height:333,expanded:true}}};assert.deepEqual(cardState(saved,node),saved.cards[77]);assert.equal(saved.cards[77].width,777);assert.equal(saved.cards[77].height,333);
+ }
+ assert.equal(media.initialAspectRatio({type:'DAELAB.LibTV.VideoGenerate'}),16/9);
  for(const adapter of adapters)for(const entry of adapter.menu||[])assert.equal(formal.has(entry.type),true,entry.type);
  for(const type of ['DAELAB.LLMStylePreviewA','DAELAB.LLMStylePreviewC','DAELAB.LLMStylePreviewD','DAELAB.LLMStylePreviewE','DAELAB.GPTImageStoryboardStage','DAELAB.LibTV.StoryboardBatch','Unknown.CustomNode']){
   assert.equal(adapters.some(a=>a.matches?.({type})),false,type);

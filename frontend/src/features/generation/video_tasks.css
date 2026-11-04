@@ -73,3 +73,8 @@
 .video-task-credit-estimate::after{content:"";display:block;flex:none;width:14px;height:14px;background-color:var(--color-yellow-500,#e9c400);-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cg fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E%3Cpath d='M13.744 17.736a6 6 0 1 1-7.48-7.48M15 6h1v4'/%3E%3Cpath d='m6.134 14.768l.866-.5l2 3.464'/%3E%3Ccircle cx='16' cy='8' r='6'/%3E%3C/g%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cg fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E%3Cpath d='M13.744 17.736a6 6 0 1 1-7.48-7.48M15 6h1v4'/%3E%3Cpath d='m6.134 14.768l.866-.5l2 3.464'/%3E%3Ccircle cx='16' cy='8' r='6'/%3E%3C/g%3E%3C/svg%3E");-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
 
 .dae-video-tasks .video-task-types[hidden]{display:none!important}
+
+/* Typed media entries use the canvas frame as their only surface. */
+.dae-ui.dae-video-tasks[data-fixed-kind=true]{padding:0;gap:0;background:transparent;border-radius:inherit}
+.dae-video-tasks[data-fixed-kind=true] .video-task-body{border:0;border-radius:inherit;min-height:0}
+.dae-video-tasks[data-fixed-kind=true] .video-task-heading,.dae-video-tasks[data-fixed-kind=true] .video-task-rail{padding:10px 16px 0}

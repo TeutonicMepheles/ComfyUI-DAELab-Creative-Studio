@@ -1,5 +1,6 @@
+import {abovePopoverLayout} from './settings_popover_layout.js';
 import {getModelCatalog} from '../models/model_catalog.mjs';
-import {modelSourceBadge} from '../models/source_badge.js';
+import {modelSourceBadge,modelSourceKind} from '../models/source_badge.js';
 import {LOCAL_IMAGE_MODEL,LOCAL_VIDEO_MODEL,MAX_GENERATION_ATTEMPTS,generationAttempts,isLocalVideoModel,isComfyGenerationModel,isLocalGenerationModel} from '../generation/table_generation_model.mjs';
 import {localImageSizePresets} from '../generation/local_image_sizes.js';
 import {createTableButton} from '../../ui/table_controls.mjs';
@@ -47,11 +48,19 @@ export function createPromptSettingsBar(onActivate,{combined=false,fixedKind=nul
   const suffix=scope==='all'?'同步全部任务':'只修改当前单元格';
   const next=JSON.stringify([config,name,scope,getModelCatalog().get(config.model)?.provider]);if(next===signature)return;signature=next;root.setAttribute('aria-label',name+' · 生成设置（'+suffix+'）');
   for(const item of promptSettingsItems(config,{combined})){const {control,icon,label,badge}=controls.get(item.key);const title=`${name} · ${item.label}：${item.text}（${item.key==='attempts'?'只修改当前任务':suffix}）`;
-   label.textContent=item.key==='model'?item.text.replace(/（(?:本地|Comfy|来源未知)）$/,''):item.text;badge.textContent=item.key==='model'?modelSourceBadge(getModelCatalog().get(config.model)):'';control.hidden=Boolean(item.hidden)||item.key==='kind'&&!!fixedKind;control.title=title;control.setAttribute('aria-label',title);icon.style.setProperty('--table-icon',`url("${item.key==='model'?generationModelIconURL(config.model):new URL('../../design/vendor/remixicon/'+item.icon+'.svg',import.meta.url).href}")`);
+   label.textContent=item.key==='model'?item.text.replace(/（(?:本地|Comfy|来源未知)）$/,''):item.text;badge.textContent=item.key==='model'?modelSourceBadge(getModelCatalog().get(config.model)):'';badge.dataset.source=modelSourceKind(getModelCatalog().get(config.model));control.hidden=Boolean(item.hidden)||item.key==='kind'&&!!fixedKind;control.title=title;control.setAttribute('aria-label',title);icon.style.setProperty('--table-icon',`url("${item.key==='model'?generationModelIconURL(config.model):new URL('../../design/vendor/remixicon/'+item.icon+'.svg',import.meta.url).href}")`);
   }
  }};
 }
 export const promptSettingsStyle=`
+.dae-ui.generation-settings-popover[data-limited=true]>strong{display:none}
+
+.dae-ui .generation-model-source[data-source=local]{color:var(--dae-success,#a2d5ba);background:color-mix(in srgb,var(--dae-success,#a2d5ba) 18%,transparent)}
+.dae-ui .generation-model-source[data-source=api]{color:var(--dae-info,#b8c4ff);background:color-mix(in srgb,var(--dae-info,#b8c4ff) 18%,transparent)}
+.dae-ui.generation-settings-popover.generation-model-popover button{font:var(--generation-model-weight,400) var(--generation-model-font-size,14px)/1.5 var(--dae-font-family,sans-serif)!important;gap:var(--generation-model-gap,7px)}
+.dae-ui.generation-settings-popover.generation-model-popover .generation-model-source{font-size:var(--generation-model-badge-font-size,11px);padding:calc(2px * var(--generation-model-scale,1)) calc(7px * var(--generation-model-scale,1))}
+.dae-ui.generation-settings-popover.generation-model-popover .generation-model-icon{width:var(--generation-model-icon-size,18px);height:var(--generation-model-icon-size,18px);flex:0 0 var(--generation-model-icon-size,18px)}
+
 .dae-ui .generation-prompt-settings [hidden]{display:none!important}
 
 .dae-ui .generation-model-source{flex:none;display:inline-flex;align-items:center;border-radius:999px;padding:2px 7px;font-size:11px;line-height:1.4;background:color-mix(in srgb,var(--dae-text) 12%,transparent);color:var(--dae-text-muted);white-space:nowrap}
@@ -347,7 +356,13 @@ export function createSettingsPopover(anchor,title,onClose,{placement='below',on
  let closed=false;
  const releaseAnchor=()=>{if(anchor.getAttribute('aria-controls')===root.id){anchor.removeAttribute('aria-controls');anchor.setAttribute('aria-expanded','false');}};
  const currentAnchor=()=>{if(closed)return null;const next=resolveAnchor?resolveAnchor():anchor;if(!next?.isConnected||!next.getClientRects().length){close();return null;}if(next!==anchor){releaseAnchor();anchor=next;anchor.setAttribute('aria-expanded','true');anchor.setAttribute('aria-controls',root.id);}return anchor;};
- const place=()=>{const current=currentAnchor();if(!current)return;const r=current.getBoundingClientRect();root.style.left=Math.max(8,Math.min(r.left,innerWidth-root.offsetWidth-8))+'px';root.style.top=Math.max(8,Math.min(placement==='above'?r.top-root.offsetHeight-8:r.bottom+8,innerHeight-root.offsetHeight-8))+'px';};
+ const place=()=>{const current=currentAnchor();if(!current)return;const r=current.getBoundingClientRect(),modelMenu=root.classList.contains('generation-model-popover'),triggerIcon=modelMenu?current.querySelector('.dae-table-icon'):null,optionIcon=modelMenu?root.querySelector('.generation-model-icon'):null;
+  if(modelMenu){const style=getComputedStyle(current),scale=triggerIcon?.offsetWidth?triggerIcon.getBoundingClientRect().width/triggerIcon.offsetWidth:1;root.style.setProperty('--generation-model-font-size',parseFloat(style.fontSize)*scale+'px');root.style.setProperty('--generation-model-weight',style.fontWeight);root.style.setProperty('--generation-model-scale',String(scale));root.style.setProperty('--generation-model-gap',(parseFloat(style.columnGap)||7)*scale+'px');const badge=current.querySelector('.generation-model-source');if(badge)root.style.setProperty('--generation-model-badge-font-size',parseFloat(getComputedStyle(badge).fontSize)*scale+'px');root.style.setProperty('--generation-model-icon-size',(triggerIcon?.getBoundingClientRect().width||18)+'px');}
+  if(placement==='above'){
+   const alignment=triggerIcon&&optionIcon?{anchorCenter:triggerIcon.getBoundingClientRect().left+triggerIcon.getBoundingClientRect().width/2,iconOffset:optionIcon.getBoundingClientRect().left+optionIcon.getBoundingClientRect().width/2-root.getBoundingClientRect().left}:undefined;
+   let layout=abovePopoverLayout(r,{width:innerWidth,height:innerHeight},{width:root.offsetWidth,height:root.offsetHeight},alignment);root.style.maxHeight=layout.maxHeight+'px';root.style.paddingBlock=layout.maxHeight<80?'2px':'';root.dataset.limited=String(layout.maxHeight<80);layout=abovePopoverLayout(r,{width:innerWidth,height:innerHeight},{width:root.offsetWidth,height:root.offsetHeight},alignment);root.style.left=layout.left+'px';root.style.top=layout.top+'px';
+  }else{root.style.left=Math.max(8,Math.min(r.left,innerWidth-root.offsetWidth-8))+'px';root.style.top=Math.max(8,Math.min(r.bottom+8,innerHeight-root.offsetHeight-8))+'px';}
+ };
  const outside=e=>{const current=currentAnchor();if(current&&!root.contains(e.target)&&!current.contains(e.target))close();};
  const keys=e=>{if(e.key==='Escape'&&!e.isComposing&&e.keyCode!==229){e.preventDefault();e.stopPropagation();if(onEscape())return;const current=currentAnchor();close();current?.focus({preventScroll:true});}};
  function close(){if(closed)return;closed=true;observer.disconnect();document.removeEventListener('pointerdown',outside,true);document.removeEventListener('keydown',keys,true);document.removeEventListener('scroll',place,true);window.removeEventListener('resize',place);globalThis.removeEventListener('dae-canvas-layout',place);root.remove();releaseAnchor();onClose();}

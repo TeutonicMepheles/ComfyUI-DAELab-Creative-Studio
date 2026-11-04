@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "be0bb4e81fe55b687c560874cfa839ef1bf98b7d9e63369ef30d848a3fd4b819",
+  "specificationHash": "6fadb6247872457e61967c373a23302fcb6dae0b5de39afd2703fcb3fa8ae6bd",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -221,6 +221,7 @@
         "AC-CAN-023-002",
         "AC-CAN-023-003",
         "AC-CAN-023-004",
+        "AC-CAN-023-005",
         "AC-CAN-039-001",
         "AC-CAN-039-002",
         "AC-CAN-039-003",
@@ -3044,8 +3045,31 @@
       "feature": "F-CAN-023",
       "task": "TASK-M1-DESIGN-UI",
       "owner": "design/ui",
-      "requirement": "新建生成节点外框初始 16:9；新建空剧本文档解析器外框初始 1:1。展示名无 DAELAB 前缀，稳定类型 ID 仍为 DAELAB.ScriptParser。已保存或手调尺寸保留。解析落表后按表格撑高可调宽，不再钉死正方形。不改变生成分辨率。通用多维表格不在此条。",
-      "requirementHash": "8eae1dd807df4d787a503fd161c7d8eaf9f20157f53d36e8245e1c0c139090ba",
+      "requirement": "2026-11-04：新建图片/视频生成节点外框初始 5:4（用户截图外框近似比例），取代其此前16:9要求；旧通用生成节点保留原默认及保存尺寸；新建空剧本文档解析器外框初始 1:1。展示名无 DAELAB 前缀，稳定类型 ID 仍为 DAELAB.ScriptParser。已保存或手调尺寸保留。解析落表后按表格撑高可调宽，不再钉死正方形。不改变生成分辨率。通用多维表格不在此条。",
+      "requirementHash": "0a7e9fcce33153f01d80623a05802da753f1b01d0a8e53c31258befa5c1cb105",
+      "usecases": [
+        "UC-CAN-007",
+        "UC-CAN-013"
+      ],
+      "tests": [
+        "TC-CAN-002",
+        "TC-CAN-025",
+        "TC-CAN-042"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-CAN-023-005",
+      "feature": "F-CAN-023",
+      "task": "TASK-M1-DESIGN-UI",
+      "owner": "design/ui",
+      "requirement": "图片/视频节点移除有效内容卡之外的无效边框和空白，保留输入、按钮、选中态及连线；模型列表与已选项字体和图标盒一致、图标水平中心线对齐。相关选择面板始终向上，上方受限时限高内滚不翻向下，缩放/画布边缘可操作且不遮挡控件。",
+      "requirementHash": "a031f163e74a607ab34a7a7a0cba3fbf09e0892ef26c95ec975a662de1f1dceb",
       "usecases": [
         "UC-CAN-007",
         "UC-CAN-013"
@@ -7277,8 +7301,8 @@
       "feature": "F-SYS-022",
       "task": "TASK-M4-BACKEND-PROVIDERS",
       "owner": "backend/providers",
-      "requirement": "2026-11-04：模型名后短胶囊从目录读取本地/API实际路由；开源/闭源须有明示模型信息，无依据时省略该属性。同名不同路由正确区分，不靠名称猜测，不改变可用性、模型ID或费用，不复制升级/VIP文案。",
-      "requirementHash": "6187c56cfd10aaa0926ec08bc79b60f7d0be8604bde02cd7184f91125ad1a0c1",
+      "requirement": "2026-11-04：模型名后短胶囊从目录读取本地/API实际路由；开源/闭源须有明示模型信息，无依据时省略该属性。同名不同路由正确区分，不靠名称猜测，不改变可用性、模型ID或费用，不复制升级/VIP文案。 本地采用青绿、API采用蓝紫主题色，列表与触发项一致且保留文字，不只靠颜色辨认。",
+      "requirementHash": "b038c6dceeebaf914f48dba48299513a4b5c14ea829bfea0f5fbc615965719cc",
       "usecases": [
         "UC-SYS-012",
         "UC-SYS-013"
@@ -8124,6 +8148,7 @@
         "AC-CAN-023-002",
         "AC-CAN-023-003",
         "AC-CAN-023-004",
+        "AC-CAN-023-005",
         "AC-CAN-027-001",
         "AC-CAN-027-002",
         "AC-CAN-027-003",
@@ -8134,7 +8159,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "7c78f87772f3c4d54ccb5f3595e892d55574cb204713a8943bbeabdec685a446",
+      "specificationHash": "0c9a588e5c3d279a38e367d87975b545d1b9a4aa4bc4d700aa006d4f95ddcfb8",
       "assertions": [
         {
           "id": "AS-CAN-002-001",
@@ -9121,12 +9146,13 @@
         "AC-CAN-023-001",
         "AC-CAN-023-002",
         "AC-CAN-023-003",
-        "AC-CAN-023-004"
+        "AC-CAN-023-004",
+        "AC-CAN-023-005"
       ],
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "50433ccf8358b14920193d0902ec8fa5a0567d93c99b9eb4963f43bed65ae25f",
+      "specificationHash": "095ee2544131d7c14af25ed36db45668774455ce05ce833e665af2eed97f56db",
       "assertions": [
         {
           "id": "AS-CAN-025-001",
@@ -9143,6 +9169,10 @@
         {
           "id": "AS-CAN-025-004",
           "expected": "生成节点新建 16:9；空剧本文档解析器新建 1:1、标题无 DAELAB 前缀；旧实例宽度不变；解析成表后可撑高，不强制正方形。"
+        },
+        {
+          "id": "AS-CAN-025-005",
+          "expected": "节点不含多余外边框空白，输出分辨率未变；菜单统一字体/图标且与触发项图标对齐，始终向上限高内滚；旧尺寸保留，按钮和连线可操作。"
         }
       ],
       "status": "not-executed",
@@ -9824,6 +9854,7 @@
         "AC-CAN-023-002",
         "AC-CAN-023-003",
         "AC-CAN-023-004",
+        "AC-CAN-023-005",
         "AC-CAN-038-001",
         "AC-CAN-038-002",
         "AC-CAN-038-003"
@@ -9831,7 +9862,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "9865b8519800026e5ed7911327ea27da79d7414f8be9c1c444ae4727bd42cb59",
+      "specificationHash": "f85c5ff8e9c40c4b5a0c30a6e4c329ddb084136e2975ba3afb4bc3b1a0537f79",
       "assertions": [
         {
           "id": "AS-CAN-042-001",
@@ -13741,7 +13772,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "222dcdaabdc78c17d845f91d8db3efb97d30947a7f66367e3e5aea4b17a4626c",
+      "specificationHash": "51550a54a50bc5a189172f7f6f0fcbe2a3194dc51ceb2e2bb29acdb747b8035c",
       "assertions": [
         {
           "id": "AS-SYS-037-001",

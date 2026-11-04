@@ -946,6 +946,7 @@
 2. 拖边调宽，分别提交和 Esc 取消；键盘左右及 Shift 调整。
 3. 销毁面板后调用旧上下文 focus/pan/resize。
 4. 在空画布新建生成节点与空剧本文档解析器，测量外框宽高比（生成 16:9、空解析器 1:1）与展示名；打开已手调宽度的旧实例。
+5. 新建图片/视频节点核对5:4及紧凑边界；在不同缩放和上边缘展开模型/参数面板；保存重开旧尺寸。
 
 **可判断的期望**
 
@@ -953,6 +954,7 @@
 - 提交保存宽度，取消恢复原宽；遵循 minWidth 和约定步长。
 - fullHeight 不裁切底部；失效/不可调整上下文返回失败且不影响别的实例。
 - 生成节点新建 16:9；空剧本文档解析器新建 1:1、标题无 DAELAB 前缀；旧实例宽度不变；解析成表后可撑高，不强制正方形。
+- 节点不含多余外边框空白，输出分辨率未变；菜单统一字体/图标且与触发项图标对齐，始终向上限高内滚；旧尺寸保留，按钮和连线可操作。
 
 **旧测试复用候选：** [canvas:tests/creative_panel_lease.test.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Canvas/blob/3176b5a67dbcd0b66f795976e5a81bcdfe346093/tests/creative_panel_lease.test.mjs)；[canvas:tests/creative_contract.test.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Canvas/blob/3176b5a67dbcd0b66f795976e5a81bcdfe346093/tests/creative_contract.test.mjs)
 

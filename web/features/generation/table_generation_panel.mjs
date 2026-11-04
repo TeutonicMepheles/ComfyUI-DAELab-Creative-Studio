@@ -1,4 +1,5 @@
-import {modelSourceBadge} from '../models/source_badge.js';
+import {abovePopoverLayout} from '../prompt/settings_popover_layout.js';
+import {modelSourceBadge,modelSourceKind} from '../models/source_badge.js';
 import {FIELD_TYPES} from '../../application/table_model.mjs';
 import {setPromptSource,promptSourceId} from '../prompt/table_prompt_source.mjs';
 import {catalogModelCapabilities} from './table_generation_api.mjs';
@@ -112,7 +113,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
   if(promptSourceMenu?.anchor===anchor)return;
   closePromptSources();closeSettings();closeFrames();
   const field=findField(fieldId);if(!field)return;
-  const menu=createSettingsPopover(anchor,'提示词来源',()=>{clearTimeout(promptSourceTimer);previewPromptSource(null);if(promptSourceMenu===menu)promptSourceMenu=null;});promptSourceMenu=menu;
+  const menu=createSettingsPopover(anchor,'提示词来源',()=>{clearTimeout(promptSourceTimer);previewPromptSource(null);if(promptSourceMenu===menu)promptSourceMenu=null;},{placement:'above'});promptSourceMenu=menu;
   menu.root.onpointerenter=()=>clearTimeout(promptSourceTimer);menu.root.onpointerleave=leavePromptSources;
   menu.root.onfocusin=()=>clearTimeout(promptSourceTimer);
   const source=frameConfig(fieldId).promptFieldId,columns=promptColumns(getTable());
@@ -186,8 +187,8 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
   const combined=key==='parameters',spec=combined?{label:'生成参数'}:PROMPT_SETTINGS_TEMPLATE.find(item=>item.key===key),field=findField(fieldId),row=()=>getTable().records.find(r=>r.id===recordId);if(!spec||!field||!row())return;
   const currentConfig=()=>frameConfig(fieldId,row());
   let parameterView=null;
-  const menu=createSettingsPopover(anchor,key==='duration'?'选择视频时长':spec.label,()=>{parameterView?.dispose?.();parameterView=null;if(settingsMenu===menu)settingsMenu=null;});settingsMenu=menu;
-  if(combined)menu.root.classList.add('generation-parameters-popover');
+  const menu=createSettingsPopover(anchor,key==='duration'?'选择视频时长':spec.label,()=>{parameterView?.dispose?.();parameterView=null;if(settingsMenu===menu)settingsMenu=null;},{placement:'above'});settingsMenu=menu;
+  if(combined)menu.root.classList.add('generation-parameters-popover');if(key==='model')menu.root.classList.add('generation-model-popover');
   const content=el('div',menu.root),status=el('p',menu.root);if(key==='size'||key==='duration')content.className='generation-settings-fields';status.setAttribute('role','status');
   if(getTable().records.length>1)el('small',menu.root,'全部任务共用：类型、模型和生成参数。提示词、参考素材及抽卡次数分别保留；执行、暂停或待恢复任务跳过。');
   const draft=structuredClone(currentConfig()),localSize=key==='size'&&isLocalVideoModel(draft.model);let baseline=JSON.stringify(currentConfig()),schema=null,schemaError='',busy=false;
@@ -222,7 +223,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
    finally{busy=false;if(active()){menu.root.removeAttribute('aria-busy');content.querySelectorAll('button,input,select').forEach(input=>input.disabled=false);}}
   }
   function choices(items,value,select,reset=true){
-   for(const [id,label] of items){const control=button(key==='model'?label.replace(/（(?:本地|Comfy|来源未知)）$/,''):label,()=>{if(id===value){menu.close();return;}void commit(next=>select(next,id),reset);});if(key==='model'){prependGenerationModelIcon(control,id);const state=modelCatalog.get(id),badge=el('span',control,modelSourceBadge(state));badge.className='generation-model-source';control.setAttribute('data-model-status',state?.status||'unverified');control.disabled=state?.status==='unavailable';if(state?.checking){const spinner=el('span',control,'◌');spinner.className='generation-model-loading';spinner.setAttribute('role','status');spinner.setAttribute('aria-label','正在检测此模型');}}control.setAttribute('aria-pressed',String(id===(key==='mode'&&!isLocalGenerationModel(draft.model)?generationModeChoice(value,schema):value)));content.append(control);}
+   for(const [id,label] of items){const control=button(key==='model'?label.replace(/（(?:本地|Comfy|来源未知)）$/,''):label,()=>{if(id===value){menu.close();return;}void commit(next=>select(next,id),reset);});if(key==='model'){prependGenerationModelIcon(control,id);const state=modelCatalog.get(id),badge=el('span',control,modelSourceBadge(state));badge.className='generation-model-source';badge.dataset.source=modelSourceKind(state);control.setAttribute('data-model-status',state?.status||'unverified');control.disabled=state?.status==='unavailable';if(state?.checking){const spinner=el('span',control,'◌');spinner.className='generation-model-loading';spinner.setAttribute('role','status');spinner.setAttribute('aria-label','正在检测此模型');}}control.setAttribute('aria-pressed',String(id===(key==='mode'&&!isLocalGenerationModel(draft.model)?generationModeChoice(value,schema):value)));content.append(control);}
    (content.querySelector('[aria-pressed=true]')||content.querySelector('button'))?.focus({preventScroll:true});
   }
   if(key==='attempts'){choices(Array.from({length:MAX_GENERATION_ATTEMPTS},(_,index)=>[index+1,`${index+1} 次`]),generationAttempts(draft),(next,id)=>{next.attempts=id;},false);return;}
@@ -248,7 +249,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
  function closeFrames(){frameAnchor?.removeAttribute('aria-controls');frameMenu?.root.remove();frameMenu=null;frameAnchor=null;document.removeEventListener('pointerdown',outsideFrames,true);document.removeEventListener('keydown',frameKeys,true);document.removeEventListener('scroll',placeFrames,true);window.removeEventListener('resize',placeFrames);}
  const outsideFrames=e=>{if(frameMenu&&!frameMenu.root.contains(e.target)&&!frameAnchor?.contains(e.target))closeFrames();};
  const frameKeys=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();const anchor=frameAnchor;closeFrames();anchor?.focus({preventScroll:true});}else if(frameMenu?.keydown(e.key)){e.preventDefault();e.stopPropagation();}else if(['Backspace','Delete'].includes(e.key))closeFrames();};
- function placeFrames(){if(!frameMenu)return;if(!frameAnchor?.isConnected){closeFrames();return;}const r=frameAnchor.getBoundingClientRect(),menu=frameMenu.root;menu.style.left=Math.max(8,Math.min(r.left,innerWidth-menu.offsetWidth-8))+'px';menu.style.top=Math.max(8,Math.min(r.bottom+8,innerHeight-menu.offsetHeight-8))+'px';frameMenu.layout();}
+ function placeFrames(){if(!frameMenu)return;if(!frameAnchor?.isConnected){closeFrames();return;}const r=frameAnchor.getBoundingClientRect(),menu=frameMenu.root;let layout=abovePopoverLayout(r,{width:innerWidth,height:innerHeight},{width:menu.offsetWidth,height:menu.offsetHeight});menu.style.maxHeight=layout.maxHeight+'px';menu.style.overflowY='auto';layout=abovePopoverLayout(r,{width:innerWidth,height:innerHeight},{width:menu.offsetWidth,height:menu.offsetHeight});menu.style.left=layout.left+'px';menu.style.top=layout.top+'px';frameMenu.layout();}
  function changeFrames(fieldId,recordId,update,role=null,promptFieldId=null){
   const table=getTable(),current=table.records.find(r=>r.id===recordId),config=frameConfig(fieldId,current,promptFieldId);if(!current||!config)return;
   const initial=Object.fromEntries(readFrames(table,current,fieldId,config).filter(item=>item.asset).map(item=>[item.role,{assetId:item.asset.id,fieldId:item.asset.fieldId}]));let inserted=false;
@@ -331,7 +332,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
   const frameColumns={...owner?.generationFrameColumns};
   let parameterView=null;
   let stopModelStatus=()=>{};
-  const menu=createSettingsPopover(anchor,prompt.name+' · 整列模型配置',()=>{stopModelStatus();parameterView?.dispose();if(settingsMenu===menu)settingsMenu=null;});settingsMenu=menu;
+  const menu=createSettingsPopover(anchor,prompt.name+' · 整列模型配置',()=>{stopModelStatus();parameterView?.dispose();if(settingsMenu===menu)settingsMenu=null;},{placement:'above'});settingsMenu=menu;
   const body=menu.root;body.classList.add('generation-column-settings','generation-parameters-popover');let schema=null,sequence=0,loading=false;
   const active=()=>alive&&settingsMenu===menu&&body.isConnected;
   const toolbar=el('div',body);toolbar.className='generation-column-toolbar';

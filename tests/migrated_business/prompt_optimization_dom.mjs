@@ -1,7 +1,7 @@
 // Small DOM double for lifecycle/controller tests; actual layout is verified in ComfyUI.
 export class Element extends EventTarget{
  getAttribute(name){return this[name]??null;}
- constructor(tag){super();this.tagName=tag;this.children=[];this.dataset={};this.value='';this.style={setProperty(){}};this.classList={add(){}};this.isConnected=true;}
+ constructor(tag){super();this.tagName=tag;this.children=[];this.dataset={};this.value='';this.style={setProperty(){}};this.classList={add:(...names)=>{this.className=[...new Set((this.className||'').split(/\s+/).filter(Boolean).concat(names))].join(' ');},contains:name=>(this.className||'').split(/\s+/).includes(name)};this.isConnected=true;}
  append(...nodes){for(const e of nodes){e.parentNode=this;this.children.push(e);}}
  replaceChildren(...nodes){this.children=[];this.append(...nodes);}
  insertBefore(node,before){node.parentNode=this;this.children.splice(this.children.indexOf(before),0,node);}

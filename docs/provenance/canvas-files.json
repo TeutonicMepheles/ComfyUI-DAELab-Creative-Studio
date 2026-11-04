@@ -127,7 +127,7 @@
       "source": "web/creative_canvas.css",
       "destination": "frontend/src/canvas/creative_canvas.css",
       "sourceSha256": "a858f0328a4f03c28c98a9d6742cbfc615e4ce1a4db8f50f50b2a3e0bca420ee",
-      "destinationSha256": "4c3c9cbf21a77663ea9787c388aa791690af9c9e76489d985958752f214d48ba",
+      "destinationSha256": "1ed14361f96b73b0004b0b777102637ea935eb9accee6e7fe0ef0109e4634a64",
       "changes": [
         "2026-11-03: Use a compact square empty parser with a matching visible workbench surface and the Script Document Parser display name; preserve populated tables and user sizing.",
         "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
@@ -136,7 +136,8 @@
         "Move host-private DOM selectors unchanged to integration CSS and map host sidebar variable through an explicit integration variable.",
         "PERF-01 candidate: stop unused inherited Canvas zoom variables only at the owned leased TextInput body; preserve public root, headings, Slots, widths, native lease return and geometry. Actual browser/performance reacceptance pending.",
         "Prevent focus-driven root scrolling with overflow:clip after the legacy hidden fallback; preserve transform-owned world navigation and nested text/panel scrolling. Actual two-instance focus/overflow and save/reload verification pending.",
-        "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending."
+        "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending.",
+        "2026-11-04 task24: compact typed media surface, new 5:4 defaults, provider colors and matching model menu typography/icon alignment; upward constrained popovers. Original source identity retained."
       ],
       "kind": "production-source"
     },
