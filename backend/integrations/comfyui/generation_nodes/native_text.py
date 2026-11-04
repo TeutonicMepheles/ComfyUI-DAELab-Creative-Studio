@@ -30,13 +30,16 @@ class NativeText:
     def INPUT_TYPES(cls):
         return {'required': {'clip': ('CLIP',), 'prompt': ('STRING', {'multiline': True}),
                              'max_length': ('INT', {'default': 2048, 'min': 1, 'max': 2048})},
-                'optional': {'image': ('IMAGE',)}}
+                'optional': {'image': ('IMAGE',), 'profile': (['pe', 'qwen27b'], {'default': 'pe'})}}
 
-    def execute(self, clip, prompt, max_length, image=None):
+    def execute(self, clip, prompt, max_length, image=None, profile='pe'):
+        if profile not in ('pe', 'qwen27b') or profile == 'qwen27b' and image is not None:
+            raise ValueError('Unsupported native text profile or reference input.')
         from comfy_extras.nodes_textgen import TextGenerate
         recording = _RecordingClip(clip)
         output = TextGenerate.execute(recording, prompt, max_length, {'sampling_mode': 'off'},
-                                      image=image, thinking=False, use_default_template=True, mtp='auto')
+                                      image=image, thinking=False, use_default_template=True,
+                                      mtp='auto' if profile == 'pe' else 'off')
         raw = recording.raw if recording.raw is not None else output.result[0]
         text = final_text(raw)
         count = recording.count
@@ -44,4 +47,5 @@ class NativeText:
         return {'ui': {'creative_studio_text': [{'text': text if complete else '', 'raw': raw,
                     'complete': complete, 'maxOutputTokens': max_length, 'outputTokens': count,
                     'limitReached': count is not None and count >= max_length,
-                    'template': 'native-qwen-image-default', 'thinking': False}]}}
+                    'template': 'native-qwen-image-default' if profile == 'pe' else 'official-qwen-nonthinking',
+                    'thinking': False, 'mtp': 'auto' if profile == 'pe' else 'off'}]}}

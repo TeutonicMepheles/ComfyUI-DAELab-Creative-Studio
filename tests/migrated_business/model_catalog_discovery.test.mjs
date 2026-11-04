@@ -51,15 +51,15 @@ test('retired DeepSeek cannot return through stale catalog definitions or key co
  assert.equal(catalog.get('deepseek-flash'),null);assert.deepEqual(catalog.snapshot().map(model=>model.id),['local-text']);const api=createPromptOptimizationApi();assert.equal(api.setDeepSeekKey,undefined);assert.equal(api.hasDeepSeekKey,undefined);resetModelCatalogForTests();
 });
 
-test('reference PE probes its native capability without entering table optimization or cloud',async()=>{
- resetModelCatalogForTests();const calls=[];
+test('native PE and 27B probe their own capabilities without entering table optimization or cloud',async()=>{
+ resetModelCatalogForTests();const calls=[],ids=['qwen-image-2.1-pe','qwen3.8-27b-w4a8'];
  const release=bindBusinessService('generation',{async request(action){
   calls.push(action);
-  if(action==='models')return Response.json({models:[{id:'qwen-image-2.1-pe',label:'PE',family:'optimization',kind:'text',provider:'local'}]});
-  assert.equal(new URL(action,'http://local.invalid/').searchParams.get('model'),'qwen-image-2.1-pe');
+  if(action==='models')return Response.json({models:ids.map(id=>({id,label:id,family:'optimization',kind:'text',provider:'local'}))});
+  assert.ok(ids.includes(new URL(action,'http://local.invalid/').searchParams.get('model')));
   return Response.json({available:true,provider:'local',local:true,requiresReference:true,modes:['reverse']});
  }});
  const forbid=bindBusinessService('optimization',{async request(){throw Error('PE must not use the table optimization contract');}});
- try{await refreshModelCatalog({force:true});const model=getModelCatalog().get('qwen-image-2.1-pe');assert.equal(model.status,'available');assert.equal(model.provider,'local');assert.equal(calls.length,2);}
+ try{await refreshModelCatalog({force:true});for(const id of ids){const model=getModelCatalog().get(id);assert.equal(model.status,'available');assert.equal(model.provider,'local');}assert.equal(calls.length,3);}
  finally{release();forbid();resetModelCatalogForTests();}
 });

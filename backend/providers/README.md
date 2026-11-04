@@ -12,6 +12,11 @@ Only a verified complete final body becomes a reviewed text proposal; raw output
 and generated-token counts remain in native history. See the
 [source validation record](../../docs/validation/PE_NATIVE_TEXT_SOURCE_20261105.md).
 
+native_27b.py uses the same owned queue/result path with an independent `text_27b`
+binding and the official non-thinking template. Only that profile fixes MTP off;
+PE and Ollama are unchanged. See the
+[27B source record](../../docs/validation/NATIVE_27B_SOURCE_20261105.md).
+
 Local Qwen image2image accepts one frozen image. The same image_graph stages it,
 scales it to the explicit width/height without cropping, and passes image and VAE
 to TextEncodeQwenImage21. Sampling uses that encoder's reference latent. Width and

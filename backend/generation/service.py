@@ -16,6 +16,7 @@ from ..jobs.ledger import TERMINAL_STATES
 from ..providers.contracts import Observation, ProviderUnavailable, SubmissionRejected, SubmissionUncertain
 from ..providers.parameters import BASE_IMAGE_MODEL, BASE_REFERENCE_VIDEO_MODEL, BASE_VIDEO_MODEL, IMAGE_MODEL, VIDEO_MODEL, REFERENCE_VIDEO_MODEL, QWEN_MODEL
 from ..providers.native_text import PE_MODEL, PE_PROVIDER
+from ..providers.native_27b import QWEN_27B_MODEL, QWEN_27B_PROVIDER
 from ..providers.comfy_video import SeedanceProvider, MinimaxProvider
 from ..providers.comfy_image import ComfyImageProvider
 from .media import freeze_reference
@@ -27,6 +28,7 @@ MODELS[REFERENCE_VIDEO_MODEL] = 'local-h3-reference'
 MODELS[PE_MODEL] = PE_PROVIDER
 MODELS[BASE_VIDEO_MODEL] = 'local-h3-base'
 MODELS[BASE_REFERENCE_VIDEO_MODEL] = 'local-h3-reference-base'
+MODELS[QWEN_27B_MODEL] = QWEN_27B_PROVIDER
 MODELS.update({model: provider.id for provider in (SeedanceProvider, MinimaxProvider, ComfyImageProvider) for model in provider.models})
 _BARRIERS = {'rejected', 'fenced'}
 _SCOPE_IDS = {'documentId', 'tableId', 'nodeId', 'recordId', 'fieldId', 'workflowSession', 'groupId'}
@@ -83,7 +85,7 @@ class GenerationService:
 
     def model_catalog(self):
         """Stable logical identities; installation state is returned by capabilities."""
-        labels = {PE_MODEL: 'Qwen-Image-2.1 PE（本地）',
+        labels = {PE_MODEL: 'Qwen-Image-2.1 PE（本地）', QWEN_27B_MODEL: 'Qwen3.8-27B（本地）',
             QWEN_MODEL: 'Qwen3.5-9B（本地）',
             'gpt-6-luna': 'GPT-6 Luna（Comfy）',
         }
@@ -95,7 +97,7 @@ class GenerationService:
             text = provider_id.endswith('-text')
             family = 'optimization' if text else 'generation'
             kind = 'text' if text else 'image' if 'image' in provider_id else 'video'
-            if provider_id == PE_PROVIDER:
+            if provider_id in (PE_PROVIDER, QWEN_27B_PROVIDER):
                 provider_name = 'local'
             elif provider_id == 'local-qwen-text':
                 provider_name = 'qwen'
