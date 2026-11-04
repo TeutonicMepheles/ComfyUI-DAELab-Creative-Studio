@@ -110,3 +110,14 @@ test('existing static-anchor consumers still close when their original anchor di
  const popover=createSettingsPopover(anchor,'原设置',()=>{closed++;});doc.cleanups.push(()=>popover.close());
  anchor.isConnected=false;popover.reposition();assert.equal(closed,1);assert.equal(popover.root.isConnected,false);
 });
+
+
+test('node popover scales its complete box and keeps viewport limits in logical units',t=>{
+ const doc=setupDom(t),anchor=new Element('button');anchor.offsetWidth=300;let scale=.5;
+ anchor.getBoundingClientRect=()=>({left:100,top:400,bottom:418,width:300*scale});
+ const popup=createSettingsPopover(anchor,'Scale',()=>{},{placement:'above'});doc.cleanups.push(()=>popup.close());
+ popup.root.offsetWidth=340;popup.root.offsetHeight=300;popup.reposition();
+ assert.equal(popup.root.style.transform,'scale(0.5)');assert.equal(popup.root.style.maxHeight,'768px');assert.equal(popup.root.style.top,'242px');
+ scale=2;popup.reposition();assert.equal(popup.root.style.transform,'scale(2)');assert.equal(popup.root.style.maxHeight,'192px');assert.equal(popup.root.style.top,'8px');
+ assert.equal(popup.root.style.maxWidth,'842px');
+});

@@ -246,10 +246,10 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
    }catch(error){if(active())status.textContent=error.message;}
   }
  }
- function closeFrames(){frameAnchor?.removeAttribute('aria-controls');frameMenu?.root.remove();frameMenu=null;frameAnchor=null;document.removeEventListener('pointerdown',outsideFrames,true);document.removeEventListener('keydown',frameKeys,true);document.removeEventListener('scroll',placeFrames,true);window.removeEventListener('resize',placeFrames);}
+ function closeFrames(){frameAnchor?.removeAttribute('aria-controls');frameMenu?.root.remove();frameMenu=null;frameAnchor=null;document.removeEventListener('pointerdown',outsideFrames,true);document.removeEventListener('keydown',frameKeys,true);document.removeEventListener('scroll',placeFrames,true);window.removeEventListener('resize',placeFrames);window.removeEventListener('dae-canvas-layout',placeFrames);}
  const outsideFrames=e=>{if(frameMenu&&!frameMenu.root.contains(e.target)&&!frameAnchor?.contains(e.target))closeFrames();};
  const frameKeys=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();const anchor=frameAnchor;closeFrames();anchor?.focus({preventScroll:true});}else if(frameMenu?.keydown(e.key)){e.preventDefault();e.stopPropagation();}else if(['Backspace','Delete'].includes(e.key))closeFrames();};
- function placeFrames(){if(!frameMenu)return;if(!frameAnchor?.isConnected){closeFrames();return;}const r=frameAnchor.getBoundingClientRect(),menu=frameMenu.root;let layout=abovePopoverLayout(r,{width:innerWidth,height:innerHeight},{width:menu.offsetWidth,height:menu.offsetHeight});menu.style.maxHeight=layout.maxHeight+'px';menu.style.overflowY='auto';layout=abovePopoverLayout(r,{width:innerWidth,height:innerHeight},{width:menu.offsetWidth,height:menu.offsetHeight});menu.style.left=layout.left+'px';menu.style.top=layout.top+'px';frameMenu.layout();}
+ function placeFrames(){if(!frameMenu)return;if(!frameAnchor?.isConnected){closeFrames();return;}const r=frameAnchor.getBoundingClientRect(),menu=frameMenu.root,scale=frameAnchor.offsetWidth>0?r.width/frameAnchor.offsetWidth:1;menu.style.transformOrigin='top left';menu.style.transform=`scale(${scale})`;menu.style.maxWidth=Math.max(0,(innerWidth-16)/scale)+'px';let layout=abovePopoverLayout(r,{width:innerWidth,height:innerHeight},{width:menu.offsetWidth*scale,height:menu.offsetHeight*scale});menu.style.maxHeight=layout.maxHeight/scale+'px';menu.style.overflowY='visible';menu.firstElementChild.style.maxHeight=Math.max(0,layout.maxHeight/scale-14)+'px';menu.firstElementChild.style.overflowY='auto';layout=abovePopoverLayout(r,{width:innerWidth,height:innerHeight},{width:menu.offsetWidth*scale,height:menu.offsetHeight*scale});menu.style.left=layout.left+'px';menu.style.top=layout.top+'px';frameMenu.layout();}
  function changeFrames(fieldId,recordId,update,role=null,promptFieldId=null){
   const table=getTable(),current=table.records.find(r=>r.id===recordId),config=frameConfig(fieldId,current,promptFieldId);if(!current||!config)return;
   const initial=Object.fromEntries(readFrames(table,current,fieldId,config).filter(item=>item.asset).map(item=>[item.role,{assetId:item.asset.id,fieldId:item.asset.fieldId}]));let inserted=false;
@@ -270,7 +270,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
    if(anchor.isConnected&&anchor.dataset.frameRole){const current=getTable().records.find(r=>r.id===recordId);if(current)updateFrameToken(anchor,current);}
   }});
   document.body.append(frameMenu.root);anchor.setAttribute('aria-controls',frameMenu.root.id);placeFrames();
-  document.addEventListener('pointerdown',outsideFrames,true);document.addEventListener('keydown',frameKeys,true);document.addEventListener('scroll',placeFrames,{capture:true,passive:true});window.addEventListener('resize',placeFrames);
+  document.addEventListener('pointerdown',outsideFrames,true);document.addEventListener('keydown',frameKeys,true);document.addEventListener('scroll',placeFrames,{capture:true,passive:true});window.addEventListener('resize',placeFrames);window.addEventListener('dae-canvas-layout',placeFrames);
  }
  function readFrames(table,row,fieldId,config){
   const roles=generationFrameRoles(config);

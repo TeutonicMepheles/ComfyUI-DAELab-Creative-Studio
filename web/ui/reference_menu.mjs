@@ -8,8 +8,12 @@ export function createReferenceMenu({options,onChoose,onLayout=()=>{}}){
         if(items.hidden||!root.getClientRects().length)return;
         const bounds=root.getBoundingClientRect(),anchor=columns.children[opened].getBoundingClientRect(),width=items.getBoundingClientRect().width;
         const left=bounds.right+width<=innerWidth-8?bounds.right:bounds.left-width;
-        items.style.left=Math.max(8,Math.min(left,innerWidth-width-8))+'px';
-        items.style.top=Math.max(8,Math.min(anchor.top,innerHeight-items.getBoundingClientRect().height-8))+'px';
+        const screenLeft=Math.max(8,Math.min(left,innerWidth-width-8)),screenTop=Math.max(8,Math.min(anchor.top,innerHeight-items.getBoundingClientRect().height-8));
+        // A transformed node picker contains its fixed-position submenu.
+        const transformed=root.style.transform&&root.style.transform!=='none',scale=transformed&&root.offsetWidth?bounds.width/root.offsetWidth:1;
+        if(transformed)items.style.maxHeight=Math.max(0,(innerHeight-16)/scale)+'px';
+        items.style.left=(transformed?(screenLeft-bounds.left)/scale:screenLeft)+'px';
+        items.style.top=(transformed?(screenTop-bounds.top)/scale:screenTop)+'px';
     }
     columns.addEventListener('scroll',layout);
     function mark(){
