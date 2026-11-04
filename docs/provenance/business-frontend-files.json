@@ -280,7 +280,7 @@
       "source": "web/table_generation_panel.mjs",
       "destination": "frontend/src/features/generation/table_generation_panel.mjs",
       "sourceSha256": "547d0543ec0e6359f0146f429ca9a11f9d4cce5682e1c212f01439492b1c9a50",
-      "destinationSha256": "1dfbb945edc69d7b166004e3b4bdd2e905460b68ec7e3f1e3f56d4521f02f983",
+      "destinationSha256": "c2d39906eaf12a82b0039555d040a1f76dcf96b771162359d104b9f8193d7dd6",
       "kind": "production-source",
       "changes": [
         "2026-11-02: Explain the local one-image reference mode and explicit width/height scaling.",
@@ -292,7 +292,8 @@
         "2026-11-03 task49: share task execution choices while preserving per-row inputs, results and protected request configurations; scope labels and regression coverage.",
         "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions.",
         "2026-11-03 task2: stop current generation sequence explicitly; preserve owned native interruption facts and unknown remote outcomes without masking recovery with pause intent.",
-        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs."
+        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs.",
+        "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending."
       ]
     },
     {
@@ -348,34 +349,36 @@
       "source": "web/video_tasks.css",
       "destination": "frontend/src/features/generation/video_tasks.css",
       "sourceSha256": "f662c345f3f44010d82961172cb0954db3b8ec2ffb086dfb65cf11c89a0cbf07",
-      "destinationSha256": "ad8558bd2936df4d4c4ceea6e686a5a7726a2a2901e70b875a78e6b0b4e1b5ff",
+      "destinationSha256": "ca63194d3557b30e9244632d90e939908a3874a682ca5d3d39466bb3dc7056a0",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Correct the credit graphic to the host account balance Lucide coins icon, inlined as a yellow mask without host CSS/font dependencies.",
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
         "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
+        "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending."
       ]
     },
     {
       "source": "web/video_tasks_model.mjs",
       "destination": "frontend/src/features/generation/video_tasks_model.mjs",
       "sourceSha256": "3572671a035745a74966e2cdd6e7e6f421a49938218c7d03ee2f9601f902c684",
-      "destinationSha256": "c9bf8a024ac0b3bd86142990dcf9cc80685fb23f7b0eebfda1ccd3ab1bd5dafe",
+      "destinationSha256": "a09e3dcb2d7f05c2f4852d1fe7c2316838737b060dc0fa515d9944c9834c3ad8",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
         "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions.",
-        "2026-11-03 task49 attempts follow-up: merge only shared execution keys when updating existing linked tasks, preserve per-task attempts before replacing defaults, initialize new rows and add regression."
+        "2026-11-03 task49 attempts follow-up: merge only shared execution keys when updating existing linked tasks, preserve per-task attempts before replacing defaults, initialize new rows and add regression.",
+        "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending."
       ]
     },
     {
       "source": "web/video_tasks_panel.mjs",
       "destination": "frontend/src/features/generation/video_tasks_panel.mjs",
       "sourceSha256": "1f567635a4b88ab672b6f656d1c2ede14a5a79432592e26ccf2c39775281452d",
-      "destinationSha256": "f3e833396d809a4ae18870c32fa97621a822924a9b34aa1eace4aefcea8552f7",
+      "destinationSha256": "135c3d948ad8ca7bca6ed2664ada51dde4f4a9225b9ad23dfbdbbc4bd86c84f6",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
@@ -390,7 +393,8 @@
         "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions.",
         "2026-11-03 task51: hide duplicate generation success/scope copy; automatically materialize verified editor exports once with persistent lazy video lineage and original asset identity; preserve lifecycle and error feedback.",
         "2026-11-03 task2: stop current generation sequence explicitly; preserve owned native interruption facts and unknown remote outcomes without masking recovery with pause intent.",
-        "2026-11-03 task4: idempotent unknown observation and explicit bounded recovery availability; preserve interruption facts, original request identity and the three-check budget."
+        "2026-11-03 task4: idempotent unknown observation and explicit bounded recovery availability; preserve interruption facts, original request identity and the three-check budget.",
+        "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending."
       ]
     },
     {
@@ -409,7 +413,7 @@
       "source": "web/llm_io_panel.mjs",
       "destination": "frontend/src/features/prompt/llm_io_panel.mjs",
       "sourceSha256": "62133e0e28f809abcf5b59cca42eb091cce6cbc57749f88b01f6134c4171c89e",
-      "destinationSha256": "91c5f074994ddc3c4a50c7d87d24fb15d5ac38d3d81264780d1d1fb5f2cde4c5",
+      "destinationSha256": "7ec6ae5f5e2920785024c788cd1e59bf6aa25c49ec0ab0eb6e9cae81c43fd4ea",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -419,7 +423,8 @@
         "Native reactive JSON boundary: detach nested host proxies for document transactions and LLM load/proposal/apply; preserve all unknown JSON keys and identities, reject unsavable edits before history, and verify source-bound edit/recovery/undo with no submit. Real UI acceptance remains separate.",
         "Guard repeated DOM writes against current control values while preserving every-render Slot validation, task/output publication, derived history and 500ms polling. Deterministic two-owner state regressions pass; actual UI/performance acceptance remains pending.",
         "Reconcile authoritative saved instruction changes after native history/external restore with value-guarded DOM assignment; preserve focused unchanged text, actual input listener ordering, linked/manual instruction restoration and both owners. First red regressions retained; actual host undo/redo display acceptance remains pending.",
-        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
+        "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending."
       ]
     },
     {
@@ -449,25 +454,27 @@
       "source": "web/llm_style_preview.css",
       "destination": "frontend/src/features/prompt/llm_style_preview.css",
       "sourceSha256": "91ecfb9d971e13ef211a313656fdac10bb7f430b79582058f63b27224e9112d5",
-      "destinationSha256": "76869adcd002bc581b079ac92744b6b91889a10be7599dbeb2d9772c129a263d",
+      "destinationSha256": "a500406b6aa6cad354c088aab7f211c8bdeece05bc01a01256690492c5f1b588",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "PERF-01 candidate: stop unused inherited Canvas zoom variables only at the owned leased formal LLM B body; preserve public adapter/root, floating headings, Slots and all other variants. Actual browser/performance reacceptance pending.",
-        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
+        "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending."
       ]
     },
     {
       "source": "web/llm_style_preview_panel.mjs",
       "destination": "frontend/src/features/prompt/llm_style_preview_panel.mjs",
       "sourceSha256": "78d3e2dd23a3fbf1cc216ca90f9fce223889f06475ed49234cc84020426bd166",
-      "destinationSha256": "7ed0b79ce1d243c307fca37d86ad8ef3aea27f39e1d2ad97d74230b8e765caed",
+      "destinationSha256": "aa7ce95c35fabf4fff9aaac15d9a2dc5166d10128aa18c508b62b9acb27d0529",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Use one local shared ui field/panel module and unique design assets; no absolute legacy package import.",
         "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
-        "Bind field-local beforeinput history protection only to the two nativeDocument-controlled textareas. Preserve focused text undo, ordinary input listener order, IME, inactive/read-only fields and teardown; never dispatch graph undo or write a replacement value. Real cancelable-beforeinput and two-owner host verification pending."
+        "Bind field-local beforeinput history protection only to the two nativeDocument-controlled textareas. Preserve focused text undo, ordinary input listener order, IME, inactive/read-only fields and teardown; never dispatch graph undo or write a replacement value. Real cancelable-beforeinput and two-owner host verification pending.",
+        "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending."
       ]
     },
     {
@@ -621,7 +628,7 @@
       "source": "web/table_prompt_settings.mjs",
       "destination": "frontend/src/features/prompt/table_prompt_settings.mjs",
       "sourceSha256": "bfe4726e48470729694c7a86878e50662a3ec0fad7837a9323bbb21a022c432a",
-      "destinationSha256": "670f5cf5df5605dfd767cbeeb4700777f68358cf9a1e6a0d3bbac08779bbdf51",
+      "destinationSha256": "d5b77a8964f513efc6aa65dd639eaba8a35c024984070ca3e681a314580ace18",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
@@ -631,7 +638,8 @@
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
         "2026-11-03 task49: share task execution choices while preserving per-row inputs, results and protected request configurations; scope labels and regression coverage.",
         "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions.",
-        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs."
+        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs.",
+        "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending."
       ]
     },
     {
@@ -1119,11 +1127,12 @@
       "source": "web/app_mode_bypass_model.mjs",
       "destination": "frontend/src/integrations/comfyui/business/app_mode_bypass_model.mjs",
       "sourceSha256": "8c4873633e14ffc181b735be36fbb17adaf5bbb62987e98abc6a514bc8f7be04",
-      "destinationSha256": "dc6ffa709e96c63771b2d1df97d685e701c7af7b3976b859bc7c5f67b0d7e3ab",
+      "destinationSha256": "4d0cf52c02a5762f004e2c8ecd1997bb745cff40f7d30aa1ef34570ff0f9a898",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "Formal-node ownership replaces the entire historic business node inventory."
+        "Formal-node ownership replaces the entire historic business node inventory.",
+        "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending."
       ]
     },
     {
@@ -1155,7 +1164,7 @@
       "source": "web/creative_canvas_adapter.js",
       "destination": "frontend/src/integrations/comfyui/business/creative_canvas_adapter.js",
       "sourceSha256": "87d4a3ec66de9d84f4be88202779471a416ba4046a820ef1ce83780d3711f9b1",
-      "destinationSha256": "0734cf58543c9bc700b524650e8098ab5124417c9249fee76e7636fdb079461f",
+      "destinationSha256": "0332ed4c262376d660fd7d7a2601656e3c3d6c6f294d87844ad1ba4f4c9d63c3",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
@@ -1165,7 +1174,8 @@
         "Expose optional projectedMaterialTargets using the existing grid/cellsRevision cache and shared column descriptor objects; retain the full materialTargets API, row/cell drop capabilities and non-table provider fallback. Two 500x10 owners snapshot 10 projected descriptors each rather than 5510; this is a mechanism count, not measured latency improvement.",
         "Resolve generation material output controls from the current owned table header on every query; preserve live descriptors and column order without scanning body cells. No browser timing or acceptance claim.",
         "Candidate source a52e896881b920a35a192e03f9601dd4191d2d8cc76e7f6a6e49063d002fa9db differs from the LF destination only by one CRLF; retained record: .local/validation/table-material-sources-header-fullcheck-first/lf-normalization.json. Upstream source hash is unchanged.",
-        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
+        "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending."
       ]
     },
     {
@@ -1271,11 +1281,12 @@
       "source": "tests/app_mode_bypass_model.test.mjs",
       "destination": "tests/migrated_business/app_mode_bypass_model.test.mjs",
       "sourceSha256": "421a41af40bb7729ab3a14b33168de9799d00eace9313692ab0fefe546ddaf21",
-      "destinationSha256": "d3d85c8ba95603ec606fd22668ded6a612e9d66adb206be0e7911a1dbacb56b7",
+      "destinationSha256": "cfb6bd40ed26215770628241caa6d485c392f907a9c0a7fd929abf65790228d1",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
-        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
+        "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending."
       ]
     },
     {
@@ -1296,9 +1307,10 @@
       "kind": "authored-test",
       "changes": [
         "New typed port, explicit HTTP assembly, focused migration regression or sanitized evidence; no copied upstream source claimed.",
-        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
+        "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending."
       ],
-      "destinationSha256": "4a6c4c8b6b04b973e83bf3af6a8ec13a16f248cd99b05ae09a7f92aad356d2f6"
+      "destinationSha256": "ff73a198d63a2228c17c7fd6db6fec7caed3f1dd9023d21310eee64f1b0c6ec7"
     },
     {
       "source": null,
@@ -1924,9 +1936,10 @@
       "changes": [
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
-        "Defer generation panel installation/input sync until native workflow loading settles; preserve history capability diagnostics and original source hash."
+        "Defer generation panel installation/input sync until native workflow loading settles; preserve history capability diagnostics and original source hash.",
+        "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending."
       ],
-      "destinationSha256": "7abe4170e5c9d58a90c6acfb00f8c352b2846646ec95d806f929495c08bc307d"
+      "destinationSha256": "8af7c0967d72ad02289eb1640ab7b63c9880d871a17656a738d392e3d2cddeab"
     },
     {
       "source": null,

@@ -194,13 +194,14 @@
     },
     {
       "destination": "backend/integrations/comfyui/generation_nodes/__init__.py",
-      "destinationSha256": "676ccd8621c55b1f7838a58f373e229c0c48780d1c07805457906763156055c8",
+      "destinationSha256": "547c0f9f6e2bf6cc04d19a9ca3b480a29889b2529ffdaed73a8fc10060e5db47",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
       "sourceReferences": [],
       "changes": [
-        "Explicit package boundary without import-time work."
+        "Explicit package boundary without import-time work.",
+        "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending."
       ]
     },
     {
@@ -223,7 +224,7 @@
     },
     {
       "destination": "backend/integrations/comfyui/generation_nodes/node.py",
-      "destinationSha256": "099fe0292d6aca2cbf02a2a01c569ba227ce3348aeb8e0baabbf4e5bcc7ee5f4",
+      "destinationSha256": "6474333dde0ce28f01f61ce6ca084981733eadf92612639e31467970a822b3e0",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -244,7 +245,8 @@
       "changes": [
         "Retain DAELAB.LibTV.VideoGenerate ID and 17/5 slots; read only fully validated saved current results; no legacy generation execution.",
         "Read new minimal current task reference only when stable document/table/node/row/field and immutable receipt agree; keep no-reference history read-only.",
-        "Select immutable new receipt by displayed asset provenance.requestId, enforce source digest and exact scope; legacy package IDs remain read-only local-media compatibility."
+        "Select immutable new receipt by displayed asset provenance.requestId, enforce source digest and exact scope; legacy package IDs remain read-only local-media compatibility.",
+        "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending."
       ]
     },
     {
@@ -800,6 +802,50 @@
       "changes": [
         "2026-11-04 task11: local Qwen size capability/preset integration and deterministic frozen-reference size checks; no copied upstream code claimed."
       ]
+    },
+    {
+      "source": null,
+      "destination": "frontend/src/features/generation/node_families.ts",
+      "sourceSha256": null,
+      "destinationSha256": "1e2e1e8ac8f82f927ee5d570975a9462c452cd1684dde70894be67995d8e4280",
+      "origin": "authored",
+      "changes": [
+        "2026-11-04: typed entry identity, provider source presentation and editable template contracts with focused regression coverage."
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": null,
+      "destination": "frontend/src/features/models/source_badge.ts",
+      "sourceSha256": null,
+      "destinationSha256": "89b886eb883be193c12bbf80f665b6b6c1e2be424c611e5e6ab2c7453d46a0bd",
+      "origin": "authored",
+      "changes": [
+        "2026-11-04: typed entry identity, provider source presentation and editable template contracts with focused regression coverage."
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": null,
+      "destination": "frontend/src/features/prompt/text_templates.ts",
+      "sourceSha256": null,
+      "destinationSha256": "de3036ed74e3ef40173530ed8e8387b9590de2863ead076b7823d0ccb27dc950",
+      "origin": "authored",
+      "changes": [
+        "2026-11-04: typed entry identity, provider source presentation and editable template contracts with focused regression coverage."
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": null,
+      "destination": "tests/migrated_business/generation_families.test.mjs",
+      "sourceSha256": null,
+      "destinationSha256": "defc3f4a46a2e2afefee317ee6a4254804913c2e14a55713064ff31a89601fa7",
+      "origin": "authored",
+      "changes": [
+        "2026-11-04: typed entry identity, provider source presentation and editable template contracts with focused regression coverage."
+      ],
+      "kind": "rule-regression"
     }
   ],
   "qwenWeightBinding": {

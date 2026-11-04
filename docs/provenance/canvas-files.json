@@ -87,7 +87,7 @@
       "source": "web/creative_canvas_view.mjs",
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
       "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
-      "destinationSha256": "6f3ee935b72419fbe7ac022d05de37fc9099c641612f33e30fb5e8b280909fcc",
+      "destinationSha256": "22c3be8d3162318d27e58229658a79c9864673884565323c047a7fbf036ea0d7",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
         "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
@@ -118,7 +118,8 @@
         "Expose the leased panel active state without a geometry read; preserve viewport geometry and legacy adapter fallback. Two-instance table and mode checks are recorded in TABLE_PILOT_ACCEPTANCE_20261027.md; the 100 ms budget remains open.",
         "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained.",
         "2026-10-30: make group/member port ownership exclusive and prioritize direct hits without style or layout changes.",
-        "2026-10-31: preserve native text selection ownership for copy, paste, delete and blank-pointer interactions."
+        "2026-10-31: preserve native text selection ownership for copy, paste, delete and blank-pointer interactions.",
+        "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending."
       ],
       "kind": "production-source"
     },
@@ -126,7 +127,7 @@
       "source": "web/creative_canvas.css",
       "destination": "frontend/src/canvas/creative_canvas.css",
       "sourceSha256": "a858f0328a4f03c28c98a9d6742cbfc615e4ce1a4db8f50f50b2a3e0bca420ee",
-      "destinationSha256": "6f705b85e681e15390b36412a5dacbe5f2d0ff63ebf49a89df529cc321189609",
+      "destinationSha256": "4c3c9cbf21a77663ea9787c388aa791690af9c9e76489d985958752f214d48ba",
       "changes": [
         "2026-11-03: Use a compact square empty parser with a matching visible workbench surface and the Script Document Parser display name; preserve populated tables and user sizing.",
         "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
@@ -134,7 +135,8 @@
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "Move host-private DOM selectors unchanged to integration CSS and map host sidebar variable through an explicit integration variable.",
         "PERF-01 candidate: stop unused inherited Canvas zoom variables only at the owned leased TextInput body; preserve public root, headings, Slots, widths, native lease return and geometry. Actual browser/performance reacceptance pending.",
-        "Prevent focus-driven root scrolling with overflow:clip after the legacy hidden fallback; preserve transform-owned world navigation and nested text/panel scrolling. Actual two-instance focus/overflow and save/reload verification pending."
+        "Prevent focus-driven root scrolling with overflow:clip after the legacy hidden fallback; preserve transform-owned world navigation and nested text/panel scrolling. Actual two-instance focus/overflow and save/reload verification pending.",
+        "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending."
       ],
       "kind": "production-source"
     },
@@ -1242,6 +1244,28 @@
       "changes": [
         "2026-11-03 task2 follow-up: bundle the official visible stop mask referenced by generation controls; preserve upstream SVG and bundled Remix Icon License v1.0."
       ]
+    },
+    {
+      "source": null,
+      "destination": "frontend/src/canvas/creation_menu.ts",
+      "sourceSha256": null,
+      "destinationSha256": "58983403aefa6801acb1360f3d911513dc8cc6f532c340a2db4334468749076b",
+      "origin": "authored",
+      "changes": [
+        "2026-11-04: stable grouped creation menu with focused regression."
+      ],
+      "kind": "production-source"
+    },
+    {
+      "source": null,
+      "destination": "tests/migrated_canvas/creation_menu_sections.test.mjs",
+      "sourceSha256": null,
+      "destinationSha256": "39b12e3097d7ac6571cecdb94fce6e1d6385e424a0399b8f4d5e81e4342966bb",
+      "origin": "authored",
+      "changes": [
+        "2026-11-04: stable grouped creation menu with focused regression."
+      ],
+      "kind": "rule-regression"
     }
   ],
   "hostBoundary": {

@@ -1,3 +1,4 @@
+import {generationNodeKind} from './node_families.js';
 import {uploadMedia} from '../../application/media_upload.js';
 import {generationErrorText} from './control_labels.js';
 import {businessHost,businessFetch} from '../../contracts/business.js';
@@ -29,13 +30,14 @@ const element=(tag,parent,cls,text)=>{const el=document.createElement(tag);if(cl
 const phases={waiting:'排队中',running:'生成中',pausing:'中止中',interrupting:'中止中',interrupted:'已中止',paused:'原任务已停止',complete:'已完成',failed:'失败',needs_input:'待补充',needs_recovery:'执行状态待核实',stopped:'已停止',stale:'输入已变化'};
 
 export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocumentReady=()=>true,outputNodes}={}){
+ const fixedKind=generationNodeKind(node.type);
  tableTheme();
  if(!document.getElementById('dae-video-tasks-css')){const sheet=element('link',document.head);sheet.id='dae-video-tasks-css';sheet.rel='stylesheet';sheet.href=new URL('./video_tasks.css',import.meta.url).href;}
- if(['视频生成','DAELAB · 视频生成'].includes(node.title))node.title='生成节点';
+ if(!fixedKind&&['视频生成','DAELAB · 视频生成'].includes(node.title))node.title='生成节点';
  node.properties||={};
  let data=widget(node,'task_data');if(!data)data=node.addWidget('text','task_data','',()=>{},{serialize:true});
  if(!node.inputs?.some(i=>i.name==='table_json'))node.addInput('table_json','STRING');
- let state=data.value?JSON.parse(data.value):createVideoTasks(Object.fromEntries((node.widgets||[]).map(w=>[w.name,w.value])));
+ let state=data.value?JSON.parse(data.value):createVideoTasks(Object.fromEntries((node.widgets||[]).map(w=>[w.name,w.value])),fixedKind);
  state.table=normalizeTable(state.table);
  if(state.source)syncVideoTaskReferences(state);
  if(!data.value){const saved=videoResultAssets(node);if(saved.ready)state.table.records[0].values[state.fieldId]=saved.assets.map(a=>({...a,id:uid()}));}
@@ -54,6 +56,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
  const header=element('header',root,'video-task-heading');
  let changingType=false;
  const typeTabs=element('div',header,'video-task-types');typeTabs.setAttribute('role','group');typeTabs.setAttribute('aria-label','生成类型');
+ typeTabs.hidden=!!fixedKind;
  const typeButtons=new Map();
  for(const [kind,label,icon] of [['image','图片','image-line'],['video','视频','film-line']]){
   const control=button('',()=>changeType(kind));control.className='video-task-type';control.title=label+'生成';typeTabs.append(control);
@@ -76,7 +79,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
  function clearMaterialPreviews(){for(const dispose of materialPreviews)dispose();materialPreviews=[];materialLabels=[];releaseThumbnails(materials);}
  const prompt=element('div',body,'video-task-prompt');prompt.tabIndex=0;
  const bottom=element('footer',body,'video-task-bottom');
- const settings=createPromptSettingsBar((key,anchor)=>{if(current())void generation.chooseSetting(state.fieldId,state.currentId,key,anchor);},{combined:true});bottom.append(settings.root);
+ const settings=createPromptSettingsBar((key,anchor)=>{if(current())void generation.chooseSetting(state.fieldId,state.currentId,key,anchor);},{combined:true,fixedKind});bottom.append(settings.root);
  const actions=element('div',bottom,'video-task-actions');
  const estimate=element('span',actions,'video-task-credit-estimate');estimate.hidden=true;estimate.setAttribute('role','status');estimate.title='当前任务单次生成的预计积分，实际扣费以平台为准';
  let priceStamp='',priceSequence=0;
@@ -180,11 +183,11 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
  const editor={root,nativeDocument,taskIdentity:{...taskIdentity,nodeId:String(node.id)},beginAsync:(target={},id=crypto.randomUUID())=>nativeDocument?.beginRequest(id,target),canAsync:ticket=>nativeDocument?.canApply(ticket),releaseAsync:ticket=>nativeDocument?.releaseRequest(ticket),applyAsync:(tickets,update,options)=>nativeDocument?.controller.applyResults(tickets,'应用生成结果',draft=>update(draft.table),options),change:(update,options)=>mutate(next=>update(next.table),{...options,writePrompts:true}),
   refreshCells(){promptStamp='';schedule();},focusCell(id){selectTask(id);materials.scrollIntoView({block:'nearest'});},
   openTextSide:side.open,openDialog(title){const dialog=element('dialog',document.body,'dae-ui video-task-dialog');element('strong',dialog,'',title);dialogs.add(dialog);dialog.addEventListener('close',()=>{dialogs.delete(dialog);dialog.remove();});dialog.showModal();return dialog;}};
- generation=attachGenerationColumns({editor,getTable,notify,observe:false,onRefresh:schedule,onPrepared:jobs=>outputNodes?.prepare(jobs,{batch:!!(state.source||state.approvedSource),rows:state.table.records}),onReports:reports=>outputNodes?.update(reports),canGenerate:()=>!disposed&&isDocumentReady()&&!node.mode&&!inputError,editPromptTemplate:id=>promptUI.editTemplate(id,state.currentId)});
+ generation=attachGenerationColumns({editor,getTable,notify,kinds:fixedKind?[fixedKind]:['video','image'],observe:false,onRefresh:schedule,onPrepared:jobs=>outputNodes?.prepare(jobs,{batch:!!(state.source||state.approvedSource),rows:state.table.records}),onReports:reports=>outputNodes?.update(reports),canGenerate:()=>!disposed&&isDocumentReady()&&!node.mode&&!inputError&&(!fixedKind||config()?.kind===fixedKind),editPromptTemplate:id=>promptUI.editTemplate(id,state.currentId)});
  promptUI=createPromptEditor({editor,getTable,notify,renderFrame:generation.renderFrame});
  function selectTask(id){binding?.finish();generation.close();clearRowHighlight();mutate(next=>{next.currentId=id;});syncRowHighlight();}
  async function changeType(kind){
-  const row=current();if(!row||changingType||node.mode||generation.submitting||active(row)||config().kind===kind)return;
+  const row=current();if(fixedKind||!row||changingType||node.mode||generation.submitting||active(row)||config().kind===kind)return;
   binding?.finish();changingType=true;schedule();
   try{await generation.setKind(state.fieldId,row.id,kind);}catch(error){if(!disposed)notify(error.message);}
   finally{changingType=false;schedule();}
@@ -271,7 +274,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
     if(cancelled.length)void generation.pause(cancelled);
     mutate(next=>{
      const skipConfig=new Set([...state.table.records,...(state.archivedTasks||[])].filter(row=>['waiting','running','pausing','paused','needs_recovery'].includes(generation.stateFor(row,state.fieldId)?.phase)).map(row=>row.id));
-     syncVideoTaskInputs(next,source,previous,{skipConfig});next.source.stamp=linked.raw;
+     syncVideoTaskInputs(next,source,previous,{skipConfig,kind:fixedKind});next.source.stamp=linked.raw;
      if(JSON.stringify(current()?.values[config()?.promptFieldId])!==JSON.stringify(next.table.records.find(r=>r.id===next.currentId)?.values[config()?.promptFieldId]))binding?.finish();
     },{group:'table-input-sync'});
    }catch(error){inputError=error.message;}
@@ -311,7 +314,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
  }
  function importSource(){
   if(!linkedTable||state.table.records.some(active)||generation.submitting)return;
-  try{const sameSource=state.source?.key===linkedTable.key,next=importVideoTasks(readTableSnapshot(linkedTable.node),sameSource?state.source.promptId:'',state);
+  try{const sameSource=state.source?.key===linkedTable.key,next=importVideoTasks(readTableSnapshot(linkedTable.node),sameSource?state.source.promptId:'',state,{kind:fixedKind});
    next.source={key:linkedTable.key,stamp:linkedTable.raw,promptId:next.table.fields.find(f=>f.id===next.fieldId).generation.promptFieldId};
    if(sameSource){
     for(const row of next.table.records){const old=state.table.records.find(r=>r.id===row.id);if(!old)continue;
@@ -437,7 +440,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
  requestAnimationFrame(()=>{if(!disposed&&node.graph)node.setSize?.([Math.max(640,node.size[0]),node.computeSize()[1]]);});
  function sync(){
   if(disposed||!isDocumentReady())return;
-  if(['视频生成','DAELAB · 视频生成'].includes(node.title))node.title='生成节点';
+  if(!fixedKind&&['视频生成','DAELAB · 视频生成'].includes(node.title))node.title='生成节点';
   const before=lastStored,previousError=inputError,previousSource=sourceKey;
   if(data.value&&data.value!==lastStored){try{const next=JSON.parse(data.value);generation.invalidate();nativeDocument?.invalidate();binding?.dispose();binding=null;delete prompt.dataset.inlineEditing;state=next;lastStored=data.value;promptStamp='';resultsStamp='';}catch(error){notify(error.message);return;}}
   syncSource();syncRowHighlight();if(lastMode!==node.mode){lastMode=node.mode;generation.close();materials.dataset.selected=String(!node.mode);materials.dispatchEvent(new Event('dae-cell-selection-change'));for(const video of root.querySelectorAll('video'))video.pause();}

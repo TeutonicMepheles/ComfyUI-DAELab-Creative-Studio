@@ -130,8 +130,9 @@ test('manual source persists with native history and caret, while links temporar
  assert.equal(a.history.begins,1);assert.equal(a.history.amends,1);
  a.nativeDocument.undo();env.tick();assert.equal(a.source.value,'');assert.equal(a.run.disabled,true);
  a.nativeDocument.redo();env.tick();assert.equal(a.source.value,'手动原文修改');assert.equal(a.run.disabled,false);
- a.node.inputs[0].link=1;env.tick();assert.equal(a.source.readOnly,true);assert.equal(a.source.value,'输入 17');assert.equal(a.state().source,'手动原文修改');
- a.node.inputs[0].link=null;env.tick();assert.equal(a.source.readOnly,false);assert.equal(a.source.value,'手动原文修改');assert.equal(b.source.value,'');
+ a.node.inputs[0].link=1;env.tick();assert.equal(a.source.readOnly,true);assert.equal(a.source.disabled,true);assert.equal(a.source.value,'输入 17');assert.equal(a.state().source,'手动原文修改');
+ a.upstream.snapshot={version:1,texts:[]};env.tick();assert.equal(a.source.value,'');assert.equal(a.run.disabled,true);assert.equal(a.state().source,'手动原文修改');
+ a.node.inputs[0].link=null;env.tick();assert.equal(a.source.readOnly,false);assert.equal(a.source.disabled,false);assert.equal(a.source.value,'手动原文修改');assert.equal(b.source.value,'');
  env.reset();env.tick();assert.equal(env.writes.length,0);
 });
 
@@ -201,7 +202,7 @@ test('nullable result text and normalized boolean controls retain DOM assignment
  // IDL booleans are read as booleans even when another control wrote a raw
  // truthy value. Reconciliation still restores the current product state.
  a.instruction.readOnly='false';assert.equal(a.instruction.readOnly,true);a.source.disabled=1;a.image.hidden=null;a.imageBox.classList.toggle('has-image',true);
- env.reset();a.release.sync();assert.equal(a.instruction.readOnly,false);assert.equal(a.source.disabled,false);assert.equal(a.image.hidden,true);assert.equal(a.imageBox.classList.contains('has-image'),false);assert.ok(env.writes.length>0);
+ env.reset();a.release.sync();assert.equal(a.instruction.readOnly,false);assert.equal(a.source.disabled,true);assert.equal(a.image.hidden,true);assert.equal(a.imageBox.classList.contains('has-image'),false);assert.ok(env.writes.length>0);
  env.reset();a.release.sync();assert.equal(env.writes.length,0);
 });
 

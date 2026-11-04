@@ -77,13 +77,14 @@
     },
     {
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
-      "destinationSha256": "6f3ee935b72419fbe7ac022d05de37fc9099c641612f33e30fb5e8b280909fcc",
+      "destinationSha256": "22c3be8d3162318d27e58229658a79c9864673884565323c047a7fbf036ea0d7",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
         "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
         "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
         "2026-11-02: Preserve generated media URL resolution and materialize exported video snapshots with optional text collections.",
-        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
+        "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable.",
+        "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending."
       ]
     },
     {

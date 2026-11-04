@@ -1,3 +1,4 @@
+import {modelSourceBadge} from '../models/source_badge.js';
 import {generationInputDigest} from '../generation/generation_session.js';
 import {ensureIdentity} from './prompt_optimization_model.mjs';
 import {assertBusinessService,businessJson} from '../../contracts/business.js';
@@ -48,7 +49,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
     const sourceSection=source.closest('.llm-style-source');source.placeholder='输入原始文字，或连接文本节点';
     const imageSection=make('section','llm-style-section llm-style-image-source'),imageBox=make('div','llm-style-image-upload'),image=make('img','llm-style-image-preview'),imageText=make('span','llm-style-image-text','通过 Slot 连接参考图片');
     imageSection.append(make('span','llm-style-label','参考图片'),imageBox);imageBox.append(image,imageText);sourceSection.after(imageSection);materialHint.parentElement.hidden=true;
-    const modelCatalog=getModelCatalog();
+    const modelCatalog=getModelCatalog(),sourceBadge=make('span','llm-model-source');if(select.parentElement)select.after(sourceBadge);
     let models=[],modelListSignature='';
     const logicalModel=model=>{
         if(models.some(option=>option.id===model))return model;
@@ -76,7 +77,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
     }
     const supported=model=>models.some(option=>option.id===logicalModel(model));
     const modelLabel=model=>models.find(option=>option.id===logicalModel(model))?.label||'未识别模型';
-    function refreshModelOptions(){rebuildModelOptions();const current=logicalModel(saved().model);for(const option of select.children||select.options||[]){const model=models.find(item=>item.id===option.value);if(model)updateModelOption(option,modelCatalog.get(model.id));}const model=models.find(item=>item.id===current);select.disabled=!model||!canSubmitModel(modelCatalog.get(current));const status=model&&modelCatalog.get(current);if(status?.checking)select.setAttribute('aria-busy','true');else select.removeAttribute('aria-busy');}
+    function refreshModelOptions(){rebuildModelOptions();sourceBadge.textContent=modelSourceBadge(modelCatalog.get(logicalModel(saved().model)));const current=logicalModel(saved().model);for(const option of select.children||select.options||[]){const model=models.find(item=>item.id===option.value);if(model)updateModelOption(option,modelCatalog.get(model.id));}const model=models.find(item=>item.id===current);select.disabled=!model||!canSubmitModel(modelCatalog.get(current));const status=model&&modelCatalog.get(current);if(status?.checking)select.setAttribute('aria-busy','true');else select.removeAttribute('aria-busy');}
     rebuildModelOptions();
     const generationTask=createLLMTask();
     const taskRail=make('div','llm-io-task-rail');taskRail.setAttribute('role','tablist');taskRail.setAttribute('aria-label','优化任务');root.append(taskRail);
@@ -141,8 +142,9 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
         setProperty(source,'readOnly',linked);
         setProperty(source,'value',linked?selectedRow?.text||'':saved().source||'');
         const first=selectedRow?.image;setProperty(image,'hidden',!first);if(first&&image.getAttribute('src')!==first.url)image.src=first.url;setProperty(image,'alt',first?.name||'参考图片');setProperty(imageText,'hidden',!!first);toggleClass(imageBox,'has-image',!!first);
-        for(const control of [source,instruction,select])setProperty(control,'disabled',disabled);
+        for(const control of [source,instruction,select])setProperty(control,'disabled',disabled||control===source&&linked);
         setProperty(instruction,'readOnly',saved().slotInstruction!==undefined);
+        for(const picker of root.querySelectorAll('[aria-label="提示词模板"]'))setProperty(picker,'disabled',disabled||saved().slotInstruction!==undefined);
         for(const b of root.querySelectorAll('[data-mode]')){setProperty(b,'disabled',disabled||tableInput&&b.dataset.mode==='reverse');setProperty(b,'title',tableInput&&b.dataset.mode==='reverse'?'表格输入仅支持文字优化':'');}
         const valid=modes[mode],modelReady=canSubmitModel(modelCatalog.get(logicalModel(saved().model)));
         setProperty(run,'disabled',disabled||!!error||!valid||!modelReady);setProperty(run,'title','使用原始文字或连线输入生成建议；应用后输出');setProperty(run.lastChild,'textContent',busy?'生成中…':'生成');setAttribute(run,'aria-busy',String(busy));

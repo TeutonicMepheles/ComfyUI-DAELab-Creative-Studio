@@ -40,7 +40,7 @@ test('production entry closure loads before graph initialization and exposes onl
  assert.equal(table.onConnectInput(1,'STRING',{}, {type:'DAELAB.TextInput'},0),true,'other native inputs keep their contract');
  for(const extension of extensions)extension.registerCustomNodes?.();
  assert.deepEqual([...types.keys()],['DAELAB.LLMStylePreviewB']);
- const formal=new Set(['DAELAB.Table','DAELAB.StoryboardImport','DAELAB.ScriptParser','DAELAB.LLMStylePreviewB','DAELAB.LibTV.VideoGenerate']);
+ const formal=new Set(['DAELAB.Table','DAELAB.StoryboardImport','DAELAB.ScriptParser','DAELAB.LLMStylePreviewB','DAELAB.LibTV.VideoGenerate','DAELAB.ImageGenerate','DAELAB.VideoGenerate']);
  for(const adapter of adapters)for(const entry of adapter.menu||[])assert.equal(formal.has(entry.type),true,entry.type);
  for(const type of ['DAELAB.LLMStylePreviewA','DAELAB.LLMStylePreviewC','DAELAB.LLMStylePreviewD','DAELAB.LLMStylePreviewE','DAELAB.GPTImageStoryboardStage','DAELAB.LibTV.StoryboardBatch','Unknown.CustomNode']){
   assert.equal(adapters.some(a=>a.matches?.({type})),false,type);
