@@ -45,7 +45,7 @@ export function createOptimizationComposer({controller,container,fieldName}){
  model.setAttribute('aria-label','选择优化模型');model.title='选择优化模型';model.replaceChildren();el('span',model,undefined,'opt-logo');const modelName=el('span',model);el('span',model,'↓','opt-down');modelArea.append(model);
  const menu=el('div',modelArea,undefined,'opt-model-menu');menu.hidden=true;menu.setAttribute('role','listbox');menu.setAttribute('aria-label','优化模型');el('span',menu,'模型','opt-muted');
  const modelCatalog=getModelCatalog();let modelButtons=[],modelMenuSignature='';
- function optimizationModels(){return modelCatalog.snapshot({family:'optimization'}).filter(model=>model.id!=='qwen-image-2.1-pe').map(item=>({...item,logo:item.provider==='comfy'?'openai':item.provider}));}
+ function optimizationModels(){return modelCatalog.snapshot({family:'optimization'}).filter(model=>!['qwen-image-2.1-pe','qwen3.8-27b-w4a8'].includes(model.id)).map(item=>({...item,logo:item.provider==='comfy'?'openai':item.provider}));}
  function rebuildModelMenu(){
   const discovered=optimizationModels(),signature=JSON.stringify(discovered.map(item=>[item.id,item.label,item.provider]));
   if(signature===modelMenuSignature)return;

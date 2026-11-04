@@ -2,7 +2,7 @@ import {businessFetch,businessAuth} from '../../contracts/business.js';
 // Provider adapter only; UI, review, apply and undo stay in the shared IO panel.
 export async function optimizeRow(row,mode,instruction,{fetcher=businessFetch,model='qwen',requestId=crypto.randomUUID(),sourceScope}={}){
     model=({'qwen3.5:9b-q4_K_M':'qwen','gpt-6-luna':'gpt-6-luna',qwen:'qwen'})[model]||model;
-    if(!['qwen','gpt-6-luna','qwen-image-2.1-pe'].includes(model))throw new Error('不支持的模型提供者');
+    if(!['qwen','gpt-6-luna','qwen-image-2.1-pe','qwen3.8-27b-w4a8'].includes(model))throw new Error('不支持的模型提供者');
     if(model==='qwen-image-2.1-pe'&&mode!=='reverse')throw new Error('PE 需要参考图文本增强模式');
     let imageDataUrl;
     if(mode==='reverse'){
@@ -24,7 +24,7 @@ export async function optimizeRow(row,mode,instruction,{fetcher=businessFetch,mo
     }
     const response=await fetcher('/daelab/prompt-optimization/polish',{method:'POST',headers,body:JSON.stringify({contractVersion:1,requestId,model,mode,source:row.text||'',instruction,imageDataUrl,...(sourceScope?{sourceScope}:{})})});
     const data=await response.json();
-    if(!response.ok&&model==='qwen-image-2.1-pe'&&data.error==='incomplete_text_response')throw new Error('PE 输出未完成或达到长度上限，结果未应用');
+    if(!response.ok&&['qwen-image-2.1-pe','qwen3.8-27b-w4a8'].includes(model)&&data.error==='incomplete_text_response')throw new Error('本地模型输出未完成或达到长度上限，结果未应用');
     if(!response.ok)throw new Error(data.error||'模型请求失败，未自动重试');
     if(data.requestId!==requestId||typeof data.result!=='string'||!data.result.trim())throw new Error('返回结果无效，未自动重试');
     if(sourceScope){const same=Object.keys(sourceScope).every(key=>data.source?.[key]===sourceScope[key]);if(!same||data.state!=='succeeded'||data.receipt?.kind!=='text'||data.receipt.text!==data.result||!/^[a-f0-9]{64}$/.test(data.inputFingerprint||''))throw new Error('返回回执身份不一致，结果未应用');}
