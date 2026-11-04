@@ -80,14 +80,14 @@ test('real 500x10 no-generation input skips the panel row map and full TD scan, 
 test('configured inputs retain full updates; removed configuration cleans bars, markers, styles and prompt headers',t=>{
  const env=dom(t),a=harness(t,env,{small:true,generated:true,material:false}),b=harness(t,env,{index:1,small:true,generated:true,material:false}),cell=a.target(),peerBar=bar(b.target()),box=a.enter();
  assert.ok(bar(cell));assert.ok(a.header().querySelector('.table-prompt-toggle'));assert.equal(cell.dataset.generationSettings,'true');assert.equal(cell.style['--generation-settings-height'],'38px');
- a.table.records[0].meta??={};a.table.records[0].meta.generationSettings={'field-00':{gen:{...generationField().generation,settings:{width:512,height:512}}}};
- assert.deepEqual(a.input(box,'configured'),{mappedRows:2,scannedCells:6,refreshes:1});assert.match(bar(cell).textContent,/512/);assert.doesNotMatch(peerBar.textContent,/512/);
+ a.table.records[0].meta??={};a.table.records[0].meta.generationSettings={'field-00':{gen:{...generationField().generation,settings:{width:512,height:288}}}};
+ assert.deepEqual(a.input(box,'configured'),{mappedRows:2,scannedCells:6,refreshes:1});assert.match(bar(cell).textContent,/16:9/);assert.doesNotMatch(peerBar.textContent,/16:9/);
  a.table.fields=a.table.fields.filter(f=>f.id!=='gen');a.measure(()=>a.editor.root.emit('input'));
  assert.equal(bar(cell),null);assert.equal(cell.dataset.generationSettings,undefined);assert.equal(cell.style['--generation-settings-height'],undefined);assert.equal(a.header().querySelector('[data-generation-prompt-header]'),null);assert.ok(a.header().querySelector('.field-title'));assert.equal(bar(b.target()),peerBar);
  // A formerly configured instance conservatively keeps its original scan; it
  // may still have WeakMap-owned cells temporarily detached by a render.
  assert.deepEqual(a.measure(()=>a.editor.root.emit('input')),{mappedRows:2,scannedCells:6,refreshes:1});
- a.table.fields.push(generationField());a.measure(()=>a.editor.root.emit('input'));assert.ok(bar(cell));assert.match(bar(cell).textContent,/512/);
+ a.table.fields.push(generationField());a.measure(()=>a.editor.root.emit('input'));assert.ok(bar(cell));assert.match(bar(cell).textContent,/16:9/);
 });
 
 test('a detached old cell reinserted after configuration removal still receives original WeakMap cleanup',t=>{

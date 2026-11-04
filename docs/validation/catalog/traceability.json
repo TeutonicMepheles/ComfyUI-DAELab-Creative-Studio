@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "5702879e18d6fd5c7cd432d1e54cdfa199f5cd0dc1d9b1720ba995159f72b9e1",
+  "specificationHash": "862b92c349028d5c1309f1a09bae23ec6c1054e0832c2b0d68e2c83e4158e587",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -222,6 +222,7 @@
         "AC-CAN-023-003",
         "AC-CAN-023-004",
         "AC-CAN-023-005",
+        "AC-CAN-023-006",
         "AC-CAN-039-001",
         "AC-CAN-039-002",
         "AC-CAN-039-003",
@@ -3070,6 +3071,29 @@
       "owner": "design/ui",
       "requirement": "图片/视频节点移除有效内容卡之外的无效边框和空白，保留输入、按钮、选中态及连线；模型列表与已选项字体和图标盒一致、图标水平中心线对齐。相关选择面板始终向上，上方受限时限高内滚不翻向下，缩放/画布边缘可操作且不遮挡控件。 节点关联弹层的宽度、间距、文字、图标、行高和胶囊整体按同一画布比例缩放且仅变换一次，不能框固定而文字单独缩放；打开期间缩放仍按最终显示尺寸保持锚点、对齐与滚动。独立资产库浮窗保持屏幕空间尺寸。",
       "requirementHash": "88d1ca289de03fd1187894d24550dd4d7819a9c621a67bd7195c3e8ba09b953d",
+      "usecases": [
+        "UC-CAN-007",
+        "UC-CAN-013"
+      ],
+      "tests": [
+        "TC-CAN-002",
+        "TC-CAN-025",
+        "TC-CAN-042"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-CAN-023-006",
+      "feature": "F-CAN-023",
+      "task": "TASK-M1-DESIGN-UI",
+      "owner": "design/ui",
+      "requirement": "2026-11-04：图片与视频生成节点的模型配置面板统一为一套样式与结构：抽卡次数、生成方式、比例、生成时长使用同一分段控件，宽度、圆角、内边距、行高、字号字重及选中/悬停/禁用态一致，不为同一选中状态使用两种描边。比例项只显示形状图标与比例文字，选项下方与面板底部状态行都不显示具体像素或分辨率文字；分辨率只在内部提交参数与实际输出中保留。面板底部不常驻辅助说明段落（含步长、自动回退等解释），约束由选项本身或悬停说明表达。视频生成时长只提供整数秒、步长1秒，不出现0.5秒一类半秒档，范围以模型能力声明为准，超出模型上限的档位不显示。图片节点的自动比例与视频节点的固定比例只反映模型能力差异，控件外观保持一致。已保存任务的原参数保留，不因选项收敛被改写。",
+      "requirementHash": "4deabd74fa51cd4212b0bce8b78ea59d46bdb76006e52ca91572341a3d2dea24",
       "usecases": [
         "UC-CAN-007",
         "UC-CAN-013"
@@ -8149,6 +8173,7 @@
         "AC-CAN-023-003",
         "AC-CAN-023-004",
         "AC-CAN-023-005",
+        "AC-CAN-023-006",
         "AC-CAN-027-001",
         "AC-CAN-027-002",
         "AC-CAN-027-003",
@@ -8159,7 +8184,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "4d79d8262a0427f5101714421ef913db5fe120cc8e5fe9ecbe32117a6d114337",
+      "specificationHash": "f31a98628010900b65b2f46f223b9aa922ee3c92edeca20cdf1b30b305001e89",
       "assertions": [
         {
           "id": "AS-CAN-002-001",
@@ -9147,12 +9172,13 @@
         "AC-CAN-023-002",
         "AC-CAN-023-003",
         "AC-CAN-023-004",
-        "AC-CAN-023-005"
+        "AC-CAN-023-005",
+        "AC-CAN-023-006"
       ],
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "93d65b5ce2a2fbc960b7f7796cd06b80c8e2c44ff9c8be550b43e48c0216a96b",
+      "specificationHash": "dd4a281f3430069af9d015de822a8eeb680c010c59d5d572b973f0815252a7af",
       "assertions": [
         {
           "id": "AS-CAN-025-001",
@@ -9177,6 +9203,10 @@
         {
           "id": "AS-CAN-025-006",
           "expected": "节点弹层框/字/图标/胶囊使用同一缩放比例，无混合缩放导致的异常换行；锚点和向上内滚按显示尺寸计算。独立资产库不随画布缩放，浏览器自身缩放仍正常。"
+        },
+        {
+          "id": "AS-CAN-025-007",
+          "expected": "图片与视频的配置面板使用同一分段控件与选中态；比例项只有图标与比例文字，比例项与底部状态行都没有像素或分辨率，底部无常驻说明；视频时长只有整数秒且无0.5秒档，范围与模型能力一致；旧任务保留原参数。"
         }
       ],
       "status": "not-executed",
@@ -9859,6 +9889,7 @@
         "AC-CAN-023-003",
         "AC-CAN-023-004",
         "AC-CAN-023-005",
+        "AC-CAN-023-006",
         "AC-CAN-038-001",
         "AC-CAN-038-002",
         "AC-CAN-038-003"
@@ -9866,7 +9897,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "bc81801740bcedb61e068bc82488a869101f628e4f23c65ece8c1ae9c33f63dd",
+      "specificationHash": "177b66e0afc1ab3866c6734d50d355005b70b03ac00859e4fe9ab940be5803ce",
       "assertions": [
         {
           "id": "AS-CAN-042-001",
