@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "0e92f03b906d1e8770c4582000863df347239f08ad61bcf359cbdf5b1d74d014",
+  "specificationHash": "68ead28e7e8e16960255d2f74aea6b867f2ca98f96e4bcbbc84a06270684d72c",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -4487,8 +4487,8 @@
       "feature": "F-BIZ-003",
       "task": "TASK-M3-FEATURES-TABLE",
       "owner": "features/table",
-      "requirement": "2026-11-04：新建列只提供“文字”“图片”两种类型；内部或测试用类型（如“生成列（仅测试用）”）不出现在新建列表，存量列仍可显示、可编辑、可删除。列胶囊菜单只保留 重命名 / 复制 / 删除。",
-      "requirementHash": "9453dfc7354ba4c7e43aea0a2b173c3ed27c681a924ec3005420f8f8dc7f8b7a",
+      "requirement": "2026-11-04：新建列只提供“文字”“图片”两种类型；内部或测试用类型（如“生成列（仅测试用）”）不出现在新建列表，存量列仍可显示、可编辑、可删除。列胶囊菜单只保留 重命名 / 复制 / 删除；原有“输出为素材组”“优化”等能力移到表头右键纵向菜单（F-BIZ-045），能力不删、入口不重复，菜单项不只出现两处。",
+      "requirementHash": "41112d622ad8c226e234f6dbff36748cd0d1475757765f2bad7ae877db6b97ed",
       "usecases": [
         "UC-BIZ-001"
       ],
@@ -10457,7 +10457,7 @@
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "84ab297faddf73fb23bdd821a39f52aa9c471cbc3944b5f938978acf152de59d",
+      "specificationHash": "685f5312e5bb79db69aa0479f4997607c6d9b47b8bf741fa555de6427d3d9845",
       "assertions": [
         {
           "id": "AS-BIZ-001-001",
@@ -10538,7 +10538,7 @@
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "9aa7f794e92962d6c564484a950e750999c4ad4a763950b20b196e15a29f7e3c",
+      "specificationHash": "c0b2a470f7235d84baac623791ea24ca82351ce2b9931f236f6c1ef4d7a92103",
       "assertions": [
         {
           "id": "AS-BIZ-003-001",

@@ -232,7 +232,7 @@ business:web/data_table_editor.mjs","frontend/src/features/table","M3","保留�
 business:web/data_table_editor.mjs
 business:web/table_column_splitters.mjs","frontend/src/features/table","M3","字段类型、生成用途和提示词来源必须保持独立概念。","改名、排序和隐藏不改变稳定 ID 或引用指向。
 类型转换失败不部分写入；列宽在重载后保留。
-2026-11-04：新建列只提供“文字”“图片”两种类型；内部或测试用类型（如“生成列（仅测试用）”）不出现在新建列表，存量列仍可显示、可编辑、可删除。列胶囊菜单只保留 重命名 / 复制 / 删除。","UC-BIZ-001","TC-BIZ-001 TC-BIZ-003"
+2026-11-04：新建列只提供“文字”“图片”两种类型；内部或测试用类型（如“生成列（仅测试用）”）不出现在新建列表，存量列仍可显示、可编辑、可删除。列胶囊菜单只保留 重命名 / 复制 / 删除；原有“输出为素材组”“优化”等能力移到表头右键纵向菜单（F-BIZ-045），能力不删、入口不重复，菜单项不只出现两处。","UC-BIZ-001","TC-BIZ-001 TC-BIZ-003"
 "F-BIZ-004","网格选择、文本编辑及复制粘贴","保留","源码已存在；内容展示与编辑态、表内范围选择、TSV/自有剪贴板格式并存。","business:web/data_table_editor.mjs
 business:web/table_content_view.mjs
 business:web/data_table_model.mjs","frontend/src/features/table","M3","保留中文输入和表格选择优先级，统一编辑事务。","输入框内多行粘贴不误变成多条记录。
