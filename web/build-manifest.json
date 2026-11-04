@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "11f81c6960f15ecf974b7a87e22251737b720d531ca878e64ffd930c2fd9c6bf",
+  "sourceFingerprint": "0be344f0da26bd653296c26699c84ce92b55a0354de133d6532eebc5504d13b8",
   "files": [
     {
       "path": "AGENTS.md",
@@ -556,7 +556,7 @@
     },
     {
       "path": "features/generation/table_generation_model.mjs",
-      "sha256": "44a1292f03bc72d052644da1490ba03a88f80e2ff385f3f122afd02be8e0f547"
+      "sha256": "eaa59a4029e804b253a1201ec2e5b326552e691481cfee11bf6a5edbba685c03"
     },
     {
       "path": "features/generation/table_generation_panel.mjs",
@@ -624,7 +624,7 @@
     },
     {
       "path": "features/models/model_catalog.mjs",
-      "sha256": "c2164204725e9b2a4e813639091ca8e01bf62ccf64c5dea4705c09ec24b94219"
+      "sha256": "5222dac644b2bf5e792636c08bcc40b3bc03e48ede82b3ef27ae99541130fef0"
     },
     {
       "path": "features/models/model_catalog_ui.mjs",
@@ -724,7 +724,7 @@
     },
     {
       "path": "features/prompt/table_prompt_settings.mjs",
-      "sha256": "57fffdb1eead7d1278a3ff4acc6c83c560d17642af0c419822d7e624ec190d11"
+      "sha256": "c0ed7eb29937c668b77a044c11c58dc7f2ab27c8698f8a1a536b54e55e86de2a"
     },
     {
       "path": "features/prompt/table_prompt_source.mjs",
@@ -1176,7 +1176,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "99837ec4220fa287d9cbdd26655b05641762e46dcdeef674494eb5799a99e431"
+      "sha256": "1369a0720e0210f1fbbec48c210a9bb0b851d9c8d272ddaeb69123b504c56790"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

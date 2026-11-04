@@ -6,7 +6,7 @@ import uuid
 
 from ..contracts.errors import InvalidInput
 from .contracts import Observation, ProviderUnavailable, SubmissionRejected, SubmissionUncertain
-from .parameters import IMAGE_MODEL, VIDEO_MODEL, REFERENCE_VIDEO_MODEL, IMAGE_FILES, VIDEO_FILES, compile_segments, settings_for, image_graph, video_graph
+from .parameters import BASE_IMAGE_MODEL, IMAGE_MODEL, VIDEO_MODEL, REFERENCE_VIDEO_MODEL, IMAGE_FILES, VIDEO_FILES, compile_segments, settings_for, image_graph, video_graph
 
 
 class ModelInventory:
@@ -61,13 +61,18 @@ class NativeProvider:
     supports_progress = True
     resource = 'native'
 
-    def __init__(self, kind, *, inventory, queue, media_input, reference=False, image_dimensions=None):
+    def __init__(self, kind, *, inventory, queue, media_input, reference=False, image_dimensions=None, image_profile="turbo"):
         if kind not in ('image', 'video'):
             raise InvalidInput('Unknown native output kind.')
         self.kind, self.inventory, self.queue, self.media_input = kind, inventory, queue, media_input
+        if image_profile not in ("turbo", "base"):
+            raise InvalidInput("Unknown image profile.")
+        self.image_profile = image_profile
         self.image_dimensions = image_dimensions
         self.id = 'local-qwen-image' if kind == 'image' else 'local-h3'
         self.model = IMAGE_MODEL if kind == 'image' else VIDEO_MODEL
+        if kind == 'image' and image_profile == 'base':
+            self.id, self.model = 'local-qwen-image-base', BASE_IMAGE_MODEL
         self.reference = reference
         if reference:
             if kind != 'video':
@@ -129,13 +134,15 @@ class NativeProvider:
                               {'turbo': False, **config.get('settings', {})} if self.reference else config.get('settings', {}),
                               [] if self.reference else media, reference_size=reference_size)
         keys = set(IMAGE_FILES if self.kind == 'image' else VIDEO_FILES)
+        if self.kind == 'image' and self.image_profile == 'base':
+            keys.discard('mmproj')
         if self.kind == 'video' and not values['turbo']:
             keys.discard('loras')
         models = self.inventory.descriptions(keys)
         names = {key: info['name'] for key, info in models.items()}
         prepared_media = [{**item, 'native_input': self.media_input(item)} for item in media]
         prefix = 'daelab/creative-studio/' + hashlib.sha256(request_id.encode()).hexdigest()[:24]
-        graph = image_graph(prompt, values, names, prefix, media=prepared_media) if self.kind == 'image' else video_graph(prompt, values, prepared_media, names, prefix, reference=self.reference)
+        graph = image_graph(prompt, values, names, prefix, media=prepared_media, profile=self.image_profile) if self.kind == 'image' else video_graph(prompt, values, prepared_media, names, prefix, reference=self.reference)
         return {'kind': self.kind, 'model': self.model, 'models': models, 'settings': values, 'graph': graph,
                 'native_task_id': str(uuid.uuid5(uuid.NAMESPACE_URL, 'creative-studio:' + request_id))}
 

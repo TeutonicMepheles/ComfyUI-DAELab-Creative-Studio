@@ -8,6 +8,7 @@ import secrets
 from ..contracts.errors import InvalidInput
 from .image_dimensions import image_dimensions
 
+BASE_IMAGE_MODEL = 'Qwen-Image-2.1（本地）'
 IMAGE_MODEL = 'Qwen-Image-2.1 Turbo（本地）'
 VIDEO_MODEL = 'MiniMax H3 FL（本地）'
 REFERENCE_VIDEO_MODEL = 'MiniMax H3 Ref（本地）'
@@ -108,17 +109,17 @@ def settings_for(kind, mode, settings, media, *, reference_size=None):
     return values
 
 
-def image_graph(text, values, files, prefix, *, media=()):
+def image_graph(text, values, files, prefix, *, media=(), profile="turbo"):
     def node(kind, **inputs):
         return dict(class_type=kind, inputs=inputs)
     graph = {
         'model': node('UNETLoader', unet_name=files['diffusion_models'], weight_dtype='default'),
-        'clip': node('CLIPLoaderGGUF', clip_name=files['text_encoders'], type='qwen_image'),
+        'clip': node('CLIPLoader' if profile == 'base' else 'CLIPLoaderGGUF', clip_name=files['text_encoders'], type='qwen_image'),
         'condition': node('TextEncodeQwenImage21', clip=['clip', 0], prompt=str(text), negative_prompt='', resolution=1024, images={}),
         'vae': node('VAELoader', vae_name=files['vae']),
         'latent': node('EmptyLatentImage', width=values['width'], height=values['height'], batch_size=1),
         'cache': node('QwenImage21Cache', model=['model', 0], device='auto', dtype='default'),
-        'sample': node('KSampler', seed=values['seed'], steps=8, cfg=1, sampler_name='euler', scheduler='simple', denoise=1,
+        'sample': node('KSampler', seed=values['seed'], steps=25 if profile == 'base' else 8, cfg=1, sampler_name='euler', scheduler='simple', denoise=1,
                        model=['cache', 0], positive=['condition', 0], negative=['condition', 1], latent_image=['latent', 0]),
         'decode': node('VAEDecode', samples=['sample', 0], vae=['vae', 0]),
         'save': node('SaveImage', images=['decode', 0], filename_prefix=prefix),

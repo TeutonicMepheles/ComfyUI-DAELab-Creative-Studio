@@ -8,6 +8,7 @@ export const MODEL_STATUS=Object.freeze({
 
 export const GENERATION_MODEL_DEFINITIONS=Object.freeze([
     {id:'Qwen-Image-2.1 Turbo（本地）',label:'Qwen-Image-2.1 Turbo（本地）',family:'generation',kind:'image',provider:'local'},
+    {id:'Qwen-Image-2.1（本地）',label:'Qwen-Image-2.1（本地）',family:'generation',kind:'image',provider:'local'},
     {id:'GPT Image 2',label:'GPT Image 2',family:'generation',kind:'image',provider:'comfy'},
     {id:'GPT Image 2.5 Flare',label:'GPT Image 2.5 Flare',family:'generation',kind:'image',provider:'comfy'},
     {id:'GPT Image 2.5 Sunburst',label:'GPT Image 2.5 Sunburst',family:'generation',kind:'image',provider:'comfy'},

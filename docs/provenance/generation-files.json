@@ -75,7 +75,7 @@
     },
     {
       "destination": "backend/generation/assembly.py",
-      "destinationSha256": "babf344f5a7f2012652cba689a3f9a37e1d1e5dc376717d8036570b1c76bee95",
+      "destinationSha256": "5f27ded599928ce706a7352a80255575693dbbca5d12641d8f3c6b6573ffa017",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -84,7 +84,8 @@
         "Explicit package boundary without import-time work.",
         "Accept an explicit qwen_binding; missing binding makes Qwen unavailable without startup work.",
         "Shared CoreServices resource admission (GPU 1/cloud 3/transcode 2), retained uncertain executions, and off-loop persistence where asynchronous; existing native queue and JobLedger remain authoritative.",
-        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs."
+        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs.",
+        "2026-11-04 task41: optional independent base Qwen image profile with native CLIPLoader and 25 steps, explicit image_base file bindings and the existing image controls; preserve legacy Turbo profile and frozen requests."
       ]
     },
     {
@@ -166,7 +167,7 @@
     },
     {
       "destination": "backend/generation/service.py",
-      "destinationSha256": "44e17bae0507cdcc2a4a138d2ab7d54ed83b0bacdf1f07c177450e778f7b60e4",
+      "destinationSha256": "6dcc5d8b30b6ebcb83c28a8dea33d7b8a61ea79568389bcfb2c8c9d800b697a9",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -189,7 +190,8 @@
         "Cancellation-safe blocking completion holds capacity through repeated caller cancellation; async native VideoEdit captures host context before entering its synchronous renderer. Ordered regressions retain initial failure evidence.",
         "Fresh same-provider/task CAS cancellation confirmation preserves winning terminal facts; resource restoration consumes one consistent SQLite snapshot and preserves terminal-release ordering. Fixture restoration adapts only owned historical labels.",
         "2026-11-03 task2: stop current generation sequence explicitly; preserve owned native interruption facts and unknown remote outcomes without masking recovery with pause intent.",
-        "2026-11-03 task4: idempotent unknown observation and explicit bounded recovery availability; preserve interruption facts, original request identity and the three-check budget."
+        "2026-11-03 task4: idempotent unknown observation and explicit bounded recovery availability; preserve interruption facts, original request identity and the three-check budget.",
+        "2026-11-04 task41: optional independent base Qwen image profile with native CLIPLoader and 25 steps, explicit image_base file bindings and the existing image controls; preserve legacy Turbo profile and frozen requests."
       ]
     },
     {
@@ -307,7 +309,7 @@
     },
     {
       "destination": "backend/providers/native.py",
-      "destinationSha256": "ec7801a4b8765c818405cdf93f47878898863b8f9e39cef3da4eb247c56bfd4e",
+      "destinationSha256": "675924e218f8680c6765283fb710ae7e08638ab1915437e532f4522f7ce20b1a",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -326,7 +328,8 @@
       "changes": [
         "2026-11-02: Add one-image local Qwen reference conditioning through frozen media, explicit output-size scaling and encoder latent; keep text requests unchanged.",
         "Explicit inventory/queue/media ports; hash and actual host-resolution validation; deterministic original native identity; preserved UI capabilities; no host singleton import.",
-        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs."
+        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs.",
+        "2026-11-04 task41: optional independent base Qwen image profile with native CLIPLoader and 25 steps, explicit image_base file bindings and the existing image controls; preserve legacy Turbo profile and frozen requests."
       ]
     },
     {
@@ -365,7 +368,7 @@
     },
     {
       "destination": "backend/providers/parameters.py",
-      "destinationSha256": "721964255ab0252b10bb250db7658c1f34b9dbb731c9ab5d1c4d99b19adac905",
+      "destinationSha256": "8ca6fc6c215f5c2503c597d665ff24c27594da6160f5b3d6a77bfba058f50338",
       "kind": "migrated-pure-rule",
       "source": "nodes/libtv_bridge/table_generation.py",
       "sourceSha256": "0a79d391377741187a91f0a7aa641c13d5bd7c70837b21ad25752b7a376e1ca0",
@@ -389,7 +392,8 @@
       "changes": [
         "2026-11-02: Add one-image local Qwen reference conditioning through frozen media, explicit output-size scaling and encoder latent; keep text requests unchanged.",
         "Extract only pure structured references, parameter validation and Qwen/H3 graph builders; accept explicit pinned model names; no discovery, fallback, native execution or old persistence.",
-        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs."
+        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs.",
+        "2026-11-04 task41: optional independent base Qwen image profile with native CLIPLoader and 25 steps, explicit image_base file bindings and the existing image controls; preserve legacy Turbo profile and frozen requests."
       ]
     },
     {
