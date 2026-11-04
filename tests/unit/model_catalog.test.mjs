@@ -64,7 +64,7 @@ test('a probe that never answers stays unknown and retryable instead of unavaila
   const entries = catalog.snapshot({family: 'generation'});
   assert.equal(entries.every(entry => entry.status === 'unknown'), true);
   assert.equal(entries.every(entry => entry.selectable === false), true);
-  await catalog.refresh(async () => { throw new Error('missing binding'); }, {filters: {family: 'generation'}, force: true});
+  await catalog.refresh(async () => { throw Object.assign(new Error('missing binding'),{code:'provider_unavailable'}); }, {filters: {family: 'generation'}, force: true});
   assert.equal(catalog.snapshot({family: 'generation'}).every(entry => entry.status === 'unavailable'), true);
 });
 test('a timed-out probe is rechecked a bounded number of times and then stops', async () => {
@@ -72,15 +72,16 @@ test('a timed-out probe is rechecked a bounded number of times and then stops', 
   let calls = 0;
   const probe = async () => {
     calls += 1;
-    throw Object.assign(new Error('probe timed out'), {name: 'AbortError'});
+    throw Object.assign(new Error('probe timed out'), {name: 'AbortError',code:'probe_timeout'});
   };
   await catalog.refresh(probe, {filters: {family: 'generation'}});
   const first = catalog.snapshot({family: 'generation'});
   assert.equal(first.every(entry => entry.status === 'unknown'), true);
-  assert.equal(first.every(entry => entry.code === 'probe_timeout_unknown'), true);
+  assert.equal(first.every(entry => entry.code === 'probe_timeout'), true);
   const initial = calls;
   await new Promise(resolve => setTimeout(resolve, 120));
   assert.equal(calls > initial, true, 'a bounded recheck must run');
-  // Every model in the family gets at most 1 probe + 2 bounded rechecks.\n  assert.equal(calls <= initial * 3, true, 'rechecks must stop after the configured budget');
+  // Every model in the family gets at most 1 probe + 2 bounded rechecks.
+  assert.equal(calls <= initial * 3, true, 'rechecks must stop after the configured budget');
   assert.equal(catalog.snapshot({family: 'generation'}).every(entry => entry.status === 'unknown'), true);
 });

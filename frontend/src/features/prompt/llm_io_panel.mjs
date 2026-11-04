@@ -11,7 +11,7 @@ import {slotRows,slotSignature,outputText,hasTableInput} from './llm_slot_model.
 import {optimizeRow} from './llm_local_provider.mjs';
 import {createLLMTask} from './llm_task_model.mjs';
 import {getModelCatalog} from '../models/model_catalog.mjs';
-import {canSubmitModel,updateModelOption} from '../models/model_catalog_ui.mjs';
+import {canSubmitModel,updateModelOption,modelOptionPresentation,bindModelProbeRetry} from '../models/model_catalog_ui.mjs';
 // Reconcile against the actual controls, including shared-control changes. Do
 // not cache render inputs: Slot validation, task snapshots and native outputs
 // must still be refreshed on every render.
@@ -79,7 +79,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
     const supported=model=>models.some(option=>option.id===logicalModel(model));
     const modelLabel=model=>models.find(option=>option.id===logicalModel(model))?.label||'未识别模型';
     const syncSourceBadge=model=>{const status=modelCatalog.get(logicalModel(model));sourceBadge.textContent=modelSourceBadge(status);sourceBadge.dataset.source=modelSourceKind(status);};
-    function refreshModelOptions(){rebuildModelOptions();syncSourceBadge(saved().model);const current=logicalModel(saved().model);for(const option of select.children||select.options||[]){const model=models.find(item=>item.id===option.value);if(model)updateModelOption(option,modelCatalog.get(model.id));}const model=models.find(item=>item.id===current);select.disabled=!model||!canSubmitModel(modelCatalog.get(current));const status=model&&modelCatalog.get(current);if(status?.checking)select.setAttribute('aria-busy','true');else select.removeAttribute('aria-busy');}
+    function refreshModelOptions(){rebuildModelOptions();syncSourceBadge(saved().model);const current=logicalModel(saved().model);for(const option of select.children||select.options||[]){const model=models.find(item=>item.id===option.value);if(model)updateModelOption(option,modelCatalog.get(model.id));}const model=models.find(item=>item.id===current);select.disabled=!model;const status=model&&modelCatalog.get(current);if(status?.checking)select.setAttribute('aria-busy','true');else select.removeAttribute('aria-busy');}
     rebuildModelOptions();
     const generationTask=createLLMTask();
     const taskRail=make('div','llm-io-task-rail');taskRail.setAttribute('role','tablist');taskRail.setAttribute('aria-label','优化任务');root.append(taskRail);
@@ -157,7 +157,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
         setProperty(paragraph,'contentEditable',disabled||!d?.complete||stale||isApplied?'false':'plaintext-only');
         setProperty(apply,'disabled',disabled||!d?.complete||stale||isApplied||!!nativeDocument&&(proposalTicket?!nativeDocument.canApply(proposalTicket):restoredProposal!==d?.requestId));setProperty(apply,'hidden',isApplied);
         setProperty(recover,'disabled',disabled||!nativeDocument);setProperty(undo,'disabled',disabled||!saved().ioUndo);setProperty(undo,'hidden',!saved().ioUndo);setProperty(regenerate,'disabled',run.disabled||!d);
-        setProperty(status,'textContent',error||(d&&stale?'输入已改变，请重新生成':message|| (d?`${resultProvider==='qwen'?'本地 Qwen 结果':resultProvider==='deepseek'?'DeepSeek 结果':d.provider==='qwen-image-2.1-pe'?'PE 本地结果':d.provider==='gpt-6-luna'?'GPT-6 Luna 结果（Comfy）':'示例结果 · 未调用模型'}${isApplied?' · 已应用':' · 待应用'}`:rows.length&&!valid?'当前输入不支持此模式':rows.length?`${rows.length} 项输入 · 等待生成`:'请输入原始文字或连接输入')));
+        setProperty(status,'textContent',(modelCatalog.get(logicalModel(saved().model))?.status==='unknown'?modelOptionPresentation(modelCatalog.get(logicalModel(saved().model))).statusLabel:'')||error||(d&&stale?'输入已改变，请重新生成':message|| (d?`${resultProvider==='qwen'?'本地 Qwen 结果':resultProvider==='deepseek'?'DeepSeek 结果':d.provider==='qwen-image-2.1-pe'?'PE 本地结果':d.provider==='gpt-6-luna'?'GPT-6 Luna 结果（Comfy）':'示例结果 · 未调用模型'}${isApplied?' · 已应用':' · 待应用'}`:rows.length&&!valid?'当前输入不支持此模式':rows.length?`${rows.length} 项输入 · 等待生成`:'请输入原始文字或连接输入')));
         task=[...generationTask.snapshot(),...(!busy&&error?[{id:'llm-input',label:waiting?'等待输入':'输入异常',state:waiting?'queued':'error',detail:error}]:[])];
         try{node.setOutputData?.(0,outputText(node));}catch{node.setOutputData?.(0,null);}
     }
@@ -207,7 +207,9 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
             project({version:1,requestId:latest.source.groupId,signature:stamp,provider:logicalModel(saved().model),mode:saved().mode,instruction:saved().instruction||'',complete:true,rows:rows.map((row,index)=>({...row,result:group[index].result,requestId:group[index].requestId,status:'completed'}))});message='原结果已恢复，请审阅后同意更改';
         }catch(error){message=error.message;}finally{nativeDocument.releaseRequest(ticket);busy=false;render();}
     }
+    const retryProbe=createTableButton('\u91cd\u65b0\u68c0\u6d4b',()=>{});if(select.parentElement)select.after(retryProbe);else root.append(retryProbe);
+    const stopRetry=bindModelProbeRetry(retryProbe,{catalog:modelCatalog,getModel:()=>logicalModel(saved().model),active:()=>!disposed&&root.isConnected,retry:()=>{const id=logicalModel(saved().model);return modelCatalog.retry(id,{active:()=>!disposed&&root.isConnected&&logicalModel(saved().model)===id});}});
     const unsubscribeModels=modelCatalog.subscribe(()=>{refreshModelOptions();render();});
     const timer=setInterval(()=>{if(root.isConnected)render();},500);render();
-    const release=()=>{disposed=true;if(proposalTicket)nativeDocument?.releaseRequest(proposalTicket);clearInterval(timer);unsubscribeModels();for(const off of listeners)off();};release.sync=render;release.tasks=()=>task;return release;
+    const release=()=>{disposed=true;stopRetry();if(proposalTicket)nativeDocument?.releaseRequest(proposalTicket);clearInterval(timer);unsubscribeModels();for(const off of listeners)off();};release.sync=render;release.tasks=()=>task;return release;
 }
