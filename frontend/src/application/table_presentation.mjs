@@ -163,6 +163,7 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
             closeMenu();selected=null;editor.clearSelection();queueMicrotask(tick);return;
         }
         if(e.target.closest('[data-inline-editing=true]')){closeMenu();selected=null;editor.clearSelection();root.querySelectorAll('[data-column-selected=true]').forEach(node=>delete node.dataset.columnSelected);queueMicrotask(tick);return;}
+        if(menuOpen&&menuTrigger?.isConnected){const scope=menuTrigger.closest?.('th[data-column],.table-choice')||menuTrigger;if(scope.contains(e.target)){if(e.type==='pointerdown'&&e.target.closest?.('.field-title,.content-row-number'))closeMenu();return;}}
         const target=targetFor(e.target),capsule=e.type==='pointerdown'&&!e.target.closest('input,textarea,select')?e.target.closest('.field-title,.content-row-number'):null;
         if(capsule&&target&&['column','row'].includes(target.kind)&&menuAvailable()){e.preventDefault();open(target,capsule);return;}
         if(target)applyTarget(target);closeMenu();tick();
