@@ -18,7 +18,8 @@ canvas:docs/architecture/CONTRIBUTING_CONTROLS.md","frontend/src/design; fronten
 canvas:web/creative_canvas_view.mjs:517
 canvas:docs/architecture/FRONTEND_INTERACTION.md","frontend/src/canvas/commands; frontend/src/application/catalog","M2","保留一致入口和真实能力发现，避免新库暴露不可运行的旧业务节点。","三个入口展示一致的可用节点集合。
 未安装/未启用的能力不显示可执行菜单项。
-一次新建和初始定位形成一个可撤销编辑。","UC-CAN-001","TC-CAN-003"
+一次新建和初始定位形成一个可撤销编辑。
+2026-11-04：新建入口按输入/生成/剪辑分区，生成区提供文本、图片、视频独立入口；图片/视频固定类型并过滤模型。旧通用节点可加载且保留配置、连线、请求与输出，不自动转换或重提；菜单参考图不授权新业务类型。","UC-CAN-001","TC-CAN-003"
 "F-CAN-005","单文件与批量本地媒体上传","保留","源码已有选择文件上传、拖入空白创建节点、多文件顺序创建及支持格式筛选。","canvas:web/media_upload.js
 canvas:web/creative_canvas_view.mjs
 canvas:web/media_upload_model.mjs","frontend/src/features/assets/upload; backend/assets","M2","保留低门槛素材入口和部分失败不阻断整批的行为。","PNG/JPG/WebP/MP4/WebM/MOV 按已声明格式处理。
@@ -404,12 +405,14 @@ business:tests/libtv_canvas_result.test.mjs
 business:docs/comfy-credit-generation.md","backend/integrations/comfyui; frontend/src/features/generation; compat/legacy","M4","单包仍是 ComfyUI 扩展，原生图的类型化输出与创作面板保持一致。","无完成结果、结果来源变化或文件缺失时返回明确错误而非悄悄生成。
 已完成结果通过原槽位输出，输出不会触发第二次付费请求。
 用户清除原生历史后：账本不得因缺失记录而重提或改写成 succeeded。通过正常恢复路径从 running 转为待恢复／原执行记录缺失，保留未知结果、原 request_id、尝试及取消记录，不另造成功或取消状态。","UC-BIZ-010","TC-BIZ-030 TC-BIZ-042"
-"F-BIZ-043","LLM 优化节点的多源输入与审阅后输出","保留","LLMStylePreviewB 是当前生产入口，支持文本、图片、素材组、表格和其他输入，提供结果与逐行结果两个输出；后端执行只读已应用结果。","business:web/llm_style_preview.js
+"F-BIZ-043","文本生成节点的多源输入、默认模板与审阅后输出","保留","LLMStylePreviewB 是当前生产入口，支持文本、图片、素材组、表格和其他输入，提供结果与逐行结果两个输出；后端执行只读已应用结果。","business:web/llm_style_preview.js
 business:web/llm_slot_model.mjs
 business:web/llm_io_model.mjs
 business:nodes/prompt_optimization/approved_result.py
 business:docs/architecture/LLM_SLOT_IO.md","frontend/src/features/prompt; frontend/src/application; backend/prompt; backend/integrations/comfyui","M3","不能把生产 LLM 节点缩减为一次性润色弹窗；保留组合输入、逐行身份和显式审阅。","多源输入按稳定身份读取；不得因缺来源取其他预览作替代。
-只有应用后的结果可接线；逐行结果保留唯一行 ID；原生执行不触发模型调用。","UC-BIZ-007","TC-BIZ-048"
+只有应用后的结果可接线；逐行结果保留唯一行 ID；原生执行不触发模型调用。
+2026-11-04：文本生成复用现有节点；外接来源时原文框置灰禁用且保留内部草稿，断线后恢复；外部输入为空不回退旧草稿。表格勾选行及素材组沿用现有批量、顺序、审阅与确认输出，各行内容和参考独立。
+内置画面描述、镜头运动、参考图引用三类默认模板；正文和模板草稿可编辑，保持主体事实及参考编号/顺序，不编造缺失参考，不跨行套用内容；新模板不改旧冻结任务或已确认结果。千问3.8 27B本轮不接入。","UC-BIZ-007","TC-BIZ-048"
 "F-BIZ-044","旧独立分镜生成与 LLM 样式原型的收敛","重构","GPTImageStoryboardStage 当前仍有 Comfy 图片执行实现；LLM A/C/D/E 为前端虚拟样式原型。新库只读兼容/显式转换是拟定收敛决策，并非当前都已退役。","business:nodes/daelab_comfytv_storyboard/node.py
 business:web/llm_style_preview.js:12
 business:web/llm_style_preview.js:58","compat/workflows; compat/legacy","M6","分镜生成统一到通用表格/生成服务，原型数据可导入，避免生产继续暴露多套重叠执行入口。","旧分镜表/结果/输入可读取并预览转换差异，用户显式转换后才启用新生成入口。
@@ -486,7 +489,8 @@ business:nodes/libtv_bridge/table_generation_api.py","backend/assets; backend/co
 "F-SYS-022","统一只读模型目录与启动发现","重构","本地生成依赖显式装配文件，模型控件各自读取能力；无统一跨节点目录和完整启动/重连刷新。","business:web/table_generation_tasks.mjs
 business:web/llm_io_model.mjs","backend/providers; frontend/src/features/generation; frontend/src/features/prompt","M4","服务启动、应用打开或宿主重连后自动发现本机本地模型及已配置 DeepSeek；生成、LLM 优化和表格共用同一目录。已保存逻辑模型 ID 不自动回退。","启动、打开、重连、配置变化、手动重检和提交前复核使目录刷新，不加载 GPU、不发送计费请求。
 生成节点、LLM 优化节点和多维表格消费同一只读目录投影。
-已保存逻辑模型缺失时保持原 ID 并标为不可用，不静默换成其他模型。DeepSeek 仅配置与能力检查，不调用云或付费接口。","UC-SYS-012 UC-SYS-013","TC-SYS-037"
+已保存逻辑模型缺失时保持原 ID 并标为不可用，不静默换成其他模型。DeepSeek 仅配置与能力检查，不调用云或付费接口。
+2026-11-04：模型名后短胶囊从目录读取本地/API实际路由；开源/闭源须有明示模型信息，无依据时省略该属性。同名不同路由正确区分，不靠名称猜测，不改变可用性、模型ID或费用，不复制升级/VIP文案。","UC-SYS-012 UC-SYS-013","TC-SYS-037"
 "F-SYS-023","模型选项的隐式可用性状态","重构","现有控件可能显示不可用原因，未统一可选、检测中、待验证和不可用状态。","business:web/llm_io_model.mjs","frontend/src/ui; frontend/src/features/generation; frontend/src/features/prompt","M4","不可用置灰禁用，检测中显示加载圆环，可用保持默认；检测原因只写结构化日志，不出现在菜单、节点或 Toast。","选项只表达可选、检测中、待验证或不可用；不展示底层检测错误文本。
 不可用项禁用且可访问名称包含不可用状态；检测中显示加载指示。
 原因仅写入结构化日志，不进入菜单、节点正文或 Toast。","UC-SYS-013","TC-SYS-038"

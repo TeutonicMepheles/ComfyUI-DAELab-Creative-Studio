@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "2b472f3526a652d9156ea6fc0c4591d4d678a2914266660fc6e5352fe3b7a8e5",
+  "specificationHash": "be0bb4e81fe55b687c560874cfa839ef1bf98b7d9e63369ef30d848a3fd4b819",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -394,6 +394,7 @@
         "AC-CAN-004-001",
         "AC-CAN-004-002",
         "AC-CAN-004-003",
+        "AC-CAN-004-004",
         "AC-CAN-009-001",
         "AC-CAN-009-002",
         "AC-CAN-009-003",
@@ -747,7 +748,9 @@
         "AC-BIZ-017-002",
         "AC-BIZ-017-003",
         "AC-BIZ-043-001",
-        "AC-BIZ-043-002"
+        "AC-BIZ-043-002",
+        "AC-BIZ-043-003",
+        "AC-BIZ-043-004"
       ],
       "usecases": [
         "UC-BIZ-002",
@@ -1014,7 +1017,8 @@
         "AC-BIZ-028-002",
         "AC-SYS-022-001",
         "AC-SYS-022-002",
-        "AC-SYS-022-003"
+        "AC-SYS-022-003",
+        "AC-SYS-022-004"
       ],
       "usecases": [
         "UC-BIZ-009",
@@ -1708,6 +1712,25 @@
       "owner": "canvas",
       "requirement": "一次新建和初始定位形成一个可撤销编辑。",
       "requirementHash": "8898eb4e181f24aef47973a71073d193303fccc03ebb784cbc79c760eb3b5e0d",
+      "usecases": [
+        "UC-CAN-001"
+      ],
+      "tests": [
+        "TC-CAN-003"
+      ],
+      "evals": [
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-CAN-004-004",
+      "feature": "F-CAN-004",
+      "task": "TASK-M2-CANVAS",
+      "owner": "canvas",
+      "requirement": "2026-11-04：新建入口按输入/生成/剪辑分区，生成区提供文本、图片、视频独立入口；图片/视频固定类型并过滤模型。旧通用节点可加载且保留配置、连线、请求与输出，不自动转换或重提；菜单参考图不授权新业务类型。",
+      "requirementHash": "55b19e45f415e6df3ce2bedfa6d8b6c43689934558a6c3e9be3d2b965801b1dc",
       "usecases": [
         "UC-CAN-001"
       ],
@@ -6267,6 +6290,44 @@
       "evidence": []
     },
     {
+      "id": "AC-BIZ-043-003",
+      "feature": "F-BIZ-043",
+      "task": "TASK-M3-FEATURES-PROMPT",
+      "owner": "features/prompt",
+      "requirement": "2026-11-04：文本生成复用现有节点；外接来源时原文框置灰禁用且保留内部草稿，断线后恢复；外部输入为空不回退旧草稿。表格勾选行及素材组沿用现有批量、顺序、审阅与确认输出，各行内容和参考独立。",
+      "requirementHash": "78d5ece05d28da4ac0c86e63279a59a0a8d09860dd136c8fdc5f6a54441b2d79",
+      "usecases": [
+        "UC-BIZ-007"
+      ],
+      "tests": [
+        "TC-BIZ-048"
+      ],
+      "evals": [
+        "EV-ARCH"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-043-004",
+      "feature": "F-BIZ-043",
+      "task": "TASK-M3-FEATURES-PROMPT",
+      "owner": "features/prompt",
+      "requirement": "内置画面描述、镜头运动、参考图引用三类默认模板；正文和模板草稿可编辑，保持主体事实及参考编号/顺序，不编造缺失参考，不跨行套用内容；新模板不改旧冻结任务或已确认结果。千问3.8 27B本轮不接入。",
+      "requirementHash": "f0ed827702a07f63a6ff77e45af7c469a9ff885be587112be1fca6bb76cf517a",
+      "usecases": [
+        "UC-BIZ-007"
+      ],
+      "tests": [
+        "TC-BIZ-048"
+      ],
+      "evals": [
+        "EV-ARCH"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
       "id": "AC-BIZ-044-001",
       "feature": "F-BIZ-044",
       "task": "TASK-M6-COMPAT",
@@ -7212,6 +7273,26 @@
       "evidence": []
     },
     {
+      "id": "AC-SYS-022-004",
+      "feature": "F-SYS-022",
+      "task": "TASK-M4-BACKEND-PROVIDERS",
+      "owner": "backend/providers",
+      "requirement": "2026-11-04：模型名后短胶囊从目录读取本地/API实际路由；开源/闭源须有明示模型信息，无依据时省略该属性。同名不同路由正确区分，不靠名称猜测，不改变可用性、模型ID或费用，不复制升级/VIP文案。",
+      "requirementHash": "6187c56cfd10aaa0926ec08bc79b60f7d0be8604bde02cd7184f91125ad1a0c1",
+      "usecases": [
+        "UC-SYS-012",
+        "UC-SYS-013"
+      ],
+      "tests": [
+        "TC-SYS-037"
+      ],
+      "evals": [
+        "EV-ARCH"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
       "id": "AC-SYS-023-001",
       "feature": "F-SYS-023",
       "task": "TASK-M4-DESIGN-UI",
@@ -8087,6 +8168,7 @@
         "AC-CAN-004-001",
         "AC-CAN-004-002",
         "AC-CAN-004-003",
+        "AC-CAN-004-004",
         "AC-CAN-013-001",
         "AC-CAN-013-002",
         "AC-CAN-013-003"
@@ -8094,7 +8176,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "64385afcbb54b8e1bd5d937d5f5be825e7ffb53ac2c02fea1a235847a53b8c3d",
+      "specificationHash": "95387e0ede3ce0a4236febbb6c58f935a7c51e5a946c3d14b5e92425dc2167e4",
       "assertions": [
         {
           "id": "AS-CAN-003-001",
@@ -8107,6 +8189,10 @@
         {
           "id": "AS-CAN-003-003",
           "expected": "初始位置位于指定落点且不额外生成历史步骤。"
+        },
+        {
+          "id": "AS-CAN-003-004",
+          "expected": "分区和图标菜单一致；新节点类型固定；旧节点配置、连线、请求和输出保留，无隐式新提交。"
         }
       ],
       "status": "not-executed",
@@ -10714,7 +10800,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "7560be15c841f579a646a4bd143c77af27ec542c6ea71d81b1805789d1aae8bf",
+      "specificationHash": "dea3621d717cd5f89e727a9b439ea521f35afa3760d825db50e26463cd375c2a",
       "assertions": [
         {
           "id": "AS-BIZ-021-001",
@@ -11650,7 +11736,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "8a13d679ad2779e21aa37db51b5ef28c2e0789508fbde2b745eca47914a960e2",
+      "specificationHash": "b106d7c2a63d26d1398eb2fbbfb76a2e8158ae67aec61c3bbb44f1c2e3ecbb79",
       "assertions": [
         {
           "id": "AS-BIZ-046-001",
@@ -11732,12 +11818,14 @@
         "AC-BIZ-017-002",
         "AC-BIZ-017-003",
         "AC-BIZ-043-001",
-        "AC-BIZ-043-002"
+        "AC-BIZ-043-002",
+        "AC-BIZ-043-003",
+        "AC-BIZ-043-004"
       ],
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "1fbf3d92174900302632ee68bb9382d320fe901b66e983a15653adb0e9e0e982",
+      "specificationHash": "73e0f9437d3b182ebf794afd1220f52d14b24baf0b941b6dd62315d802881d77",
       "assertions": [
         {
           "id": "AS-BIZ-048-001",
@@ -11746,6 +11834,10 @@
         {
           "id": "AS-BIZ-048-002",
           "expected": "原生执行只读取应用快照，零模型调用；来源失效不使用别的预览；DeepSeek/Comfy仅协议模拟，本地Qwen真实结果由TC-BIZ-047验收。"
+        },
+        {
+          "id": "AS-BIZ-048-003",
+          "expected": "外接时禁止内部编辑，断开恢复草稿，空来源不回退；模板和逐行参考正确，旧结果不被模板变更覆盖；不新增27B模型调用。"
         }
       ],
       "status": "not-executed",
@@ -13643,12 +13735,13 @@
       "acceptance": [
         "AC-SYS-022-001",
         "AC-SYS-022-002",
-        "AC-SYS-022-003"
+        "AC-SYS-022-003",
+        "AC-SYS-022-004"
       ],
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "972cdcf20aef1ee0113e0bd680513eadc1c6c26da2ee077202af684cb8a2bf52",
+      "specificationHash": "222dcdaabdc78c17d845f91d8db3efb97d30947a7f66367e3e5aea4b17a4626c",
       "assertions": [
         {
           "id": "AS-SYS-037-001",
