@@ -44,3 +44,10 @@ class VideoProfileTests(unittest.TestCase):
         prepared=provider.build(self.data(BASE_VIDEO_MODEL,settings={'width':512,'height':288,'duration':2,'turbo':True,'seed':7}),[],'low-tier-turbo-request')
         self.assertNotIn('turbo',prepared['graph'])
         self.assertEqual(prepared['graph']['schedule']['inputs']['steps'],20)
+    def test_catalog_and_routing_register_the_low_tier_models(self):
+        from backend.generation.service import MODELS
+        self.assertEqual(MODELS[BASE_VIDEO_MODEL], 'local-h3-base')
+        self.assertEqual(MODELS[BASE_REFERENCE_VIDEO_MODEL], 'local-h3-reference-base')
+        self.assertEqual(MODELS[VIDEO_MODEL], 'local-h3')
+        self.assertEqual(self.provider('base').id, MODELS[BASE_VIDEO_MODEL])
+        self.assertEqual(self.provider('base', reference=True).id, MODELS[BASE_REFERENCE_VIDEO_MODEL])

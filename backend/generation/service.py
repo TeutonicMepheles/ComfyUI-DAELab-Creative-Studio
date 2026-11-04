@@ -14,7 +14,7 @@ from ..contracts.errors import Conflict, InvalidInput, InvalidTransition, Missin
 from ..contracts.validation import clean_json, digest, identity
 from ..jobs.ledger import TERMINAL_STATES
 from ..providers.contracts import Observation, ProviderUnavailable, SubmissionRejected, SubmissionUncertain
-from ..providers.parameters import BASE_IMAGE_MODEL, IMAGE_MODEL, VIDEO_MODEL, REFERENCE_VIDEO_MODEL, QWEN_MODEL
+from ..providers.parameters import BASE_IMAGE_MODEL, BASE_REFERENCE_VIDEO_MODEL, BASE_VIDEO_MODEL, IMAGE_MODEL, VIDEO_MODEL, REFERENCE_VIDEO_MODEL, QWEN_MODEL
 from ..providers.native_text import PE_MODEL, PE_PROVIDER
 from ..providers.comfy_video import SeedanceProvider, MinimaxProvider
 from ..providers.comfy_image import ComfyImageProvider
@@ -24,7 +24,12 @@ from .admission import ResourceAdmission, complete_blocking
 MODELS = {BASE_IMAGE_MODEL: 'local-qwen-image-base', IMAGE_MODEL: 'local-qwen-image', VIDEO_MODEL: 'local-h3', QWEN_MODEL: 'local-qwen-text', 'qwen': 'local-qwen-text'}
 MODELS.update({'gpt-6-luna': 'comfy-gpt-text'})
 MODELS[REFERENCE_VIDEO_MODEL] = 'local-h3-reference'
+<<<<<<< HEAD
 MODELS[PE_MODEL] = PE_PROVIDER
+=======
+MODELS[BASE_VIDEO_MODEL] = 'local-h3-base'
+MODELS[BASE_REFERENCE_VIDEO_MODEL] = 'local-h3-reference-base'
+>>>>>>> 0590523 (fix: register the low-tier video models in the catalogue and routing)
 MODELS.update({model: provider.id for provider in (SeedanceProvider, MinimaxProvider, ComfyImageProvider) for model in provider.models})
 _BARRIERS = {'rejected', 'fenced'}
 _SCOPE_IDS = {'documentId', 'tableId', 'nodeId', 'recordId', 'fieldId', 'workflowSession', 'groupId'}
