@@ -1,5 +1,6 @@
 """Local native provider. It builds a prompt; the injected host owns execution."""
 import hashlib
+import threading
 import asyncio
 from pathlib import Path
 import uuid
@@ -7,6 +8,50 @@ import uuid
 from ..contracts.errors import InvalidInput
 from .contracts import Observation, ProviderUnavailable, SubmissionRejected, SubmissionUncertain
 from .parameters import BASE_IMAGE_MODEL, BASE_REFERENCE_VIDEO_MODEL, BASE_VIDEO_MODEL, IMAGE_MODEL, VIDEO_MODEL, REFERENCE_VIDEO_MODEL, IMAGE_FILES, VIDEO_FILES, compile_segments, settings_for, image_graph, video_graph
+
+
+_VERIFIED_LOCK = threading.Lock()
+_VERIFIED_OK = set()
+_VERIFY_INFLIGHT = {}
+
+
+def _verify_shared(path, stamp, expected_sha256, name):
+    """Hash each pinned file once per identity, across providers and threads.
+
+    Only completed successes are shared. A failure is never cached as success, and
+    any size/mtime/sha256 change yields a new stamp that must be re-verified.
+    """
+    while True:
+        owner = False
+        with _VERIFIED_LOCK:
+            if stamp in _VERIFIED_OK:
+                return
+            event = _VERIFY_INFLIGHT.get(stamp)
+            if event is None:
+                event = threading.Event()
+                _VERIFY_INFLIGHT[stamp] = event
+                owner = True
+        if not owner:
+            event.wait()
+            with _VERIFIED_LOCK:
+                if stamp in _VERIFIED_OK:
+                    return
+            raise ProviderUnavailable('Local model verification failed earlier in this process: ' + name)
+        try:
+            digest = hashlib.sha256()
+            with path.open('rb') as stream:
+                for block in iter(lambda: stream.read(1024 * 1024), b''):
+                    digest.update(block)
+            after = path.stat()
+            if digest.hexdigest() != expected_sha256 or (stamp[1], stamp[2]) != (after.st_size, after.st_mtime_ns):
+                raise ProviderUnavailable('Local model hash differs from the fixed stack: ' + name)
+            with _VERIFIED_LOCK:
+                _VERIFIED_OK.add(stamp)
+            return
+        finally:
+            with _VERIFIED_LOCK:
+                _VERIFY_INFLIGHT.pop(stamp, None)
+            event.set()
 
 
 class ModelInventory:
@@ -45,13 +90,7 @@ class ModelInventory:
             stamp = (str(path.resolve()), stat.st_size, stat.st_mtime_ns, expected['sha256'])
             if self._verified.get(key) == stamp:
                 continue
-            h = hashlib.sha256()
-            with path.open('rb') as stream:
-                for block in iter(lambda: stream.read(1024 * 1024), b''):
-                    h.update(block)
-            after = path.stat()
-            if h.hexdigest() != expected['sha256'] or (stat.st_size, stat.st_mtime_ns) != (after.st_size, after.st_mtime_ns):
-                raise ProviderUnavailable('Local model hash differs from the fixed stack: ' + expected['name'])
+            _verify_shared(path, stamp, expected['sha256'], expected['name'])
             self._verified[key] = stamp
 
 
