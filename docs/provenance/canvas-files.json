@@ -324,9 +324,10 @@
       "source": "web/asset_library.css",
       "destination": "frontend/src/features/assets/asset_library.css",
       "sourceSha256": "a29f80d5fff8c620c39a87796375db6caa2af6b133d47990defbeec16365c279",
-      "destinationSha256": "a29f80d5fff8c620c39a87796375db6caa2af6b133d47990defbeec16365c279",
+      "destinationSha256": "edf85cab24234da131eab3666b3e6d78a389af22e025b5973364e039832e65a5",
       "changes": [
-        "relocate into owner layer; rewrite relative module/style/resource paths"
+        "relocate into owner layer; rewrite relative module/style/resource paths",
+        "2026-11-05: mount the reviewed folder browser in the existing library with shared typography and owned lifecycle."
       ],
       "kind": "production-source"
     },
@@ -334,12 +335,13 @@
       "source": "web/asset_library.mjs",
       "destination": "frontend/src/features/assets/asset_library.mjs",
       "sourceSha256": "9562dfc7481576ac6b5546c3eb9b100536dcfe6e4d8dbbfa38745b3588e6230e",
-      "destinationSha256": "ee0c1d6f4eaf3eb6c80997fb4673447cd381eaf6a5116f518e681cb63f3caa34",
+      "destinationSha256": "2c7a59c904ebf6737e4c608bbb2d53ec66961900e3717494a2a112e450a79266",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "asynchronous per-instance 48-entry server pagination, explicit original-preserving legacy imports and no video thumbnail preload; validate server asset identity before reuse",
         "Actual-host follow-up: preserve async pagination disabled eligibility and propagate native save before field focus guards.",
-        "Actual-host nested keyboard follow-up: shared save propagation in nested panel/popover; keep local editor keys and IME/229 ownership."
+        "Actual-host nested keyboard follow-up: shared save propagation in nested panel/popover; keep local editor keys and IME/229 ownership.",
+        "2026-11-05: mount the reviewed folder browser in the existing library with shared typography and owned lifecycle."
       ],
       "kind": "production-source"
     },
@@ -1278,9 +1280,10 @@
       "kind": "production-source",
       "changes": [
         "Library folder panel: create real subdirectories under the existing asset root and persist folderId -> relative path alongside the asset database.",
-        "Reviewed interaction draft: sibling names unique (case-folded), invalid or reserved names rejected in place, folder tree survives reload and host restart, existing materials stay at their original paths."
+        "Reviewed interaction draft: sibling names unique (case-folded), invalid or reserved names rejected in place, folder tree survives reload and host restart, existing materials stay at their original paths.",
+        "2026-11-05: mount the reviewed folder browser in the existing library with shared typography and owned lifecycle."
       ],
-      "destinationSha256": "ab77dc434aa96c15fb9ce751fd6e79b10bbd200090ad0da99f3a7639154e3df5"
+      "destinationSha256": "5b31955280c52da463152198e7b1bbc41ca669d69f632a16bf3566f3aefb54e9"
     }
   ],
   "hostBoundary": {

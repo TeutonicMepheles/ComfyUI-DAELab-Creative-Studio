@@ -4,6 +4,7 @@ import {stopCanvasPropagation} from '../../ui/creative_events.mjs';
 import {readLibrary,lookupFavorite,removeFavorite,subscribeLibrary,readLegacyDocument,importLegacyLibrary,createAssetRequestScope} from './asset_library_model.mjs';
 import {assetURL} from './media_upload_model.mjs';
 import {libraryIcon} from './asset_favorite.mjs?v=20261015-2';
+import {mountAssetFolders} from './asset_folders_panel.mjs';
 
 const el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text)e.textContent=text;return e;};
 export function createAssetLibrary(root,{onCreate,onAdd}){
@@ -61,7 +62,7 @@ export function createAssetLibrary(root,{onCreate,onAdd}){
         if(!alive||!open)return;
         const focused=document.activeElement,focusId=focused?.dataset?.assetId||focused?.dataset?.removeId,focusRemove=!!focused?.dataset?.removeId,scroll=grid.scrollTop;
         grid.querySelectorAll('video').forEach(v=>{v.pause();v.removeAttribute('src');v.load();});tilesBindings.splice(0).forEach(release=>release());grid.replaceChildren();
-        const list=entries;
+        const list=folders.folderId==='root'?entries:[];
         if(!list.some(e=>e.id===selected))selected=list[0]?.id||null;
         for(const entry of list){
             const tile=el('article','dae-library-tile'),thumb=action('',null,()=>{selected=entry.id;selection();},tilesBindings);thumb.className='dae-library-thumb';thumb.dataset.assetId=entry.id;thumb.setAttribute('aria-label',entry.name);thumb.append(media(entry));thumb.addEventListener('dblclick',()=>showPreview());
@@ -70,12 +71,13 @@ export function createAssetLibrary(root,{onCreate,onAdd}){
             const remove=action('取消收藏','star-fill',async()=>{try{await removeFavorite(entry.id);if(alive){say('已取消收藏，原文件和画布素材保留');search.focus();}}catch(e){say(e.message);}},tilesBindings);remove.dataset.removeId=entry.id;remove.setAttribute('aria-label','取消收藏 '+entry.name);remove.title='取消收藏';remove.className='dae-library-remove';
             line.append(label,remove);tile.append(thumb,line);grid.append(tile);
         }
-        if(!list.length){const empty=el('div','dae-library-empty');empty.append(libraryIcon('archive-stack-line'),el('strong','',entries.length?'没有匹配的收藏':'把常用素材留在这里'),el('span','',entries.length?'试试其他类型或名称':'点击素材上的收藏按钮，即可跨工作流复用'));grid.append(empty);}
+        if(!list.length){const empty=el('div','dae-library-empty');empty.append(libraryIcon('archive-stack-line'),el('strong','',folders.folderId!=='root'?'这个文件夹还没有素材':entries.length?'没有匹配的收藏':'把常用素材留在这里'),el('span','',folders.folderId!=='root'?'可新建子文件夹或返回上一级':entries.length?'试试其他类型或名称':'点击素材上的收藏按钮，即可跨工作流复用'));grid.append(empty);}
         count.textContent=total?`${total} 项 · ${offset+1}–${offset+entries.length}`:'0 项';previous.disabled=offset===0;next.disabled=!hasMore;for(const b of filters.children)b.setAttribute('aria-pressed',String(b.dataset.filter===filter));selection();grid.scrollTop=scroll;
         if(focusId){const candidate=[...grid.querySelectorAll(focusRemove?'[data-remove-id]':'[data-asset-id]')].find(b=>(focusRemove?b.dataset.removeId:b.dataset.assetId)===focusId);candidate?.focus({preventScroll:true});}
     }
     async function refresh(){
         if(!alive||!open)return;
+        if(folders.folderId!=='root'){requests.cancel();entries=[];total=0;hasMore=false;selected=null;closePreview();render();return;}
         return requests.run(signal=>readLibrary({q:query,...(filter==='all'?{}:{kind:filter}),limit:pageSize,offset,signal}),page=>{
             entries=page.entries;total=page.total;hasMore=page.hasMore;
             if(!entries.length&&offset>0){offset=Math.max(0,offset-pageSize);void refresh();return;}
@@ -102,13 +104,15 @@ export function createAssetLibrary(root,{onCreate,onAdd}){
             if(alive&&token===epoch)say('已加入画布，可使用 Ctrl+Z 撤销');
         }catch(error){if(alive&&token===epoch&&error.name!=='AbortError')say(error.message);}
     }
-    function setOpen(value){open=value;drawer.hidden=!open;toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-pressed',String(open));root.dataset.libraryOpen=String(open);if(open){void refresh();search.focus();}else{requests.cancel();++epoch;controller?.abort();closePreview();grid.querySelectorAll('video').forEach(v=>v.pause());}}
+    function setOpen(value){open=value;folders.setActive(open);drawer.hidden=!open;toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-pressed',String(open));root.dataset.libraryOpen=String(open);if(open){void folders.reload();void refresh();search.focus();}else{requests.cancel();++epoch;controller?.abort();closePreview();grid.querySelectorAll('video').forEach(v=>v.pause());}}
     for(const container of [dock,drawer,dialog]){
         for(const type of ['pointerdown','dblclick','contextmenu','wheel','copy','paste'])container.addEventListener(type,e=>e.stopPropagation());
         for(const type of ['dragover','drop'])container.addEventListener(type,e=>{e.preventDefault();e.stopPropagation();});
         container.addEventListener('keydown',e=>{stopCanvasPropagation(e);if(e.key==='Escape'&&!e.isComposing&&e.keyCode!==229){e.preventDefault();if(dialog.open)closePreview();else{setOpen(false);toggle.focus();}}});
     }
     dialog.addEventListener('cancel',e=>{e.preventDefault();closePreview();});
-    const release=subscribeLibrary(refresh);
+    const folders=mountAssetFolders({drawer,header,tools,grid,search,notice:say,onNavigate:()=>{query='';offset=0;selected=null;closePreview();void refresh();}});
+    bindings.push(()=>folders.destroy());
+    const release=subscribeLibrary(()=>{if(open){void folders.reload();void refresh();}});
     return {dock,drawer,close:()=>setOpen(false),destroy(){alive=false;requests.dispose();++epoch;controller?.abort();closePreview();release();tilesBindings.splice(0).forEach(fn=>fn());bindings.splice(0).forEach(fn=>fn());dock.remove();drawer.remove();dialog.remove();delete root.dataset.assetLibrary;delete root.dataset.libraryOpen;}};
 }
