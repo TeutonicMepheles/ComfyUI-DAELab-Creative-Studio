@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "2d3e6cfd2db17357c74fdfba3a63931502c1a4e40661c044a14d4ebc1822e7cb",
+  "specificationHash": "5bd86f47555dde570a8594342d449612c272ce91a9dd3bd2ddeb5487cea50256",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -3092,8 +3092,8 @@
       "feature": "F-CAN-023",
       "task": "TASK-M1-DESIGN-UI",
       "owner": "design/ui",
-      "requirement": "2026-11-04：图片与视频生成节点的模型配置面板统一为一套样式与结构：抽卡次数、生成方式、比例、生成时长使用同一分段控件，宽度、圆角、内边距、行高、字号字重及选中/悬停/禁用态一致，不为同一选中状态使用两种描边。比例项只显示形状图标与比例文字，选项下方不再显示具体像素，像素只出现在底部单行状态。面板底部不常驻辅助说明段落（含步长、自动回退等解释），约束由选项本身或悬停说明表达。视频生成时长只提供整数秒、步长1秒，不出现0.5秒一类半秒档，范围以模型能力声明为准，超出模型上限的档位不显示。图片节点的自动比例与视频节点的固定比例只反映模型能力差异，控件外观保持一致。已保存任务的原参数保留，不因选项收敛被改写。",
-      "requirementHash": "269426a8b2e54ae23a3978822d29ea0aa6d4065a89b7ff9ebdb90ca8f82cc0ec",
+      "requirement": "2026-11-04：图片与视频生成节点的模型配置面板统一为一套样式与结构：抽卡次数、生成方式、比例、生成时长使用同一分段控件，宽度、圆角、内边距、行高、字号字重及选中/悬停/禁用态一致，不为同一选中状态使用两种描边。比例项只显示形状图标与比例文字，选项下方与面板底部状态行都不显示具体像素或分辨率文字；分辨率只在内部提交参数与实际输出中保留。面板底部不常驻辅助说明段落（含步长、自动回退等解释），约束由选项本身或悬停说明表达。视频生成时长只提供整数秒、步长1秒，不出现0.5秒一类半秒档，范围以模型能力声明为准，超出模型上限的档位不显示。图片节点的自动比例与视频节点的固定比例只反映模型能力差异，控件外观保持一致。已保存任务的原参数保留，不因选项收敛被改写。",
+      "requirementHash": "4deabd74fa51cd4212b0bce8b78ea59d46bdb76006e52ca91572341a3d2dea24",
       "usecases": [
         "UC-CAN-007",
         "UC-CAN-013"
@@ -8184,7 +8184,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "33a9d3a3329b7fd512cb06940635143a6c01a45ab9f6abce4c04e7718a1bf674",
+      "specificationHash": "f31a98628010900b65b2f46f223b9aa922ee3c92edeca20cdf1b30b305001e89",
       "assertions": [
         {
           "id": "AS-CAN-002-001",
@@ -9178,7 +9178,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "09e25a011db543c13a7c5bfb90681125806350e36b834ef22733511bf83dbd3f",
+      "specificationHash": "5adfdd2a2345cc8fabfe7d45df75c60d7dd1f0c5ea6cd5e187e25df110d2f418",
       "assertions": [
         {
           "id": "AS-CAN-025-001",
@@ -9893,7 +9893,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "5e51b5a501ab8aa676c69569329ed0f84583f2b30747d9191b3ff9dae71e9775",
+      "specificationHash": "177b66e0afc1ab3866c6734d50d355005b70b03ac00859e4fe9ab940be5803ce",
       "assertions": [
         {
           "id": "AS-CAN-042-001",
