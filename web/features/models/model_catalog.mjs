@@ -22,6 +22,8 @@ export const GENERATION_MODEL_DEFINITIONS=Object.freeze([
     {id:'MiniMax H3 Ref（本地）',label:'MiniMax H3 Ref（本地）',family:'generation',kind:'video',provider:'local'},
     {id:'MiniMax H3 FL 低配（本地）',label:'MiniMax H3 FL 低配（本地）',family:'generation',kind:'video',provider:'local'},
     {id:'MiniMax H3 Ref 低配（本地）',label:'MiniMax H3 Ref 低配（本地）',family:'generation',kind:'video',provider:'local'},
+    {id:'MiniMax H3 FL 高配（本地）',label:'MiniMax H3 FL 高配（本地）',family:'generation',kind:'video',provider:'local'},
+    {id:'MiniMax H3 Ref 高配（本地）',label:'MiniMax H3 Ref 高配（本地）',family:'generation',kind:'video',provider:'local'},
 ]);
 
 export const OPTIMIZATION_MODEL_DEFINITIONS=Object.freeze([
