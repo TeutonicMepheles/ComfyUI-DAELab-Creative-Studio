@@ -127,7 +127,9 @@ class AssetAPI:
     def __init__(self, catalog):
         self.catalog = catalog
         prefix = '/daelab/studio/asset-library'
-        self.routes = (('GET', prefix + '/favorites', self.search),
+        self.routes = (('GET', prefix + '/folders', self.folders),
+                       ('POST', prefix + '/folders', self.create_folder),
+                       ('GET', prefix + '/favorites', self.search),
                        ('POST', prefix + '/register', self.register),
                        ('POST', prefix + '/resolve', self.resolve),
                        ('POST', prefix + '/favorites', self.favorite),
@@ -140,6 +142,24 @@ class AssetAPI:
         from aiohttp import web
         status = 404 if isinstance(exc, MissingRecord) else 503 if isinstance(exc, StorageError) else 409 if isinstance(exc, Conflict) else 400
         return web.json_response({'error': exc.public()}, status=status)
+
+    async def folders(self, request):
+        from aiohttp import web
+        try:
+            return web.json_response({'schemaVersion': 1, 'folders': await asyncio.to_thread(self.catalog.folders.list)})
+        except ContractError as exc:
+            return self._failure(exc)
+
+    async def create_folder(self, request):
+        from aiohttp import web
+        try:
+            value = await _body(request)
+            if set(value) - {'parentId', 'name'}:
+                raise InvalidInput('Unknown folder fields')
+            folder = await asyncio.to_thread(self.catalog.folders.create, value.get('parentId'), value.get('name'))
+            return web.json_response({'schemaVersion': 1, 'folder': folder})
+        except ContractError as exc:
+            return self._failure(exc)
 
     async def search(self, request):
         from aiohttp import web

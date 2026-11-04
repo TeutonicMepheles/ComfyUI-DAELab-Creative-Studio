@@ -76,6 +76,8 @@ class AssetCatalog:
                 raise InvalidInput("Frozen root conflicts with configured roots.")
             self.roots["frozen"] = self.frozen_root
         self.database = Database(database_path)
+        from .folders import AssetFolders
+        self.folders = AssetFolders(self.database, self.database.path.parent / 'asset-library')
 
     def resolve_reference(self, root_key, relative_path, *, must_exist=True):
         if not isinstance(root_key, str) or root_key not in self.roots or not isinstance(relative_path, str) or not relative_path or "\x00" in relative_path:

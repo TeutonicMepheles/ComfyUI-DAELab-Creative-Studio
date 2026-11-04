@@ -1,0 +1,32 @@
+import {listAssetFolders,createAssetFolder} from '../../application/asset_library_service.js';
+import {libraryIcon} from './asset_favorite.mjs';
+
+const el=(tag,cls,text)=>{const node=document.createElement(tag);if(cls)node.className=cls;if(text)node.textContent=text;return node;};
+/** Per-library view state. Directory identities and creation belong to the server. */
+export function mountAssetFolders({drawer,header,tools,grid,search,onNavigate,notice}){
+ let alive=true,folders=[],current='root',selected=null,draft=null,sequence=0;
+ const expanded=new Set(['root']),layout=el('div','library-layout'),sidebar=el('nav','library-sidebar'),main=el('div','library-main'),path=el('nav','library-path'),content=el('div','library-content'),cards=el('div','folder-cards');
+ sidebar.setAttribute('aria-label','文件夹目录');path.setAttribute('aria-label','目录路径');content.append(cards,grid);main.append(tools,path,content);layout.append(sidebar,main);drawer.insertBefore(layout,drawer.querySelector('.dae-library-notice'));
+ const create=el('button','new-folder','新建文件夹');create.type='button';create.onclick=()=>begin();tools.append(create);
+ const mobile=el('button','ref-icon-button directory-toggle','☰');mobile.type='button';mobile.setAttribute('aria-label','切换目录与素材');header.prepend(mobile);mobile.onclick=()=>{layout.dataset.tree=String(layout.dataset.tree!=='true');};
+ const get=id=>folders.find(folder=>folder.folderId===id);
+ const children=id=>folders.filter(folder=>folder.parentId===id);
+ function ancestry(id){const result=[],seen=new Set();while(id!=='root'){if(seen.has(id))throw Error('目录层级无效');seen.add(id);const folder=get(id);if(!folder)break;result.unshift(folder);id=folder.parentId;}return result;}
+ function icon(){const node=libraryIcon('folder-image-line');node.classList.add('folder-glyph');return node;}
+ function navigate(id){if(draft?.busy)return;current=id;selected=null;draft=null;layout.dataset.tree='false';search.value='';render();onNavigate();}
+ function button(label,action,cls=''){const node=el('button',cls,label);node.type='button';node.onclick=action;return node;}
+ function begin(){if(draft?.busy)return;draft={parentId:current,name:'',error:'',busy:false};render(true);}
+ function cancel(){if(draft?.busy)return;draft=null;render();create.focus();}
+ async function save(){const pending=draft;if(!pending||pending.busy)return;pending.busy=true;render();try{const folder=await createAssetFolder(pending.parentId,pending.name);if(!alive)return;folders=folders.filter(item=>item.folderId!==folder.folderId).concat(folder);current=pending.parentId;selected=folder.folderId;expanded.add(pending.parentId);draft=null;render();cards.querySelector('[data-selected=true]')?.focus();}catch(error){if(!alive||draft!==pending)return;pending.busy=false;pending.error=error.message;render(true);}}
+ function render(focus=false){
+  sidebar.replaceChildren();const heading=el('div','sidebar-heading','文件夹');heading.append(button('＋',begin,'ref-icon-button'));sidebar.append(heading,button('全部素材',()=>navigate('root'),'folder-enter root-folder'));
+  const visit=(id,depth)=>{for(const folder of children(id)){const row=el('div','folder-tree-row');row.style.paddingLeft=depth*16+'px';row.dataset.current=String(current===folder.folderId);const arrow=button(expanded.has(folder.folderId)?'⌄':'›',()=>{expanded.has(folder.folderId)?expanded.delete(folder.folderId):expanded.add(folder.folderId);render();},'ref-icon-button chevron');arrow.setAttribute('aria-label',(expanded.has(folder.folderId)?'折叠':'展开')+folder.name);arrow.setAttribute('aria-expanded',String(expanded.has(folder.folderId)));arrow.disabled=!children(folder.folderId).length;const open=button('',()=>navigate(folder.folderId),'folder-enter');open.append(icon(),el('span','',folder.name));row.append(arrow,open);sidebar.append(row);if(expanded.has(folder.folderId))visit(folder.folderId,depth+1);}};visit('root',0);
+  path.replaceChildren();const back=button('←',()=>navigate(get(current)?.parentId||'root'),'ref-icon-button');back.disabled=current==='root';back.setAttribute('aria-label','返回上一级');path.append(back,button('资产库',()=>navigate('root')));for(const folder of ancestry(current)){path.append(el('span','','/'),button(folder.name,()=>navigate(folder.folderId)));}
+  create.textContent=current==='root'?'新建文件夹':'新建子文件夹';create.disabled=Boolean(draft?.busy);cards.replaceChildren();cards.hidden=Boolean(search.value.trim());
+  if(draft){const form=el('form','folder-card folder-editor'),location=el('span','create-location',['资产库',...ancestry(draft.parentId).map(item=>item.name)].join(' / ')),input=el('input');input.setAttribute('aria-label','文件夹名称');input.placeholder='文件夹名称';input.maxLength=64;input.value=draft.name;input.disabled=draft.busy;input.oninput=()=>{draft.name=input.value;};input.onkeydown=event=>{if(event.key==='Escape'&&!event.isComposing){event.preventDefault();event.stopPropagation();cancel();}};const confirm=button(draft.busy?'…':'✓',()=>{}),dismiss=button('×',cancel);confirm.type='submit';confirm.disabled=dismiss.disabled=draft.busy;confirm.setAttribute('aria-label','确认新建文件夹');dismiss.setAttribute('aria-label','取消新建文件夹');const error=el('span','form-error',draft.error);error.setAttribute('role','alert');error.hidden=!draft.error;form.append(location,input,confirm,dismiss,error);form.onsubmit=event=>{event.preventDefault();void save();};cards.append(form);if(focus)requestAnimationFrame(()=>input.focus());}
+  for(const folder of children(current)){const card=button('',()=>navigate(folder.folderId),'folder-card');card.dataset.selected=String(selected===folder.folderId);card.setAttribute('aria-label','进入文件夹 '+folder.name);card.append(icon(),el('strong','',folder.name));cards.append(card);}
+ }
+ async function reload(){const token=++sequence;try{const result=await listAssetFolders();if(!alive||token!==sequence)return;folders=[...result];if(current!=='root'&&!get(current))current='root';render();}catch(error){if(alive&&token===sequence)notice(error.message);}}
+ search.addEventListener('input',()=>{cards.hidden=Boolean(search.value.trim());});render();
+ return {reload,get folderId(){return current;},get emptyFolder(){return current!=='root'&&!search.value.trim();},destroy(){alive=false;++sequence;layout.remove();mobile.remove();}};
+}

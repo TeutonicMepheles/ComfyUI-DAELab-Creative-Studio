@@ -12,6 +12,8 @@ async function request(path,options={}){
 const json=(value,signal)=>({method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(value),...(signal?{signal}:{})});
 /** @type {import('../../contracts/assets.js').AssetLibraryPort} */
 const service={
+    async listFolders(signal){return (await request('/folders',{signal})).folders;},
+    async createFolder(parentId,name){return (await request('/folders',json({parentId,name}))).folder;},
     async register(input,signal){return (await request('/register',json(input,signal))).registration;},
     async resolve(identity,signal){return (await request('/resolve',json(identity,signal))).registration;},
     search({q='',kind,limit=48,offset=0,signal}={}){

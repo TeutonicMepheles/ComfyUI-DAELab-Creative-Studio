@@ -17,7 +17,10 @@ export interface FavoriteImportReport {
   schemaVersion: 1; origin: string; source_preserved: true; accepted: number; rejected: number;
   report: { index: number; status: string; error?: { message: string } }[];
 }
+export interface AssetFolder { folderId: string; parentId: string; name: string; relativePath: string }
 export interface AssetLibraryPort {
+  listFolders(signal?: AbortSignal): Promise<readonly AssetFolder[]>;
+  createFolder(parentId: string, name: string): Promise<AssetFolder>;
   register(input: FavoriteInput, signal?: AbortSignal): Promise<AssetRegistration>;
   resolve(identity: Pick<AssetIdentity, 'assetId' | 'referenceId'>, signal?: AbortSignal): Promise<AssetRegistration>;
   search(query?: FavoriteQuery): Promise<FavoritePage>;

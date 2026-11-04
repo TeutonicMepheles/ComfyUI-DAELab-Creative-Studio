@@ -63,3 +63,6 @@ export function createAssetRequestScope() {
     },
   };
 }
+
+export const listAssetFolders = (signal?: AbortSignal) => service().listFolders(signal);
+export async function createAssetFolder(parentId: string, name: string) { const folder = await service().createFolder(parentId, name); changed(); return folder; }
