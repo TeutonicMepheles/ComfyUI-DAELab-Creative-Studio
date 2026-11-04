@@ -4,6 +4,7 @@
 什么；当前实现与执行证据由模块 README、架构合同和验证目录维护。
 
 - [产品模块图](MODULE_MAP.md)：用户目标、入口、职责、非目标及模块依赖。
+- [P-M04 资产库面板交互参考 v1](P-M04-asset-library-panel-draft.md)：待评审的展开布局与新建子文件夹方案，不代表已持久保存。
 - [P-M05 素材组](P-M05-material-groups.md)：同类型成员约束、打组、编辑和整组快照。
 - [P-M07 多维表格](P-M07-multidimensional-table.md)：表格填充、单格与按列输出、
   素材组结果和当前实现差距。
