@@ -235,7 +235,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
   else if(key==='model')choices(generationModelIDs(draft.kind).map(name=>[name,generationModelLabel(name)]),draft.model,(next,id)=>{next.model=id;if(next.kind==='video'&&typeof next.settings.duration==='number')next.settings.duration=Math.min(next.settings.duration,isLocalVideoModel(id)?15:30);});
   else {
    status.textContent='正在读取模型选项…';
-   try{const caps=await catalogModelCapabilities(draft,{active});schema=caps.schema;}catch(error){schema={};schemaError='模型不可用';status.textContent='无法读取当前模型的生成方式，请重试。';return;}
+   try{const caps=await catalogModelCapabilities(draft,{active});schema=caps.schema;}catch(error){schema={};schemaError='模型不可用';const entry=modelCatalog.get(draft.model);status.textContent=entry?.status==='unknown'?modelOptionPresentation(entry).statusLabel:'无法读取当前模型的生成方式，请重试。';return;}
    if(!active())return;
    try{
     current();status.textContent='';

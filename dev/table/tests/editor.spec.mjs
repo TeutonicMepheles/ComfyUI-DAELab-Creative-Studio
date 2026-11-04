@@ -140,3 +140,29 @@ test('generation settings keep their click target when the prompt hint appears',
   await page.keyboard.press('Escape');
  }
 });
+
+test('generation setting timeout preserves the catalog unknown explanation',async({page})=>{
+ let writes=0;page.on('request',request=>{if(request.method()==='POST')writes++;});
+ await page.evaluate(async()=>{
+  const {bindBusinessService}=await import('/web/contracts/business.js');
+  const {getModelCatalog}=await import('/web/features/models/model_catalog.mjs');
+  const original=window.setTimeout;window.setTimeout=(fn,ms,...args)=>original(fn,ms===120000?30:ms,...args);
+  bindBusinessService('generation',{request(action,{signal}){if(!action.startsWith('capabilities'))throw Error('Unexpected submission');return new Promise((_,reject)=>{if(signal.aborted)reject(new DOMException('timeout','AbortError'));else signal.addEventListener('abort',()=>reject(new DOMException('timeout','AbortError')),{once:true});});}});
+  getModelCatalog().invalidate({family:'generation'});
+  const {createMaterialTable}=await import('/web/application/table_material_columns.mjs');
+  const {addGenerationColumn}=await import('/web/features/generation/table_generation_model.mjs');
+  const {createTableEditor}=await import('/web/application/table_editor.mjs');
+  const {attachGenerationColumns}=await import('/web/features/generation/table_generation_panel.mjs');
+  let table=createMaterialTable();delete table.meta.material_columns;addGenerationColumn(table,{name:'Timeout fixture'});
+  const editor=createTableEditor({getTable:()=>table,setTable:next=>{table=next;},notify(){},upload:async()=>{throw Error('No upload');}});
+  const ui=attachGenerationColumns({editor,getTable:()=>table,notify(){},editPromptTemplate(){}});
+  editor.render();editor.root.id='timeout-fixture';document.body.append(editor.root);ui.refresh();
+  window.timeoutFixture={before:JSON.stringify(table.fields),fields:()=>JSON.stringify(table.fields),destroy(){ui.destroy();editor.destroy();}};
+ });
+ await page.locator('#timeout-fixture .generation-prompt-setting[data-setting=mode]').first().click();
+ const pop=page.locator('.generation-settings-popover');
+ await expect(pop.locator('[data-model-retry]')).toBeVisible();
+ const text=await pop.innerText();expect(text).toContain('结果未知');expect(text).toContain('检测超时');
+ expect(text).not.toContain('无法读取当前模型的生成方式');
+ expect(await page.evaluate(()=>timeoutFixture.fields())).toBe(await page.evaluate(()=>timeoutFixture.before));expect(writes).toBe(0);await page.evaluate(()=>timeoutFixture.destroy());
+});
