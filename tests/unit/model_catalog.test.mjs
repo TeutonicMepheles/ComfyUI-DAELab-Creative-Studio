@@ -34,7 +34,9 @@ test('catalog filtering and invalidation keep logical identities while rebuildin
  assert.equal(catalog.snapshot({family:'optimization'}).every(model=>model.status==='available'),true);
  const invalidated=catalog.invalidate({family:'optimization'});
  assert.equal(invalidated.every(model=>model.status==='unverified'&&model.capability===null),true);
- assert.equal(catalog.snapshot({family:'generation'}).length,14);
+ const generation=catalog.snapshot({family:'generation'});assert.equal(generation.length,16);
+ assert.equal(generation[0].id,'Qwen-Image-2.1 Turbo（本地）');
+ for(const id of ['MiniMax H3 FL 低配（本地）','MiniMax H3 Ref 低配（本地）','MiniMax H3 FL 高配（本地）','MiniMax H3 Ref 高配（本地）'])assert.ok(generation.some(model=>model.id===id));
 });
 test('backend-provided definitions replace hardcoded identities without carrying stale capability',()=>{
  const catalog=createModelCatalog();

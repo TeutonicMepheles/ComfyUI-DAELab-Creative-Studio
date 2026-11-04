@@ -223,11 +223,10 @@
       "source": "web/generation_model_icons.mjs",
       "destination": "frontend/src/features/generation/generation_model_icons.mjs",
       "sourceSha256": "233367542e7d3bf8a86bd5831ba527ad92d4101a881f977bb32203e0b0c342b5",
-      "destinationSha256": "a3a135c504429594f68bfbe24a0d03c939011554ae932e48102fe42a544fbfcd",
+      "destinationSha256": "96026d3666f6d2a2bc319c32f85fcb97161787827d8934d0735846289c23fee7",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
       ]
     },
     {
@@ -244,13 +243,12 @@
       "source": "web/table_generation_api.mjs",
       "destination": "frontend/src/features/generation/table_generation_api.mjs",
       "sourceSha256": "cc9c00ed14a5d9bfc339bd65fede6867585bea5a2b718942238940be2bd6e7cd",
-      "destinationSha256": "96a196bb6839811e30fe06b8754552fa29e90ecc504b4575ae7d41b73a54e321",
+      "destinationSha256": "e8a39c468c142e371102fe7d209f094bda8b9e75e158a06a7386640ed109383d",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Route generation actions through explicit new-service port, retain timeout/unknown/preflight semantics, never old LibTV HTTP.",
-        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending."
       ]
     },
     {
@@ -268,7 +266,7 @@
       "source": "web/table_generation_model.mjs",
       "destination": "frontend/src/features/generation/table_generation_model.mjs",
       "sourceSha256": "eee30572bc581bfd1c90925935d73227ee29578d0dbfb8779bd6e763912b532d",
-      "destinationSha256": "69700bb744ca2a5632c23d184025840882ca077f7668e61978e9a67df718b0e6",
+      "destinationSha256": "eaa59a4029e804b253a1201ec2e5b326552e691481cfee11bf6a5edbba685c03",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -276,16 +274,14 @@
         "2026-11-03 task49: share task execution choices while preserving per-row inputs, results and protected request configurations; scope labels and regression coverage.",
         "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions.",
         "2026-11-03 task49 attempts follow-up: merge only shared execution keys when updating existing linked tasks, preserve per-task attempts before replacing defaults, initialize new rows and add regression.",
-        "2026-11-04 task41: optional independent base Qwen image profile with native CLIPLoader and 25 steps, explicit image_base file bindings and the existing image controls; preserve legacy Turbo profile and frozen requests.",
-        "2026-11-05: independent high BF16/Flex profiles preserve required adapters and official manual sigma sampling; old routes retained.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "2026-11-04 task41: optional independent base Qwen image profile with native CLIPLoader and 25 steps, explicit image_base file bindings and the existing image controls; preserve legacy Turbo profile and frozen requests."
       ]
     },
     {
       "source": "web/table_generation_panel.mjs",
       "destination": "frontend/src/features/generation/table_generation_panel.mjs",
       "sourceSha256": "547d0543ec0e6359f0146f429ca9a11f9d4cce5682e1c212f01439492b1c9a50",
-      "destinationSha256": "32ac3a22bb170b64a1549876b2122739402658aad920c1cf2250d5429e91b5f9",
+      "destinationSha256": "e18bd213befca861697a6de355c76b3f8ff42964a891c9f57d1d18efd37cec56",
       "kind": "production-source",
       "changes": [
         "2026-11-02: Explain the local one-image reference mode and explicit width/height scaling.",
@@ -300,8 +296,7 @@
         "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs.",
         "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending.",
         "2026-11-04 task24: compact typed media surface, new 5:4 defaults, provider colors and matching model menu typography/icon alignment; upward constrained popovers. Original source identity retained.",
-        "2026-11-04 task29: scale the complete node popover once with its anchor; use screen bounds for upward placement and logical limits for scrolling. Reference submenus convert viewport coordinates inside transformed parents; independent asset overlays remain unchanged.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "2026-11-04 task29: scale the complete node popover once with its anchor; use screen bounds for upward placement and logical limits for scrolling. Reference submenus convert viewport coordinates inside transformed parents; independent asset overlays remain unchanged."
       ]
     },
     {
@@ -337,23 +332,21 @@
       "source": "web/video_task_linked_prompt.mjs",
       "destination": "frontend/src/features/generation/video_task_linked_prompt.mjs",
       "sourceSha256": "66481e0db0bc4f8e85bae00f9c14cac6dd294138f990cf1c711b8ad1f619b53b",
-      "destinationSha256": "88fceeb7bd9f702dd018ef05580f60c2204b1f9f42f67c81382a2212a41ec7e2",
+      "destinationSha256": "380092e524d1a47397ac5897ef1c4e3393c90087b23451d5ffb9192dc341ccfa",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
       "source": "web/video_task_rows.mjs",
       "destination": "frontend/src/features/generation/video_task_rows.mjs",
       "sourceSha256": "de2c073983d8492918e142a1885749f428c2fe439c2621909f34d09bdf164ccb",
-      "destinationSha256": "53e9372d4cef58d27338cda0623fc85fbb22e911176afa41e78465500b8036ae",
+      "destinationSha256": "5f262202f2fd6cf22fccd0505c6e55637ab7f8acc74df3afde730d2308833382",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
       ]
     },
     {
@@ -427,7 +420,7 @@
       "source": "web/llm_io_panel.mjs",
       "destination": "frontend/src/features/prompt/llm_io_panel.mjs",
       "sourceSha256": "62133e0e28f809abcf5b59cca42eb091cce6cbc57749f88b01f6134c4171c89e",
-      "destinationSha256": "3a8e04b7cef6d4024b16a8e2e93b468872078a58b0617d35f86ce8eb26385368",
+      "destinationSha256": "bec906f9c5c4d2f997975c5b58f198d6fed68e96f92100691824d2355d5a1d1a",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -442,8 +435,7 @@
         "2026-11-04 task24: compact typed media surface, new 5:4 defaults, provider colors and matching model menu typography/icon alignment; upward constrained popovers. Original source identity retained.",
         "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately.",
         "2026-11-05: pinned native reference text enhancement with completion gating; existing routes retained.",
-        "2026-11-05: independent native 27B profile uses official non-thinking template and MTP off; previous routes retained.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "2026-11-05: independent native 27B profile uses official non-thinking template and MTP off; previous routes retained."
       ]
     },
     {
@@ -590,14 +582,13 @@
       "source": "web/prompt_optimization_model.mjs",
       "destination": "frontend/src/features/prompt/prompt_optimization_model.mjs",
       "sourceSha256": "44fcd380d73784d2942bed1cb85284f6bacf18f28ec3ffeafb197c5de94b26e3",
-      "destinationSha256": "7fe6c445d77a15882eb691e313e607bedfd38fe832b98139ed4c2ff6e49e24c4",
+      "destinationSha256": "a9e832a1b6cf76df68f4e8d9620c371eb69adb4e85fcc3f4a755158f463004ad",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Caller supplies live node list; restrict identity mutation to formal owning types so raw legacy/unknown nodes remain unchanged.",
         "Reuse editable-field classification only within one synchronous revision observation; private stamping preserves per-target content/reference checks and strict public validation. Count/semantic regressions pass; actual UI and performance acceptance remain pending.",
-        "Primitive string inspection returns the immutable string and its fresh per-call text segments without redundant JSON roundtrips. Structured snapshots, validation, canonical stamps and request sequencing retain their existing paths; 5000-target operation-count and isolation regressions pass, without a measured product latency claim.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Primitive string inspection returns the immutable string and its fresh per-call text segments without redundant JSON roundtrips. Structured snapshots, validation, canonical stamps and request sequencing retain their existing paths; 5000-target operation-count and isolation regressions pass, without a measured product latency claim."
       ]
     },
     {
@@ -650,11 +641,10 @@
       "source": "web/table_prompt_model.mjs",
       "destination": "frontend/src/features/prompt/table_prompt_model.mjs",
       "sourceSha256": "554b71c9f03d0505243352e66204c3af3c230c8fa92eca60e6ede9d8ed87d50b",
-      "destinationSha256": "86f11488e1b5e809082ce2d57af5815d8be1422eb10e53f3d179f5a93ed3eef8",
+      "destinationSha256": "7e5013f1b5844041519b71d9ac1657256079fdc27da9e1e014e45b31c12b1707",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
       ]
     },
     {
@@ -694,24 +684,22 @@
       "source": "web/table_prompt_source_header.mjs",
       "destination": "frontend/src/features/prompt/table_prompt_source_header.mjs",
       "sourceSha256": "d68ded6e3a8385c2697e93f98566dd64feeb5fc57a33f645a90748fb713fe2f3",
-      "destinationSha256": "b34a9c82b7e0258fb03f13db65b1495efadbf62781b258c600943cdb532386c1",
+      "destinationSha256": "4b8841eea35fe8f529f25b5e8dbebcfb2ccd8b33b675f75dbd83b3153a4dcd6e",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
       "source": "web/table_prompt_template.mjs",
       "destination": "frontend/src/features/prompt/table_prompt_template.mjs",
       "sourceSha256": "743ca197bb412f6d2718d64ffbcfd1e60b5784de84113c9f2b9be255672a6498",
-      "destinationSha256": "e607bc4c6f08d79bd3683dee29b6f0c9fd12c6a978ba6ac4758c744c995101b8",
+      "destinationSha256": "9ad4596291f814bc0a1494f81600e6b15d0e16a91d85e17805e11f49c47aa5ee",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
@@ -730,11 +718,10 @@
       "source": "web/daelab_storyboard_import.mjs",
       "destination": "frontend/src/features/storyboard/daelab_storyboard_import.mjs",
       "sourceSha256": "31d7c039a5b9c10aeba8fe83b3582463a0c1bf805069295c50d823f33a150f1e",
-      "destinationSha256": "91498376344c4ee645331c70f216cfc5e392aa0028a48d8114e03c3240d56297",
+      "destinationSha256": "b972a7fc913b9b0735bdd7756a661e0df245258e56ab295f852331b408e9c651",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
       ]
     },
     {
@@ -751,11 +738,10 @@
       "source": "web/script_parser.css",
       "destination": "frontend/src/features/storyboard/script_parser.css",
       "sourceSha256": "14ee3d7a070af16c00e3d12156c1cf1baabd67c4b591d79cdda62c045f2c3339",
-      "destinationSha256": "94c46430d1cd3dacd084f83d14766c4de29aa41668f89e89e8fe3ef165fc814e",
+      "destinationSha256": "b511ef161e6853825f30ed6d45f6668b8fc7dd0382d814b2927f46a6453f5c93",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
       ]
     },
     {
@@ -800,40 +786,37 @@
       "source": "web/storyboard_table_adapter.mjs",
       "destination": "frontend/src/features/storyboard/storyboard_table_adapter.mjs",
       "sourceSha256": "a21eea20123b9adb8aab837c84bfab0d0223b06ff980ab2843676651483c1d9b",
-      "destinationSha256": "4494536f5ddf51ff8cce014cc2fbbb139317f040b175c80dec126ca8da9ee33b",
+      "destinationSha256": "e24086e716dd6614e507f4ed22a58d46f43954dfb6ce7b59501082054b40bf1e",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
       ]
     },
     {
       "source": "web/storyboard_task_state.mjs",
       "destination": "frontend/src/features/storyboard/storyboard_task_state.mjs",
       "sourceSha256": "63e2b240947f42246839b9224d88199fad15f2cd40286a821eb99a333e8ff3b4",
-      "destinationSha256": "2858a3b53fc21edd2dbfbdcf0a38450c99691886f490dedd357b24b56f05043a",
+      "destinationSha256": "88cac519e0654f82d03f39b39c64a84fffb419b87ed45dd3f16dd401fc14d396",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
       ]
     },
     {
       "source": "web/daelab_studio_theme.mjs",
       "destination": "frontend/src/features/table/daelab_studio_theme.mjs",
       "sourceSha256": "db76f9311dc1242a562be7428345d722ee663575797c237bc93cee8d0caa41d7",
-      "destinationSha256": "f22eb4d46d7a38aa9a0c5d46496c74cb5c7b1b9e2935a0ccd007dd91a721d90f",
+      "destinationSha256": "ea3c4832dc1bd6c9763bae35cb9e555c3ac830e0b3ddc7b45c87f731ccf79ff8",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
       ]
     },
     {
       "source": "web/data_table_editor.mjs",
       "destination": "frontend/src/features/table/data_table_editor.mjs",
       "sourceSha256": "5294f268a05f00fb6b0135b91596ce1bddf3d8efe640e12da2b1ed6d6a017d7f",
-      "destinationSha256": "fa0a3a706b4c8321f0614faa97d69dcc6e1a49275da2d61a9a0a0d4f925053c0",
+      "destinationSha256": "a1c99bc0be120a1abcb9bb7e2321c54a30acc50851d07c9f7b6afd268ead5957",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -842,45 +825,41 @@
         "Skip only unused whole-table equality encodings in the native afterWrite path; preserve all validated snapshots, native history, rollback, per-target revisions and fallback ordering. Count and semantic regressions pass; actual performance acceptance pending.",
         "Limit row-state DOM refresh only for editor-owned content-cell edits under an explicit constant-empty provider capability. Recheck field/configuration metadata, ordered row identities and current render/cell lifetime after native writes and observers; unknown, structural, configured, derived, ticket and full-render paths retain full refresh. Validation, native history, rollback and revision observation remain unchanged. Real editor 500x10 traversal checks pass; actual latency and UI acceptance remain pending.",
         "Reuse only the encoded JSON of editor-owned local cell edits to construct detached previous and next snapshots. Preserve width-sync fallback, validated native rollback/replacement snapshots, unknown data and all history/save behavior. Isolated semantic/count tests pass; actual latency and UI acceptance remain pending.",
-        "Use optional DocumentController prepared transactions for local synchronous non-rendering cell changes: one validated current encoding supplies isolated rollback, previous and draft objects; retain final draft validation, width/state preparation, legacy fallback, native history and all serialization boundaries. Actual latency and UI reacceptance remain pending.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Use optional DocumentController prepared transactions for local synchronous non-rendering cell changes: one validated current encoding supplies isolated rollback, previous and draft objects; retain final draft validation, width/state preparation, legacy fallback, native history and all serialization boundaries. Actual latency and UI reacceptance remain pending."
       ]
     },
     {
       "source": "web/data_table_groups.mjs",
       "destination": "frontend/src/features/table/data_table_groups.mjs",
       "sourceSha256": "53f535d1c56c177957af27d88abb3d8fac8fb33e91f19eb2d66ad60ebb6efbb1",
-      "destinationSha256": "6a49fcbcf1e2558125382aea5ea113a1e1175f87716438fa6289f728276b59d9",
+      "destinationSha256": "5ba90daa6e70afc4e40f53ba4375a3f153baa8bc663e1b11a58dfc0368e09677",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md."
       ]
     },
     {
       "source": "web/data_table_model.mjs",
       "destination": "frontend/src/features/table/data_table_model.mjs",
       "sourceSha256": "ba6709c6b3494aa7da6a372c9744cb111e9a263a3ac26341f0e0d58ce0d7c59a",
-      "destinationSha256": "4dfea34ae73a7d1e5ffb9100fe11a1b746f39684901c6daa60417530aa68eb97",
+      "destinationSha256": "80e6548168407b9943e734c41e795225693af0e1e1132666f705cb6d82c70b73",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
       ]
     },
     {
       "source": "web/list_editor_controls.mjs",
       "destination": "frontend/src/features/table/list_editor_controls.mjs",
       "sourceSha256": "7fe0bd0bf0c979b240b35f255f8cfe68cc64437158ff1537fd7843c2c229ac9a",
-      "destinationSha256": "cc42c42777e51b639e23fba40e710602f17051933dbe45acef000a6ac8d9d0e2",
+      "destinationSha256": "25a713ca84cea033b22b6eb684b34abd04c1c69e44239259eb1587c309595eec",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
         "Allow host save through nested prompt/editor controls while retaining IME and text editing key ownership.",
-        "Extract unchanged stopCanvasPropagation to shared ui/creative_events.mjs; retain original public re-export and internal button listeners.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Extract unchanged stopCanvasPropagation to shared ui/creative_events.mjs; retain original public re-export and internal button listeners."
       ]
     },
     {
@@ -908,11 +887,10 @@
       "source": "web/table_cell_choice.mjs",
       "destination": "frontend/src/features/table/table_cell_choice.mjs",
       "sourceSha256": "579a039f8c52bf2bc637cee7695c5d8a7505c8560c090b0134fe86072ecbda7d",
-      "destinationSha256": "fd3935b75a31a973f3f87af707beb706b3096d11c6b6d027f7e065f50dec4102",
+      "destinationSha256": "4091de21e716aa43b307a7969e5f83043e370bde0672d10465a25d5662df368a",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
       ]
     },
     {
@@ -929,50 +907,46 @@
       "source": "web/table_column_splitters.mjs",
       "destination": "frontend/src/features/table/table_column_splitters.mjs",
       "sourceSha256": "e8700d33cfebf2bc50034b302cbea89591d83c32e009585f760cd9e2511ed9ff",
-      "destinationSha256": "35f436d6784dac47e6e5744befded42f550deeff687a8f3733c3a38d5df61739",
+      "destinationSha256": "0c7ea2c3b4b070b10a41b62f45b602b9794f4e0e698bca608ac32eafe2a912de",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "Batch divider header and shell geometry reads within one geometry pass before divider writes; retain fluid/layer ordering, scheduling, model, and lifecycle.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Batch divider header and shell geometry reads within one geometry pass before divider writes; retain fluid/layer ordering, scheduling, model, and lifecycle."
       ]
     },
     {
       "source": "web/table_content_view.mjs",
       "destination": "frontend/src/features/table/table_content_view.mjs",
       "sourceSha256": "6f83b0c4964dab7ec13613005b2940c25b0a6c1a2ed5c2b90a0cfeeed93ab31e",
-      "destinationSha256": "415c61d85e7c634acf8d7e29ad6d399cfae14002142c42bc4746e32454a24606",
+      "destinationSha256": "9fecc5e0c7b63726944f843875707a9b3b13b0b62dee06ae774cc5d4fb8587d3",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
         "Actual-host nested keyboard follow-up: shared save propagation in nested panel/popover; keep local editor keys and IME/229 ownership.",
-        "Preserve a sole matching nonempty Text node when text display classes already match and no media cleanup is pending; retain all other normalization and inline editing lifecycle paths. Pure DOM identity/mutation regressions do not establish browser performance acceptance.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Preserve a sole matching nonempty Text node when text display classes already match and no media cleanup is pending; retain all other normalization and inline editing lifecycle paths. Pure DOM identity/mutation regressions do not establish browser performance acceptance."
       ]
     },
     {
       "source": "web/table_context_menu.mjs",
       "destination": "frontend/src/features/table/table_context_menu.mjs",
       "sourceSha256": "cc63812489f5b7c457a034d3322a96ed41bc3a86b770cd91a88776ea284408f6",
-      "destinationSha256": "38840f3864d98c97688dbc7fb83981be01c90ad129ad4679eab5007413f5d785",
+      "destinationSha256": "de22a9ae9f03014f0c7ac7c1a28d57c247956be2af6cdc96dda63c6b93b20aec",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "Inline editing clears only true column-selection markers; retain false markers to avoid whole-table attribute mutations. Keep selection, ARIA, per-instance and lifecycle behavior; actual latency and product acceptance remain unverified.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Inline editing clears only true column-selection markers; retain false markers to avoid whole-table attribute mutations. Keep selection, ARIA, per-instance and lifecycle behavior; actual latency and product acceptance remain unverified."
       ]
     },
     {
       "source": "web/table_controls.mjs",
       "destination": "frontend/src/features/table/table_controls.mjs",
       "sourceSha256": "b75b0ccda90fd207d4df74e5c3c188086fcaddca7752e56f93bbba35a6083539",
-      "destinationSha256": "0b7c4d21f4e3cb2890886877ae09639913b708f7e26d01a0a314bde3f105734d",
+      "destinationSha256": "b545d93fb69c264755db391eb9d7c63c2093dd8f3d4b3b14b27c08688427b63d",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "Replace fallback controls/theme/history with unique shared UI/design and typed host history port.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Replace fallback controls/theme/history with unique shared UI/design and typed host history port."
       ]
     },
     {
@@ -989,25 +963,23 @@
       "source": "web/table_exchange.mjs",
       "destination": "frontend/src/features/table/table_exchange.mjs",
       "sourceSha256": "97ceb3e16f932c13623680533c519f7e14b70e22d7355f5c6d89adeb6b15bdfe",
-      "destinationSha256": "d22688449870bea54cedd746dbe47f31e7acb1c5b30d01e0a5e6c7d27b066a05",
+      "destinationSha256": "fecbc5161cac6de1d983d953960b76dfb585ef816fe45c037cf4677101dc3826",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "Move node creation/enumeration/add/focus behind BusinessHostPort; native graph remains authoritative.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Move node creation/enumeration/add/focus behind BusinessHostPort; native graph remains authoritative."
       ]
     },
     {
       "source": "web/table_inline_editor.mjs",
       "destination": "frontend/src/features/table/table_inline_editor.mjs",
       "sourceSha256": "99f52423125d99656cabfd274a1895f4b0bb84a60aa080a39dedfa0a37ea8709",
-      "destinationSha256": "660ea721fd0c4c8b2ed837cc124e51bc797fcb3e851815c7b34d9692db8ca599",
+      "destinationSha256": "751a1ea27b10b83386a0665d4fec78784622e8ca008966cd4215ba1ae9d7f8f4",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Allow host save through nested prompt/editor controls while retaining IME and text editing key ownership.",
-        "Allow Enter to reopen only the inactive owning cell or exact preview; retain composition guards, active multiline editing and descendant control ownership.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Allow Enter to reopen only the inactive owning cell or exact preview; retain composition guards, active multiline editing and descendant control ownership."
       ]
     },
     {
@@ -1025,11 +997,10 @@
       "source": "web/table_material_columns.mjs",
       "destination": "frontend/src/features/table/table_material_columns.mjs",
       "sourceSha256": "d530541fbf7fcc04068f177984b6bd05fda2aa567f7263a42904a4e4774165c4",
-      "destinationSha256": "7817e5654318035572ebe205a223ca438fe56bfc1af690741eb9ac0600ee24b9",
+      "destinationSha256": "3a1c7da8736b5effe91d0c066755199992b09b7cfe5f5f24d9f318cf03ac8ac5",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
       ]
     },
     {
@@ -1046,11 +1017,10 @@
       "source": "web/table_material_output.mjs",
       "destination": "frontend/src/features/table/table_material_output.mjs",
       "sourceSha256": "986cb805cd4d989d4f2d87b67f88005f0ef78f774579d30643bfd96d4ea277a8",
-      "destinationSha256": "b5fb3d6e012dfbffedfc8270f5f4061b3655b4fa7f0a4e16c9b5408143305759",
+      "destinationSha256": "2b51fcc4cb05897323a749922a34d9ac18bd1bcc2723cc3c6710a7e88a65e302",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
       ]
     },
     {
@@ -1077,22 +1047,20 @@
       "source": "web/table_reference_menu.mjs",
       "destination": "frontend/src/features/table/table_reference_menu.mjs",
       "sourceSha256": "220ee739aee74b2e85f0b6a1dabeb43f063b22fc959e635f627624b1affd7f34",
-      "destinationSha256": "26f23792baa7e2f21f48238372111bf23f7003e26117c30820a04fa5de492849",
+      "destinationSha256": "20ca4c89cad5bb8af11c131a10a0ce3da7b6fc26e3dd9ccbfbfde3e60be7d987",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
       ]
     },
     {
       "source": "web/table_source_model.mjs",
       "destination": "frontend/src/features/table/table_source_model.mjs",
       "sourceSha256": "36a25688ef242918ea3aefd0cdaa3f1f529a214fefdcb886c3ee7cfac055ad54",
-      "destinationSha256": "3c00e74bae0447217ab65364c14850b8d50d6d327bd61d54b1fe04d46637b0bd",
+      "destinationSha256": "61d6de152261c55eb334cc5fa2db36bc27cd994aa7d59eca3ec5af7f0def499a",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
       ]
     },
     {
@@ -1123,12 +1091,11 @@
       "source": "web/table_text_side.mjs",
       "destination": "frontend/src/features/table/table_text_side.mjs",
       "sourceSha256": "53d8b5b4ef89e18e5cf53170d51c2a12c2f7c354d0afb6444e02d77c27460abe",
-      "destinationSha256": "3ba8b4e11586e2508dc3a041466cbe6fb75942936dfc5fc055dbc0ced98fe61d",
+      "destinationSha256": "0270ed5641859cfc475a9a682056b7db4f27b9523db6614c239c32d88ddbf0e6",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "Allow host save through nested prompt/editor controls while retaining IME and text editing key ownership.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Allow host save through nested prompt/editor controls while retaining IME and text editing key ownership."
       ]
     },
     {
@@ -1158,23 +1125,21 @@
       "source": "web/table_workbench.mjs",
       "destination": "frontend/src/features/table/table_workbench.mjs",
       "sourceSha256": "4f4182467ca7298a4bca0ca35a1478e3c282413a991ed8bda1ba8b0dfd382dc4",
-      "destinationSha256": "c8bcfbd6cfd7499987bd37e581ebd9df1e1d87bfad7be46174af33caebd522f0",
+      "destinationSha256": "0589a3c7d61e9b01ba57950f3083976124d6e663e884e4ed6b8f59c31d4d6d73",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "Use pure node_availability helper, not integration-owned App Mode module.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Use pure node_availability helper, not integration-owned App Mode module."
       ]
     },
     {
       "source": "web/table_workbench_theme.mjs",
       "destination": "frontend/src/features/table/table_workbench_theme.mjs",
       "sourceSha256": "8dc29ea5dc8a9a6a57ec38f3d0f57662d7eb07001baf4cc3b5dca36f04d07a85",
-      "destinationSha256": "6e25dc2bb4fba04e190580d76341c47dddbf48f443d50ec35390b76be2e72e9d",
+      "destinationSha256": "1d5bb09bf4bc786e10184c6daec2327d85c2c73314c602dba64c9137a2b19440",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
       ]
     },
     {
@@ -1209,10 +1174,9 @@
         "New typed port, explicit HTTP assembly, focused migration regression or sanitized evidence; no copied upstream source claimed.",
         "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
-        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ],
-      "destinationSha256": "6427943316c73fc5d6989aac8854c801f088998b7096cc5678f8f3f12da4b070"
+      "destinationSha256": "d4400285eaa09da07b6b6bc31bdebd5bcc2e789a9c5225633e6884dc62078c47"
     },
     {
       "source": null,
@@ -1222,10 +1186,9 @@
       "changes": [
         "New typed port, explicit HTTP assembly, focused migration regression or sanitized evidence; no copied upstream source claimed.",
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
-        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
       ],
-      "destinationSha256": "e2d44cc3605511307c5c21b3492cf3ade912c7266e96a6b324d3d3104959e62f"
+      "destinationSha256": "ccb6965a5eb8a4617788eba9d0f311b5695adda7730ed7d3b7a4d7ab824a22f0"
     },
     {
       "source": "web/creative_canvas_adapter.js",
@@ -1391,10 +1354,9 @@
       "changes": [
         "New typed port, explicit HTTP assembly, focused migration regression or sanitized evidence; no copied upstream source claimed.",
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
-        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ],
-      "destinationSha256": "c944e4f90654afc8f1b272a8012bcadd78662c454bde9fcf18ed991719e0bf86"
+      "destinationSha256": "569bbb7eaa669274ab0dac04d603b145ecf9203dfbe705e33aeb7022db61f5b6"
     },
     {
       "source": "tests/column_optimization.test.mjs",
@@ -1458,10 +1420,9 @@
       "sourceSha256": null,
       "kind": "authored-test",
       "changes": [
-        "New typed port, explicit HTTP assembly, focused migration regression or sanitized evidence; no copied upstream source claimed.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "New typed port, explicit HTTP assembly, focused migration regression or sanitized evidence; no copied upstream source claimed."
       ],
-      "destinationSha256": "7b44456bcaea6c262f948c3fad0e0467267e743c09664bd87895460e412ff7b5"
+      "destinationSha256": "0840736053232e8cdbbfcf631f17042dec46064230f0668e50160ed9fd07fd18"
     },
     {
       "source": "tests/fixtures/prompt-optimization/context-copy-cases.json",
@@ -1489,28 +1450,26 @@
       "source": "tests/generation_input_regression.test.mjs",
       "destination": "tests/migrated_business/generation_input_regression.test.mjs",
       "sourceSha256": "29767c8a7a6cfba097488fdebc645a22ea0e0b47d93301cb50aff7716e36f816",
-      "destinationSha256": "2693d60613ff5923b3a44e810ab48985d31f09a01222e2d1b2a804eb8215aa5f",
+      "destinationSha256": "dd5ee661acadfb25a0805ef77f7266b290ef0c611b842d42257dc2c30de663ef",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
         "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
-        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
       "source": "tests/generation_parameters.test.mjs",
       "destination": "tests/migrated_business/generation_parameters.test.mjs",
       "sourceSha256": "a0a571d5104a647e742dbc3526407dcece0455699935dbe553f020d48bf9ae8f",
-      "destinationSha256": "5941ddb158d110dbc1abf96274cb782dab7e63a922991bb94aa51515cf2728da",
+      "destinationSha256": "2f1fd437d271f4b7e8b7fd43e279ed66d7b3737f85b914a4ac5bb388eccfc9d8",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
         "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
         "2026-11-03 task49: share task execution choices while preserving per-row inputs, results and protected request configurations; scope labels and regression coverage.",
-        "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "2026-11-03 task49 follow-up: reuse shared column configuration writes, preserve protected rows and connected task inputs, keep attempts per-task; add boundary regressions."
       ]
     },
     {
@@ -1668,12 +1627,11 @@
       "source": "tests/prompt_optimization_panel.test.mjs",
       "destination": "tests/migrated_business/prompt_optimization_panel.test.mjs",
       "sourceSha256": "ae874bd48c37aec1e150ad2c33141043e45a5ebf0514cf33a1ee39ed227ab6a3",
-      "destinationSha256": "4ea0c354b1835afe24f94407ef367aacd5ff1fee68586f622c01f3945da46e33",
+      "destinationSha256": "900a08d0242e0b1111878f2e2217a1193b21c5e6b47eb52d95fe718f92e6225c",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
-        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
       ]
     },
     {
@@ -1768,13 +1726,12 @@
       "source": "tests/table_exchange.test.mjs",
       "destination": "tests/migrated_business/table_exchange.test.mjs",
       "sourceSha256": "e2c523d0935cc760c2405d7f3ae8b29d82685971e96ce37fca9ebc288d307fde",
-      "destinationSha256": "b4abb0ab41df27558d25bd622f18145e80400ceb5afef126c8ee54d5d0e8d064",
+      "destinationSha256": "acd4726af839597dfad80b9fed716b965bca41f4ddd53e46654dc0fb5e84ef16",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
         "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
-        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
@@ -1852,12 +1809,11 @@
       "source": "tests/table_material_output.test.mjs",
       "destination": "tests/migrated_business/table_material_output.test.mjs",
       "sourceSha256": "da114359f1e3c5feb7e24c8f9576f233ceba8416ffe1de57fa9049672f221a37",
-      "destinationSha256": "15b7510d8a590b42af09d53e6317b9d01fe9ffc72e63de8d521c49f6842507ab",
+      "destinationSha256": "2d72793aededdf4ac2c4227bd2b195fab77c0dfbc650eb68013910c298c85a4c",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
-        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
       ]
     },
     {
@@ -1875,12 +1831,11 @@
       "source": "tests/table_panel_views.test.mjs",
       "destination": "tests/migrated_business/table_panel_views.test.mjs",
       "sourceSha256": "8606cf3ac5a9f99093727deffd7aa4ac61adb568022c4e0f13835f3f0130e5d9",
-      "destinationSha256": "a2748bee78de2a7662c222847bc45f86baad7ca8741ff6fc4b38d2b9551725d1",
+      "destinationSha256": "e6bf905860568b4592334f92c31ec7c1753a929ac06894cf2abc4b61f3d4233a",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
-        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions."
       ]
     },
     {
@@ -1978,13 +1933,12 @@
       "source": "tests/video_task_linked_prompt.test.mjs",
       "destination": "tests/migrated_business/video_task_linked_prompt.test.mjs",
       "sourceSha256": "0cb5fbadac77612bb72cf8e69ca83f4c3747112d5a9c1fd028a4e678368162be",
-      "destinationSha256": "f35f02a7bda00f761ff16beb2f667700ed12ed4397f9f253cfccb184c4f2b84c",
+      "destinationSha256": "92a4466935a9dfdca279457d1e60781ef1f6beffbe9ee0869b3d78cf52addf2d",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
         "Adapt module paths and explicit ports/shared-button DOM fixtures where required; retain original behavioral assertions.",
-        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ]
     },
     {
@@ -2035,10 +1989,9 @@
       "changes": [
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
         "Post-snapshot hardblock review: immutable receipt digest, exact missing-task recovery, no automatic replay; tests include original-scope and storage-unavailable rejection.",
-        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
       ],
-      "destinationSha256": "7f47716e8d0ea144bf9e5a948c278701f93022a715e6ee4b9bfe25ff13dfeea0"
+      "destinationSha256": "8c7ca9105b9e0ecf76be047042e88a872f10ebb219e92bae334e2c5033c83ff1"
     },
     {
       "source": null,
@@ -2073,10 +2026,9 @@
       "kind": "authored-contract-or-integration",
       "changes": [
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
-        "Post-snapshot hardblock review: immutable receipt digest, exact missing-task recovery, no automatic replay; tests include original-scope and storage-unavailable rejection.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Post-snapshot hardblock review: immutable receipt digest, exact missing-task recovery, no automatic replay; tests include original-scope and storage-unavailable rejection."
       ],
-      "destinationSha256": "2af38f460f227df1941788f25c02f399b7d5153bbb1506e7318dc2e72d6b9146"
+      "destinationSha256": "6fceb8e5ba78a141cf391ef40105ac5bcd399acf77a8006cf1f9d3f254706f99"
     },
     {
       "source": null,
@@ -2099,10 +2051,9 @@
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
         "Post-snapshot hardblock review: immutable receipt digest, exact missing-task recovery, no automatic replay; tests include original-scope and storage-unavailable rejection.",
         "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
-        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ],
-      "destinationSha256": "34ef8d06198da9ecc6b3d73e88c93e8de782a76c5077363a332407608cc0dfba"
+      "destinationSha256": "9f1bfdc06c041b6b1a2777d3c9571c7394b4bbb8e957333c688c7046a90a38ff"
     },
     {
       "source": null,
@@ -2110,10 +2061,9 @@
       "sourceSha256": null,
       "kind": "authored-contract-or-integration",
       "changes": [
-        "Native reactive JSON boundary: detach nested host proxies for document transactions and LLM load/proposal/apply; preserve all unknown JSON keys and identities, reject unsavable edits before history, and verify source-bound edit/recovery/undo with no submit. Real UI acceptance remains separate.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Native reactive JSON boundary: detach nested host proxies for document transactions and LLM load/proposal/apply; preserve all unknown JSON keys and identities, reject unsavable edits before history, and verify source-bound edit/recovery/undo with no submit. Real UI acceptance remains separate."
       ],
-      "destinationSha256": "3b9c2e191ece04e08676ebec7a47c14075eea7f281a45607da33b3ee951cd763"
+      "destinationSha256": "bb8060e3f46723df837acdc147a9a0e6405525d3cb239a1109c88b81feb44705"
     },
     {
       "source": null,
@@ -2188,11 +2138,10 @@
       "source": null,
       "sourceSha256": null,
       "destination": "tests/migrated_business/unfocused_history_guard.test.mjs",
-      "destinationSha256": "abda60f1b2bb617d653d11cfc782eeab33de1b3b50ca796dbf0365bb08cd3e9b",
+      "destinationSha256": "cee2ef962d1ea52677f68f853a2a837bda654d9847996bfee61cecc2b265c3c2",
       "kind": "authored-contract-or-integration",
       "changes": [
-        "Authored full owning-panel and actual BusinessDocument regressions with unrelated IO/buttons injected: two source/instruction owners, preserved focused/local input, cheap lifetime, composition/shadow focus/noncancelable/read-only/inactive exclusions and disposal. Models browser default action; does not prove real Chromium event delivery.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "Authored full owning-panel and actual BusinessDocument regressions with unrelated IO/buttons injected: two source/instruction owners, preserved focused/local input, cheap lifetime, composition/shadow focus/noncancelable/read-only/inactive exclusions and disposal. Models browser default action; does not prove real Chromium event delivery."
       ]
     },
     {
@@ -2265,11 +2214,10 @@
       "source": null,
       "sourceSha256": null,
       "destination": "tests/migrated_business/local_image_sizes.test.mjs",
-      "destinationSha256": "4c382ca508c7d98bed0a1f67a1e13ee3d8e92bbc2211294b903a171b624655e1",
+      "destinationSha256": "99e5003bc2087f3958918ce609b149d171c9cd7e38d4f40c005598bc3de2ec99",
       "kind": "authored-contract-or-integration",
       "changes": [
-        "2026-11-04 task11: local Qwen size capability/preset integration and deterministic frozen-reference size checks; no copied upstream code claimed.",
-        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
+        "2026-11-04 task11: local Qwen size capability/preset integration and deterministic frozen-reference size checks; no copied upstream code claimed."
       ]
     }
   ],
