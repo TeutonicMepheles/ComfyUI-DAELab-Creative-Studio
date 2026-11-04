@@ -2,13 +2,15 @@ import {businessJson} from '../../contracts/business.js';
 import {isLocalGenerationModel,isComfyGenerationModel} from './table_generation_model.mjs';
 import {getModelCatalog} from '../models/model_catalog.mjs';
 
-export async function request(action,body){
+export async function request(action,body,{signal}={}){
  // First local capability inspection hashes the explicitly bound model files.
- const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),action==='submit'||action.startsWith('capabilities?')?120000:30000);
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort('probe_timeout'),action==='submit'||action.startsWith('capabilities?')?120000:30000);
+ const cancel=()=>controller.abort(signal.reason||'probe_aborted');
+ if(signal?.aborted)cancel();else signal?.addEventListener('abort',cancel,{once:true});
  try{
  return await businessJson('generation',action,body?{contractVersion:1,...body}:undefined,controller.signal);
- }catch(error){if(error.name==='AbortError')throw new Error('请求超时；原任务仍保留，请刷新任务状态，不要重复生成');throw error;}
- finally{clearTimeout(timer);}
+ }catch(error){if(controller.signal.aborted){const reason=controller.signal.reason;throw Object.assign(new Error(reason==='probe_timeout'?'请求超时；原任务仍保留，请刷新任务状态，不要重复生成':'请求已取消'),{code:reason==='probe_timeout'?'probe_timeout':'probe_aborted',reason});}throw error;}
+ finally{clearTimeout(timer);signal?.removeEventListener('abort',cancel);}
 }
 export async function modelCapabilities(config){
  const local=isLocalGenerationModel(config.model);
@@ -22,10 +24,12 @@ export async function modelCapabilities(config){
   return caps;
  }catch(error){if(local&&error.message==='Unsupported model')throw new Error(restart);throw error;}
 }
-export async function catalogModelCapabilities(config,{force=false}={}){
+export async function catalogModelCapabilities(config,{force=false,active=()=>true}={}){
  const catalog=getModelCatalog();
- const entry=await catalog.check(config.model,()=>modelCapabilities(config),{force});
+ const snapshot={kind:config.kind,model:config.model};
+ const entry=await catalog.check(snapshot.model,()=>modelCapabilities(snapshot),{force,active});
  if(entry.status==='checking')throw new Error('正在检测模型，请稍候');
+ if(entry.status==='unknown')throw Object.assign(new Error('检测结果未知，可重新检测'),{code:entry.code});
  if(entry.status==='unavailable'||!entry.capability)throw new Error('模型不可用，请重新检测');
  return entry.capability;
 }

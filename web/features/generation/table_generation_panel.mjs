@@ -12,7 +12,7 @@ import {PROMPT_SETTINGS_TEMPLATE,createPromptSettingsBar,promptSettingsStyle,nor
 import {prependGenerationModelIcon,generationModelLabel} from './generation_model_icons.mjs';
 import {promptGenerationOwner,applyColumnGenerationConfig,applyColumnFrameSources,applyTaskGenerationConfig} from './table_generation_model.mjs';
 import {getModelCatalog} from '../models/model_catalog.mjs';
-import {canSubmitModel,updateModelOption} from '../models/model_catalog_ui.mjs';
+import {canSubmitModel,updateModelOption,modelOptionPresentation,bindModelProbeRetry} from '../models/model_catalog_ui.mjs';
 const el=(tag,parent,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;parent?.append(node);return node;};
 export const needsGenerationPromptSelector=table=>!promptSourceId(table);
 // Private normalized-table boundary: no generation means both sync passes are
@@ -186,8 +186,8 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
   if(settingsMenu?.anchor===anchor){closeSettings();return;}closeSettings();closeFrames();closePromptSources();
   const combined=key==='parameters',spec=combined?{label:'生成参数'}:PROMPT_SETTINGS_TEMPLATE.find(item=>item.key===key),field=findField(fieldId),row=()=>getTable().records.find(r=>r.id===recordId);if(!spec||!field||!row())return;
   const currentConfig=()=>frameConfig(fieldId,row());
-  let parameterView=null;
-  const menu=createSettingsPopover(anchor,key==='duration'?'选择视频时长':spec.label,()=>{parameterView?.dispose?.();parameterView=null;if(settingsMenu===menu)settingsMenu=null;},{placement:'above'});settingsMenu=menu;
+  let parameterView=null,stopProbe=()=>{};
+  const menu=createSettingsPopover(anchor,key==='duration'?'选择视频时长':spec.label,()=>{stopProbe();parameterView?.dispose?.();parameterView=null;if(settingsMenu===menu)settingsMenu=null;},{placement:'above'});settingsMenu=menu;
   if(combined)menu.root.classList.add('generation-parameters-popover');if(key==='model')menu.root.classList.add('generation-model-popover');
   const content=el('div',menu.root),status=el('p',menu.root);if(key==='size'||key==='duration')content.className='generation-settings-fields';status.setAttribute('role','status');
   if(getTable().records.length>1)el('small',menu.root,'全部任务共用：类型、模型和生成参数。提示词、参考素材及抽卡次数分别保留；执行、暂停或待恢复任务跳过。');
@@ -208,7 +208,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
     assertSettingsEditable(fieldId,recordId);current();const next=structuredClone(draft);update(next);
     if(reset){
      status.textContent='正在读取模型选项…';
-     if(!schema||next.kind!==draft.kind||next.model!==draft.model){try{const caps=await catalogModelCapabilities(next);schema=caps.schema;schemaError='';}catch(error){schema={};schemaError='模型不可用';if(isLocalGenerationModel(next.model))throw error;}if(!active())return;}
+     if(!schema||next.kind!==draft.kind||next.model!==draft.model){try{const caps=await catalogModelCapabilities(next,{active});schema=caps.schema;schemaError='';}catch(error){schema={};schemaError='模型不可用';if(isLocalGenerationModel(next.model))throw error;}if(!active())return;}
      applyGenerationModelDefaults(next,schema);
     }
     if(!active())return;current();
@@ -223,15 +223,19 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
    finally{busy=false;if(active()){menu.root.removeAttribute('aria-busy');content.querySelectorAll('button,input,select').forEach(input=>input.disabled=false);}}
   }
   function choices(items,value,select,reset=true){
-   for(const [id,label] of items){const control=button(key==='model'?label.replace(/（(?:本地|Comfy|来源未知)）$/,''):label,()=>{if(id===value){menu.close();return;}void commit(next=>select(next,id),reset);});if(key==='model'){prependGenerationModelIcon(control,id);const state=modelCatalog.get(id),badge=el('span',control,modelSourceBadge(state));badge.className='generation-model-source';badge.dataset.source=modelSourceKind(state);control.setAttribute('data-model-status',state?.status||'unverified');control.disabled=state?.status==='unavailable';if(state?.checking){const spinner=el('span',control,'◌');spinner.className='generation-model-loading';spinner.setAttribute('role','status');spinner.setAttribute('aria-label','正在检测此模型');}}control.setAttribute('aria-pressed',String(id===(key==='mode'&&!isLocalGenerationModel(draft.model)?generationModeChoice(value,schema):value)));content.append(control);}
+   for(const [id,label] of items){const control=button(key==='model'?label.replace(/（(?:本地|Comfy|来源未知)）$/,''):label,()=>{if(key==='model'&&modelCatalog.get(id)?.status==='unknown'){void Promise.resolve().then(()=>modelCatalog.retry(id,{active})).catch(error=>{if(active())status.textContent=error.message;});return;}if(id===value){menu.close();return;}void commit(next=>select(next,id),reset);});if(key==='model'){control.dataset.modelId=id;prependGenerationModelIcon(control,id);const state=modelCatalog.get(id),badge=el('span',control,modelSourceBadge(state));badge.className='generation-model-source';badge.dataset.source=modelSourceKind(state);control.setAttribute('data-model-status',state?.status||'unverified');control.disabled=state?.status==='unavailable'||state?.checking;const retryLabel=el('span',control,'\u91cd\u65b0\u68c0\u6d4b');retryLabel.dataset.probeRetryLabel='true';retryLabel.hidden=state?.status!=='unknown';if(state?.checking){const spinner=el('span',control,'◌');spinner.className='generation-model-loading';spinner.setAttribute('role','status');spinner.setAttribute('aria-label','正在检测此模型');}}control.setAttribute('aria-pressed',String(id===(key==='mode'&&!isLocalGenerationModel(draft.model)?generationModeChoice(value,schema):value)));content.append(control);}
    (content.querySelector('[aria-pressed=true]')||content.querySelector('button'))?.focus({preventScroll:true});
   }
+  const retryProbe=button('\u91cd\u65b0\u68c0\u6d4b',()=>{});status.after(retryProbe);
+  const retryBinding=bindModelProbeRetry(retryProbe,{catalog:modelCatalog,getModel:()=>draft.model,active,retry:async()=>{await modelCatalog.retry(draft.model,{active});if(active()&&modelCatalog.get(draft.model)?.available){menu.close();void chooseSetting(fieldId,recordId,key,anchor);}}});
+  const stopChoices=modelCatalog.subscribe(()=>{if(!active())return;for(const control of content.querySelectorAll('[data-model-id]')){const entry=modelCatalog.get(control.dataset.modelId);control.disabled=entry?.status==='unavailable'||entry?.checking;control.title=modelOptionPresentation(entry).statusLabel;const label=control.querySelector('[data-probe-retry-label]');if(label)label.hidden=entry?.status!=='unknown';let spinner=control.querySelector('.generation-model-loading');if(entry?.checking&&!spinner){spinner=el('span',control,'\u25cc');spinner.className='generation-model-loading';spinner.setAttribute('role','status');spinner.setAttribute('aria-label','\u6b63\u5728\u68c0\u6d4b\u6b64\u6a21\u578b');}else if(!entry?.checking)spinner?.remove();control.setAttribute('data-model-status',entry?.status||'unverified');}if(modelCatalog.get(draft.model)?.status==='unknown')status.textContent=modelOptionPresentation(modelCatalog.get(draft.model)).statusLabel;else if(schemaError&&!busy&&modelCatalog.get(draft.model)?.available){schemaError='';menu.close();void chooseSetting(fieldId,recordId,key,anchor);}});
+  stopProbe=()=>{retryBinding();stopChoices();};
   if(key==='attempts'){choices(Array.from({length:MAX_GENERATION_ATTEMPTS},(_,index)=>[index+1,`${index+1} 次`]),generationAttempts(draft),(next,id)=>{next.attempts=id;},false);return;}
   if(key==='kind')choices([['video','视频生成'],['image','图片生成']].filter(([id])=>kinds.includes(id)),draft.kind,(next,id)=>{next.kind=id;next.model=generationModelIDs(id)[0];next.mode='';next.settings={};});
   else if(key==='model')choices(generationModelIDs(draft.kind).map(name=>[name,generationModelLabel(name)]),draft.model,(next,id)=>{next.model=id;if(next.kind==='video'&&typeof next.settings.duration==='number')next.settings.duration=Math.min(next.settings.duration,isLocalVideoModel(id)?15:30);});
   else {
    status.textContent='正在读取模型选项…';
-   try{const caps=await catalogModelCapabilities(draft);schema=caps.schema;}catch(error){schema={};schemaError='模型不可用';status.textContent='无法读取当前模型的生成方式，请重试。';return;}
+   try{const caps=await catalogModelCapabilities(draft,{active});schema=caps.schema;}catch(error){schema={};schemaError='模型不可用';status.textContent='无法读取当前模型的生成方式，请重试。';return;}
    if(!active())return;
    try{
     current();status.textContent='';
@@ -331,8 +335,8 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
   const draft=structuredClone(owner?.generation||{version:1,kind:'video',model:LOCAL_VIDEO_MODEL,promptFieldId:fieldId,mode:'text2video',settings:{width:512,height:288,duration:2,turbo:true,seed:-1}});
   const frameColumns={...owner?.generationFrameColumns};
   let parameterView=null;
-  let stopModelStatus=()=>{};
-  const menu=createSettingsPopover(anchor,prompt.name+' · 整列模型配置',()=>{stopModelStatus();parameterView?.dispose();if(settingsMenu===menu)settingsMenu=null;},{placement:'above'});settingsMenu=menu;
+  let stopModelStatus=()=>{},stopProbeRetry=()=>{};
+  const menu=createSettingsPopover(anchor,prompt.name+' · 整列模型配置',()=>{stopModelStatus();stopProbeRetry();parameterView?.dispose();if(settingsMenu===menu)settingsMenu=null;},{placement:'above'});settingsMenu=menu;
   const body=menu.root;body.classList.add('generation-column-settings','generation-parameters-popover');let schema=null,sequence=0,loading=false;
   const active=()=>alive&&settingsMenu===menu&&body.isConnected;
   const toolbar=el('div',body);toolbar.className='generation-column-toolbar';
@@ -386,7 +390,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
   async function load({force=false}={}){
    const token=++sequence;loading=true;schema=null;apply.disabled=true;parameterView?.dispose();parameterView=null;settings.replaceChildren();status.textContent='正在读取模型选项…';
    try{
-    const caps=await catalogModelCapabilities(draft,{force});if(!active()||token!==sequence)return;
+    const caps=await catalogModelCapabilities(draft,{force,active:()=>active()&&token===sequence});if(!active()||token!==sequence)return;
     if(!canSubmitModel(modelCatalog.get(draft.model)))throw new Error('模型不可用，请重新检测');
     schema=caps.schema;applyGenerationModelDefaults(draft,schema);const modes=generationModes(schema,draft.kind),chosen=generationModeChoice(draft.mode,schema);
     draft.mode=modes.includes(chosen)?chosen:modes[0]||'';
@@ -397,14 +401,16 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
   kind.onchange=()=>{draft.kind=kind.value;draft.model=generationModelIDs(draft.kind)[0];draft.mode='';draft.settings={};fillModels();void load();};
   model.onchange=()=>{draft.model=model.value;draft.mode='';draft.settings={};void load();};
   fillModels();void load();
-  stopModelStatus=modelCatalog.subscribe(()=>{if(!active())return;refreshModelControl(model,generationModelIDs(draft.kind),draft.model);if(!canSubmitModel(modelCatalog.get(draft.model)))apply.disabled=true;});
+  const retryProbe=button('重新检测',()=>{});status.after(retryProbe);
+  stopProbeRetry=bindModelProbeRetry(retryProbe,{catalog:modelCatalog,getModel:()=>draft.model,active,retry:()=>load({force:true})});
+  stopModelStatus=modelCatalog.subscribe(()=>{if(!active())return;stopProbeRetry.sync?.();refreshModelControl(model,generationModelIDs(draft.kind),draft.model);const entry=modelCatalog.get(draft.model);if(!canSubmitModel(entry)){apply.disabled=true;if(entry?.status==='unknown')status.textContent=modelOptionPresentation(entry).statusLabel;}else if(!schema&&!loading&&entry?.available)void load();});
  }
  function open(fieldId){
   fieldId=generationConfigField(getTable(),fieldId)?.id||fieldId;
   closeSettings();closePromptSources();
   const field=findField(fieldId);if(!field)return;
   editor.openTextSide('generation',fieldId,field.name+' · 列默认配置',body=>{
-   body.classList.add('generation-form');el('p',body,'这里设置列默认值；提示词单元格底栏可独立修改，已单独配置的格子不受默认值修改影响。').className='generation-prompt-hint';let schema=null,sequence=0;
+   body.classList.add('generation-form');el('p',body,'这里设置列默认值；提示词单元格底栏可独立修改，已单独配置的格子不受默认值修改影响。').className='generation-prompt-hint';let schema=null,sequence=0,loadingProbe=false,panelAlive=true;body.onCleanup(()=>{panelAlive=false;++sequence;});
    const draft=structuredClone(field.generation);let original=JSON.stringify(field.generation),pendingCapabilities=null;
    const label=(name,tag='select')=>{const wrapper=el('label',body,name),input=el(tag,wrapper);input.setAttribute('aria-label',name);return input;};
    const kind=label('生成类型');for(const [v,n] of [['image','图片'],['video','视频']])kind.add(new Option(n,v));kind.value=draft.kind;
@@ -431,12 +437,12 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
    async function capabilities(force=false){
     refreshDefaults();
     const local=isLocalGenerationModel(draft.model);
-    const token=++sequence;schema=null;settings.replaceChildren();mode.replaceChildren();status.textContent='正在读取模型选项…';
-    try{const caps=await catalogModelCapabilities(draft,{force});if(!alive||!body.isConnected||token!==sequence)return;
+    const token=++sequence;loadingProbe=true;schema=null;settings.replaceChildren();mode.replaceChildren();status.textContent='正在读取模型选项…';
+    try{const caps=await catalogModelCapabilities(draft,{force,active:()=>alive&&panelAlive&&body.isConnected&&token===sequence});if(!alive||!panelAlive||!body.isConnected||token!==sequence)return;
      schema=caps.schema;if(local)normalizeLocalGenerationConfig(draft,schema);const modes=generationModes(schema,draft.kind);
 
      for(const m of modes)mode.add(new Option(generationModeLabels[m]||m||'默认',m));const selected=local?draft.mode:generationModeChoice(draft.mode,schema);if(!modes.includes(selected))draft.mode=modes[0]||'';mode.value=local?draft.mode:generationModeChoice(draft.mode,schema);mode.disabled=!modes.length;drawSettings();refreshDefaults();status.textContent=local&&draft.kind==='image'?'本地 Qwen Turbo · 8 步。自动跟随参考图比例；无参考图时使用模型默认比例。固定比例显示实际像素尺寸，本地任务按队列串行执行。':local?'使用本机 FL 模型生成带声音的视频，按行排队。在表格中点击首尾帧标签选择同行图片；不支持视频参考。使用常用比例预设，默认 16:9、约 2 秒。':isComfyGenerationModel(draft.model)?'使用 ComfyUI 账户积分；视频请求关闭水印。首尾帧模式沿用参考图比例。':'参考素材请在表格提示词中通过 @ 或首尾帧标签选择。';
-    }catch(error){if(token===sequence&&body.isConnected)status.textContent=error.message;}
+    }catch(error){if(panelAlive&&token===sequence&&body.isConnected)status.textContent=error.message;}finally{if(token===sequence)loadingProbe=false;}
    }
    const loadCapabilities=(force=false)=>pendingCapabilities=capabilities(force);
    kind.onchange=()=>{draft.kind=kind.value;draft.model=generationModelIDs(draft.kind)[0];draft.settings={};draft.mode='';fillModels();void loadCapabilities();};
@@ -444,7 +450,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
    mode.onchange=()=>{draft.mode=mode.value;draft.settings={};if(isLocalVideoModel(draft.model)&&schema)normalizeLocalGenerationConfig(draft,schema);drawSettings();refreshDefaults();};
    async function applyConfig(){
      while(pendingCapabilities){const pending=pendingCapabilities;await pending;if(pending===pendingCapabilities)break;}
-     if(!alive||!body.isConnected)throw new Error('配置面板已关闭，请重新打开');
+     if(!alive||!panelAlive||!body.isConnected)throw new Error('配置面板已关闭，请重新打开');
      const current=findField(fieldId);if(!current)throw new Error('生成列已删除');
      // Only creating a prompt through this panel may have changed its binding.
      const comparison={...current.generation,promptFieldId:JSON.parse(original).promptFieldId};
@@ -468,7 +474,9 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
     }catch(error){status.textContent=error.message;}
    },true),button('编辑提示词模板',()=>{if(draft.promptFieldId){editor.change(t=>enableColumnPrompt(t,draft.promptFieldId));editPromptTemplate(draft.promptFieldId);}}));
    fillModels();void loadCapabilities();
-   const stopModelStatus=modelCatalog.subscribe(()=>{if(!alive||!body.isConnected)return;refreshModelControl(model,generationModelIDs(kind.value),draft.model);if(!canSubmitModel(modelCatalog.get(draft.model))){body.querySelectorAll('button[data-primary=true]').forEach(control=>control.disabled=true);}});
+   const retryProbe=button('重新检测',()=>{});status.after(retryProbe);
+   const stopRetry=bindModelProbeRetry(retryProbe,{catalog:modelCatalog,getModel:()=>draft.model,active:()=>alive&&panelAlive&&body.isConnected,retry:()=>loadCapabilities(true)});body.onCleanup(stopRetry);
+   const stopModelStatus=modelCatalog.subscribe(()=>{if(!alive||!panelAlive||!body.isConnected)return;stopRetry.sync();refreshModelControl(model,generationModelIDs(kind.value),draft.model);const entry=modelCatalog.get(draft.model);body.querySelectorAll('button[data-primary=true]').forEach(control=>control.disabled=!canSubmitModel(entry));if(!canSubmitModel(entry)){if(entry?.status==='unknown')status.textContent=modelOptionPresentation(entry).statusLabel;}else if(!schema?.properties&&!loadingProbe&&entry?.available)void capabilities();});
    body.onCleanup(stopModelStatus);
    body.addEventListener('dae-text-side-show',refreshDefaults);body.onCleanup(()=>configPanels.delete(fieldId));refreshDefaults();
   });
