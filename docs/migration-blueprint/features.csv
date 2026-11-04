@@ -93,12 +93,14 @@ canvas:web/creative_canvas_view.mjs
 canvas:docs/adapter-contract.md
 canvas:docs/architecture/FRONTEND_INTERACTION.md","frontend/src/canvas/connections; frontend/src/contracts/ports","M2","统一端口状态机与命中计算；业务只声明类型、用途和限制。","视觉合并不改变原生槽位索引及类型；禁止用 wildcard 绕过校验。
 多用途选择清楚，first-free 只取首个兼容空槽且不覆盖现有连接。
-隐藏、停用、被组压制或不兼容端口不接受磁吸连接。","UC-CAN-004 UC-CAN-007","TC-CAN-019 TC-CAN-020"
+隐藏、停用、被组压制或不兼容端口不接受磁吸连接。
+2026-11-04：连线吸附范围按节点可视高度自适应，长节点（如多维表格）在整表高度内都可吸附，不再要求指向中心；素材组连线的命中区有明确视觉提示，相邻元素之间不误连。","UC-CAN-004 UC-CAN-007","TC-CAN-019 TC-CAN-020"
 "F-CAN-019","连线选择、删除、拖断与动画","保留","主视图已有连线绘制、选中删除、拖断、双击删除及关联脉冲。","canvas:web/creative_canvas_view.mjs
 canvas:web/creative_canvas.css
 canvas:docs/architecture/FRONTEND_INTERACTION.md","frontend/src/canvas/connections; frontend/src/ui/wires","M2","保留可见连线操作与撤销语义，动画不应影响数据处理。","双击、Delete/Backspace、拖断均删除同一真实连线并支持撤销。
 文字编辑期间 Backspace 不删除图连接。
-平移/缩放重绘不重启脉冲相位；减少动态效果模式使用静态高亮。","UC-CAN-004","TC-CAN-021"
+平移/缩放重绘不重启脉冲相位；减少动态效果模式使用静态高亮。
+2026-11-04：开始连线时只高亮可接受的节点类型，其余节点置暗；松开后恢复原显示，置暗不改变可选性与已存在连线。","UC-CAN-004","TC-CAN-021"
 "F-CAN-020","有序素材/文本快照与真实类型输出","保留","已有 assets/inputSnapshot、DAELAB_ASSETS、上传原生及 ComfyTV 引用类型和混合组快照。","canvas:web/creative_input_exchange.mjs
 canvas:web/material_group_model.mjs
 canvas:nodes/material_group.py
@@ -224,11 +226,13 @@ business:nodes/daelab_comfytv_storyboard/table_node.py","frontend/src/features/t
 保存重载保留未知兼容字段；不建立与原生图并行可写的文档副本。","UC-BIZ-001 UC-BIZ-004 UC-BIZ-016","TC-BIZ-001 TC-BIZ-045"
 "F-BIZ-002","表格行的增删、复制、排序与选择","保留","源码已存在；复制行清理生成任务身份与结果。","business:web/data_table_model.mjs
 business:web/data_table_editor.mjs","frontend/src/features/table","M3","保留编辑行为，明确复制与执行身份分离。","复制行产生新记录及素材实例身份，不继承原任务执行权。
-删除、排序和复制分别可撤销，其他表格实例不变。","UC-BIZ-001","TC-BIZ-001 TC-BIZ-002"
+删除、排序和复制分别可撤销，其他表格实例不变。
+2026-11-04：行胶囊菜单与列菜单同样精简，只保留 重命名 / 复制 / 删除；不因菜单精简改变行身份、顺序或已有结果。","UC-BIZ-001","TC-BIZ-001 TC-BIZ-002"
 "F-BIZ-003","字段类型、增删、改名、隐藏与列宽","保留","源码已存在；支持 content/text/longtext/number/checkbox/select/assets/json 等字段与展示用途。","business:web/data_table_model.mjs
 business:web/data_table_editor.mjs
 business:web/table_column_splitters.mjs","frontend/src/features/table","M3","字段类型、生成用途和提示词来源必须保持独立概念。","改名、排序和隐藏不改变稳定 ID 或引用指向。
-类型转换失败不部分写入；列宽在重载后保留。","UC-BIZ-001","TC-BIZ-001 TC-BIZ-003"
+类型转换失败不部分写入；列宽在重载后保留。
+2026-11-04：新建列只提供“文字”“图片”两种类型；内部或测试用类型（如“生成列（仅测试用）”）不出现在新建列表，存量列仍可显示、可编辑、可删除。列胶囊菜单只保留 重命名 / 复制 / 删除。","UC-BIZ-001","TC-BIZ-001 TC-BIZ-003"
 "F-BIZ-004","网格选择、文本编辑及复制粘贴","保留","源码已存在；内容展示与编辑态、表内范围选择、TSV/自有剪贴板格式并存。","business:web/data_table_editor.mjs
 business:web/table_content_view.mjs
 business:web/data_table_model.mjs","frontend/src/features/table","M3","保留中文输入和表格选择优先级，统一编辑事务。","输入框内多行粘贴不误变成多条记录。
@@ -238,10 +242,12 @@ Shift/Ctrl 表格选择不被画布抢占；非法粘贴不部分修改。
 business:web/table_content_view.mjs
 business:web/data_table_editor.mjs
 business:docs/table-material-columns.md","frontend/src/features/table; frontend/src/features/assets","M3","以当前代码和真实 UI 对照消除规范漂移，首版不擅自缩减现有数据。","一个格中的多个历史素材无损加载；顺序与素材 ID 保留。
-悬停预览不改变格宽高；视频关闭预览暂停；缺失媒体保留错误占位。","UC-BIZ-002 UC-BIZ-016","TC-BIZ-006 TC-BIZ-007 TC-BIZ-008 TC-BIZ-045"
+悬停预览不改变格宽高；视频关闭预览暂停；缺失媒体保留错误占位。
+2026-11-04：媒体单元格内每张图片有独立删除入口（×），只移除该张图片并保留其余图片与单元格内容；外观按会议截图对齐。","UC-BIZ-002 UC-BIZ-016","TC-BIZ-006 TC-BIZ-007 TC-BIZ-008 TC-BIZ-045"
 "F-BIZ-006","列头广播、按行填充及单格追加素材","保留","源码已存在：单图/视频/文本填满现有列，多个按序填入并补行；行头横向填充，单格追加。","business:web/table_material_columns.mjs
 business:web/creative_canvas_adapter.js","frontend/src/features/table; frontend/src/application","M3","保持一次快照语义，不借迁移引入隐藏的持续同步。","单个素材广播且空表创建一行；多个素材不覆盖未涉及尾行。
-非法媒体或超过 500 行/64 列当前边界时整次拒绝；空集合不清空。","UC-BIZ-002","TC-BIZ-005 TC-BIZ-006"
+非法媒体或超过 500 行/64 列当前边界时整次拒绝；空集合不清空。
+2026-11-04：新的素材组或文本重新注入同一输入时清空该输入的上次结果，以替换方式写入；不叠加旧结果，不影响其它输入与已确认结果。","UC-BIZ-002","TC-BIZ-005 TC-BIZ-006"
 "F-BIZ-007","表格单素材复制到画布","保留","源码已存在；通过公开 materialItem/beginMaterialDrag 接入画布。","business:web/table_material_item.mjs
 business:web/data_table_editor.mjs:90
 business:web/creative_canvas_adapter.js:17","frontend/src/application; frontend/src/features/table","M3","复用统一素材契约，避免表格直接创建宿主私有对象。","拖到空白画布保留源单元格、文件引用和显示名称。
@@ -251,7 +257,8 @@ business:web/table_content_view.mjs
 business:web/data_table_nodes.mjs
 business:web/creative_canvas_adapter.js:39
 business:docs/table-material-columns.md","frontend/src/features/table; frontend/src/ui","M3","保留已经批准的素材列、提示词列、生成列及 3 行默认结构；不恢复旧 2×2 文档，不新增模板选择。","新建表格为素材列、提示词列、生成列及 3 行；保留内容格追加多个素材，单表限制 500 行、64 列；不提供新的模板选择。
-调整宽度、长表自然撑高和边缘菜单均可达；仅通用画布表删除最后行/列时删节点并可撤销。","UC-BIZ-001 UC-BIZ-016","TC-BIZ-010 TC-BIZ-011 TC-BIZ-045"
+调整宽度、长表自然撑高和边缘菜单均可达；仅通用画布表删除最后行/列时删节点并可撤销。
+2026-11-04：表格拖动范围覆盖整个面板（含内容区空白与行标签区），不再只有表头可拖；单元格编辑、选择与复制优先于拖动，拖动不改变数据、不打断进行中的编辑。","UC-BIZ-001 UC-BIZ-016","TC-BIZ-010 TC-BIZ-011 TC-BIZ-045"
 "F-BIZ-009","业务面板生命周期、实例隔离与模式切换","重构","源码已存在；当前同时覆盖 Canvas、原生图和 App Mode，并有跨仓控件 fallback。","business:web/app_mode_bypass.js
 business:web/app_mode_bypass_model.mjs
 business:web/data_table_nodes.mjs
@@ -306,7 +313,8 @@ business:docs/script-parser.md","frontend/src/features/storyboard; backend/story
 business:web/script_parser_panel.mjs
 business:nodes/daelab_comfytv_storyboard/script_contract.py","frontend/src/features/storyboard; frontend/src/application","M3","保留用户编辑与生成身份，导入作为一个可撤销事务。","重复导入不重复行；内容变更的新文档版本可追踪。
 读入期间表格变化、容量超限或类型冲突整次拒绝；活动任务期间不改写其输入快照。
-分镜解析导入默认四列（镜号/画面描述/画面参考/备注），画面描述初始为提示词列；单元格可原位编辑，撤销重做、保存重载，保留来源与修订保护。导入完成后该表按标准多维表格提供完整编辑（含增列、指定提示词列、列输出、拆出文本与单元格输出）。","UC-BIZ-003","TC-BIZ-023 TC-BIZ-024 TC-BIZ-059"
+分镜解析导入默认四列（镜号/画面描述/画面参考/备注），画面描述初始为提示词列；单元格可原位编辑，撤销重做、保存重载，保留来源与修订保护。导入完成后该表按标准多维表格提供完整编辑（含增列、指定提示词列、列输出、拆出文本与单元格输出）。
+2026-11-04：有章节的文稿按章节拆表，并提供可折叠的章节层级；无章节时每表最多 10 行。折叠或展开章节不改变行身份、勾选状态、来源与已生成结果。","UC-BIZ-003","TC-BIZ-023 TC-BIZ-024 TC-BIZ-059"
 "F-BIZ-021","既有通用文稿和表格文件导入","保留","源码已存在；既有入口接收 DOCX/XLSX/XLSM/CSV/TSV/TXT/MD/PDF，支持程度以解析器与夹具核定。","business:nodes/daelab_comfytv_storyboard/document_import.py
 business:web/data_table_nodes.mjs:111
 business:nodes/daelab_comfytv_storyboard/import_node.py","backend/storyboard; frontend/src/features/storyboard","M3","迁移现有可用格式，不把扩展名列表当所有复杂文档已通过。","逐格式提供正常、空、损坏和结构异常夹具并记录支持限制。
@@ -323,7 +331,8 @@ business:web/table_generation_tasks.mjs","frontend/src/features/generation; back
 business:web/libtv_panel.js
 business:web/libtv_video_model.mjs
 business:web/video_task_linked_prompt.mjs","frontend/src/features/generation; frontend/src/application","M4","与表内入口共用同一生成应用服务，保留两种工作方式。","导入表格保留行、来源、帧绑定和节点专属输入。
-修改/撤销只同步匹配字段；源断开/删除时阻止新提交，不覆盖已有结果。","UC-BIZ-010","TC-BIZ-017 TC-BIZ-028 TC-BIZ-049"
+修改/撤销只同步匹配字段；源断开/删除时阻止新提交，不覆盖已有结果。
+2026-11-04：表格下游只能连接生成节点；其它节点类型在连线选择位置置灰不可选，已存在的连线保留并照常显示。生成节点贴附在表格下边缘，表格移动或调整宽度时跟随对齐；吸附只影响位置，不改变已验收的节点外观（新建图片/视频节点 5:4、旧实例与手调尺寸保留），不再要求方形外框。","UC-BIZ-010","TC-BIZ-017 TC-BIZ-028 TC-BIZ-049"
 "F-BIZ-025","精确模型能力、参数与模式预检","重构","源码已存在；云端与本地有各自能力映射，当前包含精确 Fast/Mini 等型号与 H3 三模式。","business:nodes/libtv_bridge/table_comfy_video.py
 business:nodes/libtv_bridge/table_comfy_image.py
 business:nodes/libtv_bridge/table_local_models.py
@@ -375,7 +384,8 @@ business:nodes/prompt_optimization/local_qwen.py","backend/jobs; backend/integra
 "F-BIZ-036","生成结果预览、素材组输出与再次引用","保留","源码已存在；结果按行/任务输出有序素材，表格和生成节点通过公开 adapter 提供素材。","business:web/table_material_output.mjs
 business:web/libtv_video_model.mjs
 business:web/creative_canvas_adapter.js","frontend/src/features/assets; frontend/src/application","M5","打通生成到编辑/剪辑的闭环，复用真实文件引用。","每任务独立成组、按任务名命名并保持结果顺序；空结果跳过。
-输出复制不移动原结果；已完成结果可作为后续提示词参考。","UC-BIZ-013","TC-BIZ-042"
+输出复制不移动原结果；已完成结果可作为后续提示词参考。
+2026-11-04：生成结果统一以弹出方式查看与选中，不在节点内部展开长结果列表；节点只保留状态、数量与入口，弹出层关闭后回到原节点。","UC-BIZ-013","TC-BIZ-042"
 "F-BIZ-037","旧节点 ID、端口、工作流和记录兼容","重构","源码已存在；当前继续使用 DAELAB.Table、StoryboardImport、ScriptParser、LibTV.VideoGenerate 等旧 ID。","business:nodes/daelab_comfytv_storyboard/__init__.py
 business:nodes/libtv_bridge/node.py
 business:web/creative_canvas_adapter.js
@@ -414,7 +424,8 @@ business:nodes/prompt_optimization/approved_result.py
 business:docs/architecture/LLM_SLOT_IO.md","frontend/src/features/prompt; frontend/src/application; backend/prompt; backend/integrations/comfyui","M3","不能把生产 LLM 节点缩减为一次性润色弹窗；保留组合输入、逐行身份和显式审阅。","多源输入按稳定身份读取；不得因缺来源取其他预览作替代。
 只有应用后的结果可接线；逐行结果保留唯一行 ID；原生执行不触发模型调用。
 2026-11-04：文本生成复用现有节点；外接来源时原文框置灰禁用且保留内部草稿，断线后恢复；外部输入为空不回退旧草稿。表格勾选行及素材组沿用现有批量、顺序、审阅与确认输出，各行内容和参考独立。
-内置画面描述、镜头运动、参考图引用三类默认模板；正文和模板草稿可编辑，保持主体事实及参考编号/顺序，不编造缺失参考，不跨行套用内容；新模板不改旧冻结任务或已确认结果。千问3.8 27B本轮不接入。","UC-BIZ-007","TC-BIZ-048"
+内置画面描述、镜头运动、参考图引用三类默认模板；正文和模板草稿可编辑，保持主体事实及参考编号/顺序，不编造缺失参考，不跨行套用内容；新模板不改旧冻结任务或已确认结果。千问3.8 27B本轮不接入。
+2026-11-04：应用文本优化结果前显示确认弹窗，列出将写入的范围与行；确认后写入并保留原有连线与来源，取消不改动原文与连线。","UC-BIZ-007","TC-BIZ-048"
 "F-BIZ-044","旧独立分镜生成与 LLM 样式原型的收敛","重构","GPTImageStoryboardStage 当前仍有 Comfy 图片执行实现；LLM A/C/D/E 为前端虚拟样式原型。新库只读兼容/显式转换是拟定收敛决策，并非当前都已退役。","business:nodes/daelab_comfytv_storyboard/node.py
 business:web/llm_style_preview.js:12
 business:web/llm_style_preview.js:58","compat/workflows; compat/legacy","M6","分镜生成统一到通用表格/生成服务，原型数据可导入，避免生产继续暴露多套重叠执行入口。","旧分镜表/结果/输入可读取并预览转换差异，用户显式转换后才启用新生成入口。
@@ -438,7 +449,8 @@ business:web/task_snapshots.mjs","frontend/src/features/generation; frontend/src
 "F-BIZ-049","单任务真实进度与成组完成计数","重构","快照协议已有可选 progress，成组百分比尚未严格隐藏；现有测试主要使用合成报告。","business:web/task_snapshots.mjs
 business:web/table_generation_tasks.mjs","frontend/src/features/tasks; frontend/src/features/generation; backend/jobs","M4","仅一个任务时可显示真实百分比和阶段；两个及以上任务不显示百分比，节点左上角只显示总数和已验证完成数。无真实进度时只显示不确定状态。","生成范围仅一个 requestId 时，可显示提供方或可核对计数换算的百分比，并同时给出数字与百分号。
 生成范围两个及以上任务时，节点、胶囊和占位不显示百分比或进度圆环，左上角只显示总任务数和已完成数。
-禁止用时间、动画或未经校准权重虚构百分比；排队不显示 0%；100% 不等于写回完成。","UC-BIZ-020","TC-BIZ-057"
+禁止用时间、动画或未经校准权重虚构百分比；排队不显示 0%；100% 不等于写回完成。
+2026-11-04：表格接入生成节点后自动进入批量模式，节点显示“共 N 个任务”，N 为当前勾选行数；勾选变化即时更新，未勾选时不显示任务数或显示 0 并禁用提交。","UC-BIZ-020","TC-BIZ-057"
 "F-SYS-001","单仓库单安装入口","重构","当前两个仓库各自注册节点与扩展，完整创作依赖组合安装","canvas:__init__.py
 business:__init__.py","__init__.py; backend/integrations/comfyui; frontend/src/integrations/comfyui","M1","统一产品组装与版本，消除跨包发现与 fallback","干净环境只安装新包即可使用基础创作能力；节点、路由和菜单各注册一次","UC-SYS-001 UC-SYS-007","TC-SYS-001 TC-SYS-007 TC-SYS-034"
 "F-SYS-002","模块边界与公开接口","重构","已有公开 adapter 和分层草案，部分代码仍直接读取宿主及私有状态","canvas:docs/adapter-contract.md

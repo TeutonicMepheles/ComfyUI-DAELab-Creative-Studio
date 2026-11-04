@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "9516e241f394c28a2b74294745990b0b3611c361b3e7d92c186d91fc1e75b7f3",
+  "specificationHash": "2b60468a0603aedcb58dd522c39aa82c7766e2cec9f5d56d2de6d734c9b38010",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -413,9 +413,11 @@
         "AC-CAN-018-001",
         "AC-CAN-018-002",
         "AC-CAN-018-003",
+        "AC-CAN-018-004",
         "AC-CAN-019-001",
         "AC-CAN-019-002",
         "AC-CAN-019-003",
+        "AC-CAN-019-004",
         "AC-CAN-037-001",
         "AC-CAN-037-002",
         "AC-CAN-037-003"
@@ -752,7 +754,8 @@
         "AC-BIZ-043-001",
         "AC-BIZ-043-002",
         "AC-BIZ-043-003",
-        "AC-BIZ-043-004"
+        "AC-BIZ-043-004",
+        "AC-BIZ-043-005"
       ],
       "usecases": [
         "UC-BIZ-002",
@@ -796,7 +799,8 @@
         "AC-BIZ-019-002",
         "AC-BIZ-020-001",
         "AC-BIZ-020-002",
-        "AC-BIZ-020-003"
+        "AC-BIZ-020-003",
+        "AC-BIZ-020-004"
       ],
       "usecases": [
         "UC-BIZ-003",
@@ -834,17 +838,22 @@
         "AC-BIZ-001-002",
         "AC-BIZ-002-001",
         "AC-BIZ-002-002",
+        "AC-BIZ-002-003",
         "AC-BIZ-003-001",
         "AC-BIZ-003-002",
+        "AC-BIZ-003-003",
         "AC-BIZ-004-001",
         "AC-BIZ-004-002",
         "AC-BIZ-004-003",
         "AC-BIZ-005-001",
         "AC-BIZ-005-002",
+        "AC-BIZ-005-003",
         "AC-BIZ-006-001",
         "AC-BIZ-006-002",
+        "AC-BIZ-006-003",
         "AC-BIZ-008-001",
         "AC-BIZ-008-002",
+        "AC-BIZ-008-003",
         "AC-BIZ-045-001",
         "AC-BIZ-045-002",
         "AC-BIZ-045-003"
@@ -1088,6 +1097,7 @@
         "AC-BIZ-023-002",
         "AC-BIZ-024-001",
         "AC-BIZ-024-002",
+        "AC-BIZ-024-003",
         "AC-BIZ-048-001",
         "AC-BIZ-048-002",
         "AC-BIZ-048-003"
@@ -1128,6 +1138,7 @@
         "AC-BIZ-049-001",
         "AC-BIZ-049-002",
         "AC-BIZ-049-003",
+        "AC-BIZ-049-004",
         "AC-CAN-026-001",
         "AC-CAN-026-002",
         "AC-CAN-026-003"
@@ -1223,7 +1234,8 @@
       ],
       "acceptance": [
         "AC-BIZ-036-001",
-        "AC-BIZ-036-002"
+        "AC-BIZ-036-002",
+        "AC-BIZ-036-003"
       ],
       "usecases": [
         "UC-BIZ-013"
@@ -2698,6 +2710,28 @@
       "evidence": []
     },
     {
+      "id": "AC-CAN-018-004",
+      "feature": "F-CAN-018",
+      "task": "TASK-M2-CANVAS",
+      "owner": "canvas",
+      "requirement": "2026-11-04：连线吸附范围按节点可视高度自适应，长节点（如多维表格）在整表高度内都可吸附，不再要求指向中心；素材组连线的命中区有明确视觉提示，相邻元素之间不误连。",
+      "requirementHash": "dae705e470f1459bf0de2a6d565620c432d5ffadd8d0f30bdb43ffad31478fb0",
+      "usecases": [
+        "UC-CAN-004",
+        "UC-CAN-007"
+      ],
+      "tests": [
+        "TC-CAN-019",
+        "TC-CAN-020"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
       "id": "AC-CAN-019-001",
       "feature": "F-CAN-019",
       "task": "TASK-M2-CANVAS",
@@ -2742,6 +2776,25 @@
       "owner": "canvas",
       "requirement": "平移/缩放重绘不重启脉冲相位；减少动态效果模式使用静态高亮。",
       "requirementHash": "bdf06d6c266764e997497f362641f4e26e7c85d5afee01b9f049d4c737e7065f",
+      "usecases": [
+        "UC-CAN-004"
+      ],
+      "tests": [
+        "TC-CAN-021"
+      ],
+      "evals": [
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-CAN-019-004",
+      "feature": "F-CAN-019",
+      "task": "TASK-M2-CANVAS",
+      "owner": "canvas",
+      "requirement": "2026-11-04：开始连线时只高亮可接受的节点类型，其余节点置暗；松开后恢复原显示，置暗不改变可选性与已存在连线。",
+      "requirementHash": "2d733c18fa92d32c707a6a83c4070390a727572b0b8bbc00e715b27930feb8da",
       "usecases": [
         "UC-CAN-004"
       ],
@@ -4369,6 +4422,27 @@
       "evidence": []
     },
     {
+      "id": "AC-BIZ-002-003",
+      "feature": "F-BIZ-002",
+      "task": "TASK-M3-FEATURES-TABLE",
+      "owner": "features/table",
+      "requirement": "2026-11-04：行胶囊菜单与列菜单同样精简，只保留 重命名 / 复制 / 删除；不因菜单精简改变行身份、顺序或已有结果。",
+      "requirementHash": "dfae7fcd1e3cc5eae64d49284008fc01e8ab5d83f2375a7a8925a7e4d126025e",
+      "usecases": [
+        "UC-BIZ-001"
+      ],
+      "tests": [
+        "TC-BIZ-001",
+        "TC-BIZ-002"
+      ],
+      "evals": [
+        "EV-DATA",
+        "EV-JOBS"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
       "id": "AC-BIZ-003-001",
       "feature": "F-BIZ-003",
       "task": "TASK-M3-FEATURES-TABLE",
@@ -4395,6 +4469,26 @@
       "owner": "features/table",
       "requirement": "类型转换失败不部分写入；列宽在重载后保留。",
       "requirementHash": "f645cce5361686c74dcefb178b1e3f62557872e27dfb0e49a78734b6a04143e9",
+      "usecases": [
+        "UC-BIZ-001"
+      ],
+      "tests": [
+        "TC-BIZ-001",
+        "TC-BIZ-003"
+      ],
+      "evals": [
+        "EV-DATA"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-003-003",
+      "feature": "F-BIZ-003",
+      "task": "TASK-M3-FEATURES-TABLE",
+      "owner": "features/table",
+      "requirement": "2026-11-04：新建列只提供“文字”“图片”两种类型；内部或测试用类型（如“生成列（仅测试用）”）不出现在新建列表，存量列仍可显示、可编辑、可删除。列胶囊菜单只保留 重命名 / 复制 / 删除。",
+      "requirementHash": "9453dfc7354ba4c7e43aea0a2b173c3ed27c681a924ec3005420f8f8dc7f8b7a",
       "usecases": [
         "UC-BIZ-001"
       ],
@@ -4522,6 +4616,31 @@
       "evidence": []
     },
     {
+      "id": "AC-BIZ-005-003",
+      "feature": "F-BIZ-005",
+      "task": "TASK-M3-FEATURES-TABLE",
+      "owner": "features/table",
+      "requirement": "2026-11-04：媒体单元格内每张图片有独立删除入口（×），只移除该张图片并保留其余图片与单元格内容；外观按会议截图对齐。",
+      "requirementHash": "800d04719fa8b69d1c41aa9c1fd223afe2b54ae0858e606b80d0987c7a188a1e",
+      "usecases": [
+        "UC-BIZ-002",
+        "UC-BIZ-016"
+      ],
+      "tests": [
+        "TC-BIZ-006",
+        "TC-BIZ-007",
+        "TC-BIZ-008",
+        "TC-BIZ-045"
+      ],
+      "evals": [
+        "EV-DATA",
+        "EV-PERF",
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
       "id": "AC-BIZ-006-001",
       "feature": "F-BIZ-006",
       "task": "TASK-M3-FEATURES-TABLE",
@@ -4548,6 +4667,26 @@
       "owner": "features/table",
       "requirement": "非法媒体或超过 500 行/64 列当前边界时整次拒绝；空集合不清空。",
       "requirementHash": "cc691bb082e468606c6b9c242a8d2026a1ff44f3865227d30e2ffb1461103265",
+      "usecases": [
+        "UC-BIZ-002"
+      ],
+      "tests": [
+        "TC-BIZ-005",
+        "TC-BIZ-006"
+      ],
+      "evals": [
+        "EV-DATA"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-006-003",
+      "feature": "F-BIZ-006",
+      "task": "TASK-M3-FEATURES-TABLE",
+      "owner": "features/table",
+      "requirement": "2026-11-04：新的素材组或文本重新注入同一输入时清空该输入的上次结果，以替换方式写入；不叠加旧结果，不影响其它输入与已确认结果。",
+      "requirementHash": "9f585d1d98f1fe80bae34895b6f4c79cd72014fd2d16211a9d2b834c748e11d1",
       "usecases": [
         "UC-BIZ-002"
       ],
@@ -4629,6 +4768,29 @@
       "owner": "features/table",
       "requirement": "调整宽度、长表自然撑高和边缘菜单均可达；仅通用画布表删除最后行/列时删节点并可撤销。",
       "requirementHash": "b0e1417647acb79df8310613288741e75dc069f392f0d23a1d61a8d9efb759ff",
+      "usecases": [
+        "UC-BIZ-001",
+        "UC-BIZ-016"
+      ],
+      "tests": [
+        "TC-BIZ-010",
+        "TC-BIZ-011",
+        "TC-BIZ-045"
+      ],
+      "evals": [
+        "EV-PERF",
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-008-003",
+      "feature": "F-BIZ-008",
+      "task": "TASK-M3-FEATURES-TABLE",
+      "owner": "features/table",
+      "requirement": "2026-11-04：表格拖动范围覆盖整个面板（含内容区空白与行标签区），不再只有表头可拖；单元格编辑、选择与复制优先于拖动，拖动不改变数据、不打断进行中的编辑。",
+      "requirementHash": "5d5e4d7ae5db770a576a62baa3f53cbb5f0e7070c187816ca833871e830eff06",
       "usecases": [
         "UC-BIZ-001",
         "UC-BIZ-016"
@@ -5221,6 +5383,29 @@
       "evidence": []
     },
     {
+      "id": "AC-BIZ-020-004",
+      "feature": "F-BIZ-020",
+      "task": "TASK-M3-FEATURES-STORYBOARD",
+      "owner": "features/storyboard",
+      "requirement": "2026-11-04：有章节的文稿按章节拆表，并提供可折叠的章节层级；无章节时每表最多 10 行。折叠或展开章节不改变行身份、勾选状态、来源与已生成结果。",
+      "requirementHash": "eb2ce168a984f76d077b620e079bbc7980501154cbbb72ba0ac4b0bbabfc2383",
+      "usecases": [
+        "UC-BIZ-003"
+      ],
+      "tests": [
+        "TC-BIZ-023",
+        "TC-BIZ-024",
+        "TC-BIZ-059"
+      ],
+      "evals": [
+        "EV-DATA",
+        "EV-JOBS",
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
       "id": "AC-BIZ-021-001",
       "feature": "F-BIZ-021",
       "task": "TASK-M3-BACKEND-STORYBOARD",
@@ -5365,6 +5550,28 @@
       "owner": "features/generation",
       "requirement": "修改/撤销只同步匹配字段；源断开/删除时阻止新提交，不覆盖已有结果。",
       "requirementHash": "3abdfaeff547b60b24e68a7b0ac3427845e80fe4ce9c6dd5535f8c41d458755d",
+      "usecases": [
+        "UC-BIZ-010"
+      ],
+      "tests": [
+        "TC-BIZ-017",
+        "TC-BIZ-028",
+        "TC-BIZ-049"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-JOBS"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-024-003",
+      "feature": "F-BIZ-024",
+      "task": "TASK-M4-FEATURES-GENERATION",
+      "owner": "features/generation",
+      "requirement": "2026-11-04：表格下游只能连接生成节点；其它节点类型在连线选择位置置灰不可选，已存在的连线保留并照常显示。生成节点贴附在表格下边缘，表格移动或调整宽度时跟随对齐；吸附只影响位置，不改变已验收的节点外观（新建图片/视频节点 5:4、旧实例与手调尺寸保留），不再要求方形外框。",
+      "requirementHash": "9555408a58a782aa4dcda0924987b12ca26830170c71df87b8a2dd944cb7118f",
       "usecases": [
         "UC-BIZ-010"
       ],
@@ -6032,6 +6239,25 @@
       "evidence": []
     },
     {
+      "id": "AC-BIZ-036-003",
+      "feature": "F-BIZ-036",
+      "task": "TASK-M5-FEATURES-ASSETS",
+      "owner": "features/assets",
+      "requirement": "2026-11-04：生成结果统一以弹出方式查看与选中，不在节点内部展开长结果列表；节点只保留状态、数量与入口，弹出层关闭后回到原节点。",
+      "requirementHash": "e8bcb22b5c47e8f7551b496460a35ff7f5bb6f83cc2a92180bccbbe0d0265240",
+      "usecases": [
+        "UC-BIZ-013"
+      ],
+      "tests": [
+        "TC-BIZ-042"
+      ],
+      "evals": [
+        "EV-ARCH"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
       "id": "AC-BIZ-037-001",
       "feature": "F-BIZ-037",
       "task": "TASK-M6-COMPAT",
@@ -6364,6 +6590,25 @@
       "owner": "features/prompt",
       "requirement": "内置画面描述、镜头运动、参考图引用三类默认模板；正文和模板草稿可编辑，保持主体事实及参考编号/顺序，不编造缺失参考，不跨行套用内容；新模板不改旧冻结任务或已确认结果。千问3.8 27B本轮不接入。",
       "requirementHash": "f0ed827702a07f63a6ff77e45af7c469a9ff885be587112be1fca6bb76cf517a",
+      "usecases": [
+        "UC-BIZ-007"
+      ],
+      "tests": [
+        "TC-BIZ-048"
+      ],
+      "evals": [
+        "EV-ARCH"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-043-005",
+      "feature": "F-BIZ-043",
+      "task": "TASK-M3-FEATURES-PROMPT",
+      "owner": "features/prompt",
+      "requirement": "2026-11-04：应用文本优化结果前显示确认弹窗，列出将写入的范围与行；确认后写入并保留原有连线与来源，取消不改动原文与连线。",
+      "requirementHash": "f7f708acbccbe6310f78bdf8eb1582a25673421fd01bbe0450aa5113063908eb",
       "usecases": [
         "UC-BIZ-007"
       ],
@@ -6736,6 +6981,26 @@
       "owner": "features/tasks",
       "requirement": "禁止用时间、动画或未经校准权重虚构百分比；排队不显示 0%；100% 不等于写回完成。",
       "requirementHash": "36d23419552b6a478e87658ef0241c6bb6b4a72c944cc4ff698182086205e21c",
+      "usecases": [
+        "UC-BIZ-020"
+      ],
+      "tests": [
+        "TC-BIZ-057"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-JOBS"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-049-004",
+      "feature": "F-BIZ-049",
+      "task": "TASK-M4-FEATURES-TASKS",
+      "owner": "features/tasks",
+      "requirement": "2026-11-04：表格接入生成节点后自动进入批量模式，节点显示“共 N 个任务”，N 为当前勾选行数；勾选变化即时更新，未勾选时不显示任务数或显示 0 并禁用提交。",
+      "requirementHash": "8d307bad3543218f4be07eff230f49a30255f5568a5c365a7f0915627079bc0e",
       "usecases": [
         "UC-BIZ-020"
       ],
@@ -8943,12 +9208,13 @@
         "AC-CAN-003-003",
         "AC-CAN-018-001",
         "AC-CAN-018-002",
-        "AC-CAN-018-003"
+        "AC-CAN-018-003",
+        "AC-CAN-018-004"
       ],
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "d2b8f3018eeba81d0a112d7cc9f23a6efeaf63262b6bb7b46087fe11923617d8",
+      "specificationHash": "02da867c1643f119640b5408421353ac6fe4039e7ca9cfd687cc1a80938b84fe",
       "assertions": [
         {
           "id": "AS-CAN-019-001",
@@ -8982,6 +9248,7 @@
         "AC-CAN-018-001",
         "AC-CAN-018-002",
         "AC-CAN-018-003",
+        "AC-CAN-018-004",
         "AC-CAN-020-001",
         "AC-CAN-020-002",
         "AC-CAN-020-003"
@@ -8989,7 +9256,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "b3de71dd3147697a768f579a7f7c36dfd95164e77738720aef0d7cf4953e67d0",
+      "specificationHash": "e9ab44035fb5c2b38e0399ba94c2886d27e68c6bd260680e90d4ec7f394c7d9d",
       "assertions": [
         {
           "id": "AS-CAN-020-001",
@@ -9025,12 +9292,13 @@
         "AC-CAN-013-003",
         "AC-CAN-019-001",
         "AC-CAN-019-002",
-        "AC-CAN-019-003"
+        "AC-CAN-019-003",
+        "AC-CAN-019-004"
       ],
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "35f9b4325c76589e10aa4d45f97796f25cdac70b13f77d31fa39cc2d91bdadee",
+      "specificationHash": "4efedd82014e03a0ceb064a6b4dbbd896e327bb9420872b00b4f82516a07b720",
       "assertions": [
         {
           "id": "AS-CAN-021-001",
@@ -10181,13 +10449,15 @@
         "AC-BIZ-001-002",
         "AC-BIZ-002-001",
         "AC-BIZ-002-002",
+        "AC-BIZ-002-003",
         "AC-BIZ-003-001",
-        "AC-BIZ-003-002"
+        "AC-BIZ-003-002",
+        "AC-BIZ-003-003"
       ],
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "6d2ec896f50a8e7a783e78639b52ebe62d070b1d25187354b6f21fbe4bff69a9",
+      "specificationHash": "84ab297faddf73fb23bdd821a39f52aa9c471cbc3944b5f938978acf152de59d",
       "assertions": [
         {
           "id": "AS-BIZ-001-001",
@@ -10218,6 +10488,7 @@
       "acceptance": [
         "AC-BIZ-002-001",
         "AC-BIZ-002-002",
+        "AC-BIZ-002-003",
         "AC-BIZ-029-001",
         "AC-BIZ-029-002",
         "AC-BIZ-033-001",
@@ -10227,7 +10498,7 @@
         "EV-DATA",
         "EV-JOBS"
       ],
-      "specificationHash": "65ba4384e0539352a58996ccb7d4106625180dc96c36a27d4e0deafc71c2bf15",
+      "specificationHash": "5508e45c91a65978b5a6b62f6b8d703b3e4e4247815d1fc2ed5efd10ec9255ae",
       "assertions": [
         {
           "id": "AS-BIZ-002-001",
@@ -10258,6 +10529,7 @@
       "acceptance": [
         "AC-BIZ-003-001",
         "AC-BIZ-003-002",
+        "AC-BIZ-003-003",
         "AC-BIZ-010-001",
         "AC-BIZ-010-002",
         "AC-BIZ-011-001",
@@ -10266,7 +10538,7 @@
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "e98ba06f192de707e6801c47f082ea4f2e9361d29493f0313ac44f365f7c8e95",
+      "specificationHash": "9aa7f794e92962d6c564484a950e750999c4ad4a763950b20b196e15a29f7e3c",
       "assertions": [
         {
           "id": "AS-BIZ-003-001",
@@ -10326,12 +10598,13 @@
       ],
       "acceptance": [
         "AC-BIZ-006-001",
-        "AC-BIZ-006-002"
+        "AC-BIZ-006-002",
+        "AC-BIZ-006-003"
       ],
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "0cfcef7fc7e026a22766a0bb41b530adb5c9abe192f020abaaee87a83b4395b9",
+      "specificationHash": "4f491dac02e7dad652ce2662019ddf3ea1e29073b13769574cac0a35cefcb41d",
       "assertions": [
         {
           "id": "AS-BIZ-005-001",
@@ -10360,13 +10633,15 @@
       "acceptance": [
         "AC-BIZ-005-001",
         "AC-BIZ-005-002",
+        "AC-BIZ-005-003",
         "AC-BIZ-006-001",
-        "AC-BIZ-006-002"
+        "AC-BIZ-006-002",
+        "AC-BIZ-006-003"
       ],
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "5f5320034577c3e3c6e487a7c2a57697e1191cbd7387d543fcfce7a41f26ffa5",
+      "specificationHash": "f104d73d0f3edc36661add31314812d00fb203355c94ebaf3f250484559d1a5c",
       "assertions": [
         {
           "id": "AS-BIZ-006-001",
@@ -10396,13 +10671,14 @@
       "acceptance": [
         "AC-BIZ-005-001",
         "AC-BIZ-005-002",
+        "AC-BIZ-005-003",
         "AC-BIZ-012-001",
         "AC-BIZ-012-002"
       ],
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "51cd3645b11d65474131ffdaa968490ce940a84eb285e0faebd87c814b68ab2a",
+      "specificationHash": "61c492b53cdf608b1e4102a5ba59f0ae520d0273e450f2e4c74821e2c0d9ad2b",
       "assertions": [
         {
           "id": "AS-BIZ-007-001",
@@ -10432,13 +10708,14 @@
       "acceptance": [
         "AC-BIZ-005-001",
         "AC-BIZ-005-002",
+        "AC-BIZ-005-003",
         "AC-BIZ-009-001",
         "AC-BIZ-009-002"
       ],
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "c658f6cceb10e742a380ba92e61dcb189536ee824a73aa8ca390c411cefb5cc5",
+      "specificationHash": "44f6354bc6cf8b979fbf28209760775195e971968dd8dc6659e396ac1396def2",
       "assertions": [
         {
           "id": "AS-BIZ-008-001",
@@ -10497,12 +10774,13 @@
       ],
       "acceptance": [
         "AC-BIZ-008-001",
-        "AC-BIZ-008-002"
+        "AC-BIZ-008-002",
+        "AC-BIZ-008-003"
       ],
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "c44e582ab2eed95b033f624574268a772b4ede7715490524969972eed67f1394",
+      "specificationHash": "3a535c729f7000c690a058a42230ff316fe60d5218102ff1925a0f8f2527df15",
       "assertions": [
         {
           "id": "AS-BIZ-010-001",
@@ -10533,12 +10811,13 @@
       ],
       "acceptance": [
         "AC-BIZ-008-001",
-        "AC-BIZ-008-002"
+        "AC-BIZ-008-002",
+        "AC-BIZ-008-003"
       ],
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "5ffe53ac3ca438d3a0338bb12d1bfaf29ae6eb2832b8774276c505abf78ad5d7",
+      "specificationHash": "80e7009b72b3f8ea51e8674ef3bdf71e0c493ae9befb20feb2b7e83002bb9047",
       "assertions": [
         {
           "id": "AS-BIZ-011-001",
@@ -10742,12 +11021,13 @@
         "AC-BIZ-014-001",
         "AC-BIZ-014-002",
         "AC-BIZ-024-001",
-        "AC-BIZ-024-002"
+        "AC-BIZ-024-002",
+        "AC-BIZ-024-003"
       ],
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "7d0fcd60b50e4082553e4d08f942429ee2a5840430f37819bdb6bc3f2e5c835b",
+      "specificationHash": "a26caf1a4a6b0253a7ce696316c6d7ad38ca999a52319c6e819d6e0050930687",
       "assertions": [
         {
           "id": "AS-BIZ-017-001",
@@ -10950,13 +11230,14 @@
         "AC-BIZ-019-002",
         "AC-BIZ-020-001",
         "AC-BIZ-020-002",
-        "AC-BIZ-020-003"
+        "AC-BIZ-020-003",
+        "AC-BIZ-020-004"
       ],
       "evals": [
         "EV-DATA",
         "EV-JOBS"
       ],
-      "specificationHash": "006d5feac3a69ba142de78d7fbbe3ea0693bf0d21856511600e981c7ca8a22be",
+      "specificationHash": "d866d1d96c6241a0bfba4ec4dc7b44ba0577b0090967ed83e6b083268f65c9f2",
       "assertions": [
         {
           "id": "AS-BIZ-023-001",
@@ -10986,6 +11267,7 @@
         "AC-BIZ-020-001",
         "AC-BIZ-020-002",
         "AC-BIZ-020-003",
+        "AC-BIZ-020-004",
         "AC-BIZ-029-001",
         "AC-BIZ-029-002"
       ],
@@ -10993,7 +11275,7 @@
         "EV-DATA",
         "EV-JOBS"
       ],
-      "specificationHash": "bc43df3a783a52a09a8ff759bba8ec1556f3bfeb0c5071eb1af46c7a77653e13",
+      "specificationHash": "3bfb9c8f4955c5ced1e6178d57abb786f56a4ce23e79651ff8ac85ef06cbeb64",
       "assertions": [
         {
           "id": "AS-BIZ-024-001",
@@ -11126,13 +11408,14 @@
       "acceptance": [
         "AC-BIZ-024-001",
         "AC-BIZ-024-002",
+        "AC-BIZ-024-003",
         "AC-BIZ-041-001",
         "AC-BIZ-041-002"
       ],
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "76c4bbab9d4b7aea9e0bf88ef81b1fb9c0f850faab2c1e34362cdd37deec4d1c",
+      "specificationHash": "c3db3f728e29399797a75a522459963a38dbd2d21dd0b51337205768d5efd434",
       "assertions": [
         {
           "id": "AS-BIZ-028-001",
@@ -11648,6 +11931,7 @@
         "AC-BIZ-033-002",
         "AC-BIZ-036-001",
         "AC-BIZ-036-002",
+        "AC-BIZ-036-003",
         "AC-BIZ-042-001",
         "AC-BIZ-042-002",
         "AC-BIZ-042-003"
@@ -11655,7 +11939,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "0162154d57d53324230adf03d17d02c22a0ab57d0efc401347cb3cfedee8d31f",
+      "specificationHash": "8b32421cc29cd0b30d975d75e11c0ca49c392022c23f56ee4b961cf108bb466f",
       "assertions": [
         {
           "id": "AS-BIZ-042-001",
@@ -11762,8 +12046,10 @@
         "AC-BIZ-001-002",
         "AC-BIZ-005-001",
         "AC-BIZ-005-002",
+        "AC-BIZ-005-003",
         "AC-BIZ-008-001",
         "AC-BIZ-008-002",
+        "AC-BIZ-008-003",
         "AC-BIZ-009-001",
         "AC-BIZ-009-002",
         "AC-BIZ-034-001",
@@ -11772,7 +12058,7 @@
       "evals": [
         "EV-PERF"
       ],
-      "specificationHash": "97fb76c981532a56b67eba8c3106fb26bd5ea172efad8f2597ab5b1cbc3f7c94",
+      "specificationHash": "013ccb4d598d3ab75b4bf2055991008b3d61bd90b5dcb857f5b8ab6c0fe9acd8",
       "assertions": [
         {
           "id": "AS-BIZ-045-001",
@@ -11907,12 +12193,13 @@
         "AC-BIZ-043-001",
         "AC-BIZ-043-002",
         "AC-BIZ-043-003",
-        "AC-BIZ-043-004"
+        "AC-BIZ-043-004",
+        "AC-BIZ-043-005"
       ],
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "ae5f7e2e9e6b945404246771cfe37dbd3338d373072da473f3ccc29769eb02a3",
+      "specificationHash": "4b6cb5f7610d447c30eab11bd09dcb4a8610ce8a33c64e50e2b168979ade9063",
       "assertions": [
         {
           "id": "AS-BIZ-048-001",
@@ -11947,6 +12234,7 @@
       "acceptance": [
         "AC-BIZ-024-001",
         "AC-BIZ-024-002",
+        "AC-BIZ-024-003",
         "AC-BIZ-033-001",
         "AC-BIZ-033-002",
         "AC-BIZ-041-001",
@@ -11956,7 +12244,7 @@
         "EV-ARCH",
         "EV-JOBS"
       ],
-      "specificationHash": "0aecb7a53d14f4782770ceeac817f0c043ed0f846dbf3d66859de35e027c88cb",
+      "specificationHash": "aa007c1a15eb71f4bc0627b238c6ffd27ea9ee24de9c5d948be4cb52cdf9a8e5",
       "assertions": [
         {
           "id": "AS-BIZ-049-001",
@@ -12250,13 +12538,14 @@
       "acceptance": [
         "AC-BIZ-049-001",
         "AC-BIZ-049-002",
-        "AC-BIZ-049-003"
+        "AC-BIZ-049-003",
+        "AC-BIZ-049-004"
       ],
       "evals": [
         "EV-ARCH",
         "EV-JOBS"
       ],
-      "specificationHash": "89b999c83354896776cd988d4540fd43a769add938ca19dba768a31c9cdbb787",
+      "specificationHash": "1d3e2d3845736b2b9ceeccb8713e9b998881a55526a13398fc059933e1d62987",
       "assertions": [
         {
           "id": "AS-BIZ-057-001",
@@ -12321,12 +12610,13 @@
       "acceptance": [
         "AC-BIZ-020-001",
         "AC-BIZ-020-002",
-        "AC-BIZ-020-003"
+        "AC-BIZ-020-003",
+        "AC-BIZ-020-004"
       ],
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "5e35c7e482c18a6de02cd860e62e99913be3d48116bd8d49eea26832b4463768",
+      "specificationHash": "1173d8e20155958f9cd7d16987ad7f2ac03b656f2e3cb02a0a23973ecda41440",
       "assertions": [
         {
           "id": "AS-BIZ-059-001",
