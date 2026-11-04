@@ -75,7 +75,7 @@
     },
     {
       "destination": "backend/generation/assembly.py",
-      "destinationSha256": "076720163aecf929d78628e8443c5824b1fe7ebe690238025de1d1e72340ac92",
+      "destinationSha256": "a655e53be8fabcdf5b8162f579725eba68ad9e3dad434e9ad41d742ffdbc545e",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -86,7 +86,8 @@
         "Shared CoreServices resource admission (GPU 1/cloud 3/transcode 2), retained uncertain executions, and off-loop persistence where asynchronous; existing native queue and JobLedger remain authoritative.",
         "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs.",
         "2026-11-05: pinned native reference text enhancement with completion gating; existing routes retained.",
-        "2026-11-05: independent native 27B profile uses official non-thinking template and MTP off; previous routes retained."
+        "2026-11-05: independent native 27B profile uses official non-thinking template and MTP off; previous routes retained.",
+        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
       ]
     },
     {
@@ -142,7 +143,7 @@
     },
     {
       "destination": "backend/generation/optimization.py",
-      "destinationSha256": "b9c51a0ddc2c4dd361a6c97343e51d5405209e715d976070d7a59d4dca547780",
+      "destinationSha256": "50b5f53299b51e2fcda1af451c158b9a1b0dcfde4a3040692feec43dd25fda89",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -167,12 +168,13 @@
         "Reimplement mature UI DTOs over the unique JobLedger; immutable batch source and ephemeral quotes/leases/permits; restart paused; query/recovery never create.",
         "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
         "Shared CoreServices resource admission (GPU 1/cloud 3/transcode 2), retained uncertain executions, and off-loop persistence where asynchronous; existing native queue and JobLedger remain authoritative.",
-        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately."
+        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately.",
+        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
       ]
     },
     {
       "destination": "backend/generation/service.py",
-      "destinationSha256": "deb605553df29ff48ae2c92f2df972c0425e91e1f9f6a8e29ca076dcff4caa37",
+      "destinationSha256": "e044b67ed313f1699243d6194918a1e3b8c923fcc388b137ef76978b1d64b09d",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -198,7 +200,8 @@
         "2026-11-03 task4: idempotent unknown observation and explicit bounded recovery availability; preserve interruption facts, original request identity and the three-check budget.",
         "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately.",
         "2026-11-05: pinned native reference text enhancement with completion gating; existing routes retained.",
-        "2026-11-05: independent native 27B profile uses official non-thinking template and MTP off; previous routes retained."
+        "2026-11-05: independent native 27B profile uses official non-thinking template and MTP off; previous routes retained.",
+        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
       ]
     },
     {
@@ -318,7 +321,7 @@
     },
     {
       "destination": "backend/providers/native.py",
-      "destinationSha256": "675924e218f8680c6765283fb710ae7e08638ab1915437e532f4522f7ce20b1a",
+      "destinationSha256": "5c8c8ec027a51380951b17be20ae7db7801059261f810f6972a6d2e6386674b5",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -337,7 +340,8 @@
       "changes": [
         "2026-11-02: Add one-image local Qwen reference conditioning through frozen media, explicit output-size scaling and encoder latent; keep text requests unchanged.",
         "Explicit inventory/queue/media ports; hash and actual host-resolution validation; deterministic original native identity; preserved UI capabilities; no host singleton import.",
-        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs."
+        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs.",
+        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
       ]
     },
     {
@@ -376,7 +380,7 @@
     },
     {
       "destination": "backend/providers/parameters.py",
-      "destinationSha256": "8ca6fc6c215f5c2503c597d665ff24c27594da6160f5b3d6a77bfba058f50338",
+      "destinationSha256": "a22bac5ea59c0debb0e023f7e71e117f2afc81eb5709be245e7f74929218a5f4",
       "kind": "migrated-pure-rule",
       "source": "nodes/libtv_bridge/table_generation.py",
       "sourceSha256": "0a79d391377741187a91f0a7aa641c13d5bd7c70837b21ad25752b7a376e1ca0",
@@ -400,7 +404,8 @@
       "changes": [
         "2026-11-02: Add one-image local Qwen reference conditioning through frozen media, explicit output-size scaling and encoder latent; keep text requests unchanged.",
         "Extract only pure structured references, parameter validation and Qwen/H3 graph builders; accept explicit pinned model names; no discovery, fallback, native execution or old persistence.",
-        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs."
+        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs.",
+        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
       ]
     },
     {
@@ -883,13 +888,14 @@
     },
     {
       "destination": "backend/providers/native_text.py",
-      "destinationSha256": "91f92cb3b2e0e9d846024cd1eaab733818154dc8546b70c83147cfd40d967d2f",
+      "destinationSha256": "bb41cae49ce83ced6c553376e2ca2833ccb4f96d951a373b821886d46c54eeaf",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
       "sourceReferences": [],
       "changes": [
-        "2026-11-05: native reference text enhancement with measured output limit and reviewed application."
+        "2026-11-05: native reference text enhancement with measured output limit and reviewed application.",
+        "2026-11-05: preserve current text, low-tier and image profiles while adding the independent high-tier video families."
       ]
     },
     {
@@ -913,6 +919,17 @@
       "sourceReferences": [],
       "changes": [
         "2026-11-05: independent pinned 27B text profile with official non-thinking template and MTP off."
+      ]
+    },
+    {
+      "destination": "backend/providers/high_video.py",
+      "destinationSha256": "9d1649eda450675adbc463b4117f0bce856db307c7d259b050cc6dc24eab44f0",
+      "kind": "authored-production-adapter",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "2026-11-05: independent BF16/Flex FL and Ref profiles with required variant adapter and official lcm/manual-sigma execution."
       ]
     }
   ],

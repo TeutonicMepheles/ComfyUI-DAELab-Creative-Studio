@@ -6,6 +6,7 @@ from ..providers.native import NativeProvider, ModelInventory
 from ..providers.qwen import QwenProvider, LoopbackOllama
 from ..providers.native_text import NativeTextProvider
 from ..providers.native_27b import Native27BProvider
+from ..providers.high_video import HighVideoProvider
 
 
 def assemble_generation(core, *, native_queue=None, model_bindings=None, node_types=None,
@@ -25,6 +26,13 @@ def assemble_generation(core, *, native_queue=None, model_bindings=None, node_ty
         if 'text_27b' in (model_bindings or {}):
             provider = Native27BProvider(inventory=ModelInventory(model_bindings['text_27b'], node_types, resolve_model),
                                          queue=native_queue, media_input=lambda item: stage_native_input(core.assets, item))
+            providers[provider.id] = provider
+        for family in ('video_high', 'video_reference_high'):
+            if family not in (model_bindings or {}):
+                continue
+            provider = HighVideoProvider(reference=family == 'video_reference_high',
+                inventory=ModelInventory(model_bindings[family], node_types, resolve_model), queue=native_queue,
+                media_input=lambda item: stage_native_input(core.assets, item))
             providers[provider.id] = provider
         profiles = {
             'image': ('image', False, 'turbo', 'turbo'),
