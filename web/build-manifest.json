@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "af953ce8b8de4c78dbacb64f0087a1abba9d852507fab99c759c5c4977cab606",
+  "sourceFingerprint": "5078e653e5a8759eabbb22b5ffea33a541f02790b7164245e1c378309db07f17",
   "files": [
     {
       "path": "AGENTS.md",
@@ -560,7 +560,7 @@
     },
     {
       "path": "features/generation/table_generation_panel.mjs",
-      "sha256": "bfa913c86d7cd23069c24d2af8e36ce8e60bf9861cd745137b89fe1cc9109141"
+      "sha256": "e18bd213befca861697a6de355c76b3f8ff42964a891c9f57d1d18efd37cec56"
     },
     {
       "path": "features/generation/table_generation_tasks.mjs",
@@ -724,7 +724,7 @@
     },
     {
       "path": "features/prompt/table_prompt_settings.mjs",
-      "sha256": "9d8e33323dc2e8d4d5ceb8630ce70b281731f9c3d9c1fa5f094cddad2622dcb1"
+      "sha256": "c3c619b78ff8bcea91c81dc6718b2c52b4dc858ce95ec124d46b1de2e17c6460"
     },
     {
       "path": "features/prompt/table_prompt_source.mjs",
@@ -1176,7 +1176,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "778fc486f245191275d6e44e5684a7c9a2d8db31f211fc3aa6109bc6a6c06208"
+      "sha256": "faa5bd7120291e2a5161e5da3b59e5d27260aaf9b2466d8fed9057f7a9bc2726"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
@@ -1244,7 +1244,7 @@
     },
     {
       "path": "ui/reference_menu.mjs",
-      "sha256": "b8ae3137bb10b2d6c05ffad91bffe8ee2267c21250a98f2f330255e8f0507ebc"
+      "sha256": "f57c8a5da97fcf9804912aaf71f9583dfab5419636d2c054a1fd0b94cebbb0e8"
     },
     {
       "path": "ui/structured_clipboard.js",
