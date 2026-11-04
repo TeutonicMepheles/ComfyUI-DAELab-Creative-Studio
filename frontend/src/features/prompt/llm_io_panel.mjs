@@ -78,7 +78,8 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
     }
     const supported=model=>models.some(option=>option.id===logicalModel(model));
     const modelLabel=model=>models.find(option=>option.id===logicalModel(model))?.label||'未识别模型';
-    function refreshModelOptions(){rebuildModelOptions();sourceBadge.textContent=modelSourceBadge(modelCatalog.get(logicalModel(saved().model)));sourceBadge.dataset.source=modelSourceKind(modelCatalog.get(logicalModel(saved().model)));const current=logicalModel(saved().model);for(const option of select.children||select.options||[]){const model=models.find(item=>item.id===option.value);if(model)updateModelOption(option,modelCatalog.get(model.id));}const model=models.find(item=>item.id===current);select.disabled=!model||!canSubmitModel(modelCatalog.get(current));const status=model&&modelCatalog.get(current);if(status?.checking)select.setAttribute('aria-busy','true');else select.removeAttribute('aria-busy');}
+    const syncSourceBadge=model=>{const status=modelCatalog.get(logicalModel(model));sourceBadge.textContent=modelSourceBadge(status);sourceBadge.dataset.source=modelSourceKind(status);};
+    function refreshModelOptions(){rebuildModelOptions();syncSourceBadge(saved().model);const current=logicalModel(saved().model);for(const option of select.children||select.options||[]){const model=models.find(item=>item.id===option.value);if(model)updateModelOption(option,modelCatalog.get(model.id));}const model=models.find(item=>item.id===current);select.disabled=!model||!canSubmitModel(modelCatalog.get(current));const status=model&&modelCatalog.get(current);if(status?.checking)select.setAttribute('aria-busy','true');else select.removeAttribute('aria-busy');}
     rebuildModelOptions();
     const generationTask=createLLMTask();
     const taskRail=make('div','llm-io-task-rail');taskRail.setAttribute('role','tablist');taskRail.setAttribute('aria-label','优化任务');root.append(taskRail);
@@ -159,7 +160,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
         task=[...generationTask.snapshot(),...(!busy&&error?[{id:'llm-input',label:waiting?'等待输入':'输入异常',state:waiting?'queued':'error',detail:error}]:[])];
         try{node.setOutputData?.(0,outputText(node));}catch{node.setOutputData?.(0,null);}
     }
-    on(select,'change',()=>{message='';changed();});for(const field of [source,instruction])on(field,'input',()=>{message='';changed();});
+    on(select,'change',()=>{message='';saved().model=select.value;syncSourceBadge(select.value);changed();});for(const field of [source,instruction])on(field,'input',()=>{message='';changed();});
     on(paragraph,'input',()=>{
         if(disposed||busy||node.mode)return;
         let rows=[];try{rows=slotRows(node);}catch{}
