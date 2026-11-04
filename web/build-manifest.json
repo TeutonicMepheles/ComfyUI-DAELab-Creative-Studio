@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "2fde4e19d46dda7ef89775b0283957765615b66412f6f997fd36b7aa933f3b3e",
+  "sourceFingerprint": "93cc666fada4d1f082092b330a8902d7694252bb7fb64d0c974f5fae6d87633a",
   "files": [
     {
       "path": "AGENTS.md",
@@ -76,7 +76,7 @@
     },
     {
       "path": "application/table_presentation.mjs",
-      "sha256": "f2e1c5ac176364589c73a0a2d23ada697c3fe9a5698d26ad0c5bdb5d266d262a"
+      "sha256": "5e83ce15e5caab504141bc48c8d238ff9db6e365aeb38b1f2b5aa736108ed8e0"
     },
     {
       "path": "application/table_reference_options.mjs",
@@ -1176,7 +1176,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "a04569ea9235caa8f3b1f8a2cfb0ea8860e7861371a1d87170f7797c95b35501"
+      "sha256": "3d1aaa43336da5068413119416f287bf1a75e84c68ec36d8cebbf41990ec105d"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
