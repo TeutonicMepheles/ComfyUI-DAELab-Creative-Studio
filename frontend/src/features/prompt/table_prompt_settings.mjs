@@ -1,7 +1,7 @@
 import {abovePopoverLayout} from './settings_popover_layout.js';
 import {getModelCatalog} from '../models/model_catalog.mjs';
 import {modelSourceBadge,modelSourceKind} from '../models/source_badge.js';
-import {LOCAL_IMAGE_MODEL,LOCAL_VIDEO_MODEL,MAX_GENERATION_ATTEMPTS,generationAttempts,isLocalVideoModel,isComfyGenerationModel,isLocalGenerationModel} from '../generation/table_generation_model.mjs';
+import {LOCAL_IMAGE_MODEL,LOCAL_VIDEO_MODEL,MAX_GENERATION_ATTEMPTS,generationAttempts,isLocalImageModel,isLocalVideoModel,isComfyGenerationModel,isLocalGenerationModel} from '../generation/table_generation_model.mjs';
 import {localImageSizePresets} from '../generation/local_image_sizes.js';
 import {createTableButton} from '../../ui/table_controls.mjs';
 import {stopCanvasPropagation} from '../../ui/list_editor_controls.mjs';
@@ -227,7 +227,7 @@ export function createGenerationParameters(config,schema,{onMode,onSetting,onSet
  if(config.mode&&!modes.includes(selectedMode)){
   const warning=document.createElement('p');warning.setAttribute('role','status');warning.textContent='当前模型不支持已保存的生成方式，请重新选择。';modeSection.append(warning);
  }
- const localVideo=isLocalVideoModel(config.model),localImage=config.model===LOCAL_IMAGE_MODEL;
+ const localVideo=isLocalVideoModel(config.model),localImage=isLocalImageModel(config.model);
  if(localVideo)root.append(createLocalVideoSizePicker(config,schema,onSettings));
  if(localImage)root.append(createLocalImageSizePicker(config,schema,onSettings));
  for(const spec of generationParameterSpecs(schema,config.mode).filter(spec=>!(localVideo||localImage)||!['width','height','ratio','resolution'].includes(spec.name))){
@@ -287,7 +287,7 @@ export function normalizeLocalGenerationConfig(config,schema){
   else if(spec.default!==undefined)settings[spec.name]=structuredClone(spec.default);
  }
  if(isLocalVideoModel(config.model)&&previous.width===undefined&&previous.height===undefined){const preset=localVideoSizePresets(schema)[0];if(preset)Object.assign(settings,{width:preset.width,height:preset.height});}
- if(config.model===LOCAL_IMAGE_MODEL&&schema.config?.imageSize&&previous.width===undefined&&previous.height===undefined&&previous.ratio===undefined)settings.ratio='auto';
+ if(isLocalImageModel(config.model)&&schema.config?.imageSize&&previous.width===undefined&&previous.height===undefined&&previous.ratio===undefined)settings.ratio='auto';
  config.settings=settings;return config;
 }
 export function promptSettingSpecs(schema,mode,key,settings={}){

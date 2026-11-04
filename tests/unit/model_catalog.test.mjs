@@ -38,7 +38,7 @@ test('catalog filtering and invalidation keep logical identities while rebuildin
  assert.equal(catalog.snapshot({family:'optimization'}).every(model=>model.status==='available'),true);
  const invalidated=catalog.invalidate({family:'optimization'});
  assert.equal(invalidated.every(model=>model.status==='unverified'&&model.capability===null),true);
- assert.equal(catalog.snapshot({family:'generation'}).length,11);
+ assert.equal(catalog.snapshot({family:'generation'}).length,12);
 });
 test('backend-provided definitions replace hardcoded identities without carrying stale capability',()=>{
  const catalog=createModelCatalog();
