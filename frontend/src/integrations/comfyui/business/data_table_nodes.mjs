@@ -6,7 +6,7 @@ import {isTableSource,readTableView,createTextNodeFromCell} from '../../../appli
 import {createTableWidgetSerializer} from './table_serializer.js';
 import {removeEmptyTableNode} from '../../../features/table/public_helpers.mjs';
 import {preserveGenerationHistory} from '../../../features/generation/table_generation_history.mjs';
-import {scheduleTableInstall} from '../../../features/table/public_helpers.mjs';
+import {installWorkflowNodeLifecycle} from './workflow_node_lifecycle.js';
 import {ensureIdentity,NAMESPACE} from '../../../features/prompt/prompt_optimization_model.mjs';
 import {attachPromptOptimization} from '../../../features/prompt/prompt_optimization_controller.mjs';
 import {assertTransition} from '../../../features/storyboard/script_parser_model.mjs';
@@ -37,6 +37,8 @@ import {removeOwnedWidgets} from './dynamic_widget_lifecycle.mjs';
 
 const TYPES=['DAELAB.Table','DAELAB.StoryboardImport'];
 const OWNER='__daelabStoryboardOwned',VERSION='20260928-content4';
+const lifecycle=()=>installWorkflowNodeLifecycle(app);
+const schedule=node=>lifecycle().schedule(node,install);
 const widget=(node,name)=>node.widgets?.find(w=>w.name===name);
 const isGeneric=node=>node.type==='DAELAB.Table';
 const panelName=node=>isGeneric(node)?'daelab_table_editor':'daelab_storyboard_editor';
@@ -191,7 +193,7 @@ function install(node){
 }
 export function registerTableNodes(){
  if(globalThis.__DAELAB_TABLE_VERSION===VERSION)return;globalThis.__DAELAB_TABLE_VERSION=VERSION;
- app.registerExtension({name:'DAELab.DataTable',beforeRegisterNodeDef(type,data){
+ app.registerExtension({name:'DAELab.DataTable',setup(){lifecycle();},beforeRegisterNodeDef(type,data){
   if(!TYPES.includes(data.name))return;
   if(data.name==='DAELAB.Table'){
    const connectInput=type.prototype.onConnectInput;
@@ -200,7 +202,7 @@ export function registerTableNodes(){
     return connectInput?.apply(this,arguments)??true;
    };
   }
-  for(const method of ['onNodeCreated','onAdded','onConfigure']){const prev=type.prototype[method];type.prototype[method]=function(){const result=prev?.apply(this,arguments);if(method==='onConfigure'&&this.__dataTablePanel){this.__dataTablePanel.close();this.__dataTablePanel.editor.invalidateAsync();this.__dataTablePanel.editor.history.undoStack=[];this.__dataTablePanel.editor.history.redoStack=[];}scheduleTableInstall(this,install);return result;};}
-  const removed=type.prototype.onRemoved;type.prototype.onRemoved=function(){removeOwnedWidgets(this,OWNER);delete this.__dataTablePanel;delete this.__daelabStoryboardRender;delete this.__storyboardResultUI;return removed?.apply(this,arguments);};
+  for(const method of ['onNodeCreated','onAdded','onConfigure']){const prev=type.prototype[method];type.prototype[method]=function(){const result=prev?.apply(this,arguments);if(method==='onConfigure'&&this.__dataTablePanel){this.__dataTablePanel.close();this.__dataTablePanel.editor.invalidateAsync();this.__dataTablePanel.editor.history.undoStack=[];this.__dataTablePanel.editor.history.redoStack=[];}schedule(this);return result;};}
+  const removed=type.prototype.onRemoved;type.prototype.onRemoved=function(){lifecycle().cancel(this);removeOwnedWidgets(this,OWNER);delete this.__dataTablePanel;delete this.__daelabStoryboardRender;delete this.__storyboardResultUI;return removed?.apply(this,arguments);};
  }});
 }
