@@ -205,3 +205,5 @@
 
 .dae-creative-picker-section{margin:12px 8px 4px;padding-top:10px;border-top:1px solid var(--dae-border);font-size:12px;font-weight:500;color:var(--dae-text-muted)}
 .dae-creative-picker-section:first-child{margin-top:0;padding-top:2px;border-top:0}
+
+.dae-creative-card>.dae-creative-body:has(>.dae-video-tasks[data-fixed-kind=true]){padding:0;border-radius:inherit}

@@ -114,3 +114,6 @@
 
 .dae-ui.llm-style-B .llm-style-source textarea:disabled{opacity:.55;cursor:not-allowed}
 .dae-ui.llm-style-B .llm-model-source{flex:none;border-radius:999px;padding:2px 7px;background:color-mix(in srgb,var(--dae-text) 12%,transparent);color:var(--dae-text-muted);font-size:11px;white-space:nowrap}
+
+.dae-ui.llm-style-B .llm-model-source[data-source=local]{color:var(--dae-success,#a2d5ba);background:color-mix(in srgb,var(--dae-success,#a2d5ba) 18%,transparent)}
+.dae-ui.llm-style-B .llm-model-source[data-source=api]{color:var(--dae-info,#b8c4ff);background:color-mix(in srgb,var(--dae-info,#b8c4ff) 18%,transparent)}
