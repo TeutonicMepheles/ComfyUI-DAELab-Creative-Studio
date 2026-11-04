@@ -40,11 +40,28 @@ function publicEntry(entry){
         checking:entry.status===MODEL_STATUS.checking,
         selectable:entry.status!==MODEL_STATUS.checking&&entry.status!==MODEL_STATUS.unavailable&&entry.status!==MODEL_STATUS.unknown,
         capability:entry.capability,
+        code:entry.code,
     });
 }
 
-export function createModelCatalog({now=()=>Date.now(),log=()=>{}}={}){
-    const entries=new Map(MODEL_DEFINITIONS.map(definition=>[definition.id,{definition,status:MODEL_STATUS.unverified,capability:null,code:null,checkedAt:null}])),listeners=new Set(),inFlight=new Map();
+export const PROBE_RECHECK_DELAYS=Object.freeze([2000,5000,10000]);
+
+export function createModelCatalog({now=()=>Date.now(),log=()=>{},recheckDelays=PROBE_RECHECK_DELAYS}={}){
+    const entries=new Map(MODEL_DEFINITIONS.map(definition=>[definition.id,{definition,status:MODEL_STATUS.unverified,capability:null,code:null,checkedAt:null}])),listeners=new Set(),inFlight=new Map(),rechecks=new Map(),recheckAttempts=new Map();
+    // Bounded: a probe that never answered is retried a fixed number of times with backoff,
+    // then left as unknown until the user asks for another check. Never polls forever.
+    function scheduleRecheck(id,probe,attempt=0){
+        if(attempt>=recheckDelays.length)return;
+        const timer=setTimeout(()=>{
+            rechecks.delete(id);
+            const entry=entries.get(id);
+            if(!entry||entry.status!==MODEL_STATUS.unknown)return;
+            recheckAttempts.set(id,attempt+1);
+            check(id,probe,{force:true}).catch(()=>{});
+        },recheckDelays[attempt]);
+        timer?.unref?.();
+        rechecks.set(id,timer);
+    }
     const snapshot=filters=>{
         const family=filters?.family,kind=filters?.kind,provider=filters?.provider;
         return [...entries.values()].filter(entry=>(!family||entry.definition.family===family)&&(!kind||entry.definition.kind===kind)&&(!provider||entry.definition.provider===provider)).map(publicEntry);
@@ -81,7 +98,10 @@ export function createModelCatalog({now=()=>Date.now(),log=()=>{}}={}){
                 // A probe that never answered (timeout, abort, transport) is an unknown
                 // result, not a pinned-model failure: keep it distinguishable and retryable.
                 const unknownResult=error?.name==='AbortError'||/timeout|timedout|abort|unknown|unavailablenetwork|network/i.test(String(error?.code||error?.message||''));
-                return setStatus(id,unknownResult?MODEL_STATUS.unknown:MODEL_STATUS.unavailable,{code:unknownResult?'probe_timeout_unknown':code});
+                const next=setStatus(id,unknownResult?MODEL_STATUS.unknown:MODEL_STATUS.unavailable,{code:unknownResult?'probe_timeout_unknown':code});
+                if(unknownResult)scheduleRecheck(id,probe,recheckAttempts.get(id)??0);
+                else recheckAttempts.delete(id);
+                return next;
             }finally{inFlight.delete(id);}
         })();
         inFlight.set(id,task);return task;
