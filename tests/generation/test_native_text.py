@@ -11,6 +11,9 @@ from backend.providers.native_text import NativeTextProvider, PE_MODEL, PE_PROVI
 from backend.providers.contracts import ProviderUnavailable
 from backend.contracts.errors import InvalidInput
 from backend.generation.admission import ResourceAdmission
+from backend.generation.http import routes
+from backend.generation.optimization import OptimizationFacade
+from test_integration import Request
 from backend.integrations.comfyui.local_generation import read_configuration, compose_configured_generation
 from backend.integrations.comfyui.generation_nodes.native_text import NativeText
 from backend.integrations.comfyui.generation_nodes.native_host import ComfyNativeQueue
@@ -42,6 +45,18 @@ class NativeTextTests(unittest.IsolatedAsyncioTestCase):
             provider = service.provider(PE_PROVIDER)
             provider.media_input = lambda item: 'frozen-reference.png'
             self.assertTrue((await service.capabilities(PE_MODEL))['available'])
+            handlers = {path: handler for _, path, handler in routes(service)}
+            discover = handlers['/daelab/prompt-optimization/capabilities']
+            async def capability():
+                return await discover(Request({'contractVersion': 1, 'model': PE_MODEL}))
+            response = await capability()
+            self.assertEqual(response.status, 200)
+            selected = json.loads(response.body)['models'][0]
+            self.assertEqual((selected['id'], selected['provider'], selected['available'], selected['modes']),
+                             (PE_MODEL, 'local', True, ['reverse']))
+            self.assertTrue(selected['requiresReference'])
+            self.assertEqual(queue.pending, [])
+
             self.assertIn(PE_MODEL, [m['id'] for m in service.model_catalog()['models']])
             data = {'entry': 'canvas', 'model': PE_MODEL, 'mode': 'reverse', 'source': 'Keep the product', 'instruction': 'Forest'}
             built = provider.build(data, [{'kind': 'image'}], 'identity')
@@ -49,6 +64,16 @@ class NativeTextTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(built['graph']['save']['inputs']['image'], ['image', 0])
             self.assertEqual(built['models']['text_encoders']['name'], weight.name)
             with self.assertRaises(InvalidInput): provider.build(data, [], 'missing')
+            # The same real route preserves file/hash failures instead of falling back.
+            for change in ('hash', 'missing'):
+                if change == 'hash': weight.write_bytes(b'changed')
+                else: weight.unlink()
+                failed = await capability()
+                self.assertEqual(failed.status, 503)
+                error = json.loads(failed.body)
+                self.assertEqual(error['code'], 'provider_unavailable')
+                self.assertNotIn('Unsupported optimization model', error['error'])
+                self.assertEqual(queue.pending, [])
             weight.write_bytes(b'changed')
             with self.assertRaises(ProviderUnavailable): await provider.capabilities(PE_MODEL)
 
