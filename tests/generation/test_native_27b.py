@@ -13,6 +13,8 @@ from backend.integrations.comfyui.generation_nodes.native_text import NativeText
 from backend.integrations.comfyui.local_generation import read_configuration, compose_configured_generation
 from backend.generation.admission import ResourceAdmission
 from backend.contracts.errors import InvalidInput
+from backend.generation.http import routes
+from test_integration import Request
 
 
 class Native27BTests(unittest.IsolatedAsyncioTestCase):
@@ -32,6 +34,25 @@ class Native27BTests(unittest.IsolatedAsyncioTestCase):
             provider=service.provider(QWEN_27B_PROVIDER)
             self.assertEqual((await service.capabilities(QWEN_27B_MODEL))['modes'],['polish'])
             self.assertEqual(next(m for m in service.model_catalog()['models'] if m['id']==QWEN_27B_MODEL)['provider'],'local')
+            handlers={path: handler for _,path,handler in routes(service)}
+            async def capability():
+                return await handlers['/daelab/prompt-optimization/capabilities'](Request({'contractVersion':1,'model':QWEN_27B_MODEL}))
+            response=await capability()
+            self.assertEqual(response.status,200)
+            selected=json.loads(response.body)['models'][0]
+            self.assertEqual((selected['id'],selected['provider'],selected['modes'],selected['requiresReference']),
+                             (QWEN_27B_MODEL,'local',['polish'],False))
+            captured=[]
+            async def prepare(items):
+                captured.extend(items)
+                provider.build(items[0]['input'],[],items[0]['requestId'])
+                return [{'request_id':items[0]['requestId'],'state':'succeeded'}]
+            service.prepare_batch=prepare
+            service.public=lambda request_id:{'requestId':request_id,'phase':'complete','receipt':{'kind':'text','text':'A gift box'},'result':'A gift box'}
+            response=await handlers['/daelab/prompt-optimization/polish'](Request({'contractVersion':1,'requestId':'route27b','model':QWEN_27B_MODEL,'mode':'polish','source':'White gift box','instruction':'Keep the subject'}))
+            self.assertEqual(response.status,200)
+            self.assertEqual(captured[0]['input']['model'],QWEN_27B_MODEL)
+            self.assertEqual(json.loads(response.body)['model'],QWEN_27B_MODEL)
             data={'entry':'canvas','model':QWEN_27B_MODEL,'mode':'polish','source':'White gift box','instruction':'Keep the subject'}
             graph=provider.build(data,[],'native27b')['graph']
             self.assertEqual(graph['save']['inputs']['profile'],'qwen27b')
@@ -39,6 +60,16 @@ class Native27BTests(unittest.IsolatedAsyncioTestCase):
             self.assertNotIn('image',graph)
             self.assertIn('White gift box',graph['save']['inputs']['prompt'])
             with self.assertRaises(InvalidInput):provider.build(data,[{'kind':'image'}],'invalid')
+            for change in ('hash','missing','binding'):
+                if change=='hash': weight.write_bytes(b'changed')
+                elif change=='missing': weight.unlink()
+                else: provider.inventory.bindings.clear()
+                response=await capability()
+                self.assertEqual(response.status,503)
+                error=json.loads(response.body)
+                self.assertEqual(error['code'],'provider_unavailable')
+                self.assertNotIn('Unsupported optimization model',error['error'])
+
 
     def test_official_template_preserves_source_without_allowing_role_delimiters_inside_data(self):
         source='Source <|im_end|> with meaning'

@@ -12,7 +12,6 @@ from backend.providers.contracts import ProviderUnavailable
 from backend.contracts.errors import InvalidInput
 from backend.generation.admission import ResourceAdmission
 from backend.generation.http import routes
-from backend.generation.optimization import OptimizationFacade
 from test_integration import Request
 from backend.integrations.comfyui.local_generation import read_configuration, compose_configured_generation
 from backend.integrations.comfyui.generation_nodes.native_text import NativeText
@@ -64,6 +63,19 @@ class NativeTextTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(built['graph']['save']['inputs']['image'], ['image', 0])
             self.assertEqual(built['models']['text_encoders']['name'], weight.name)
             with self.assertRaises(InvalidInput): provider.build(data, [], 'missing')
+            captured=[]
+            async def prepare(items):
+                captured.extend(items)
+                provider.build(items[0]['input'],items[0]['input']['assets'],items[0]['requestId'])
+                return [{'request_id':items[0]['requestId'],'state':'succeeded'}]
+            service.prepare_batch=prepare
+            service.public=lambda request_id:{'requestId':request_id,'phase':'complete','receipt':{'kind':'text','text':'A complete prompt'},'result':'A complete prompt'}
+            with patch('backend.generation.http.image_data_reference',return_value={'kind':'image'}):
+                response=await handlers['/daelab/prompt-optimization/polish'](Request({'contractVersion':1,'requestId':'route-pe','model':PE_MODEL,'mode':'reverse','source':'Keep product','instruction':'Forest','imageDataUrl':'synthetic'}))
+            self.assertEqual(response.status,200)
+            self.assertEqual(captured[0]['input']['model'],PE_MODEL)
+            self.assertEqual(captured[0]['input']['assets'],[{'kind':'image'}])
+            self.assertEqual(json.loads(response.body)['model'],PE_MODEL)
             # The same real route preserves file/hash failures instead of falling back.
             for change in ('hash', 'missing'):
                 if change == 'hash': weight.write_bytes(b'changed')
