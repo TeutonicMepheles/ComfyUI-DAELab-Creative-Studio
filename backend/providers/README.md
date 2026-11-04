@@ -6,6 +6,11 @@ contracts.py distinguishes rejected/uncertain delivery; parameters.py builds gra
 
 Injected transport/queues execute; providers do not own another scheduler or ledger.
 
+high_video.py adds independent BF16/Flex profiles with a required matching adapter,
+official lcm/manual-sigma sampling and fixed strength. It preserves all old video
+routes. See the [source handoff](../../docs/validation/HIGH_VIDEO_SOURCE_20261105.md)
+for template provenance and the separate real inference evidence.
+
 native_text.py adds the separate pinned `text_pe` reference-image enhancer through
 the existing native queue. It never uses the Ollama blob binding or a fallback.
 Only a verified complete final body becomes a reviewed text proposal; raw output

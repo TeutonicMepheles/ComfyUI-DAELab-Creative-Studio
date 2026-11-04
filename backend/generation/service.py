@@ -17,6 +17,7 @@ from ..providers.contracts import Observation, ProviderUnavailable, SubmissionRe
 from ..providers.parameters import BASE_IMAGE_MODEL, BASE_REFERENCE_VIDEO_MODEL, BASE_VIDEO_MODEL, IMAGE_MODEL, VIDEO_MODEL, REFERENCE_VIDEO_MODEL, QWEN_MODEL
 from ..providers.native_text import PE_MODEL, PE_PROVIDER
 from ..providers.native_27b import QWEN_27B_MODEL, QWEN_27B_PROVIDER
+from ..providers.high_video import HIGH_VIDEO_MODEL, HIGH_REFERENCE_VIDEO_MODEL
 from ..providers.comfy_video import SeedanceProvider, MinimaxProvider
 from ..providers.comfy_image import ComfyImageProvider
 from .media import freeze_reference
@@ -29,6 +30,8 @@ MODELS[PE_MODEL] = PE_PROVIDER
 MODELS[BASE_VIDEO_MODEL] = 'local-h3-base'
 MODELS[BASE_REFERENCE_VIDEO_MODEL] = 'local-h3-reference-base'
 MODELS[QWEN_27B_MODEL] = QWEN_27B_PROVIDER
+MODELS[HIGH_VIDEO_MODEL] = 'local-h3-high'
+MODELS[HIGH_REFERENCE_VIDEO_MODEL] = 'local-h3-reference-high'
 MODELS.update({model: provider.id for provider in (SeedanceProvider, MinimaxProvider, ComfyImageProvider) for model in provider.models})
 _BARRIERS = {'rejected', 'fenced'}
 _SCOPE_IDS = {'documentId', 'tableId', 'nodeId', 'recordId', 'fieldId', 'workflowSession', 'groupId'}
