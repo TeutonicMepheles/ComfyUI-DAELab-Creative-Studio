@@ -1215,7 +1215,7 @@
       "source": "web/data_table_nodes.mjs",
       "destination": "frontend/src/integrations/comfyui/business/data_table_nodes.mjs",
       "sourceSha256": "6febb9bb7cf7a2530fa4fcd4b483fc93d56e3dd6f09cb1274a12145210f7f3fd",
-      "destinationSha256": "c2a3669dc36613daf9534ec6f13e955b1dc3225395b9110c0ea56bf143ed4774",
+      "destinationSha256": "8c6701c615b6ec380b1ebd1fb42cd895828de8b2db7c92ec7da5dda906597410",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -1224,7 +1224,8 @@
         "Route only the native Table table_data serializer through a per-install canonical immutable-string proof. Preserve the complete public readTableView and JSON encoding on misses/errors; history, public snapshots and connected projections retain their original path.",
         "Declare the existing generic Table without prompt_config row-state branch as explicitly constant-empty, enabling scoped input state refresh only in that mode. Configured tables, storyboards and unknown/global-dependent providers retain full refresh; no row-locality assumption is made for arbitrary callbacks.",
         "Guard the two summary-button textContent assignments and generic plain status against the current DOM string to avoid redundant child replacement. Preserve row counting, hidden/disabled computation, configured issue controls and the native write/history callback order; no summary-state cache or full-render skip.",
-        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
+        "2026-11-05: defer restored table panels through the existing workflow lifecycle before native history writes."
       ]
     },
     {
