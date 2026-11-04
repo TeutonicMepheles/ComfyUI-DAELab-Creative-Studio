@@ -1,3 +1,4 @@
+import {TEXT_TEMPLATES,DEFAULT_TEXT_INSTRUCTION} from './text_templates.js';
 import {stopCanvasPropagation} from '../../ui/list_editor_controls.mjs';
 import {bindIOPanel} from './llm_io_panel.mjs';
 import {createTableButton,tableTheme} from '../../ui/table_controls.mjs';
@@ -32,7 +33,13 @@ export function createLLMStylePanel(node,variant,{nativeDocument=null}={}){
     const modeButtons=modes.map(([value,label])=>{const b=button(label,()=>{write('mode',value);sync();});b.dataset.mode=value;tabs.append(b);return b;});
     function editor(label,key,fallback,cls){const section=el('label',`llm-style-section ${cls}`);section.append(el('span','llm-style-label',label));const input=el('textarea');input.setAttribute('aria-label',`${variant.id} ${label}`);input.spellcheck=false;input.value=saved()[key]??fallback;let group=null;input.addEventListener('focus',()=>{group=crypto.randomUUID();});input.addEventListener('blur',()=>{group=null;});input.addEventListener('input',()=>write(key,input.value,group));section.append(input);fields.push(input);const release=sharedFields?.bindCreativeField(input);if(release)releases.push(release);return {section,input,key,fallback};}
     const source=editor('原始文字','source',variant.id==='B'?'':SOURCE,'llm-style-source');
-    const instruction=editor('处理要求','instruction',INSTRUCTION,'llm-style-instruction');
+    const instruction=editor('处理要求','instruction',variant.id==='B'?DEFAULT_TEXT_INSTRUCTION:INSTRUCTION,'llm-style-instruction');
+    if(variant.id==='B'){
+        const templates=el('select');templates.setAttribute('aria-label','提示词模板');templates.add(new Option('选择模板（应用后可编辑）',''));
+        for(const template of TEXT_TEMPLATES)templates.add(new Option(template.label,template.id));
+        templates.addEventListener('change',()=>{const template=TEXT_TEMPLATES.find(item=>item.id===templates.value);if(!template||instruction.input.disabled||instruction.input.readOnly)return;instruction.input.value=template.text;instruction.input.dispatchEvent(new Event('input',{bubbles:true}));templates.value='';});
+        instruction.section.prepend(templates);fields.push(templates);
+    }
     if(nativeDocument)for(const field of [source,instruction])releases.push(bindUnfocusedHistoryGuard(field.input,{isCurrent:()=>nativeDocument.isCurrent()}));
     const materials=el('div','llm-style-materials');
     const upload=button('上传图片',()=>{});upload.prepend(icon('upload-2-line'));upload.disabled=true;upload.title='仅样式预览，暂不上传文件';

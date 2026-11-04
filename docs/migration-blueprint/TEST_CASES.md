@@ -241,12 +241,14 @@
 
 1. 分别打开空白双击、右键、底部加号菜单并读取项。
 2. 尝试新增文本节点并撤销/重做。
+3. 核对生成区三入口与模型过滤，加载旧图片/视频通用节点并保存重开。
 
 **可判断的期望**
 
 - 三处可用节点集合一致，未注册类型不出现。
 - 创建后节点数为 1，撤销为 0，重做为 1。
 - 初始位置位于指定落点且不额外生成历史步骤。
+- 分区和图标菜单一致；新节点类型固定；旧节点配置、连线、请求和输出保留，无隐式新提交。
 
 **旧测试复用候选：** [canvas:tests/creative_canvas_catalog.test.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Creative-Canvas/blob/3176b5a67dbcd0b66f795976e5a81bcdfe346093/tests/creative_canvas_catalog.test.mjs)
 
@@ -3105,11 +3107,13 @@
 
 1. 为两个 B 节点连接不同来源并生成建议；未应用时读取两个输出。
 2. 应用后检查文本和逐行 JSON，重排/删除来源、保存重载；测试重复行 ID。
+3. 测试外接/断开/空来源、三个默认模板编辑、表格勾选行及素材组批量；保存重开并核对旧已确认结果。
 
 **可判断的期望**
 
 - 未应用不提供有效输出；应用后逐行 ID 唯一且与原来源一致。
 - 原生执行只读取应用快照，零模型调用；来源失效不使用别的预览；DeepSeek/Comfy仅协议模拟，本地Qwen真实结果由TC-BIZ-047验收。
+- 外接时禁止内部编辑，断开恢复草稿，空来源不回退；模板和逐行参考正确，旧结果不被模板变更覆盖；不新增27B模型调用。
 
 **旧测试复用候选：** [business:tests/llm_slot_model.test.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/tests/llm_slot_model.test.mjs)；[business:tests/llm_io_model.test.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/tests/llm_io_model.test.mjs)；[business:tests/llm_task_model.test.mjs](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/tests/llm_task_model.test.mjs)；[business:tests/test_canvas_polish.py](https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/tests/test_canvas_polish.py)
 

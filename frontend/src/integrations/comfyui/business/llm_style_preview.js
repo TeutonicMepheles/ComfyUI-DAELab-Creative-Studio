@@ -2,6 +2,7 @@ import {bindBusinessDocument} from './business_document_host.js';
 import {appliedSnapshot,outputText,outputRows,slotRows,hasTableInput} from '../../../features/prompt/llm_slot_model.mjs';
 import {app} from '/scripts/app.js';
 import {createLLMStylePanel, STYLE_VARIANTS} from '../../../features/prompt/llm_style_preview_panel.mjs';
+import {removeOwnedWidgets} from './dynamic_widget_lifecycle.mjs';
 // Slot inputs and explicitly approved output; model calls remain an explicit panel action.
 app.registerExtension({
     name:'DAELab.LLMStylePreview',
@@ -29,13 +30,20 @@ app.registerExtension({
                     this.size=[variant.width,variant.height+80];
                 }
                 onAdded(){this.installPanel();}
-                onConfigure(){if(variant.id==='B'){if(!this.outputs?.some(o=>o.name==='逐行结果'))this.addOutput('逐行结果','STRING');if(['文本生成 · B 双栏工作台','LLM 优化 · B 双栏工作台'].includes(this.title))this.title='文本生成';for(const [name,type] of [['素材组','DAELAB_ASSETS'],['多维表格','STRING'],['其他输入','*']])if(!this.inputs?.some(i=>i.name===name))this.addInput(name,type);}this.__llmStylePanel?.invalidate();this.__llmStylePanel?.sync();}
+                onConfigure(){if(variant.id==='B'){if(!this.outputs?.some(o=>o.name==='逐行结果'))this.addOutput('逐行结果','STRING');if(['文本生成 · B 双栏工作台','LLM 优化 · B 双栏工作台'].includes(this.title))this.title='文本生成';for(const [name,type] of [['素材组','DAELAB_ASSETS'],['多维表格','STRING'],['其他输入','*']])if(!this.inputs?.some(i=>i.name===name))this.addInput(name,type);}
+                    // onAdded may mount before native configure supplies saved results.
+                    // Retire that entire owner so its tickets and late callbacks cannot
+                    // cross into the configured workflow. Rebind against the loaded data.
+                    this.disposePanel();if(this.graph)this.installPanel();
+                }
+                disposePanel(){this.__llmStylePanel?.destroy();delete this.__llmStylePanel;for(const widget of this.widgets||[])if(widget.name==='llm_style_preview')widget.__studioTextPanel=true;removeOwnedWidgets(this,'__studioTextPanel');}
                 installPanel(){
                     if(this.__llmStylePanel)return;
                     const nativeDocument=bindBusinessDocument(this,()=>this.properties.llmStylePreview,value=>{this.properties.llmStylePreview=value;this.graph?.change?.();},value=>({mode:value.mode,instruction:value.instruction,model:value.model,source:value.source}));
                     const panel=createLLMStylePanel(this,variant,{nativeDocument});this.__llmStylePanel=panel;
                     const panelHeight=()=>variant.height+(panel.root.classList.contains('has-task-list')?90:0);
                     const widget=this.addDOMWidget('llm_style_preview','custom',panel.root,{serialize:false,hideOnZoom:false,getMinHeight:panelHeight,getHeight:panelHeight,getValue:()=>'',setValue:()=>panel.sync()});
+                    widget.__studioTextPanel=true;
                     widget.serialize=false;widget.inputEl=panel.root;
                     widget.computeSize=width=>[width,panelHeight()];
                     widget.computeLayoutSize=()=>({minHeight:panelHeight(),maxHeight:panelHeight(),minWidth:variant.width});
@@ -43,7 +51,7 @@ app.registerExtension({
                 onConnectInput(){return variant.id==='B';}
                 onConnectOutput(){return variant.id==='B';}
                 onExecute(){if(variant.id==='B'){try{this.setOutputData(0,outputText(this));this.setOutputData(1,outputRows(this));}catch{this.setOutputData(0,null);this.setOutputData(1,null);}}}
-                onRemoved(){this.__llmStylePanel?.destroy();delete this.__llmStylePanel;for(const w of this.widgets||[])if(w.name==='llm_style_preview')w.onRemove?.();this.widgets=(this.widgets||[]).filter(w=>w.name!=='llm_style_preview');}
+                onRemoved(){this.disposePanel();}
             }
             LLMStylePreview.title=variant.id==='B'?'文本生成':`文本生成 · ${variant.label}`;
             LLMStylePreview.category=variant.id==='B'?'DAELab/文本':'DAELab/样式预览';

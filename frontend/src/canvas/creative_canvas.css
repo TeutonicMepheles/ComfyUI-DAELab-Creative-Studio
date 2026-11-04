@@ -202,3 +202,6 @@
 .dae-creative-card[data-presentation=content]>.dae-creative-body{padding:0;border:0;background:transparent}
 .dae-creative .dae-creative-selection-active{outline:calc(2px * var(--dae-canvas-inverse-zoom,1)) solid var(--dae-accent);outline-offset:calc(3px * var(--dae-canvas-inverse-zoom,1))}
 .dae-creative .dae-creative-world>.dae-creative-card[data-selected=true]:not([data-upload=true]):not(:has(.dae-creative-selection-active)){outline:calc(2px * var(--dae-canvas-inverse-zoom,1)) solid var(--dae-accent);outline-offset:calc(3px * var(--dae-canvas-inverse-zoom,1))}
+
+.dae-creative-picker-section{margin:12px 8px 4px;padding-top:10px;border-top:1px solid var(--dae-border);font-size:12px;font-weight:500;color:var(--dae-text-muted)}
+.dae-creative-picker-section:first-child{margin-top:0;padding-top:2px;border-top:0}

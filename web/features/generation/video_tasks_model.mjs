@@ -1,6 +1,6 @@
 import {createMaterialTable} from '../../application/table_material_columns.mjs';
 import {addField,uid,normalizeTable} from '../../application/table_model.mjs';
-import {LOCAL_VIDEO_MODEL,mergeTaskGenerationConfig,isGeneration,addGenerationColumn,promptColumns,rowGenerationConfig,setRowGenerationConfig,promptGenerationOwner,syncGenerationFrameTags,applyPromptContent} from './table_generation_model.mjs';
+import {LOCAL_VIDEO_MODEL,LOCAL_IMAGE_MODEL,mergeTaskGenerationConfig,isGeneration,addGenerationColumn,promptColumns,rowGenerationConfig,setRowGenerationConfig,promptGenerationOwner,syncGenerationFrameTags,applyPromptContent} from './table_generation_model.mjs';
 import {effectivePrompt,toColumnPrompt,promptContent} from '../prompt/table_prompt_template.mjs';
 import {generationMaterials} from '../../application/table_material_output.mjs';
 import {videoTaskResultPreviews} from './video_task_results.js';
@@ -20,27 +20,35 @@ export function taskConfig(config={},promptFieldId){
  if(config.model&&config.kind)return {...structuredClone(config),promptFieldId};
  return {version:1,kind:'video',model:LOCAL_VIDEO_MODEL,promptFieldId,mode:'text2video',settings:{width:512,height:288,duration:2,turbo:true,seed:-1}};
 }
-export function createVideoTasks(values={}){
+
+export function familyTaskConfig(config,promptFieldId,kind=null,fallback=null){
+ if(!kind||config?.kind===kind)return taskConfig(config,promptFieldId);
+ if(fallback?.kind===kind)return {...structuredClone(fallback),promptFieldId,...(config?.attempts!==undefined?{attempts:config.attempts}:{})};
+ const own=kind==='image'?{version:1,kind,model:LOCAL_IMAGE_MODEL,mode:'text2image',settings:{ratio:'auto'}}:taskConfig({},promptFieldId);
+ return {...own,promptFieldId,...(config?.attempts!==undefined?{attempts:config.attempts}:{})};
+}
+export function createVideoTasks(values={},kind=null){
  const table=createMaterialTable(),field=addGenerationColumn(table,{name:'生成结果'}),row=table.records[0];table.records=[row];
  const model=values.model||LOCAL_VIDEO_MODEL;
  field.generation=model===LOCAL_VIDEO_MODEL?taskConfig({},field.generation.promptFieldId):{version:1,kind:'video',model,promptFieldId:field.generation.promptFieldId,mode:values.mode||'text2video',settings:{duration:Number(values.duration)||5,resolution:values.resolution||(model==='Minimax H3'?'768P':'720p'),ratio:values.ratio||'16:9',...(model==='Minimax H3'?{}:{enableSound:values.sound?'on':'off'})}};
+ if(kind==='image')field.generation={version:1,kind:'image',model:LOCAL_IMAGE_MODEL,promptFieldId:field.generation.promptFieldId,mode:'text2image',settings:{ratio:'auto'}};
  table.meta.generationProject=values.project_uuid||'';
  row.values[field.generation.promptFieldId]=toColumnPrompt(values.prompt||'',row);
  syncGenerationFrameTags(table,field.id,field.generation);
  return {version:1,table,fieldId:field.id,currentId:row.id};
 }
-export function importVideoTasks(source,promptId,previous){
+export function importVideoTasks(source,promptId,previous,{kind=null}={}){
  const table=normalizeTable(source),prompt=requirePromptSource(table);
  table.records=table.records.filter(row=>row.selected);
  prompt.readonly=false;setPromptSource(table,prompt.id);
  const sourceOwner=promptGenerationOwner(table,prompt.id),owner=sourceOwner&&structuredClone(sourceOwner);
- const fieldId=owner&&isGeneration(owner)?owner.id:uid(),defaults=taskConfig(owner?.generation||previous?.table.fields.find(f=>f.id===previous.fieldId)?.generation,prompt.id);
+ const fieldId=owner&&isGeneration(owner)?owner.id:uid(),defaults=familyTaskConfig(owner?.generation||previous?.table.fields.find(f=>f.id===previous.fieldId)?.generation,prompt.id,kind);
  for(const field of table.fields){if(isGeneration(field)){field.presentation='content';field.readonly=false;}delete field.generation;delete field.generationConfigFieldId;}
  let output=table.fields.find(f=>f.id===fieldId);
  if(!output)output=addField(table,{id:fieldId,name:'生成结果',type:'content',readonly:true});
  output.presentation='generation';output.readonly=true;output.generation=defaults;prompt.generationConfigFieldId=fieldId;
  for(const row of table.records){
-  const old=source.records.find(r=>r.id===row.id),config=taskConfig(owner?rowGenerationConfig(old,owner.id,owner.generation):defaults,prompt.id);
+  const old=source.records.find(r=>r.id===row.id),config=familyTaskConfig(owner?rowGenerationConfig(old,owner.id,owner.generation):defaults,prompt.id,kind,defaults);
   row.selected=false;row.name=old.name||`任务${source.records.indexOf(old)+1}`;
   for(const column of [prompt]){
    row.values[column.id]=toColumnPrompt(effectivePrompt(source,old,column.id),old);
@@ -71,14 +79,14 @@ export function videoTaskAssets(state){
  const table={...state.table,records:state.table.records.map(row=>({...row,values:{...row.values,[state.fieldId]:videoTaskResultPreviews(row.values[state.fieldId]||[],row.meta?.generationColumns?.[state.fieldId],row.meta?.generationPreviewAfter?.[state.fieldId])}}))};
  return generationMaterials(table,state.fieldId);
 }
-export function syncVideoTaskInputs(state,source,previous,{skipConfig=new Set()}={}){
+export function syncVideoTaskInputs(state,source,previous,{skipConfig=new Set(),kind=null}={}){
  const normalized=normalizeTable(source),id=promptSourceId(normalized);
  state.table.meta.generationInput=structuredClone(normalized.meta.generationInput);
  const output=state.table.fields.find(f=>f.id===state.fieldId);
  for(const row of [...state.table.records,...(state.archivedTasks||[])])if(skipConfig.has(row.id))setRowGenerationConfig(row,state.fieldId,rowGenerationConfig(row,state.fieldId,output.generation));
  const ownConfigs=new Map([...state.table.records,...(state.archivedTasks||[])].map(row=>[row.id,structuredClone(rowGenerationConfig(row,state.fieldId,output.generation))]));
  const owner=promptGenerationOwner(normalized,id),oldOwner=promptGenerationOwner(previous,promptSourceId(previous));
- if(owner)output.generation=taskConfig(owner.generation,id);
+ if(owner)output.generation=familyTaskConfig(owner.generation,id,kind,output.generation);
  // Selection changes membership, not the serialized task identity or receipts.
  const existing=new Map([...(state.archivedTasks||[]),...state.table.records].map(row=>[row.id,row]));
  const selected=new Set(normalized.records.filter(row=>row.selected).map(row=>row.id));
@@ -114,7 +122,7 @@ export function syncVideoTaskInputs(state,source,previous,{skipConfig=new Set()}
   const origin=origins.get(row.id);
   if(!origin)continue;
   if(owner){
-   const incoming=rowGenerationConfig(origin,owner.id,owner.generation),oldRow=previous.records.find(r=>r.id===row.id),oldConfig=oldOwner&&oldRow&&rowGenerationConfig(oldRow,oldOwner.id,oldOwner.generation);
+   const incoming=familyTaskConfig(rowGenerationConfig(origin,owner.id,owner.generation),id,kind,ownConfigs.get(row.id)||output.generation),oldRow=previous.records.find(r=>r.id===row.id),oldConfig=oldOwner&&oldRow&&rowGenerationConfig(oldRow,oldOwner.id,oldOwner.generation);
    if(!existing.has(row.id)||owner.generationConfigRevision!==oldOwner?.generationConfigRevision||oldRow&&JSON.stringify(incoming)!==JSON.stringify(oldConfig))setRowGenerationConfig(row,state.fieldId,existing.has(row.id)?{...mergeTaskGenerationConfig(ownConfigs.get(row.id),incoming),promptFieldId:id}:taskConfig(incoming,id));
   }
   if(row.meta)delete row.meta.generationSourceMissing;

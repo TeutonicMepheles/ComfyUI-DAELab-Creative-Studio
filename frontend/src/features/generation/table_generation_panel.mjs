@@ -1,3 +1,4 @@
+import {modelSourceBadge} from '../models/source_badge.js';
 import {FIELD_TYPES} from '../../application/table_model.mjs';
 import {setPromptSource,promptSourceId} from '../prompt/table_prompt_source.mjs';
 import {catalogModelCapabilities} from './table_generation_api.mjs';
@@ -221,7 +222,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
    finally{busy=false;if(active()){menu.root.removeAttribute('aria-busy');content.querySelectorAll('button,input,select').forEach(input=>input.disabled=false);}}
   }
   function choices(items,value,select,reset=true){
-   for(const [id,label] of items){const control=button(label,()=>{if(id===value){menu.close();return;}void commit(next=>select(next,id),reset);});if(key==='model'){prependGenerationModelIcon(control,id);const state=modelCatalog.get(id);control.setAttribute('data-model-status',state?.status||'unverified');control.disabled=state?.status==='unavailable';if(state?.checking){const spinner=el('span',control,'◌');spinner.className='generation-model-loading';spinner.setAttribute('role','status');spinner.setAttribute('aria-label','正在检测此模型');}}control.setAttribute('aria-pressed',String(id===(key==='mode'&&!isLocalGenerationModel(draft.model)?generationModeChoice(value,schema):value)));content.append(control);}
+   for(const [id,label] of items){const control=button(key==='model'?label.replace(/（(?:本地|Comfy|来源未知)）$/,''):label,()=>{if(id===value){menu.close();return;}void commit(next=>select(next,id),reset);});if(key==='model'){prependGenerationModelIcon(control,id);const state=modelCatalog.get(id),badge=el('span',control,modelSourceBadge(state));badge.className='generation-model-source';control.setAttribute('data-model-status',state?.status||'unverified');control.disabled=state?.status==='unavailable';if(state?.checking){const spinner=el('span',control,'◌');spinner.className='generation-model-loading';spinner.setAttribute('role','status');spinner.setAttribute('aria-label','正在检测此模型');}}control.setAttribute('aria-pressed',String(id===(key==='mode'&&!isLocalGenerationModel(draft.model)?generationModeChoice(value,schema):value)));content.append(control);}
    (content.querySelector('[aria-pressed=true]')||content.querySelector('button'))?.focus({preventScroll:true});
   }
   if(key==='attempts'){choices(Array.from({length:MAX_GENERATION_ATTEMPTS},(_,index)=>[index+1,`${index+1} 次`]),generationAttempts(draft),(next,id)=>{next.attempts=id;},false);return;}

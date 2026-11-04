@@ -12,6 +12,8 @@
 
 生成面板在线路变更完成后同步输入；创作画布通过适配器 `refresh` 继续同步表格内容，不依赖原生画布绘制。
 
+文本节点在原生 `onConfigure` 载入数据后重建面板与文档绑定，撤销配置前的票据并清理旧 DOM widget。这样 `onAdded` 提前安装的空面板不会阻止已保存批量结果确认；输入签名、当前工作流与文档票据仍需匹配。
+
 云端提交通过 `comfy_submission_auth.ts` 获取当前 ComfyUI 工作区凭据；凭据仅放入请求头，不进入工作流或任务数据。本地生成不读取云端凭据。
 
 `comfy_pricing.ts` 读取已安装官方节点的 `price_badge`，用本地 JSONata 计算当前参数和参考素材的预计积分。复用官方公式和默认值，不保存价格、不发起计费请求。定向检查：`tests/migrated_business/comfy_pricing.test.mjs`。

@@ -49,8 +49,8 @@ test("LibTV bridge participates in shared Active/Bypass/Mute handling", () => {
     assert.equal(isNodeAvailableInAppMode(node), true);
 });
 
-test("covers exactly the five formal business nodes and leaves compatibility/excluded nodes alone",()=>{
- assert.deepEqual(DAELAB_NODE_TYPES,["DAELAB.Table","DAELAB.StoryboardImport","DAELAB.ScriptParser","DAELAB.LibTV.VideoGenerate","DAELAB.LLMStylePreviewB"]);
+test("covers the formal business nodes and split media entries and leaves compatibility/excluded nodes alone",()=>{
+ assert.deepEqual(DAELAB_NODE_TYPES,["DAELAB.Table","DAELAB.StoryboardImport","DAELAB.ScriptParser","DAELAB.LibTV.VideoGenerate","DAELAB.ImageGenerate","DAELAB.VideoGenerate","DAELAB.LLMStylePreviewB"]);
  for(const type of DAELAB_NODE_TYPES)assert.equal(isDaelabNode({type}),true);
  for(const type of ["DAELAB.LibTV.StoryboardBatch","DAELAB.ComfyTV.GPTImageStoryboardStage","DAELAB.LLMStylePreviewA","DAELAB.LLMStylePreviewC","DAELAB.LLMStylePreviewD","DAELAB.LLMStylePreviewE","DAELAB.BadgeApp87V1","SaveImage"])assert.equal(isDaelabNode({type}),false);
 });

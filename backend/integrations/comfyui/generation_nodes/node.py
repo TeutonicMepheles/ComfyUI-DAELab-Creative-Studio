@@ -83,13 +83,13 @@ def read_current_result(service, task_data):
         raise InvalidInput('Saved current-task result is invalid; no task was submitted.') from None
 
 
-def make_node(service):
+def make_node(service, node_id=NODE_ID, display_name='DAELAB · 生成节点', media_kind=None):
     from comfy_api.latest import io, InputImpl
 
     class GenerationNode(io.ComfyNode):
         @classmethod
         def define_schema(cls):
-            return io.Schema(node_id=NODE_ID, display_name='DAELAB · 生成节点', category='DAELab/Generation',
+            return io.Schema(node_id=node_id, display_name=display_name, category='DAELab/Generation',
                 description='读取当前任务已核验的图片或视频结果；生成由共享任务服务显式提交。',
                 is_output_node=True, not_idempotent=True,
                 inputs=[
@@ -125,6 +125,8 @@ def make_node(service):
             if not task_data:
                 raise InvalidInput('Legacy LibTV execution is retired. Run the shared generation panel before reading its completed result.')
             kind, file, report, url = read_current_result(service, task_data)
+            if media_kind is not None and kind != media_kind:
+                raise InvalidInput('The saved result does not match this generation node media type.')
             if kind == 'image':
                 import numpy as np
                 import torch

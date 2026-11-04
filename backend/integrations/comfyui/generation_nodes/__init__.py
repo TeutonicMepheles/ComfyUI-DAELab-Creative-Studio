@@ -3,7 +3,9 @@
 
 def register_nodes(service=None):
     from .node import make_node, NODE_ID
-    return {NODE_ID: make_node(service)}, {NODE_ID: 'DAELAB · 生成节点'}
+    names = {NODE_ID: 'DAELAB · 生成节点', 'DAELAB.ImageGenerate': '图片生成', 'DAELAB.VideoGenerate': '视频生成'}
+    kinds = {'DAELAB.ImageGenerate': 'image', 'DAELAB.VideoGenerate': 'video'}
+    return {key: make_node(service, key, name, kinds.get(key)) for key, name in names.items()}, names
 
 
 def register_routes(server, service):

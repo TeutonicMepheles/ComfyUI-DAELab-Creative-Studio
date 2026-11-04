@@ -111,3 +111,6 @@
 .llm-io-task-rail button[aria-selected=true] .llm-io-task-number{background:var(--dae-primary,#b8c4ff);color:var(--dae-on-primary,#22243d)}
 .llm-io-task-text,.llm-io-task-preview{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .llm-io-task-preview{color:var(--dae-text-muted,#aaa)}
+
+.dae-ui.llm-style-B .llm-style-source textarea:disabled{opacity:.55;cursor:not-allowed}
+.dae-ui.llm-style-B .llm-model-source{flex:none;border-radius:999px;padding:2px 7px;background:color-mix(in srgb,var(--dae-text) 12%,transparent);color:var(--dae-text-muted);font-size:11px;white-space:nowrap}

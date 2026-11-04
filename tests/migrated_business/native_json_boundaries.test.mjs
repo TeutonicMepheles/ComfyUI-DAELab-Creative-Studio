@@ -7,6 +7,8 @@ import {bindIOPanel} from '../../frontend/src/features/prompt/llm_io_panel.mjs';
 import {slotSignature} from '../../frontend/src/features/prompt/llm_slot_model.mjs';
 import {bindBusinessService} from '../../frontend/src/contracts/business.js';
 import {generationInputDigest} from '../../frontend/src/features/generation/generation_session.js';
+import ts from 'typescript';
+import {removeOwnedWidgets} from '../../frontend/src/integrations/comfyui/business/dynamic_widget_lifecycle.mjs';
 
 const json=value=>JSON.parse(JSON.stringify(value));
 function reactive(value,cache=new WeakMap()){
@@ -91,6 +93,43 @@ function dom(t){
   return {root,source,instruction,select,run,upload,result,materialHint};
 }
 function deferred(){let resolve;const promise=new Promise(done=>{resolve=done;});return {promise,resolve};}
+
+test('native onAdded before onConfigure rebinds the actual two-row review panel and retires the prior owner',t=>{
+  const source=fs.readFileSync(new URL('../../frontend/src/integrations/comfyui/business/llm_style_preview.js',import.meta.url),'utf8');
+  const tree=ts.createSourceFile('entry.js',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS),classes=[];
+  function visit(node){if(ts.isClassDeclaration(node)&&node.name?.text==='LLMStylePreview')classes.push(node.getText(tree));ts.forEachChild(node,visit);}visit(tree);assert.equal(classes.length,1);
+  const mounts=[];let historySteps=0;
+  class Base {
+    constructor(title){this.title=title;this.widgets=[];this.inputs=[];this.outputs=[];}
+    addInput(name,type){this.inputs.push({name,type});}addOutput(name,type){this.outputs.push({name,type});}
+    addWidget(_type,name){const widget={name};this.widgets.push(widget);return widget;}
+    addDOMWidget(name,_type,root){const widget={name,onRemove:()=>root.remove()};this.widgets.push(widget);return widget;}
+    setOutputData(){}
+  }
+  function bind(node,read,write,stamp){
+    const graph=node.graph;
+    return createBusinessDocument({read,write,stamp,current:()=>node.graph===graph&&graph.getNodeById(node.id)===node,
+      identity:()=>({workflowSession:graph.session,epoch:0,documentId:String(node.id)}),
+      history:{begin(){historySteps++;},end(){},amend(change){change();},undo(){},redo(){}}});
+  }
+  function mount(node,_variant,{nativeDocument}){
+    const elements=dom(t),release=bindIOPanel({node,nativeDocument,...elements}),apply=elements.result.querySelector('.llm-style-result-actions').children[0];
+    const panel={...elements,apply,nativeDocument,sync:release.sync,invalidate:()=>nativeDocument.invalidate(),destroy(){release();nativeDocument.dispose();elements.root.remove();}};mounts.push(panel);return panel;
+  }
+  const Node=new Function('LGraphNode','variant','bindBusinessDocument','createLLMStylePanel','removeOwnedWidgets',`return (${classes[0]});`)(Base,{id:'B',type:'DAELAB.LLMStylePreviewB',width:700,height:520},bind,mount,removeOwnedWidgets);
+  const node=new Node();node.id=7;node.mode=0;node.type='DAELAB.LLMStylePreviewB';
+  const rows=[{id:'one',text:'first',image:{kind:'image',url:'/view?filename=one.png'}},{id:'two',text:'second',image:{kind:'image',url:'/view?filename=two.png'}}];
+  const upstream={id:8,type:'Synthetic',mode:0},symbol=Symbol.for('DAELAB.CreativeCanvas.API.v1'),previous=globalThis[symbol];
+  globalThis[symbol]={inputSnapshot:()=>({version:1,rows})};t.after(()=>{if(previous===undefined)delete globalThis[symbol];else globalThis[symbol]=previous;node.onRemoved();});
+  node.graph={session:'first-workflow',links:{1:{origin_id:8,origin_slot:0}},getNodeById:id=>id===7?node:upstream,change(){}};node.inputs[0].link=1;
+  node.onAdded();const old=mounts[0],ticket=old.nativeDocument.beginRequest('prior-owner');assert.equal(old.apply.disabled,true);
+  node.properties.llmStylePreview={version:1,mode:'polish',model:'qwen',instruction:'keep refs'};
+  node.properties.llmStylePreview.ioResult={version:1,requestId:'saved-two-rows',complete:true,provider:'qwen',signature:slotSignature(node),rows:rows.map(row=>({...row,result:row.text+' result'}))};
+  node.onConfigure();const restored=node.__llmStylePanel;assert.equal(restored.apply.disabled,false);assert.notEqual(restored,old);assert.equal(old.nativeDocument.canApply(ticket),false);assert.equal(node.widgets.filter(widget=>widget.name==='llm_style_preview').length,1);
+  assert.equal(restored.apply.disabled,false);old.apply.onclick({preventDefault(){},stopPropagation(){}});assert.equal(node.properties.llmStylePreview.appliedIO,undefined);
+  restored.apply.onclick({preventDefault(){},stopPropagation(){}});assert.deepEqual(node.properties.llmStylePreview.appliedIO.rows.map(row=>[row.id,row.image.url,row.result]),[['one','/view?filename=one.png','first result'],['two','/view?filename=two.png','second result']]);assert.equal(historySteps,1);
+  node.graph.session='second-workflow';delete node.properties.llmStylePreview.appliedIO;rows[1].text='changed';node.onConfigure();assert.equal(mounts[2].apply.disabled,true);assert.equal(restored.nativeDocument.isCurrent(),false);
+});
 // recoverProposal deliberately returns void from its click handler. Its finally
 // render changes this real control from busy to idle on both success and error.
 // Observe that boundary in the fake DOM instead of guessing async turn counts.

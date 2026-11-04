@@ -1,3 +1,4 @@
+import {creationSection,orderedCreationEntries} from './creation_menu.js';
 import {collectionFor,GROUP_TYPE,expandGroupSelection,remapGroupMembers,suppressGroupSlots} from '../features/groups/material_group_model.mjs';
 import {adapterFor} from './creative_contract.mjs';
 import {materialDropSnapshot,acceptsMaterialDrop,materialDropCount} from './creative_material_drop.mjs';
@@ -784,9 +785,11 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
             const output=button(label+(snap?.skipped?'（跳过 '+snap.skipped+' 行）':''),()=>{closePicker();return outputMaterials(context,point);});output.disabled=(!snap?.assets?.length&&!snap?.texts?.length)||snap.ready===false;list.append(output);
             if(context.materialKey!==undefined){positionPicker();output.focus();return;}
         }
-        for(const item of menuItems()){
+        let menuGroup='';
+        for(const item of orderedCreationEntries(menuItems())){
             const definition=host.nodeDefinition(item.type);if(!definition)continue;
             const compatible=!context||(context.side==='output'?acceptsTargetType(context.node,item.type)&&sourceSlots(context.node,context.index).some(i=>canConnectDefinition(definition?.nodeData,context.side,context.node.outputs[i].type)):(context.index===MATERIAL_SLOT?inputSlots(context.node):[context.index]).some(i=>canConnectDefinition(definition?.nodeData,context.side,context.node.inputs[i].type)));
+            const group=creationSection(item.type);if(group!==menuGroup){const heading=el('h3','dae-creative-picker-section',group);list.append(heading);menuGroup=group;}
             const b=button('',()=>{
                 if(context&&!validConnection(context)){closePicker();message('来源已改变，请重新拖出连线');return;}
                 if(context?.side==='output'&&!canConnectOutput(context.node)){closePicker();return;}

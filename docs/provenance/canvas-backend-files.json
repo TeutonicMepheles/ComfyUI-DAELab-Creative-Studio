@@ -167,9 +167,10 @@
       "source": null,
       "destination": "tests/migrated_canvas_backend/test_real_host_schema.py",
       "sourceSha256": null,
-      "destinationSha256": "60ad2b4b02a2066c8b41e7177cacb315c2f52ff45e2bb6dc85d23b8ef0e13f29",
+      "destinationSha256": "4a491dd4d3a357461fee1a8b6f2c0fd12de13624b066d61cce56eb66cbd33fdd",
       "changes": [
-        "2026-11-03 task51: opt-in installed Comfy SDK metadata check in CPU-only subprocess; no server or model execution."
+        "2026-11-03 task51: opt-in installed Comfy SDK metadata check in CPU-only subprocess; no server or model execution.",
+        "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending."
       ],
       "kind": "rule-regression"
     }
