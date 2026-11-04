@@ -81,7 +81,7 @@ class GenerationService:
 
     def model_catalog(self):
         """Stable logical identities; installation state is returned by capabilities."""
-        labels = {PE_MODEL: 'Qwen Image PE（本地）',
+        labels = {PE_MODEL: 'Qwen-Image-2.1 PE（本地）',
             QWEN_MODEL: 'Qwen3.5-9B（本地）',
             'gpt-6-luna': 'GPT-6 Luna（Comfy）',
         }

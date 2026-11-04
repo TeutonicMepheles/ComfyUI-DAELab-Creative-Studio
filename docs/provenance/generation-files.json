@@ -170,7 +170,7 @@
     },
     {
       "destination": "backend/generation/service.py",
-      "destinationSha256": "97f8c2f9d35f0a305a17d0c2aa2602403d81eb5011a2e154d3e51b87b3e0dfe1",
+      "destinationSha256": "bd92a32fe862a470a25bc121cb7d4199a84548365b84c52a09ba7aff50a8a740",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -195,6 +195,7 @@
         "2026-11-03 task2: stop current generation sequence explicitly; preserve owned native interruption facts and unknown remote outcomes without masking recovery with pause intent.",
         "2026-11-03 task4: idempotent unknown observation and explicit bounded recovery availability; preserve interruption facts, original request identity and the three-check budget.",
         "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately.",
+        "2026-11-05: pinned native reference text enhancement with completion gating; existing routes retained.",
         "2026-11-05: pinned native reference text enhancement with completion gating; existing routes retained."
       ]
     },
