@@ -57,3 +57,13 @@ test('non-capability probe results are rejected as unavailable and never become 
  }
  assert.ok(logs.every(item=>item.code==='invalid_model_capability'));
 });
+test('a probe that never answers stays unknown and retryable instead of unavailable', async () => {
+  const catalog = createModelCatalog();
+  const timeout = Object.assign(new Error('probe timed out'), {name: 'AbortError', code: 'probe_timeout'});
+  await catalog.refresh(async () => { throw timeout; }, {filters: {family: 'generation'}});
+  const entries = catalog.snapshot({family: 'generation'});
+  assert.equal(entries.every(entry => entry.status === 'unknown'), true);
+  assert.equal(entries.every(entry => entry.selectable === false), true);
+  await catalog.refresh(async () => { throw new Error('missing binding'); }, {filters: {family: 'generation'}, force: true});
+  assert.equal(catalog.snapshot({family: 'generation'}).every(entry => entry.status === 'unavailable'), true);
+});
