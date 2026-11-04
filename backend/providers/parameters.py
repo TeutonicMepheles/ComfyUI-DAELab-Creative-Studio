@@ -12,6 +12,8 @@ BASE_IMAGE_MODEL = 'Qwen-Image-2.1（本地）'
 IMAGE_MODEL = 'Qwen-Image-2.1 Turbo（本地）'
 VIDEO_MODEL = 'MiniMax H3 FL（本地）'
 REFERENCE_VIDEO_MODEL = 'MiniMax H3 Ref（本地）'
+BASE_VIDEO_MODEL = 'MiniMax H3 FL 低配（本地）'
+BASE_REFERENCE_VIDEO_MODEL = 'MiniMax H3 Ref 低配（本地）'
 QWEN_MODEL = 'qwen3.5:9b-q4_K_M'
 IMAGE_FILES = {
     'diffusion_models': 'qwen_image_2.1_turbo_int8_convrot.safetensors',

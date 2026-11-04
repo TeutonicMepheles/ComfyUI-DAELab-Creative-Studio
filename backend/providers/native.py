@@ -6,7 +6,7 @@ import uuid
 
 from ..contracts.errors import InvalidInput
 from .contracts import Observation, ProviderUnavailable, SubmissionRejected, SubmissionUncertain
-from .parameters import BASE_IMAGE_MODEL, IMAGE_MODEL, VIDEO_MODEL, REFERENCE_VIDEO_MODEL, IMAGE_FILES, VIDEO_FILES, compile_segments, settings_for, image_graph, video_graph
+from .parameters import BASE_IMAGE_MODEL, BASE_REFERENCE_VIDEO_MODEL, BASE_VIDEO_MODEL, IMAGE_MODEL, VIDEO_MODEL, REFERENCE_VIDEO_MODEL, IMAGE_FILES, VIDEO_FILES, compile_segments, settings_for, image_graph, video_graph
 
 
 class ModelInventory:
@@ -61,13 +61,16 @@ class NativeProvider:
     supports_progress = True
     resource = 'native'
 
-    def __init__(self, kind, *, inventory, queue, media_input, reference=False, image_dimensions=None, image_profile="turbo"):
+    def __init__(self, kind, *, inventory, queue, media_input, reference=False, image_dimensions=None, image_profile="turbo", video_profile="turbo"):
         if kind not in ('image', 'video'):
             raise InvalidInput('Unknown native output kind.')
         self.kind, self.inventory, self.queue, self.media_input = kind, inventory, queue, media_input
         if image_profile not in ("turbo", "base"):
             raise InvalidInput("Unknown image profile.")
         self.image_profile = image_profile
+        if video_profile not in ("turbo", "base"):
+            raise InvalidInput("Unknown video profile.")
+        self.video_profile = video_profile
         self.image_dimensions = image_dimensions
         self.id = 'local-qwen-image' if kind == 'image' else 'local-h3'
         self.model = IMAGE_MODEL if kind == 'image' else VIDEO_MODEL
@@ -78,6 +81,9 @@ class NativeProvider:
             if kind != 'video':
                 raise InvalidInput('Reference conditioning requires video output.')
             self.id, self.model = 'local-h3-reference', REFERENCE_VIDEO_MODEL
+
+        if kind == 'video' and video_profile == 'base':
+            self.id, self.model = ('local-h3-reference-base', BASE_REFERENCE_VIDEO_MODEL) if reference else ('local-h3-base', BASE_VIDEO_MODEL)
 
     async def capabilities(self, model):
         if model != self.model:
@@ -133,6 +139,8 @@ class NativeProvider:
         values = settings_for(self.kind, 'text2video' if self.reference else config.get('mode'),
                               {'turbo': False, **config.get('settings', {})} if self.reference else config.get('settings', {}),
                               [] if self.reference else media, reference_size=reference_size)
+        if self.kind == 'video' and self.video_profile == 'base':
+            values['turbo'] = False
         keys = set(IMAGE_FILES if self.kind == 'image' else VIDEO_FILES)
         if self.kind == 'image' and self.image_profile == 'base':
             keys.discard('mmproj')
