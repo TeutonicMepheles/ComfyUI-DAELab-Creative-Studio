@@ -11,6 +11,7 @@ async function generationProbe(model){
 }
 
 async function optimizationProbe(model){
+    if(model.id==='qwen-image-2.1-pe')return generationProbe(model);
     const capability=await optimizationApi.capabilities({model:model.id});
     const selected=capability?.models?.find(item=>item.id===model.id);
     return {...capability,...selected,available:selected?.available===true,provider:selected?.provider||model.provider};

@@ -75,7 +75,7 @@
     },
     {
       "destination": "backend/generation/assembly.py",
-      "destinationSha256": "5f27ded599928ce706a7352a80255575693dbbca5d12641d8f3c6b6573ffa017",
+      "destinationSha256": "48d49ba0569d7af3a7e065a744092d39ee67b6835f413c37a0cd24a7d7f29cef",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -84,12 +84,13 @@
         "Explicit package boundary without import-time work.",
         "Accept an explicit qwen_binding; missing binding makes Qwen unavailable without startup work.",
         "Shared CoreServices resource admission (GPU 1/cloud 3/transcode 2), retained uncertain executions, and off-loop persistence where asynchronous; existing native queue and JobLedger remain authoritative.",
-        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs."
+        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs.",
+        "2026-11-05: pinned native reference text enhancement with completion gating; existing routes retained."
       ]
     },
     {
       "destination": "backend/generation/http.py",
-      "destinationSha256": "311f4af173e333ed4bd07af4f13a8222338537ae9b47aa0b3f57b9cf993e0a36",
+      "destinationSha256": "13decc38fb73be2b202ce92240c095c1b233e8af04b0ce875de94212e301b2b5",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -110,7 +111,8 @@
         "Freeze optional polish sourceScope and return scoped ledger receipt/report without changing prior result DTO fields.",
         "Read-only status discovery requires exact document/table/node scope, rejects empty/unknown scopes and uses bounded scan pagination; no reconcile/create/provider query.",
         "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
-        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately."
+        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately.",
+        "2026-11-05: pinned native reference text enhancement with completion gating; existing routes retained."
       ]
     },
     {
@@ -168,7 +170,7 @@
     },
     {
       "destination": "backend/generation/service.py",
-      "destinationSha256": "b60d7cf7570cda3313099747b3f6d933ca3354524af26eebf1c8037f252c7f37",
+      "destinationSha256": "bd92a32fe862a470a25bc121cb7d4199a84548365b84c52a09ba7aff50a8a740",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -192,24 +194,27 @@
         "Fresh same-provider/task CAS cancellation confirmation preserves winning terminal facts; resource restoration consumes one consistent SQLite snapshot and preserves terminal-release ordering. Fixture restoration adapts only owned historical labels.",
         "2026-11-03 task2: stop current generation sequence explicitly; preserve owned native interruption facts and unknown remote outcomes without masking recovery with pause intent.",
         "2026-11-03 task4: idempotent unknown observation and explicit bounded recovery availability; preserve interruption facts, original request identity and the three-check budget.",
-        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately."
+        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately.",
+        "2026-11-05: pinned native reference text enhancement with completion gating; existing routes retained.",
+        "2026-11-05: pinned native reference text enhancement with completion gating; existing routes retained."
       ]
     },
     {
       "destination": "backend/integrations/comfyui/generation_nodes/__init__.py",
-      "destinationSha256": "547c0f9f6e2bf6cc04d19a9ca3b480a29889b2529ffdaed73a8fc10060e5db47",
+      "destinationSha256": "33a392089302664020bc15dffb7534c812a66c5452d2f1af66615f46ce322b6a",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
       "sourceReferences": [],
       "changes": [
         "Explicit package boundary without import-time work.",
-        "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending."
+        "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending.",
+        "2026-11-05: pinned native reference text enhancement with completion gating; existing routes retained."
       ]
     },
     {
       "destination": "backend/integrations/comfyui/generation_nodes/native_host.py",
-      "destinationSha256": "37dafd6559bed67da0314709646bc78ae7b0df16b5d048e0d21b1fd41b99bf95",
+      "destinationSha256": "20d8e5a246ed56ccd0786cc7cd730bd6ca1ccf877bf17b31e9881f3e4910e80d",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -222,7 +227,8 @@
       ],
       "changes": [
         "Confine prompt validation/queue/history/interruption to integration; verify request and native identity, atomic owned interrupt, explicit middleware installation.",
-        "2026-11-03 task2: stop current generation sequence explicitly; preserve owned native interruption facts and unknown remote outcomes without masking recovery with pause intent."
+        "2026-11-03 task2: stop current generation sequence explicitly; preserve owned native interruption facts and unknown remote outcomes without masking recovery with pause intent.",
+        "2026-11-05: pinned native reference text enhancement with completion gating; existing routes retained."
       ]
     },
     {
@@ -872,6 +878,28 @@
         "2026-11-04 task24: bounded above-only layout and provider/default-layout regression."
       ],
       "kind": "rule-regression"
+    },
+    {
+      "destination": "backend/providers/native_text.py",
+      "destinationSha256": "91f92cb3b2e0e9d846024cd1eaab733818154dc8546b70c83147cfd40d967d2f",
+      "kind": "authored-production-adapter",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "2026-11-05: native reference text enhancement with measured output limit and reviewed application."
+      ]
+    },
+    {
+      "destination": "backend/integrations/comfyui/generation_nodes/native_text.py",
+      "destinationSha256": "76bb55c21c9e8d1f3994e50461363352443c5bac894c61437bfa54dd595260d5",
+      "kind": "authored-production-adapter",
+      "source": null,
+      "sourceSha256": null,
+      "sourceReferences": [],
+      "changes": [
+        "2026-11-05: native reference text enhancement with measured output limit and reviewed application."
+      ]
     }
   ],
   "qwenWeightBinding": {

@@ -420,7 +420,7 @@
       "source": "web/llm_io_panel.mjs",
       "destination": "frontend/src/features/prompt/llm_io_panel.mjs",
       "sourceSha256": "62133e0e28f809abcf5b59cca42eb091cce6cbc57749f88b01f6134c4171c89e",
-      "destinationSha256": "152bf5a37c031e42e14560df7838d9ed3c6dc0d683317ae9802de0401d3668db",
+      "destinationSha256": "280c207b882ea77d7d7c984e0a46d247da08a645bae2e73a61b1f88cc8f2c9d6",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -433,20 +433,22 @@
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
         "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending.",
         "2026-11-04 task24: compact typed media surface, new 5:4 defaults, provider colors and matching model menu typography/icon alignment; upward constrained popovers. Original source identity retained.",
-        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately."
+        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately.",
+        "2026-11-05: pinned native reference text enhancement with completion gating; existing routes retained."
       ]
     },
     {
       "source": "web/llm_local_provider.mjs",
       "destination": "frontend/src/features/prompt/llm_local_provider.mjs",
       "sourceSha256": "76762831347dc9159e7ab404e8e5203966ae9469b0745c53d284c7db5738f9d1",
-      "destinationSha256": "55e7ace14ac1965461538ab2f2043dc10da4b3022d1d469817790ef0111cba6c",
+      "destinationSha256": "0b7ea70742937cf43ce9f8cf8284ad588019b6d50b140f9b7da55225413f51c2",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Default transport is the explicit business port; test transport injection is retained.",
         "M4 explicit shared-ledger HTTP assembly, scoped native edit tickets, read-only recovery and deterministic regressions; real-provider/browser acceptance remains pending.",
-        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately."
+        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately.",
+        "2026-11-05: pinned native reference text enhancement with completion gating; existing routes retained."
       ]
     },
     {
@@ -537,12 +539,13 @@
       "source": "web/prompt_optimization_composer.mjs",
       "destination": "frontend/src/features/prompt/prompt_optimization_composer.mjs",
       "sourceSha256": "316ff91f418ad004696e89c8eed1c17a7ae42d5ddac3caf6b0a8039eb160af6f",
-      "destinationSha256": "86b5d1c615c79136de03b3b7ab63444841e4bd4e44c621a4558e942766eb76da",
+      "destinationSha256": "b5f87cceb9cdcb5c8091e8912788ed751c65566469e09ad5b0e2d10b97d256fd",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
-        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately."
+        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately.",
+        "2026-11-05: pinned native reference text enhancement with completion gating; existing routes retained."
       ]
     },
     {
@@ -559,7 +562,7 @@
       "source": "web/prompt_optimization_controller.mjs",
       "destination": "frontend/src/features/prompt/prompt_optimization_controller.mjs",
       "sourceSha256": "cb2e642be72425bbc3a1f56fa5cb7201f528305d7308a766ad5783f2b7bf1867",
-      "destinationSha256": "0bc28a81216ee85710d6447f8a8edfeaf4387f41d8835eceab4fa6f376b7cbec",
+      "destinationSha256": "ed2c832cef21cf818a73bd6feb0e1bf123f56581765b25378781b1e2d16e3748",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -567,7 +570,8 @@
         "Post-snapshot hardblock review: immutable receipt digest, exact missing-task recovery, no automatic replay; tests include original-scope and storage-unavailable rejection.",
         "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
         "Optimization popover resolves a replacement td/th only within its original editor/root and stable field/record; requirement and intent edits retain focus, while deletion, inactive mode and lifecycle release still close. Mock regressions do not replace actual ComfyUI acceptance.",
-        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately."
+        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately.",
+        "2026-11-05: pinned native reference text enhancement with completion gating; existing routes retained."
       ]
     },
     {

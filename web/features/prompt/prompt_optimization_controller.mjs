@@ -17,7 +17,7 @@ export function createOptimizationController({getTable,identity,revisions,persis
  let blockingOperations=0,estimateEpoch=null,capabilityEpoch=0,submissionIntent=null,missingBatch=false;
  const operations=new Map();
  const modelCatalog=getModelCatalog();
- const initialModels=modelCatalog.snapshot({family:'optimization'});
+ const initialModels=modelCatalog.snapshot({family:'optimization'}).filter(model=>model.id!=='qwen-image-2.1-pe');
  const state={scope,fieldId,recordId,requirements:preferences.requirements||'',model:preferences.model||(initialModels.find(model=>model.provider==='qwen'&&model.selectable)||initialModels.find(model=>model.selectable))?.id||'',models:initialModels,range:{total:0,processable:0,skipped:[]},quote:null,busy:false,error:'',rows:[],batchId:null,permissions:{}};
  const batchProvider=()=>optimizationProvider(batch?.rows?.[0]?.snapshot?.model||state.model);
  const providerLocked=()=>missingBatch||blockingOperations>0||[...items.values()].some(i=>activeStatuses.has(i.status)||['queued','preparing'].includes(i.status));
@@ -150,7 +150,7 @@ export function createOptimizationController({getTable,identity,revisions,persis
  }
  const controller={getState:()=>state,subscribe(fn){listeners.add(fn);fn(state);return()=>listeners.delete(fn);},setRequirements(text){if(providerLocked())return false;state.draftActive=true;state.requirements=text;onPreferences({model:state.model,requirements:text});state.quote=null;epoch++;update();return true;},setModel,refreshModels:()=>loadCapabilities(true),
  setProvider(provider){
-  const models=modelCatalog.snapshot({family:'optimization'}),selected=models.find(model=>model.provider===provider&&model.selectable)||models.find(model=>model.provider===provider);
+  const models=modelCatalog.snapshot({family:'optimization'}).filter(model=>model.id!=='qwen-image-2.1-pe'),selected=models.find(model=>model.provider===provider&&model.selectable)||models.find(model=>model.provider===provider);
   if(!selected){state.error='该服务提供方没有已声明的模型。';update();return false;}
   return setModel(selected.id);
  },
@@ -177,7 +177,7 @@ async function loadCapabilities(force=false){
    modelCatalog.record(model,{...caps,...selected,available:selected?.available??caps.available===true,provider:selected?.provider||optimizationProvider(model)});
    if(dead||c!==capabilityEpoch||model!==state.model)return;
    const current=modelCatalog.get(model);
-   state.models=modelCatalog.snapshot({family:'optimization'});if(!canSubmitModel(current))state.error='模型不可用，请重新检测。';
+   state.models=modelCatalog.snapshot({family:'optimization'}).filter(model=>model.id!=='qwen-image-2.1-pe');if(!canSubmitModel(current))state.error='模型不可用，请重新检测。';
   }catch{ if(!dead&&c===capabilityEpoch&&model===state.model){modelCatalog.markUnavailable(model,'model_probe_failed');state.error='模型不可用，请重新检测。';}}
   finally{if(!dead&&c===capabilityEpoch&&model===state.model)update();}
  }
@@ -194,7 +194,7 @@ export function attachPromptOptimization({node,graph,editor,getTable,identity,fe
  const api=createPromptOptimizationApi({fetchApi});const controllers=new Map(),instanceId=uuid();let dead=false,popover=null,view=null,visibilityTimer=null,hasAttemptedController=false;
  const preferences=()=>getTable().meta?.studioOptimizationPreferences||saved().preferences||{};
  const defaultModel=()=>{
-  const models=getModelCatalog().snapshot({family:'optimization'}),preferred=preferences().model;
+  const models=getModelCatalog().snapshot({family:'optimization'}).filter(model=>model.id!=='qwen-image-2.1-pe'),preferred=preferences().model;
   if(models.some(model=>model.id===preferred))return preferred;
   return (models.find(model=>model.provider==='qwen'&&model.selectable)||models.find(model=>model.selectable)||models[0])?.id||'';
  };

@@ -148,7 +148,17 @@ class OptimizationFacade:
     async def capabilities(self, payload):
         model = payload.get('model', QWEN_MODEL)
         if model not in PROVIDERS:
-            raise ProviderUnavailable('Unsupported optimization model.')
+            # Standalone native text uses this discovery endpoint too. Resolve
+            # from the authoritative catalog without extending batch contracts.
+            definition = next((item for item in self.service.model_catalog()['models']
+                               if item['id'] == model and item['family'] == 'optimization'
+                               and item['kind'] == 'text' and item['provider'] == 'local'), None)
+            if definition is None:
+                raise ProviderUnavailable('Unsupported optimization model.')
+            cap = await self.service.capabilities(model)
+            return {**cap, 'contractVersion': 1, 'defaultModel': model,
+                    'models': [{**definition, **cap, 'id': model, 'provider': 'local',
+                                'available': cap.get('available') is True}]}
         cap = await self.service.capabilities(model)
         if model == 'gpt-6-luna':
             if not cap.get('price'):

@@ -104,6 +104,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
         let rows=[],error='',waiting=false;try{rows=slotRows(node);}catch(e){error=e.message;waiting=!!e.waiting;}
         const tableInput=hasTableInput(node),inputKey=JSON.stringify([tableInput,rows]),modes=availableModes(rows);
         if(tableInput)modes.reverse=false;
+        if(logicalModel(saved().model)==='qwen-image-2.1-pe')modes.polish=false;
         if(!rows.some(row=>row.id===selectedId))selectedId=rows[0]?.id||'';
         const selectedRow=rows.find(row=>row.id===selectedId);
         const displayed=proposalState||saved().ioResult||saved().appliedIO;
@@ -156,7 +157,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
         setProperty(paragraph,'contentEditable',disabled||!d?.complete||stale||isApplied?'false':'plaintext-only');
         setProperty(apply,'disabled',disabled||!d?.complete||stale||isApplied||!!nativeDocument&&(proposalTicket?!nativeDocument.canApply(proposalTicket):restoredProposal!==d?.requestId));setProperty(apply,'hidden',isApplied);
         setProperty(recover,'disabled',disabled||!nativeDocument);setProperty(undo,'disabled',disabled||!saved().ioUndo);setProperty(undo,'hidden',!saved().ioUndo);setProperty(regenerate,'disabled',run.disabled||!d);
-        setProperty(status,'textContent',error||(d&&stale?'输入已改变，请重新生成':message|| (d?`${resultProvider==='qwen'?'本地 Qwen 结果':resultProvider==='deepseek'?'DeepSeek 结果':d.provider==='gpt-6-luna'?'GPT-6 Luna 结果（Comfy）':'示例结果 · 未调用模型'}${isApplied?' · 已应用':' · 待应用'}`:rows.length&&!valid?'当前输入不支持此模式':rows.length?`${rows.length} 项输入 · 等待生成`:'请输入原始文字或连接输入')));
+        setProperty(status,'textContent',error||(d&&stale?'输入已改变，请重新生成':message|| (d?`${resultProvider==='qwen'?'本地 Qwen 结果':resultProvider==='deepseek'?'DeepSeek 结果':d.provider==='qwen-image-2.1-pe'?'PE 本地结果':d.provider==='gpt-6-luna'?'GPT-6 Luna 结果（Comfy）':'示例结果 · 未调用模型'}${isApplied?' · 已应用':' · 待应用'}`:rows.length&&!valid?'当前输入不支持此模式':rows.length?`${rows.length} 项输入 · 等待生成`:'请输入原始文字或连接输入')));
         task=[...generationTask.snapshot(),...(!busy&&error?[{id:'llm-input',label:waiting?'等待输入':'输入异常',state:waiting?'queued':'error',detail:error}]:[])];
         try{node.setOutputData?.(0,outputText(node));}catch{node.setOutputData?.(0,null);}
     }

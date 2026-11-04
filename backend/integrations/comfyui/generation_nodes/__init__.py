@@ -5,7 +5,11 @@ def register_nodes(service=None):
     from .node import make_node, NODE_ID
     names = {NODE_ID: 'DAELAB · 生成节点', 'DAELAB.ImageGenerate': '图片生成', 'DAELAB.VideoGenerate': '视频生成'}
     kinds = {'DAELAB.ImageGenerate': 'image', 'DAELAB.VideoGenerate': 'video'}
-    return {key: make_node(service, key, name, kinds.get(key)) for key, name in names.items()}, names
+    from .native_text import NativeText
+    mappings = {key: make_node(service, key, name, kinds.get(key)) for key, name in names.items()}
+    mappings['DAELAB.NativeText'] = NativeText
+    names['DAELAB.NativeText'] = 'Native reference text result'
+    return mappings, names
 
 
 def register_routes(server, service):

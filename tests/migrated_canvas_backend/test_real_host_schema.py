@@ -15,9 +15,13 @@ import sys
 sys.argv = ['schema-contract', '--cpu']
 from backend.integrations.comfyui.generation_nodes import register_nodes
 nodes, names = register_nodes()
-assert set(nodes) == {'DAELAB.LibTV.VideoGenerate', 'DAELAB.ImageGenerate', 'DAELAB.VideoGenerate'}
+assert set(nodes) == {'DAELAB.LibTV.VideoGenerate', 'DAELAB.ImageGenerate', 'DAELAB.VideoGenerate', 'DAELAB.NativeText'}
+assert nodes['DAELAB.NativeText'].OUTPUT_NODE is True
+assert nodes['DAELAB.NativeText'].INPUT_TYPES()['required']['clip'] == ('CLIP',)
 legacy = nodes['DAELAB.LibTV.VideoGenerate'].GET_NODE_INFO_V1()
 for key, node in nodes.items():
+    if key == 'DAELAB.NativeText':
+        continue
     info = node.GET_NODE_INFO_V1()
     assert info['name'] == key
     assert info['input'] == legacy['input']

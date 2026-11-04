@@ -5,6 +5,7 @@ from ..contracts.errors import ContractError, Conflict, InvalidInput, InvalidTra
 from ..contracts.validation import identity
 from ..providers.contracts import ProviderUnavailable
 from ..providers.parameters import QWEN_MODEL
+from ..providers.native_text import PE_MODEL, PE_PROVIDER
 from .media import image_data_reference
 from .optimization import OptimizationFacade
 
@@ -128,9 +129,9 @@ def routes(service):
         async def run():
             payload = await read_payload(request)
             model = payload.get('model')
-            if model not in ('qwen', 'gpt-6-luna'):
+            if model not in ('qwen', 'gpt-6-luna', PE_MODEL):
                 raise ProviderUnavailable('Unsupported optimization model.')
-            provider = service.provider({'qwen': 'local-qwen-text', 'gpt-6-luna': 'comfy-gpt-text'}[model])
+            provider = service.provider({'qwen': 'local-qwen-text', 'gpt-6-luna': 'comfy-gpt-text', PE_MODEL: PE_PROVIDER}[model])
             if model == 'gpt-6-luna':
                 provider.require_auth()
             assets = []
