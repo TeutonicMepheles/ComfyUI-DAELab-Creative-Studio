@@ -18,12 +18,12 @@ export const PROMPT_SETTINGS_TEMPLATE=Object.freeze([
 ]);
 export const generationModeLabels={text2video:'文生视频',singleImage2video:'首帧',frames2video:'首尾帧',image2video:'全能参考',mixed2video:'全能参考',text2image:'文生图',image2image:'参考图',audio2video:'音频参考'};
 function sizeLabel(settings,config){
- if(config.model===LOCAL_IMAGE_MODEL&&settings.ratio==='auto')return '自动比例';
- if(config.kind==='image'&&isComfyGenerationModel(config.model)&&settings.size)return settings.size==='Custom'?`${settings.custom_width||1024}×${settings.custom_height||1024}`:settings.size==='auto'?'自动尺寸':String(settings.size).replace('x','×');
- const width=Number(settings.width),height=Number(settings.height),dimensions=width>0&&height>0;
+ if(settings.ratio==='auto'||settings.size==='auto'||settings.ratio==='adaptive')return '自动比例';
+ const explicit=config.kind==='image'&&isComfyGenerationModel(config.model)?String(settings.size||'').match(/^(\d+)[x×](\d+)$/i):null;
+ const width=Number(settings.size==='Custom'?settings.custom_width:explicit?.[1]??settings.width),height=Number(settings.size==='Custom'?settings.custom_height:explicit?.[2]??settings.height);
  let ratio=settings.ratio;
- if(!ratio&&dimensions&&Number.isInteger(width)&&Number.isInteger(height)){let a=width,b=height;while(b){[a,b]=[b,a%b];}ratio=`${width/a}:${height/a}`;}
- return [ratio,settings.resolution||(dimensions?`${width}×${height}`:'')].filter(Boolean).join(' · ')||'比例／分辨率';
+ if(!ratio&&width>0&&height>0&&Number.isInteger(width)&&Number.isInteger(height)){let a=width,b=height;while(b){[a,b]=[b,a%b];}ratio=`${width/a}:${height/a}`;}
+ return ratio||'比例';
 }
 export function generationParametersSummary(config){
  const settings=config.settings||{},sound=settings.enableSound,attempts=generationAttempts(config);
@@ -79,12 +79,12 @@ export const promptSettingsStyle=`
 :is(.dae-ui.generation-form,.dae-ui .generation-form) .generation-parameter-choices button[aria-pressed]+button[aria-pressed]{margin:0}
 :is(.dae-ui.generation-form,.dae-ui .generation-form) .generation-parameter-choices button[aria-pressed=true]{background:color-mix(in srgb,var(--dae-surface-high) 76%,var(--dae-text) 24%);box-shadow:none}
 :is(.dae-ui.generation-form,.dae-ui .generation-form) .generation-parameter-choices button[aria-pressed=true]::after{display:none}
-:is(.dae-ui.generation-form,.dae-ui .generation-form) .generation-ratio-choices button{flex-direction:column;gap:6px;flex-basis:42px;font-size:12px!important}
+:is(.dae-ui.generation-form,.dae-ui .generation-form) .generation-ratio-choices button{flex-direction:column;gap:6px;flex-basis:42px;font-size:13px!important}
 .dae-ui .generation-ratio-shape{box-sizing:border-box;display:block;width:var(--ratio-width);height:var(--ratio-height);border:1.5px solid currentColor;border-radius:2px;opacity:.8}
 .dae-ui .generation-image-size-choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr))}
 .dae-ui .generation-image-size-choices button{justify-content:center;text-align:center}
 .dae-ui .generation-image-size-choices small{display:block;font-size:10px;line-height:1.2;white-space:nowrap;opacity:.7}
-.dae-ui.generation-settings-popover .generation-parameter-sections>section:first-child button[aria-pressed=true]{box-shadow:inset 0 0 0 2px var(--dae-text)}
+.dae-ui.generation-settings-popover .generation-parameter-choices button[aria-pressed=true]{box-shadow:inset 0 0 0 2px var(--dae-focus,#b8c4ff)}
 .dae-ui .generation-duration-viewport{min-width:0;overflow:hidden;border-radius:14px;background:color-mix(in srgb,var(--dae-surface-high) 88%,var(--dae-text) 12%)}
 .dae-ui.generation-settings-popover .generation-duration-choices{position:relative;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;background:transparent;mask-image:linear-gradient(to right,var(--duration-edge-left,#000) 0,var(--duration-edge-left,#000) 8px,#000 52px,#000 calc(100% - 52px),var(--duration-edge-right,#000) calc(100% - 8px),var(--duration-edge-right,#000) 100%)}
 .dae-ui .generation-duration-choices[data-overflow-left=true]{--duration-edge-left:transparent}
@@ -156,13 +156,10 @@ export function generationParameterSpecs(schema,mode){
  const seen=new Set();return generationSettingSpecs(schema,mode).filter(spec=>{if(!generationParameterOrder.includes(spec.name)||seen.has(spec.name))return false;seen.add(spec.name);return true;}).sort((a,b)=>generationParameterOrder.indexOf(a.name)-generationParameterOrder.indexOf(b.name));
 }
 export function generationDurationOptions(spec,current){
- const declared=(spec.enum||[]).map(item=>Number(typeof item==='object'?item.value:item)).filter(Number.isFinite);
- const min=Number(spec.min??1),max=Number(spec.max??30),step=Number(spec.step??(spec.type==='integer'?1:.5));
- const values=declared.length?declared:[];
- if(!values.length&&step>0&&max>=min)for(let value=Math.ceil(min/step)*step;value<=max+1e-8&&values.length<1000;value+=step)values.push(Number(value.toFixed(6)));
- // A saved fractional/custom duration stays visible without being rewritten on open.
- if(typeof current==='number'&&Number.isFinite(current))values.push(current);
- return [...new Set(values)].sort((a,b)=>a-b);
+ const min=Math.max(1,Math.ceil(Number(spec.min??1))),max=Math.floor(Number(spec.max??30));
+ const declared=(spec.enum||[]).map(item=>Number(typeof item==='object'?item.value:item)).filter(value=>Number.isInteger(value)&&value>=min&&value<=max);
+ if(spec.enum?.length)return [...new Set(declared)].sort((a,b)=>a-b);
+ return Array.from({length:Math.max(0,Math.min(1000,max-min+1))},(_,index)=>min+index);
 }
 export function generationParameterModes(config,schema){
  if(isLocalGenerationModel(config.model))return Object.keys(schema.properties?.modeType?.items||{});
@@ -191,9 +188,9 @@ function decorateImageSizeChoices(group,options){
  [...group.children].forEach((control,index)=>{
   const value=String(options[index][0]),size=value.match(/^(\d+)[x×](\d+)$/i);
   if(!size){control.textContent=({auto:'自动',Custom:'自定义'})[value]||options[index][1];return;}
-  const width=Number(size[1]),height=Number(size[2]),gcd=(a,b)=>b?gcd(b,a%b):a,unit=gcd(width,height),shape=document.createElement('span'),label=document.createElement('span'),pixels=document.createElement('small'),ratio=width/height;
+  const width=Number(size[1]),height=Number(size[2]),gcd=(a,b)=>b?gcd(b,a%b):a,unit=gcd(width,height),shape=document.createElement('span'),label=document.createElement('span'),ratio=width/height;
   shape.className='generation-ratio-shape';shape.setAttribute('aria-hidden','true');shape.style.setProperty('--ratio-width',`${ratio>=1?20:20*ratio}px`);shape.style.setProperty('--ratio-height',`${ratio>=1?20/ratio:20}px`);
-  label.textContent=`${width/unit}:${height/unit}`;pixels.textContent=`${width}×${height}`;control.replaceChildren(shape,label,pixels);control.setAttribute('aria-label',`${label.textContent}，${pixels.textContent} 像素`);control.title=pixels.textContent+' 像素';
+  label.textContent=`${width/unit}:${height/unit}`;control.replaceChildren(shape,label);control.setAttribute('aria-label',label.textContent);
  });
 }
 export function createLocalVideoSizePicker(config,schema,onChange){
@@ -202,7 +199,6 @@ export function createLocalVideoSizePicker(config,schema,onChange){
  const current=presets.find(p=>p.width===settings.width&&p.height===settings.height),options=presets.map(p=>[p.ratio,p.ratio]);
  const group=parameterChoices(root,'比例',options,current?.ratio,id=>{const preset=presets.find(p=>p.ratio===id);if(preset&&preset!==current)onChange({width:preset.width,height:preset.height});});
  decorateRatioChoices(group,options);
- if(!current&&settings.width&&settings.height){const saved=document.createElement('small');saved.textContent=`当前 ${settings.width}×${settings.height}，选择比例后应用预设`;root.append(saved);}
  return root;
 }
 export function createLocalImageSizePicker(config,schema,onChange){
@@ -215,9 +211,6 @@ export function createLocalImageSizePicker(config,schema,onChange){
   if(id==='auto')onChange({ratio:'auto',width:size.defaultWidth,height:size.defaultHeight});
   else{const preset=presets.find(p=>p.ratio===id);if(preset)onChange({ratio:id,width:preset.width,height:preset.height});}
  });decorateRatioChoices(group,options);group.classList.add('generation-image-size-choices');
- [...group.children].forEach((control,index)=>{if(!index)return;const preset=presets[index-1],pixels=document.createElement('small');pixels.textContent=`${preset.width}×${preset.height}`;control.append(pixels);control.title=pixels.textContent+' 像素';control.setAttribute('aria-label',`${preset.ratio}，${pixels.textContent} 像素`);});
- const hint=document.createElement('small');hint.textContent='自动跟随参考图比例；无参考图时采用模型默认比例。尺寸在提交时按32像素步长对齐。';root.append(hint);
- if(!settings.ratio&&!presets.some(p=>p.width===settings.width&&p.height===settings.height)&&settings.width&&settings.height){const saved=document.createElement('small');saved.textContent=`保留原尺寸 ${settings.width}×${settings.height}；选择比例后才修改。`;root.append(saved);}
  return root;
 }
 // One view over the existing schema and setting editor. It never saves or submits by itself.
@@ -320,9 +313,9 @@ export function createGenerationSetting(spec,config,onChange,unrestricted=false)
  if(spec.name==='duration'){
   const wrapper=document.createElement('div'),caption=document.createElement('span'),row=document.createElement('div'),track=document.createElement('div'),ticks=document.createElement('div'),input=document.createElement('input'),valueBox=document.createElement('div'),number=document.createElement('input'),unit=document.createElement('span');
   const values=(spec.enum||[]).map(item=>Number(typeof item==='object'?item.value:item)).filter(Number.isFinite);
-  const maximum=isLocalVideoModel(config.model)?15:30;
-  const minimum=isComfyGenerationModel(config.model)?4:0,step=isComfyGenerationModel(config.model)?1:.5;
-  let seconds=Number(config.settings.duration??spec.default??values[0]??.5);
+  const maximum=Math.floor(Number(spec.max??(isLocalVideoModel(config.model)?15:30)));
+  const minimum=Math.max(1,Math.ceil(Number(spec.min??1))),step=1;
+  let seconds=Number(config.settings.duration??Math.max(minimum,Math.ceil(Number(spec.default??values[0]??1))));
   wrapper.className='generation-duration';wrapper.setAttribute('role','group');wrapper.setAttribute('aria-label','视频时长');caption.className='generation-duration-caption';caption.textContent='选择视频时长';row.className='generation-duration-row';track.className='generation-duration-track';ticks.className='generation-duration-ticks';ticks.setAttribute('aria-hidden','true');
   input.type='range';input.className='generation-duration-slider';input.dataset.setting='duration';input.min=String(minimum);input.step=String(step);input.setAttribute('aria-label',`时长（秒），每格 ${step} 秒`);
   valueBox.className='generation-duration-value';number.type='number';number.min=String(minimum);number.max=String(maximum);number.step=String(step);number.setAttribute('aria-label','时长（秒）');unit.textContent='s';unit.setAttribute('aria-hidden','true');valueBox.append(number,unit);

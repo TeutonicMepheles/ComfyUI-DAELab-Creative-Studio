@@ -68,12 +68,12 @@ test('combined video summary preserves saved values without mutating config or a
  const config={kind:'video',model:'Seedance 2.5',mode:'frames2video',settings:{resolution:'720p',duration:9,enableSound:'off'}};
  const before=structuredClone(config),items=promptSettingsItems(config,{combined:true});
  assert.deepEqual(items.map(x=>x.key),['kind','model','parameters']);
- assert.match(items[2].text,/首尾帧 · 720p · 9s · 音频关闭/);
+ assert.match(items[2].text,/首尾帧 · 比例 · 9s · 音频关闭/);
  assert.deepEqual(config,before);
  assert.equal(promptSettingsItems(config).length,6,'existing table settings keep their individual entry points');
 });
-test('image summary omits stale video duration; local dimensions remain visible',()=>{
- assert.equal(generationParametersSummary({kind:'image',mode:'text2image',settings:{width:1024,height:1024,duration:9}}),'文生图 · 1:1 · 1024×1024');
+test('image summary omits stale video duration; pixels stay internal',()=>{
+ assert.equal(generationParametersSummary({kind:'image',mode:'text2image',settings:{width:1024,height:1024,duration:9}}),'文生图 · 1:1');
 });
 
 test('official image settings remain editable and summarize the selected dimensions and quality',()=>{
@@ -82,11 +82,11 @@ test('official image settings remain editable and summarize the selected dimensi
  assert.deepEqual(generationParameterSpecs(schema,'image2image').map(x=>x.name),['size','custom_width','custom_height','quality','background']);
  const config={kind:'image',model:'GPT Image 2',mode:'text2image',settings:{size:'1536x1024',quality:'low',width:512,height:288}};
  const before=structuredClone(config);
- assert.equal(generationParametersSummary(config),'文生图 · 1536×1024 · 质量 low');
+ assert.equal(generationParametersSummary(config),'文生图 · 3:2 · 质量 low');
  assert.deepEqual(config,before);
- assert.equal(generationParametersSummary({...config,settings:{size:'Custom',custom_width:2048,custom_height:1152}}),'文生图 · 2048×1152');
- assert.equal(generationParametersSummary({...config,model:'Qwen-Image-2.1 Turbo（本地）'}),'文生图 · 16:9 · 512×288');
- assert.equal(generationParametersSummary({...config,kind:'video',model:'Seedance 2.5',mode:'text2video'}),'文生视频 · 16:9 · 512×288');
+ assert.equal(generationParametersSummary({...config,settings:{size:'Custom',custom_width:2048,custom_height:1152}}),'文生图 · 16:9');
+ assert.equal(generationParametersSummary({...config,model:'Qwen-Image-2.1 Turbo（本地）'}),'文生图 · 16:9');
+ assert.equal(generationParametersSummary({...config,kind:'video',model:'Seedance 2.5',mode:'text2video'}),'文生视频 · 16:9');
 });
 
 test('new cloud MiniMax tasks use its resolution default and preserve explicit saved values',()=>{
@@ -115,10 +115,10 @@ test('mode choices only show declared capabilities and do not revive unsupported
  assert.equal(config.mode,'mixed2video');
 });
 
-test('duration segments follow model bounds and preserve saved fractional values',()=>{
- assert.deepEqual(generationDurationOptions({type:'integer',min:4,max:6,step:1},4.5),[4,4.5,5,6]);
+test('duration choices show integer seconds within model bounds without fractional options',()=>{
+ assert.deepEqual(generationDurationOptions({type:'integer',min:4,max:6,step:1},4.5),[4,5,6]);
  assert.deepEqual(generationDurationOptions({enum:[{value:5},{value:10}]},10),[5,10]);
- assert.deepEqual(generationDurationOptions({type:'number',min:.2,max:2},.2),[.2,.5,1,1.5,2]);
+ assert.deepEqual(generationDurationOptions({type:'number',min:.2,max:2},.2),[1,2]);
 });
 
 test('image and mixed references share one omnireference choice without rewriting saved configuration',()=>{

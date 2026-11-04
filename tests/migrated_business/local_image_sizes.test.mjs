@@ -23,7 +23,7 @@ test('Qwen shows auto and visual ratio buttons instead of editable width/height,
  const config={kind:'image',model:LOCAL_IMAGE_MODEL,mode:'image2image',settings:{width:1920,height:1024,seed:7}},before=JSON.stringify(config);
  normalizeLocalGenerationConfig(config,schema);assert.equal(JSON.stringify(config),before);
  const changes=[],root=createGenerationParameters(config,schema,{onMode(){},onSetting(){},onSettings:value=>changes.push(value)});
- const nodes=descendants(root);assert.equal(nodes.filter(node=>node.tagName==='input').length,0);
+ const nodes=descendants(root);assert.equal(nodes.filter(node=>node.tagName==='input').length,0);assert.equal(nodes.filter(node=>node.tagName==='small').length,0);assert.ok(nodes.every(node=>!/[0-9]+[x×][0-9]+/.test(node.textContent||'')));
  assert.ok(nodes.some(node=>node.textContent==='自动'));
  const ratio=nodes.find(node=>node.tagName==='button'&&node.textContent.startsWith('16:9'));
  assert.ok(ratio);assert.ok(descendants(ratio).some(node=>node.className==='generation-ratio-shape'));
