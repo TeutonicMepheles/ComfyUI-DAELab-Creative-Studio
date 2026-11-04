@@ -1230,13 +1230,14 @@
       "source": "web/llm_style_preview.js",
       "destination": "frontend/src/integrations/comfyui/business/llm_style_preview.js",
       "sourceSha256": "129748850824e58beac56b81431a838d3591acf958606fcb62a097ea9398abdd",
-      "destinationSha256": "59c211eab952c4501ae782a63069e65cf58b70ca8d6c5f48a31258ba574544ba",
+      "destinationSha256": "f0dfab3ea52e67016720086d3d139c4bfdcf94cd230eeeac50d42128ff3dfbb2",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Only B is registered or matched by the adapter; preserve its native input/output slot sequence and saved applied widgets.",
         "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
-        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
+        "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
+        "2026-11-04 task19 follow-up: rebind text panel after native configure, dispose prior tickets/widgets, preserve signature/current-owner checks; original two-row replay regression."
       ]
     },
     {
@@ -2032,9 +2033,10 @@
       "kind": "authored-contract-or-integration",
       "changes": [
         "Native reactive JSON boundary: detach nested host proxies for document transactions and LLM load/proposal/apply; preserve all unknown JSON keys and identities, reject unsavable edits before history, and verify source-bound edit/recovery/undo with no submit. Real UI acceptance remains separate.",
-        "Extend the existing inert DOM with standard class membership and attribute presence operations for actual-control reconciliation; retain proxy, recovery and native history assertions."
+        "Extend the existing inert DOM with standard class membership and attribute presence operations for actual-control reconciliation; retain proxy, recovery and native history assertions.",
+        "2026-11-04 task19 follow-up: rebind text panel after native configure, dispose prior tickets/widgets, preserve signature/current-owner checks; original two-row replay regression."
       ],
-      "destinationSha256": "55f3072c30f7ad26997baca5f3defd5feff0ee01734092fcad3b31eb022e5824"
+      "destinationSha256": "7aa722c0fd90287cbc7d609da734c77d357c2a02f17248f9fbbbec73540c1ecf"
     },
     {
       "origin": "authored",
