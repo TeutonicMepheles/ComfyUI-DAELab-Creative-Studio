@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "862b92c349028d5c1309f1a09bae23ec6c1054e0832c2b0d68e2c83e4158e587",
+  "specificationHash": "9516e241f394c28a2b74294745990b0b3611c361b3e7d92c186d91fc1e75b7f3",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -1020,7 +1020,8 @@
         "AC-SYS-022-001",
         "AC-SYS-022-002",
         "AC-SYS-022-003",
-        "AC-SYS-022-004"
+        "AC-SYS-022-004",
+        "AC-SYS-022-005"
       ],
       "usecases": [
         "UC-BIZ-009",
@@ -7305,8 +7306,8 @@
       "feature": "F-SYS-022",
       "task": "TASK-M4-BACKEND-PROVIDERS",
       "owner": "backend/providers",
-      "requirement": "已保存逻辑模型缺失时保持原 ID 并标为不可用，不静默换成其他模型。DeepSeek 仅配置与能力检查，不调用云或付费接口。",
-      "requirementHash": "5d598c4c322418ec5276558ab8df22861e8f918fb09c1511bf07b4d2980b192c",
+      "requirement": "已保存逻辑模型缺失时保持原 ID 并标为不可用，不静默换成其他模型。2026-11-04 起文本提供方只有本地 Qwen，不再接入云 API 文本通道，也不发起任何云请求。",
+      "requirementHash": "efc4c85797e7c4f41bad66553948fcf0c095704550ba2141062026344c2f0988",
       "usecases": [
         "UC-SYS-012",
         "UC-SYS-013"
@@ -7327,6 +7328,26 @@
       "owner": "backend/providers",
       "requirement": "2026-11-04：模型名后短胶囊从目录读取本地/API实际路由；开源/闭源须有明示模型信息，无依据时省略该属性。同名不同路由正确区分，不靠名称猜测，不改变可用性、模型ID或费用，不复制升级/VIP文案。 本地采用青绿、API采用蓝紫主题色，列表与触发项一致且保留文字，不只靠颜色辨认。",
       "requirementHash": "b038c6dceeebaf914f48dba48299513a4b5c14ea829bfea0f5fbc615965719cc",
+      "usecases": [
+        "UC-SYS-012",
+        "UC-SYS-013"
+      ],
+      "tests": [
+        "TC-SYS-037"
+      ],
+      "evals": [
+        "EV-ARCH"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-SYS-022-005",
+      "feature": "F-SYS-022",
+      "task": "TASK-M4-BACKEND-PROVIDERS",
+      "owner": "backend/providers",
+      "requirement": "2026-11-04：移除 DeepSeek 云 API 文本通道。模型目录、模型列表、能力快照与健康诊断不再出现 DeepSeek 行、密钥字段或连接状态；已保存工作流引用 DeepSeek 模型时保留原 ID 并标为不可用，不静默换成 Qwen，不改写用户配置；宿主残留的旧密钥不被读取，也不写入工作流、任务快照、账本、日志或诊断导出。",
+      "requirementHash": "986aac7d77ae2854ac5966af29b3bdca6eb6ab921662f6a28c05e58d4e0e7b07",
       "usecases": [
         "UC-SYS-012",
         "UC-SYS-013"
@@ -8127,7 +8148,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "3eaf83184d27260df9ef8138074051f328ce71d9f0e23f2d99f07dfebd012758",
+      "specificationHash": "434ca21a934375c785bc779ad7cabad2e98c2d57384d2204f0a439842fa0a1d9",
       "assertions": [
         {
           "id": "AS-CAN-001-001",
@@ -8184,7 +8205,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "f31a98628010900b65b2f46f223b9aa922ee3c92edeca20cdf1b30b305001e89",
+      "specificationHash": "a674c30caf0ae1b0c9b32c37bab9844569ee654a83cf8d06f254e751dda0fd44",
       "assertions": [
         {
           "id": "AS-CAN-002-001",
@@ -8226,7 +8247,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "95387e0ede3ce0a4236febbb6c58f935a7c51e5a946c3d14b5e92425dc2167e4",
+      "specificationHash": "4f1fe1df8eb9e7130628b40837c5732cfd42250de23302ae3cad5a8064d9abe5",
       "assertions": [
         {
           "id": "AS-CAN-003-001",
@@ -8271,7 +8292,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "c229a54624944fb2049382eeccc02959bc25943f47b58e0979d36592f24f86a6",
+      "specificationHash": "6260a1badcf2c84a75feda75010b617a6f6f27fd8a693cd2a4d2341e93bc72d5",
       "assertions": [
         {
           "id": "AS-CAN-004-001",
@@ -8310,7 +8331,7 @@
         "EV-JOBS",
         "EV-UI"
       ],
-      "specificationHash": "9ee0edbddf8bf8b0db69ffd847ace74806051b7e92549826d71d388142b2dd76",
+      "specificationHash": "1f1c7ff09566ecf0852a0952181b7620eb13265fe0a7f7846effb6f328490529",
       "assertions": [
         {
           "id": "AS-CAN-005-001",
@@ -8355,7 +8376,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "0d1a65acb1763a1604a05fb3d9597f6980e59a6ae36599b2950daa1f31fd9fc6",
+      "specificationHash": "8fa1f2ec7cc81abc31d52186c9d236a202c91465c925f4fa04ab66ee119a3f9b",
       "assertions": [
         {
           "id": "AS-CAN-006-001",
@@ -8405,7 +8426,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "02fd10e3c63da587a031cc18f4c13f5f138e3ac90f2713ea1f622509f6acecb7",
+      "specificationHash": "d31291e008eabd0f1a9f9d2791b00b902f415facb310c8b5e721cd8d42d5b5f3",
       "assertions": [
         {
           "id": "AS-CAN-007-001",
@@ -8452,7 +8473,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "cda7ae268e2fcf9b86a9e1ee7fbc7d28622e0ceaf931b82185c3be397c3c3037",
+      "specificationHash": "ec3ea804b5357f1b7e88df65ff3f004a7ce8acab155533a461f11a7340756910",
       "assertions": [
         {
           "id": "AS-CAN-008-001",
@@ -8497,7 +8518,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "a9986387d8202d327b0cca16c87d92c5295d25e4645cdbb7a84008e0b05f5189",
+      "specificationHash": "af1af36a5f42310f4a2a1cf86a0e348dd8b72fd4989fe9a39795ec97e874cbbb",
       "assertions": [
         {
           "id": "AS-CAN-009-001",
@@ -8540,7 +8561,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "3912ca65d38ae490e8d15eab0b681cd6d02e1d344c40e8af954d00247fdbb2cc",
+      "specificationHash": "8616b69e88e4f709be3ca35a07209a6b9e48232588bcfc852ef397059787f699",
       "assertions": [
         {
           "id": "AS-CAN-010-001",
@@ -8582,7 +8603,7 @@
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "667269cded4dde23b9113a27c7c10707114fb9903e3f1dc7b0f8b4d2e65136fd",
+      "specificationHash": "afda934fb0767ce9adb2f0eb6e8d422af24e440746c28a4ea3e71828696404b3",
       "assertions": [
         {
           "id": "AS-CAN-011-001",
@@ -8625,7 +8646,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "5f0a43dd7793776f9752e32c3dfe04aff7a6b18153ee72f17cd732575cb1ac52",
+      "specificationHash": "5f6876e4c88fc2cc3e51ed2896ba3df14e2758c7623137f95633d24f6559db9e",
       "assertions": [
         {
           "id": "AS-CAN-012-001",
@@ -8674,7 +8695,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "2895c0c683c7b701a773e08792289751c0c6a1bd04f3f8e7973dc64a8b4ebb89",
+      "specificationHash": "a18adc2b9a79fc2656eecacdb7af77c841ab79559238547f587e773fa5b0cbfd",
       "assertions": [
         {
           "id": "AS-CAN-013-001",
@@ -8712,7 +8733,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "0a84a369f19a8fe094bfe3aa49dcdd69685bbd52e1f35f88f2b1c698690f68af",
+      "specificationHash": "49b5c65e29ac4d872d8f045fe4d6c1b703e11e61bc271d38cfe2f5fb9d48c7e4",
       "assertions": [
         {
           "id": "AS-CAN-014-001",
@@ -8758,7 +8779,7 @@
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "2983ff6f74b8f7712b4861baa3f6f486b16352571e0cc0fe41e6c8f59e263120",
+      "specificationHash": "4e0f84e9fa573ff152ee0e0888b15a439ca3da852d50c9d5919cb02c021d7c03",
       "assertions": [
         {
           "id": "AS-CAN-015-001",
@@ -8801,7 +8822,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "7a0763aa94f3619cc18e0ee55c792931e1dc2d203feeb7fedf885eb3638a3816",
+      "specificationHash": "2efd2250083b3377c5a8dce24aaa41722e0e8cf2cbde6ca763b8f0ee1f29fd51",
       "assertions": [
         {
           "id": "AS-CAN-016-001",
@@ -8843,7 +8864,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "ae29f14b4223cc46e0e20c598f602be04c4ce31e9335a8cea1a80aadec4b54d8",
+      "specificationHash": "3c033379f0a16791b7a22ea0a99f34838f9a6663bcbe50c145c3b352aec97a2c",
       "assertions": [
         {
           "id": "AS-CAN-017-001",
@@ -8885,7 +8906,7 @@
         "EV-JOBS",
         "EV-UI"
       ],
-      "specificationHash": "446b6b790966cc3e3edbb4c1ef4538e074d66fefdf566db5b82532184526d3ab",
+      "specificationHash": "1fe5f06f4c7b484010e928617180cca1fdf6b6d2e6bd5af7f4cc0b1a1acfbe24",
       "assertions": [
         {
           "id": "AS-CAN-018-001",
@@ -8927,7 +8948,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "a92ca582b1030fb83f42303fc9e2d446f12044b6fa3dad3bf3f9b83c3fc0841b",
+      "specificationHash": "d2b8f3018eeba81d0a112d7cc9f23a6efeaf63262b6bb7b46087fe11923617d8",
       "assertions": [
         {
           "id": "AS-CAN-019-001",
@@ -8968,7 +8989,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "3d0d0324caf8c742d2fc6b07370a83d51b91fe92e050d4c32f89d2b9234289ea",
+      "specificationHash": "b3de71dd3147697a768f579a7f7c36dfd95164e77738720aef0d7cf4953e67d0",
       "assertions": [
         {
           "id": "AS-CAN-020-001",
@@ -9009,7 +9030,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "ba2f783269871aa071f329f70f514e17d0794108c0a7a28e2fabf894dd560333",
+      "specificationHash": "35f9b4325c76589e10aa4d45f97796f25cdac70b13f77d31fa39cc2d91bdadee",
       "assertions": [
         {
           "id": "AS-CAN-021-001",
@@ -9050,7 +9071,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "70d595bd7c2ea3ac7843c7ae78d612eb3f24ca26f002d09128dc0d8eaed24571",
+      "specificationHash": "d00ddd577a71687d14cfe911c3c796f6d38fce5e8ee1162c677b3b22b563244f",
       "assertions": [
         {
           "id": "AS-CAN-022-001",
@@ -9092,7 +9113,7 @@
         "EV-E2E",
         "EV-UI"
       ],
-      "specificationHash": "104eaa8f8e1196416913433168650804a43c6c1ebe90f15a109e18119d50181c",
+      "specificationHash": "e4e1c4112fe52f2080436b6ad3ffa17dc7cc4f27a86f6c7236d624367535d98d",
       "assertions": [
         {
           "id": "AS-CAN-023-001",
@@ -9133,7 +9154,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "45d0e7235810d0ee611dc36f7fae80018cc8095ad90537e61c160445add4b671",
+      "specificationHash": "0ffaac4b5a3f055c71cf64ee099f5c9a9b0109952d0bfbed8d741d0ae3793d71",
       "assertions": [
         {
           "id": "AS-CAN-024-001",
@@ -9178,7 +9199,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "dd4a281f3430069af9d015de822a8eeb680c010c59d5d572b973f0815252a7af",
+      "specificationHash": "b13c43aa537e97e71e36f3bdcc801cc82c49bc3aaf66e686b9f6d7602a99795a",
       "assertions": [
         {
           "id": "AS-CAN-025-001",
@@ -9231,7 +9252,7 @@
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "633e41dd75735d8ad55013a50f5197851fcc058bc72d72399e8fb28135d20db5",
+      "specificationHash": "2528df86a6afa6c17a08898e7fc3401ad250f667e790a317d366112bc9964c78",
       "assertions": [
         {
           "id": "AS-CAN-026-001",
@@ -9274,7 +9295,7 @@
         "EV-DATA",
         "EV-E2E"
       ],
-      "specificationHash": "53a21ac0e68f823cfb3ea25def42117af339f7ad7dc04518f8a10f30b07059c7",
+      "specificationHash": "b258b6707d74738e88ae92cd3b1d7abd96c84eb6d6208e972c0b8a1f3c8d0b20",
       "assertions": [
         {
           "id": "AS-CAN-027-001",
@@ -9317,7 +9338,7 @@
         "EV-JOBS",
         "EV-UI"
       ],
-      "specificationHash": "e433d4b9cefc1d046185e3461a7c5467bd35180365b1214b6b6099ec6f292ff3",
+      "specificationHash": "8e333e34a364120b23fb6124b771e254ea24fa14b3f085bc3a0509f2c33c9e29",
       "assertions": [
         {
           "id": "AS-CAN-028-001",
@@ -9356,7 +9377,7 @@
         "EV-ARCH",
         "EV-JOBS"
       ],
-      "specificationHash": "b7064e7d815cf4e5fe0e627b3fa169ebfb237502d169ae8f53427cc2510af01b",
+      "specificationHash": "42f9adc2f04b294a25ba608d4ee284211d81b8e8ae3a5b88655d825980a6b475",
       "assertions": [
         {
           "id": "AS-CAN-029-001",
@@ -9400,7 +9421,7 @@
         "EV-JOBS",
         "EV-UI"
       ],
-      "specificationHash": "49da5080f3425e4abf3ef2c93171650e8570b5180227ebd11dffab4f47313542",
+      "specificationHash": "3a85d436bfd5735c7abd0d8386dae15de6587cc61afa0bb2e3461ef4e7a55dd9",
       "assertions": [
         {
           "id": "AS-CAN-030-001",
@@ -9437,7 +9458,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "5945a3e63376a59e4a90ca647e2ddf2eb716364bc496caa1b479ff3fc1ea3726",
+      "specificationHash": "0659d4bc6b95548c2a3ab0bcc7623bb4f92e9e90d408505104636064e32a879d",
       "assertions": [
         {
           "id": "AS-CAN-031-001",
@@ -9479,7 +9500,7 @@
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "5a1490d4b1eaee57628ce83ee5638ada20319b92cc14be49f9011b0ded3e5651",
+      "specificationHash": "f9a1d965257680d36025d195e295f2d8d21f9b4846e09c5aae454371a34977c8",
       "assertions": [
         {
           "id": "AS-CAN-032-001",
@@ -9521,7 +9542,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "36286f3bd54b243d2017d45e116b5559462cddd211c8538f3d62be4542d043ac",
+      "specificationHash": "02b4c5185050df4c96c0f1f6ce53ee6b3e7864e12ff0fc9bedab26234ba893fd",
       "assertions": [
         {
           "id": "AS-CAN-033-001",
@@ -9558,7 +9579,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "ad34effe5c06a0e59a8cf6de70aba2c0b7a952c5b18524a282c6acc415e50712",
+      "specificationHash": "14d2174b69237f7ea7770b834618ec3ec127019e4e8648e5c6c742659dc88469",
       "assertions": [
         {
           "id": "AS-CAN-034-001",
@@ -9596,7 +9617,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "4069712ce3b9009367f202650e2207cc955cc52ceb0bc6f3523e8a6e01144213",
+      "specificationHash": "5cd68d5fcba091630292c6fc0ecfa8018270991975d07a92f8a9bcee43126464",
       "assertions": [
         {
           "id": "AS-CAN-035-001",
@@ -9634,7 +9655,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "79fe25812aba3a61d50721d95fea94eb78ca52a556abbc55e8e7724600868f50",
+      "specificationHash": "7497e366a209e4904e7855556d715bcc608d4374b0e67a0acef5f80a04ad63bc",
       "assertions": [
         {
           "id": "AS-CAN-036-001",
@@ -9675,7 +9696,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "b6a7fd7ffb59963adca1a8a347d2c43c37b466f923d8e3b613f0087225353008",
+      "specificationHash": "355cc3d2003b0262925c810fb2957d59cc77fd7aae862e8cce36a7fb673d77e8",
       "assertions": [
         {
           "id": "AS-CAN-037-001",
@@ -9718,7 +9739,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "ad991ae3be609ce27568fe9708a3a2db918f1109ddfcac09d12fae4b146d146c",
+      "specificationHash": "5505cc62296d37899a5315e2432eaad38efa816bca239ed7605801cfe7d74b32",
       "assertions": [
         {
           "id": "AS-CAN-038-001",
@@ -9761,7 +9782,7 @@
         "EV-E2E",
         "EV-UI"
       ],
-      "specificationHash": "0a6e5067649560e3154cdc2a9d74b159de4387eb362af7dd73f89368a25934de",
+      "specificationHash": "e24051d67302e3d5eb64d9ee7e20e0b35cb39da5e55100100ee5896a9dff6f1d",
       "assertions": [
         {
           "id": "AS-CAN-039-001",
@@ -9801,7 +9822,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "82c89678d7fde41f40cf7cb661f56e86707293933f02189917779dfca6cd665e",
+      "specificationHash": "10caf1779b5d74a804ca21f6a0e5d51957d606eab0280c6593f07ac0d711c72c",
       "assertions": [
         {
           "id": "AS-CAN-040-001",
@@ -9847,7 +9868,7 @@
       "evals": [
         "EV-PERF"
       ],
-      "specificationHash": "950fd965bbae008a29774d6da1540bd915f5c5b4222ab8e30402bce5b462c19f",
+      "specificationHash": "e80faa50a5c28a5108a8f7360fdfde837fdad24f937e8ef11416c422ccd76e9f",
       "assertions": [
         {
           "id": "AS-CAN-041-001",
@@ -9897,7 +9918,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "177b66e0afc1ab3866c6734d50d355005b70b03ac00859e4fe9ab940be5803ce",
+      "specificationHash": "1b39583867a056b4ef61bfc1f43d3e61f791005ead4a743031b4a40e47372cc4",
       "assertions": [
         {
           "id": "AS-CAN-042-001",
@@ -9940,7 +9961,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "dccb94f8167445ae19b76b5bb4a75a94eeea952b25147aea7c29d26f657848bf",
+      "specificationHash": "79b723b059d217c8f5cec290acd212914efed5a24d28d88f0ba1b150a27b6746",
       "assertions": [
         {
           "id": "AS-CAN-043-001",
@@ -9996,7 +10017,7 @@
         "EV-DATA",
         "EV-E2E"
       ],
-      "specificationHash": "b12f5f906d1c07ab80ce1442ac5622a9d53b3cfd0cfd2a66c52af17750d2ef86",
+      "specificationHash": "7d322e7deadb3e9f153e7ef1f936a00902955bb6782829b7deda038738cad422",
       "assertions": [
         {
           "id": "AS-CAN-044-001",
@@ -10046,7 +10067,7 @@
       "evals": [
         "EV-PERF"
       ],
-      "specificationHash": "571262744c31333e27571780d4352a7b609259bffec5f9948c56640b42b56590",
+      "specificationHash": "492776c4d48da437d7a421732d83ffe75484906ec1fd44983b08bf7037e89cc9",
       "assertions": [
         {
           "id": "AS-CAN-045-001",
@@ -10083,7 +10104,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "2693e63c18c812fb79db5e2bc6c5f13c9150c1d5dc490ee11e2c1fab99846b63",
+      "specificationHash": "bd48b5c5148a1ffccfa1330a0f574be63b4187581dfbcdb6051594cd55be080c",
       "assertions": [
         {
           "id": "AS-CAN-046-001",
@@ -10124,7 +10145,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "32d6dda4526cc4f11f2ed48903e4850584e939ee7b4c21b90b73a93e448c99db",
+      "specificationHash": "7370b2be758a25d31428a6cf91cc6924584148ad9ce2c2110214c4c8f92ae240",
       "assertions": [
         {
           "id": "AS-CAN-047-001",
@@ -10166,7 +10187,7 @@
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "087b9c10a2c5e1dd32e1fc6d4c4cba2a00011c475f83f217af0f84592ee9795a",
+      "specificationHash": "6d2ec896f50a8e7a783e78639b52ebe62d070b1d25187354b6f21fbe4bff69a9",
       "assertions": [
         {
           "id": "AS-BIZ-001-001",
@@ -10206,7 +10227,7 @@
         "EV-DATA",
         "EV-JOBS"
       ],
-      "specificationHash": "a554492e8a8e7eded954c6a6def2c2fab8b3fa79d1a96f78a8f9b85d6b55ee5f",
+      "specificationHash": "65ba4384e0539352a58996ccb7d4106625180dc96c36a27d4e0deafc71c2bf15",
       "assertions": [
         {
           "id": "AS-BIZ-002-001",
@@ -10245,7 +10266,7 @@
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "9d4a6818e2ef736583a2a20c0e9898f28a2172927df633d7e760a2d44e06ec68",
+      "specificationHash": "e98ba06f192de707e6801c47f082ea4f2e9361d29493f0313ac44f365f7c8e95",
       "assertions": [
         {
           "id": "AS-BIZ-003-001",
@@ -10278,7 +10299,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "bc996a70042804f78d068e6075092efdbc4c4220fe85f06bd0ef8d8d57ce5766",
+      "specificationHash": "87568462e8fcfc81312be05ef059870144f59169e3dec50089e46c75e38f3c67",
       "assertions": [
         {
           "id": "AS-BIZ-004-001",
@@ -10310,7 +10331,7 @@
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "5cefa7b5ba2e236bff4950ed2d7651ce8c89b0d230e68b178c1f9afc7b1f5bc8",
+      "specificationHash": "0cfcef7fc7e026a22766a0bb41b530adb5c9abe192f020abaaee87a83b4395b9",
       "assertions": [
         {
           "id": "AS-BIZ-005-001",
@@ -10345,7 +10366,7 @@
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "3982c88d1a40bb190ca17f767925a139f41f793ef53d91c95b903da07b26f855",
+      "specificationHash": "5f5320034577c3e3c6e487a7c2a57697e1191cbd7387d543fcfce7a41f26ffa5",
       "assertions": [
         {
           "id": "AS-BIZ-006-001",
@@ -10381,7 +10402,7 @@
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "4703fa111322d25cda85c2127888ad6250b86066e29e28257f86ef7a4851e15a",
+      "specificationHash": "51cd3645b11d65474131ffdaa968490ce940a84eb285e0faebd87c814b68ab2a",
       "assertions": [
         {
           "id": "AS-BIZ-007-001",
@@ -10417,7 +10438,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "61d087439997d02e037c1ebe4aba809e3790e8397791dbfa353d76d73261f411",
+      "specificationHash": "c658f6cceb10e742a380ba92e61dcb189536ee824a73aa8ca390c411cefb5cc5",
       "assertions": [
         {
           "id": "AS-BIZ-008-001",
@@ -10449,7 +10470,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "17ed7c6c45fcf035357f87451d308116eb494cae590b651e5ca1b20f208ca4a0",
+      "specificationHash": "fbb111a141dbef53e2c64597695785ed181ed15611fb875b0df3fb7fd186f6f2",
       "assertions": [
         {
           "id": "AS-BIZ-009-001",
@@ -10481,7 +10502,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "0f419296f6f39c99b77a0061033267da2483bc9e0f6052bee11c7b6d08624a9b",
+      "specificationHash": "c44e582ab2eed95b033f624574268a772b4ede7715490524969972eed67f1394",
       "assertions": [
         {
           "id": "AS-BIZ-010-001",
@@ -10517,7 +10538,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "d7534bd50d44f876215dedac51f4bc3b2520c08817022d1e014e7fbc5973c766",
+      "specificationHash": "5ffe53ac3ca438d3a0338bb12d1bfaf29ae6eb2832b8774276c505abf78ad5d7",
       "assertions": [
         {
           "id": "AS-BIZ-011-001",
@@ -10551,7 +10572,7 @@
         "EV-E2E",
         "EV-UI"
       ],
-      "specificationHash": "2c8fe43d16218dca8454b32e075aff6d5f62871c29101798e4598854d1698f1f",
+      "specificationHash": "42f7866d6f7ab62eac46ab3f9dd1c0722f49583971679601991495d957e250c1",
       "assertions": [
         {
           "id": "AS-BIZ-012-001",
@@ -10587,7 +10608,7 @@
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "fe41c970d7b86a750b2f907cd0a453aef3b472bed2cb813090a719d90e301e66",
+      "specificationHash": "d8ca7ca1d3468ac712a591675cd79f710557cbdddef81c8a8c156a75d94bd2f8",
       "assertions": [
         {
           "id": "AS-BIZ-013-001",
@@ -10622,7 +10643,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "edc51c961f20fefcac57a03acf2cf622cf70a42a80d2a8af4b940ef9810effad",
+      "specificationHash": "b6b2bc8b0476913438a21db46bda1cd79d2923dea6455818371f69f868c3141e",
       "assertions": [
         {
           "id": "AS-BIZ-014-001",
@@ -10657,7 +10678,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "71518939bc7482820e3c5a325a914c39f085ae9070648417bbc4a2fa12f40fb2",
+      "specificationHash": "6e7edc0f8cb72bb375769e3e10966787bf0a6110ea2173d53fdeed7416c3cdfe",
       "assertions": [
         {
           "id": "AS-BIZ-015-001",
@@ -10690,7 +10711,7 @@
         "EV-DATA",
         "EV-JOBS"
       ],
-      "specificationHash": "c2a9dad6c6e6656aaf36ec204fb4e85b1c15a099f914aa5b30fd5f142eef2241",
+      "specificationHash": "6a17579033738b557d8700e1dbd2722854692b2b8030644ca6aeced4923dba80",
       "assertions": [
         {
           "id": "AS-BIZ-016-001",
@@ -10726,7 +10747,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "edfd465317930d7e596e9b4ddc0053d82b19b2f7fde26bfb58402edb4084ede5",
+      "specificationHash": "7d0fcd60b50e4082553e4d08f942429ee2a5840430f37819bdb6bc3f2e5c835b",
       "assertions": [
         {
           "id": "AS-BIZ-017-001",
@@ -10758,7 +10779,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "dc5306b9cb74688c3a0cc8302f574f82f9bcd495dd89c1026e946607f6791e2d",
+      "specificationHash": "6e1e247b1c3542f2f00119fabfb19fb6a5c07a2b4789d89f4ff5cb0d5ea9e359",
       "assertions": [
         {
           "id": "AS-BIZ-018-001",
@@ -10793,7 +10814,7 @@
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "870a82b2523d1af25b81a36387a925c24d1a73c5c0efb639df7e1b75d0ce2acc",
+      "specificationHash": "b45cdb428c1ac8db114a235d907eec75330eda1507907ac0106657448bb2b823",
       "assertions": [
         {
           "id": "AS-BIZ-019-001",
@@ -10830,7 +10851,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "2b112a560412640de2a01b43a80d344e4376bd48e94cb5342b7019947c63dd3e",
+      "specificationHash": "25911b32addc13246c4c37216ad83a61a6be8cda9d974986f62723ddd0d87c92",
       "assertions": [
         {
           "id": "AS-BIZ-020-001",
@@ -10866,7 +10887,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "dea3621d717cd5f89e727a9b439ea521f35afa3760d825db50e26463cd375c2a",
+      "specificationHash": "3125b0df8b93fa0d76cec4956128334d4f01a4d046f9b4bc61edde1f017931b8",
       "assertions": [
         {
           "id": "AS-BIZ-021-001",
@@ -10898,7 +10919,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "afbab603b57f91cde05211d4c37bc9d9b11a88d253b4b2cb7f0fded021f9333e",
+      "specificationHash": "118ce383e911810d36025214d297954c4289c0b09d35a6d5adfd91e27bd34595",
       "assertions": [
         {
           "id": "AS-BIZ-022-001",
@@ -10935,7 +10956,7 @@
         "EV-DATA",
         "EV-JOBS"
       ],
-      "specificationHash": "ce5278c4bf688c609cdd69ae2ae54753a768d41ecbdd62e147d545749c49b999",
+      "specificationHash": "006d5feac3a69ba142de78d7fbbe3ea0693bf0d21856511600e981c7ca8a22be",
       "assertions": [
         {
           "id": "AS-BIZ-023-001",
@@ -10972,7 +10993,7 @@
         "EV-DATA",
         "EV-JOBS"
       ],
-      "specificationHash": "af28c64b5de843a0192b138f742be8dfb609e52d21f032131a3e9c8654069a88",
+      "specificationHash": "bc43df3a783a52a09a8ff759bba8ec1556f3bfeb0c5071eb1af46c7a77653e13",
       "assertions": [
         {
           "id": "AS-BIZ-024-001",
@@ -11004,7 +11025,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "02204aa38197db8f7c2ad6db36a6efd44dc248c53b0e9b804a3c0f62acea1001",
+      "specificationHash": "821816cc94e4d3e0c64da4701946981a7a95e5a1441d07e1cdf08da6be3933e3",
       "assertions": [
         {
           "id": "AS-BIZ-025-001",
@@ -11039,7 +11060,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "2069eb534c71a178f7a227a8d78b063234f0e4019d7dc149438280405f8be49a",
+      "specificationHash": "801def6aebe80362d8d6ba3db6ba3df6d798f6a7f0c868d33071c1cd990fbe16",
       "assertions": [
         {
           "id": "AS-BIZ-026-001",
@@ -11076,7 +11097,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "85c92e1113090dbeb2816fb4c9001ebd763f077fc1ac4f335b3c5f5b3e48bacc",
+      "specificationHash": "64c5258db668c6a0be591b76f76967266e06cf2737f4bca05771ee5d17ca8563",
       "assertions": [
         {
           "id": "AS-BIZ-027-001",
@@ -11111,7 +11132,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "624cd9570790bf95f737c05855e4c7316714998de8fbc0ab9b0d0f2644d9f2ae",
+      "specificationHash": "76c4bbab9d4b7aea9e0bf88ef81b1fb9c0f850faab2c1e34362cdd37deec4d1c",
       "assertions": [
         {
           "id": "AS-BIZ-028-001",
@@ -11149,7 +11170,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "6c77fd943fa89b569f19147173c3df7b7ed80d00dd0fca2e1a4d35788a455c88",
+      "specificationHash": "4d6e623367ed905aceb28c2e3e576135a08c1253e2f7b174cd79a537194deac3",
       "assertions": [
         {
           "id": "AS-BIZ-029-001",
@@ -11187,7 +11208,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "4dd9835ddfcded9a8bdba4bb9094048a0ac9a08c538f3b43fc904565da8b8ea5",
+      "specificationHash": "482601631a8c13e2604fb9f1f66352bde33fff8308159a44d1a3abd14f99cf38",
       "assertions": [
         {
           "id": "AS-BIZ-030-001",
@@ -11225,7 +11246,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "90c4655543a7348c443d232f2408c4d619a478d81509199eb9226419637b3a05",
+      "specificationHash": "468bcf8b98f58275f80830a5a639cbf78c444bed36f92228dcaabeccaad99171",
       "assertions": [
         {
           "id": "AS-BIZ-031-001",
@@ -11263,7 +11284,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "452701821475d770483634e575897b7bd9efd15b5aa33813ab8325550a73f25c",
+      "specificationHash": "acfc91174a800c614a8c598a3329bf36335a8d048959a3f700d4e44d5838dc6f",
       "assertions": [
         {
           "id": "AS-BIZ-032-001",
@@ -11299,7 +11320,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "42f42ebeb6abd14189e2e5cf055d772d72bd6a9aac1281e0c5e5aff715d04adf",
+      "specificationHash": "9d229dd382353340fbf54f7e7af7bb5ea699170a8c3c9bdff8db96e8f5c34bc1",
       "assertions": [
         {
           "id": "AS-BIZ-033-001",
@@ -11336,7 +11357,7 @@
         "EV-DATA",
         "EV-JOBS"
       ],
-      "specificationHash": "84599878a03df77a5883ae7e6cc1e19817a32239922e35d59fcfbf6e20a24b48",
+      "specificationHash": "d1a7aea3ad423f9d5bbe1d5d9d2b457eab8f1b54e9c8df9f60b4a6b1bca53c89",
       "assertions": [
         {
           "id": "AS-BIZ-034-001",
@@ -11376,7 +11397,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "7572f1b1a3a85291ad1edba957c4cac27fa4272ecd237974c2cf7b506f6d864a",
+      "specificationHash": "38bcfc4175fc166273eab7dfd56395954dc19e7cb71737b0f9e1bb84a52d15ff",
       "assertions": [
         {
           "id": "AS-BIZ-035-001",
@@ -11412,7 +11433,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "13c8e9012046e01c118b08f39010da7dbb53a41b74a18ea6a85eb6d277850ad0",
+      "specificationHash": "5d234413586efaa552ca72ca6ebd5eddfb7ccc8c7899464e682b454a57069bb9",
       "assertions": [
         {
           "id": "AS-BIZ-036-001",
@@ -11447,7 +11468,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "2d96f28c8140c48e453c294f9a013e15436ff4fee0d1172f72468fb117d50c81",
+      "specificationHash": "53d2d0a7be1345655b23cea2b1fbfd2896e5134922b9d68c28d0696e4e4685d0",
       "assertions": [
         {
           "id": "AS-BIZ-037-001",
@@ -11484,7 +11505,7 @@
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "7038b9e03d943bffeece87ad627d57010373e233fd10a2dc9288825d4a87a647",
+      "specificationHash": "51ef607ec3d71fb29fe44250a7cdd2ea251bf669d68b944d41ed42cf59677214",
       "assertions": [
         {
           "id": "AS-BIZ-038-001",
@@ -11521,7 +11542,7 @@
         "EV-ARCH",
         "EV-JOBS"
       ],
-      "specificationHash": "0d31eaf78efffdbe3a4e0007288209775eb51406509248ba725b59f16b3f2694",
+      "specificationHash": "86322f062b80644840c5c0bdeb4cf2befca0fdf473f533f0b25b1b7acabb9c6f",
       "assertions": [
         {
           "id": "AS-BIZ-039-001",
@@ -11556,7 +11577,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "e7d65ea2848134dbc8432f489970b5cf791b0e1c50996df4cb073025ecae4cf0",
+      "specificationHash": "624bf1000dd1ee033acb9e58ddb6f5da93b4cbece2787a6cb3f14722f3fb4656",
       "assertions": [
         {
           "id": "AS-BIZ-040-001",
@@ -11594,7 +11615,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "3ce19add3e144a250d9048317ecb9a24417e8d1091029860703c6ff1f169f73f",
+      "specificationHash": "23843473f3793612d9e34360e97dafc761418db9db56a009c03fe3f189e86755",
       "assertions": [
         {
           "id": "AS-BIZ-041-001",
@@ -11634,7 +11655,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "234631c6d547448a228a8468138bdd376e397e8b7785e31fba0eca9551f6410d",
+      "specificationHash": "0162154d57d53324230adf03d17d02c22a0ab57d0efc401347cb3cfedee8d31f",
       "assertions": [
         {
           "id": "AS-BIZ-042-001",
@@ -11669,7 +11690,7 @@
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "f6cde85ac6ff6d9ecf278178602111ae6cd56ab7d50cbe80c44b56fd259572de",
+      "specificationHash": "c92b6bb258f8ae74287d67bc8c76a387b84da10eb25bcafe8195e737773a4ac7",
       "assertions": [
         {
           "id": "AS-BIZ-043-001",
@@ -11707,7 +11728,7 @@
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "6ece9cc18dd2ff82a1d36442e689a53247890cee05f68fdc74a53cfdda4a60b5",
+      "specificationHash": "a0c1837d6aaad54c616e581b632f0bb5e9b55b1a0e323bc8e8dbca89aa46d73f",
       "assertions": [
         {
           "id": "AS-BIZ-044-001",
@@ -11751,7 +11772,7 @@
       "evals": [
         "EV-PERF"
       ],
-      "specificationHash": "1423d63fd0c695190c4213607b3cd5b3d8683b011b69115dd2f67e6e379af371",
+      "specificationHash": "97fb76c981532a56b67eba8c3106fb26bd5ea172efad8f2597ab5b1cbc3f7c94",
       "assertions": [
         {
           "id": "AS-BIZ-045-001",
@@ -11802,7 +11823,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "b106d7c2a63d26d1398eb2fbbfb76a2e8158ae67aec61c3bbb44f1c2e3ecbb79",
+      "specificationHash": "990a57378c65d133a52a76e8ad578b89a7d57ae419e584a4e75df0a57da31ceb",
       "assertions": [
         {
           "id": "AS-BIZ-046-001",
@@ -11845,7 +11866,7 @@
       "evals": [
         "EV-LOCAL"
       ],
-      "specificationHash": "491bdb8f230fd05c33d336395796bbecb885bbedadc6f7fffeb79f678332d389",
+      "specificationHash": "0c22b3378c776b8d2a735a2e7defb7b0d1592c9282ee07209ffa0a6bbcc78ae8",
       "assertions": [
         {
           "id": "AS-BIZ-047-001",
@@ -11891,7 +11912,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "73e0f9437d3b182ebf794afd1220f52d14b24baf0b941b6dd62315d802881d77",
+      "specificationHash": "ae5f7e2e9e6b945404246771cfe37dbd3338d373072da473f3ccc29769eb02a3",
       "assertions": [
         {
           "id": "AS-BIZ-048-001",
@@ -11935,7 +11956,7 @@
         "EV-ARCH",
         "EV-JOBS"
       ],
-      "specificationHash": "9fc7fb6c69256180c1e51eca0394971e034b6797316bf97a906202730e1eb8cd",
+      "specificationHash": "0aecb7a53d14f4782770ceeac817f0c043ed0f846dbf3d66859de35e027c88cb",
       "assertions": [
         {
           "id": "AS-BIZ-049-001",
@@ -11980,7 +12001,7 @@
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "2f5b96b9da8a40f1f96bd223159440fad424374078639f4daaca947fa432862a",
+      "specificationHash": "9b8812459d502cb99d4f2d2948518fe1cfd1f0b23a4968af7f45b5f83a817bae",
       "assertions": [
         {
           "id": "AS-BIZ-050-001",
@@ -12013,7 +12034,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "ed30ede7e8d2cec575781e8be793980413cc17b2187f6dce815b4fea4deab22c",
+      "specificationHash": "6470fb5ac4e7998565c4efdfe43444b207d5c1484d16747dc2700a2edac7960e",
       "assertions": [
         {
           "id": "AS-BIZ-051-001",
@@ -12050,7 +12071,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "cd30f546ec2e6346429d187768ca742598f80680c261ba3680d78c72ffe02d82",
+      "specificationHash": "1010c68102bae5716af5de68d1a66675cbf32d1a11b722f3dfffdd14cfb5f0b9",
       "assertions": [
         {
           "id": "AS-BIZ-052-001",
@@ -12083,7 +12104,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "0838856eeb49bf0c9ffdd22c737c2a2754f68b17de4aea365dca27d7eb7c7a1b",
+      "specificationHash": "a8ea84755822c3d9ec2807283a9bf26317db9b1bb18392b2d25c0453932b6cf5",
       "assertions": [
         {
           "id": "AS-BIZ-053-001",
@@ -12122,7 +12143,7 @@
         "EV-E2E",
         "EV-UI"
       ],
-      "specificationHash": "bc5f45d0b398bb3506540b3d19ac73d95992ae40abd95a22f4b820416dbeb13d",
+      "specificationHash": "f393c58c19dc286b4f0d80c50b0d4039fa1edb170b9abe7c0d6e183c3f607ef1",
       "assertions": [
         {
           "id": "AS-BIZ-054-001",
@@ -12160,7 +12181,7 @@
         "EV-ARCH",
         "EV-JOBS"
       ],
-      "specificationHash": "c1f9ac411c1d2de9f00ee7084e1523ae7eef03239b6cb07801cf6e5c9532e600",
+      "specificationHash": "6287c141f31b9698f473e9ccbc9f44f81899460f7ddc0844f176cf5675932cf5",
       "assertions": [
         {
           "id": "AS-BIZ-055-001",
@@ -12197,7 +12218,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "51da675c43a7fb31f5c3b33cb81f6bc8b29246b2f6a9f3fcad91444f2e0c7b83",
+      "specificationHash": "6e590a57b59cff3e970f3b04b8a52f4caa153a97fb03717c962a3c3797427c8b",
       "assertions": [
         {
           "id": "AS-BIZ-056-001",
@@ -12235,7 +12256,7 @@
         "EV-ARCH",
         "EV-JOBS"
       ],
-      "specificationHash": "4b58e958095578868612491ab489527df08ad5e4dc5532f864afce6176777180",
+      "specificationHash": "89b999c83354896776cd988d4540fd43a769add938ca19dba768a31c9cdbb787",
       "assertions": [
         {
           "id": "AS-BIZ-057-001",
@@ -12272,7 +12293,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "cc63487d037979816c131172e74a853f135aa0677ec5b41dcb332781e943b0ac",
+      "specificationHash": "ebc86f0eeea2b1248217fa6a7ce11f92cd193b3bae58ad61e553a2cbf8bfffee",
       "assertions": [
         {
           "id": "AS-BIZ-058-001",
@@ -12305,7 +12326,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "a9c4e356bf98a01eb59cbf7de54a75047962cc2550d05f4e1c398e0a32e50356",
+      "specificationHash": "5e35c7e482c18a6de02cd860e62e99913be3d48116bd8d49eea26832b4463768",
       "assertions": [
         {
           "id": "AS-BIZ-059-001",
@@ -12346,7 +12367,7 @@
         "EV-E2E",
         "EV-UI"
       ],
-      "specificationHash": "2ee3255a713a7dc6ca42d0c5be11423538e53f5e18a9dfa6cb2647ccd1889558",
+      "specificationHash": "fbb1451a3b3d36fed820438b110a98a86775aaff3fd06d5ba518db45ee23b70c",
       "assertions": [
         {
           "id": "AS-SYS-001-001",
@@ -12382,7 +12403,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "7276e9493503f6e4eeeeb11eea986e4e16f8d6168cd6f56cfd1910203b9b91db",
+      "specificationHash": "58bd50f63b2ea8118ea1f30b94c5759f94780fe4e13442508701245adac88a13",
       "assertions": [
         {
           "id": "AS-SYS-002-001",
@@ -12419,7 +12440,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "2a47b34e134fa8c42061c1a0bc1b4ad882fde8373beb628074e8b6a1405e4cae",
+      "specificationHash": "4dcbce3948f3271aa7bf6a13c1e0a97902fc0e6165347639c01e97af22ff5792",
       "assertions": [
         {
           "id": "AS-SYS-003-001",
@@ -12457,7 +12478,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "6aad5153791200708fdca4244c91d0b2188d7f8553dc621b403d2689bfd956b2",
+      "specificationHash": "7639f3d233b07fe36a85314af3682797171784ebfd74cabcfbd12d6a52041447",
       "assertions": [
         {
           "id": "AS-SYS-004-001",
@@ -12494,7 +12515,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "b1c2b6e2e681f97e8e589b84c8b4723101566229100eb8cb87fcebed47ff7726",
+      "specificationHash": "0821927b820cc3b7872e9b3e6c975567211b7f6d0ee9461ff5c0d81831667a3d",
       "assertions": [
         {
           "id": "AS-SYS-005-001",
@@ -12534,7 +12555,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "4528fae09360538728c1187ac18930aebd5f538c1b49a548b509cd49d41706a4",
+      "specificationHash": "8d371b763365ce08aec429e2089460dec582fbb5dcf1c2757594296bbfd73b34",
       "assertions": [
         {
           "id": "AS-SYS-006-001",
@@ -12571,7 +12592,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "bdd1c3bba80fa350f5357696f71a28d3bead989fa5bdf18e4448b09a99ab0019",
+      "specificationHash": "6423982785c67d3a115b0087f7a7163061f6dbe0a4835e3d418cdf8bfbe0b75b",
       "assertions": [
         {
           "id": "AS-SYS-007-001",
@@ -12608,7 +12629,7 @@
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "7846502f0d1e167f814fa70504905268eeff0a7a2badf295be6901be1c0e7cea",
+      "specificationHash": "db001d03db4db1766bddd0001376d6a0fa694bc7a2ba2a0135bf53e50e792f6d",
       "assertions": [
         {
           "id": "AS-SYS-008-001",
@@ -12692,7 +12713,7 @@
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "b72a3fd77e9a5063ec9575192a9f05587c7e319a5c6a3531357aa44649fab961",
+      "specificationHash": "eadcf6cb4b8b5efb87d634e73ce81ab0cf8c9d69592e9485556a3740bf56bab4",
       "assertions": [
         {
           "id": "AS-SYS-009-001",
@@ -12729,7 +12750,7 @@
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "9b98e91f2757b0f8830269f284122019495e2f934f4a7f5999becb71deba4488",
+      "specificationHash": "a2389d88411d16bac014fc53b1d0c10c3d43776326e420b3272a8d0619833414",
       "assertions": [
         {
           "id": "AS-SYS-010-001",
@@ -12770,7 +12791,7 @@
       "evals": [
         "EV-DATA"
       ],
-      "specificationHash": "1eb65563a7e7b0d1f34bf9896a7ab152a7c66f9faa49109cd297f56cb65f86e6",
+      "specificationHash": "2aae9b51a80a0b8ee5aa1837c5c03cb937f9d5e4f2cced56f635617d8d18a6fc",
       "assertions": [
         {
           "id": "AS-SYS-011-001",
@@ -12809,7 +12830,7 @@
         "EV-DATA",
         "EV-JOBS"
       ],
-      "specificationHash": "db2d7335c76496acd61e6ea133c1f5de988863233f376d9520bd720c0aab999b",
+      "specificationHash": "6a14dda100e8b170e80ddf2a65ddaf2fb38e0500749d54bca2a8923710e781ea",
       "assertions": [
         {
           "id": "AS-SYS-012-001",
@@ -12849,7 +12870,7 @@
         "EV-DATA",
         "EV-JOBS"
       ],
-      "specificationHash": "e300e5fe6fd7960eeb9a34132f0385a781029c8d2181aa9f0db8f4053beb4e5e",
+      "specificationHash": "be0897a618a6bb8d4cd7adf6a80b9a3ff08ee7de607c67ec1a06846203d8af2a",
       "assertions": [
         {
           "id": "AS-SYS-013-001",
@@ -12889,7 +12910,7 @@
         "EV-DATA",
         "EV-JOBS"
       ],
-      "specificationHash": "742eaab744702e5ab7e6d8108419443296ff64cdf918cc7ab4b41109679a18f3",
+      "specificationHash": "2029989567216e88b9ac820a15ae4d94cbf3b5e2cf3e4e1a0fecd95367219738",
       "assertions": [
         {
           "id": "AS-SYS-014-001",
@@ -12929,7 +12950,7 @@
         "EV-DATA",
         "EV-E2E"
       ],
-      "specificationHash": "ffc3fb9e74c7c3a4e2a0d3933cc7649c5a377ea26f9a49bd0de0ef3f919bb04c",
+      "specificationHash": "c9c384cfbbf705cad4a9bc5d5b8e0af9c0cc4aab22e843df5d9200d00cd2715b",
       "assertions": [
         {
           "id": "AS-SYS-015-001",
@@ -12966,7 +12987,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "0c587460844c4caa1d55a3f5f5c3599d5d887b3de23b25b32c76bf70bf5d9826",
+      "specificationHash": "21e18da49622cf7f6d9f8b3d78c542a760cf5b9194721a6b1a22441af223dbef",
       "assertions": [
         {
           "id": "AS-SYS-016-001",
@@ -13003,7 +13024,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "10efdd3667e7f40104168cf806069c6092a3a44973123363d5562c590653a636",
+      "specificationHash": "0d1ecf7e202f293d40f99bf0ad7e1c21581e6b54bdb4366e43752880fcfb532e",
       "assertions": [
         {
           "id": "AS-SYS-017-001",
@@ -13040,7 +13061,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "17e25f10d2319027f837df8e7f025a8ec4554200641d2f7dc580282a9d86bb3e",
+      "specificationHash": "f22b603790d4018d4ee4797be237b2e84522738b61d84a9fb3e9ad5f649353d6",
       "assertions": [
         {
           "id": "AS-SYS-018-001",
@@ -13075,7 +13096,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "4d56d47d0c8b0a3c42f5c57dd8ee5f1e8fd265cf204966a631551b741e567565",
+      "specificationHash": "58a86b2f5ccbf2d22d788987a6191f0f7f339b301580d8d7d7daa6d7dd350fb0",
       "assertions": [
         {
           "id": "AS-SYS-019-001",
@@ -13111,7 +13132,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "2f5cbf89f0b9b1f753421afcbe3d9a6b6b9286bef62388e14bfcda266015651c",
+      "specificationHash": "e359729072ac18c1266cbb9307554505b2c794b6eeed85b06ec3b0ee0343b941",
       "assertions": [
         {
           "id": "AS-SYS-020-001",
@@ -13148,7 +13169,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "37de1877f3905a30f2d2d5652eddec93e0e6f3b482ace5606931403a1e179a6c",
+      "specificationHash": "1b12c93a2cea20428c2f2a8c583f9f49f0de8a1b37976a890cb01e2056a52de6",
       "assertions": [
         {
           "id": "AS-SYS-021-001",
@@ -13187,7 +13208,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "d02936b72059d48bb6207b173d236efaf52ec8eb8173c56ffbd3815b209281b3",
+      "specificationHash": "20e23dd105aa9ca17e87fc1b6a41b606d51b63bb642bccc9339789d5e0eaa290",
       "assertions": [
         {
           "id": "AS-SYS-022-001",
@@ -13222,7 +13243,7 @@
       "evals": [
         "EV-PERF"
       ],
-      "specificationHash": "1e9659845844830b6d7bbbb17403bd5293b72351c4e94cb4862acf0a10d18c70",
+      "specificationHash": "28c9e1ba6d98d3f0c23dc56004a7520c741076585ebf5fdac66bd3f641ffdf1d",
       "assertions": [
         {
           "id": "AS-SYS-023-001",
@@ -13253,7 +13274,7 @@
       "evals": [
         "EV-PERF"
       ],
-      "specificationHash": "f6911317d308a1ceba07267eae50e59f79bc805469d6f9c3c5e4e464fbad512d",
+      "specificationHash": "8974593065110acd68618a8e0997e8e8625e7aca86f966921746893f7546e0b0",
       "assertions": [
         {
           "id": "AS-SYS-024-001",
@@ -13287,7 +13308,7 @@
       "evals": [
         "EV-PERF"
       ],
-      "specificationHash": "3c2a664ab7d7193b738514256a90ad759ba8cec0f81ac9fd67d8ed033c016d91",
+      "specificationHash": "acf5f856608a3a89d9cdf644d72a4947e75527d1ace2f77e6d8e530d61ed9d64",
       "assertions": [
         {
           "id": "AS-SYS-025-001",
@@ -13318,7 +13339,7 @@
       "evals": [
         "EV-PERF"
       ],
-      "specificationHash": "b529f27e4eeaeca5e024e9d18d1a7498fd3503c0ed42f4bb1584ac0de593fecb",
+      "specificationHash": "1b9e591d45a02658985da425df5e3582cc270d31d42fb285a61ab90ca5dd7649",
       "assertions": [
         {
           "id": "AS-SYS-026-001",
@@ -13356,7 +13377,7 @@
       "evals": [
         "EV-PERF"
       ],
-      "specificationHash": "1cbc6b4dff6e222003b4581565622df6fef32affbb78963693584c55a8032df3",
+      "specificationHash": "06eecf04b9c9385fdc56a5c1f187e7ad32658e00a832163eacfc441735e46d32",
       "assertions": [
         {
           "id": "AS-SYS-027-001",
@@ -13394,7 +13415,7 @@
       "evals": [
         "EV-PERF"
       ],
-      "specificationHash": "b9c919aed723b8fc9c9899459196f1154de93164df906b82ee2c007fa255b6a7",
+      "specificationHash": "03b68d1346bab572ade8a50fc58d491a595d07e117ee503a050fb74182820f98",
       "assertions": [
         {
           "id": "AS-SYS-028-001",
@@ -13428,7 +13449,7 @@
       "evals": [
         "EV-PERF"
       ],
-      "specificationHash": "b7d9bc7da4f0e872560d2b053473829d061cdb41a7afc1b049bbdf91aedfe12e",
+      "specificationHash": "794b0d8f623d300a6cafd7a4654507c2402beddbe8eb7a168736c2343584fb23",
       "assertions": [
         {
           "id": "AS-SYS-029-001",
@@ -13461,7 +13482,7 @@
         "EV-ARCH",
         "EV-E2E"
       ],
-      "specificationHash": "a78dca5a4d853c1b9d634ad8de2b9e57b937a873087f6961c27e8349516a48bd",
+      "specificationHash": "ce5374d8810cdd638703f9717116bf18d2d94af90c9776a6da338f3251b3448e",
       "assertions": [
         {
           "id": "AS-SYS-030-001",
@@ -13499,7 +13520,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "4c01f6d13ca3c6bdf58188fe8388bb8d45a8f2c4e9ff262cb319fd7193d10193",
+      "specificationHash": "d88fec298691398d57c5772a6bb8026831c252f7c81267b02a1cc35c8137a8e7",
       "assertions": [
         {
           "id": "AS-SYS-031-001",
@@ -13541,7 +13562,7 @@
         "EV-E2E",
         "EV-UI"
       ],
-      "specificationHash": "c6b22d880efb4d2cf0d47bebd0708e3ae57e0f70208cd25efbd98db885a727ad",
+      "specificationHash": "3ab6ea1402abdc0b2eeb2b46dbeff3b79fdb0fdf967b6751fa542c13642e6ef9",
       "assertions": [
         {
           "id": "AS-SYS-032-001",
@@ -13581,7 +13602,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "f6c6e532d5dbc34596f960810a57f32bf9452da97060d77bee59168bad9e2de7",
+      "specificationHash": "46cd0089dc5344effe390cb68549d40266261f658b3a0035cbd83e0edb789fbb",
       "assertions": [
         {
           "id": "AS-SYS-033-001",
@@ -13668,7 +13689,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "c17bea05328e580d55ebfd6c61fe82a40711ffb4a13735b346b493558bfc66b3",
+      "specificationHash": "79baac5aafd9f3aa6deeec9d63c11311b2ede28bee32e7eb00e5ac0d15133bea",
       "assertions": [
         {
           "id": "AS-SYS-034-001",
@@ -13708,7 +13729,7 @@
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "6a698ad251b4390da7818f49817120aff61c85917cc3a21e1dde385193ee6d18",
+      "specificationHash": "00cd422ecb68594d7fda17f9f2a8792b393b8452955ac9ca61527b942aec1d32",
       "assertions": [
         {
           "id": "AS-SYS-035-001",
@@ -13757,7 +13778,7 @@
         "EV-JOBS",
         "EV-LOCAL"
       ],
-      "specificationHash": "9f3484f3981f90968ca881a1581511e82fb2ba6d710508ce1f828ff2f418dae9",
+      "specificationHash": "feafcb5a87cd0f50bd30dfbba999f0ef67422bfa22502df231288e520f7cde75",
       "assertions": [
         {
           "id": "AS-SYS-036-001",
@@ -13802,12 +13823,13 @@
         "AC-SYS-022-001",
         "AC-SYS-022-002",
         "AC-SYS-022-003",
-        "AC-SYS-022-004"
+        "AC-SYS-022-004",
+        "AC-SYS-022-005"
       ],
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "51550a54a50bc5a189172f7f6f0fcbe2a3194dc51ceb2e2bb29acdb747b8035c",
+      "specificationHash": "dac7e92ec450d64c224ccf1be8d7e01a21bc20908e321931493e1b796f19ef1b",
       "assertions": [
         {
           "id": "AS-SYS-037-001",
@@ -13840,7 +13862,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "e8506689222200f50d2e443576efd1fefbd5314f52b5eae281434c9ba6b3f876",
+      "specificationHash": "78b749b1c0f91e5956487fa6037da10327a4f761d38fa65c2e44dd49282cc8a3",
       "assertions": [
         {
           "id": "AS-SYS-038-001",
