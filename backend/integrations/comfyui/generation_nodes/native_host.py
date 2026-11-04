@@ -79,6 +79,17 @@ class ComfyNativeQueue:
             if status.get('completed') is not True or status.get('status_str') != 'success':
                 return Observation('failed', task_id, error_code='native_execution_incomplete')
             outputs = history.get('outputs', {}).get('save', {})
+            if kind == 'text':
+                records = outputs.get('creative_studio_text', [])
+                if not isinstance(records, list) or len(records) != 1 or not isinstance(records[0], dict):
+                    return Observation('failed', task_id, error_code='native_text_output_missing')
+                result = records[0]
+                metadata = {'usage': result}
+                count, maximum = result.get('outputTokens'), result.get('maxOutputTokens')
+                if (result.get('complete') is not True or type(count) is not int or type(maximum) is not int
+                        or count >= maximum or not isinstance(result.get('text'), str) or not result['text'].strip()):
+                    return Observation('failed', task_id, error_code='incomplete_text_response', metadata=metadata)
+                return Observation('succeeded', task_id, text=result['text'], metadata=metadata)
             files = outputs.get('images', []) or outputs.get('videos', [])
             if not files:
                 return Observation('failed', task_id, error_code='native_output_missing')

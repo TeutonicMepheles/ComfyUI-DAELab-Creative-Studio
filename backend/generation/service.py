@@ -15,6 +15,7 @@ from ..contracts.validation import clean_json, digest, identity
 from ..jobs.ledger import TERMINAL_STATES
 from ..providers.contracts import Observation, ProviderUnavailable, SubmissionRejected, SubmissionUncertain
 from ..providers.parameters import BASE_IMAGE_MODEL, IMAGE_MODEL, VIDEO_MODEL, REFERENCE_VIDEO_MODEL, QWEN_MODEL
+from ..providers.native_text import PE_MODEL, PE_PROVIDER
 from ..providers.comfy_video import SeedanceProvider, MinimaxProvider
 from ..providers.comfy_image import ComfyImageProvider
 from .media import freeze_reference
@@ -23,6 +24,7 @@ from .admission import ResourceAdmission, complete_blocking
 MODELS = {BASE_IMAGE_MODEL: 'local-qwen-image-base', IMAGE_MODEL: 'local-qwen-image', VIDEO_MODEL: 'local-h3', QWEN_MODEL: 'local-qwen-text', 'qwen': 'local-qwen-text'}
 MODELS.update({'gpt-6-luna': 'comfy-gpt-text'})
 MODELS[REFERENCE_VIDEO_MODEL] = 'local-h3-reference'
+MODELS[PE_MODEL] = PE_PROVIDER
 MODELS.update({model: provider.id for provider in (SeedanceProvider, MinimaxProvider, ComfyImageProvider) for model in provider.models})
 _BARRIERS = {'rejected', 'fenced'}
 _SCOPE_IDS = {'documentId', 'tableId', 'nodeId', 'recordId', 'fieldId', 'workflowSession', 'groupId'}
@@ -79,7 +81,7 @@ class GenerationService:
 
     def model_catalog(self):
         """Stable logical identities; installation state is returned by capabilities."""
-        labels = {
+        labels = {PE_MODEL: 'Qwen Image PE（本地）',
             QWEN_MODEL: 'Qwen3.5-9B（本地）',
             'gpt-6-luna': 'GPT-6 Luna（Comfy）',
         }
@@ -91,7 +93,9 @@ class GenerationService:
             text = provider_id.endswith('-text')
             family = 'optimization' if text else 'generation'
             kind = 'text' if text else 'image' if 'image' in provider_id else 'video'
-            if provider_id == 'local-qwen-text':
+            if provider_id == PE_PROVIDER:
+                provider_name = 'local'
+            elif provider_id == 'local-qwen-text':
                 provider_name = 'qwen'
             elif provider_id == 'deepseek-text':
                 provider_name = 'deepseek'

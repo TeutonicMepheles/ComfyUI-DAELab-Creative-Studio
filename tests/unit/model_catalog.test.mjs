@@ -30,7 +30,7 @@ test('retired DeepSeek is absent and cannot be probed or reintroduced',()=>{
 test('catalog filtering and invalidation keep logical identities while rebuilding readiness',async()=>{
  const catalog=createModelCatalog(),probes=[];
  await catalog.refresh(async model=>{probes.push(model.id);return {available:true};},{filters:{family:'optimization'}});
- assert.deepEqual(probes,['qwen3.5:9b-q4_K_M','gpt-6-luna']);
+ assert.deepEqual(probes,['qwen-image-2.1-pe','qwen3.5:9b-q4_K_M','gpt-6-luna']);
  assert.equal(catalog.snapshot({family:'optimization'}).every(model=>model.status==='available'),true);
  const invalidated=catalog.invalidate({family:'optimization'});
  assert.equal(invalidated.every(model=>model.status==='unverified'&&model.capability===null),true);

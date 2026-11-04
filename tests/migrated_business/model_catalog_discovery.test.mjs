@@ -50,3 +50,16 @@ test('retired DeepSeek cannot return through stale catalog definitions or key co
  resetModelCatalogForTests();const catalog=getModelCatalog();catalog.replaceDefinitions([{id:'deepseek-flash',provider:'deepseek',family:'optimization',kind:'text'},{id:'local-text',provider:'qwen',family:'optimization',kind:'text'}]);
  assert.equal(catalog.get('deepseek-flash'),null);assert.deepEqual(catalog.snapshot().map(model=>model.id),['local-text']);const api=createPromptOptimizationApi();assert.equal(api.setDeepSeekKey,undefined);assert.equal(api.hasDeepSeekKey,undefined);resetModelCatalogForTests();
 });
+
+test('reference PE probes its native capability without entering table optimization or cloud',async()=>{
+ resetModelCatalogForTests();const calls=[];
+ const release=bindBusinessService('generation',{async request(action){
+  calls.push(action);
+  if(action==='models')return Response.json({models:[{id:'qwen-image-2.1-pe',label:'PE',family:'optimization',kind:'text',provider:'local'}]});
+  assert.equal(new URL(action,'http://local.invalid/').searchParams.get('model'),'qwen-image-2.1-pe');
+  return Response.json({available:true,provider:'local',local:true,requiresReference:true,modes:['reverse']});
+ }});
+ const forbid=bindBusinessService('optimization',{async request(){throw Error('PE must not use the table optimization contract');}});
+ try{await refreshModelCatalog({force:true});const model=getModelCatalog().get('qwen-image-2.1-pe');assert.equal(model.status,'available');assert.equal(model.provider,'local');assert.equal(calls.length,2);}
+ finally{release();forbid();resetModelCatalogForTests();}
+});
