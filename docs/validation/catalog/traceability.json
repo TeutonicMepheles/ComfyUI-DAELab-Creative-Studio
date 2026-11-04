@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "a24926a2b24f6173d328fe5cb0c166c0d1b22d49016b7894a27716ced5eb71f1",
+  "specificationHash": "65f8ab3f71674f5c4520808594689fe16e7820113c50ef5b3be17c85e314b8a2",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -1026,6 +1026,7 @@
         "AC-BIZ-027-002",
         "AC-BIZ-028-001",
         "AC-BIZ-028-002",
+        "AC-BIZ-028-003",
         "AC-SYS-022-001",
         "AC-SYS-022-002",
         "AC-SYS-022-003",
@@ -5835,6 +5836,30 @@
       "owner": "backend/providers",
       "requirement": "真实本地执行需单独记录设备、模型与输出；mock 或 validate_prompt 不冒充执行成功。",
       "requirementHash": "3025eecb9a66cdb905c1e56113af6942f359e0854577965089ff91abd57aa11c",
+      "usecases": [
+        "UC-BIZ-009",
+        "UC-BIZ-014"
+      ],
+      "tests": [
+        "TC-BIZ-032",
+        "TC-BIZ-041",
+        "TC-BIZ-047",
+        "TC-SYS-036"
+      ],
+      "evals": [
+        "EV-JOBS",
+        "EV-LOCAL"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-BIZ-028-003",
+      "feature": "F-BIZ-028",
+      "task": "TASK-M4-BACKEND-PROVIDERS",
+      "owner": "backend/providers",
+      "requirement": "2026-11-04：新增低配档位作为独立模型条目——`MiniMax H3 FL 低配（本地）`、`MiniMax H3 Ref 低配（本地）`（后续高配按同规则以“高配（本地）”命名）。显示名只带档位与（本地），量化与步数放模型信息；来源胶囊仍为本地；低配强制不加 Turbo LoRA（旧设置里 `turbo:true` 也不生效）。旧 `MiniMax H3 FL（本地）` / `Ref（本地）` 为各自独立的旧 profile，绑定与参数按原配置保留，不按名称推断；默认仍是旧条目，已保存选择不迁移。界面时长仍为整数秒，帧数与 fps 仅在执行层换算与记录中出现。绑定缺失或哈希不符时该条目报“不可用＋原因”，不回退到旧 profile 或其它档位。",
+      "requirementHash": "ab793fae226b5fdcbf1727ab2bcb2f1c6ddb68b1b1cd46e4ded0bb6042d6ad6e",
       "usecases": [
         "UC-BIZ-009",
         "UC-BIZ-014"
@@ -11562,12 +11587,13 @@
         "AC-BIZ-025-003",
         "AC-BIZ-025-004",
         "AC-BIZ-028-001",
-        "AC-BIZ-028-002"
+        "AC-BIZ-028-002",
+        "AC-BIZ-028-003"
       ],
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "acfc91174a800c614a8c598a3329bf36335a8d048959a3f700d4e44d5838dc6f",
+      "specificationHash": "c48b6b87772d909e211915edb0892049a8e9a8a733fe5a18e77c45ba1ddf3498",
       "assertions": [
         {
           "id": "AS-BIZ-032-001",
@@ -11892,13 +11918,14 @@
         "AC-BIZ-027-002",
         "AC-BIZ-028-001",
         "AC-BIZ-028-002",
+        "AC-BIZ-028-003",
         "AC-BIZ-035-001",
         "AC-BIZ-035-002"
       ],
       "evals": [
         "EV-JOBS"
       ],
-      "specificationHash": "23843473f3793612d9e34360e97dafc761418db9db56a009c03fe3f189e86755",
+      "specificationHash": "5fe487ee327fce8231241762159075d3eb3d267c3a8e77687f6e94436586c344",
       "assertions": [
         {
           "id": "AS-BIZ-041-001",
@@ -12146,13 +12173,14 @@
         "AC-BIZ-027-002",
         "AC-BIZ-028-001",
         "AC-BIZ-028-002",
+        "AC-BIZ-028-003",
         "AC-BIZ-035-001",
         "AC-BIZ-035-002"
       ],
       "evals": [
         "EV-LOCAL"
       ],
-      "specificationHash": "0c22b3378c776b8d2a735a2e7defb7b0d1592c9282ee07209ffa0a6bbcc78ae8",
+      "specificationHash": "3787dfdcddb88e471eb38a80f1378cecceaf3bdc19177d2d4a356b9e1065d205",
       "assertions": [
         {
           "id": "AS-BIZ-047-001",
@@ -14059,6 +14087,7 @@
         "AC-BIZ-027-002",
         "AC-BIZ-028-001",
         "AC-BIZ-028-002",
+        "AC-BIZ-028-003",
         "AC-BIZ-033-001",
         "AC-BIZ-033-002",
         "AC-SYS-009-001",
@@ -14068,7 +14097,7 @@
         "EV-JOBS",
         "EV-LOCAL"
       ],
-      "specificationHash": "feafcb5a87cd0f50bd30dfbba999f0ef67422bfa22502df231288e520f7cde75",
+      "specificationHash": "cdadbd33380bdcaf29474e24ef3dd949e0b2bc430fb9e43c5e02d42f06f69c5d",
       "assertions": [
         {
           "id": "AS-SYS-036-001",

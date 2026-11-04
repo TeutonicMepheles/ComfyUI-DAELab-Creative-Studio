@@ -1455,6 +1455,7 @@
 
 - `AC-BIZ-028-001` 三模式分别接受 0/1/2 张图且不静默切模式。
 - `AC-BIZ-028-002` 真实本地执行需单独记录设备、模型与输出；mock 或 validate_prompt 不冒充执行成功。
+- `AC-BIZ-028-003` 2026-11-04：新增低配档位作为独立模型条目——`MiniMax H3 FL 低配（本地）`、`MiniMax H3 Ref 低配（本地）`（后续高配按同规则以“高配（本地）”命名）。显示名只带档位与（本地），量化与步数放模型信息；来源胶囊仍为本地；低配强制不加 Turbo LoRA（旧设置里 `turbo:true` 也不生效）。旧 `MiniMax H3 FL（本地）` / `Ref（本地）` 为各自独立的旧 profile，绑定与参数按原配置保留，不按名称推断；默认仍是旧条目，已保存选择不迁移。界面时长仍为整数秒，帧数与 fps 仅在执行层换算与记录中出现。绑定缺失或哈希不符时该条目报“不可用＋原因”，不回退到旧 profile 或其它档位。
 
 **关联：** [UC-BIZ-009](USE_CASES.md#uc-biz-009)、[UC-BIZ-014](USE_CASES.md#uc-biz-014)；[TC-BIZ-032](TEST_CASES.md#tc-biz-032)、[TC-BIZ-041](TEST_CASES.md#tc-biz-041)、[TC-BIZ-047](TEST_CASES.md#tc-biz-047)、[TC-SYS-036](TEST_CASES.md#tc-sys-036)
 
