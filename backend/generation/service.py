@@ -21,7 +21,7 @@ from .media import freeze_reference
 from .admission import ResourceAdmission, complete_blocking
 
 MODELS = {BASE_IMAGE_MODEL: 'local-qwen-image-base', IMAGE_MODEL: 'local-qwen-image', VIDEO_MODEL: 'local-h3', QWEN_MODEL: 'local-qwen-text', 'qwen': 'local-qwen-text'}
-MODELS.update({'gpt-6-luna': 'comfy-gpt-text', 'deepseek': 'deepseek-text', 'deepseek-flash': 'deepseek-text'})
+MODELS.update({'gpt-6-luna': 'comfy-gpt-text'})
 MODELS[REFERENCE_VIDEO_MODEL] = 'local-h3-reference'
 MODELS.update({model: provider.id for provider in (SeedanceProvider, MinimaxProvider, ComfyImageProvider) for model in provider.models})
 _BARRIERS = {'rejected', 'fenced'}
@@ -46,7 +46,7 @@ class GenerationService:
     def provider(self, provider_id):
         provider = self.providers.get(provider_id)
         if provider is None:
-            raise ProviderUnavailable('Provider is not assembled: ' + provider_id)
+            raise ProviderUnavailable('Provider is not assembled: ' + str(provider_id))
         return provider
 
     async def capabilities(self, model):
@@ -81,7 +81,6 @@ class GenerationService:
         """Stable logical identities; installation state is returned by capabilities."""
         labels = {
             QWEN_MODEL: 'Qwen3.5-9B（本地）',
-            'deepseek-flash': 'DeepSeek API',
             'gpt-6-luna': 'GPT-6 Luna（Comfy）',
         }
         models = []

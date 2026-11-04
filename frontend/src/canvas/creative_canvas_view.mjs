@@ -192,7 +192,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         }paintSelection();}
     function startCardDrag(c,e){
         if(e.button!==0||drag||!selected.has(c.node.id)||e.shiftKey||e.ctrlKey||e.metaKey)return false;
-        if(e.target.closest('button,input,textarea,select,a,label,video,audio,[contenteditable],[role=grid],[role=slider],td,th,.dae-creative-ports,.dae-column-slot,.dae-creative-width-handle,.video-task-prompt,.dae-edit-stage,.dae-edit-timeline,.gr-panel,.gr-local-menu,.gr-create-selection'))return false;
+        if(e.target.closest('button,input,textarea,select,a,label,video,audio,[contenteditable],[role=slider],td,th,.dae-creative-ports,.dae-column-slot,.dae-creative-width-handle,.video-task-prompt,.dae-edit-stage,.dae-edit-timeline,.gr-panel,.gr-local-menu,.gr-create-selection'))return false;
         const ids=expandGroupSelection(graph,selected,host.nodes(graph));
         const locked=host.nodes(graph).some(node=>node.type===GROUP_TYPE&&node.properties.locked&&(ids.has(node.id)||(node.properties.members||[]).some(id=>ids.has(id))));
         if(locked){message('所选节点包含锁定素材组，未移动');return false;}
@@ -223,6 +223,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         // Replacement is explicit; existing connections are never silently discarded.
         if(node.inputs[index].link!=null&&!window.confirm('该输入已有连接，替换为新连接？'))return;
         const link=host.connect(graph,source.node,output,node,index);
+        if(link&&source.node.type==='DAELAB.Table'&&['DAELAB.ImageGenerate','DAELAB.VideoGenerate','DAELAB.LibTV.VideoGenerate'].includes(node.type)){const layout=cardState(state,node);layout.attachedTableId=source.node.id;}
         message(link?'已连接，可在当前画布继续操作':'连接未建立，请检查接口类型');dirty();sync();return link;
     }
     function ports(c){
@@ -698,7 +699,14 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         if(pickerConnection&&!validConnection(pickerConnection))closePicker();
         const nodes=host.nodes(graph).filter(supportedNode),current=new Set(nodes);
         for(const [id,c] of cards)if(!current.has(c.node)){if(workspace?.c===c)closeWorkspace();c.cancelWidthResize?.();resizeObserver.unobserve(c.element);clearMaterialPorts(c);c.release?.();c.tasks?.destroy();c.element.remove();cards.delete(id);}
-        nodes.forEach((node,i)=>{const c=cards.get(node.id)||makeCard(node,i);attach(c);update(c);});empty.hidden=nodes.length>0;queueLayout();
+        nodes.forEach((node,i)=>{const c=cards.get(node.id)||makeCard(node,i);attach(c);update(c);});
+        const attached=new Map();
+        for(const c of cards.values())if(c.layout.attachedTableId!=null){
+            const source=cards.get(c.layout.attachedTableId),connected=(c.node.inputs||[]).some(input=>graph.links?.[input.link]?.origin_id===c.layout.attachedTableId);
+            if(!source||!connected){delete c.layout.attachedTableId;continue;}
+            const offset=attached.get(source.node.id)||0;c.layout.x=source.layout.x+offset;c.layout.y=source.layout.y+source.element.offsetHeight+28;attached.set(source.node.id,offset+c.layout.width+24);update(c);
+        }
+        empty.hidden=nodes.length>0;queueLayout();
     }
     function createNode(type,point){
         const node=host.createNode(type);if(!node){message('当前服务没有加载此节点，请检查扩展或重启服务');return;}
@@ -713,7 +721,10 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
             dirty();sync();select(node);closePicker();message('已添加，可直接编辑、连接并运行');return node;
         }finally{history.end();}
     }
-    function setWireSource(port){if(wireSource===port)return;if(wireSource)delete wireSource.dataset.wireSource;wireSource=port;if(port)port.dataset.wireSource='true';}
+    function setWireSource(port){if(wireSource===port)return;if(wireSource)delete wireSource.dataset.wireSource;wireSource=port;if(port)port.dataset.wireSource='true';
+        const source=port?.closest('.dae-creative-card'),owner=source&&[...cards.values()].find(card=>String(card.node.id)===source.dataset.nodeId),side=port?.dataset.side;
+        for(const card of cards.values()){if(!owner||card===owner){delete card.element.dataset.connectionCompatible;continue;}const compatible=side==='output'?targetChoices(owner.node,MATERIAL_SLOT,card.node).length>0:targetChoices(card.node,MATERIAL_SLOT,owner.node).length>0;card.element.dataset.connectionCompatible=String(compatible);}
+    }
     function closePicker(){setWireSource(null);picker?.remove();picker=null;pickerConnection=null;addPoint=null;wires.querySelector('[data-preview]')?.remove();}
     function validConnection(context){if(context.itemKey!==undefined)return visible&&graph===host.graph()&&graph.getNodeById(context.node.id)===context.node&&!context.node.mode&&!!adapterFor(context.node)?.materialItem;if(context.tableOutput)return graph===host.graph()&&graph.getNodeById(context.node.id)===context.node&&!context.node.mode&&!!adapterFor(context.node)?.outputMaterials;if(context.materialKey!==undefined)return graph===host.graph()&&graph.getNodeById(context.node.id)===context.node&&(adapterFor(context.node)?.materialSources?.(context.node)||[]).some(s=>s.key===context.materialKey&&s.element.isConnected);return graph===host.graph()&&graph.getNodeById(context.node.id)===context.node&&(context.index===MATERIAL_SLOT?(context.node.type!==UPLOAD_TYPE||uploadKind(context.node)===context.mediaKind):context.node[context.side==='output'?'outputs':'inputs']?.[context.index]===context.slot);}
     function previewConnection(context,point){
@@ -912,7 +923,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
                 }
                 const r=port.getBoundingClientRect();if(!r.width||!r.height||getComputedStyle(port).visibility==='hidden')continue;
                 if(port===direct)return port;
-                const center=portCenter(port),d=Math.hypot(x-center.x,y-center.y);
+                const center=portCenter(port),edgeY=context?Math.max(bounds.top,Math.min(y,bounds.bottom)):center.y,d=Math.hypot(x-center.x,y-edgeY);
                 if(d<distance){best=port;distance=d;}
             }
         }

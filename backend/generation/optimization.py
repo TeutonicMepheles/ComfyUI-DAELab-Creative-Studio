@@ -20,8 +20,8 @@ from ..providers.optimization_instructions import INSTRUCTIONS, INSTRUCTION_VERS
 
 ACTIVE = {'submitting', 'submitted', 'running', 'fetching', 'needs_recovery'}
 OPERATION = 'prompt_optimization'
-PROVIDERS = {'gpt-6-luna': 'comfy', QWEN_MODEL: 'qwen', 'deepseek-flash': 'deepseek'}
-PROVIDER_IDS = {'gpt-6-luna': 'comfy-gpt-text', QWEN_MODEL: 'local-qwen-text', 'deepseek-flash': 'deepseek-text'}
+PROVIDERS = {'gpt-6-luna': 'comfy', QWEN_MODEL: 'qwen'}
+PROVIDER_IDS = {'gpt-6-luna': 'comfy-gpt-text', QWEN_MODEL: 'local-qwen-text'}
 
 
 def now():
@@ -142,9 +142,6 @@ class OptimizationFacade:
     def _price(self, model=QWEN_MODEL):
         if model == 'gpt-6-luna':
             return dict(self.prices.get(model) or {'provider': 'comfy', 'currency': 'credits', 'model': model, 'input': 0, 'output': 0, 'version': 'unavailable', 'basis': '重新估算后才能提交'})
-        if model == 'deepseek-flash':
-            return {'provider': 'deepseek', 'currency': 'USD', 'model': model, 'input': .3, 'output': 1.2,
-                    'version': 'deepseek-flash-20261030', 'unit': '1M tokens', 'basis': 'Official peak uncached USD rates; provider billing is authoritative.'}
         return {'provider': 'qwen', 'currency': 'local', 'model': QWEN_MODEL, 'input': 0, 'output': 0,
                 'version': 'local-no-cloud-charge-v1', 'unit': 'local', 'basis': '本地执行；无云端积分扣费，不代表已完成生成。'}
 
@@ -158,10 +155,10 @@ class OptimizationFacade:
                 raise ProviderUnavailable('Official Comfy credit pricing is unavailable.')
             self.prices[model] = cap['price']
         return {'contractVersion': 1, 'available': bool(cap.get('available')),
-                'models': [{'id': model, 'label': 'GPT-6 Luna（ComfyUI 积分）' if model == 'gpt-6-luna' else 'DeepSeek API' if model == 'deepseek-flash' else 'Qwen3.5-9B',
+                'models': [{'id': model, 'label': 'GPT-6 Luna（ComfyUI 积分）' if model == 'gpt-6-luna' else 'Qwen3.5-9B',
                             'provider': PROVIDERS[model], 'available': bool(cap.get('available')), **MODEL_LIMITS[model]}],
                 'defaultModel': model, 'instructionVersion': INSTRUCTION_VERSION, 'instructionDigest': INSTRUCTION_DIGEST,
-                'inputVersion': INPUT_VERSION, 'price': self._price(model), 'deepseekKeyConfigured': cap.get('deepseekKeyConfigured', False),
+                'inputVersion': INPUT_VERSION, 'price': self._price(model),
                 'tokenAlgorithm': 'utf8-byte-upper-bound-v1'}
 
     async def estimate(self, payload):
@@ -405,8 +402,6 @@ class OptimizationFacade:
             selected = next((j for j in jobs if j['request_id'] == payload['requestId']), None)
             if selected and selected['provider'] == 'comfy-gpt-text':
                 self.service.provider('comfy-gpt-text').require_auth()
-            if selected and selected['provider'] == 'deepseek-text':
-                self.service.provider('deepseek-text').require_key()
             permit = self.permits.pop(payload['permitId'], None)
             if not permit or permit['expiresAt'] <= now() or any(permit[k] != payload[k] for k in ('batchId', 'requestId', 'leaseId')):
                 raise Conflict('提交许可已过期或已消费')

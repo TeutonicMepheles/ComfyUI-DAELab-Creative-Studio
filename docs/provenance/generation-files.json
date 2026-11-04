@@ -84,13 +84,12 @@
         "Explicit package boundary without import-time work.",
         "Accept an explicit qwen_binding; missing binding makes Qwen unavailable without startup work.",
         "Shared CoreServices resource admission (GPU 1/cloud 3/transcode 2), retained uncertain executions, and off-loop persistence where asynchronous; existing native queue and JobLedger remain authoritative.",
-        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs.",
-        "2026-11-04 task41: optional independent base Qwen image profile with native CLIPLoader and 25 steps, explicit image_base file bindings and the existing image controls; preserve legacy Turbo profile and frozen requests."
+        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs."
       ]
     },
     {
       "destination": "backend/generation/http.py",
-      "destinationSha256": "613caf2e9d2e08205a34db2ca37687102de657f74d1858bfdb56f7498512009d",
+      "destinationSha256": "311f4af173e333ed4bd07af4f13a8222338537ae9b47aa0b3f57b9cf993e0a36",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -110,7 +109,8 @@
         "Explicit 21-route binding and injected provider capabilities; preserve table/canvas optimization DTOs; no retired LibTV routes.",
         "Freeze optional polish sourceScope and return scoped ledger receipt/report without changing prior result DTO fields.",
         "Read-only status discovery requires exact document/table/node scope, rejects empty/unknown scopes and uses bounded scan pagination; no reconcile/create/provider query.",
-        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance."
+        "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
+        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately."
       ]
     },
     {
@@ -138,7 +138,7 @@
     },
     {
       "destination": "backend/generation/optimization.py",
-      "destinationSha256": "a5c048a71035ce22836e15cbd87c44f70c1378882eaa3bb9e654813be19585c2",
+      "destinationSha256": "b9c51a0ddc2c4dd361a6c97343e51d5405209e715d976070d7a59d4dca547780",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -162,12 +162,13 @@
       "changes": [
         "Reimplement mature UI DTOs over the unique JobLedger; immutable batch source and ephemeral quotes/leases/permits; restart paused; query/recovery never create.",
         "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
-        "Shared CoreServices resource admission (GPU 1/cloud 3/transcode 2), retained uncertain executions, and off-loop persistence where asynchronous; existing native queue and JobLedger remain authoritative."
+        "Shared CoreServices resource admission (GPU 1/cloud 3/transcode 2), retained uncertain executions, and off-loop persistence where asynchronous; existing native queue and JobLedger remain authoritative.",
+        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately."
       ]
     },
     {
       "destination": "backend/generation/service.py",
-      "destinationSha256": "6dcc5d8b30b6ebcb83c28a8dea33d7b8a61ea79568389bcfb2c8c9d800b697a9",
+      "destinationSha256": "b60d7cf7570cda3313099747b3f6d933ca3354524af26eebf1c8037f252c7f37",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -191,7 +192,7 @@
         "Fresh same-provider/task CAS cancellation confirmation preserves winning terminal facts; resource restoration consumes one consistent SQLite snapshot and preserves terminal-release ordering. Fixture restoration adapts only owned historical labels.",
         "2026-11-03 task2: stop current generation sequence explicitly; preserve owned native interruption facts and unknown remote outcomes without masking recovery with pause intent.",
         "2026-11-03 task4: idempotent unknown observation and explicit bounded recovery availability; preserve interruption facts, original request identity and the three-check budget.",
-        "2026-11-04 task41: optional independent base Qwen image profile with native CLIPLoader and 25 steps, explicit image_base file bindings and the existing image controls; preserve legacy Turbo profile and frozen requests."
+        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately."
       ]
     },
     {
@@ -298,7 +299,7 @@
     },
     {
       "destination": "backend/providers/contracts.py",
-      "destinationSha256": "dbc1a15748b06cfa9863786be045732215242ef347bc482e8c3ccaf0b1162ee1",
+      "destinationSha256": "239564f9921a018d96fa281fecadc0520d8fa772264ebb5cf407e07787990a05",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -328,13 +329,12 @@
       "changes": [
         "2026-11-02: Add one-image local Qwen reference conditioning through frozen media, explicit output-size scaling and encoder latent; keep text requests unchanged.",
         "Explicit inventory/queue/media ports; hash and actual host-resolution validation; deterministic original native identity; preserved UI capabilities; no host singleton import.",
-        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs.",
-        "2026-11-04 task41: optional independent base Qwen image profile with native CLIPLoader and 25 steps, explicit image_base file bindings and the existing image controls; preserve legacy Turbo profile and frozen requests."
+        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs."
       ]
     },
     {
       "destination": "backend/providers/optimization_contract.py",
-      "destinationSha256": "400e15c329539257b54ac117f5ecdbbcf6b9838fdc006b9075021ba9e99e52d4",
+      "destinationSha256": "a484b6828fcfd863c319226fd06732c6496fbccb1c318d629fc8cd6cf3fd25d0",
       "kind": "migrated-pure-rule",
       "source": "nodes/prompt_optimization/service.py",
       "sourceSha256": "71f434b4f883eaa6224b6345141d252959b5414800899c6dfdbe34c08de5aec9",
@@ -392,13 +392,12 @@
       "changes": [
         "2026-11-02: Add one-image local Qwen reference conditioning through frozen media, explicit output-size scaling and encoder latent; keep text requests unchanged.",
         "Extract only pure structured references, parameter validation and Qwen/H3 graph builders; accept explicit pinned model names; no discovery, fallback, native execution or old persistence.",
-        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs.",
-        "2026-11-04 task41: optional independent base Qwen image profile with native CLIPLoader and 25 steps, explicit image_base file bindings and the existing image controls; preserve legacy Turbo profile and frozen requests."
+        "2026-11-04 task11: Qwen automatic reference aspect and capability-owned visual ratio presets, resolved only for new frozen tasks; retain legacy explicit sizes and existing prepared graphs."
       ]
     },
     {
       "destination": "backend/providers/qwen.py",
-      "destinationSha256": "5a8a06f2115c3cb0409c5b093a164ace3c0a4d2e8dc78abb5ad4246cae47a5d8",
+      "destinationSha256": "6414728273206643359f2d5e0f0a1f275a3eba59a9cde561b3df0a80a0ff2f74",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -437,7 +436,7 @@
     },
     {
       "destination": "tests/generation/evidence/README.md",
-      "destinationSha256": "5dab70bee6f373d78b17431dd40ddb1b630b1f036bf88757c639896336ec09a9",
+      "destinationSha256": "9e4bfaa05aae7bee6c0ed76f7227e55e87a4986a874de6f60cf1e07019f4e624",
       "kind": "offline-test-evidence",
       "source": null,
       "sourceSha256": null,
@@ -650,7 +649,7 @@
     },
     {
       "destination": "tests/generation/test_integration.py",
-      "destinationSha256": "3019d11461eaa798ee7242fc57ab06f6e59e6170a122d4a6fbc3fad281245c2a",
+      "destinationSha256": "d09392f513437d17dd3d084620c7c61ef752ba13d017be9001bb02c84cc77b95",
       "kind": "offline-test-evidence",
       "source": null,
       "sourceSha256": null,
@@ -674,7 +673,7 @@
     },
     {
       "destination": "tests/generation/test_optimization.py",
-      "destinationSha256": "253f461f056973b502d7d62c78e71878d736a6d5cb676a0ea3d209d3d3a56460",
+      "destinationSha256": "1485e97a8ab6915fb6dbf2d5b7571d1827d46810ab2347e507ef8835b896c441",
       "kind": "offline-test-evidence",
       "source": null,
       "sourceSha256": null,
@@ -707,7 +706,7 @@
     },
     {
       "destination": "tests/generation/test_service.py",
-      "destinationSha256": "b63604b9adaa879a926c78c0c2dd893a6297e2e0b1d88506d4c9e4f0f6e1544c",
+      "destinationSha256": "e94e14edbdc9fabfd450ab10acb82ba8c3bff173ff72c88836d07fbe76d1d757",
       "kind": "offline-test-evidence",
       "source": null,
       "sourceSha256": null,
@@ -761,7 +760,7 @@
         "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
         "Explicit fake cloud resource shares core.resources. Test-only read-only restoration projection maps owned legacy fixture-no-gpu snapshots without mutating ledger facts or adding a production alias; foreign aliases remain rejected."
       ],
-      "destinationSha256": "92e8ff8a6dc3d84e1d486672bf55730841acbfab0a3ee0f706510fdd8a666df5"
+      "destinationSha256": "642c1482072647b2a6a7f6fc9a1cbb9c79c488974fc6c9a6b50cd3f7a8d688fa"
     },
     {
       "destination": "docs/validation/DETERMINISTIC_GENERATION_FIXTURE.md",

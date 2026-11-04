@@ -312,56 +312,45 @@ test('late discovery preserves existing serialized references and excludes mutab
  assert.deepEqual(node.properties[NAMESPACE].batches,[reference]);
 });
 
-test('DeepSeek provider defaults, key gating and queued model lock preserve non-secret state',async t=>{
- const {controller:c,service:s}=harness(t);let configured=false;
- s.api.hasDeepSeekKey=()=>configured;s.api.setDeepSeekKey=()=>configured=true;s.api.clearDeepSeekKey=()=>configured=false;
- await flush();assert.equal(c.setProvider('deepseek'),true);assert.equal(c.getState().model,'deepseek-flash');
- const estimate=s.api.estimate;s.api.estimate=async p=>({...await estimate(p),price:{currency:'USD'}});
- await c.estimate();assert.equal(c.getState().quote.price.currency,'USD');assert.equal(c.getState().permissions.canSubmit,false);
- await c.submit();assert.equal(s.count('submit'),0);assert.match(c.getState().error,/密钥/);assert.equal(c.getState().busy,false);
- c.setDeepSeekKey('page-secret-only');assert.equal(c.getState().permissions.canSubmit,true);
- assert.ok(!JSON.stringify(c.getState()).includes('page-secret-only'));
- await c.submit();assert.equal(s.count('submit'),1);assert.equal(c.getState().permissions.canChangeProvider,false);
- assert.equal(c.setProvider('comfy'),false);assert.equal(c.getState().model,'deepseek-flash');
- await c.stop();assert.equal(c.setProvider('comfy'),true);assert.equal(c.getState().quote,null);
- assert.equal(c.getState().provider,'comfy');assert.ok(!JSON.stringify(s.calls).includes('page-secret-only'));
+test('retired DeepSeek cannot be selected and exposes no key setter',async t=>{
+ const {controller:c}=harness(t);await flush();const before=c.getState().model;assert.equal(c.setProvider('deepseek'),false);assert.equal(c.getState().model,before);assert.equal(c.setDeepSeekKey,undefined);
 });
 
-test('recovery restores frozen DeepSeek provider, history currency and local query hints',async t=>{
- const {controller:c,service:s}=harness(t);s.api.hasDeepSeekKey=()=>true;
- const estimate=s.api.estimate;s.api.estimate=async p=>({...await estimate(p),price:{currency:p.model.startsWith('deepseek-')?'USD':'credits'}});
+test('recovery restores frozen Qwen provider, history currency and local query hints',async t=>{
+ const {controller:c,service:s}=harness(t);
+ const estimate=s.api.estimate;s.api.estimate=async p=>({...await estimate(p),price:{currency:p.model.startsWith('qwen3.5:')?'local':'credits'}});
  s.hooks.submit=undefined;
- await flush();c.setProvider('deepseek');await c.estimate();await c.submit();
- const stored=[...s.batches.values()][0];stored.price={currency:'USD',version:'historic-rate'};stored.currency='USD';stored.provider='deepseek';
+ await flush();c.setProvider('qwen');await c.estimate();await c.submit();
+ const stored=[...s.batches.values()][0];stored.price={currency:'local',version:'historic-rate'};stored.currency='local';stored.provider='qwen';
  stored.rows[0].status='succeeded';stored.rows[0].actualCredits=4;stored.rows[0].usageCostUSD=0.002;
  await c.recover(stored.batchId);
- assert.equal(c.getState().model,'deepseek-flash');assert.equal(c.getState().batchProvider,'deepseek');
- assert.equal(c.getState().batchPrice.version,'historic-rate');assert.equal(c.getState().batchCurrency,'USD');
- assert.equal(c.getState().rows[0].actualCredits,null);assert.equal(c.getState().rows[0].usageCostUSD,0.002);
+ assert.equal(c.getState().model,'qwen3.5:9b-q4_K_M');assert.equal(c.getState().batchProvider,'qwen');
+ assert.equal(c.getState().batchPrice.version,'historic-rate');assert.equal(c.getState().batchCurrency,'local');
+ assert.equal(c.getState().rows[0].actualCredits,4);assert.equal(c.getState().rows[0].usageCostUSD,null);
  assert.equal(c.setProvider('comfy'),true);await c.estimate();assert.equal(c.getState().quote.price.currency,'credits');
- assert.equal(c.getState().rows[0].currency,'USD','old result never relabeled with new quote currency');
+ assert.equal(c.getState().rows[0].currency,'local','old result never relabeled with new quote currency');
  await c.submit();assert.equal(c.getState().rows.length,1);assert.equal(c.getState().rows[0].currency,'credits');
  assert.equal(c.getState().batchProvider,'comfy');
 });
 
-test('DeepSeek tick routes advance/query/recover by frozen model',async t=>{
- const {controller:c,service:s}=harness(t);s.api.hasDeepSeekKey=()=>true;
- await flush();c.setProvider('deepseek');await c.estimate();await c.submit();
+test('Qwen tick routes advance/query/recover by frozen model',async t=>{
+ const {controller:c,service:s}=harness(t);
+ await flush();c.setProvider('qwen');await c.estimate();await c.submit();
  t.mock.timers.tick(1200);await flush();
- assert.equal(s.calls.find(x=>x.name==='advance').p.provider,'deepseek');
+ assert.equal(s.calls.find(x=>x.name==='advance').p.provider,'qwen');
  t.mock.timers.tick(1200);await flush();
- assert.ok(s.calls.filter(x=>['query','recover'].includes(x.name)).every(x=>x.p.provider==='deepseek'));
+ assert.ok(s.calls.filter(x=>['query','recover'].includes(x.name)).every(x=>x.p.provider==='qwen'));
 });
 
-for(const originalProvider of ['comfy','deepseek'])test(`cross-provider reusedExisting restores ${originalProvider} frozen routing and currency`,async t=>{
- const {controller:a,service:s,table,revisions}=harness(t);s.api.hasDeepSeekKey=()=>true;
- const estimate=s.api.estimate;s.api.estimate=async p=>({...await estimate(p),price:{currency:p.model.startsWith('deepseek-')?'USD':'credits'}});
+for(const originalProvider of ['comfy','qwen'])test(`cross-provider reusedExisting restores ${originalProvider} frozen routing and currency`,async t=>{
+ const {controller:a,service:s,table,revisions}=harness(t);
+ const estimate=s.api.estimate;s.api.estimate=async p=>({...await estimate(p),price:{currency:p.model.startsWith('qwen3.5:')?'local':'credits'}});
  await flush();a.setProvider(originalProvider);await a.estimate();await a.submit();
- const original=[...s.batches.values()][0];original.provider=originalProvider;original.currency=originalProvider==='deepseek'?'USD':'credits';original.price={currency:original.currency};
+ const original=[...s.batches.values()][0];original.provider=originalProvider;original.currency=originalProvider==='qwen'?'local':'credits';original.price={currency:original.currency};
  const sequence=revisions.current(table,'r','p').requestSeq;a.destroy();
  s.hooks.submit=async()=>({...original,reusedExisting:true});
  const b=createOptimizationController({getTable:()=>table,identity:{documentId:'doc',tableId:'table'},revisions,persist(){},change(){},api:s.api,scope:'cell',fieldId:'p',recordId:'r',instanceId:'same-view'});t.after(()=>b.destroy());
- await flush();b.setProvider(originalProvider==='deepseek'?'comfy':'deepseek');await b.estimate();await b.submit();
+ await flush();b.setProvider(originalProvider==='qwen'?'comfy':'qwen');await b.estimate();await b.submit();
  assert.equal(b.getState().provider,originalProvider);assert.equal(b.getState().model,original.rows[0].snapshot.model);
  assert.equal(b.getState().batchCurrency,original.currency);assert.equal(b.getState().rows[0].currency,original.currency);
  assert.equal(b.getState().quote,null);assert.equal(revisions.current(table,'r','p').requestSeq,sequence);
@@ -375,21 +364,21 @@ for(const originalProvider of ['comfy','deepseek'])test(`cross-provider reusedEx
 for(const oldFailure of [false,true])test(`provider switch abandons pending Comfy quote including late ${oldFailure?'failure':'success'}`,async t=>{
  const {controller:c,service:s}=harness(t),oldGate=deferred(),newGate=deferred();await flush();
  s.hooks.estimate=async p=>{await (p.model==='gpt-4.1-mini'?oldGate.promise:newGate.promise);if(p.model==='gpt-4.1-mini'&&oldFailure)throw Error('obsolete Comfy price failure');};
- const estimate=s.api.estimate;s.api.estimate=async p=>({...await estimate(p),price:{currency:p.model.startsWith('deepseek-')?'USD':'credits'}});
+ const estimate=s.api.estimate;s.api.estimate=async p=>({...await estimate(p),price:{currency:p.model.startsWith('qwen3.5:')?'local':'credits'}});
  const old=c.estimate();await flush();assert.equal(c.getState().busy,true);assert.equal(c.getState().permissions.canChangeProvider,true);
- assert.equal(c.setProvider('deepseek'),true);assert.equal(c.getState().busy,false);assert.equal(c.getState().permissions.canEstimate,true);
+ assert.equal(c.setProvider('qwen'),true);assert.equal(c.getState().busy,false);assert.equal(c.getState().permissions.canEstimate,true);
  const current=c.estimate();await flush();assert.equal(c.getState().busy,true);
  oldGate.resolve();await old;assert.equal(c.getState().busy,true,'Old finally must not release the new quote busy state');assert.equal(c.getState().quote.status,'estimating');assert.equal(c.getState().error,'');
- newGate.resolve();await current;assert.equal(c.getState().busy,false);assert.equal(c.getState().model,'deepseek-flash');assert.equal(c.getState().quote.price.currency,'USD');assert.equal(c.getState().error,'');
+ newGate.resolve();await current;assert.equal(c.getState().busy,false);assert.equal(c.getState().model,'qwen3.5:9b-q4_K_M');assert.equal(c.getState().quote.price.currency,'local');assert.equal(c.getState().error,'');
  assert.equal(s.count('submit'),0);assert.equal(s.count('advance'),0);
 });
 
-test('slow initial Comfy capabilities never blocks provider or overwrites current DeepSeek capabilities',async t=>{
- const s=fakeService(),old=deferred();s.api.capabilities=async p=>p.model==='gpt-4.1-mini'?old.promise:{available:true,models:[{id:'deepseek-flash',provider:'deepseek'}],deepseekKeyConfigured:true};
+test('slow initial Comfy capabilities never blocks provider or overwrites current Qwen capabilities',async t=>{
+ const s=fakeService(),old=deferred();s.api.capabilities=async p=>p.model==='gpt-4.1-mini'?old.promise:{available:true,models:[{id:'qwen3.5:9b-q4_K_M',provider:'qwen'}],};
  const {controller:c}=harness(t,{service:s});assert.equal(c.getState().busy,false);assert.equal(c.getState().permissions.canChangeProvider,true);
- c.setProvider('deepseek');await flush();assert.equal(c.getState().deepseekKeyConfigured,true);
- old.resolve({available:false,reason:'obsolete pricing unavailable',models:['gpt-4.1-mini'],deepseekKeyConfigured:false});await flush();
- assert.equal(c.getState().model,'deepseek-flash');assert.equal(c.getState().deepseekKeyConfigured,true);assert.equal(c.getState().models[0].id,'deepseek-flash');assert.equal(c.getState().error,'');
+ c.setProvider('qwen');await flush();assert.equal(c.getState().provider,'qwen');
+ old.resolve({available:false,reason:'obsolete pricing unavailable',models:['gpt-4.1-mini']});await flush();
+ assert.equal(c.getState().model,'qwen3.5:9b-q4_K_M');assert.equal(c.getState().provider,'qwen');assert.equal(c.getState().models[0].id,'qwen3.5:9b-q4_K_M');assert.equal(c.getState().error,'');
 });
 
 test('reopening the same controller observes Active mode without discarding its quote',async t=>{
@@ -397,7 +386,7 @@ test('reopening the same controller observes Active mode without discarding its 
  const table=makeTable(),identity={documentId:crypto.randomUUID(),tableId:crypto.randomUUID()},graph={},node={graph,mode:4,properties:{[NAMESPACE]:{tableId:identity.tableId,revisions:{},batches:[]}}};
  let container,cleanup,estimates=0;const estimated=deferred();
  const editor={nativeDocument:{},beginAsync:(target,requestId)=>({...target,requestId}),canAsync:()=>true,releaseAsync(){},root:new Element('div'),change(){},onTableChange(){return()=>{};}};
- const fetchApi=async(url)=>{const action=url.split('/').at(-1);if(action==='estimate'){estimates++;estimated.resolve();}return {ok:true,json:async()=>action==='query'?{batches:[]}:action==='capabilities'?{available:true,deepseekKeyConfigured:true,models:['gpt-4.1-mini','deepseek-flash']}:{status:'ready',quoteId:'retained',estimatedCredits:1,expiresAt:Date.now()+300000}};};
+ const fetchApi=async(url)=>{const action=url.split('/').at(-1);if(action==='estimate'){estimates++;estimated.resolve();}return {ok:true,json:async()=>action==='query'?{batches:[]}:action==='capabilities'?{available:true,models:['gpt-4.1-mini','qwen3.5:9b-q4_K_M']}:{status:'ready',quoteId:'retained',estimatedCredits:1,expiresAt:Date.now()+300000}};};
  const lifecycle=attachPromptOptimization({node,graph,editor,getTable:()=>table,identity,fetchApi});t.after(()=>{cleanup?.();lifecycle.destroy();doc.restore();});
  const target={scope:'cell',fieldId:'p',recordId:'r'},find=(root,test)=>test(root)?root:root.children.map(e=>find(e,test)).find(Boolean);
  editor.openPromptOptimization(target);container=doc.body;await estimated.promise;await flush();assert.equal(estimates,1);

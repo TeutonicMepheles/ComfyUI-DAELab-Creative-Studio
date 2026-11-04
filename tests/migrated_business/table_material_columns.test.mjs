@@ -68,7 +68,7 @@ test('new and inserted rows stay unchecked while saved selections and legacy def
  assert.equal(legacy.records[0].selected,true);
 });
 
-test('ordered mixed media grows rows and preserves trailing rows, other columns and undo',()=>{
+test('replacement group clears old trailing cells while preserving row identities, other columns and undo',()=>{
  const t=mediaTable(),[a,b]=t.fields,ids=t.records.map(r=>r.id);
  fillMaterialColumn(t,b.id,group(2));const other=clone(t.records[0].values[b.id]);
  const before=JSON.stringify(t),h=new SnapshotHistory();fillMaterialColumn(t,a.id,group(3));h.record(before,JSON.stringify(t));
@@ -76,7 +76,7 @@ test('ordered mixed media grows rows and preserves trailing rows, other columns 
  assert.deepEqual(t.records.map(r=>r.values[a.id][0].kind),['image','video','image']);
  assert.deepEqual(h.restore(JSON.stringify(t)),JSON.parse(before));
  const trailing=clone(t.records.slice(2));
- fillMaterialColumn(t,a.id,group(2));assert.equal(t.records.length,3);assert.deepEqual(t.records.slice(2),trailing);
+ fillMaterialColumn(t,a.id,group(2));assert.equal(t.records.length,3);assert.deepEqual(t.records.slice(2).map(row=>row.id),trailing.map(row=>row.id));assert.deepEqual(t.records[2].values[a.id],[]);assert.deepEqual(t.records[2].values[b.id],trailing[0].values[b.id]);
  assert.deepEqual(normalizeTable(JSON.stringify(t)),t);
 });
 test('invalid or missing sources do not partially overwrite cells',()=>{

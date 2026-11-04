@@ -130,10 +130,12 @@ export function bindMaterialThumbnail(item,media,index,{cell,remove,bindDrag}={}
     }
     function endDrag(){restore();}
     const key=e=>{if(remove&&(e.key==='Delete'||e.key==='Backspace')){e.preventDefault();e.stopPropagation();restore();remove();}};
-    if(remove)item.setAttribute('aria-keyshortcuts','Delete Backspace');
+    let removeButton=null;
+    if(remove){item.setAttribute('aria-keyshortcuts','Delete Backspace');removeButton=el('button','dae-table-material-remove','×');removeButton.type='button';removeButton.setAttribute('aria-label','删除这张素材');removeButton.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();});removeButton.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();restore(false);remove();});item.append(removeButton);}
+
     cell.addEventListener('dae-cell-selection-change',selectionChanged);selectionChanged();
     item.addEventListener('pointerleave',leave);item.addEventListener('click',select);item.addEventListener('keydown',key);
     item.addEventListener('pointerdown',rememberDragGrab);item.addEventListener('dragstart',startDrag);item.addEventListener('dragend',endDrag);
     media.addEventListener(video?'loadedmetadata':'load',mediaReady);if(video)media.addEventListener('resize',mediaReady);
-    return ()=>{deselect();cell.removeEventListener('dae-cell-selection-change',selectionChanged);media.removeEventListener('loadedmetadata',seek);media.removeEventListener(video?'loadedmetadata':'load',mediaReady);if(video)media.removeEventListener('resize',mediaReady);item.removeEventListener('pointerenter',show);item.removeEventListener('pointermove',show);item.removeEventListener('pointerleave',leave);item.removeEventListener('click',select);item.removeEventListener('keydown',key);item.removeEventListener('pointerdown',rememberDragGrab);item.removeEventListener('dragstart',startDrag);item.removeEventListener('dragend',endDrag);};
+    return ()=>{removeButton?.remove();deselect();cell.removeEventListener('dae-cell-selection-change',selectionChanged);media.removeEventListener('loadedmetadata',seek);media.removeEventListener(video?'loadedmetadata':'load',mediaReady);if(video)media.removeEventListener('resize',mediaReady);item.removeEventListener('pointerenter',show);item.removeEventListener('pointermove',show);item.removeEventListener('pointerleave',leave);item.removeEventListener('click',select);item.removeEventListener('keydown',key);item.removeEventListener('pointerdown',rememberDragGrab);item.removeEventListener('dragstart',startDrag);item.removeEventListener('dragend',endDrag);};
 }

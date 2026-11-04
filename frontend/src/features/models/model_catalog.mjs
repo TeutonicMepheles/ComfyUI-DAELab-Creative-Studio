@@ -22,7 +22,6 @@ export const GENERATION_MODEL_DEFINITIONS=Object.freeze([
 ]);
 
 export const OPTIMIZATION_MODEL_DEFINITIONS=Object.freeze([
-    {id:'deepseek-flash',label:'DeepSeek API',family:'optimization',kind:'text',provider:'deepseek'},
     {id:'qwen3.5:9b-q4_K_M',label:'Qwen3.5-9B（本地）',family:'optimization',kind:'text',provider:'qwen'},
     {id:'gpt-6-luna',label:'GPT-6 Luna（Comfy）',family:'optimization',kind:'text',provider:'comfy'},
 ]);
@@ -60,8 +59,7 @@ export function createModelCatalog({now=()=>Date.now(),log=()=>{}}={}){
             return setStatus(id,MODEL_STATUS.unavailable,{code});
         }
         const provider=result?.provider||entry.definition.provider;
-        const status=result.available===false?MODEL_STATUS.unavailable:
-            provider==='deepseek'&&result?.deepseekKeyConfigured===false?MODEL_STATUS.unverified:MODEL_STATUS.available;
+        const status=result.available===false?MODEL_STATUS.unavailable:MODEL_STATUS.available;
         return setStatus(id,status,{capability:result||null});
     }
     function check(id,probe,{force=false}={}){
@@ -97,6 +95,7 @@ export function createModelCatalog({now=()=>Date.now(),log=()=>{}}={}){
         if(!Array.isArray(definitions)||!definitions.length)throw new Error('模型目录不能为空');
         const next=new Map();
         for(const definition of definitions){
+            if(definition?.provider==='deepseek'||String(definition?.id||'').startsWith('deepseek'))continue;
             if(!definition||typeof definition.id!=='string'||!definition.id||next.has(definition.id)
                     ||!['generation','optimization'].includes(definition.family)
                     ||!['text','image','video'].includes(definition.kind)
