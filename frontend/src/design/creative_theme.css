@@ -105,3 +105,5 @@
 @media(prefers-reduced-motion:reduce) {
   :is(.dae-creative,.dae-ui){--dae-duration-fast:0ms}
 }
+/* Probe retry owns hidden; node button display rules must not reveal it. */
+:is(.dae-creative,.dae-ui) [data-model-retry][hidden]{display:none!important}

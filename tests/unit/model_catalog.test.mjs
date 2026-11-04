@@ -34,7 +34,7 @@ test('catalog filtering and invalidation keep logical identities while rebuildin
  assert.equal(catalog.snapshot({family:'optimization'}).every(model=>model.status==='available'),true);
  const invalidated=catalog.invalidate({family:'optimization'});
  assert.equal(invalidated.every(model=>model.status==='unverified'&&model.capability===null),true);
- assert.equal(catalog.snapshot({family:'generation'}).length,12);
+ assert.equal(catalog.snapshot({family:'generation'}).length,14);
 });
 test('backend-provided definitions replace hardcoded identities without carrying stale capability',()=>{
  const catalog=createModelCatalog();
@@ -56,4 +56,32 @@ test('non-capability probe results are rejected as unavailable and never become 
   assert.deepEqual([result.status,result.available,result.selectable],['unavailable',false,false]);
  }
  assert.ok(logs.every(item=>item.code==='invalid_model_capability'));
+});
+test('a probe that never answers stays unknown and retryable instead of unavailable', async () => {
+  const catalog = createModelCatalog();
+  const timeout = Object.assign(new Error('probe timed out'), {name: 'AbortError', code: 'probe_timeout'});
+  await catalog.refresh(async () => { throw timeout; }, {filters: {family: 'generation'}});
+  const entries = catalog.snapshot({family: 'generation'});
+  assert.equal(entries.every(entry => entry.status === 'unknown'), true);
+  assert.equal(entries.every(entry => entry.selectable === false), true);
+  await catalog.refresh(async () => { throw Object.assign(new Error('missing binding'),{code:'provider_unavailable'}); }, {filters: {family: 'generation'}, force: true});
+  assert.equal(catalog.snapshot({family: 'generation'}).every(entry => entry.status === 'unavailable'), true);
+});
+test('a timed-out probe is rechecked a bounded number of times and then stops', async () => {
+  const catalog = createModelCatalog({recheckDelays: [1, 1]});
+  let calls = 0;
+  const probe = async () => {
+    calls += 1;
+    throw Object.assign(new Error('probe timed out'), {name: 'AbortError',code:'probe_timeout'});
+  };
+  await catalog.refresh(probe, {filters: {family: 'generation'}});
+  const first = catalog.snapshot({family: 'generation'});
+  assert.equal(first.every(entry => entry.status === 'unknown'), true);
+  assert.equal(first.every(entry => entry.code === 'probe_timeout'), true);
+  const initial = calls;
+  await new Promise(resolve => setTimeout(resolve, 120));
+  assert.equal(calls > initial, true, 'a bounded recheck must run');
+  // Every model in the family gets at most 1 probe + 2 bounded rechecks.
+  assert.equal(calls <= initial * 3, true, 'rechecks must stop after the configured budget');
+  assert.equal(catalog.snapshot({family: 'generation'}).every(entry => entry.status === 'unknown'), true);
 });

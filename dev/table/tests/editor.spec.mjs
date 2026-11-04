@@ -95,8 +95,8 @@ test('capability states preserve configuration and late simulated completion can
  await a.getByRole('button',{name:'模拟生成首行',exact:true}).click();await expect.poll(async()=>JSON.stringify(await snapshot(a))).toContain('studioGenerationRefs');await a.getByRole('button',{name:'卸载',exact:true}).click();await a.getByRole('button',{name:'挂载',exact:true}).click();
  await expect.poll(async()=>await snapshot(b)).toEqual(before);
  await page.waitForTimeout(3300);const state=await snapshot(a),field=state.fields.find(f=>f.presentation==='generation');expect(state.records[0].values[field.id]).toEqual([]);
- await page.locator('#response').selectOption('error');await a.getByRole('button',{name:'生成设置',exact:true}).click();await expect(page.locator('.table-text-side:not([hidden])')).toContainText('模型不可用，请重新检测');await expect(page.locator('.table-text-side:not([hidden])')).not.toContainText('模拟服务错误');
- await page.getByRole('button',{name:'关闭侧栏',exact:true}).click();await page.locator('#response').selectOption('ready');await a.getByRole('button',{name:'生成设置',exact:true}).click();await page.getByRole('button',{name:'重新读取模型选项',exact:true}).click();await expect(page.locator('.table-text-side:not([hidden])')).not.toContainText('模型不可用');
+ await page.locator('#response').selectOption('error');await a.getByRole('button',{name:'生成设置',exact:true}).click();await expect(page.locator('.table-text-side:not([hidden])')).toContainText('检测结果未知，可重新检测');await expect(page.locator('.table-text-side:not([hidden])')).not.toContainText('模拟服务错误');
+ await page.getByRole('button',{name:'关闭侧栏',exact:true}).click();await page.locator('#response').selectOption('ready');await a.getByRole('button',{name:'生成设置',exact:true}).click();await page.getByRole('button',{name:'重新读取模型选项',exact:true}).click();await expect.poll(()=>page.locator('.table-text-side:not([hidden])').getByLabel('模型',{exact:true}).evaluate(select=>select.selectedOptions[0]?.getAttribute('data-model-status'))).toBe('available');await expect(page.locator('.table-text-side:not([hidden]) [data-model-retry]')).toBeHidden();
  expect((await snapshot(b)).fields).toEqual(before.fields);
 });
 test('empty table, narrow viewport, focus and internal overflow remain reachable',async({page})=>{
@@ -139,4 +139,30 @@ test('generation settings keep their click target when the prompt hint appears',
   await expect(page.getByRole('button',{name:'应用全部',exact:true})).toBeVisible();
   await page.keyboard.press('Escape');
  }
+});
+
+test('generation setting timeout preserves the catalog unknown explanation',async({page})=>{
+ let writes=0;page.on('request',request=>{if(request.method()==='POST')writes++;});
+ await page.evaluate(async()=>{
+  const {bindBusinessService}=await import('/web/contracts/business.js');
+  const {getModelCatalog}=await import('/web/features/models/model_catalog.mjs');
+  const original=window.setTimeout;window.setTimeout=(fn,ms,...args)=>original(fn,ms===120000?30:ms,...args);
+  bindBusinessService('generation',{request(action,{signal}){if(!action.startsWith('capabilities'))throw Error('Unexpected submission');return new Promise((_,reject)=>{if(signal.aborted)reject(new DOMException('timeout','AbortError'));else signal.addEventListener('abort',()=>reject(new DOMException('timeout','AbortError')),{once:true});});}});
+  getModelCatalog().invalidate({family:'generation'});
+  const {createMaterialTable}=await import('/web/application/table_material_columns.mjs');
+  const {addGenerationColumn}=await import('/web/features/generation/table_generation_model.mjs');
+  const {createTableEditor}=await import('/web/application/table_editor.mjs');
+  const {attachGenerationColumns}=await import('/web/features/generation/table_generation_panel.mjs');
+  let table=createMaterialTable();delete table.meta.material_columns;addGenerationColumn(table,{name:'Timeout fixture'});
+  const editor=createTableEditor({getTable:()=>table,setTable:next=>{table=next;},notify(){},upload:async()=>{throw Error('No upload');}});
+  const ui=attachGenerationColumns({editor,getTable:()=>table,notify(){},editPromptTemplate(){}});
+  editor.render();editor.root.id='timeout-fixture';document.body.append(editor.root);ui.refresh();
+  window.timeoutFixture={before:JSON.stringify(table.fields),fields:()=>JSON.stringify(table.fields),destroy(){ui.destroy();editor.destroy();}};
+ });
+ await page.locator('#timeout-fixture .generation-prompt-setting[data-setting=mode]').first().click();
+ const pop=page.locator('.generation-settings-popover');
+ await expect(pop.locator('[data-model-retry]')).toBeVisible();
+ const text=await pop.innerText();expect(text).toContain('结果未知');expect(text).toContain('检测超时');
+ expect(text).not.toContain('无法读取当前模型的生成方式');
+ expect(await page.evaluate(()=>timeoutFixture.fields())).toBe(await page.evaluate(()=>timeoutFixture.before));expect(writes).toBe(0);await page.evaluate(()=>timeoutFixture.destroy());
 });

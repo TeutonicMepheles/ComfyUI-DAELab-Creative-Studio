@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "3daa3ee7d1bceb11b0a1d4979c7d43695caab8428187218b1b65bee00c8c36c4",
+  "sourceFingerprint": "a42a5c8655341791c48f231798f57456eb942afe3287dc3dbc916a85dae4eb70",
   "files": [
     {
       "path": "AGENTS.md",
@@ -200,7 +200,7 @@
     },
     {
       "path": "design/creative_theme.css",
-      "sha256": "48319649b032d5246757596a354a5c4181a5dc219dcc5ce21237841aacf0cbc6"
+      "sha256": "a85a8c87ca25d8e12e615a43e1a68213453ce120ede09730e36904d8f98fd18e"
     },
     {
       "path": "design/vendor/AGENTS.md",
@@ -552,7 +552,7 @@
     },
     {
       "path": "features/generation/table_generation_api.mjs",
-      "sha256": "8c7066d90b47e0049b4874907a419dd01e0c2020250f0b9dbcf47a3731fefd57"
+      "sha256": "96a196bb6839811e30fe06b8754552fa29e90ecc504b4575ae7d41b73a54e321"
     },
     {
       "path": "features/generation/table_generation_history.mjs",
@@ -560,11 +560,11 @@
     },
     {
       "path": "features/generation/table_generation_model.mjs",
-      "sha256": "eaa59a4029e804b253a1201ec2e5b326552e691481cfee11bf6a5edbba685c03"
+      "sha256": "69700bb744ca2a5632c23d184025840882ca077f7668e61978e9a67df718b0e6"
     },
     {
       "path": "features/generation/table_generation_panel.mjs",
-      "sha256": "e18bd213befca861697a6de355c76b3f8ff42964a891c9f57d1d18efd37cec56"
+      "sha256": "32ac3a22bb170b64a1549876b2122739402658aad920c1cf2250d5429e91b5f9"
     },
     {
       "path": "features/generation/table_generation_tasks.mjs",
@@ -628,11 +628,11 @@
     },
     {
       "path": "features/models/model_catalog.mjs",
-      "sha256": "feedf99e66144893a7ff05c39a5b83c412ba76eee008f4d290a9e857cdc166d0"
+      "sha256": "b4999bf39f448c7da575589fae6d46b785cf4280c7c225b13656207b5d9ad1ff"
     },
     {
       "path": "features/models/model_catalog_ui.mjs",
-      "sha256": "cbdfc09c6a16398e88e32aad3a460456b12b3e04191466cff5f8576aff41cae9"
+      "sha256": "da7e3a888a08cc2df5e482679086ac074471ebc54d69ee1bda3314f5bf00e3e6"
     },
     {
       "path": "features/models/source_badge.js",
@@ -652,7 +652,7 @@
     },
     {
       "path": "features/prompt/llm_io_panel.mjs",
-      "sha256": "280c207b882ea77d7d7c984e0a46d247da08a645bae2e73a61b1f88cc8f2c9d6"
+      "sha256": "441c56033b4e93e673d4c1d5ec4433c413e1cbfb247ce0447120d198fab049a6"
     },
     {
       "path": "features/prompt/llm_local_provider.mjs",
@@ -1180,7 +1180,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "2aa195c1c69367eac7ba963cc5d55f9060f9f6e62e6af9cea4e0cdc3e0846510"
+      "sha256": "74e21af43715fb18521706685db152282e67b78aab660b1234cb92dbaf302606"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

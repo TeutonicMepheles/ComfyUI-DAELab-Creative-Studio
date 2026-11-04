@@ -1,12 +1,57 @@
 """Local native provider. It builds a prompt; the injected host owns execution."""
 import hashlib
+import threading
 import asyncio
 from pathlib import Path
 import uuid
 
 from ..contracts.errors import InvalidInput
 from .contracts import Observation, ProviderUnavailable, SubmissionRejected, SubmissionUncertain
-from .parameters import BASE_IMAGE_MODEL, IMAGE_MODEL, VIDEO_MODEL, REFERENCE_VIDEO_MODEL, IMAGE_FILES, VIDEO_FILES, compile_segments, settings_for, image_graph, video_graph
+from .parameters import BASE_IMAGE_MODEL, BASE_REFERENCE_VIDEO_MODEL, BASE_VIDEO_MODEL, IMAGE_MODEL, VIDEO_MODEL, REFERENCE_VIDEO_MODEL, IMAGE_FILES, VIDEO_FILES, compile_segments, settings_for, image_graph, video_graph
+
+
+_VERIFIED_LOCK = threading.Lock()
+_VERIFIED_OK = set()
+_VERIFY_INFLIGHT = {}
+
+
+def _verify_shared(path, stamp, expected_sha256, name):
+    """Hash each pinned file once per identity, across providers and threads.
+
+    Only completed successes are shared. A failure is never cached as success, and
+    any size/mtime/sha256 change yields a new stamp that must be re-verified.
+    """
+    while True:
+        owner = False
+        with _VERIFIED_LOCK:
+            if stamp in _VERIFIED_OK:
+                return
+            event = _VERIFY_INFLIGHT.get(stamp)
+            if event is None:
+                event = threading.Event()
+                _VERIFY_INFLIGHT[stamp] = event
+                owner = True
+        if not owner:
+            event.wait()
+            with _VERIFIED_LOCK:
+                if stamp in _VERIFIED_OK:
+                    return
+            raise ProviderUnavailable('Local model verification failed earlier in this process: ' + name)
+        try:
+            digest = hashlib.sha256()
+            with path.open('rb') as stream:
+                for block in iter(lambda: stream.read(1024 * 1024), b''):
+                    digest.update(block)
+            after = path.stat()
+            if digest.hexdigest() != expected_sha256 or (stamp[1], stamp[2]) != (after.st_size, after.st_mtime_ns):
+                raise ProviderUnavailable('Local model hash differs from the fixed stack: ' + name)
+            with _VERIFIED_LOCK:
+                _VERIFIED_OK.add(stamp)
+            return
+        finally:
+            with _VERIFIED_LOCK:
+                _VERIFY_INFLIGHT.pop(stamp, None)
+            event.set()
 
 
 class ModelInventory:
@@ -45,13 +90,7 @@ class ModelInventory:
             stamp = (str(path.resolve()), stat.st_size, stat.st_mtime_ns, expected['sha256'])
             if self._verified.get(key) == stamp:
                 continue
-            h = hashlib.sha256()
-            with path.open('rb') as stream:
-                for block in iter(lambda: stream.read(1024 * 1024), b''):
-                    h.update(block)
-            after = path.stat()
-            if h.hexdigest() != expected['sha256'] or (stat.st_size, stat.st_mtime_ns) != (after.st_size, after.st_mtime_ns):
-                raise ProviderUnavailable('Local model hash differs from the fixed stack: ' + expected['name'])
+            _verify_shared(path, stamp, expected['sha256'], expected['name'])
             self._verified[key] = stamp
 
 
@@ -61,13 +100,16 @@ class NativeProvider:
     supports_progress = True
     resource = 'native'
 
-    def __init__(self, kind, *, inventory, queue, media_input, reference=False, image_dimensions=None, image_profile="turbo"):
+    def __init__(self, kind, *, inventory, queue, media_input, reference=False, image_dimensions=None, image_profile="turbo", video_profile="turbo"):
         if kind not in ('image', 'video'):
             raise InvalidInput('Unknown native output kind.')
         self.kind, self.inventory, self.queue, self.media_input = kind, inventory, queue, media_input
         if image_profile not in ("turbo", "base"):
             raise InvalidInput("Unknown image profile.")
         self.image_profile = image_profile
+        if video_profile not in ("turbo", "base"):
+            raise InvalidInput("Unknown video profile.")
+        self.video_profile = video_profile
         self.image_dimensions = image_dimensions
         self.id = 'local-qwen-image' if kind == 'image' else 'local-h3'
         self.model = IMAGE_MODEL if kind == 'image' else VIDEO_MODEL
@@ -78,6 +120,9 @@ class NativeProvider:
             if kind != 'video':
                 raise InvalidInput('Reference conditioning requires video output.')
             self.id, self.model = 'local-h3-reference', REFERENCE_VIDEO_MODEL
+
+        if kind == 'video' and video_profile == 'base':
+            self.id, self.model = ('local-h3-reference-base', BASE_REFERENCE_VIDEO_MODEL) if reference else ('local-h3-base', BASE_VIDEO_MODEL)
 
     async def capabilities(self, model):
         if model != self.model:
@@ -133,6 +178,8 @@ class NativeProvider:
         values = settings_for(self.kind, 'text2video' if self.reference else config.get('mode'),
                               {'turbo': False, **config.get('settings', {})} if self.reference else config.get('settings', {}),
                               [] if self.reference else media, reference_size=reference_size)
+        if self.kind == 'video' and self.video_profile == 'base':
+            values['turbo'] = False
         keys = set(IMAGE_FILES if self.kind == 'image' else VIDEO_FILES)
         if self.kind == 'image' and self.image_profile == 'base':
             keys.discard('mmproj')

@@ -21,13 +21,20 @@ def assemble_generation(core, *, native_queue=None, model_bindings=None, node_ty
             provider = NativeTextProvider(inventory=ModelInventory(model_bindings['text_pe'], node_types, resolve_model),
                                           queue=native_queue, media_input=lambda item: stage_native_input(core.assets, item))
             providers[provider.id] = provider
-        for binding_kind in ('image', 'image_base', 'video', 'video_reference'):
-            if binding_kind == 'image_base' and binding_kind not in (model_bindings or {}):
+        profiles = {
+            'image': ('image', False, 'turbo', 'turbo'),
+            'image_base': ('image', False, 'base', 'turbo'),
+            'video': ('video', False, 'turbo', 'turbo'),
+            'video_reference': ('video', True, 'turbo', 'turbo'),
+            'video_base': ('video', False, 'turbo', 'base'),
+            'video_reference_base': ('video', True, 'turbo', 'base'),
+        }
+        for binding_kind, (kind, reference, image_profile, video_profile) in profiles.items():
+            if binding_kind.endswith('_base') and binding_kind not in (model_bindings or {}):
                 continue
-            kind = 'image' if binding_kind == 'image_base' else 'video' if binding_kind == 'video_reference' else binding_kind
             inventory = ModelInventory((model_bindings or {}).get(binding_kind, {}), node_types, resolve_model)
             provider = NativeProvider(kind, inventory=inventory, queue=native_queue,
-                                      media_input=lambda item: stage_native_input(core.assets, item), reference=binding_kind == 'video_reference',
-                                      image_dimensions=lambda item: frozen_image_dimensions(core.assets, item), image_profile='base' if binding_kind == 'image_base' else 'turbo')
+                                      media_input=lambda item: stage_native_input(core.assets, item), reference=reference,
+                                      image_dimensions=lambda item: frozen_image_dimensions(core.assets, item), image_profile=image_profile, video_profile=video_profile)
             providers[provider.id] = provider
     return GenerationService(core.jobs, core.assets, providers=providers, admission=admission, resources=core.resources)

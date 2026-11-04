@@ -104,5 +104,33 @@ class LocalGenerationConfigurationTests(unittest.TestCase):
             asyncio.run(captured['release_native_models']())
         self.assertEqual(events, ['unload', 'cache'])
 
+    def test_low_tier_video_families_are_accepted_by_the_host_configuration(self):
+        config = copy.deepcopy(self.config)
+        binding = {'diffusion_models': {'name': 'fl.safetensors', 'path': str(self.root / 'fl.safetensors'), 'sha256': 'd' * 64},
+                   'text_encoders': {'name': 'te.safetensors', 'path': str(self.root / 'te.safetensors'), 'sha256': 'e' * 64},
+                   'video_vae': {'name': 'vv.safetensors', 'path': str(self.root / 'vv.safetensors'), 'sha256': 'f' * 64},
+                   'audio_vae': {'name': 'av.safetensors', 'path': str(self.root / 'av.safetensors'), 'sha256': '1' * 64}}
+        reference = copy.deepcopy(binding)
+        reference['diffusion_models'] = {'name': 'ref.safetensors', 'path': str(self.root / 'ref.safetensors'), 'sha256': '2' * 64}
+        config['modelBindings']['video_base'] = binding
+        config['modelBindings']['video_reference_base'] = reference
+        self.save(config)
+        parsed = read_configuration(self.user)
+        self.assertEqual(set(parsed['modelBindings']), {'image', 'video_base', 'video_reference_base'})
+        self.assertEqual(set(parsed['modelBindings']['video_base']), {'diffusion_models', 'text_encoders', 'video_vae', 'audio_vae'})
+        self.assertEqual(set(parsed['modelBindings']['video_reference_base']), {'diffusion_models', 'text_encoders', 'video_vae', 'audio_vae'})
+        self.assertEqual(parsed['modelBindings']['video_base']['diffusion_models']['name'], 'fl.safetensors')
+
+    def test_low_tier_video_families_reject_unknown_categories_or_extra_families(self):
+        config = copy.deepcopy(self.config)
+        config['modelBindings']['video_base'] = {'diffusion_models': {'name': 'fl.safetensors', 'path': str(self.root / 'fl.safetensors'), 'sha256': 'd' * 64},
+                                                 'loras': {'name': 'turbo.safetensors', 'path': str(self.root / 'turbo.safetensors'), 'sha256': '3' * 64}}
+        self.save(config)
+        with self.assertRaises(ValueError):
+            read_configuration(self.user)
+        config['modelBindings'] = {'video_base_extra': {}}
+        self.save(config)
+        with self.assertRaises(ValueError):
+            read_configuration(self.user)
 if __name__ == '__main__':
     unittest.main()
