@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "12a4e26ec5a3f925620e4824ab6dba760aaffbb91d4a88ec8c905380869d5464",
+  "sourceFingerprint": "b645c90f7a4ee766fc952f5e590b23acf39f1466053b59c3d06c46f7e95d4f2f",
   "files": [
     {
       "path": "AGENTS.md",
@@ -1008,7 +1008,7 @@
     },
     {
       "path": "integrations/comfyui/business/README.md",
-      "sha256": "05aa59f97a64a452600ddac2502479719952809c734f76339a2167cc3df74743"
+      "sha256": "a524e197731daaa0cce4205f3c9a04f81fcf633e1dccfb15fb3058e0f4d65a3b"
     },
     {
       "path": "integrations/comfyui/business/app_mode_bypass.js",
@@ -1184,7 +1184,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "667ecefc0e3242acece8975ec9cf347554cbb87e34ad7a5e929dbc5dc66868f5"
+      "sha256": "7c4e3fd4be9182053d1c8c23dec37a9519dc59b6cfc0b5c3668881528961a603"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
