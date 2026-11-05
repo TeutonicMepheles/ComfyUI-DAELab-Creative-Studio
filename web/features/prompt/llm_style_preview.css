@@ -60,7 +60,8 @@
 
 .dae-ui.llm-style-B .llm-style-modes{height:40px;border:1px solid var(--dae-border-control);border-radius:46px;background:transparent;padding:3px;gap:4px}
 .dae-ui.llm-style-B .llm-style-modes button{height:32px!important;min-height:32px!important;border:0!important;background:transparent!important;font-weight:500!important;padding:0 8px!important}
-.dae-ui.llm-style-B .llm-style-modes button[aria-pressed=true]{background:var(--dae-accent)!important;color:var(--dae-text-on-accent)!important}
+.dae-creative .dae-ui.llm-style-B .llm-style-modes button[data-creative-button][aria-pressed],.dae-ui.llm-style-B .llm-style-modes button[aria-pressed]{border:1px solid var(--dae-border-control)!important;background:transparent!important;color:var(--dae-text-muted)!important;box-shadow:none!important;transition:none}
+.dae-creative .dae-ui.llm-style-B .llm-style-modes button[data-creative-button][aria-pressed=true],.dae-ui.llm-style-B .llm-style-modes button[aria-pressed=true]{border-color:var(--dae-accent)!important;background:var(--dae-surface-high)!important;color:var(--dae-text)!important}
 .dae-ui.llm-style-B .llm-style-section>.llm-style-label{font-weight:500;line-height:23px}
 .dae-ui.llm-style-B .llm-style-instruction textarea{height:111px}
 .dae-ui.llm-style-B textarea{font-size:14px;line-height:23px}

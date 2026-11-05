@@ -11,7 +11,7 @@
 .dae-video-tasks :focus-visible{outline:2px solid var(--dae-focus,#b8c4ff);outline-offset:2px}
 .dae-video-tasks .dae-table-icon{display:block;width:20px;height:20px;flex:none;background:currentColor;mask:var(--table-icon) center/contain no-repeat}
 .video-task-heading{display:flex;align-items:center;gap:12px;min-height:36px}
-.dae-ui.dae-video-tasks button.video-task-import{display:grid;place-items:center;flex:none;width:24px;height:24px;min-height:24px;margin-left:auto;padding:2px!important;color:var(--dae-text-muted,#aaa)!important}
+.dae-ui.dae-video-tasks button.video-task-import{display:grid;place-items:center;flex:none;width:24px;height:24px;min-height:24px;margin-left:0;padding:2px!important;color:var(--dae-text-muted,#aaa)!important}
 .video-task-types{display:flex;align-items:center;gap:4px}
 .dae-ui.dae-video-tasks button.video-task-type{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:6px 10px;border-radius:10px!important;color:var(--dae-text-muted,#aaa)!important;font-size:14px!important;font-weight:500}
 .dae-ui.dae-video-tasks button.video-task-type[aria-pressed=true]{background:var(--dae-surface-high,#383838)!important;color:var(--dae-text,#eee)!important}
