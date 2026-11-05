@@ -6,7 +6,7 @@ const el=(tag,cls,text)=>{const node=document.createElement(tag);if(cls)node.cla
 export function mountAssetFolders({drawer,header,tools,grid,search,onNavigate,notice}){
  let alive=true,active=false,folders=[],current='root',selected=null,draft=null,sequence=0;
  const expanded=new Set(['root']),layout=el('div','library-layout'),sidebar=el('nav','library-sidebar'),main=el('div','library-main'),path=el('nav','library-path'),content=el('div','library-content'),cards=el('div','folder-cards');
- sidebar.setAttribute('aria-label','文件夹目录');path.setAttribute('aria-label','目录路径');content.append(cards,grid);main.append(tools,path,content);layout.append(sidebar,main);drawer.insertBefore(layout,drawer.querySelector('.dae-library-notice'));
+ sidebar.setAttribute('aria-label','文件夹目录');path.setAttribute('aria-label','目录路径');content.append(el('h3','library-section-heading library-folder-heading','文件夹'),cards,el('h3','library-section-heading','素材'),grid);main.append(tools,path,content);layout.append(sidebar,main);drawer.insertBefore(layout,drawer.querySelector('.dae-library-notice'));
  const create=el('button','new-folder','新建文件夹');create.type='button';create.onclick=()=>begin();tools.append(create);
  const mobile=el('button','ref-icon-button directory-toggle','☰');mobile.type='button';mobile.setAttribute('aria-label','切换目录与素材');header.prepend(mobile);mobile.onclick=()=>{layout.dataset.tree=String(layout.dataset.tree!=='true');};
  const get=id=>folders.find(folder=>folder.folderId===id);
