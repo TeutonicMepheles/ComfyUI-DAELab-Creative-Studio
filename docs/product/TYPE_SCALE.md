@@ -48,7 +48,7 @@
 
 ## 四、实测差异（Reviewer 审查结论，28 个真实页面场景）
 
-审查报告：`B:\GithubProject\Creative-Studio-Typography-Audit-20261105\审查结果.md`（含逐类控件对照与 28 个场景截图，产品代码未改）。确认的不一致共六类：
+审查记录见 [字号与字重审查记录](../validation/TYPOGRAPHY_AUDIT_20261105.md)（精简入库版）；完整报告、逐类对照与 28 个场景截图留在本机 `B:\GithubProject\Creative-Studio-Typography-Audit-20261105\`（不入库）。确认的不一致共六类：
 
 | # | 现象 | 目标 | 依据 |
 | --- | --- | --- | --- |
