@@ -34,3 +34,5 @@ node --import ./tests/migrated_business/register.mjs --test tests/migrated_busin
 
 
 表格组合经 application/table_model.mjs 和 table_editor.mjs；通用引用菜单与内联控件归 ui。提示词列保留结构化片段、模板及单格覆盖，服务只提供可审阅结果。尚无单独页面，可在 [表格预览](../../../../dev/table/README.md) 检查真实提示词组件；优化服务在该页不可用，不代表两 LLM 宿主验收。
+
+Text model picker: llm_model_picker.ts adapts the existing native select through the shared generation settings popover; it preserves model IDs, availability and change events. B layout scrolls within text surfaces, hides the linked source editor and restores its draft on disconnect.

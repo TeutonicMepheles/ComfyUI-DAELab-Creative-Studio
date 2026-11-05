@@ -8,6 +8,7 @@ const dataURL=source=>'data:text/javascript;base64,'+Buffer.from(source).toStrin
 // Run the complete owning panel, including its field factories and listener
 // ordering. Only unrelated IO presentation/buttons are injected as public ports.
 const stubs=new Map([
+ ['./llm_model_picker.js',dataURL('export function createLLMModelPicker(){return {root:document.createElement("button"),sync(){},close(){},dispose(){}};}')],
  ['./llm_io_panel.mjs',dataURL('export function bindIOPanel(){const off=()=>{};off.sync=()=>{};return off;}')],
  ['../../ui/table_controls.mjs',dataURL('export function tableTheme(){} export function createTableButton(label,fn){const b=document.createElement("button");b.textContent=label;b.onclick=fn;return b;}')],
 ]);
