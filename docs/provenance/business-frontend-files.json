@@ -653,7 +653,7 @@
       "source": "web/table_prompt_settings.mjs",
       "destination": "frontend/src/features/prompt/table_prompt_settings.mjs",
       "sourceSha256": "bfe4726e48470729694c7a86878e50662a3ec0fad7837a9323bbb21a022c432a",
-      "destinationSha256": "04ee4ad789ca97339ad99c7a9577cb86e9d6d3260ecbf979aaafb504b1d1ca87",
+      "destinationSha256": "5f2188204928d59ca61d191d4cdaf31adf6a8e598239480e09400741abc6e5df",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
