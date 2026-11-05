@@ -84,6 +84,7 @@ export const promptSettingsStyle=`
 .dae-ui .generation-image-size-choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr))}
 .dae-ui .generation-image-size-choices button{justify-content:center;text-align:center}
 .dae-ui .generation-image-size-choices small{display:block;font-size:10px;line-height:1.2;white-space:nowrap;opacity:.7}
+.dae-ui.generation-settings-popover .generation-parameter-choices button[aria-pressed]{box-sizing:border-box;border:1px solid var(--dae-border-control)!important;box-shadow:none}
 .dae-ui.generation-settings-popover .generation-parameter-choices button[aria-pressed=true]{box-shadow:none;border-color:var(--dae-accent)!important;background:color-mix(in srgb,var(--dae-surface-high) 76%,var(--dae-text) 24%)!important;color:var(--dae-text)!important}
 .dae-ui .generation-duration-viewport{min-width:0;overflow:hidden;border-radius:14px;background:color-mix(in srgb,var(--dae-surface-high) 88%,var(--dae-text) 12%)}
 .dae-ui.generation-settings-popover .generation-duration-choices{position:relative;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;background:transparent;mask-image:linear-gradient(to right,var(--duration-edge-left,#000) 0,var(--duration-edge-left,#000) 8px,#000 52px,#000 calc(100% - 52px),var(--duration-edge-right,#000) calc(100% - 8px),var(--duration-edge-right,#000) 100%)}
