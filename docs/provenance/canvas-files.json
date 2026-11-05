@@ -129,7 +129,7 @@
       "source": "web/creative_canvas.css",
       "destination": "frontend/src/canvas/creative_canvas.css",
       "sourceSha256": "a858f0328a4f03c28c98a9d6742cbfc615e4ce1a4db8f50f50b2a3e0bca420ee",
-      "destinationSha256": "ee7999e1eb1fe43fd6b2ddd776bc0ccae90cba2dc914e839d926a5a41db413f3",
+      "destinationSha256": "6a538385014894bb973dd53aea850f23faa97307b7e04c170e625674b2705599",
       "changes": [
         "2026-11-03: Use a compact square empty parser with a matching visible workbench surface and the Script Document Parser display name; preserve populated tables and user sizing.",
         "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
@@ -140,7 +140,8 @@
         "Prevent focus-driven root scrolling with overflow:clip after the legacy hidden fallback; preserve transform-owned world navigation and nested text/panel scrolling. Actual two-instance focus/overflow and save/reload verification pending.",
         "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending.",
         "2026-11-04 task24: compact typed media surface, new 5:4 defaults, provider colors and matching model menu typography/icon alignment; upward constrained popovers. Original source identity retained.",
-        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately."
+        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately.",
+        "2026-11-05: normalize the six reviewed typography roles; preserve interactions and icon exceptions."
       ],
       "kind": "production-source"
     },
