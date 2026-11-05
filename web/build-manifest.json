@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "1bd9ae4084e55595fdf3dfb6f11a713f996fc1bf6da21415a071a0fc4f06555e",
+  "sourceFingerprint": "e43de9aec7899230630f2d77ad5ba819b70e5dbcbf47a13285daf5e3a613a5ad",
   "files": [
     {
       "path": "AGENTS.md",
@@ -464,7 +464,7 @@
     },
     {
       "path": "features/assets/asset_library.css",
-      "sha256": "39022a066ea18589407c592c450eed74b24b816d33180e3da89b86b397005b65"
+      "sha256": "c555d3f6c0a2f8ff19d54b9e7499bf6651f8bbf539f3b231f4d2e706291afe01"
     },
     {
       "path": "features/assets/asset_library.mjs",
@@ -1180,7 +1180,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "4c91312dc7a3a4748167eb3905ae8575b70fff187de67bdbba1aaad1edd61544"
+      "sha256": "1708cfa1daa3a3efbe716e39f9181c801a1d12c29da34e1479a7d31bf25e281c"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

@@ -140,3 +140,9 @@ dialog.dae-library-preview::backdrop{background:#09090bb3}
 .dae-creative .dae-text-favorite-bar .dae-asset-favorite:disabled{opacity:.38;pointer-events:none}
 .dae-creative .dae-text-favorite-status:empty{display:none}
 .dae-creative .dae-text-favorite-status:not(:empty){padding:4px 12px;overflow-wrap:anywhere;min-width:0}
+
+/* Bound controls must beat the canvas shared rule regardless of load order. */
+:is(.dae-creative,.dae-ui) :is(.dae-library-drawer,.dae-library-preview) button[data-creative-button]{border-radius:var(--dae-radius-md)!important}
+:is(.dae-creative,.dae-ui) .dae-library-drawer .dae-library-filters button[data-creative-button]{border-radius:var(--dae-radius-sm)!important}
+.dae-creative .dae-library-drawer :is(.dae-library-remove,.dae-library-icon-only){box-sizing:border-box;width:32px!important;min-width:32px!important;max-width:32px!important;height:32px!important;min-height:32px!important;max-height:32px!important;line-height:1!important;padding:7px!important}
+.dae-creative .dae-library-drawer input[data-creative-field]{border-radius:var(--dae-radius-sm)!important}
