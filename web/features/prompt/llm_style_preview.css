@@ -59,9 +59,9 @@
 .dae-ui.llm-style .llm-style-result-action{display:flex!important;align-items:center;justify-content:center;width:36px!important;min-width:36px!important;height:36px!important;padding:0!important;border-radius:50%!important}
 
 .dae-ui.llm-style-B .llm-style-modes{height:40px;border:1px solid var(--dae-border-control);border-radius:46px;background:transparent;padding:3px;gap:4px}
-.dae-ui.llm-style-B .llm-style-modes button{height:32px!important;min-height:32px!important;border:0!important;background:transparent!important;font-weight:700!important;padding:0 8px!important}
+.dae-ui.llm-style-B .llm-style-modes button{height:32px!important;min-height:32px!important;border:0!important;background:transparent!important;font-weight:500!important;padding:0 8px!important}
 .dae-ui.llm-style-B .llm-style-modes button[aria-pressed=true]{background:var(--dae-accent)!important;color:var(--dae-text-on-accent)!important}
-.dae-ui.llm-style-B .llm-style-section>.llm-style-label{font-weight:700;line-height:23px}
+.dae-ui.llm-style-B .llm-style-section>.llm-style-label{font-weight:500;line-height:23px}
 .dae-ui.llm-style-B .llm-style-instruction textarea{height:111px}
 .dae-ui.llm-style-B textarea{font-size:14px;line-height:23px}
 .llm-style-B .llm-style-preview-status{font-size:12px;color:var(--dae-text-muted);margin-top:8px;line-height:18px}
@@ -83,7 +83,7 @@
 
 .dae-ui.llm-style-B .llm-style-column:last-child{gap:6px;min-height:0}
 .dae-ui.llm-style-B .llm-style-result-head{height:23px;flex:none;line-height:23px}
-.dae-ui.llm-style-B .llm-style-result-head .llm-style-label{font-weight:700}
+.dae-ui.llm-style-B .llm-style-result-head .llm-style-label{font-weight:500}
 .dae-ui.llm-style-B .llm-style-column:last-child .llm-style-result{display:flex;flex-direction:column;min-height:0;border-color:#707070;border-radius:8px;background:var(--dae-surface)}
 .dae-ui.llm-style-B .llm-style-result p{margin:0;flex:1;min-height:0;max-height:none;overflow:auto}
 .dae-ui.llm-style-B .llm-style-result-actions{justify-content:flex-end;flex:none;margin-top:8px}
