@@ -102,9 +102,11 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
     function render(){
         if(disposed)return;
         let rows=[],error='',waiting=false;try{rows=slotRows(node);}catch(e){error=e.message;waiting=!!e.waiting;}
-        const tableInput=hasTableInput(node),inputKey=JSON.stringify([tableInput,rows]),modes=availableModes(rows);
-        if(tableInput)modes.reverse=false;
-        if(logicalModel(saved().model)==='qwen-image-2.1-pe')modes.polish=false;
+        const tableInput=hasTableInput(node),pe=logicalModel(saved().model)==='qwen-image-2.1-pe',tableMode=pe?'reverse':'polish',inputKey=JSON.stringify([tableInput,rows,pe]),modes=availableModes(rows);
+        // PE processes one reference image per row through the existing reverse
+        // provider. Other table models retain the text-optimization contract.
+        if(tableInput&&!pe)modes.reverse=false;
+        if(pe){modes.polish=false;modes.reverse=modes.reverse&&rows.every(row=>row.image);}
         if(logicalModel(saved().model)==='qwen3.8-27b-w4a8')modes.reverse=false;
         if(!rows.some(row=>row.id===selectedId))selectedId=rows[0]?.id||'';
         const selectedRow=rows.find(row=>row.id===selectedId);
@@ -121,7 +123,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
                 item.title=row.text||row.name||'参考图片';taskRail.append(item);
             }
         }
-        if(inputKey!==lastInput||tableInput&&saved().mode!=='polish'){
+        if(inputKey!==lastInput||tableInput&&saved().mode!==tableMode){
             const next=snapshotJson(saved());
             const linkedInstructions=[...new Set(rows.map(r=>r.instruction).filter(Boolean))].join('\n\n');
             if(linkedInstructions){
@@ -130,7 +132,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
             }else if(next.slotInstruction!==undefined){
                 next.instruction=next.manualInstruction||'';setProperty(instruction,'value',next.instruction);delete next.slotInstruction;delete next.manualInstruction;
             }
-            if(tableInput)next.mode='polish';
+            if(tableInput)next.mode=tableMode;
             else if(!modes[next.mode]){if(modes.reverse)next.mode='reverse';else if(modes.polish)next.mode='polish';}
             try{if(JSON.stringify(next)!==JSON.stringify(saved())){if(nativeDocument)nativeDocument.replace(next,{derived:true});else Object.assign(saved(),next);}lastInput=inputKey;}catch(error){message=error.message;}
         }
@@ -149,7 +151,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
         for(const control of [source,instruction,select])setProperty(control,'disabled',disabled||control===source&&linked);
         setProperty(instruction,'readOnly',saved().slotInstruction!==undefined);
         for(const picker of root.querySelectorAll('[aria-label="提示词模板"]'))setProperty(picker,'disabled',disabled||saved().slotInstruction!==undefined);
-        for(const b of root.querySelectorAll('[data-mode]')){setProperty(b,'disabled',disabled||tableInput&&b.dataset.mode==='reverse');setProperty(b,'title',tableInput&&b.dataset.mode==='reverse'?'表格输入仅支持文字优化':'');}
+        for(const b of root.querySelectorAll('[data-mode]')){setProperty(b,'disabled',disabled||tableInput&&(pe?b.dataset.mode==='polish':b.dataset.mode==='reverse'));setProperty(b,'title',tableInput?(pe?'PE 按行处理参考图片':'表格输入仅支持文字优化'):'');}
         const valid=modes[mode],modelReady=canSubmitModel(modelCatalog.get(logicalModel(saved().model)));
         setProperty(run,'disabled',disabled||!!error||!valid||!modelReady);setProperty(run,'title','使用原始文字或连线输入生成建议；应用后输出');setProperty(run.lastChild,'textContent',busy?'生成中…':'生成');setAttribute(run,'aria-busy',String(busy));
         const d=displayed,stamp=signature(),stale=d?.signature!==stamp,isApplied=!!d?.requestId&&saved().appliedIO?.requestId===d.requestId;
