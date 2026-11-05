@@ -1,4 +1,5 @@
 import {tableMaterialTargets,fillTableMaterialTarget} from './table_column_targets.js';
+import {IMAGE_GENERATION_NODE,VIDEO_GENERATION_NODE} from '../../../features/generation/node_families.js';
 import {tableClipboard} from './table_capabilities.js';
 import {bindBusinessDocument,tableInputStamp} from './business_document_host.js';
 import {businessFetch,businessHost} from '../../../contracts/business.js';
@@ -74,6 +75,7 @@ function register(){const api=globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v
  initialAspectRatio:node=>node.__scriptTable?.records.length||node.__scriptTable?.meta.script_parser.documents.length?null:1,
  refresh(node){const layout=node.graph&&canvasState(node.graph).cards[node.id];if(node.__scriptTable?.records.length&&layout?.width===560&&layout.height===560)layout.width=1060;},
  tasks:node=>node.__scriptPanel?.tasks?.()||[],
+ outputTargetTypes:()=>[IMAGE_GENERATION_NODE,VIDEO_GENERATION_NODE],
  panel:node=>node.__scriptPanel?{root:node.__scriptPanel.root,close:()=>node.__scriptPanel.close()}:null,
  // The square empty panel fills a scrolling host; its outside outline would
  // be clipped there. Let the canvas draw its outer-card ring until a table exists.
