@@ -17,6 +17,18 @@ test('repeated autogrow routes keep one imported material while retaining intent
 });
 const empty=()=>({version:1,fit:'contain',clips:[]});
 
+test('legacy local members without material IDs or hashes dedupe routes while preserving edited copies',()=>{
+ const first={slot:'assets',groupId:'10',nodeId:'1'},repeat={slot:'groups.legacy_duplicate',groupId:'10',nodeId:'1'};
+ assert.equal(materialIdentityKey(asset,first),materialIdentityKey(asset,repeat));
+ assert.notEqual(materialIdentityKey(asset,first),materialIdentityKey({...asset,subfolder:'different'},repeat));
+ const clip={...newClip(asset,first,'trimmed'),start:2,duration:3},edit={...empty(),clips:[clip,{...clip,id:'intentional-copy'}],sources:[sourceKey(asset,first)]};
+ const input=[{asset,source:first},{asset,source:repeat}];
+ const next=connectedEdit(JSON.parse(JSON.stringify(edit)),input);
+ assert.deepEqual(next.clips.map(c=>[c.id,c.start,c.duration]),edit.clips.map(c=>[c.id,c.start,c.duration]));
+ assert.deepEqual(connectedEdit(JSON.parse(JSON.stringify(next)),input),next);
+ assert.equal(connectedEdit(next,[{asset,source:repeat}]).clips.length,2);
+});
+
 test('group legacy and dynamic routes dedupe overlapping members without dropping unique members',()=>{
  const a={...asset,id:'a'},b={...asset,id:'b',filename:'b.mp4'},c={...asset,id:'c',filename:'c.mp4'};
  const member=(media,slot,groupId)=>({asset:media,source:{slot,groupId,nodeId:media.id,assetId:media.id}});

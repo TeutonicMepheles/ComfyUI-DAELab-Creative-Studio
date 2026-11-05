@@ -34,7 +34,8 @@ export function sourceKey(asset,source){
 export function materialIdentityKey(asset,source={}){
     const identity=source.assetId||asset?.assetId||asset?.id||asset?.referenceId||asset?.reference_id;
     const fingerprint=asset?.contentSha256||asset?.sha256;
-    const local=identity!=null&&String(identity)?'identity:'+String(identity):fingerprint?'sha256:'+String(fingerprint).toLowerCase():'';
+    const legacy=typeof asset?.filename==='string'&&asset.filename?JSON.stringify([asset.type||'input',asset.subfolder||'',asset.filename]):'';
+    const local=identity!=null&&String(identity)?'identity:'+String(identity):fingerprint?'sha256:'+String(fingerprint).toLowerCase():legacy?'local-reference:'+legacy:'';
     if(!local)return '';
     // Autogrow input names describe a route, not a new material. The same
     // source/member may arrive through several direct or group inputs.

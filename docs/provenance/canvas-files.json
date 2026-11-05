@@ -457,7 +457,7 @@
       "source": "web/video_edit_model.mjs",
       "destination": "frontend/src/features/editor/video_edit_model.mjs",
       "sourceSha256": "33b21e462fcdb261c4a915d26b85af2a29749cf3ad0beea484140df608b0a033",
-      "destinationSha256": "732caf9a382480bd6fbe4c3e03b692cf1a1ccef46e916d6daff3b55c6b024a6b",
+      "destinationSha256": "6596792f37d88e548a688f8cd25965e5b569c87892bf0c595baea707ea9a199d",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "2026-10-31: dedupe connected clip materials by source-scoped identity or SHA-256 without collapsing intentional timeline copies.",
@@ -994,7 +994,7 @@
       "source": "tests/video_edit_model.test.mjs",
       "destination": "tests/migrated_canvas/video_edit_model.test.mjs",
       "sourceSha256": "67e0a87354fb3c6389a55e81c522d42902037961d8c9279d18da276a14c8f9b1",
-      "destinationSha256": "86cd7553778b147b7d78a6d1a9e9a7c5ddfc4e0de0fb6855012a1dc68223a9a1",
+      "destinationSha256": "6b16293205766a87d405964bd2df39bacaff4363700f4d7395dbbf1fd2d14ceb",
       "changes": [
         "point existing rule regression tests at migrated production modules",
         "2026-10-31: cover material identity dedupe and legal repeated timeline clips.",
