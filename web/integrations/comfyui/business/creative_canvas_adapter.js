@@ -1,5 +1,5 @@
 import {isGenerationNode,IMAGE_GENERATION_NODE,VIDEO_GENERATION_NODE} from '../../../features/generation/node_families.js';
-import {tableMaterialTargets,fillTableMaterialTarget} from './table_column_targets.js';
+import {tableMaterialTargets,fillTableMaterialTarget,boundColumnTargets} from './table_column_targets.js';
 import {NAMESPACE} from '../../../features/prompt/prompt_optimization_model.mjs';
 import {parseTableOutputKey,tableMaterialSnapshot} from '../../../application/table_material_output.mjs';
 // Optional integration: business nodes work without the canvas extension.
@@ -9,12 +9,13 @@ import {app} from '/scripts/app.js';
 import {materialItem,takeMaterialItem} from '../../../features/table/public_helpers.mjs';
 import {videoResultAssets} from '../../../features/generation/libtv_video_model.mjs';
 import {generationInputNames} from '../../../features/generation/generation_input.js';
+import {installColumnBindings,bindColumnGroup} from './column_group_binding.js';
 const key=Symbol.for('DAELAB.CreativeCanvas.API.v1');
 const tables=['DAELAB.Table','DAELAB.StoryboardImport'];
 let registered=false;
 const materialTargetCache=new WeakMap();
 function register(){
-    const api=globalThis[key];if(registered||api?.version!==1)return;
+    const api=globalThis[key];if(registered||api?.version!==1)return;installColumnBindings(app);
     api.registerAdapter('daelab.business',{
         menu:[{label:'多维表格',type:'DAELAB.Table',icon:'layout-grid-line'},{label:'图片生成',type:IMAGE_GENERATION_NODE,icon:'image-line'},{label:'视频生成',type:VIDEO_GENERATION_NODE,icon:'video-line'}],
         materialItem:(node,key)=>materialItem(node.__dataTable,key),
@@ -24,9 +25,9 @@ function register(){
         materialTargets(node){
             if(isGenerationNode(node.type))return node.__libtvPanel?.materialTargets?.()||[];
             const root=node.__dataTablePanel?.root;if(!root)return [];
-            const grid=root.querySelector('table'),cached=materialTargetCache.get(node);if(cached?.grid===grid&&cached.cellsRevision===grid?.dataset.cellsRevision)return cached.targets;
+            const grid=root.querySelector('table'),cached=materialTargetCache.get(node);if(cached?.grid===grid&&cached.cellsRevision===grid?.dataset.cellsRevision){boundColumnTargets(node,cached.projectedTargets);return cached.targets;}
             const fields=node.__dataTable?.fields||[];
-            const targets=tableMaterialTargets(root,fields),projectedTargets=targets.filter(target=>target.project);
+            const targets=boundColumnTargets(node,tableMaterialTargets(root,fields)),projectedTargets=targets.filter(target=>target.project);
             materialTargetCache.set(node,{grid,targets,projectedTargets,cellsRevision:grid?.dataset.cellsRevision});return targets;
         },
         projectedMaterialTargets(node){
@@ -39,6 +40,7 @@ function register(){
         materialSources:node=>[...(node.__dataTablePanel?.root.querySelector('thead')?.querySelectorAll('[data-generation-source],[data-table-source]')||[])].map(element=>({element,key:element.dataset.generationSource||`column:${encodeURIComponent(element.dataset.tableSource)}`,label:'输出为素材组'})),
         outputMaterials:(node,key)=>{const source=parseTableOutputKey(key);return tableMaterialSnapshot(node.__dataTable,source.fieldId,source.recordId);},
         acceptMaterials(node,key,collection){if(isGenerationNode(node.type))return node.__libtvPanel.acceptMaterials(key,collection);const editor=node.__dataTablePanel?.editor;if(!editor)throw new Error('表格尚未就绪');editor.change(t=>fillTableMaterialTarget(t,key,collection));},
+        bindMaterialColumn:(node,key,source)=>bindColumnGroup(app,node,key,source),
         tasks:node=>node.__dataTablePanel?.tasks?.()||node.__libtvPanel?.tasks?.()||[],
         matches:node=>tables.includes(node.type)||isGenerationNode(node.type),
         expanded:node=>tables.includes(node.type),
@@ -63,6 +65,7 @@ function register(){
         inputNames:(node,source,slot)=>isGenerationNode(node.type)?generationInputNames(node,source,slot):undefined,
         inputSelection:node=>isGenerationNode(node.type)?'first-free':undefined,
         prepareCopy(node,data){
+            if(data.properties)delete data.properties.daelabColumnBindings;
             if(data.properties?.[NAMESPACE])delete data.properties[NAMESPACE];
             for(const [i,w] of (node.widgets||[]).entries())if(data.widgets_values){
                 if(w.name==='request_id')data.widgets_values[i]=`copy-${crypto.randomUUID()}`;

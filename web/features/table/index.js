@@ -5,3 +5,4 @@ export { createTableEditor } from './view.js';
 export function createTableModel(extensions = {}) {
     return createModel(extensions);
 }
+export { planColumnBinding, clearBoundColumn, columnStamp, groupStamp } from './column_group_binding.js';

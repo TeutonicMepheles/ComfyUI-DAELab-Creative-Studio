@@ -169,6 +169,7 @@
 .dae-creative .dae-material-slot{position:relative;display:grid;place-items:center;width:32px;height:32px;min-width:32px;min-height:32px;padding:0;border:2px solid var(--dae-border-control);border-radius:50%;background:var(--dae-bg-canvas);color:var(--dae-text);font-size:23px;line-height:1;font-weight:400;touch-action:none}
 .dae-creative .dae-material-slot:is(:hover,:focus-visible,[data-magnetic=true]){background:var(--dae-secondary-container);border-color:var(--dae-focus);outline:2px solid var(--dae-focus);outline-offset:2px}
 .dae-creative .dae-column-slot{position:absolute;z-index:9;opacity:0;pointer-events:none;transition:opacity var(--dae-duration-fast) var(--dae-easing)}
+.dae-creative .dae-column-slot[data-linked=true]{opacity:1;pointer-events:auto;background:var(--dae-surface-high);border-color:var(--dae-accent)}
 .dae-creative-card:is(:hover,:focus-within)>.dae-column-slot,.dae-creative .dae-column-slot:is([data-magnetic=true],[data-wire-source=true]){opacity:1;pointer-events:auto}
 .dae-creative .dae-column-slot::after{content:'';position:absolute;inset:-8px;border-radius:50%}
 .dae-creative .dae-column-slot[hidden]{display:none}

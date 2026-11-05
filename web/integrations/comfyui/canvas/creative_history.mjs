@@ -61,9 +61,9 @@ export function canvasHistory(app,{diagnose=diagnostic=>{
     // pre-drag undo state with an intermediate position while changeCount > 0.
     return {
         assertEditable(){editable();},
-        begin(){const t=editable();t.captureCanvasState();t.squashState.flush();t.beforeChange();transactions.push(t);},
+        begin(){const t=editable();t.captureCanvasState();t.squashState.flush();t.beforeChange();transactions.push({tracker:t,graph:app.graph});},
         // A mode/workflow switch must close the tracker that began the edit.
-        end(){transactions.pop()?.afterChange();},
+        end(){const transaction=transactions.pop();if(!transaction)return;try{if(app.graph===transaction.graph&&tracker()===transaction.tracker)app.daelabColumnBindings?.flush(transaction.graph);}finally{transaction.tracker.afterChange();}},
         async undo(){const t=editable();if(typeof t.undo!=='function')reject('history.undo');t.squashState.flush();await t.undo();},
         async redo(){const t=editable();if(typeof t.redo!=='function')reject('history.redo');t.squashState.flush();await t.redo();},
         prepareNativeShortcut(event){

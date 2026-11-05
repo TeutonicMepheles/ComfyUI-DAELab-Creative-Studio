@@ -1,5 +1,12 @@
 // @ts-expect-error Mature ESM material rules are shared by both table adapters.
 import { columnDropTypes, columnFillCount, addMaterialColumns, fillMaterialColumn, fillMaterialRow, fillMaterialCell } from '../../../application/table_material_columns.mjs';
+/** Add live native indices without replacing the cached descriptor list. */
+export function boundColumnTargets(node, targets) {
+    for (const target of targets)
+        if (target.project)
+            Object.assign(target, { inputIndex: (node.inputs || []).findIndex(input => input.daeColumnField === target.key) });
+    return targets;
+}
 /** Native panel descriptors; the Canvas owns Slot appearance and projection. */
 export function tableColumnTargets(root, fields) {
     if (!root)
