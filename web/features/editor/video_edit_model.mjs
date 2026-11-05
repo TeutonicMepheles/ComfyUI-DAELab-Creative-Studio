@@ -36,7 +36,9 @@ export function materialIdentityKey(asset,source={}){
     const fingerprint=asset?.contentSha256||asset?.sha256;
     const local=identity!=null&&String(identity)?'identity:'+String(identity):fingerprint?'sha256:'+String(fingerprint).toLowerCase():'';
     if(!local)return '';
-    return JSON.stringify([sourceSlotKey(source),source.nodeId??'',source.groupId??'',local]);
+    // Autogrow input names describe a route, not a new material. The same
+    // source/member may arrive through several direct or group inputs.
+    return JSON.stringify([String(source.nodeId??source.groupId??''),local]);
 }
 export function remapEditSources(edit,mapping){
     const ids=new Map([...mapping].map(([id,node])=>[String(id),String(node.id)]));
