@@ -11,6 +11,11 @@ function setImportTitle(page, title) {
 }
 const same = (a, b) => JSON.stringify(a ?? '') === JSON.stringify(b ?? '');
 const active = new Set(['waiting', 'running', 'queued', 'preparing', 'submitting', 'recovering', 'pausing']);
+function chapterIdentity(documentId, tableId, key) {
+    const prefix = `${documentId}:table:${tableId}:`;
+    return key.startsWith(prefix) ? key : prefix + key;
+}
+const chapterLimit = (source) => source.chapter_explicit === true ? 500 : SCRIPT_ROW_LIMIT;
 export const isFixedScript = (table) => table.meta?.script_parser?.field_policy === 'fixed-four';
 export function emptyFixedScript() {
     return { version: 1, view: 'table', fields: [
@@ -23,8 +28,8 @@ export function emptyFixedScript() {
 export function validateFixedScript(table) {
     if (!isFixedScript(table))
         return;
-    if (table.records.length > SCRIPT_ROW_LIMIT)
-        throw new Error('每张剧本解析表最多 10 行，请将超出的任务放入下一张表；本次修改未应用');
+    if (table.records.length > chapterLimit(table.meta.script_parser))
+        throw new Error('无章节的剧本解析表每页最多 10 行，请将超出的任务放入下一页；本次修改未应用');
     if (table.fields.length !== 4 || table.fields.some((f, i) => f.id !== ids[i] || f.hidden))
         throw new Error('剧本解析表固定为镜号/序号、画面描述、画面参考、备注四列');
     if (table.fields[2]?.type !== 'content' || table.fields.some((f, i) => i !== 2 && !(['text', 'longtext', 'json'].includes(f.type))))
@@ -50,7 +55,8 @@ function freshRow(task, n, index) {
         refs.push({ id: crypto.randomUUID(), url: asset.url, kind: 'image', name: `${task.row_id} · 参考 ${refs.length + 1}`, ...(asset.filename ? { filename: asset.filename } : {}), subfolder: asset.subfolder || '', type: 'input', provenance: { document_id: n.document_id, occurrence_id: o.id, ...(o.cell_id ? { source_cell: o.cell_id } : {}), asset_id: asset.id || o.asset_id } });
     }
     const values = { 'sp-shot_no': task.values.shot_no?.trim() ? task.values.shot_no : String(index + 1), 'sp-scene': task.values.scene || '', 'sp-reference': refs, 'sp-notes': task.values.notes || '' };
-    return { id: crypto.randomUUID(), selected: false, values, meta: { script_source: { source_key: task.source_key, document_id: n.document_id, filename: n.filename, row_id: task.row_id, table_id: task.table_id, chapter: task.chapter || '', chapter_key: task.chapter_key || `${n.document_id}:chapter:${task.chapter || ''}`, issues, sources: copy(task.sources || {}), context: copy(task.context || []) }, script_original: copy(task.original_cells || []), script_import_values: copy(values), script_original_values: copy(task.values) } };
+    const tableNumber = task.source_table_number || [...new Set(n.tasks.map(t => t.table_id))].indexOf(task.table_id) + 1;
+    return { id: crypto.randomUUID(), selected: false, values, meta: { script_source: { source_key: task.source_key, document_id: n.document_id, filename: n.filename, row_id: task.row_id, table_id: task.table_id, chapter: task.chapter || '', chapter_explicit: task.chapter_explicit === true, source_table_number: tableNumber, chapter_key: chapterIdentity(n.document_id, task.table_id || '', task.chapter_key || `${n.document_id}:chapter:${task.chapter || ''}`), issues, sources: copy(task.sources || {}), context: copy(task.context || []) }, script_original: copy(task.original_cells || []), script_import_values: copy(values), script_original_values: copy(task.values) } };
 }
 function reconcile(old, next, conflicts, table) {
     const baseline = old.meta?.script_import_values || {}, fresh = copy(next.values), values = copy(old.values);
@@ -155,7 +161,7 @@ export function planScriptImport(current, normalized, mode = 'append') {
         const acceptsImport = (table) => ids.every(id => { const f = table.fields.find(f => f.id === id); return f && !f.readonly && (id === 'sp-reference' ? f.type === 'content' : ['text', 'longtext', 'json'].includes(f.type)); });
         const chapter = rowChapter(row), candidates = pages.filter(p => p.table.meta.script_parser.chapter_key === chapter && acceptsImport(p.table));
         let page = candidates.at(-1);
-        if (!page || page.table.records.length >= SCRIPT_ROW_LIMIT) {
+        if (!page || page.table.records.length >= chapterLimit(row.meta.script_source)) {
             page = pages.find(p => !p.table.records.length && !p.table.meta.script_parser.chapter_key && acceptsImport(p.table));
             if (!page) {
                 const table = emptyFixedScript();
@@ -163,8 +169,11 @@ export function planScriptImport(current, normalized, mode = 'append') {
                 pages.push(page);
             }
             page.table.meta.script_parser.chapter_key = chapter;
-            page.table.meta.script_parser.chapter = row.meta.script_source.chapter;
-            setImportTitle(page, `${row.meta.script_source.chapter || normalized.filename.replace(/\.docx$/i, '')} · ${candidates.length + 1}`);
+            page.table.meta.script_parser.chapter = row.meta.script_source.chapter || `表 ${row.meta.script_source.source_table_number}`;
+            page.table.meta.script_parser.chapter_explicit = row.meta.script_source.chapter_explicit;
+            page.table.meta.script_parser.source_table_number = row.meta.script_source.source_table_number;
+            page.table.meta.script_parser.chapter_page = candidates.length + 1;
+            setImportTitle(page, `${page.table.meta.script_parser.chapter} · ${candidates.length + 1}`);
         }
         page.table.records.push(row);
     }
@@ -184,13 +193,16 @@ export function planLegacySplit(current) {
     const pages = [];
     for (const original of old.records) {
         const source = copy(original.meta?.script_source || {}), chapter = String(original.values[bindings.chapter] || source.chapter || '');
-        const chapterKey = source.chapter_key || `${source.document_id || 'legacy'}:chapter:${chapter}`;
+        const chapterKey = chapterIdentity(source.document_id || 'legacy', source.table_id || '', source.chapter_key || `${source.document_id || 'legacy'}:chapter:${chapter}`);
         let page = pages.filter(p => p.table.meta.script_parser.chapter_key === chapterKey).at(-1);
-        if (!page || page.table.records.length >= 10) {
+        if (!page || page.table.records.length >= chapterLimit(source)) {
             page = { key: pages.length ? crypto.randomUUID() : current.key, title: `${chapter || current.title} · ${pages.length + 1}`, table: emptyFixedScript() };
             page.table.meta.script_parser.documents = copy(docs);
             page.table.meta.script_parser.chapter_key = chapterKey;
-            page.table.meta.script_parser.chapter = chapter;
+            page.table.meta.script_parser.chapter = chapter || `表 ${source.source_table_number || pages.length + 1}`;
+            page.table.meta.script_parser.chapter_explicit = source.chapter_explicit === true;
+            page.table.meta.script_parser.source_table_number = source.source_table_number;
+            page.table.meta.script_parser.chapter_page = pages.filter(p => p.table.meta.script_parser.chapter_key === chapterKey).length + 1;
             page.table.meta.script_parser.legacy_table = copy(old);
             pages.push(page);
         }

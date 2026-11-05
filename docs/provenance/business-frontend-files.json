@@ -741,10 +741,11 @@
       "source": "web/script_parser.css",
       "destination": "frontend/src/features/storyboard/script_parser.css",
       "sourceSha256": "14ee3d7a070af16c00e3d12156c1cf1baabd67c4b591d79cdda62c045f2c3339",
-      "destinationSha256": "b511ef161e6853825f30ed6d45f6668b8fc7dd0382d814b2927f46a6453f5c93",
+      "destinationSha256": "426c36f6b99757693a3ec27e1b0f61ded9bbea3fa634c9d343eed84c2dcc2879",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "2026-11-05: preserve source-table chapter boundaries and strengthen chapter controls; unify cell output and move editable media references only after successful canvas materialization."
       ]
     },
     {
@@ -763,7 +764,7 @@
       "source": "web/script_parser_panel.mjs",
       "destination": "frontend/src/features/storyboard/script_parser_panel.mjs",
       "sourceSha256": "4d89cbcdfb3b98d090bafaf0696f5022afc2e43977d0e21bca78e792a701654d",
-      "destinationSha256": "a6a9473e23f4ae2676af876963ca2a742b2f813cba10a84b28660e7070b61b38",
+      "destinationSha256": "70671dc8e7381712f9995a23c531601c0c333642c4d6b7983ad954e5d524d508",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Use a compact square empty parser with a matching visible workbench surface and the Script Document Parser display name; preserve populated tables and user sizing.",
@@ -772,7 +773,8 @@
         "Use domain/native-upload HTTP port; preserve old document and normalization DTOs.",
         "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
         "1029 script parsing: fixed four columns, source-identified chapters, ten-row pages and native multi-table import history.",
-        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately."
+        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately.",
+        "2026-11-05: preserve source-table chapter boundaries and strengthen chapter controls; unify cell output and move editable media references only after successful canvas materialization."
       ]
     },
     {
@@ -1010,10 +1012,11 @@
       "source": "web/table_material_item.mjs",
       "destination": "frontend/src/features/table/table_material_item.mjs",
       "sourceSha256": "e84bab600f961c40090a130891af8700d1f5cc5602262d3a4a12bcaae45ee177",
-      "destinationSha256": "e84bab600f961c40090a130891af8700d1f5cc5602262d3a4a12bcaae45ee177",
+      "destinationSha256": "5fc03f32a0beccef943c6a06e40ae3e2f44e85afc6686df7cd3e1bc4e9812bba",
       "kind": "production-source",
       "changes": [
-        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources."
+        "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
+        "2026-11-05: preserve source-table chapter boundaries and strengthen chapter controls; unify cell output and move editable media references only after successful canvas materialization."
       ]
     },
     {
@@ -1105,14 +1108,15 @@
       "source": "web/table_ui.css",
       "destination": "frontend/src/features/table/table_ui.css",
       "sourceSha256": "bc0453f9322d52be6e7a6d8c718d64c0819293acdf6c6f29ea148b8fdede6555",
-      "destinationSha256": "f8e27152521e04b97f064d772e7de09390c5dd753ee42ca423d3dac3d184acba",
+      "destinationSha256": "e4916c15771e039ea437f5bdf8fc8e84e5989026d3c1bc2105296b24c0d4f998",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Limit unused canvas zoom custom-property inheritance to owned content data cells; retain public root values and live screen-size chrome/row-gutter consumers. Performance benefit requires real-host measurement.",
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
         "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately.",
-        "2026-11-05: normalize the six reviewed typography roles; preserve interactions and icon exceptions."
+        "2026-11-05: normalize the six reviewed typography roles; preserve interactions and icon exceptions.",
+        "2026-11-05: preserve source-table chapter boundaries and strengthen chapter controls; unify cell output and move editable media references only after successful canvas materialization."
       ]
     },
     {
@@ -1198,7 +1202,7 @@
       "source": "web/creative_canvas_adapter.js",
       "destination": "frontend/src/integrations/comfyui/business/creative_canvas_adapter.js",
       "sourceSha256": "87d4a3ec66de9d84f4be88202779471a416ba4046a820ef1ce83780d3711f9b1",
-      "destinationSha256": "be18465e2fcb5f6bf6dbeb5fcff37c47e48eedb33c8f6eb1ddafd3328b78d4fc",
+      "destinationSha256": "d5082c137bed3860436f40a3abd367e6ad5b7e491f53d1179f3f6e25acca85a9",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
@@ -1211,7 +1215,8 @@
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
         "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending.",
         "2026-11-04 task24: compact typed media surface, new 5:4 defaults, provider colors and matching model menu typography/icon alignment; upward constrained popovers. Original source identity retained.",
-        "2026-11-05: table and script parser Slot creation and existing-node connections allow only image/video generation targets; preserve saved links and separate material outputs."
+        "2026-11-05: table and script parser Slot creation and existing-node connections allow only image/video generation targets; preserve saved links and separate material outputs.",
+        "2026-11-05: preserve source-table chapter boundaries and strengthen chapter controls; unify cell output and move editable media references only after successful canvas materialization."
       ]
     },
     {
@@ -1302,7 +1307,7 @@
       "source": "web/script_parser.js",
       "destination": "frontend/src/integrations/comfyui/business/script_parser.js",
       "sourceSha256": "7920d6861d96d764a89c4bee1ff714cab3558857e854111146f240bc06b04fb0",
-      "destinationSha256": "8c80c8333106e397991daa9727617783d67f56226836b3cd5e5cc7d76114a9e5",
+      "destinationSha256": "bca5596395b6b14a2cc4d0d910ff997e374ed78d3376a8100c168478bd74242f",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Use the existing outer-card selection ring for empty parser panels to avoid workbench overflow clipping; retain the table surface after import.",
@@ -1313,7 +1318,8 @@
         "Use public BusinessPorts for document/prompt requests; retain source slots and lifecycle.",
         "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
         "1029 script parsing: fixed four columns, source-identified chapters, ten-row pages and native multi-table import history.",
-        "2026-11-05: table and script parser Slot creation and existing-node connections allow only image/video generation targets; preserve saved links and separate material outputs."
+        "2026-11-05: table and script parser Slot creation and existing-node connections allow only image/video generation targets; preserve saved links and separate material outputs.",
+        "2026-11-05: preserve source-table chapter boundaries and strengthen chapter controls; unify cell output and move editable media references only after successful canvas materialization."
       ]
     },
     {

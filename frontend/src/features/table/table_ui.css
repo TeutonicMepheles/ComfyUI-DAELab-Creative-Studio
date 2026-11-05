@@ -351,4 +351,6 @@
 .dae-ui .dae-table th[data-prompt-source] .generation-header-row{padding-right:118px;min-width:0}
 .dae-ui .dae-table th[data-prompt-source] .generation-header-row>.field-title{padding-right:0!important;min-width:0;flex:1}
 
-.dae-ui .dae-table-material-remove{position:absolute;right:2px;top:2px;z-index:2;display:grid;place-items:center;width:20px;height:20px;min-height:20px;border:1px solid var(--dae-border-control);border-radius:50%;padding:0;background:var(--dae-surface-raised);color:var(--dae-text);font:14px/1 var(--dae-font-family);cursor:pointer}
+:is(.dae-creative,.dae-ui) button.dae-table-material-remove{position:absolute;right:2px;top:2px;z-index:2;display:grid;place-items:center;box-sizing:border-box;width:22px!important;height:22px!important;min-width:22px!important;min-height:22px!important;max-width:22px!important;max-height:22px!important;border:1px solid var(--dae-border-control)!important;border-radius:6px!important;padding:0!important;background:var(--dae-surface-low)!important;color:var(--dae-text-muted)!important;font:16px/1 var(--dae-font-family);cursor:pointer}
+:is(.dae-creative,.dae-ui) button.dae-table-material-remove:is(:hover,:focus-visible){color:var(--dae-danger)!important;border-color:var(--dae-danger)!important}
+:is(.dae-creative,.dae-ui) button.dae-table-material-remove:focus-visible{outline:2px solid var(--dae-focus);outline-offset:2px}

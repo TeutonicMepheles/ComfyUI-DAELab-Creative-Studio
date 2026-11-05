@@ -24,7 +24,10 @@ export function createScriptParserPanel({node,app,getTable,setTable,notify,docum
  const root=el('div');root.className='dae-ui dae-table-panel script-parser';root.setAttribute('aria-label','剧本文档解析器');
  const empty=el('section',root);empty.className='script-empty';
  const emptyTitle=el('p',empty,'上传分镜文档，生成多维表格');
- let chapterCollapsed=false;const chapterToggle=button('',()=>{chapterCollapsed=!chapterCollapsed;updatePending();});chapterToggle.hidden=true;root.append(chapterToggle);
+ let chapterCollapsed=false;const chapterToggle=button('',()=>{chapterCollapsed=!chapterCollapsed;updatePending();});chapterToggle.className='script-chapter';chapterToggle.hidden=true;
+ const chapterArrow=el('span',chapterToggle);chapterArrow.setAttribute('aria-hidden','true');
+ const chapterTitle=el('strong',chapterToggle);chapterTitle.className='script-chapter-title';
+ const chapterMeta=el('span',chapterToggle);chapterMeta.className='script-chapter-meta';root.append(chapterToggle);
  const feedback=el('div',root);feedback.className='script-feedback';feedback.hidden=true;
  const status=el('p',feedback);status.className='script-status';status.setAttribute('role','status');
  const notice=button('',()=>showIssues());notice.className='script-notice';notice.hidden=true;root.append(notice);
@@ -42,7 +45,12 @@ export function createScriptParserPanel({node,app,getTable,setTable,notify,docum
   const t=getTable(),docs=t.meta.script_parser.documents;
   const hasTable=Boolean((!isFixedScript(t)&&t.fields.length)||t.records.length||docs.length);
   if(!hasTable&&root.dataset.expanded==='true')workbench?.close();
-  root.dataset.empty=String(!hasTable);empty.hidden=hasTable;editor.root.hidden=!hasTable||chapterCollapsed;const chapter=t.meta.script_parser.chapter;chapterToggle.hidden=!hasTable||!chapter;chapterToggle.textContent=(chapterCollapsed?'▸ ':'▾ ')+(chapter||'');chapterToggle.setAttribute('aria-expanded',String(!chapterCollapsed));
+  root.dataset.empty=String(!hasTable);empty.hidden=hasTable;editor.root.hidden=!hasTable||chapterCollapsed;
+  const parser=t.meta.script_parser,source=t.records.find(r=>r.meta?.script_source)?.meta.script_source;
+  const tableNumber=parser.source_table_number||source?.source_table_number||1,chapter=parser.chapter||source?.chapter||`表 ${tableNumber}`;
+  chapterToggle.hidden=!hasTable;chapterArrow.textContent=chapterCollapsed?'▸':'▾';chapterTitle.textContent=chapter;
+  chapterMeta.textContent=`源表 ${tableNumber}${parser.chapter_page?` · 第 ${parser.chapter_page} 页`:''} · ${t.records.length} 行`;
+  chapterToggle.setAttribute('aria-expanded',String(!chapterCollapsed));chapterToggle.setAttribute('aria-label',`${chapterCollapsed?'展开':'收起'} ${chapter}`);
   if(!hasTable)empty.append(feedback);else root.insertBefore(feedback,editor.root);
   emptyTitle.hidden=busy;uploadButton.hidden=busy;cancelButton.hidden=!busy;
   root.setAttribute('aria-busy',String(busy));
@@ -129,7 +137,7 @@ export function createScriptParserPanel({node,app,getTable,setTable,notify,docum
    try{if(!editor.canAsync(normalized.editTicket)||snapshot()!==normalized.baseSnapshot)throw new Error('预览期间任务表已变化，请重新归一核对');
     const filename=normalized.filename,result=batchImport?batchImport.apply(normalized,mode,normalized.baseSnapshot):mode==='revise'?reviseImport(getTable(),normalized):importTasks(getTable(),normalized,{mode,allowUnresolved});
     if(!batchImport)editor.applyAsync(normalized.editTicket,t=>{for(const key of Object.keys(t))delete t[key];Object.assign(t,result.table);});
-    cancel();updatePending();message(mode==='revise'?`已应用解析调整；保留 ${result.conflicts.length} 项手工编辑，可在导入详情查看。`:`${filename} · 已导入 ${result.added} 条记录${result.pages?`，共 ${result.pages.length} 张表（每表最多 10 行）`:''}${result.skipped?`，跳过 ${result.skipped} 条重复来源`:''}${result.newVersion?'；同名文档已作为新版本追加':''}。可撤销。`);
+    cancel();updatePending();message(mode==='revise'?`已应用解析调整；保留 ${result.conflicts.length} 项手工编辑，可在导入详情查看。`:`${filename} · 已导入 ${result.added} 条记录${result.pages?`，共 ${result.pages.length} 张表（源表独立；无章节每页最多 10 行）`:''}${result.skipped?`，跳过 ${result.skipped} 条重复来源`:''}${result.newVersion?'；同名文档已作为新版本追加':''}。可撤销。`);
    }catch(e){message(e.message,true);notify(e.message,'error');}
   }
  };

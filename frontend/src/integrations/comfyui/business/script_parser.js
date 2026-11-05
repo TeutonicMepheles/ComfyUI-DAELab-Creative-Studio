@@ -6,7 +6,7 @@ import {businessFetch,businessHost} from '../../../contracts/business.js';
 import {canvasState} from '../../../canvas/creative_canvas_model.mjs';
 import {planScriptImport,planLegacySplit} from '../../../features/storyboard/script_partitions.js';
 import {preserveGenerationHistory} from '../../../features/generation/table_generation_history.mjs';
-import {scheduleTableInstall} from '../../../features/table/public_helpers.mjs';
+import {scheduleTableInstall,materialItem,takeMaterialItem} from '../../../features/table/public_helpers.mjs';
 import {ensureIdentity,NAMESPACE} from '../../../features/prompt/prompt_optimization_model.mjs';
 import {attachPromptOptimization} from '../../../features/prompt/prompt_optimization_controller.mjs';
 import {app} from '/scripts/app.js';
@@ -76,6 +76,8 @@ function register(){const api=globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v
  refresh(node){const layout=node.graph&&canvasState(node.graph).cards[node.id];if(node.__scriptTable?.records.length&&layout?.width===560&&layout.height===560)layout.width=1060;},
  tasks:node=>node.__scriptPanel?.tasks?.()||[],
  outputTargetTypes:()=>[IMAGE_GENERATION_NODE,VIDEO_GENERATION_NODE],
+ materialItem:(node,key)=>materialItem(node.__scriptTable,key),
+ takeMaterialItem(node,key,expected){const editor=node.__scriptPanel?.editor;if(!editor)throw new Error('解析表尚未就绪');editor.change(table=>takeMaterialItem(table,key,expected));},
  panel:node=>node.__scriptPanel?{root:node.__scriptPanel.root,close:()=>node.__scriptPanel.close()}:null,
  // The square empty panel fills a scrolling host; its outside outline would
  // be clipped there. Let the canvas draw its outer-card ring until a table exists.

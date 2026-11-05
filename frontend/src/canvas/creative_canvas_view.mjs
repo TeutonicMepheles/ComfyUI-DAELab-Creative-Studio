@@ -350,13 +350,14 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         }catch(error){for(const member of created){host.removeNode(graph,member);delete state.cards[member.id];}throw error;}
         finally{dirty();history.end();sync();}
     }
-    async function outputMaterials(context,point){
+    async function outputMaterials(context,point,{move=false}={}){
         if(outputPending.has(context.node))return;outputPending.add(context.node);
         const ownerGraph=graph,ownerState=state,created=[];
         try{
             const snapshot=snapshotFor(context);
             if(!snapshot||snapshot.ready===false||(!snapshot.assets?.length&&!snapshot.texts?.length))throw new Error('当前没有有效素材');
             const frozen=JSON.parse(JSON.stringify(snapshot)),stamp=JSON.stringify(snapshot);
+            if(move&&(context.itemKey===undefined||!frozen.movable||typeof adapterFor(context.node)?.takeMaterialItem!=='function'))throw new Error('此素材不可移出');
             frozen.assets??=[];frozen.texts??=[];
             const sections=frozen.outputGroups||['text','image','video'].flatMap(kind=>{
                 const assetIndexes=frozen.assets.map((asset,index)=>[asset,index]).filter(([asset])=>asset.kind===kind).map(([,index])=>index);
@@ -397,13 +398,16 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
                     if(context.node.outputs?.some(slot=>slot.name==='table_json')&&!connectTableOutput(context.node,group))throw new Error('无法建立表格到素材组的持久连线');
                     const collection=group.widgets?.find(w=>w.name==='collection_data');if(collection)collection.value=JSON.stringify(collectionFor(group));
                 }
+                // Last operation in the shared native history step. The table
+                // editor validates a draft before committing this exact reference.
+                if(move){if(materialized!==1||importedSkipped)throw new Error('素材未完整输出，原单元格保留');adapterFor(context.node).takeMaterialItem(context.node,context.itemKey,stamp);}
             }catch(error){for(const node of created){host.removeNode(graph,node);delete state.cards[node.id];}throw error;}
             finally{dirty();sync();if(created.length&&graph.getNodeById(created.at(-1).id))select(created.at(-1));host.tickGroups();dirty();history.end();}
-            root.focus({preventScroll:true});message(`已输出 ${materialized} 项素材${frozen.skipped+importedSkipped?'，跳过 '+(frozen.skipped+importedSkipped)+' 项':''}${frozen.deduplicated?'，去重 '+frozen.deduplicated+' 项':''}`);
+            root.focus({preventScroll:true});message(`已${move?'移出':'输出'} ${materialized} 项素材${frozen.skipped+importedSkipped?'，跳过 '+(frozen.skipped+importedSkipped)+' 项':''}${frozen.deduplicated?'，去重 '+frozen.deduplicated+' 项':''}`);
         }catch(error){message('输出失败：'+error.message);}finally{outputPending.delete(context.node);}
     }
     function tableOutput(e){
-        const card=e.target.closest?.('.dae-creative-card'),node=card&&cards.get(card.dataset.nodeId)?.node,key=e.detail?.key;
+        const card=e.target.closest?.('.dae-creative-card'),node=card&&cardOwners.get(card)?.node,key=e.detail?.key;
         if(!node||!key||!visible||graph!==host.graph()||graph.getNodeById(node.id)!==node)return;
         e.stopPropagation();
         const r=root.getBoundingClientRect(),anchor=e.target.getBoundingClientRect();
@@ -478,7 +482,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
                 if(!leased||!visible||c.node.mode||!dataTransfer||!adapterFor(c.node)?.materialItem)return false;
                 const context={node:c.node,itemKey:key,side:'output'},snapshot=snapshotFor(context);
                 if(!snapshot?.assets?.length||snapshot.ready===false)return false;
-                materialDrag={context,graph,stamp:JSON.stringify(snapshot),token:crypto.randomUUID()};
+                materialDrag={context,graph,stamp:JSON.stringify(snapshot),token:crypto.randomUUID(),move:snapshot.movable===true&&typeof adapterFor(c.node)?.takeMaterialItem==='function'};
                 dataTransfer.setData(materialDragType,materialDrag.token);dataTransfer.effectAllowed='copyMove';return true;
             },
             panBy(dx,dy){
@@ -958,12 +962,12 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
     },true);
     root.addEventListener('dblclick',e=>{if(e.target.closest('.dae-creative-card,.dae-creative-picker,.dae-creative-zoom,path'))return;const r=root.getBoundingClientRect();choose({x:e.clientX-r.left,y:e.clientY-r.top});});
     root.addEventListener('contextmenu',e=>{if(e.target.closest('.dae-creative-card,.dae-creative-picker,.dae-creative-zoom,path,input,textarea'))return;e.preventDefault();const r=root.getBoundingClientRect();choose({x:e.clientX-r.left,y:e.clientY-r.top});});
-    root.addEventListener('dragover',e=>{if(!materialDrag||!e.dataTransfer?.types.includes(materialDragType)||e.target.closest('.dae-creative-card,.dae-creative-picker,.dae-library-overlay'))return;e.preventDefault();e.stopPropagation();e.dataTransfer.dropEffect='copy';},true);
+    root.addEventListener('dragover',e=>{if(!materialDrag||!e.dataTransfer?.types.includes(materialDragType)||e.target.closest('.dae-creative-card,.dae-creative-picker,.dae-library-overlay'))return;e.preventDefault();e.stopPropagation();e.dataTransfer.dropEffect=materialDrag.move?'move':'copy';},true);
     root.addEventListener('drop',e=>{
         if(!e.dataTransfer?.types.includes(materialDragType)||e.target.closest('.dae-creative-card,.dae-creative-picker,.dae-library-overlay'))return;
         e.preventDefault();e.stopPropagation();const source=materialDrag;materialDrag=null;
         if(!source||source.token!==e.dataTransfer.getData(materialDragType)||source.graph!==graph||!validConnection(source.context)||JSON.stringify(snapshotFor(source.context))!==source.stamp){message('素材来源已变化，请重新拖出');return;}
-        const r=root.getBoundingClientRect();void outputMaterials(source.context,{x:e.clientX-r.left,y:e.clientY-r.top});
+        const r=root.getBoundingClientRect();void outputMaterials(source.context,{x:e.clientX-r.left,y:e.clientY-r.top},{move:source.move});
     },true);
     root.addEventListener('dragover',e=>{if(e.target.closest('.dae-library-overlay')||!e.dataTransfer?.types.includes('Files'))return;e.preventDefault();e.stopPropagation();e.dataTransfer.dropEffect='copy';},true);
     root.addEventListener('drop',async e=>{
