@@ -5,6 +5,7 @@ import {canvasHistory} from './creative_history.mjs?v=20261002-edit-undo';
 import {bindPanelAvailability} from '../../../ui/creative_panel_state.mjs';
 import {EDIT_TYPE,readEdit,localAsset,isGroupSlot,sourceSlotKey,remapEditSources} from '../../../features/editor/video_edit_model.mjs?v=20261004-copy-sources';
 import {createVideoEditor} from '../../../features/editor/video_edit_panel.mjs?v=20261002-edit-undo';
+import {canConnectEditorInput} from './editor_input_policy.js';
 import {createBusinessDocument} from '../../../application/business_document.js';
 import {ExportSession} from '../../../features/editor/export_session.js';
 import {createMediaExportHttp} from '../media_exports.js';
@@ -239,6 +240,10 @@ registerAdapter('daelab.video-edit',{
 });
 app.registerExtension({name:'DAELAB.VideoEdit',beforeConfigureGraph(){loadEpoch++;for(const owner of exportOwners)owner.invalidate();},beforeRegisterNodeDef(type,definition){
     if(definition.name!==EDIT_TYPE)return;
+    const connectInput=type.prototype.onConnectInput;type.prototype.onConnectInput=function(index,outputType,output,source,sourceSlot){
+        if(!app.configuringGraph&&!canConnectEditorInput(this,source,sourceSlot,index))return false;
+        return connectInput?.apply(this,arguments)??true;
+    };
     const created=type.prototype.onNodeCreated;type.prototype.onNodeCreated=function(){created?.apply(this,arguments);install(this);};
     const configured=type.prototype.onConfigure;type.prototype.onConfigure=function(){configured?.apply(this,arguments);if(!this.inputs.some(input=>input.name.startsWith('groups.')))this.addInput('groups.group0','DAELAB_ASSETS');install(this);this.__videoEdit.reload();};
     const connections=type.prototype.onConnectionsChange;type.prototype.onConnectionsChange=function(){connections?.apply(this,arguments);requestAnimationFrame(()=>this.__videoEdit?.syncConnections());};

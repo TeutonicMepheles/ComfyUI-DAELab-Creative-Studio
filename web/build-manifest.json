@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "ed827eef76955a316dca6015391f0a0fe8381e10d926aea2edc67c0642573ee4",
+  "sourceFingerprint": "ce8cb88b85056a4d5580f7a2cf7d1445d2007123b8ab70f5395885296439bd22",
   "files": [
     {
       "path": "AGENTS.md",
@@ -496,7 +496,7 @@
     },
     {
       "path": "features/editor/README.md",
-      "sha256": "ab75aeb7ff16766f41fbd941f9b07f33612bc7eed4300e46efc36ddb9bde21a0"
+      "sha256": "cde2b830667992fa70b6b86f4550638c4c601f5736c936ab1e1766780aac41d0"
     },
     {
       "path": "features/editor/export_session.js",
@@ -508,7 +508,7 @@
     },
     {
       "path": "features/editor/video_edit_model.mjs",
-      "sha256": "acb68456f6b9eb6b587d916625869f34af75890ff62dacca0f58a97bf8df164f"
+      "sha256": "6596792f37d88e548a688f8cd25965e5b569c87892bf0c595baea707ea9a199d"
     },
     {
       "path": "features/editor/video_edit_panel.mjs",
@@ -1108,7 +1108,7 @@
     },
     {
       "path": "integrations/comfyui/canvas/README.md",
-      "sha256": "e37c57d6e89fae003c66e94b88cc4e6179a093b76cf69740663974c9df4e0105"
+      "sha256": "9a0b49c1a6fbba03b7d93db649e485e1ee9ab228151b6980178bcb83b9d5ad33"
     },
     {
       "path": "integrations/comfyui/canvas/adapters/AGENTS.md",
@@ -1147,6 +1147,10 @@
       "sha256": "f205d18dfdf1598273089a377ecbd8eb4c24dd47f40e27adacaf051e4b52e247"
     },
     {
+      "path": "integrations/comfyui/canvas/editor_input_policy.js",
+      "sha256": "8dfaacee8807ba45c63aa652eb3b5041210f0108ceaedd9969477cbc2f7d4aab"
+    },
+    {
       "path": "integrations/comfyui/canvas/editor_output_nodes.js",
       "sha256": "f580d6d9e2eb31d35723fc84464dc64a9fdd4c3d625d7adf70d3175c73c9fa90"
     },
@@ -1172,7 +1176,7 @@
     },
     {
       "path": "integrations/comfyui/canvas/video_edit.js",
-      "sha256": "cc9f3bbafc0e1ded53ce678e08658299f5974501ae12aa905330df6f2b758012"
+      "sha256": "40f6c18cc4b5144b30414331cab3e49932ab3b48b6c149930ba24a9e813a2020"
     },
     {
       "path": "integrations/comfyui/compat_readonly.js",
@@ -1184,7 +1188,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "c128ed081ed4ba9728da49964e88ecf80f2d853476e9cb336eae5a4979727cd0"
+      "sha256": "5914adaee297cf8b17feb166b671ceb1fe8f2833a94f0fac96e8b18ac253694c"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

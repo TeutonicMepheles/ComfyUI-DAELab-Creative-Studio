@@ -8,6 +8,8 @@
 
 协作边界：核心模型不读取宿主；此处保留 DAELAB.MediaUpload、槽位和 material JSON。编辑历史仍由宿主拥有，局部恢复不能建立平行撤销栈。
 
+`editor_input_policy.ts` 拒绝同一原生输出重复接入剪辑的其他输入槽；恢复旧工作流时不删改原有连线。素材同步的身份去重由剪辑模型维护，保留主动复制与分割片段。
+
 `editor_output_nodes.ts` 将已核验剪辑回执物化为现有 MediaUpload。`source_video` 是追加的可选惰性本地视频引用入口，只保存来源连线；素材执行读取自己的 asset_data，不请求上游执行。原有输入与五个素材输出槽保持兼容。输出请求身份随工作流保存，重复完成与重开不新建。
 
 本目录的可编辑源位于 `frontend/src/integrations/comfyui/canvas/`。若在 `web/` 看到同名文档，它是构建副本；回到源码修改，再从仓库根目录构建。所有下述命令均从仓库根目录执行。
