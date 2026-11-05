@@ -1188,7 +1188,7 @@
       "source": null,
       "sourceSha256": null,
       "destination": "frontend/src/integrations/comfyui/canvas/restored_node_order.ts",
-      "destinationSha256": "657c58fc115e83ba0e7e1aa88f914202df7b7e41e5af8522468960392427ba71",
+      "destinationSha256": "2d78b926117362f1c569540fd82ddc94f3f67433ba2a397ab16c88601f9be39d",
       "kind": "production-source",
       "changes": [
         "Authored strict native restore boundary: stage one order read per owned node, revalidate workflow/root/node identity, preserve all non-order data.",
@@ -1200,7 +1200,7 @@
       "source": null,
       "sourceSha256": null,
       "destination": "tests/migrated_canvas/history_restored_order.test.mjs",
-      "destinationSha256": "145820e6163503bd456833275c0da7548b60d6fe7661961b4bb7283b2b799f5f",
+      "destinationSha256": "88cf60f0d5b243f1cfd6606ccb45d3bffb5398bc94698e79c806dade300d9336",
       "kind": "rule-regression",
       "changes": [
         "Authored synthetic native history contract tests for order-only restoration, both real generation wrapper orders, real edit detection, failed/ordinary loads and identity/getter boundaries."
