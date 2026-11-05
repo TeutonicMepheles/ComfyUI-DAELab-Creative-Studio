@@ -1,4 +1,4 @@
-import {isGenerationNode,GENERATION_NODE_TYPES,IMAGE_GENERATION_NODE,VIDEO_GENERATION_NODE} from '../../../features/generation/node_families.js';
+import {isGenerationNode,IMAGE_GENERATION_NODE,VIDEO_GENERATION_NODE} from '../../../features/generation/node_families.js';
 import {tableMaterialTargets,fillTableMaterialTarget} from './table_column_targets.js';
 import {NAMESPACE} from '../../../features/prompt/prompt_optimization_model.mjs';
 import {parseTableOutputKey,tableMaterialSnapshot} from '../../../application/table_material_output.mjs';
@@ -58,7 +58,7 @@ function register(){
         preview:node=>({url:node.properties?.daelabLibTVResult,kind:'video'}),
         inputLabels:{table_json:'表格任务',first_frame:'首帧',last_frame:'尾帧',reference_images:'参考图片',reference_video:'参考视频',text_input:'描述文本'},
         canConnectInput:node=>node.type!=='DAELAB.Table',
-        outputTargetTypes:node=>node.type==='DAELAB.Table'?[...GENERATION_NODE_TYPES,'DAELAB.LLMStylePreviewB']:undefined,
+        outputTargetTypes:node=>tables.includes(node.type)?[IMAGE_GENERATION_NODE,VIDEO_GENERATION_NODE]:undefined,
         inputNames:(node,source,slot)=>isGenerationNode(node.type)?generationInputNames(node,source,slot):undefined,
         inputSelection:node=>isGenerationNode(node.type)?'first-free':undefined,
         prepareCopy(node,data){

@@ -1198,7 +1198,7 @@
       "source": "web/creative_canvas_adapter.js",
       "destination": "frontend/src/integrations/comfyui/business/creative_canvas_adapter.js",
       "sourceSha256": "87d4a3ec66de9d84f4be88202779471a416ba4046a820ef1ce83780d3711f9b1",
-      "destinationSha256": "dd4f1259c911bd3627dddb67aad6ec389f690622bd88a6aa84addebf5d88609b",
+      "destinationSha256": "be18465e2fcb5f6bf6dbeb5fcff37c47e48eedb33c8f6eb1ddafd3328b78d4fc",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
@@ -1210,7 +1210,8 @@
         "Candidate source a52e896881b920a35a192e03f9601dd4191d2d8cc76e7f6a6e49063d002fa9db differs from the LF destination only by one CRLF; retained record: .local/validation/table-material-sources-header-fullcheck-first/lf-normalization.json. Upstream source hash is unchanged.",
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
         "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending.",
-        "2026-11-04 task24: compact typed media surface, new 5:4 defaults, provider colors and matching model menu typography/icon alignment; upward constrained popovers. Original source identity retained."
+        "2026-11-04 task24: compact typed media surface, new 5:4 defaults, provider colors and matching model menu typography/icon alignment; upward constrained popovers. Original source identity retained.",
+        "2026-11-05: table and script parser Slot creation and existing-node connections allow only image/video generation targets; preserve saved links and separate material outputs."
       ]
     },
     {
@@ -1301,7 +1302,7 @@
       "source": "web/script_parser.js",
       "destination": "frontend/src/integrations/comfyui/business/script_parser.js",
       "sourceSha256": "7920d6861d96d764a89c4bee1ff714cab3558857e854111146f240bc06b04fb0",
-      "destinationSha256": "b1c7249d245617221d540974533486bcd2edacc34f69fdf6c00bade5ddb4fe23",
+      "destinationSha256": "8c80c8333106e397991daa9727617783d67f56226836b3cd5e5cc7d76114a9e5",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Use the existing outer-card selection ring for empty parser panels to avoid workbench overflow clipping; retain the table surface after import.",
@@ -1311,7 +1312,8 @@
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Use public BusinessPorts for document/prompt requests; retain source slots and lifecycle.",
         "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
-        "1029 script parsing: fixed four columns, source-identified chapters, ten-row pages and native multi-table import history."
+        "1029 script parsing: fixed four columns, source-identified chapters, ten-row pages and native multi-table import history.",
+        "2026-11-05: table and script parser Slot creation and existing-node connections allow only image/video generation targets; preserve saved links and separate material outputs."
       ]
     },
     {
