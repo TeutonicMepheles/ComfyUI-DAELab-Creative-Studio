@@ -164,6 +164,27 @@ class BusinessTests(unittest.TestCase):
         self.assertNotEqual(a['chapter_key'], c['chapter_key'])
         self.assertEqual(c['chapter_key'], d['chapter_key'])
 
+    def test_two_untitled_source_tables_keep_independent_chapter_identity(self):
+        for heading in (False, True):
+            document = Document()
+            if heading:
+                document.add_heading('同一标题', level=1)
+            for count in (14, 12):
+                table = document.add_table(rows=count + 1, cols=2)
+                table.cell(0, 0).text, table.cell(0, 1).text = '镜号', '画面描述'
+                for index in range(1, count + 1):
+                    table.cell(index, 0).text, table.cell(index, 1).text = str(index), f'原文 {index}'
+            stream = io.BytesIO(); document.save(stream)
+            inventory, _ = parse_docx(stream.getvalue())
+            result = normalize_inventory(inventory, choices_for(inventory))
+            first, second = result['tasks'][:14], result['tasks'][14:]
+            self.assertEqual((len(first), len(second)), (14, 12))
+            self.assertNotEqual(first[0]['chapter_key'], second[0]['chapter_key'])
+            self.assertEqual({t['source_table_number'] for t in first}, {1})
+            self.assertEqual({t['source_table_number'] for t in second}, {2})
+            self.assertTrue(all(t['chapter_explicit'] is heading for t in result['tasks']))
+            self.assertTrue(all(t['chapter'] == ('同一标题' if heading else '') for t in result['tasks']))
+
     def test_import_template_does_not_restrict_confirmed_table_edits(self):
         fields = [{'id': fid, 'name': fid, 'type': 'text'} for fid in ('sp-shot_no', 'sp-scene', 'sp-reference', 'sp-notes')]
         table = {'fields': fields, 'records': [{'id': str(i), 'values': {}} for i in range(11)],

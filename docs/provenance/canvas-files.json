@@ -88,7 +88,7 @@
       "source": "web/creative_canvas_view.mjs",
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
       "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
-      "destinationSha256": "f6d47aedd78ac4fd555ae9fb94d5dc72e0d731f728a9bd0146582812eeff6626",
+      "destinationSha256": "12d22a16573a40d4b23f5319ca6967d1b6818c6352f3477982dd7140be4ab232",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
         "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
@@ -122,7 +122,8 @@
         "2026-10-31: preserve native text selection ownership for copy, paste, delete and blank-pointer interactions.",
         "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending.",
         "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately.",
-        "2026-11-05: scope dock geometry and anchor its creation picker above the dock within the viewport; preserve other creation entry points."
+        "2026-11-05: scope dock geometry and anchor its creation picker above the dock within the viewport; preserve other creation entry points.",
+        "2026-11-05: preserve source-table chapter boundaries and strengthen chapter controls; unify cell output and move editable media references only after successful canvas materialization."
       ],
       "kind": "production-source"
     },

@@ -120,7 +120,6 @@ export function installContentPresentation({root,editor,getTable,notify,editProm
             }
             addGroup(groups,
                 outputTable&&!many?item('输出为素材',()=>outputTable({scope:'cell',fieldId:selected.field,recordId:selected.record,anchor:findCell()}),'box-3-line'):null,
-                extractText&&isTextColumn(getTable(),f)&&!f?.readonly?item('拆出文本',()=>{try{const table=getTable(),row=table.records.find(entry=>entry.id===selected.record),text=expandedCellText(table,row,selected.field);if(!text.trim())throw new Error('所选文本为空，未创建节点');extractText({recordId:selected.record,fieldId:selected.field,text,title:(field()?.name||'文本')+' · 拆出'});}catch(error){notify(error.message);}},'file-text-line'):null,
                 optimize);
             if(!many&&['assets','content'].includes(f?.type)&&!f?.readonly)addGroup(groups,item('添加图片',()=>findCell()?.dispatchEvent(new Event('dae-upload')),'image-line'));
             if(!many&&prompt&&!f?.readonly){

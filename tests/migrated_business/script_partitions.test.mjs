@@ -18,6 +18,20 @@ test('import and replacement preserve user titles while tracked default names ca
 function fixture(count,chapter='chapter-1'){
  return {document_id:'doc',filename:'synthetic.docx',assets:{a:{id:'a',url:'/view?filename=a.png',filename:'a.png'}},unassigned:[],audit:[],paragraphs:[{id:'p1',text:'主题原文'}],tables:[],tasks:Array.from({length:count},(_,i)=>({source_key:`doc:r${i}`,row_id:`r${i}`,table_id:'t1',values:{shot_no:'',scene:`画面 ${i}`,notes:'',narration:'未展示的旁白'},chapter:'同名章节',chapter_key:chapter,sources:{scene:[{cell_id:`c${i}`}]},context:['p1'],original_cells:[{text:`原文 ${i}`}],images:[{id:`o${i}`,asset_id:'a'}],issues:[]}))};
 }
+test('source table boundaries survive unnamed pagination and explicit chapters exceed ten without splitting',()=>{
+ const named=fixture(14);for(const task of named.tasks)task.chapter_explicit=true;
+ const whole=planScriptImport(start(),named);assert.deepEqual(whole.pages.map(p=>p.table.records.length),[14]);
+ assert.equal(whole.pages[0].table.meta.script_parser.chapter,'同名章节');validateFixedScript(whole.pages[0].table);
+ const unnamed=fixture(26);unnamed.tasks.forEach((task,i)=>{task.chapter='';task.chapter_key='same-unsectioned-key';task.table_id=i<14?'t1':'t2';});
+ const split=planScriptImport(start(),unnamed).pages;
+ assert.deepEqual(split.map(p=>p.table.records.length),[10,4,10,2]);
+ assert.deepEqual(split.map(p=>p.table.meta.script_parser.chapter),['表 1','表 1','表 2','表 2']);
+ assert.deepEqual(split.map(p=>p.table.meta.script_parser.chapter_page),[1,2,1,2]);
+ assert.ok(split.slice(0,2).every(p=>p.table.records.every(r=>r.meta.script_source.table_id==='t1')));
+ assert.ok(split.slice(2).every(p=>p.table.records.every(r=>r.meta.script_source.table_id==='t2')));
+ const revised=planScriptImport(split,unnamed,'revise');
+ assert.deepEqual(revised.pages.flatMap(p=>p.table.records.map(r=>r.id)),split.flatMap(p=>p.table.records.map(r=>r.id)));
+});
 for(const count of [0,1,10,11,20,21])test(`fixed four fields and lossless pagination for ${count} rows`,()=>{
  const input=fixture(count),result=planScriptImport(start(),input);
  assert.equal(result.pages.length,Math.max(1,Math.ceil(count/10)));
