@@ -315,7 +315,7 @@ business:web/script_parser_panel.mjs
 business:nodes/daelab_comfytv_storyboard/script_contract.py","frontend/src/features/storyboard; frontend/src/application","M3","保留用户编辑与生成身份，导入作为一个可撤销事务。","重复导入不重复行；内容变更的新文档版本可追踪。
 读入期间表格变化、容量超限或类型冲突整次拒绝；活动任务期间不改写其输入快照。
 分镜解析导入默认四列（镜号/画面描述/画面参考/备注），画面描述初始为提示词列；单元格可原位编辑，撤销重做、保存重载，保留来源与修订保护。导入完成后该表按标准多维表格提供完整编辑（含增列、指定提示词列、列输出、拆出文本与单元格输出）。
-2026-11-04：有章节的文稿按章节拆表，并提供可折叠的章节层级；无章节时每表最多 10 行。折叠或展开章节不改变行身份、勾选状态、来源与已生成结果。","UC-BIZ-003","TC-BIZ-023 TC-BIZ-024 TC-BIZ-059"
+2026-11-04：有章节标识（Word 标题/章节层级）的文稿按章节拆表——一个章节一个多维表格，超过 10 行不切开，相邻章节不合并；无章节标识时每表最多 10 行，单个源表超 10 行切分、多个无标题源表各自独立且不跨表合并。折叠或展开章节不改变行身份、勾选状态、来源与已生成结果。","UC-BIZ-003","TC-BIZ-023 TC-BIZ-024 TC-BIZ-059"
 "F-BIZ-021","既有通用文稿和表格文件导入","保留","源码已存在；既有入口接收 DOCX/XLSX/XLSM/CSV/TSV/TXT/MD/PDF，支持程度以解析器与夹具核定。","business:nodes/daelab_comfytv_storyboard/document_import.py
 business:web/data_table_nodes.mjs:111
 business:nodes/daelab_comfytv_storyboard/import_node.py","backend/storyboard; frontend/src/features/storyboard","M3","迁移现有可用格式，不把扩展名列表当所有复杂文档已通过。","逐格式提供正常、空、损坏和结构异常夹具并记录支持限制。
@@ -333,7 +333,7 @@ business:web/libtv_panel.js
 business:web/libtv_video_model.mjs
 business:web/video_task_linked_prompt.mjs","frontend/src/features/generation; frontend/src/application","M4","与表内入口共用同一生成应用服务，保留两种工作方式。","导入表格保留行、来源、帧绑定和节点专属输入。
 修改/撤销只同步匹配字段；源断开/删除时阻止新提交，不覆盖已有结果。
-2026-11-04：表格下游只能连接生成节点；其它节点类型在连线选择位置置灰不可选，已存在的连线保留并照常显示。生成节点贴附在表格下边缘，表格移动或调整宽度时跟随对齐；吸附只影响位置，不改变已验收的节点外观（新建图片/视频节点 5:4、旧实例与手调尺寸保留），不再要求方形外框。","UC-BIZ-010","TC-BIZ-017 TC-BIZ-028 TC-BIZ-049"
+2026-11-04：表格下游 Slot 连线的新建菜单只允许选择图片/视频生成节点（文本生成及其它类型同样置灰）；其它节点类型在连线选择位置置灰不可选，已存在的连线保留并照常显示。生成节点贴附在表格下边缘，表格移动或调整宽度时跟随对齐；吸附只影响位置，不改变已验收的节点外观（新建图片/视频节点 5:4、旧实例与手调尺寸保留），不再要求方形外框。","UC-BIZ-010","TC-BIZ-017 TC-BIZ-028 TC-BIZ-049"
 "F-BIZ-025","精确模型能力、参数与模式预检","重构","源码已存在；云端与本地有各自能力映射，当前包含精确 Fast/Mini 等型号与 H3 三模式。","business:nodes/libtv_bridge/table_comfy_video.py
 business:nodes/libtv_bridge/table_comfy_image.py
 business:nodes/libtv_bridge/table_local_models.py

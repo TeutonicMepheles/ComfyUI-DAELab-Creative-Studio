@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "d42beaafdcabe6712e0057ee918c81aad4d4ec30eb667cab49009ed0428ac194",
+  "specificationHash": "e7c935ef93ffe56216693af54aae399b5f4f7bc8ae9bd2b2ddedcabd79fab9c1",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -5414,8 +5414,8 @@
       "feature": "F-BIZ-020",
       "task": "TASK-M3-FEATURES-STORYBOARD",
       "owner": "features/storyboard",
-      "requirement": "2026-11-04：有章节的文稿按章节拆表，并提供可折叠的章节层级；无章节时每表最多 10 行。折叠或展开章节不改变行身份、勾选状态、来源与已生成结果。",
-      "requirementHash": "eb2ce168a984f76d077b620e079bbc7980501154cbbb72ba0ac4b0bbabfc2383",
+      "requirement": "2026-11-04：有章节标识（Word 标题/章节层级）的文稿按章节拆表——一个章节一个多维表格，超过 10 行不切开，相邻章节不合并；无章节标识时每表最多 10 行，单个源表超 10 行切分、多个无标题源表各自独立且不跨表合并。折叠或展开章节不改变行身份、勾选状态、来源与已生成结果。",
+      "requirementHash": "5ff8a776f77378ef1ae0cc91dfca28c0322e089157810e5d04fa85ccfbc2d940",
       "usecases": [
         "UC-BIZ-003"
       ],
@@ -5597,8 +5597,8 @@
       "feature": "F-BIZ-024",
       "task": "TASK-M4-FEATURES-GENERATION",
       "owner": "features/generation",
-      "requirement": "2026-11-04：表格下游只能连接生成节点；其它节点类型在连线选择位置置灰不可选，已存在的连线保留并照常显示。生成节点贴附在表格下边缘，表格移动或调整宽度时跟随对齐；吸附只影响位置，不改变已验收的节点外观（新建图片/视频节点 5:4、旧实例与手调尺寸保留），不再要求方形外框。",
-      "requirementHash": "9555408a58a782aa4dcda0924987b12ca26830170c71df87b8a2dd944cb7118f",
+      "requirement": "2026-11-04：表格下游 Slot 连线的新建菜单只允许选择图片/视频生成节点（文本生成及其它类型同样置灰）；其它节点类型在连线选择位置置灰不可选，已存在的连线保留并照常显示。生成节点贴附在表格下边缘，表格移动或调整宽度时跟随对齐；吸附只影响位置，不改变已验收的节点外观（新建图片/视频节点 5:4、旧实例与手调尺寸保留），不再要求方形外框。",
+      "requirementHash": "df3034c8920cb34d36b7dad51cf27889930f3edc32962a97a3bec2643df7d0f9",
       "usecases": [
         "UC-BIZ-010"
       ],
@@ -11084,7 +11084,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "a26caf1a4a6b0253a7ce696316c6d7ad38ca999a52319c6e819d6e0050930687",
+      "specificationHash": "3b38074362c33233ae3ff9815169ce4efa88ac09418d3b1f0b270c6cb1e69a7a",
       "assertions": [
         {
           "id": "AS-BIZ-017-001",
@@ -11294,7 +11294,7 @@
         "EV-DATA",
         "EV-JOBS"
       ],
-      "specificationHash": "d866d1d96c6241a0bfba4ec4dc7b44ba0577b0090967ed83e6b083268f65c9f2",
+      "specificationHash": "7ae0dc68ff41daaeab2addc8ca588e6e63d688e752bd9a3f505eb5afedaaa5ea",
       "assertions": [
         {
           "id": "AS-BIZ-023-001",
@@ -11332,7 +11332,7 @@
         "EV-DATA",
         "EV-JOBS"
       ],
-      "specificationHash": "3bfb9c8f4955c5ced1e6178d57abb786f56a4ce23e79651ff8ac85ef06cbeb64",
+      "specificationHash": "21a5a564608c983d4179e7a07922b5ea47fca246c73606c2d2616ddccaeb3597",
       "assertions": [
         {
           "id": "AS-BIZ-024-001",
@@ -11472,7 +11472,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "c3db3f728e29399797a75a522459963a38dbd2d21dd0b51337205768d5efd434",
+      "specificationHash": "84bc1fee9a82f216645bbce426ab8b3f058c7c0c5f61fd37f5ba22daa90bf995",
       "assertions": [
         {
           "id": "AS-BIZ-028-001",
@@ -12304,7 +12304,7 @@
         "EV-ARCH",
         "EV-JOBS"
       ],
-      "specificationHash": "aa007c1a15eb71f4bc0627b238c6ffd27ea9ee24de9c5d948be4cb52cdf9a8e5",
+      "specificationHash": "034863b5474e8772a928674b95bde66659f6c720fc5a6783cf0f7159ca645f60",
       "assertions": [
         {
           "id": "AS-BIZ-049-001",
@@ -12676,7 +12676,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "1173d8e20155958f9cd7d16987ad7f2ac03b656f2e3cb02a0a23973ecda41440",
+      "specificationHash": "cee2e88f06abf042b70a327763c899428745ff3011967246c9233399e4e2aaeb",
       "assertions": [
         {
           "id": "AS-BIZ-059-001",
