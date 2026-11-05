@@ -34,3 +34,26 @@ test('ending an old workflow transaction cannot propagate into the new graph',()
  const f=fixture();let propagated=0;f.app.daelabColumnBindings={flush(){propagated++;}};f.history.begin();f.app.extensionManager.workflow.activeWorkflow={changeTracker:{}};f.history.end();assert.equal(propagated,0);assert.equal(f.snapshots.length,1);
  delete globalThis.LiteGraph;delete globalThis.window;
 });
+
+test('history restore retains references when native IO serialization drops custom input metadata',()=>{
+ const f=fixture();f.history.begin();bindColumnGroup(f.app,f.table,'media',f.group);f.history.end();
+ const before=structuredClone(f.table.__dataTable),properties=structuredClone(f.table.properties),widgets=[f.a.widgets[0].value,f.b.widgets[0].value];
+ f.history.begin();f.table.__dataTable.records[0].values.media=[];f.history.end();assert.equal(f.group.properties.members.length,1);
+ // Restore the owning graph snapshot as native history does, with runtime-only IO data omitted.
+ f.table.__dataTable=before;f.table.properties=properties;f.group.properties.members=[f.a.id,f.b.id];[f.a.widgets[0].value,f.b.widgets[0].value]=widgets;delete f.table.inputs[0].daeColumnField;
+ const tracker=f.app.extensionManager.workflow.activeWorkflow.changeTracker;tracker._restoringState=true;
+ const savedLink=f.table.inputs[0].link;f.table.inputs[0].link=null;f.app.daelabColumnBindings.flush(f.graph);assert.equal(f.table.__dataTable.records[0].values.media.length,1,'transient missing links during restore cannot clear data');
+ f.table.inputs[0].link=savedLink;tracker._restoringState=false;f.app.daelabColumnBindings.flush(f.graph);
+ assert.deepEqual(f.table.__dataTable,before);assert.equal(f.table.inputs[0].daeColumnField,'media');assert.ok(f.table.properties.daelabColumnBindings.media);
+ delete globalThis.LiteGraph;delete globalThis.window;
+});
+
+test('Autogrow renaming after a disconnected column never steals another bound column',()=>{
+ const f=fixture();f.table.__dataTable.fields.push({id:'second',type:'content',name:'Second'});for(const row of f.table.__dataTable.records)row.values.second=[];
+ f.history.begin();bindColumnGroup(f.app,f.table,'media',f.group);bindColumnGroup(f.app,f.table,'second',f.group);f.history.end();
+ const second=structuredClone(f.table.__dataTable.records.map(row=>row.values.second));
+ f.history.begin();const gone=f.table.inputs.shift();delete f.graph.links[gone.link];f.table.inputs[0].name='columns.column0';delete f.table.inputs[0].daeColumnField;f.history.end();
+ assert.ok(f.table.__dataTable.records.every(row=>row.values.media.length===0));assert.deepEqual(f.table.__dataTable.records.map(row=>row.values.second),second);assert.equal(f.table.inputs[0].daeColumnField,'second');
+ delete f.table.inputs[0].daeColumnField;f.app.daelabColumnBindings.flush(f.graph);assert.equal(f.table.inputs[0].daeColumnField,'second');
+ delete globalThis.LiteGraph;delete globalThis.window;
+});

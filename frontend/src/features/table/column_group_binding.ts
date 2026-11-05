@@ -3,7 +3,7 @@ import type {TableData,TableRecord} from './contracts.js';
 
 export interface BoundItem {identity:string;memberId:string;value:Json;}
 export interface CellBinding {identity:string;memberId:string;recordId:string;assetId?:string;}
-export interface ColumnBinding {groupId:string;groupStamp:string;columnStamp:string;mapping:CellBinding[];}
+export interface ColumnBinding {groupId:string;groupStamp:string;columnStamp:string;mapping:CellBinding[];inputName?:string;inputLink?:string|number;}
 export const columnStamp=(table:TableData,fieldId:string)=>JSON.stringify(table.records.map(row=>[row.id,row.values[fieldId]]));
 export const groupStamp=(items:readonly BoundItem[])=>JSON.stringify(items);
 const object=(value:Json|undefined):Record<string,Json>|null=>value!==null&&typeof value==='object'&&!Array.isArray(value)?value:null;

@@ -7,6 +7,7 @@ import {expandedCellText} from '../../../features/prompt/table_prompt_template.m
 import {canvasHistory} from '../canvas/creative_history.mjs';
 // @ts-expect-error Public read-only material exchange has no TypeScript declaration.
 import {inputSnapshot} from '../../../canvas/creative_input_exchange.mjs';
+import {restoreBoundColumnInputs} from './table_column_targets.js';
 
 interface Input {name:string;type:string;link?:number|string|null;daeColumnField?:string;}
 interface Link {origin_id:string|number;origin_slot:number;}
@@ -57,7 +58,7 @@ function materialize(group:Node,items:BoundItem[],app:App){
  group.properties.members=members;
 }
 function flushBindings(app:App,graph:Graph){
- if(running.has(graph)||app.configuringGraph||app.graph!==graph)return;
+ if(running.has(graph)||app.configuringGraph||app.isGraphReady===false||app.extensionManager?.workflow?.activeWorkflow?.changeTracker?._restoringState||app.graph!==graph)return;
  running.add(graph);
  try{
   // A reverse edit may update another bound column visited earlier in this pass.
@@ -65,20 +66,22 @@ function flushBindings(app:App,graph:Graph){
    let changed=false;
    for(const node of graph._nodes){
     const table=tableFor(node);if(!table||!panelFor(node)||node.mode)continue;
-    const saved=states(node),fields=new Set([...Object.keys(saved),...node.inputs.filter(i=>i.daeColumnField).map(i=>i.daeColumnField!)]);
+    restoreBoundColumnInputs(node);const saved=states(node),fields=new Set([...Object.keys(saved),...node.inputs.filter(i=>i.daeColumnField).map(i=>i.daeColumnField!)]);
     for(const fieldId of fields){
-     const input=node.inputs.find(i=>i.daeColumnField===fieldId),link=input?.link==null?null:graph.links instanceof Map?graph.links.get(input.link):graph.links[String(input.link)],group=link&&graph.getNodeById(link.origin_id);
+     let input=node.inputs.find(i=>i.daeColumnField===fieldId);
+     if(!input&&saved[fieldId]){const candidates=node.inputs.filter(i=>{const link=i.link==null?null:graph.links instanceof Map?graph.links.get(i.link):graph.links[String(i.link)];return !i.daeColumnField&&i.name.startsWith('columns.')&&String(link?.origin_id)===saved[fieldId]?.groupId;});if(candidates.length>1)throw new Error('列绑定映射无法唯一恢复，已保留引用，请重新连接对应列头');if(candidates[0]){input=candidates[0];input.daeColumnField=fieldId;restoreBoundColumnInputs(node);}}
+     const link=input?.link==null?null:graph.links instanceof Map?graph.links.get(input.link):graph.links[String(input.link)],group=link&&graph.getNodeById(link.origin_id);
      if(!group||group.type!=='DAELAB.MaterialGroup'){
       if(saved[fieldId]){saveTable(node,clearBoundColumn(tableFor(node)!,fieldId));delete saved[fieldId];changed=true;}
       continue;
      }
-     if(!tableFor(node)!.fields.some(field=>field.id===fieldId)){if(input){node.disconnectInput?.(node.inputs.indexOf(input));delete input.daeColumnField;}delete saved[fieldId];changed=true;continue;}
+     if(!tableFor(node)!.fields.some(field=>field.id===fieldId)){if(input){node.disconnectInput?.(node.inputs.indexOf(input));delete input.daeColumnField;}const slots=node.properties.daelabColumnSlots as Record<string,unknown>|undefined;if(slots)delete slots[fieldId];delete saved[fieldId];changed=true;continue;}
      const items=groupItems(group),plan=planColumnBinding(tableFor(node)!,fieldId,String(group.id),items,saved[fieldId],{uid:()=>crypto.randomUUID(),text:expandedCellText});
      if(!plan)continue;
      if(plan.reverse)materialize(group,plan.items,app);
      for(const mapping of plan.mapping){mapping.memberId=plan.items.find(item=>item.identity===mapping.identity)?.memberId||mapping.memberId;const row=plan.table.records.find(row=>row.id===mapping.recordId);if(mapping.assetId&&row){const values=row.values[fieldId];if(Array.isArray(values))for(const value of values)if(value&&typeof value==='object'&&!Array.isArray(value)&&value.id===mapping.assetId)value.sourceNodeId=mapping.memberId;}}
      saveTable(node,plan.table);
-     saved[fieldId]={groupId:String(group.id),mapping:plan.mapping,groupStamp:groupStamp(groupItems(group)),columnStamp:columnStamp(tableFor(node)!,fieldId)};node.properties.daelabColumnBindings=saved;changed=true;
+     saved[fieldId]={groupId:String(group.id),mapping:plan.mapping,groupStamp:groupStamp(groupItems(group)),columnStamp:columnStamp(tableFor(node)!,fieldId),...(input?{inputName:input.name}:{}),...(input?.link!=null?{inputLink:input.link}:{})};node.properties.daelabColumnBindings=saved;changed=true;
     }
    }
    if(!changed)break;
@@ -113,6 +116,7 @@ export function bindColumnGroup(app:App,node:Node,fieldId:string,group:Node):boo
  installColumnBindings(app);app.daelabColumnBindings?.start?.();const table=tableFor(node);if(!table?.fields.some(f=>f.id===fieldId&&!f.readonly))throw new Error('绑定列不可编辑');
  const items=groupItems(group);planColumnBinding(table,fieldId,String(group.id),items,undefined,{uid:()=>crypto.randomUUID(),text:expandedCellText});let index=node.inputs.findIndex(input=>input.daeColumnField===fieldId);
  if(index<0){index=node.inputs.findIndex(input=>input.name.startsWith('columns.')&&input.link==null&&!input.daeColumnField);if(index<0){const suffix=node.inputs.filter(input=>input.name.startsWith('columns.')).length;node.addInput('columns.column'+suffix,'DAELAB_ASSETS');index=node.inputs.length-1;}node.inputs[index]!.daeColumnField=fieldId;}
+ restoreBoundColumnInputs(node);
  const output=group.outputs?.findIndex(output=>output.type==='DAELAB_ASSETS')??-1;if(output<0)throw new Error('素材组输出不可用');
  if(node.inputs[index]!.link!=null&&!window.confirm('此列已有素材组，替换绑定？'))return true;
  if(!group.connect(output,node,index))throw new Error('列绑定连线未建立');
