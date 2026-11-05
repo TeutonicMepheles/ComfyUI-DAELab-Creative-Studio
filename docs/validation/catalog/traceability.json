@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "65f8ab3f71674f5c4520808594689fe16e7820113c50ef5b3be17c85e314b8a2",
+  "specificationHash": "d42beaafdcabe6712e0057ee918c81aad4d4ec30eb667cab49009ed0428ac194",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -217,6 +217,7 @@
         "AC-CAN-003-001",
         "AC-CAN-003-002",
         "AC-CAN-003-003",
+        "AC-CAN-003-004",
         "AC-CAN-023-001",
         "AC-CAN-023-002",
         "AC-CAN-023-003",
@@ -1665,6 +1666,31 @@
       "owner": "design/ui",
       "requirement": "所有基础组件覆盖键盘、中文输入、禁用、忙碌、错误状态。",
       "requirementHash": "06e79d1ef30e1406f14e12d39fa8e498184cf9f2a3ceee276df95e8bccc5aeae",
+      "usecases": [
+        "UC-CAN-005",
+        "UC-CAN-013"
+      ],
+      "tests": [
+        "TC-CAN-007",
+        "TC-CAN-009",
+        "TC-CAN-017",
+        "TC-CAN-019",
+        "TC-CAN-025",
+        "TC-CAN-043"
+      ],
+      "evals": [
+        "EV-UI"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-CAN-003-004",
+      "feature": "F-CAN-003",
+      "task": "TASK-M1-DESIGN-UI",
+      "owner": "design/ui",
+      "requirement": "2026-11-05：字号与字重沿用既有主题基线（标题 15、正文 14、辅助 12），并固定菜单三层：弹层标题 15/600、菜单选项 14/400、分组标签 12/500；同一控件族不出现多档、弹层标题不高于所属面板标题。其余收紧项（页面级档位、字重禁用 700、禁止 !important、表头统一 14、11px 下限、图标用宽高、隐藏不用 font-size:0）为待评审建议，未确认前不得作为违规判定。详见 docs/product/TYPE_SCALE.md。",
+      "requirementHash": "fb2df03a351c6ce064c6f51ec457076dd28a4053fafabd55e585bdae683f64c1",
       "usecases": [
         "UC-CAN-005",
         "UC-CAN-013"
@@ -8703,6 +8729,7 @@
         "AC-CAN-003-001",
         "AC-CAN-003-002",
         "AC-CAN-003-003",
+        "AC-CAN-003-004",
         "AC-CAN-007-001",
         "AC-CAN-007-002",
         "AC-CAN-007-003",
@@ -8716,7 +8743,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "d31291e008eabd0f1a9f9d2791b00b902f415facb310c8b5e721cd8d42d5b5f3",
+      "specificationHash": "c8d2bc019d967610635091de7f1e7585e284dee8f7a559d077fa156d53f5e67a",
       "assertions": [
         {
           "id": "AS-CAN-007-001",
@@ -8798,6 +8825,7 @@
         "AC-CAN-003-001",
         "AC-CAN-003-002",
         "AC-CAN-003-003",
+        "AC-CAN-003-004",
         "AC-CAN-008-001",
         "AC-CAN-008-002",
         "AC-CAN-008-003",
@@ -8808,7 +8836,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "af1af36a5f42310f4a2a1cf86a0e348dd8b72fd4989fe9a39795ec97e874cbbb",
+      "specificationHash": "c1262f23bcdcd3f15c2f2c8e80b05f86f4c4041f329c13b97a1e393716c990bb",
       "assertions": [
         {
           "id": "AS-CAN-009-001",
@@ -9147,6 +9175,7 @@
         "AC-CAN-003-001",
         "AC-CAN-003-002",
         "AC-CAN-003-003",
+        "AC-CAN-003-004",
         "AC-CAN-016-001",
         "AC-CAN-016-002",
         "AC-CAN-016-003"
@@ -9154,7 +9183,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "3c033379f0a16791b7a22ea0a99f34838f9a6663bcbe50c145c3b352aec97a2c",
+      "specificationHash": "7e0bfd681d79789bb8e9203c6f0d4ea7aa5cdaf6826d570d2ff512e7fc14e146",
       "assertions": [
         {
           "id": "AS-CAN-017-001",
@@ -9231,6 +9260,7 @@
         "AC-CAN-003-001",
         "AC-CAN-003-002",
         "AC-CAN-003-003",
+        "AC-CAN-003-004",
         "AC-CAN-018-001",
         "AC-CAN-018-002",
         "AC-CAN-018-003",
@@ -9239,7 +9269,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "02da867c1643f119640b5408421353ac6fe4039e7ca9cfd687cc1a80938b84fe",
+      "specificationHash": "33bd408337d44f6bf4c2f991e3acb803954367fcd743c4029ba28d60c75dae48",
       "assertions": [
         {
           "id": "AS-CAN-019-001",
@@ -9482,6 +9512,7 @@
         "AC-CAN-003-001",
         "AC-CAN-003-002",
         "AC-CAN-003-003",
+        "AC-CAN-003-004",
         "AC-CAN-023-001",
         "AC-CAN-023-002",
         "AC-CAN-023-003",
@@ -9492,7 +9523,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "b13c43aa537e97e71e36f3bdcc801cc82c49bc3aaf66e686b9f6d7602a99795a",
+      "specificationHash": "11d57fc32348ebe31a78f90f340bf3765c274d9c8900e03749cff60d538df29b",
       "assertions": [
         {
           "id": "AS-CAN-025-001",
@@ -10247,6 +10278,7 @@
         "AC-CAN-003-001",
         "AC-CAN-003-002",
         "AC-CAN-003-003",
+        "AC-CAN-003-004",
         "AC-CAN-039-001",
         "AC-CAN-039-002",
         "AC-CAN-039-003"
@@ -10254,7 +10286,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "79b723b059d217c8f5cec290acd212914efed5a24d28d88f0ba1b150a27b6746",
+      "specificationHash": "155708936e9d14e8daa944967af90109ae21efff902d2fef29b596243051c3bb",
       "assertions": [
         {
           "id": "AS-CAN-043-001",

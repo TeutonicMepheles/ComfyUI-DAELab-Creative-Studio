@@ -108,6 +108,7 @@
 - `AC-CAN-003-001` 按钮的异步忙碌、字段的草稿/提交、焦点和错误状态由共享实现提供。
 - `AC-CAN-003-002` 样式限定产品根范围，不改变宿主和未迁入插件控件。
 - `AC-CAN-003-003` 所有基础组件覆盖键盘、中文输入、禁用、忙碌、错误状态。
+- `AC-CAN-003-004` 2026-11-05：字号与字重沿用既有主题基线（标题 15、正文 14、辅助 12），并固定菜单三层：弹层标题 15/600、菜单选项 14/400、分组标签 12/500；同一控件族不出现多档、弹层标题不高于所属面板标题。其余收紧项（页面级档位、字重禁用 700、禁止 !important、表头统一 14、11px 下限、图标用宽高、隐藏不用 font-size:0）为待评审建议，未确认前不得作为违规判定。详见 docs/product/TYPE_SCALE.md。
 
 **关联：** [UC-CAN-005](USE_CASES.md#uc-can-005)、[UC-CAN-013](USE_CASES.md#uc-can-013)；[TC-CAN-007](TEST_CASES.md#tc-can-007)、[TC-CAN-009](TEST_CASES.md#tc-can-009)、[TC-CAN-017](TEST_CASES.md#tc-can-017)、[TC-CAN-019](TEST_CASES.md#tc-can-019)、[TC-CAN-025](TEST_CASES.md#tc-can-025)、[TC-CAN-043](TEST_CASES.md#tc-can-043)
 

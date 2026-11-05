@@ -13,7 +13,8 @@ canvas:web/creative_field.mjs
 canvas:web/creative_theme.css
 canvas:docs/architecture/CONTRIBUTING_CONTROLS.md","frontend/src/design; frontend/src/ui","M1","保留已形成的组件语义与视觉基线，统一令牌和实例生命周期；迁移不另建节点私有控件体系。","按钮的异步忙碌、字段的草稿/提交、焦点和错误状态由共享实现提供。
 样式限定产品根范围，不改变宿主和未迁入插件控件。
-所有基础组件覆盖键盘、中文输入、禁用、忙碌、错误状态。","UC-CAN-005 UC-CAN-013","TC-CAN-007 TC-CAN-009 TC-CAN-017 TC-CAN-019 TC-CAN-025 TC-CAN-043"
+所有基础组件覆盖键盘、中文输入、禁用、忙碌、错误状态。
+2026-11-05：字号与字重沿用既有主题基线（标题 15、正文 14、辅助 12），并固定菜单三层：弹层标题 15/600、菜单选项 14/400、分组标签 12/500；同一控件族不出现多档、弹层标题不高于所属面板标题。其余收紧项（页面级档位、字重禁用 700、禁止 !important、表头统一 14、11px 下限、图标用宽高、隐藏不用 font-size:0）为待评审建议，未确认前不得作为违规判定。详见 docs/product/TYPE_SCALE.md。","UC-CAN-005 UC-CAN-013","TC-CAN-007 TC-CAN-009 TC-CAN-017 TC-CAN-019 TC-CAN-025 TC-CAN-043"
 "F-CAN-004","按已注册能力新建节点","保留","源码已有空白双击、右键与底部新建菜单，按注册定义和适配器提供可用节点。","canvas:web/creative_canvas_catalog.mjs
 canvas:web/creative_canvas_view.mjs:517
 canvas:docs/architecture/FRONTEND_INTERACTION.md","frontend/src/canvas/commands; frontend/src/application/catalog","M2","保留一致入口和真实能力发现，避免新库暴露不可运行的旧业务节点。","三个入口展示一致的可用节点集合。
