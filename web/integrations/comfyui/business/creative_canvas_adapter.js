@@ -6,7 +6,7 @@ import {parseTableOutputKey,tableMaterialSnapshot} from '../../../application/ta
 // This repository alone owns knowledge of its private panel implementations.
 import {createMaterialTable} from '../../../application/table_material_columns.mjs';
 import {app} from '/scripts/app.js';
-import {materialItem} from '../../../features/table/public_helpers.mjs';
+import {materialItem,takeMaterialItem} from '../../../features/table/public_helpers.mjs';
 import {videoResultAssets} from '../../../features/generation/libtv_video_model.mjs';
 import {generationInputNames} from '../../../features/generation/generation_input.js';
 const key=Symbol.for('DAELAB.CreativeCanvas.API.v1');
@@ -18,6 +18,7 @@ function register(){
     api.registerAdapter('daelab.business',{
         menu:[{label:'多维表格',type:'DAELAB.Table',icon:'layout-grid-line'},{label:'图片生成',type:IMAGE_GENERATION_NODE,icon:'image-line'},{label:'视频生成',type:VIDEO_GENERATION_NODE,icon:'video-line'}],
         materialItem:(node,key)=>materialItem(node.__dataTable,key),
+        takeMaterialItem(node,key,expected){const editor=node.__dataTablePanel?.editor;if(!editor)throw new Error('表格尚未就绪');editor.change(table=>takeMaterialItem(table,key,expected));},
         materialOutput:node=>isGenerationNode(node.type),
         assets:node=>node.__libtvPanel?.assets?.()||videoResultAssets(node),
         materialTargets(node){
