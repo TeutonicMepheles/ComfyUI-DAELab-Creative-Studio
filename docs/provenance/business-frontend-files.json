@@ -421,7 +421,7 @@
       "source": "web/llm_io_panel.mjs",
       "destination": "frontend/src/features/prompt/llm_io_panel.mjs",
       "sourceSha256": "62133e0e28f809abcf5b59cca42eb091cce6cbc57749f88b01f6134c4171c89e",
-      "destinationSha256": "bec906f9c5c4d2f997975c5b58f198d6fed68e96f92100691824d2355d5a1d1a",
+      "destinationSha256": "3688ea1e30ef67ecd086e9447f573245410fe523d0df875ca36fbd46bb1dd4c9",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -469,7 +469,7 @@
       "source": "web/llm_style_preview.css",
       "destination": "frontend/src/features/prompt/llm_style_preview.css",
       "sourceSha256": "91ecfb9d971e13ef211a313656fdac10bb7f430b79582058f63b27224e9112d5",
-      "destinationSha256": "9b9fcc75ddb470dc15d34fe5118883930a34d786087eb60b36389b139f7b00f8",
+      "destinationSha256": "58c946998e5057796d1b8de4cf92b58cedb6a7123cbb4677c9ccc64648e52929",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -484,7 +484,7 @@
       "source": "web/llm_style_preview_panel.mjs",
       "destination": "frontend/src/features/prompt/llm_style_preview_panel.mjs",
       "sourceSha256": "78d3e2dd23a3fbf1cc216ca90f9fce223889f06475ed49234cc84020426bd166",
-      "destinationSha256": "42c9f2e88fd0569fc9085e866d25e98237a7c6714fee430316cd0ce72d92036c",
+      "destinationSha256": "3ab62e2dcad707a4cba0f577275e3e772895cb067861c7f05cf12efae2d5ecdf",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -2150,7 +2150,7 @@
       "source": null,
       "sourceSha256": null,
       "destination": "tests/migrated_business/unfocused_history_guard.test.mjs",
-      "destinationSha256": "cee2ef962d1ea52677f68f853a2a837bda654d9847996bfee61cecc2b265c3c2",
+      "destinationSha256": "b2d536affabd9a202afe602e855e7d0f75012a9c358998d9c2d95cdd9064432e",
       "kind": "authored-contract-or-integration",
       "changes": [
         "Authored full owning-panel and actual BusinessDocument regressions with unrelated IO/buttons injected: two source/instruction owners, preserved focused/local input, cheap lifetime, composition/shadow focus/noncancelable/read-only/inactive exclusions and disposal. Models browser default action; does not prove real Chromium event delivery."
