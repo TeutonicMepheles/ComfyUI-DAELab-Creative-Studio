@@ -57,3 +57,20 @@ test('Autogrow renaming after a disconnected column never steals another bound c
  delete f.table.inputs[0].daeColumnField;f.app.daelabColumnBindings.flush(f.graph);assert.equal(f.table.inputs[0].daeColumnField,'second');
  delete globalThis.LiteGraph;delete globalThis.window;
 });
+
+test('post-restore polling rebuilds runtime ports without entering history or consuming redo',()=>{
+ const interval=globalThis.setInterval;let tick;
+ globalThis.setInterval=callback=>{tick=callback;return {unref(){}};};
+ try{
+  const f=fixture();f.history.begin();bindColumnGroup(f.app,f.table,'media',f.group);f.history.end();
+  const tracker=f.app.extensionManager.workflow.activeWorkflow.changeTracker;
+  const redo={deleteReference:true};tracker.redoQueue=[redo];
+  tracker.beforeChange=()=>{tracker.redoQueue=[];throw new Error('restored state is not a new edit');};
+  delete f.table.inputs[0].daeColumnField;
+  const table=structuredClone(f.table.__dataTable),members=[...f.group.properties.members];
+  tick();tick();
+  assert.equal(f.table.inputs[0].daeColumnField,'media');
+  assert.deepEqual(f.table.__dataTable,table);assert.deepEqual(f.group.properties.members,members);
+  assert.deepEqual(tracker.redoQueue,[redo]);
+ }finally{globalThis.setInterval=interval;delete globalThis.LiteGraph;delete globalThis.window;}
+});

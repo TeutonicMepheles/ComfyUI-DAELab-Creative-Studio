@@ -99,6 +99,10 @@ export function installColumnBindings(app:App){
   if(app.isGraphReady===false||app.configuringGraph||tracker?._restoringState||tracker?.changeCount||!app.graph?._nodes.some(n=>Object.keys(n.properties?.daelabColumnBindings||{}).length||n.inputs?.some(i=>i.daeColumnField&&i.link!=null)))return;
   // Read-only comparison keeps ordinary ticks outside the host history machinery.
   const dirty=app.graph._nodes.some(node=>node.inputs?.some(input=>input.daeColumnField&&input.link!=null&&!states(node)[input.daeColumnField])||Object.entries((node.properties.daelabColumnBindings||{}) as Record<string,ColumnBinding>).some(([field,binding])=>{
+   // Native restore omits runtime IO annotations. Reconstruct them before the
+   // read-only comparison; otherwise a healthy restored link looks disconnected
+   // and entering amend() can consume the host's redo history without an edit.
+   restoreBoundColumnInputs(node);
    const table=tableFor(node),input=node.inputs.find(i=>i.daeColumnField===field),link=input?.link==null?null:app.graph.links instanceof Map?app.graph.links.get(input.link):app.graph.links[String(input.link)],group=link&&app.graph.getNodeById(link.origin_id);
    try{return !!table&&(!group||String(group.id)!==binding.groupId||columnStamp(table,field)!==binding.columnStamp||groupStamp(groupItems(group))!==binding.groupStamp);}catch{return false;}
   }));
