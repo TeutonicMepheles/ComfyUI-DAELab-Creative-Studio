@@ -91,7 +91,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         // Read every port/path/card before magnetic and wire styles invalidate layout.
         hoverPoint=null;drawWires(paintHover,portShifts);
     });}
-    const cards=new Map(),layers=new WeakMap(),cardOwners=new WeakMap();let topLayer=1,selectedLink=null,addPoint=null,pickerConnection=null,workspace=null;
+    const cards=new Map(),layers=new WeakMap(),cardOwners=new WeakMap();let topLayer=1,selectedLink=null,addPoint=null,pickerConnection=null,pickerAnchor=null,workspace=null;
     const caretReveal=createCaretReveal({
         root,
         tabOcclusion(){
@@ -126,7 +126,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
     const dirty=()=>{host.changed(graph);};
     const message=text=>{status.textContent=text;};
     const assetLibrary=createAssetLibrary(root,{
-        onCreate:()=>choose({x:root.clientWidth/2,y:Math.max(32,root.clientHeight-350)}),
+        onCreate:()=>choose({x:root.clientWidth/2,y:Math.max(32,root.clientHeight-350)},null,assetLibrary.dock.querySelector('.dae-library-create')),
         onAdd:async(entry,signal)=>{
             const owner=graph,ownerState=state,documentId=String(graph.id||'unsaved');if(!visible||owner!==host.graph())return;
             if(entry.kind!=='text'){
@@ -725,7 +725,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         const source=port?.closest('.dae-creative-card'),owner=source&&[...cards.values()].find(card=>String(card.node.id)===source.dataset.nodeId),side=port?.dataset.side;
         for(const card of cards.values()){if(!owner||card===owner){delete card.element.dataset.connectionCompatible;continue;}const compatible=side==='output'?targetChoices(owner.node,MATERIAL_SLOT,card.node).length>0:targetChoices(card.node,MATERIAL_SLOT,owner.node).length>0;card.element.dataset.connectionCompatible=String(compatible);}
     }
-    function closePicker(){setWireSource(null);picker?.remove();picker=null;pickerConnection=null;addPoint=null;wires.querySelector('[data-preview]')?.remove();}
+    function closePicker(){setWireSource(null);picker?.remove();picker=null;pickerConnection=null;pickerAnchor=null;addPoint=null;wires.querySelector('[data-preview]')?.remove();}
     function validConnection(context){if(context.itemKey!==undefined)return visible&&graph===host.graph()&&graph.getNodeById(context.node.id)===context.node&&!context.node.mode&&!!adapterFor(context.node)?.materialItem;if(context.tableOutput)return graph===host.graph()&&graph.getNodeById(context.node.id)===context.node&&!context.node.mode&&!!adapterFor(context.node)?.outputMaterials;if(context.materialKey!==undefined)return graph===host.graph()&&graph.getNodeById(context.node.id)===context.node&&(adapterFor(context.node)?.materialSources?.(context.node)||[]).some(s=>s.key===context.materialKey&&s.element.isConnected);return graph===host.graph()&&graph.getNodeById(context.node.id)===context.node&&(context.index===MATERIAL_SLOT?(context.node.type!==UPLOAD_TYPE||uploadKind(context.node)===context.mediaKind):context.node[context.side==='output'?'outputs':'inputs']?.[context.index]===context.slot);}
     function previewConnection(context,point){
         const c=cards.get(context.node.id),port=context.element||c?.ports.querySelector(`[data-side=${context.side}][data-slot="${context.index}"]`);if(!port)return;setWireSource(port);
@@ -738,8 +738,18 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
     }
     function positionPicker(){
         if(!picker||!addPoint||!visible)return;
-        const x=Math.max(12,Math.min(addPoint.x,root.clientWidth-picker.offsetWidth-12));
-        const y=Math.max(12,Math.min(addPoint.y,root.clientHeight-picker.offsetHeight-12));
+        let origin=addPoint,bottom=root.clientHeight-12;
+        if(pickerAnchor){
+            if(!root.contains(pickerAnchor)){closePicker();return;}
+            const bounds=root.getBoundingClientRect(),anchor=pickerAnchor.getBoundingClientRect();
+            origin={x:anchor.left-bounds.left,y:anchor.top-bounds.top};
+            const boundary=(pickerAnchor.closest('.dae-library-dock')||pickerAnchor).getBoundingClientRect();
+            bottom=Math.max(12,boundary.top-bounds.top-8);
+            picker.style.maxHeight=`${Math.max(0,bottom-12)}px`;
+        }
+        const x=Math.max(12,Math.min(origin.x,root.clientWidth-picker.offsetWidth-12));
+        const height=picker.getBoundingClientRect().height;
+        const y=Math.max(12,Math.min(pickerAnchor?bottom-height:origin.y,bottom-height));
         picker.style.left=`${x}px`;picker.style.top=`${y}px`;
         addPoint={x:Math.min(addPoint.x,root.clientWidth-12),y:Math.min(addPoint.y,root.clientHeight-12)};
         if(pickerConnection){previewConnection(pickerConnection,addPoint);}
@@ -770,8 +780,8 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         list.append(button('取消',()=>{closePicker();root.focus();}));positionPicker();picker.querySelector('button').focus();
         message('此节点有多个兼容入口，请选择素材用途');
     }
-    function choose(point,context=null){
-        closePicker();if(context&&(!validConnection(context)||(context.side==='output'&&!canConnectOutput(context.node))))return;addPoint=point;pickerConnection=context;
+    function choose(point,context=null,anchor=null){
+        closePicker();if(context&&(!validConnection(context)||(context.side==='output'&&!canConnectOutput(context.node))))return;addPoint=point;pickerConnection=context;pickerAnchor=anchor;
         if(context?.side==='output'&&adapterFor(context.node)?.textGroupOutput?.(context.node)){
             picker=el('section','dae-creative-picker');picker.setAttribute('aria-label','添加节点');picker.append(el('h2','','引用此节点新建'));root.append(picker);
             const output=button('输出为文本素材组',()=>{closePicker();try{outputTextGroup(context.node,point);}catch(error){message(error.message);}});

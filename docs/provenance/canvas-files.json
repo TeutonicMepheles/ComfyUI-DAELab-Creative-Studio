@@ -88,7 +88,7 @@
       "source": "web/creative_canvas_view.mjs",
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
       "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
-      "destinationSha256": "f0250780dd8e61daa1e98cbd5b96fc2e27311fb298e9a2bab2eda4335b7cde07",
+      "destinationSha256": "f6d47aedd78ac4fd555ae9fb94d5dc72e0d731f728a9bd0146582812eeff6626",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
         "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
@@ -121,7 +121,8 @@
         "2026-10-30: make group/member port ownership exclusive and prioritize direct hits without style or layout changes.",
         "2026-10-31: preserve native text selection ownership for copy, paste, delete and blank-pointer interactions.",
         "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending.",
-        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately."
+        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately.",
+        "2026-11-05: scope dock geometry and anchor its creation picker above the dock within the viewport; preserve other creation entry points."
       ],
       "kind": "production-source"
     },
@@ -129,7 +130,7 @@
       "source": "web/creative_canvas.css",
       "destination": "frontend/src/canvas/creative_canvas.css",
       "sourceSha256": "a858f0328a4f03c28c98a9d6742cbfc615e4ce1a4db8f50f50b2a3e0bca420ee",
-      "destinationSha256": "6a538385014894bb973dd53aea850f23faa97307b7e04c170e625674b2705599",
+      "destinationSha256": "f6d1ac30f8d04f132d1433806152a6970964abf14f7e2d9ee6b0efa1341e4c46",
       "changes": [
         "2026-11-03: Use a compact square empty parser with a matching visible workbench surface and the Script Document Parser display name; preserve populated tables and user sizing.",
         "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
@@ -141,7 +142,8 @@
         "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending.",
         "2026-11-04 task24: compact typed media surface, new 5:4 defaults, provider colors and matching model menu typography/icon alignment; upward constrained popovers. Original source identity retained.",
         "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately.",
-        "2026-11-05: normalize the six reviewed typography roles; preserve interactions and icon exceptions."
+        "2026-11-05: normalize the six reviewed typography roles; preserve interactions and icon exceptions.",
+        "2026-11-05: scope dock geometry and anchor its creation picker above the dock within the viewport; preserve other creation entry points."
       ],
       "kind": "production-source"
     },
@@ -326,14 +328,15 @@
       "source": "web/asset_library.css",
       "destination": "frontend/src/features/assets/asset_library.css",
       "sourceSha256": "a29f80d5fff8c620c39a87796375db6caa2af6b133d47990defbeec16365c279",
-      "destinationSha256": "c555d3f6c0a2f8ff19d54b9e7499bf6651f8bbf539f3b231f4d2e706291afe01",
+      "destinationSha256": "106e2b3df859bada8dfdfa7a3abf8a39772be3e7b9458ad0815c5bc6d6f04e92",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "2026-11-05: mount the reviewed folder browser in the existing library with shared typography and owned lifecycle.",
         "2026-11-05: scoped neutral asset-library visual system and layout; service and interaction contracts retained.",
         "2026-11-05: scoped neutral asset-library visual system and layout; service and interaction contracts retained.",
         "2026-11-05: make asset-library bound-control radii and icon dimensions independent of shared stylesheet order.",
-        "2026-11-05: make asset-library bound-control radii and icon dimensions independent of shared stylesheet order."
+        "2026-11-05: make asset-library bound-control radii and icon dimensions independent of shared stylesheet order.",
+        "2026-11-05: scope dock geometry and anchor its creation picker above the dock within the viewport; preserve other creation entry points."
       ],
       "kind": "production-source"
     },

@@ -146,3 +146,7 @@ dialog.dae-library-preview::backdrop{background:#09090bb3}
 :is(.dae-creative,.dae-ui) .dae-library-drawer .dae-library-filters button[data-creative-button]{border-radius:var(--dae-radius-sm)!important}
 .dae-creative .dae-library-drawer :is(.dae-library-remove,.dae-library-icon-only){box-sizing:border-box;width:32px!important;min-width:32px!important;max-width:32px!important;height:32px!important;min-height:32px!important;max-height:32px!important;line-height:1!important;padding:7px!important}
 .dae-creative .dae-library-drawer input[data-creative-field]{border-radius:var(--dae-radius-sm)!important}
+
+/* The dock uses the same scoped rectangle geometry as the library controls. */
+:is(.dae-creative,.dae-ui) .dae-library-dock button[data-creative-button]{box-sizing:border-box;height:32px!important;min-height:32px!important;max-height:32px!important;border-radius:var(--dae-radius-sm)!important}
+:is(.dae-creative,.dae-ui) .dae-library-dock button.dae-library-create{width:32px!important;min-width:32px!important;max-width:32px!important;padding:0!important}
