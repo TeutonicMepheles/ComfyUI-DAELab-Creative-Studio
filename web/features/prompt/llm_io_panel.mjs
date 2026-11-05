@@ -19,7 +19,7 @@ const setProperty=(element,key,value)=>{if(element[key]!==value)element[key]=val
 const setAttribute=(element,key,value)=>{if(element.getAttribute(key)!==value)element.setAttribute(key,value);};
 const toggleAttribute=(element,key,enabled)=>{if(element.hasAttribute(key)!==enabled)element.toggleAttribute(key,enabled);};
 const toggleClass=(element,key,enabled)=>{if(element.classList.contains(key)!==enabled)element.classList.toggle(key,enabled);};
-export function bindIOPanel({node,nativeDocument=null,root,source,instruction,select,run,upload,result,materialHint}){
+export function bindIOPanel({node,nativeDocument=null,root,source,instruction,select,modelControl=null,run,upload,result,materialHint}){
     const saved=()=>node.properties.llmStylePreview;
     saved().instruction??=instruction.value;
     if(!['polish','reverse'].includes(saved().mode))saved().mode='polish';
@@ -50,7 +50,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
     const sourceSection=source.closest('.llm-style-source');source.placeholder='输入原始文字，或连接文本节点';
     const imageSection=make('section','llm-style-section llm-style-image-source'),imageBox=make('div','llm-style-image-upload'),image=make('img','llm-style-image-preview'),imageText=make('span','llm-style-image-text','通过 Slot 连接参考图片');
     imageSection.append(make('span','llm-style-label','参考图片'),imageBox);imageBox.append(image,imageText);sourceSection.after(imageSection);materialHint.parentElement.hidden=true;
-    const modelCatalog=getModelCatalog(),sourceBadge=make('span','llm-model-source');if(select.parentElement)select.after(sourceBadge);
+    const modelCatalog=getModelCatalog(),sourceBadge=make('span','llm-model-source');sourceBadge.hidden=!!modelControl;if(select.parentElement)select.after(sourceBadge);
     let models=[],modelListSignature='';
     const logicalModel=model=>{
         if(models.some(option=>option.id===model))return model;
@@ -141,8 +141,8 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
         if(savedInstruction!=null)setProperty(instruction,'value',String(savedInstruction));
         for(const b of root.querySelectorAll('[data-mode]')){const selected=b.dataset.mode===saved().mode;setAttribute(b,'aria-pressed',String(selected));toggleAttribute(b,'data-primary',selected);}
         const mode=saved().mode||'polish',reverse=mode==='reverse',disabled=busy||!!node.mode;
-        setProperty(sourceSection,'hidden',reverse);setProperty(imageSection,'hidden',!reverse);
         const linked=node.inputs?.some(input=>input.link!=null)||false;
+        setProperty(sourceSection,'hidden',reverse||linked);setProperty(imageSection,'hidden',!reverse);
         setProperty(source,'readOnly',linked);
         setProperty(source,'value',linked?selectedRow?.text||'':saved().source||'');
         const first=selectedRow?.image;setProperty(image,'hidden',!first);if(first&&image.getAttribute('src')!==first.url)image.src=first.url;setProperty(image,'alt',first?.name||'参考图片');setProperty(imageText,'hidden',!!first);toggleClass(imageBox,'has-image',!!first);
@@ -161,6 +161,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
         setProperty(status,'textContent',(modelCatalog.get(logicalModel(saved().model))?.status==='unknown'?modelOptionPresentation(modelCatalog.get(logicalModel(saved().model))).statusLabel:'')||error||(d&&stale?'输入已改变，请重新生成':message|| (d?`${resultProvider==='qwen'?'本地 Qwen 结果':resultProvider==='deepseek'?'DeepSeek 结果':d.provider==='qwen-image-2.1-pe'?'PE 本地结果':d.provider==='qwen3.8-27b-w4a8'?'27B 本地结果':d.provider==='gpt-6-luna'?'GPT-6 Luna 结果（Comfy）':'示例结果 · 未调用模型'}${isApplied?' · 已应用':' · 待应用'}`:rows.length&&!valid?'当前输入不支持此模式':rows.length?`${rows.length} 项输入 · 等待生成`:'请输入原始文字或连接输入')));
         task=[...generationTask.snapshot(),...(!busy&&error?[{id:'llm-input',label:waiting?'等待输入':'输入异常',state:waiting?'queued':'error',detail:error}]:[])];
         try{node.setOutputData?.(0,outputText(node));}catch{node.setOutputData?.(0,null);}
+        modelControl?.sync();
     }
     on(select,'change',()=>{message='';saved().model=select.value;syncSourceBadge(select.value);changed();});for(const field of [source,instruction])on(field,'input',()=>{message='';changed();});
     on(paragraph,'input',()=>{

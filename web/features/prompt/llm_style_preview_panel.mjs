@@ -5,6 +5,7 @@ import {createTableButton,tableTheme} from '../../ui/table_controls.mjs';
 import * as sharedFields from '../../ui/creative_field.mjs';
 import * as sharedPanels from '../../ui/creative_panel_state.mjs';
 import {bindUnfocusedHistoryGuard} from '../../ui/unfocused_history_guard.js';
+import {createLLMModelPicker} from './llm_model_picker.js';
 
 export const STYLE_VARIANTS=Object.freeze([
     {id:'A',label:'A 紧凑单栏',width:420,height:610},
@@ -23,7 +24,7 @@ export function createLLMStylePanel(node,variant,{nativeDocument=null}={}){
     tableTheme();
     if(!document.getElementById('dae-llm-style-css')){const link=el('link');link.id='dae-llm-style-css';link.rel='stylesheet';link.href=new URL('./llm_style_preview.css',import.meta.url).href;document.head.append(link);}
     const root=el('section',`dae-ui llm-style llm-style-${variant.id}`);root.dataset.variant=variant.id;root.setAttribute('aria-label',`文本生成 ${variant.label}`);
-    const releases=[],fields=[],buttons=[];let interaction=null;
+    const releases=[],fields=[],buttons=[];let interaction=null,modelControl=null;
     const saved=()=>node.properties.llmStylePreview||={version:1,mode:'polish'};
     const write=(key,value,group=null)=>{if(nativeDocument)nativeDocument.edit('编辑 LLM 配置',draft=>{draft[key]=value;},{group});else{saved()[key]=value;node.graph?.change?.();}};
     const button=(label,fn,primary=false)=>{const b=createTableButton(label,fn,primary);buttons.push(b);return b;};
@@ -31,14 +32,14 @@ export function createLLMStylePanel(node,variant,{nativeDocument=null}={}){
     const tabs=el('div','llm-style-modes');tabs.setAttribute('role','group');tabs.setAttribute('aria-label','处理方式');
     const modes=variant.id==='B'?MODES.slice(0,2):MODES;
     const modeButtons=modes.map(([value,label])=>{const b=button(label,()=>{write('mode',value);sync();});b.dataset.mode=value;tabs.append(b);return b;});
-    function editor(label,key,fallback,cls){const section=el('label',`llm-style-section ${cls}`);section.append(el('span','llm-style-label',label));const input=el('textarea');input.setAttribute('aria-label',`${variant.id} ${label}`);input.spellcheck=false;input.value=saved()[key]??fallback;let group=null;input.addEventListener('focus',()=>{group=crypto.randomUUID();});input.addEventListener('blur',()=>{group=null;});input.addEventListener('input',()=>write(key,input.value,group));section.append(input);fields.push(input);const release=sharedFields?.bindCreativeField(input);if(release)releases.push(release);return {section,input,key,fallback};}
+    function editor(label,key,fallback,cls){const section=el('label',`llm-style-section ${cls}`),caption=el('span','llm-style-label',label);section.append(caption);const input=el('textarea');input.setAttribute('aria-label',`${variant.id} ${label}`);input.spellcheck=false;input.value=saved()[key]??fallback;let group=null;input.addEventListener('focus',()=>{group=crypto.randomUUID();});input.addEventListener('blur',()=>{group=null;});input.addEventListener('input',()=>write(key,input.value,group));section.append(input);fields.push(input);const release=sharedFields?.bindCreativeField(input);if(release)releases.push(release);return {section,input,key,fallback,caption};}
     const source=editor('原始文字','source',variant.id==='B'?'':SOURCE,'llm-style-source');
     const instruction=editor('处理要求','instruction',variant.id==='B'?DEFAULT_TEXT_INSTRUCTION:INSTRUCTION,'llm-style-instruction');
     if(variant.id==='B'){
         const templates=el('select');templates.setAttribute('aria-label','提示词模板');templates.add(new Option('选择模板（应用后可编辑）',''));
         for(const template of TEXT_TEMPLATES)templates.add(new Option(template.label,template.id));
         templates.addEventListener('change',()=>{const template=TEXT_TEMPLATES.find(item=>item.id===templates.value);if(!template||instruction.input.disabled||instruction.input.readOnly)return;instruction.input.value=template.text;instruction.input.dispatchEvent(new Event('input',{bubbles:true}));templates.value='';});
-        instruction.section.prepend(templates);fields.push(templates);
+        const heading=el('div','llm-style-instruction-head');heading.append(instruction.caption,templates);instruction.section.prepend(heading);fields.push(templates);
     }
     if(nativeDocument)for(const field of [source,instruction])releases.push(bindUnfocusedHistoryGuard(field.input,{isCurrent:()=>nativeDocument.isCurrent()}));
     const materials=el('div','llm-style-materials');
@@ -59,6 +60,7 @@ export function createLLMStylePanel(node,variant,{nativeDocument=null}={}){
         resultHead.append(actions);
     }
     const footer=el('footer','llm-style-footer');const select=el('select');select.setAttribute('aria-label',`${variant.id} 模型`);select.add(new Option('Qwen · 待接入','qwen'));select.add(new Option('GPT · 待接入','gpt'));select.value=saved().model||'qwen';select.addEventListener('change',()=>write('model',select.value));fields.push(select);const fieldRelease=sharedFields?.bindCreativeField(select);if(fieldRelease)releases.push(fieldRelease);
+    if(variant.id==='B'){modelControl=createLLMModelPicker(select,{active:()=>!node.mode&&(!nativeDocument||nativeDocument.isCurrent())});buttons.push(modelControl.root);releases.push(()=>modelControl.dispose());footer.append(modelControl.root);}
     const run=button('生成',()=>{},true);run.prepend(icon('sparkling-line'));run.disabled=true;run.title='仅样式预览，未接入生成逻辑';footer.append(select,run);
     const body=el('div','llm-style-body');
     const foldedResult=()=>{const d=el('details','llm-style-details');d.append(el('summary','','优化结果 · 示例'),result);return d;};
@@ -71,8 +73,8 @@ export function createLLMStylePanel(node,variant,{nativeDocument=null}={}){
     const note=el('div','llm-style-note','仅供样式确认 · 不会调用模型');if(variant.id!=='B')root.append(note);
     for(const event of ['pointerdown','dblclick','keydown','wheel'])root.addEventListener(event,stopCanvasPropagation);
     const availability=sharedPanels?.bindPanelAvailability(node,root);if(availability)releases.push(availability);
-    function sync(){for(const b of modeButtons){const selected=b.dataset.mode===(saved().mode||'polish');b.setAttribute('aria-pressed',String(selected));b.toggleAttribute('data-primary',selected);}for(const field of [source,instruction])if(document.activeElement!==field.input)field.input.value=saved()[field.key]??field.fallback;select.value=saved().model||'qwen';interaction?.sync();}
+    function sync(){for(const b of modeButtons){const selected=b.dataset.mode===(saved().mode||'polish');b.setAttribute('aria-pressed',String(selected));b.toggleAttribute('data-primary',selected);}for(const field of [source,instruction])if(document.activeElement!==field.input)field.input.value=saved()[field.key]??field.fallback;select.value=saved().model||'qwen';interaction?.sync();modelControl?.sync();}
     sync();
-    if(variant.id==='B')releases.push(interaction=bindIOPanel({node,nativeDocument,root,source:source.input,instruction:instruction.input,select,run,upload,result,materialHint,sync,example:RESULT}));
-    return {root,fields,buttons,sync,invalidate:()=>nativeDocument?.invalidate(),tasks:()=>interaction?.tasks?.()||[],acceptMaterials:collection=>interaction?.acceptMaterials?.(collection),destroy(){nativeDocument?.dispose();for(const release of releases)release();root.remove();}};
+    if(variant.id==='B')releases.push(interaction=bindIOPanel({node,nativeDocument,root,source:source.input,instruction:instruction.input,select,modelControl,run,upload,result,materialHint,sync,example:RESULT}));
+    return {root,fields,buttons,sync,close:()=>modelControl?.close(),invalidate:()=>nativeDocument?.invalidate(),tasks:()=>interaction?.tasks?.()||[],acceptMaterials:collection=>interaction?.acceptMaterials?.(collection),destroy(){nativeDocument?.dispose();for(const release of releases)release();root.remove();}};
 }
