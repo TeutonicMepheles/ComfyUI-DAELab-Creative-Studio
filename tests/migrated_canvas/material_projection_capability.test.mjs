@@ -67,6 +67,17 @@ test('optional capability dispatch preserves target-before-source snapshot order
  assert.equal(values[0].entry[symbol],'symbol-value');assert.equal(values[0].entry.previewElements,target.previewElements);assert.equal(callbacks,0);assert.equal(values[0].entry.slot,42);
 });
 
+test('paired header input/output retain disjoint hit halos after header recreation',()=>{
+ const w=world();let head=w.element('head'),source=w.element('source');source.head=head;
+ const a={materialTargets:()=>[{element:head,key:'media',project:true}],materialSources:()=>[{element:source,key:'column:media'}]},c=w.card(1,a);
+ for(let pass=0;pass<3;pass++){
+  w.api.run(c);const ports=[...c.materialPorts.values()],input=ports.find(p=>p.entry.side==='input').port,output=ports.find(p=>p.entry.side==='output').port;
+  assert.equal(parseFloat(output.style.left)-parseFloat(input.style.left),48,'32px controls with 8px halos do not overlap');
+  assert.equal(input.style.top,output.style.top);
+  head=w.element('head-'+pass,{left:60,top:90,width:80,height:36});source=w.element('source-'+pass);source.head=head;
+ }
+});
+
 test('absent or non-function opt-in retains legacy inherited/non-enumerable/getter behavior and callback ordering',()=>{
  for(const optional of [undefined,false]){
   const w=world(),events=[];const inherited=Object.assign(Object.create({project:false}),{element:w.element('inherited'),key:'inherited'});

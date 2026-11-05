@@ -264,6 +264,11 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         const adapter=adapterFor(c.node),targets=typeof adapter?.projectedMaterialTargets==='function'?adapter.projectedMaterialTargets(c.node):adapter?.materialTargets?.(c.node);
         const entries=[...(targets||[]).map(target=>({...target,side:'input'})),...(adapter?.materialSources?.(c.node)||[]).map(source=>({...source,side:'output'}))];
         if(!entries.length&&!c.materialPorts?.size)return;
+        // Input binding and output snapshot can belong to the same header.
+        // Keep their full 32px controls plus 8px hit halos apart, regardless of
+        // creation order (including replacement/recreated header elements).
+        const sidesByAnchor=new Map();
+        for(const entry of entries){if(entry.project===false)continue;const anchor=entry.anchorElement||entry.element.closest('th')||entry.element;let sides=sidesByAnchor.get(anchor);if(!sides)sidesByAnchor.set(anchor,sides=new Set());sides.add(entry.side);}
         // Existing input projections have no setup writes. Measure this stable
         // pass before painting; creation and source hiding keep their old order.
         const anchors=new Map(),seen=new Set(),measurements=[];
@@ -302,9 +307,10 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
             let clipElement=entry.clipElement;
             if(!clipElement)for(let parent=anchor.parentElement;parent&&parent!==c.element;parent=parent.parentElement){if(/auto|scroll|hidden|clip/.test(getComputedStyle(parent).overflowX)){clipElement=parent;break;}}
             const r=anchor.getBoundingClientRect(),clip=clipElement?.getBoundingClientRect();
+            const offset=sidesByAnchor.get(anchor)?.size===2?(entry.side==='input'?-24:24):0;
             const measured={port,
                 hidden:c.body.hidden||c.body.inert||!r.width||!r.height||!!clip&&(r.left+r.width/2<clip.left||r.left+r.width/2>clip.right||r.bottom<=clip.top||r.top>=clip.bottom),
-                disabled:!!original.disabled,left:`${(r.left+r.width/2-bounds.left)/zoom-16}px`,top:`${(r.top-bounds.top)/zoom-54}px`,
+                disabled:!!original.disabled,left:`${(r.left+r.width/2-bounds.left)/zoom-16+offset}px`,top:`${(r.top-bounds.top)/zoom-54}px`,
                 label:String(entry.label||`${c.node.title} 列${entry.side==='input'?'输入':'输出'}`),title:String(entry.label||(entry.side==='input'?'拖入素材组，填充此列':'输出为素材组'))};
             if(batch)measurements.push(measured);else paint(measured);
         }
