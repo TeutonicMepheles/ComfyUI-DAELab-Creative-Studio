@@ -9,3 +9,5 @@ export { createTableEditor } from './view.js';
 export function createTableModel(extensions: TableModelExtensions = {}): TableModel {
   return createModel(extensions) as TableModel;
 }
+export {planColumnBinding,clearBoundColumn,columnStamp,groupStamp} from './column_group_binding.js';
+export type {BoundItem,CellBinding,ColumnBinding} from './column_group_binding.js';

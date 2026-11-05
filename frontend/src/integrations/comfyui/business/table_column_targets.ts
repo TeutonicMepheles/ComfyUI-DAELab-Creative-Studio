@@ -2,6 +2,12 @@ import type {TableField} from '../../../features/table/contracts.js';
 // @ts-expect-error Mature ESM material rules are shared by both table adapters.
 import {columnDropTypes,columnFillCount,addMaterialColumns,fillMaterialColumn,fillMaterialRow,fillMaterialCell} from '../../../application/table_material_columns.mjs';
 
+/** Add live native indices without replacing the cached descriptor list. */
+export function boundColumnTargets<T extends {key:string;project?:boolean}>(node:{inputs?:readonly {daeColumnField?:string}[]},targets:T[]):T[]{
+    for(const target of targets)if(target.project)Object.assign(target,{inputIndex:(node.inputs||[]).findIndex(input=>input.daeColumnField===target.key)});
+    return targets;
+}
+
 /** Native panel descriptors; the Canvas owns Slot appearance and projection. */
 export function tableColumnTargets(root:HTMLElement|null|undefined,fields:readonly TableField[]){
     if(!root)return [];

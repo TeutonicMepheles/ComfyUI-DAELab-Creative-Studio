@@ -1,5 +1,5 @@
 import {isGenerationNode} from '../../frontend/src/features/generation/node_families.ts';
-import {tableMaterialTargets} from '../../frontend/src/integrations/comfyui/business/table_column_targets.ts';
+import {tableMaterialTargets,boundColumnTargets} from '../../frontend/src/integrations/comfyui/business/table_column_targets.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -13,7 +13,7 @@ const adapterSyntax=syntax('../../frontend/src/integrations/comfyui/business/cre
 const methods=extract(adapterSyntax,n=>ts.isMethodDeclaration(n)&&['materialTargets','projectedMaterialTargets'].includes(n.name.getText(adapterSyntax)));
 const columnSyntax=syntax('../../frontend/src/application/table_material_columns.mjs');
 const columnFunctions=extract(columnSyntax,n=>ts.isVariableDeclaration(n)&&['columnDropTypes','columnFillCount'].includes(n.name.getText(columnSyntax)));
-function adapter(){return new Function('tableMaterialTargets','isGenerationNode',`const materialTargetCache=new WeakMap();return {${methods.map(n=>n.getText(adapterSyntax)).join(',\n')}};` )(tableMaterialTargets,isGenerationNode);}
+function adapter(){return new Function('tableMaterialTargets','isGenerationNode','boundColumnTargets',`const materialTargetCache=new WeakMap();return {${methods.map(n=>n.getText(adapterSyntax)).join(',\n')}};` )(tableMaterialTargets,isGenerationNode,boundColumnTargets);}
 
 function world(){
  const events=[],ports=[],portStarts=new WeakMap();let selected=null;

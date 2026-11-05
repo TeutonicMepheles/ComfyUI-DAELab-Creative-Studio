@@ -77,7 +77,7 @@
     },
     {
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
-      "destinationSha256": "12d22a16573a40d4b23f5319ca6967d1b6818c6352f3477982dd7140be4ab232",
+      "destinationSha256": "012ceb55e72edbb7bb7bb71e47ac8f0b0ce558862ea9b598fbde483b8ca2dec3",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
         "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
@@ -164,7 +164,7 @@
     },
     {
       "destination": "tests/migrated_canvas_backend/test_registration.py",
-      "destinationSha256": "210c80271f786e2299b346bd44e9e9b61c27c0faf48a76828a7c433115acebe2",
+      "destinationSha256": "a8edaca5219712a9b8b15768f2b667a73117638fa6535bc02b313c30e2fac89d",
       "changes": [
         "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable.",
         "2026-11-03 task51: hide duplicate generation success/scope copy; automatically materialize verified editor exports once with persistent lazy video lineage and original asset identity; preserve lifecycle and error feedback.",

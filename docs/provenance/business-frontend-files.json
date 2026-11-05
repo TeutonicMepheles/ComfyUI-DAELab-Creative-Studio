@@ -1202,7 +1202,7 @@
       "source": "web/creative_canvas_adapter.js",
       "destination": "frontend/src/integrations/comfyui/business/creative_canvas_adapter.js",
       "sourceSha256": "87d4a3ec66de9d84f4be88202779471a416ba4046a820ef1ce83780d3711f9b1",
-      "destinationSha256": "d5082c137bed3860436f40a3abd367e6ad5b7e491f53d1179f3f6e25acca85a9",
+      "destinationSha256": "b0de4840f6efe5ed5c87e4ffd5d8f77cf38103a4f37a4e54631daa1e3975b36b",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
@@ -1307,7 +1307,7 @@
       "source": "web/script_parser.js",
       "destination": "frontend/src/integrations/comfyui/business/script_parser.js",
       "sourceSha256": "7920d6861d96d764a89c4bee1ff714cab3558857e854111146f240bc06b04fb0",
-      "destinationSha256": "bca5596395b6b14a2cc4d0d910ff997e374ed78d3376a8100c168478bd74242f",
+      "destinationSha256": "ec5f2e3fe5fcd7e1a72a29b322d7e7012fa9f6ae66fdccd2b4d5dd57ea95094d",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Use the existing outer-card selection ring for empty parser panels to avoid workbench overflow clipping; retain the table surface after import.",

@@ -27,9 +27,10 @@ class StoryboardImport(io.ComfyNode):
     @classmethod
     def define_schema(cls):
         return io.Schema(node_id=NODE_ID, display_name="DAELAB - 剧本分镜导入", category="DAELab/ComfyTV",
-                         inputs=[io.String.Input("storyboard_data", default="", socketless=True, extra_dict={"hidden": True})],
+                         inputs=[io.String.Input("storyboard_data", default="", socketless=True, extra_dict={"hidden": True}),
+                                 io.Autogrow.Input('columns', template=io.Autogrow.TemplatePrefix(io.Custom('DAELAB_ASSETS').Input('column'), prefix='column', min=0, max=64), optional=True)],
                          outputs=[io.String.Output("storyboard_json")], is_output_node=True)
 
     @classmethod
-    def execute(cls, storyboard_data=""):
+    def execute(cls, storyboard_data="", columns=None):
         return io.NodeOutput(json.dumps(validated_storyboard(storyboard_data), ensure_ascii=False))

@@ -8,11 +8,12 @@ class DataTable(io.ComfyNode):
     def define_schema(cls):
         return io.Schema(node_id='DAELAB.Table', display_name='DAELAB - 多维表格', category='DAELab/Table',
                          inputs=[io.String.Input('table_data', default='', socketless=True, extra_dict={'hidden': True}),
-                                 io.String.Input('source_table', optional=True, force_input=True)],
+                                 io.String.Input('source_table', optional=True, force_input=True),
+                                 io.Autogrow.Input('columns', template=io.Autogrow.TemplatePrefix(io.Custom('DAELAB_ASSETS').Input('column'), prefix='column', min=0, max=64), optional=True)],
                          outputs=[io.String.Output('table_json')], is_output_node=True)
 
     @classmethod
-    def execute(cls, table_data='', source_table=None):
+    def execute(cls, table_data='', source_table=None, columns=None):
         table = validated_table(json.loads(table_data or '{"fields":[],"records":[]}'))
         if source_table is not None:
             from ....storyboard.table_source import project_selected_source
