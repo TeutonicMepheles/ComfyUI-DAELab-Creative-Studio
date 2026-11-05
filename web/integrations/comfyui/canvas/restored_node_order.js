@@ -1,4 +1,5 @@
-const ownedTypes = new Set(['DAELAB.Table', 'DAELAB.LLMStylePreviewB']);
+const ownedTypes = new Set(['DAELAB.Table', 'DAELAB.LLMStylePreviewB',
+    'DAELAB.MaterialGroup', 'DAELAB.MediaUpload', 'DAELAB.TextInput']);
 const record = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
 const data = (object, name) => {
     const descriptor = Object.getOwnPropertyDescriptor(object, name);
