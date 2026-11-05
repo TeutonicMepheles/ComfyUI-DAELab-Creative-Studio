@@ -4,6 +4,29 @@ import {connectedEdit,newClip,remapEditSources,sourceKey,materialIdentityKey,spl
 
 const asset={filename:'copy-test.mp4',subfolder:'',type:'input',kind:'video',duration:10,fps:24,width:640,height:360};
 
+test('repeated autogrow routes keep one imported material while retaining intentional timeline copies',()=>{
+ const media={...asset,id:'material-a',contentSha256:'a'.repeat(64)},first={slot:'videos.video0',nodeId:'7'},repeat={slot:'videos.video1',nodeId:'7'};
+ const initial=connectedEdit(empty(),[{asset:media,source:first}]);
+ const edited={...initial,clips:[{...initial.clips[0],start:2,duration:3},{...initial.clips[0],id:'manual-copy',start:5,duration:2}]};
+ const next=connectedEdit(edited,[{asset:media,source:first},{asset:media,source:repeat}]);
+ assert.equal(next.clips.length,2);assert.deepEqual(next.clips.map(c=>[c.id,c.start,c.duration]),edited.clips.map(c=>[c.id,c.start,c.duration]));
+ const remaining=connectedEdit(JSON.parse(JSON.stringify(next)),[{asset:media,source:repeat}]);
+ assert.deepEqual(remaining.clips.map(c=>[c.id,c.start,c.duration]),edited.clips.map(c=>[c.id,c.start,c.duration]));
+ assert.equal(remaining.clips[0].source.slot,repeat.slot);
+ assert.equal(connectedEdit(remaining,[]).clips.length,0);
+});
+const empty=()=>({version:1,fit:'contain',clips:[]});
+
+test('group legacy and dynamic routes dedupe overlapping members without dropping unique members',()=>{
+ const a={...asset,id:'a'},b={...asset,id:'b',filename:'b.mp4'},c={...asset,id:'c',filename:'c.mp4'};
+ const member=(media,slot,groupId)=>({asset:media,source:{slot,groupId,nodeId:media.id,assetId:media.id}});
+ const inputs=[member(a,'assets','10'),member(b,'assets','10'),member(a,'groups.group0','10'),member(b,'groups.group0','10'),member(b,'groups.group1','11'),member(c,'groups.group1','11')];
+ const next=connectedEdit(empty(),inputs);assert.deepEqual(next.clips.map(c=>c.asset.id),['a','b','c']);
+ assert.deepEqual(connectedEdit(JSON.parse(JSON.stringify(next)),inputs),next);
+ const deleted={...next,clips:next.clips.filter(c=>c.asset.id!=='b')};
+ assert.deepEqual(connectedEdit(deleted,inputs).clips.map(c=>c.asset.id),['a','c'],'repeated routes do not revive deleted imported clips');
+});
+
 for(const slot of ['assets','groups.group0'])test(`copying ${slot} preserves split, trimmed and deleted clips through sync and reload`,()=>{
     const source={slot,groupId:'10',nodeId:'1',assetId:'same-file'};
     const deletedSource={...source,nodeId:'2'};
