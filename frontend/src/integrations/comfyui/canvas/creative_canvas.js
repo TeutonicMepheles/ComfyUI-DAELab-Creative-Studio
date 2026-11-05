@@ -1,5 +1,6 @@
 import {app} from '/scripts/app.js';
 import {createCanvasHostPort,enterCanvasGraphMode} from './canvas_host.js';
+import {bindCanvasHostBounds} from './canvas_host_bounds.js';
 import {createCreativeCanvas} from '../../../canvas/creative_canvas_view.mjs?v=20261023-column-fill';
 import {STATE_KEY} from '../../../canvas/creative_canvas_model.mjs';
 import {installLayoutHistory,canvasHistory} from './creative_history.mjs?v=20261012-client-workflow-r8';
@@ -83,6 +84,11 @@ app.registerExtension({
         const history=canvasHistory(app,{diagnose});
         const host=createCanvasHostPort(app,globalThis.LiteGraph,history,diagnose);
         view=createCreativeCanvas(host,{onExit:updateLabel});
+        // Compatibility boundary: use the host's actual main splitter region;
+        // the native canvas itself extends underneath the tabs and side panels.
+        const actionbars=()=>document.querySelector('[data-testid="top-menu-actionbars"]');
+        const bounds=bindCanvasHostBounds(view.root,()=>actionbars()?.closest('.p-splitterpanel')||null,actionbars);
+        const destroy=view.destroy;view.destroy=()=>{bounds.destroy();destroy();};
         observer=new MutationObserver(records=>{if(records.every(r=>r.target instanceof Element&&r.target.closest('.dae-creative')))return;if(!scheduled){scheduled=true;requestAnimationFrame(syncMenu);}});
         observer.observe(document.body,{childList:true,subtree:true});
         document.addEventListener('click',event=>{
