@@ -353,7 +353,7 @@
       "source": "web/video_tasks.css",
       "destination": "frontend/src/features/generation/video_tasks.css",
       "sourceSha256": "f662c345f3f44010d82961172cb0954db3b8ec2ffb086dfb65cf11c89a0cbf07",
-      "destinationSha256": "791defe0c784448f54ff7c59ec41e996b03738468babc407511ae76ec705c4e0",
+      "destinationSha256": "6a9e3c709a98d60b99d8759115e7c4923ef02632fef1c99b5dc900af0c11867d",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Correct the credit graphic to the host account balance Lucide coins icon, inlined as a yellow mask without host CSS/font dependencies.",
@@ -362,7 +362,8 @@
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
         "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending.",
-        "2026-11-04 task24: compact typed media surface, new 5:4 defaults, provider colors and matching model menu typography/icon alignment; upward constrained popovers. Original source identity retained."
+        "2026-11-04 task24: compact typed media surface, new 5:4 defaults, provider colors and matching model menu typography/icon alignment; upward constrained popovers. Original source identity retained.",
+        "2026-11-05: normalize the six reviewed typography roles; preserve interactions and icon exceptions."
       ]
     },
     {
@@ -468,14 +469,15 @@
       "source": "web/llm_style_preview.css",
       "destination": "frontend/src/features/prompt/llm_style_preview.css",
       "sourceSha256": "91ecfb9d971e13ef211a313656fdac10bb7f430b79582058f63b27224e9112d5",
-      "destinationSha256": "7b0a5a705328dd1c6e97e84a1db7b3d9fa39cd12af2e05cad861db35ea099ecb",
+      "destinationSha256": "b3a5910f50002bd1df9c1266862c95312921c5e35b59e3759ac1ade06da203a2",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "PERF-01 candidate: stop unused inherited Canvas zoom variables only at the owned leased formal LLM B body; preserve public adapter/root, floating headings, Slots and all other variants. Actual browser/performance reacceptance pending.",
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
         "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending.",
-        "2026-11-04 task24: compact typed media surface, new 5:4 defaults, provider colors and matching model menu typography/icon alignment; upward constrained popovers. Original source identity retained."
+        "2026-11-04 task24: compact typed media surface, new 5:4 defaults, provider colors and matching model menu typography/icon alignment; upward constrained popovers. Original source identity retained.",
+        "2026-11-05: normalize the six reviewed typography roles; preserve interactions and icon exceptions."
       ]
     },
     {
@@ -651,7 +653,7 @@
       "source": "web/table_prompt_settings.mjs",
       "destination": "frontend/src/features/prompt/table_prompt_settings.mjs",
       "sourceSha256": "bfe4726e48470729694c7a86878e50662a3ec0fad7837a9323bbb21a022c432a",
-      "destinationSha256": "c0ed7eb29937c668b77a044c11c58dc7f2ab27c8698f8a1a536b54e55e86de2a",
+      "destinationSha256": "690866a2fb9e20f1679fbef5853d6b972e8f91b6fb1e6d7f0b9707622d558571",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
@@ -666,7 +668,8 @@
         "2026-11-04 task24: compact typed media surface, new 5:4 defaults, provider colors and matching model menu typography/icon alignment; upward constrained popovers. Original source identity retained.",
         "2026-11-04 task29: scale the complete node popover once with its anchor; use screen bounds for upward placement and logical limits for scrolling. Reference submenus convert viewport coordinates inside transformed parents; independent asset overlays remain unchanged.",
         "2026-11-04 task33: unify segmented selected styling, omit pixel captions and explanatory size text, summarize ratios without pixels, offer only integer duration choices while retaining saved settings.",
-        "2026-11-04 task41: optional independent base Qwen image profile with native CLIPLoader and 25 steps, explicit image_base file bindings and the existing image controls; preserve legacy Turbo profile and frozen requests."
+        "2026-11-04 task41: optional independent base Qwen image profile with native CLIPLoader and 25 steps, explicit image_base file bindings and the existing image controls; preserve legacy Turbo profile and frozen requests.",
+        "2026-11-05: normalize the six reviewed typography roles; preserve interactions and icon exceptions."
       ]
     },
     {
@@ -1102,13 +1105,14 @@
       "source": "web/table_ui.css",
       "destination": "frontend/src/features/table/table_ui.css",
       "sourceSha256": "bc0453f9322d52be6e7a6d8c718d64c0819293acdf6c6f29ea148b8fdede6555",
-      "destinationSha256": "47aee3bd7f5f2b9d6f24a66510bdeea69eb9fc1f221cb8ed288f23a248181d8a",
+      "destinationSha256": "f8e27152521e04b97f064d772e7de09390c5dd753ee42ca423d3dac3d184acba",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Limit unused canvas zoom custom-property inheritance to owned content data cells; retain public root values and live screen-size chrome/row-gutter consumers. Performance benefit requires real-host measurement.",
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
-        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately."
+        "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately.",
+        "2026-11-05: normalize the six reviewed typography roles; preserve interactions and icon exceptions."
       ]
     },
     {

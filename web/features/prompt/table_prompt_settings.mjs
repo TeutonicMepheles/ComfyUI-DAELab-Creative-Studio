@@ -79,7 +79,7 @@ export const promptSettingsStyle=`
 :is(.dae-ui.generation-form,.dae-ui .generation-form) .generation-parameter-choices button[aria-pressed]+button[aria-pressed]{margin:0}
 :is(.dae-ui.generation-form,.dae-ui .generation-form) .generation-parameter-choices button[aria-pressed=true]{background:color-mix(in srgb,var(--dae-surface-high) 76%,var(--dae-text) 24%);box-shadow:none}
 :is(.dae-ui.generation-form,.dae-ui .generation-form) .generation-parameter-choices button[aria-pressed=true]::after{display:none}
-:is(.dae-ui.generation-form,.dae-ui .generation-form) .generation-ratio-choices button{flex-direction:column;gap:6px;flex-basis:42px;font-size:13px!important}
+:is(.dae-ui.generation-form,.dae-ui .generation-form) .generation-ratio-choices button{flex-direction:column;gap:6px;flex-basis:42px;font-size:14px!important}
 .dae-ui .generation-ratio-shape{box-sizing:border-box;display:block;width:var(--ratio-width);height:var(--ratio-height);border:1.5px solid currentColor;border-radius:2px;opacity:.8}
 .dae-ui .generation-image-size-choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr))}
 .dae-ui .generation-image-size-choices button{justify-content:center;text-align:center}
@@ -94,12 +94,12 @@ export const promptSettingsStyle=`
 .dae-ui.generation-settings-popover .generation-parameter-section>label{margin:0}
 .dae-ui.generation-settings-popover .generation-parameter-section input[type=checkbox]{width:20px;height:20px;min-height:20px}
 .dae-ui.generation-settings-popover button:disabled{opacity:.45;cursor:default}
-.dae-ui.generation-settings-popover{position:fixed;z-index:100100;display:flex;flex-direction:column;gap:10px;width:340px;max-width:calc(100vw - 16px);max-height:calc(100vh - 16px);overflow:auto;box-sizing:border-box;padding:14px;border:1px solid var(--dae-border-control,#555);border-radius:16px;background:var(--dae-surface,#262626);color:var(--dae-text,#ededed);box-shadow:0 12px 36px #0006;font:400 13px/1.5 var(--dae-font-family,sans-serif);scrollbar-width:thin;scrollbar-color:var(--dae-border-control,#555) transparent}
-.dae-ui.generation-settings-popover>strong{padding:0 10px;font-size:12px!important;font-weight:400!important;line-height:1.5;color:var(--dae-text-muted,#b5b5b5)!important;opacity:.65}
+.dae-ui.generation-settings-popover{position:fixed;z-index:100100;display:flex;flex-direction:column;gap:10px;width:340px;max-width:calc(100vw - 16px);max-height:calc(100vh - 16px);overflow:auto;box-sizing:border-box;padding:14px;border:1px solid var(--dae-border-control,#555);border-radius:16px;background:var(--dae-surface,#262626);color:var(--dae-text,#ededed);box-shadow:0 12px 36px #0006;font:400 14px/1.5 var(--dae-font-family,sans-serif);scrollbar-width:thin;scrollbar-color:var(--dae-border-control,#555) transparent}
+.dae-ui.generation-settings-popover>strong{padding:0 10px;font-size:15px!important;font-weight:600!important;line-height:1.5;color:var(--dae-text-muted,#b5b5b5)!important;opacity:.65}
 .dae-ui.generation-settings-popover .generation-settings-fields{min-width:0;padding:0 10px}
 .dae-ui.generation-settings-popover label{display:flex;flex-direction:column;gap:6px;margin:10px 0}
 .dae-ui.generation-settings-popover :is(input,select){box-sizing:border-box;width:100%;min-height:36px;padding:6px;border:1px solid var(--dae-border-control,#555);border-radius:6px;color:inherit;background:var(--dae-surface-low,#202020);font:inherit}
-.dae-ui.generation-settings-popover button{display:flex;align-items:center;gap:10px;width:100%;min-height:42px;text-align:left;padding:10px!important;border:0;border-radius:10px;background:transparent;color:inherit;font:400 13px/1.5 var(--dae-font-family,sans-serif)!important;cursor:pointer}
+.dae-ui.generation-settings-popover button{display:flex;align-items:center;gap:10px;width:100%;min-height:42px;text-align:left;padding:10px!important;border:0;border-radius:10px;background:transparent;color:inherit;font:400 14px/1.5 var(--dae-font-family,sans-serif)!important;cursor:pointer}
 .dae-ui.generation-settings-popover button[aria-pressed]+button[aria-pressed]{margin-top:4px}
 .dae-ui.generation-settings-popover button:hover:not([aria-pressed=true]){background:color-mix(in srgb,var(--dae-surface-high,#383838) 55%,var(--dae-surface,#262626))}
 .dae-ui.generation-settings-popover button[aria-pressed=true]{background:var(--dae-surface-high,#383838)}
@@ -124,7 +124,7 @@ export const promptSettingsStyle=`
 .dae-ui .generation-duration-ticks span:last-child{transform:translateX(-100%)}
 .dae-ui .generation-duration-ticks span:not(:first-child):not(:last-child)::before{content:'';position:absolute;left:50%;transform:translateX(-50%);top:-12px;height:4px;width:1px;background:currentColor;pointer-events:none}
 .dae-ui .generation-duration-value{position:relative}
-.dae-ui .generation-duration-value input{box-sizing:border-box;width:100%;min-height:36px;height:36px;padding:6px 26px 6px 10px!important;border:0!important;border-radius:6px;background:var(--dae-surface-high,#383838)!important;color:var(--dae-text,#eee);font:400 13px var(--dae-font-family,sans-serif);font-variant-numeric:tabular-nums;appearance:textfield;-moz-appearance:textfield}
+.dae-ui .generation-duration-value input{box-sizing:border-box;width:100%;min-height:36px;height:36px;padding:6px 26px 6px 10px!important;border:0!important;border-radius:6px;background:var(--dae-surface-high,#383838)!important;color:var(--dae-text,#eee);font:400 14px var(--dae-font-family,sans-serif);font-variant-numeric:tabular-nums;appearance:textfield;-moz-appearance:textfield}
 .dae-ui .generation-duration-value input::-webkit-inner-spin-button,.dae-ui .generation-duration-value input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .dae-ui .generation-duration-value>span{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--dae-text-muted,#aaa);opacity:.65;pointer-events:none}
 

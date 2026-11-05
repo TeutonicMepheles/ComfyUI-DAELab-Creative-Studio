@@ -27,6 +27,7 @@
 - 资产库多数控件一致；
 - 图标字号（如取消按钮 22px）与时间轴刻度：属尺寸/刻度问题，不并入正文字号；
 - `asset_library.css` 4 处 `font-size:0` 已实核为**纯图标按钮去文字化**，图标与可访问名称保留，不属字号问题，也不要求改为 `display:none`。
+- `ui/studio_theme.mjs` 的 `.dae-studio th`（11px）在**生产代码中没有元素命中**：全仓只有测试夹具会加 `dae-studio` class；原生节点与展开工作台的表头 12px 来自 `ui/table_workbench_theme.mjs` 的 `.daelab-storyboard-panel .dae-table th`。因此表格表头的不一致按三处实现处理，`dae-studio` 那条不计入。
 
 ## 四、代码侧计数（供定位，不作为界面结论）
 

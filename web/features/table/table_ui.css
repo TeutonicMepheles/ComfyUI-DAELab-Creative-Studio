@@ -141,7 +141,7 @@
 .dae-ui.content-context :focus-visible{outline:2px solid var(--dae-focus,#b8c4ff);outline-offset:2px}
 .dae-ui.content-context button.content-context-item{display:flex;align-items:center;gap:10px;justify-content:flex-start}
 .dae-ui.content-context button:disabled{opacity:.45;cursor:not-allowed}
-.content-context-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:4px 10px 7px;font-weight:600;color:var(--dae-text-muted,#aaa)}
+.content-context-label{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:4px 10px 7px;font-weight:600;color:var(--dae-text-muted,#aaa)}
 .content-context-separator{height:1px;margin:4px 6px;background:var(--dae-border-control,#777)}
 .content-context-icon{flex:0 0 18px;width:18px;height:18px;background:currentColor;mask:var(--dae-icon) center/contain no-repeat;-webkit-mask:var(--dae-icon) center/contain no-repeat}
 .content-context-field{display:flex;align-items:center;gap:8px;padding:0 4px;min-height:36px}
@@ -223,10 +223,10 @@
 .dae-ui.dae-inline-columns button[data-active=true],.dae-ui.dae-inline-columns button:hover{background:var(--dae-surface-hover,#444)}
 .dae-ui.dae-inline-columns button :is(img,video){display:block;width:44px;height:44px;object-fit:cover;flex:0 0 44px;border-radius:8px;background:var(--dae-surface-low)}
 [data-canvas-panel=true] [data-content-presentation=true] .dae-table th{vertical-align:middle!important;padding:14px 18px!important}
-[data-canvas-panel=true] [data-content-presentation=true] .dae-table th .field-title{display:flex!important;align-items:center!important;gap:8px!important;padding:0 26px 0 0!important;font:500 16px/24px var(--dae-font-family)!important;min-height:24px;box-sizing:border-box}
+[data-canvas-panel=true] [data-content-presentation=true] .dae-table th .field-title{display:flex!important;align-items:center!important;gap:8px!important;padding:0 26px 0 0!important;font:500 14px/22px var(--dae-font-family)!important;min-height:24px;box-sizing:border-box}
 [data-canvas-panel=true] [data-content-presentation=true] .dae-table th .field-kind-icon{display:flex!important;align-items:center;justify-content:center;width:20px;height:24px;flex:0 0 20px;padding:0!important;margin:0!important;line-height:0}
 [data-canvas-panel=true] [data-content-presentation=true] .dae-table th .field-kind-icon .dae-table-icon{display:block!important;width:20px;height:20px;min-width:20px;margin:0;padding:0}
-[data-canvas-panel=true] [data-content-presentation=true] .dae-table th .field-name{font:inherit!important;line-height:24px!important;align-self:center;margin:0!important;padding:0!important;display:block}
+[data-canvas-panel=true] [data-content-presentation=true] .dae-table th .field-name{font:inherit!important;line-height:22px!important;align-self:center;margin:0!important;padding:0!important;display:block}
 
 :is(.dae-ui,.dae-creative) .dae-table [contenteditable=true]:focus,:is(.dae-ui,.dae-creative) .dae-table [contenteditable=true]:focus-visible{outline:none!important;box-shadow:none!important;border:0!important}
 
@@ -261,7 +261,7 @@
 .dae-ui.table-structure-ghost span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dae-ui:is(.table-structure-guide,.table-structure-ghost)[hidden]{display:none}
 .dae-ui.table-column-popover{position:fixed;inset:auto;margin:0;width:min(320px,calc(100vw - 24px));max-height:calc(100vh - 24px);overflow:auto;box-sizing:border-box;padding:20px;border:1px solid var(--dae-border-control,#777);border-radius:12px;color:var(--dae-text,#eee);background:var(--dae-surface,#222);box-shadow:var(--dae-elevation-overlay,0 8px 24px #0006);font:14px/1.6 var(--dae-font-family,sans-serif)}
-.dae-ui.table-column-popover>strong{font-size:16px}
+.dae-ui.table-column-popover>strong{font-size:15px;font-weight:600}
 .dae-ui.table-column-popover label{display:flex;flex-direction:column;gap:6px;margin-top:16px;color:var(--dae-text-muted,#bbb)}
 .dae-ui.table-column-popover :is(input,select){box-sizing:border-box;width:100%;min-height:40px;min-width:0;padding:8px 10px;font:inherit;color:var(--dae-text,#eee);background:var(--dae-surface-raised,#292929);border:1px solid var(--dae-border-control,#777);border-radius:6px}
 .dae-ui.table-column-popover :focus-visible{outline:2px solid var(--dae-focus,#b8b1ff);outline-offset:2px}
@@ -326,7 +326,7 @@
 /* Figma 557:721: one source badge, with the action hint inside the header. */
 .dae-ui .dae-table th[data-prompt-source]{height:52px!important;vertical-align:middle;padding-top:10px!important;padding-bottom:10px!important}
 .dae-ui .dae-table th[data-prompt-source]>.field-settings{display:none!important}
-.dae-ui .dae-table th[data-prompt-source] .field-title{padding-right:42px!important;font:500 15px/22px var(--dae-font-family)!important}
+.dae-ui .dae-table th[data-prompt-source] .field-title{padding-right:42px!important;font:500 14px/22px var(--dae-font-family)!important}
 .dae-ui .dae-table th[data-prompt-source] .field-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dae-ui .table-prompt-badge{flex:none;display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:6px;background:var(--dae-accent);color:var(--dae-text-on-accent);font:500 12px/22px var(--dae-font-family)}
 .dae-ui .dae-table button.table-prompt-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:32px;height:32px;min-width:32px;min-height:32px;padding:6px!important;margin:0;border:0!important;border-radius:8px!important;background:transparent!important;color:#686868!important;cursor:pointer}
