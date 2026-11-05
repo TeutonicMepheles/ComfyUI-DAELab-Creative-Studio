@@ -218,13 +218,14 @@
       "source": "web/creative_canvas.js",
       "destination": "frontend/src/integrations/comfyui/canvas/creative_canvas.js",
       "sourceSha256": "ce343c31cd8378d4d156e62ce21d9542da6e240576b7949a8bdc8253081b95fe",
-      "destinationSha256": "4f4c8bba662db86e6ac3285add1705c22af248beb3795fb426461d43c3997712",
+      "destinationSha256": "aa927dfc34e7624389c28ea924acbf9894e6bb4335ffde40d6d9e2bfefe3be4c",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "inject existing host history port at integration assembly boundary",
         "Assemble typed CanvasHostPort and groups controller; load host CSS; diagnose missing host mode/history/serialization before unsafe operations.",
         "restore saved Canvas at native afterLoadGraph after workflow activation, not afterConfigureGraph; cancel stale async overlay entries on load or newer mode choices",
-        "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained."
+        "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained.",
+        "2026-11-05: synchronize Creative Canvas to the live host main splitter bounds and keep its zoom controls below the existing floating toolbar."
       ],
       "kind": "production-source"
     },
@@ -1054,9 +1055,10 @@
       "source": "web/creative_canvas.css",
       "destination": "frontend/src/integrations/comfyui/canvas/canvas_host.css",
       "sourceSha256": "a858f0328a4f03c28c98a9d6742cbfc615e4ce1a4db8f50f50b2a3e0bca420ee",
-      "destinationSha256": "73c091e6d5b2a76ef075fab703bede82ae1e69c7c4f0c724f87f8e94a2aaea4b",
+      "destinationSha256": "07b53b6cf4aedea299d4c13d085ca8f8105ada0201fabafd4066eda73b30a8e4",
       "changes": [
-        "Extract original host DOM visibility selectors into integration; explicit mapping for native sidebar width."
+        "Extract original host DOM visibility selectors into integration; explicit mapping for native sidebar width.",
+        "2026-11-05: synchronize Creative Canvas to the live host main splitter bounds and keep its zoom controls below the existing floating toolbar."
       ],
       "kind": "production-source"
     },
@@ -1297,6 +1299,28 @@
         "2026-11-05: scoped neutral asset-library visual system and layout; service and interaction contracts retained."
       ],
       "destinationSha256": "46151c1e3bbbc74e18de49aa8cbc28a365ba129109ecede04e5f276c5f7e4eea"
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "frontend/src/integrations/comfyui/canvas/canvas_host_bounds.ts",
+      "destinationSha256": "44c9f36a4c573069c4c921f88e2ff56fdff527fe30333e2535556006a7849baf",
+      "changes": [
+        "2026-11-05: live host bounds synchronization with observer lifecycle and missing-region recovery."
+      ],
+      "kind": "production-source"
+    },
+    {
+      "origin": "authored",
+      "source": null,
+      "sourceSha256": null,
+      "destination": "tests/migrated_canvas/canvas_host_bounds.test.mjs",
+      "destinationSha256": "5604593a9fc20e8c5c3679678b4f52939a72a8ae00da82c29b2d56d8132dccef",
+      "changes": [
+        "2026-11-05: live host bounds synchronization with observer lifecycle and missing-region recovery."
+      ],
+      "kind": "rule-test"
     }
   ],
   "hostBoundary": {
