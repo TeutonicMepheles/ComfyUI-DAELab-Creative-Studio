@@ -353,7 +353,7 @@
       "source": "web/video_tasks.css",
       "destination": "frontend/src/features/generation/video_tasks.css",
       "sourceSha256": "f662c345f3f44010d82961172cb0954db3b8ec2ffb086dfb65cf11c89a0cbf07",
-      "destinationSha256": "37181a8bf3572a76c5c2ce5bd6bb86c128aa3462b6f07c8a38e88b58229988b8",
+      "destinationSha256": "220fba4873b019b604ee37aec13364efffc82c994e42849ed717b799f2f0b700",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Correct the credit graphic to the host account balance Lucide coins icon, inlined as a yellow mask without host CSS/font dependencies.",
@@ -469,7 +469,7 @@
       "source": "web/llm_style_preview.css",
       "destination": "frontend/src/features/prompt/llm_style_preview.css",
       "sourceSha256": "91ecfb9d971e13ef211a313656fdac10bb7f430b79582058f63b27224e9112d5",
-      "destinationSha256": "b3a5910f50002bd1df9c1266862c95312921c5e35b59e3759ac1ade06da203a2",
+      "destinationSha256": "9b9fcc75ddb470dc15d34fe5118883930a34d786087eb60b36389b139f7b00f8",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
