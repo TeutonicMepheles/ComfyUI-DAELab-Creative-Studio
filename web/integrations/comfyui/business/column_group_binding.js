@@ -5,6 +5,7 @@ import { expandedCellText } from '../../../features/prompt/table_prompt_template
 import { canvasHistory } from '../canvas/creative_history.mjs';
 // @ts-expect-error Public read-only material exchange has no TypeScript declaration.
 import { inputSnapshot } from '../../../canvas/creative_input_exchange.mjs';
+import { restoreBoundColumnInputs } from './table_column_targets.js';
 const installed = new WeakSet(), running = new WeakSet();
 const tableFor = (node) => node.__scriptTable || node.__dataTable;
 const panelFor = (node) => node.__scriptPanel || node.__dataTablePanel;
@@ -83,7 +84,7 @@ function materialize(group, items, app) {
     group.properties.members = members;
 }
 function flushBindings(app, graph) {
-    if (running.has(graph) || app.configuringGraph || app.graph !== graph)
+    if (running.has(graph) || app.configuringGraph || app.isGraphReady === false || app.extensionManager?.workflow?.activeWorkflow?.changeTracker?._restoringState || app.graph !== graph)
         return;
     running.add(graph);
     try {
@@ -94,9 +95,21 @@ function flushBindings(app, graph) {
                 const table = tableFor(node);
                 if (!table || !panelFor(node) || node.mode)
                     continue;
+                restoreBoundColumnInputs(node);
                 const saved = states(node), fields = new Set([...Object.keys(saved), ...node.inputs.filter(i => i.daeColumnField).map(i => i.daeColumnField)]);
                 for (const fieldId of fields) {
-                    const input = node.inputs.find(i => i.daeColumnField === fieldId), link = input?.link == null ? null : graph.links instanceof Map ? graph.links.get(input.link) : graph.links[String(input.link)], group = link && graph.getNodeById(link.origin_id);
+                    let input = node.inputs.find(i => i.daeColumnField === fieldId);
+                    if (!input && saved[fieldId]) {
+                        const candidates = node.inputs.filter(i => { const link = i.link == null ? null : graph.links instanceof Map ? graph.links.get(i.link) : graph.links[String(i.link)]; return !i.daeColumnField && i.name.startsWith('columns.') && String(link?.origin_id) === saved[fieldId]?.groupId; });
+                        if (candidates.length > 1)
+                            throw new Error('列绑定映射无法唯一恢复，已保留引用，请重新连接对应列头');
+                        if (candidates[0]) {
+                            input = candidates[0];
+                            input.daeColumnField = fieldId;
+                            restoreBoundColumnInputs(node);
+                        }
+                    }
+                    const link = input?.link == null ? null : graph.links instanceof Map ? graph.links.get(input.link) : graph.links[String(input.link)], group = link && graph.getNodeById(link.origin_id);
                     if (!group || group.type !== 'DAELAB.MaterialGroup') {
                         if (saved[fieldId]) {
                             saveTable(node, clearBoundColumn(tableFor(node), fieldId));
@@ -110,6 +123,9 @@ function flushBindings(app, graph) {
                             node.disconnectInput?.(node.inputs.indexOf(input));
                             delete input.daeColumnField;
                         }
+                        const slots = node.properties.daelabColumnSlots;
+                        if (slots)
+                            delete slots[fieldId];
                         delete saved[fieldId];
                         changed = true;
                         continue;
@@ -131,7 +147,7 @@ function flushBindings(app, graph) {
                         }
                     }
                     saveTable(node, plan.table);
-                    saved[fieldId] = { groupId: String(group.id), mapping: plan.mapping, groupStamp: groupStamp(groupItems(group)), columnStamp: columnStamp(tableFor(node), fieldId) };
+                    saved[fieldId] = { groupId: String(group.id), mapping: plan.mapping, groupStamp: groupStamp(groupItems(group)), columnStamp: columnStamp(tableFor(node), fieldId), ...(input ? { inputName: input.name } : {}), ...(input?.link != null ? { inputLink: input.link } : {}) };
                     node.properties.daelabColumnBindings = saved;
                     changed = true;
                 }
@@ -211,6 +227,7 @@ export function bindColumnGroup(app, node, fieldId, group) {
         }
         node.inputs[index].daeColumnField = fieldId;
     }
+    restoreBoundColumnInputs(node);
     const output = group.outputs?.findIndex(output => output.type === 'DAELAB_ASSETS') ?? -1;
     if (output < 0)
         throw new Error('素材组输出不可用');

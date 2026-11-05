@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "0edd47328372318af3fc6354452d675f69ea6408ebca357bb13673c91833a3d4",
+  "sourceFingerprint": "4b62a17e66f22d42328f7aad1b7f2227e49219f8b210bb711b737b0f5d6b35b1",
   "files": [
     {
       "path": "AGENTS.md",
@@ -1012,7 +1012,7 @@
     },
     {
       "path": "integrations/comfyui/business/README.md",
-      "sha256": "3cc188a67c5d06c196c01c83a7af005926ec5cc4a3a2137843ce31cee6d91959"
+      "sha256": "9b671fd20ce6b3220c48676776629afe2943bf10075ccd9daf8d5addc31c1272"
     },
     {
       "path": "integrations/comfyui/business/app_mode_bypass.js",
@@ -1036,7 +1036,7 @@
     },
     {
       "path": "integrations/comfyui/business/column_group_binding.js",
-      "sha256": "b7bfff3a21dfa336b4af2bb3a021efd108b13d3dd8ad5328757ff932408e02e2"
+      "sha256": "a72ffe01b60b547cf5815aea79c8726cc47722ec7a5ee15b802131e522d839c0"
     },
     {
       "path": "integrations/comfyui/business/comfy_pricing.js",
@@ -1096,7 +1096,7 @@
     },
     {
       "path": "integrations/comfyui/business/table_column_targets.js",
-      "sha256": "0835deeb3cec92bcffa53c235f9b234fd34c14c199fad71e7668803e8e32e424"
+      "sha256": "567c8a411db4c967eba7e1a7df717aaae589acab5d8f530e0d28b3b916f382dc"
     },
     {
       "path": "integrations/comfyui/business/table_serializer.js",
@@ -1196,7 +1196,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "e31799dc17f15dab3619a1e6d2e90e8f454fee8a621a3d7c36d0085167d8e767"
+      "sha256": "012fac988863f96c3328f5ec46e8f8c2fdc6dd434b956e0cc31e00e39d84f783"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
