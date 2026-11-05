@@ -1,4 +1,5 @@
-import {tableMaterialTargets,fillTableMaterialTarget} from './table_column_targets.js';
+import {tableMaterialTargets,fillTableMaterialTarget,boundColumnTargets} from './table_column_targets.js';
+import {installColumnBindings,bindColumnGroup} from './column_group_binding.js';
 import {IMAGE_GENERATION_NODE,VIDEO_GENERATION_NODE} from '../../../features/generation/node_families.js';
 import {tableClipboard} from './table_capabilities.js';
 import {bindBusinessDocument,tableInputStamp} from './business_document_host.js';
@@ -70,12 +71,13 @@ app.registerExtension({name:'DAELab.ScriptParser',beforeRegisterNodeDef(type,dat
  const removed=type.prototype.onRemoved;type.prototype.onRemoved=function(...args){this.__scriptPanel?.destroy();delete this.__scriptPanel;delete this.__scriptTable;return removed?.apply(this,args);};
 }});
 let registered=false;
-function register(){const api=globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')];if(registered||api?.version!==1)return;
+function register(){const api=globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')];if(registered||api?.version!==1)return;installColumnBindings(app);
  api.registerAdapter('daelab.script-parser',{matches:node=>node.type===TYPE,menu:[{label:'剧本文档解析器',type:TYPE,icon:'file-text-line'}],presentation:'content',expanded:true,collapsible:false,resizable:true,fullHeight:true,workspace:()=>false,compactWidth:0,width:560,minWidth:560,
  initialAspectRatio:node=>node.__scriptTable?.records.length||node.__scriptTable?.meta.script_parser.documents.length?null:1,
  refresh(node){const layout=node.graph&&canvasState(node.graph).cards[node.id];if(node.__scriptTable?.records.length&&layout?.width===560&&layout.height===560)layout.width=1060;},
  tasks:node=>node.__scriptPanel?.tasks?.()||[],
  outputTargetTypes:()=>[IMAGE_GENERATION_NODE,VIDEO_GENERATION_NODE],
+ canConnectInput:()=>false,
  materialItem:(node,key)=>materialItem(node.__scriptTable,key),
  takeMaterialItem(node,key,expected){const editor=node.__scriptPanel?.editor;if(!editor)throw new Error('解析表尚未就绪');editor.change(table=>takeMaterialItem(table,key,expected));},
  panel:node=>node.__scriptPanel?{root:node.__scriptPanel.root,close:()=>node.__scriptPanel.close()}:null,
@@ -83,11 +85,12 @@ function register(){const api=globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v
  // be clipped there. Let the canvas draw its outer-card ring until a table exists.
  selectionSurface:node=>node.__scriptPanel?.surface?.dataset.empty==='false'?node.__scriptPanel.surface:null,
  upload:async(node,file)=>{await Promise.resolve();if(!node.graph||node.mode)return;const panel=node.__scriptPanel;if(!panel)throw new Error('解析面板尚未就绪，请重新拖入 DOCX');await panel.actions.uploadDocument(file,{mode:'append'});},
- materialTargets:node=>tableMaterialTargets(node.__scriptPanel?.root,node.__scriptTable?.fields||[]),
+ materialTargets:node=>boundColumnTargets(node,tableMaterialTargets(node.__scriptPanel?.root,node.__scriptTable?.fields||[])),
+ bindMaterialColumn:(node,key,source)=>bindColumnGroup(app,node,key,source),
  acceptMaterials(node,key,collection){const editor=node.__scriptPanel?.editor;if(!editor)throw new Error('Parser table is not ready');editor.change(table=>fillTableMaterialTarget(table,key,collection));},
  materialSources:node=>[...(node.__scriptPanel?.root.querySelectorAll('[data-generation-source],[data-table-source]')||[])].map(element=>({element,key:element.dataset.generationSource||`column:${encodeURIComponent(element.dataset.tableSource)}`,label:'输出为素材组'})),
  outputMaterials:(node,key)=>{const source=parseTableOutputKey(key);return tableMaterialSnapshot(node.__scriptTable,source.fieldId,source.recordId);},summary:node=>`${node.__scriptTable?.records.length||0} 条已确认任务`,
- prepareCopy(node,data){if(data.properties?.[NAMESPACE])delete data.properties[NAMESPACE];const index=node.widgets?.findIndex(w=>w.name==='table_data');if(index<0||!data.widgets_values?.[index])return;const table=readScriptTable(data.widgets_values[index]);for(const row of table.records)if(row.meta)delete row.meta.generationColumns;delete table.meta.generationProject;delete table.meta.script_parser.batch_id;delete table.meta.script_parser.page_key;data.widgets_values[index]=JSON.stringify(table);},
+ prepareCopy(node,data){if(data.properties)delete data.properties.daelabColumnBindings;if(data.properties?.[NAMESPACE])delete data.properties[NAMESPACE];const index=node.widgets?.findIndex(w=>w.name==='table_data');if(index<0||!data.widgets_values?.[index])return;const table=readScriptTable(data.widgets_values[index]);for(const row of table.records)if(row.meta)delete row.meta.generationColumns;delete table.meta.generationProject;delete table.meta.script_parser.batch_id;delete table.meta.script_parser.page_key;data.widgets_values[index]=JSON.stringify(table);},
  });registered=true;
 }
 globalThis.addEventListener('daelab:creative-canvas-ready',register);register();

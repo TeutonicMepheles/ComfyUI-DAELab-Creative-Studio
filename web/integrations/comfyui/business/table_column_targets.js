@@ -1,5 +1,41 @@
 // @ts-expect-error Mature ESM material rules are shared by both table adapters.
 import { columnDropTypes, columnFillCount, addMaterialColumns, fillMaterialColumn, fillMaterialRow, fillMaterialCell } from '../../../application/table_material_columns.mjs';
+/** Native IO serialization may omit custom input fields; node properties are canonical. */
+export function restoreBoundColumnInputs(node) {
+    if (!node.properties)
+        return;
+    const raw = node.properties.daelabColumnSlots, slots = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+    for (const input of node.inputs || [])
+        if (input.daeColumnField && input.name)
+            slots[input.daeColumnField] = input.name;
+    const rawBindings = node.properties.daelabColumnBindings, bindings = rawBindings && typeof rawBindings === 'object' ? rawBindings : {};
+    for (const [field, binding] of Object.entries(bindings)) {
+        const byLink = binding.inputLink != null ? node.inputs?.find(input => input.link != null && String(input.link) === String(binding.inputLink)) : undefined;
+        const byName = node.inputs?.find(input => input.name === binding.inputName) || node.inputs?.find(input => input.name === slots[field]);
+        const claimed = byName?.link != null && Object.entries(bindings).some(([other, value]) => other !== field && value.inputLink != null && String(value.inputLink) === String(byName.link));
+        const input = byLink || node.inputs?.find(input => input.daeColumnField === field) || (!claimed ? byName : undefined);
+        if (input?.name) {
+            input.daeColumnField = field;
+            slots[field] = input.name;
+        }
+    }
+    if (!Object.keys(slots).length)
+        return;
+    node.properties.daelabColumnSlots = slots;
+    for (const [field, name] of Object.entries(slots))
+        if (!bindings[field] && typeof name === 'string') {
+            const input = node.inputs?.find(input => input.name === name);
+            if (input && (!input.daeColumnField || input.daeColumnField === field))
+                input.daeColumnField = field;
+        }
+}
+export function boundColumnTargets(node, targets) {
+    restoreBoundColumnInputs(node);
+    for (const target of targets)
+        if (target.project)
+            Object.assign(target, { inputIndex: (node.inputs || []).findIndex(input => input.daeColumnField === target.key) });
+    return targets;
+}
 /** Native panel descriptors; the Canvas owns Slot appearance and projection. */
 export function tableColumnTargets(root, fields) {
     if (!root)

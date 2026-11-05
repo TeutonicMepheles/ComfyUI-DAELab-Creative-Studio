@@ -10,7 +10,8 @@ type StagedNode = {
   order: number | undefined;
 };
 
-const ownedTypes = new Set(['DAELAB.Table', 'DAELAB.LLMStylePreviewB']);
+const ownedTypes = new Set(['DAELAB.Table', 'DAELAB.LLMStylePreviewB',
+  'DAELAB.MaterialGroup', 'DAELAB.MediaUpload', 'DAELAB.TextInput']);
 const record = (value: unknown): value is RecordValue =>
   value !== null && typeof value === 'object' && !Array.isArray(value);
 const data = (object: object, name: string): unknown => {

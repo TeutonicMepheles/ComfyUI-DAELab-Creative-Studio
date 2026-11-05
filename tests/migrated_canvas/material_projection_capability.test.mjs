@@ -1,5 +1,5 @@
 import {isGenerationNode} from '../../frontend/src/features/generation/node_families.ts';
-import {tableMaterialTargets} from '../../frontend/src/integrations/comfyui/business/table_column_targets.ts';
+import {tableMaterialTargets,boundColumnTargets} from '../../frontend/src/integrations/comfyui/business/table_column_targets.ts';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -13,7 +13,7 @@ const adapterSyntax=syntax('../../frontend/src/integrations/comfyui/business/cre
 const methods=extract(adapterSyntax,n=>ts.isMethodDeclaration(n)&&['materialTargets','projectedMaterialTargets'].includes(n.name.getText(adapterSyntax)));
 const columnSyntax=syntax('../../frontend/src/application/table_material_columns.mjs');
 const columnFunctions=extract(columnSyntax,n=>ts.isVariableDeclaration(n)&&['columnDropTypes','columnFillCount'].includes(n.name.getText(columnSyntax)));
-function adapter(){return new Function('tableMaterialTargets','isGenerationNode',`const materialTargetCache=new WeakMap();return {${methods.map(n=>n.getText(adapterSyntax)).join(',\n')}};` )(tableMaterialTargets,isGenerationNode);}
+function adapter(){return new Function('tableMaterialTargets','isGenerationNode','boundColumnTargets',`const materialTargetCache=new WeakMap();return {${methods.map(n=>n.getText(adapterSyntax)).join(',\n')}};` )(tableMaterialTargets,isGenerationNode,boundColumnTargets);}
 
 function world(){
  const events=[],ports=[],portStarts=new WeakMap();let selected=null;
@@ -65,6 +65,17 @@ test('optional capability dispatch preserves target-before-source snapshot order
  const c=w.card(1,a);w.api.run(c);assert.deepEqual(events,['projected','target-copy','sources']);
  const values=[...c.materialPorts.values()];assert.deepEqual(values.map(x=>[x.entry.key,x.entry.side]),[['target','input'],['out','output']]);
  assert.equal(values[0].entry[symbol],'symbol-value');assert.equal(values[0].entry.previewElements,target.previewElements);assert.equal(callbacks,0);assert.equal(values[0].entry.slot,42);
+});
+
+test('paired header input/output retain disjoint hit halos after header recreation',()=>{
+ const w=world();let head=w.element('head'),source=w.element('source');source.head=head;
+ const a={materialTargets:()=>[{element:head,key:'media',project:true}],materialSources:()=>[{element:source,key:'column:media'}]},c=w.card(1,a);
+ for(let pass=0;pass<3;pass++){
+  w.api.run(c);const ports=[...c.materialPorts.values()],input=ports.find(p=>p.entry.side==='input').port,output=ports.find(p=>p.entry.side==='output').port;
+  assert.equal(parseFloat(output.style.left)-parseFloat(input.style.left),48,'32px controls with 8px halos do not overlap');
+  assert.equal(input.style.top,output.style.top);
+  head=w.element('head-'+pass,{left:60,top:90,width:80,height:36});source=w.element('source-'+pass);source.head=head;
+ }
 });
 
 test('absent or non-function opt-in retains legacy inherited/non-enumerable/getter behavior and callback ordering',()=>{

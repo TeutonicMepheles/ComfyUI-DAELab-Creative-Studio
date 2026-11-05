@@ -69,6 +69,8 @@ register();
 
 `connect:true` 声明落点通过原生输入连接接收素材。拉线或拖动来源节点到该落点时，宿主复用 `inputNames`、`inputSelection` 和原生连接校验，建立可见、可保存的真实连线，不调用 `acceptMaterials`。生成节点的单个模式使用此行为；未声明的表格等落点仍为一次快照填充。
 
+表格适配器可声明 `bindMaterialColumn(node,key,source)`：在列投影目标接收素材组时，业务建立原生列输入并返回 true；返回 false 时继续 `acceptMaterials` 快照路径。目标的 `inputIndex` 指向该列当前原生输入，画布将对应持久线锚定到列头 Slot，并复用共享接收端断线。字段键和输入分配由适配器拥有，不能用节点左侧合并接口代替列头。该能力仅改变组接列头入口；列输出为组仍为快照。
+
 可选 `projectedMaterialTargets(node)` 仅为外置 Slot 投影提供同结构、同顺序的目标子集，由提供方明确选择并保留目标的 key、能力、回调与未知字段。提供此函数时，投影层使用它；缺少函数时完整保留原 `materialTargets` 读取与快照顺序，不自行提前过滤记录。完整 `materialTargets` 仍供元素落点命中、高亮与填充使用，不能改成仅列目标。两种读取必须随字段删除、隐藏、重排及面板重建一起失效，不能产生不同状态；内建表格复用同一 grid／cellsRevision 缓存及列目标对象。`materialSources` 的读取顺序与输出投影保持原样。此能力不增删原生输入、输出或持久连线。
 
 目标可选声明 `accepts:['image','video','text']`。未声明时保持原有图片／视频接收行为，不接收文本；声明后宿主在直接落点和磁吸 Slot 中都检查类型。文本来源通过公开 `inputSnapshot(node)` 提供 `{version:1,texts:[...]}`，未就绪或停用的来源不可填入。`previewElements` 的数量参数为本次素材／文本条数，具体填充范围由业务计算。2026-10-23 的表格消费方支持列头填充、素材行头横向填充和单格素材追加；列头单条素材填满现有行，多条按序向下，具体见 [表格展示](architecture/FRONTEND_INTERACTION.md#多维表格的创作画布展示)。
@@ -79,7 +81,7 @@ register();
 
 宿主将 `materialTargets`／`materialSources` 投影为表头上方、列宽中心的外置 Slot，共享邻近磁吸和微动。可选 `anchorElement` 声明列定位区域；默认使用 element 所属的语义 `th`，否则使用 element。源控件在画布借用期间隐藏，退出时恢复；业务仍持有原 DOM 和稳定 key。列区域落点与 clipElement 契约保持有效。
 
-所有适配器遵循[接口与连线基准](architecture/FRONTEND_INTERACTION.md#接口与连线)。宿主统一拥有端口外观、磁吸、端点跟随及断线撤销；消费者仅声明类型、用途和能力限制。`materialTargets` 的列接口是一次素材快照接收目标，不创建持久图连接。表格缩放与完整高度不得覆盖宿主 Slot 的交互。
+所有适配器遵循[接口与连线基准](architecture/FRONTEND_INTERACTION.md#接口与连线)。宿主统一拥有端口外观、磁吸、端点跟随及断线撤销；消费者仅声明类型、用途和能力限制。列接口默认消费快照，声明 `bindMaterialColumn` 的素材组列绑定使用真实持久线。表格缩放与完整高度不得覆盖宿主 Slot 的交互。
 
 ## 生成结果输出
 

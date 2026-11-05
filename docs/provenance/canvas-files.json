@@ -88,7 +88,7 @@
       "source": "web/creative_canvas_view.mjs",
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
       "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
-      "destinationSha256": "12d22a16573a40d4b23f5319ca6967d1b6818c6352f3477982dd7140be4ab232",
+      "destinationSha256": "3010ab717a6b02ecf556040216222e2cc7cf438a6bffc4b83739490666666bd3",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
         "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
@@ -131,7 +131,7 @@
       "source": "web/creative_canvas.css",
       "destination": "frontend/src/canvas/creative_canvas.css",
       "sourceSha256": "a858f0328a4f03c28c98a9d6742cbfc615e4ce1a4db8f50f50b2a3e0bca420ee",
-      "destinationSha256": "f6d1ac30f8d04f132d1433806152a6970964abf14f7e2d9ee6b0efa1341e4c46",
+      "destinationSha256": "048dd5d977f4e96eef57f9c9970a03ab23ae087a808b0c7f86090227a85d4283",
       "changes": [
         "2026-11-03: Use a compact square empty parser with a matching visible workbench surface and the Script Document Parser display name; preserve populated tables and user sizing.",
         "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
@@ -234,7 +234,7 @@
       "source": "web/creative_history.mjs",
       "destination": "frontend/src/integrations/comfyui/canvas/creative_history.mjs",
       "sourceSha256": "688668a804afd5a0d4ea4748e2b29e9d616688c9102dd23f8eb55ca5f7a4d829",
-      "destinationSha256": "f205d18dfdf1598273089a377ecbd8eb4c24dd47f40e27adacaf051e4b52e247",
+      "destinationSha256": "c47c6a8329effdb6341a4eb94e9f66596e42bd6bfb5e4a3212defa0e1b3e9a35",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "Reject untracked edits when history/serialization capability is missing; close original tracker after workflow switch; avoid reading graph during ordinary startup/load; preserve layout-only restore and navigation redo behavior.",
@@ -1188,7 +1188,7 @@
       "source": null,
       "sourceSha256": null,
       "destination": "frontend/src/integrations/comfyui/canvas/restored_node_order.ts",
-      "destinationSha256": "657c58fc115e83ba0e7e1aa88f914202df7b7e41e5af8522468960392427ba71",
+      "destinationSha256": "2d78b926117362f1c569540fd82ddc94f3f67433ba2a397ab16c88601f9be39d",
       "kind": "production-source",
       "changes": [
         "Authored strict native restore boundary: stage one order read per owned node, revalidate workflow/root/node identity, preserve all non-order data.",
@@ -1200,7 +1200,7 @@
       "source": null,
       "sourceSha256": null,
       "destination": "tests/migrated_canvas/history_restored_order.test.mjs",
-      "destinationSha256": "145820e6163503bd456833275c0da7548b60d6fe7661961b4bb7283b2b799f5f",
+      "destinationSha256": "88cf60f0d5b243f1cfd6606ccb45d3bffb5398bc94698e79c806dade300d9336",
       "kind": "rule-regression",
       "changes": [
         "Authored synthetic native history contract tests for order-only restoration, both real generation wrapper orders, real edit detection, failed/ordinary loads and identity/getter boundaries."

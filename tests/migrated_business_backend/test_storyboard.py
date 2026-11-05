@@ -420,14 +420,18 @@ class BusinessTests(unittest.TestCase):
             def Input(name, **kwargs): return types.SimpleNamespace(name=name, **kwargs)
             @staticmethod
             def Output(name, **kwargs): return types.SimpleNamespace(name=name, **kwargs)
+        class Autogrow(String):
+            @staticmethod
+            def TemplatePrefix(port, **kwargs): return types.SimpleNamespace(port=port, **kwargs)
         fake = types.SimpleNamespace(ComfyNode=object, String=String,
+                                     Autogrow=Autogrow, Custom=lambda _kind: String,
                                      Schema=lambda **kwargs: types.SimpleNamespace(**kwargs), NodeOutput=lambda *args: args)
         with patch.dict(sys.modules, {'comfy_api': types.ModuleType('comfy_api'), 'comfy_api.latest': types.SimpleNamespace(io=fake)}):
             mappings, names = register_nodes()
             self.assertEqual(set(mappings), {'DAELAB.Table', 'DAELAB.ScriptParser', 'DAELAB.StoryboardImport', 'DAELAB.LLMStylePreviewB'})
             self.assertEqual(set(mappings), set(names))
             schema = mappings['DAELAB.Table'].define_schema()
-            self.assertEqual([s.name for s in schema.inputs], ['table_data', 'source_table'])
+            self.assertEqual([s.name for s in schema.inputs], ['table_data', 'source_table', 'columns'])
             schema = mappings['DAELAB.ScriptParser'].define_schema()
             self.assertEqual([s.name for s in schema.outputs], ['table_json', 'storyboard_json'])
             result = mappings['DAELAB.Table'].execute(json.dumps({'fields': [], 'records': [], 'future': {'keep': 1}}))

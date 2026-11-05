@@ -140,6 +140,19 @@ test('foreign orders remain untouched and visible to Save comparison',async()=>{
   assert.equal(target.nodes[1].order,2);f.tracker.prepareForSave();assert.equal(f.tracker.redoQueue.length,0);
 });
 
+test('binding-owned material and group orders keep repeated undo/redo snapshots stable',async()=>{
+  const target=state();target.nodes[1].type='DAELAB.MaterialGroup';target.nodes[2].type='DAELAB.MediaUpload';target.nodes[3].type='DAELAB.TextInput';
+  const f=harness({target});
+  for(let cycle=0;cycle<3;cycle++){
+    await f.tracker.undo();f.tracker.prepareForSave();
+    assert.equal(f.tracker.redoQueue.length,1);assert.equal(f.tracker.undoQueue.length,0);
+    assert.deepEqual(f.graph.serialize(),f.tracker.activeState);
+    await f.tracker.redo();f.tracker.prepareForSave();
+    assert.equal(f.tracker.redoQueue.length,0);assert.equal(f.tracker.undoQueue.length,1);
+    assert.deepEqual(f.graph.serialize(),f.tracker.activeState);
+  }
+});
+
 test('order getter is read once; switching workflow or replacing a node during staging makes no writes',async()=>{
   for(const action of [f=>{f.app.extensionManager.workflow.activeWorkflow={};},f=>{f.current.nodes[1]={...f.current.nodes[1]};},f=>{throw Error('native order unavailable');}]){
     let reads=0;const f=harness({afterLoad:x=>Object.defineProperty(x.current.nodes[3],'order',{enumerable:true,get(){reads++;action(x);return 3;}})}),before=clone(f.target);

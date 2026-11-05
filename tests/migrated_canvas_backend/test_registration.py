@@ -79,6 +79,26 @@ class RegistrationTests(unittest.TestCase):
         self.addCleanup(unload)
         self.module = importlib.import_module("backend.integrations.comfyui.canvas_nodes")
 
+    def test_column_binding_inputs_append_without_changing_existing_table_slots(self):
+        for module_name, class_name, original in (
+            ('table_node', 'DataTable', ['table_data', 'source_table']),
+            ('script_node', 'ScriptParser', ['table_data']),
+            ('import_node', 'StoryboardImport', ['storyboard_data']),
+        ):
+            name = 'backend.integrations.comfyui.business_nodes.' + module_name
+            if name not in sys.modules:
+                self.addCleanup(lambda key=name: sys.modules.pop(key, None))
+            node = getattr(importlib.import_module(name), class_name)
+            schema = node.define_schema()
+            self.assertEqual([slot['name'] for slot in schema.inputs], original + ['columns'])
+            columns = schema.inputs[-1]
+            self.assertTrue(columns['optional'])
+            self.assertEqual(columns['template']['prefix'], 'column')
+            self.assertEqual(columns['template']['max'], 64)
+            # Binding inputs preserve native graph lineage; the edited widget is authoritative.
+            result = node.execute(columns={'column0': {'version': 1, 'assets': []}})
+            self.assertTrue(result.result)
+
     def test_upload_lineage_input_is_lazy_without_changing_material_outputs(self):
         upload = importlib.import_module("backend.integrations.comfyui.canvas_nodes.media_upload").MediaUpload
         schema = upload.define_schema()

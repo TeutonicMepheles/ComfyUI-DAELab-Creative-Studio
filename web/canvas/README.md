@@ -8,6 +8,8 @@
 
 协作边界：与 integrations/comfyui/canvas 通过宿主端口连接；与业务通过 adapter v1 交换能力和素材快照。平移缩放属于视图，不新增编辑历史。
 
+列目标可声明原生 `inputIndex` 和 `bindMaterialColumn`。素材组接入后，持久线直接锚定对应列头 Slot；抓取列头接收端复用共享断线操作。未声明此能力的投放继续消费快照，核心不解析业务列键。
+
 画布同一文件拖放入口将 DOCX 创建为剧本解析节点，通过解析适配器的 `upload` 复用既有文档导入；图片/视频保持媒体上传路径。混拖保留文件顺序，不支持的表格等文件跳过，不送往图片上传或剧本解析。
 
 适配器可用 `textGroupOutput(node)` 声明批量文本输出；画布使用已确认的 `inputSnapshot` 创建文本节点与素材组，通过原生历史记录撤销。单项输出继续使用 `defaultOutputNode`。

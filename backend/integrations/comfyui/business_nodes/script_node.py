@@ -7,11 +7,12 @@ class ScriptParser(io.ComfyNode):
     @classmethod
     def define_schema(cls):
         return io.Schema(node_id='DAELAB.ScriptParser', display_name='剧本文档解析器', category='DAELab/Table',
-                         inputs=[io.String.Input('table_data', default='', socketless=True, extra_dict={'hidden': True})],
+                         inputs=[io.String.Input('table_data', default='', socketless=True, extra_dict={'hidden': True}),
+                                 io.Autogrow.Input('columns', template=io.Autogrow.TemplatePrefix(io.Custom('DAELAB_ASSETS').Input('column'), prefix='column', min=0, max=64), optional=True)],
                          outputs=[io.String.Output('table_json'), io.String.Output('storyboard_json')], is_output_node=True)
 
     @classmethod
-    def execute(cls, table_data=''):
+    def execute(cls, table_data='', columns=None):
         empty = {'fields': [], 'records': [], 'meta': {'script_parser': {'version': 1}}}
         table = confirmed_table(json.loads(table_data) if table_data else empty)
         return io.NodeOutput(json.dumps(table, ensure_ascii=False), json.dumps(storyboard_projection(table), ensure_ascii=False))

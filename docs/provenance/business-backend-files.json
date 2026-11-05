@@ -258,7 +258,7 @@
       "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/import_node.py",
       "destination": "backend/integrations/comfyui/business_nodes/import_node.py",
       "sourceSha256": "391ab9d03c15868d47fca6bae6727ebaf41740a1273ebf6d6728a223654c2f0b",
-      "destinationSha256": "db9eb0b2c7af978ddf258a80c51e63083d84bb395d90fa2eb4230bd049cb761a",
+      "destinationSha256": "e0d802e0aa6a86c88496e80f75bc2db6e3de71acc65e58aaf8778cd2161bfe12",
       "changes": [
         "repoint pure imports; retain stable node identity and native slot ordering"
       ],
@@ -269,7 +269,7 @@
       "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/script_node.py",
       "destination": "backend/integrations/comfyui/business_nodes/script_node.py",
       "sourceSha256": "23b2d9672bbed2b39df37c67ca3fa1ef5297fe1de7218cd7921295d97309bca1",
-      "destinationSha256": "a2250ce2148166b9bdd2fb1696f4a8512a4771cb99826f959fcce7e322885473",
+      "destinationSha256": "d93b5abf0262324e792e17eecc0f52da56a80152e550cfeb4b8619ede270c591",
       "changes": [
         "2026-11-03: Use a compact square empty parser with a matching visible workbench surface and the Script Document Parser display name; preserve populated tables and user sizing.",
         "repoint pure imports; retain stable node identity and native slot ordering"
@@ -281,7 +281,7 @@
       "sourceUrl": "https://github.com/TeutonicMepheles/ComfyUI-DAELab-Custom-Nodes-Library/blob/7ff56cb51ef6f7fc3bcf5707792d655037c61b30/nodes/daelab_comfytv_storyboard/table_node.py",
       "destination": "backend/integrations/comfyui/business_nodes/table_node.py",
       "sourceSha256": "216131d85d246c94452997962bd600313b7ab0a58c164b04f51f61e39ef9164c",
-      "destinationSha256": "4874b22d29dddac307ca45180c547b665993e5f5fb82e4df578f879b971ead4a",
+      "destinationSha256": "241fe4ccdfa4bd950445395eb0e1c493dcf539f256aa7f44304a563870bfe0fb",
       "changes": [
         "repoint pure imports to storyboard module",
         "validate selected-source projection limits"

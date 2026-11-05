@@ -142,7 +142,7 @@
       "source": null,
       "destination": "tests/migrated_canvas_backend/test_registration.py",
       "sourceSha256": null,
-      "destinationSha256": "210c80271f786e2299b346bd44e9e9b61c27c0faf48a76828a7c433115acebe2",
+      "destinationSha256": "a8edaca5219712a9b8b15768f2b667a73117638fa6535bc02b313c30e2fac89d",
       "kind": "authored-migration",
       "changes": [
         "inert host contract and HTTP security tests; not actual host acceptance",

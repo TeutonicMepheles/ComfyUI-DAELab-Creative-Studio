@@ -9,7 +9,7 @@ function adapter(file){
  const source=readFileSync(new URL('../../frontend/src/integrations/comfyui/business/'+file,import.meta.url),'utf8');
  const start=source.indexOf('function register()'),end=source.indexOf("globalThis.addEventListener",start);
  let result;const sandbox={};sandbox[Symbol.for('DAELAB.CreativeCanvas.API.v1')]={version:1,registerAdapter:(_id,value)=>{result=value;}};
- new Function('globalThis','IMAGE_GENERATION_NODE','VIDEO_GENERATION_NODE',`let registered=false;const isGenerationNode=type=>['DAELAB.ImageGenerate','DAELAB.VideoGenerate','DAELAB.LibTV.VideoGenerate'].includes(type),generationInputNames=()=>undefined;const key=Symbol.for('DAELAB.CreativeCanvas.API.v1'),TYPE='DAELAB.ScriptParser',tables=['DAELAB.Table','DAELAB.StoryboardImport'];${source.slice(start,end)};register();`)(sandbox,'DAELAB.ImageGenerate','DAELAB.VideoGenerate');
+ new Function('globalThis','IMAGE_GENERATION_NODE','VIDEO_GENERATION_NODE',`let registered=false;const app={},installColumnBindings=()=>{};const isGenerationNode=type=>['DAELAB.ImageGenerate','DAELAB.VideoGenerate','DAELAB.LibTV.VideoGenerate'].includes(type),generationInputNames=()=>undefined;const key=Symbol.for('DAELAB.CreativeCanvas.API.v1'),TYPE='DAELAB.ScriptParser',tables=['DAELAB.Table','DAELAB.StoryboardImport'];${source.slice(start,end)};register();`)(sandbox,'DAELAB.ImageGenerate','DAELAB.VideoGenerate');
  return result;
 }
 

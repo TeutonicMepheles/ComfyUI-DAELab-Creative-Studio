@@ -264,6 +264,11 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         const adapter=adapterFor(c.node),targets=typeof adapter?.projectedMaterialTargets==='function'?adapter.projectedMaterialTargets(c.node):adapter?.materialTargets?.(c.node);
         const entries=[...(targets||[]).map(target=>({...target,side:'input'})),...(adapter?.materialSources?.(c.node)||[]).map(source=>({...source,side:'output'}))];
         if(!entries.length&&!c.materialPorts?.size)return;
+        // Input binding and output snapshot can belong to the same header.
+        // Keep their full 32px controls plus 8px hit halos apart, regardless of
+        // creation order (including replacement/recreated header elements).
+        const sidesByAnchor=new Map();
+        for(const entry of entries){if(entry.project===false)continue;const anchor=entry.anchorElement||entry.element.closest('th')||entry.element;let sides=sidesByAnchor.get(anchor);if(!sides)sidesByAnchor.set(anchor,sides=new Set());sides.add(entry.side);}
         // Existing input projections have no setup writes. Measure this stable
         // pass before painting; creation and source hiding keep their old order.
         const anchors=new Map(),seen=new Set(),measurements=[];
@@ -292,16 +297,20 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
             if(!c.body.contains(original))continue;
             current.add(original);let projected=c.materialPorts.get(original);
             if(!projected){const port=button('+',()=>{});port.className='dae-material-slot dae-column-slot';port.dataset.side=entry.side;port.dataset.materialColumnSlot='true';c.element.append(port);projected={original,port};c.materialPorts.set(original,projected);
-                if(entry.side==='input'){const focus=e=>{if(e.button!==0)return;e.preventDefault();e.stopImmediatePropagation();select(c.node);port.focus({preventScroll:true});};portStarts.set(port,focus);port.addEventListener('pointerdown',focus);}
+                if(entry.side==='input'){const focus=e=>{if(e.button!==0)return;e.preventDefault();e.stopImmediatePropagation();select(c.node);port.focus({preventScroll:true});const index=projected.entry.inputIndex,linkId=c.node.inputs?.[index]?.link;if(linkId==null)return;const link=graphLinks(graph).find(link=>link.id===linkId);if(!link)return;closePicker();selectWire(link.id);root.focus();drag={kind:'detach',id:link.id,x:e.clientX,y:e.clientY,point:{x:e.clientX,y:e.clientY}};setMagnet(port);root.setPointerCapture(e.pointerId);drawWires();};portStarts.set(port,focus);port.addEventListener('pointerdown',focus);}
             }
             projected.entry=entry;const {port}=projected;
+            if(entry.side==='input')port.dataset.materialTarget=entry.key;
+            port.dataset.linked=String(entry.inputIndex>=0&&c.node.inputs?.[entry.inputIndex]?.link!=null);
+            if(entry.side==='input')port.textContent=port.dataset.linked==='true'?'●':'+';
             if(entry.side==='output')original.classList.add('dae-projected-source');
             let clipElement=entry.clipElement;
             if(!clipElement)for(let parent=anchor.parentElement;parent&&parent!==c.element;parent=parent.parentElement){if(/auto|scroll|hidden|clip/.test(getComputedStyle(parent).overflowX)){clipElement=parent;break;}}
             const r=anchor.getBoundingClientRect(),clip=clipElement?.getBoundingClientRect();
+            const offset=sidesByAnchor.get(anchor)?.size===2?(entry.side==='input'?-24:24):0;
             const measured={port,
                 hidden:c.body.hidden||c.body.inert||!r.width||!r.height||!!clip&&(r.left+r.width/2<clip.left||r.left+r.width/2>clip.right||r.bottom<=clip.top||r.top>=clip.bottom),
-                disabled:!!original.disabled,left:`${(r.left+r.width/2-bounds.left)/zoom-16}px`,top:`${(r.top-bounds.top)/zoom-54}px`,
+                disabled:!!original.disabled,left:`${(r.left+r.width/2-bounds.left)/zoom-16+offset}px`,top:`${(r.top-bounds.top)/zoom-54}px`,
                 label:String(entry.label||`${c.node.title} 列${entry.side==='input'?'输入':'输出'}`),title:String(entry.label||(entry.side==='input'?'拖入素材组，填充此列':'输出为素材组'))};
             if(batch)measurements.push(measured);else paint(measured);
         }
@@ -646,7 +655,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
     }
     function wireAnchor(rect,port,side,portShifts=null){
         // Floating unified Slots are interaction handles, not persistent wire anchors.
-        if(port.closest('.dae-creative-card')?.dataset.unified==='true')return {x:side==='output'?rect.right:rect.left,y:rect.top+rect.height/2};
+        if(!port.dataset?.materialColumnSlot&&port.closest('.dae-creative-card')?.dataset.unified==='true')return {x:side==='output'?rect.right:rect.left,y:rect.top+rect.height/2};
         const target=port.getBoundingClientRect(),shift=portShifts?.get(port);
         // Ordinary ports follow their actual center in this same paint, including
         // the previous magnetic port returning home. No post-write DOM read is needed.
@@ -659,7 +668,8 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         const bounds=new Map(),anchors=new Map();
         for(const link of graphLinks(graph)){
             const a=cards.get(link.origin_id),b=cards.get(link.target_id);if(!a||!b)continue;
-            const source=a.ports.querySelector(outputSelector(a.node,link.origin_slot)),target=b.ports.querySelector(inputSelector(b.node,link.target_slot));if(!source||!target)continue;
+            const projected=[...(b.materialPorts?.values()||[])].find(port=>port.entry?.side==='input'&&port.entry.inputIndex===link.target_slot);
+            const source=a.ports.querySelector(outputSelector(a.node,link.origin_slot)),target=projected?(projected.port.hidden?null:projected.port):b.ports.querySelector(inputSelector(b.node,link.target_slot));if(!source||!target)continue;
             if(!bounds.has(a))bounds.set(a,a.element.getBoundingClientRect());if(!bounds.has(b))bounds.set(b,b.element.getBoundingClientRect());
             const ra=bounds.get(a),rb=bounds.get(b);
             if(!ra.width||!ra.height||!rb.width||!rb.height)continue;
@@ -907,7 +917,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
             return true;
         }
         history.begin();
-        try{adapterFor(target.node).acceptMaterials(target.node,target.key,collection);message('已填入素材，可在表格中撤销。');}
+        try{const adapter=adapterFor(target.node),bound=target.project!==false&&adapter.bindMaterialColumn?.(target.node,target.key,source);if(!bound)adapter.acceptMaterials(target.node,target.key,collection);message(bound?'已绑定素材组与列头，可撤销。':'已填入素材，可在表格中撤销。');}
         catch(error){message(error.message);}
         finally{history.end();dirty();sync();}
         return true;
