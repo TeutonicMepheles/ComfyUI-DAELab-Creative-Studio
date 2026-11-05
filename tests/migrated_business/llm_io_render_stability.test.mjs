@@ -109,6 +109,20 @@ test('completed optimization receipts label current model IDs and legacy aliases
  }
 });
 
+test('PE table mode follows per-row reference images and model switches without bypassing missing images',t=>{
+ const env=environment(t),a=panel(t,env,61),b=panel(t,env,62);
+ const table={version:1,fields:[{id:'prompt',name:'Prompt',type:'json',presentation:'prompt',generationPrompt:true},{id:'image',name:'Image',type:'content'}],records:[1,2].map(i=>({id:'row-'+i,selected:true,values:{prompt:{kind:'column-template',version:1,segments:[{type:'text',text:'Subject '+i},{type:'column',fieldId:'image',assetIndex:0,assetId:'ref-'+i}]},image:[{id:'ref-'+i,kind:'image',filename:'ref-'+i+'.png',url:'/view?filename=ref-'+i+'.png'}]}})),meta:{material_columns:true,generationInput:{version:1,promptFieldId:'prompt'}}};
+ a.upstream.type='DAELAB.Table';a.upstream.widgets=[{name:'table_data',value:JSON.stringify(table)}];a.state().model='qwen-image-2.1-pe';env.tick();
+ assert.equal(a.state().mode,'reverse');assert.equal(a.root.modes[0].disabled,true);assert.equal(a.root.modes[1].disabled,false);assert.equal(a.run.disabled,false);
+ assert.match(a.image.src,/ref-1.png/);assert.equal(a.root.classList.contains('has-task-list'),true);assert.equal(b.state().mode,'polish');
+ a.state().model=QWEN_MODEL;env.tick();assert.equal(a.state().mode,'polish');assert.equal(a.root.modes[1].disabled,true);assert.equal(a.run.disabled,false);
+ a.state().model='qwen-image-2.1-pe';env.tick();assert.equal(a.state().mode,'reverse');
+ table.records[1].values.image=[];a.upstream.widgets[0].value=JSON.stringify(table);env.tick();assert.equal(a.run.disabled,true);
+ table.records[1].values.prompt='';a.upstream.widgets[0].value=JSON.stringify(table);env.tick();assert.equal(a.run.disabled,true,'selected blank row cannot bypass PE reference validation');
+ table.records[1].selected=false;a.upstream.widgets[0].value=JSON.stringify(table);env.tick();assert.equal(a.run.disabled,false);
+ env.reset();env.tick();assert.equal(env.writes.length,0);
+});
+
 test('LLM model options use logical catalog values while legacy aliases remain read-compatible',t=>{
  const env=environment(t),a=panel(t,env,32);
  const options=a.select.children,values=options.filter(option=>!option.disabled).map(option=>option.value);
