@@ -326,12 +326,14 @@
       "source": "web/asset_library.css",
       "destination": "frontend/src/features/assets/asset_library.css",
       "sourceSha256": "a29f80d5fff8c620c39a87796375db6caa2af6b133d47990defbeec16365c279",
-      "destinationSha256": "39022a066ea18589407c592c450eed74b24b816d33180e3da89b86b397005b65",
+      "destinationSha256": "c555d3f6c0a2f8ff19d54b9e7499bf6651f8bbf539f3b231f4d2e706291afe01",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "2026-11-05: mount the reviewed folder browser in the existing library with shared typography and owned lifecycle.",
         "2026-11-05: scoped neutral asset-library visual system and layout; service and interaction contracts retained.",
-        "2026-11-05: scoped neutral asset-library visual system and layout; service and interaction contracts retained."
+        "2026-11-05: scoped neutral asset-library visual system and layout; service and interaction contracts retained.",
+        "2026-11-05: make asset-library bound-control radii and icon dimensions independent of shared stylesheet order.",
+        "2026-11-05: make asset-library bound-control radii and icon dimensions independent of shared stylesheet order."
       ],
       "kind": "production-source"
     },
