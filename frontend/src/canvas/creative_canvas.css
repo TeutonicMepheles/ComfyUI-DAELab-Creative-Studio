@@ -78,7 +78,7 @@
 .dae-creative-zoom span{min-width:48px;text-align:center;font-size:12px;font-variant-numeric:tabular-nums;color:var(--dae-text-muted)}
 .dae-creative-empty{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);text-align:center;color:var(--dae-text-muted);pointer-events:none}
 .dae-creative-empty strong{display:block;font-size:28px;font-weight:500;color:var(--dae-text);margin-bottom:12px}
-.dae-creative-picker{position:absolute;width:224px;max-width:calc(100% - 24px);max-height:calc(100% - 24px);display:flex;flex-direction:column;gap:8px;background:var(--dae-surface-raised);padding:8px;border:1px solid var(--dae-border);border-radius:16px;box-shadow:var(--dae-elevation-overlay);z-index:2}
+.dae-creative-picker{position:absolute;width:224px;max-width:calc(100% - 24px);max-height:calc(100% - 24px);display:flex;flex-direction:column;gap:8px;background:var(--dae-surface-raised);padding:8px;border:1px solid var(--dae-border);border-radius:16px;box-shadow:var(--dae-elevation-overlay);z-index:calc(var(--dae-layer-floating,20) + 1)}
 .dae-creative-picker h2{font-size:15px;font-weight:600;color:var(--dae-text-muted);margin:6px 8px 2px}
 .dae-creative-picker>div{overflow:auto;min-height:0;scrollbar-width:thin}
 .dae-creative-picker button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin:2px 0;min-height:40px;border-color:transparent;border-radius:10px;background:transparent;white-space:normal;font-size:14px;font-weight:400;padding:6px 8px}
