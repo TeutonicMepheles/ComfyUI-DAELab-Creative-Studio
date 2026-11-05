@@ -52,6 +52,14 @@ Seedance 参考图在提交前适配官方尺寸限制：宽高比 0.4–2.5、�
 
 云端 H3 与 `MiniMax H3 FL（本地）` 分别路由；本地版仍只支持文生视频和图片首尾帧，不会自动回退到云端。
 
+本地还提供低配 int8 档位，与旧 profile 并列：
+
+- 名称：`MiniMax H3 FL 低配（本地）`（首帧/图生视频）、`MiniMax H3 Ref 低配（本地）`（双图参考）；后续 BF16 档位按同一规则以“高配（本地）”命名。显示名只带档位与（本地），量化、步数、帧率放在模型信息里。
+- 绑定：`video_base` / `video_reference_base` 两族，只在提供绑定时注册；provider 为 `local-h3-base`、`local-h3-reference-base`，加载链为 UNETLoader + CLIPLoader(type=minimax) + 视频/音频 VAE，条件节点分别为 `MiniMaxH3ImageToVideo` / `MiniMaxH3ReferenceToVideo`。
+- 参数：20 步、`res_multistep`、`simple`、24fps，强制不加 Turbo LoRA（旧设置里的 `turbo:true` 对低配不生效）；界面时长仍为整数秒，2 秒按既有换算在执行层得到 56 帧。
+- 兼容：旧 `MiniMax H3 FL（本地）` / `Ref（本地）` 是各自独立的旧 profile（主模型、量化、步数与 LoRA 各自读取原配置），保持不动；默认仍是旧条目，已保存工作流的选择不迁移、不改写。
+- 缺失：绑定缺失或哈希不符时，该条目在画布内报“不可用＋原因”，不回退到旧 profile、云端或其它档位。
+
 ## GPT Image（ComfyUI 账户）
 
 GPT Image 2、2.5 Flare、2.5 Sunburst 使用官方 `OpenAIGPTImageNodeV2`。支持文生图和最多 16 张图片参考，每个任务生成一张图片；尺寸、质量和背景选项读取已安装节点。参考顺序及结构化 `Image N` 引用保持一致，结果通过 `SaveImage` 写入宿主输出目录并由共享任务服务校验。认证与中断处理复用上述 ComfyUI 账户通道，不需要单独配置 OpenAI 密钥。

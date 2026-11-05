@@ -352,7 +352,8 @@ business:docs/table-local-qwen.md","backend/providers/local_image; backend/integ
 "F-BIZ-028","本地 MiniMax H3 文生、首帧、首尾帧视频","保留","源码已存在；三模式分别构图，媒体数量和不支持的参考视频/音频会被拒绝。","business:nodes/libtv_bridge/table_local_video.py
 business:nodes/libtv_bridge/table_local_execution.py
 business:tests/test_table_local_h3.py","backend/providers/local_video; backend/integrations/comfyui","M4","保留已明确的模式语义与帧绑定，避免迁移时降成一个模糊视频入口。","三模式分别接受 0/1/2 张图且不静默切模式。
-真实本地执行需单独记录设备、模型与输出；mock 或 validate_prompt 不冒充执行成功。","UC-BIZ-009 UC-BIZ-014","TC-BIZ-032 TC-BIZ-041 TC-BIZ-047 TC-SYS-036"
+真实本地执行需单独记录设备、模型与输出；mock 或 validate_prompt 不冒充执行成功。
+2026-11-04：新增低配档位作为独立模型条目——`MiniMax H3 FL 低配（本地）`、`MiniMax H3 Ref 低配（本地）`（后续高配按同规则以“高配（本地）”命名）。显示名只带档位与（本地），量化与步数放模型信息；来源胶囊仍为本地；低配强制不加 Turbo LoRA（旧设置里 `turbo:true` 也不生效）。旧 `MiniMax H3 FL（本地）` / `Ref（本地）` 为各自独立的旧 profile，绑定与参数按原配置保留，不按名称推断；默认仍是旧条目，已保存选择不迁移。界面时长仍为整数秒，帧数与 fps 仅在执行层换算与记录中出现。绑定缺失或哈希不符时该条目报“不可用＋原因”，不回退到旧 profile 或其它档位。","UC-BIZ-009 UC-BIZ-014","TC-BIZ-032 TC-BIZ-041 TC-BIZ-047 TC-SYS-036"
 "F-BIZ-029","不可变输入快照、指纹与媒体冻结","保留","源码已存在；生成前计算输入指纹、文件哈希并冻结素材。","business:nodes/libtv_bridge/media_snapshot.py
 business:nodes/libtv_bridge/table_generation_api.py:140
 business:nodes/libtv_bridge/runtime.py:74","backend/contracts/generation; backend/jobs; backend/assets","M4","这是防止重复计费和恢复时输入漂移的核心，不应在重构中丢弃。","同 requestId 同输入复用原记录，不同输入明确拒绝。
