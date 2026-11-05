@@ -41,9 +41,9 @@ export function createAssetLibrary(root,{onCreate,onAdd}){
         const data=JSON.parse(await file.text());
         await importOld(data.document||data,data.origin||legacyOrigin.value.trim());
     }catch(error){if(alive)say(error.message);}finally{legacyFile.value='';}};
-    const importTools=el('div','dae-library-tools');importTools.style.flexWrap='wrap';importTools.append(legacy,legacyOrigin,importFile,legacyFile);
+    const importTools=el('div','dae-library-tools dae-library-imports');importTools.append(el('span','dae-library-import-label','旧收藏'),legacy,legacyOrigin,importFile,legacyFile);
     footer.append(summary,el('span','dae-library-spacer'),previous,next,preview,add);
-    drawer.append(header,tools,importTools,grid,notice,footer);
+    drawer.append(header,tools,grid,notice,importTools,footer);
     const dialog=el('dialog','dae-ui dae-library-preview dae-library-overlay');dialog.setAttribute('aria-label','素材预览');
     const previewHeader=el('header','dae-library-header'),previewTitle=el('strong'),previewClose=action('关闭',null,()=>closePreview());previewHeader.append(previewTitle,el('span','dae-library-spacer'),previewClose);
     const previewBody=el('div','dae-library-preview-body'),previewNotice=el('p','dae-library-notice');previewNotice.setAttribute('role','status');
