@@ -4,7 +4,7 @@
 > 本修正版以 main 上的权威文档为准：`docs/validation/MEETING_ITEMS_ACCEPTANCE_20261104.md`
 > （12 条 AC 验收口径）与 `docs/validation/ROUND_DELIVERY_20261104.md`（合并 SHA 与复验证据）。
 > 状态含义：✅ 已交付（B 线 `f9d2ec6` 或更早，有复验记录）｜🚫 已判定不实施/撤回｜
-> ⏳ 待核/待评估（计划类）｜🔧 本轮修复中。当前 8365 抽核由 Reviewer task #64 进行，本文不代其结论。
+> ⏳ 待核/待评估（计划类）｜🔧 本轮已补修（dock 两项，已部署到 8365）。8365 抽核由 Reviewer task #64 完成，本文不代其结论。
 
 ## 一、已交付（会议明确项基本全部落地）
 
