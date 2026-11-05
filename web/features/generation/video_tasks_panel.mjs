@@ -63,9 +63,9 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
   const control=button('',()=>changeType(kind));control.className='video-task-type';control.title=label+'生成';typeTabs.append(control);
   const glyph=element('span',control,'dae-table-icon');glyph.setAttribute('aria-hidden','true');glyph.style.setProperty('--table-icon',`url("${new URL('../../design/vendor/remixicon/'+icon+'.svg',import.meta.url).href}")`);element('span',control,'',label);typeButtons.set(kind,control);
  }
- const importButton=tableIcon(button('重新导入表格',()=>importSource()),'restart-line','重新导入表格');importButton.classList.add('video-task-import');header.append(importButton);importButton.hidden=true;
+ const importButton=tableIcon(button('重新导入表格',()=>importSource()),'restart-line','重新导入表格');importButton.classList.add('video-task-import');importButton.hidden=true;
  const rail=element('section',root,'video-task-rail');rail.setAttribute('aria-label','生成任务');rail.hidden=true;
- const totalLabel=element('span',rail,'video-task-total');totalLabel.setAttribute('role','status');const cards=element('div',rail,'video-task-cards');cards.setAttribute('role','tablist');cards.setAttribute('aria-label','选择任务');
+ const railHeading=element('div',rail,'video-task-rail-heading');const totalLabel=element('span',railHeading,'video-task-total');totalLabel.setAttribute('role','status');railHeading.append(importButton);const cards=element('div',rail,'video-task-cards');cards.setAttribute('role','tablist');cards.setAttribute('aria-label','选择任务');
  const body=element('section',root,'video-task-body');
  const bodyTop=element('div',body,'video-task-body-top');
  const materials=element('div',bodyTop,'video-task-materials');materials.setAttribute('aria-label','当前任务参考素材');materials.tabIndex=-1;materials.dataset.selected=String(!node.mode);
@@ -366,10 +366,13 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
  }
  function renderPrompt(){
   const row=current(),cfg=config();if(!row||!cfg||!state.table.fields.some(f=>f.id===cfg.promptFieldId)){binding?.dispose();binding=null;prompt.replaceChildren();clearMaterialPreviews();materials.replaceChildren();return;}
-  const stamp=JSON.stringify([row.id,cfg.promptFieldId,effectivePrompt(state.table,row,cfg.promptFieldId),tableAssets(state.table,row).filter(a=>a.fieldId!==state.fieldId)]);
-  if(promptStamp===stamp||prompt.dataset.inlineEditing==='true'&&prompt.dataset.record===row.id)return;promptStamp=stamp;binding?.dispose();delete prompt.dataset.inlineEditing;prompt.replaceChildren();
+  const externalBatch=Boolean(state.source||state.approvedSource);
+  const stamp=JSON.stringify([row.id,cfg.promptFieldId,effectivePrompt(state.table,row,cfg.promptFieldId),tableAssets(state.table,row).filter(a=>a.fieldId!==state.fieldId),externalBatch]);
+  if(promptStamp===stamp||!externalBatch&&prompt.dataset.inlineEditing==='true'&&prompt.dataset.record===row.id)return;promptStamp=stamp;binding?.dispose();delete prompt.dataset.inlineEditing;prompt.replaceChildren();
   prompt.dataset.record=row.id;prompt.dataset.field=cfg.promptFieldId;
-  binding=promptUI.mountEditor({cell:prompt,row,field:state.table.fields.find(f=>f.id===cfg.promptFieldId)});
+  const promptField=state.table.fields.find(f=>f.id===cfg.promptFieldId);
+  prompt.dataset.readonly=String(externalBatch||!!promptField.readonly);
+  binding=promptUI.mountEditor({cell:prompt,row,field:{...promptField,readonly:externalBatch||promptField.readonly}});
   clearMaterialPreviews();materials.replaceChildren();const assets=tableAssets(state.table,row).filter(a=>a.fieldId!==state.fieldId);if(!assets.length)materials.append(emptyMaterial);
   for(const [index,asset] of assets.entries()){
    const removeMaterial=()=>{if(node.mode||generation.submitting||active(current()))return;editor.change(t=>{removeMaterialItem(t,row.id,asset.fieldId,asset.id);});};
@@ -386,7 +389,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
   if(!current())state.currentId=state.table.records[0]?.id||'';
   const row=current(),cfg=config(),receipt=generation.stateFor(row,state.fieldId),busy=batchMode()?state.table.records.some(active):!!row&&active(row);
   renderPrice(row,cfg);
-  header.hidden=!!fixedKind&&importButton.hidden;
+  header.hidden=!!fixedKind;
   if(!rail.hidden)renderCards();else if(cards.children.length){releaseThumbnails(cards);cards.replaceChildren();}
   totalLabel.textContent=linkedTable?'共 '+state.table.records.length+' 个任务':'';totalLabel.hidden=!linkedTable;
   renderPrompt();syncRowHighlight();body.hidden=!row;bodyTop.hidden=!linkedTable&&!state.source&&!materials.children.length;

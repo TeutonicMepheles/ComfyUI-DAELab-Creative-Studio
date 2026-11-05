@@ -84,7 +84,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
 .dae-ui.generation-column-settings .generation-column-toolbar button{width:100%;min-height:36px;height:36px;padding:8px!important;justify-content:center}
 .dae-ui.generation-column-settings .generation-column-toolbar button[data-primary=true]{background:var(--dae-primary,#b8c4ff);color:var(--dae-on-primary,#202234)}
 .dae-ui.generation-column-settings .generation-column-toolbar button[aria-label=取消]{font-size:22px!important}
-.dae-ui.generation-column-settings .generation-parameter-sections>section:first-child button[aria-pressed=true]{box-shadow:inset 0 0 0 2px var(--dae-focus,#b8c4ff)}
+.dae-ui.generation-column-settings .generation-parameter-sections>section:first-child button[aria-pressed=true]{box-shadow:none;border-color:var(--dae-accent)!important;background:color-mix(in srgb,var(--dae-surface-high) 76%,var(--dae-text) 24%)!important}
 .dae-ui.generation-column-settings details{margin-top:18px;color:var(--dae-text-muted)}
 .dae-ui.generation-column-settings summary{cursor:pointer}
 .dae-ui.generation-column-settings .generation-frame-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px}
