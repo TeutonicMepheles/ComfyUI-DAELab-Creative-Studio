@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "e797ae142513e3a81a4f4164bce22ad57bdf5bcfd9170c54e9d2a4c5b2e65709",
+  "sourceFingerprint": "a4bec680260053b13136a7df318106117d9680661a21820e45d988cdb1d4f605",
   "files": [
     {
       "path": "AGENTS.md",
@@ -1040,7 +1040,7 @@
     },
     {
       "path": "integrations/comfyui/business/column_group_binding.js",
-      "sha256": "7adc37f69760f00b0b66d122f83103b2f602425c9afe941d84c524374112a61e"
+      "sha256": "9f5b7f546d91e85f10019b6d41c254f57d6d9aecc23daaa3f749abf6ec0b5e37"
     },
     {
       "path": "integrations/comfyui/business/comfy_pricing.js",
@@ -1200,7 +1200,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "4a315f05ad9bda9ec094e3397262f740da20a49c63b7c229ab45a5c3ac434351"
+      "sha256": "cc361a302fa3d88b1830e6ed74bd1aa373871874b120b71275ef6f384bb60f82"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
