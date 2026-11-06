@@ -259,7 +259,7 @@ business:web/data_table_nodes.mjs
 business:web/creative_canvas_adapter.js:39
 business:docs/table-material-columns.md","frontend/src/features/table; frontend/src/ui","M3","保留已经批准的素材列、提示词列、生成列及 3 行默认结构；不恢复旧 2×2 文档，不新增模板选择。","新建表格为素材列、提示词列、生成列及 3 行；保留内容格追加多个素材，单表限制 500 行、64 列；不提供新的模板选择。
 调整宽度、长表自然撑高和边缘菜单均可达；仅通用画布表删除最后行/列时删节点并可撤销。
-2026-11-04：表格拖动范围覆盖整个面板（含内容区空白与行标签区），不再只有表头可拖；单元格编辑、选择与复制优先于拖动，拖动不改变数据、不打断进行中的编辑。","UC-BIZ-001 UC-BIZ-016","TC-BIZ-010 TC-BIZ-011 TC-BIZ-045"
+2026-11-04：表格拖动范围覆盖整个面板（含内容区空白与行标签区），不再只有表头可拖；列宽调整（悬浮列边命中区）、单元格编辑、选择与复制优先于拖动，拖动不改变数据、不打断进行中的编辑。","UC-BIZ-001 UC-BIZ-016","TC-BIZ-010 TC-BIZ-011 TC-BIZ-045"
 "F-BIZ-009","业务面板生命周期、实例隔离与模式切换","重构","源码已存在；当前同时覆盖 Canvas、原生图和 App Mode，并有跨仓控件 fallback。","business:web/app_mode_bypass.js
 business:web/app_mode_bypass_model.mjs
 business:web/data_table_nodes.mjs

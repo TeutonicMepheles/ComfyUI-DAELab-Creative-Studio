@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "420c3b79024662a5ede5db477fc9b92420a632217f0de003d04f4e46fbe193a1",
+  "specificationHash": "77533bef2e4f6a98e15de21328cfab1b8a14c709eda153508a728f6d4c16dd77",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -4816,8 +4816,8 @@
       "feature": "F-BIZ-008",
       "task": "TASK-M3-FEATURES-TABLE",
       "owner": "features/table",
-      "requirement": "2026-11-04：表格拖动范围覆盖整个面板（含内容区空白与行标签区），不再只有表头可拖；单元格编辑、选择与复制优先于拖动，拖动不改变数据、不打断进行中的编辑。",
-      "requirementHash": "5d5e4d7ae5db770a576a62baa3f53cbb5f0e7070c187816ca833871e830eff06",
+      "requirement": "2026-11-04：表格拖动范围覆盖整个面板（含内容区空白与行标签区），不再只有表头可拖；列宽调整（悬浮列边命中区）、单元格编辑、选择与复制优先于拖动，拖动不改变数据、不打断进行中的编辑。",
+      "requirementHash": "817246f1bea13be94efdf6cc99d017a3ca9c82f215a42c4bc4034b55b4b86c6a",
       "usecases": [
         "UC-BIZ-001",
         "UC-BIZ-016"
@@ -10837,7 +10837,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "3a535c729f7000c690a058a42230ff316fe60d5218102ff1925a0f8f2527df15",
+      "specificationHash": "cd6b7c5bf5c6849b9d3a38b9a49e42498126571f8be2be507e71f29dcfc9069f",
       "assertions": [
         {
           "id": "AS-BIZ-010-001",
@@ -10874,7 +10874,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "80e7009b72b3f8ea51e8674ef3bdf71e0c493ae9befb20feb2b7e83002bb9047",
+      "specificationHash": "506521b2fd43b50462186cd8d1fd58eb19133b1959700f953ba274ae3de323ab",
       "assertions": [
         {
           "id": "AS-BIZ-011-001",
@@ -12117,7 +12117,7 @@
       "evals": [
         "EV-PERF"
       ],
-      "specificationHash": "013ccb4d598d3ab75b4bf2055991008b3d61bd90b5dcb857f5b8ab6c0fe9acd8",
+      "specificationHash": "7ff7a496f62316cc672e9f88adde73c5567ce8a9082b323ffa30b3ade3186332",
       "assertions": [
         {
           "id": "AS-BIZ-045-001",
