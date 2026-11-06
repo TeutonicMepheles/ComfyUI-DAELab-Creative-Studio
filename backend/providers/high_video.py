@@ -55,6 +55,7 @@ class HighVideoProvider(NativeProvider):
         schema = result['schema']
         schema['properties'].pop('turbo', None)
         schema['config']['settings'] = [key for key in schema['config']['settings'] if key != 'turbo']
+        result['sampling'] = {'sampler': 'lcm', 'steps': 6}
         result['profile'] = {'precision': 'bf16', 'adapter': 'pika_h3_flex', 'strength': 1.0,
                              'sampler': 'lcm', 'sigmas': FLEX_SIGMAS, 'nfe': 6, 'fps': 24}
         return result

@@ -52,3 +52,5 @@ Focused checks, from the repository root:
 python -m unittest discover -s tests/generation -p "test_*.py" -v
 python -m unittest discover -s tests/evals -p "test_*.py" -v
 ```
+
+Capability responses expose verified binding names/hashes and sampling parameters for model notes. They omit local paths and do not load or execute a generation merely to render a note. The frontend omits unknown precision fields rather than inferring them from tier labels.

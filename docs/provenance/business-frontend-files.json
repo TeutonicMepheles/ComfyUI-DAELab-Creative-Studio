@@ -281,7 +281,7 @@
       "source": "web/table_generation_panel.mjs",
       "destination": "frontend/src/features/generation/table_generation_panel.mjs",
       "sourceSha256": "547d0543ec0e6359f0146f429ca9a11f9d4cce5682e1c212f01439492b1c9a50",
-      "destinationSha256": "ac89fa3055c134ea7483cc88d8ea441e6895780c1c0d162f17600954f635fe7c",
+      "destinationSha256": "fad527eb410f4e83ad05568b86239514a96297c703664c7c6f45dee50d3a5d42",
       "kind": "production-source",
       "changes": [
         "2026-11-02: Explain the local one-image reference mode and explicit width/height scaling.",
@@ -653,7 +653,7 @@
       "source": "web/table_prompt_settings.mjs",
       "destination": "frontend/src/features/prompt/table_prompt_settings.mjs",
       "sourceSha256": "bfe4726e48470729694c7a86878e50662a3ec0fad7837a9323bbb21a022c432a",
-      "destinationSha256": "5f2188204928d59ca61d191d4cdaf31adf6a8e598239480e09400741abc6e5df",
+      "destinationSha256": "4ba4c43a1c8e2dbcbb93bf96575f103eb12582addfffae4c2df5dfe349f1bf24",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",

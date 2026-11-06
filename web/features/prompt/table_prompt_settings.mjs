@@ -1,3 +1,4 @@
+import {updateModelNote} from '../models/model_notes.js';
 import {abovePopoverLayout} from './settings_popover_layout.js';
 import {getModelCatalog} from '../models/model_catalog.mjs';
 import {modelSourceBadge,modelSourceKind} from '../models/source_badge.js';
@@ -46,9 +47,9 @@ export function createPromptSettingsBar(onActivate,{combined=false,fixedKind=nul
  for(const event of ['pointerdown','mousedown','dblclick','keydown'])root.addEventListener(event,stopCanvasPropagation);
  return {root,update(config,name,scope='cell'){
   const suffix=scope==='all'?'同步全部任务':'只修改当前单元格';
-  const next=JSON.stringify([config,name,scope,getModelCatalog().get(config.model)?.provider]);if(next===signature)return;signature=next;root.setAttribute('aria-label',name+' · 生成设置（'+suffix+'）');
+  const next=JSON.stringify([config,name,scope,getModelCatalog().get(config.model)?.provider,getModelCatalog().get(config.model)?.capability]);if(next===signature)return;signature=next;root.setAttribute('aria-label',name+' · 生成设置（'+suffix+'）');
   for(const item of promptSettingsItems(config,{combined})){const {control,icon,label,badge}=controls.get(item.key);const title=`${name} · ${item.label}：${item.text}（${item.key==='attempts'?'只修改当前任务':suffix}）`;
-   label.textContent=item.key==='model'?item.text.replace(/（(?:本地|Comfy|来源未知)）$/,''):item.text;badge.textContent=item.key==='model'?modelSourceBadge(getModelCatalog().get(config.model)):'';badge.dataset.source=modelSourceKind(getModelCatalog().get(config.model));control.hidden=Boolean(item.hidden)||item.key==='kind'&&!!fixedKind;control.title=title;control.setAttribute('aria-label',title);icon.style.setProperty('--table-icon',`url("${item.key==='model'?generationModelIconURL(config.model):new URL('../../design/vendor/remixicon/'+item.icon+'.svg',import.meta.url).href}")`);
+   label.textContent=item.key==='model'?item.text.replace(/（(?:本地|Comfy|来源未知)）$/,''):item.text;badge.textContent=item.key==='model'?modelSourceBadge(getModelCatalog().get(config.model)):'';badge.dataset.source=modelSourceKind(getModelCatalog().get(config.model));if(item.key==='model')updateModelNote(control,getModelCatalog().get(config.model));control.hidden=Boolean(item.hidden)||item.key==='kind'&&!!fixedKind;control.title=title;control.setAttribute('aria-label',title);icon.style.setProperty('--table-icon',`url("${item.key==='model'?generationModelIconURL(config.model):new URL('../../design/vendor/remixicon/'+item.icon+'.svg',import.meta.url).href}")`);
   }
  }};
 }

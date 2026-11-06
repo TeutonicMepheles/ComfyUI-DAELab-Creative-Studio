@@ -65,4 +65,4 @@ class NativeTextProvider(NativeProvider):
         await asyncio.to_thread(self.inventory.verify, models, graph)
         await self.queue.validate('pe-capability-probe', graph)
         return {'model': self.model, 'provider': 'local', 'kind': 'text', 'local': True, 'available': True,
-                'maxOutputTokens': PE_LIMIT, 'modes': ['reverse'], 'requiresReference': True}
+                'weightBinding': models, 'maxOutputTokens': PE_LIMIT, 'modes': ['reverse'], 'requiresReference': True}
