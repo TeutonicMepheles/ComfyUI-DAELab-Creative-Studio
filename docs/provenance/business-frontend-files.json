@@ -384,7 +384,7 @@
       "source": "web/video_tasks_panel.mjs",
       "destination": "frontend/src/features/generation/video_tasks_panel.mjs",
       "sourceSha256": "1f567635a4b88ab672b6f656d1c2ede14a5a79432592e26ccf2c39775281452d",
-      "destinationSha256": "1941862303822533b66e445b839fb39f910adf39bf1c5c8e6f2921c5521abbbe",
+      "destinationSha256": "5420b0883396c48d56f76e040c11c8c3b3f988eff930df7698805c2c89186c41",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",

@@ -418,9 +418,9 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
   if(!rail.hidden)renderCards();else if(cards.children.length){releaseThumbnails(cards);cards.replaceChildren();}
   const phasesNow=state.table.records.map(item=>generation.stateFor(item,state.fieldId)?.phase);
   const completedCount=phasesNow.filter(phase=>phase==='complete').length,stoppedCount=phasesNow.filter(phase=>['interrupted','paused','stopped'].includes(phase)).length,failedCount=phasesNow.filter(phase=>['failed','needs_input','needs_recovery'].includes(phase)).length;
-  totalLabel.textContent=linkedTable?'共 '+state.table.records.length+' 个任务'+(completedCount?' · 已完成 '+completedCount:'')+(stoppedCount?' · 已中止 '+stoppedCount:'')+(failedCount?' · 异常 '+failedCount:''):'';totalLabel.hidden=!linkedTable;
+  totalLabel.textContent=linkedTable?'当前列表 '+state.table.records.length+' 个任务'+(completedCount?' · 已完成 '+completedCount:'')+(stoppedCount?' · 已中止 '+stoppedCount:'')+(failedCount?' · 异常 '+failedCount:''):'';totalLabel.hidden=!linkedTable;
   const historyRows=videoTaskHistoryRows(state),archivedCount=historyRows.filter(item=>item.archived).length;
-  historyButton.hidden=!historyRows.length;historyButton.textContent=`任务记录 ${historyRows.length}`+(archivedCount?`（未选 ${archivedCount}）`:'');
+  historyButton.hidden=!historyRows.length;historyButton.textContent=`任务记录 ${historyRows.length} 行`+(archivedCount?`（归档 ${archivedCount}）`:'');
   renderPrompt();syncRowHighlight();body.hidden=!row;bodyTop.hidden=!linkedTable&&!state.source&&!materials.children.length;
   const frames=row&&cfg?generationFrames(state.table,row,state.fieldId,cfg):[];
   for(const {asset,index,badge} of materialLabels){
