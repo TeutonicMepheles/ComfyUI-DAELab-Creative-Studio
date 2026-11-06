@@ -266,7 +266,7 @@
       "source": "web/table_generation_model.mjs",
       "destination": "frontend/src/features/generation/table_generation_model.mjs",
       "sourceSha256": "eee30572bc581bfd1c90925935d73227ee29578d0dbfb8779bd6e763912b532d",
-      "destinationSha256": "eaa59a4029e804b253a1201ec2e5b326552e691481cfee11bf6a5edbba685c03",
+      "destinationSha256": "7e672804f5242ca6b3f4e84737a26d6f001ceb5088d32c0df1593ba5dc65ce34",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -281,7 +281,7 @@
       "source": "web/table_generation_panel.mjs",
       "destination": "frontend/src/features/generation/table_generation_panel.mjs",
       "sourceSha256": "547d0543ec0e6359f0146f429ca9a11f9d4cce5682e1c212f01439492b1c9a50",
-      "destinationSha256": "bcbb93fe9fa1ea9659f2c5b1e86116e525ce8fdc4c264926e86fd219ebb95839",
+      "destinationSha256": "ac89fa3055c134ea7483cc88d8ea441e6895780c1c0d162f17600954f635fe7c",
       "kind": "production-source",
       "changes": [
         "2026-11-02: Explain the local one-image reference mode and explicit width/height scaling.",
@@ -303,7 +303,7 @@
       "source": "web/table_generation_tasks.mjs",
       "destination": "frontend/src/features/generation/table_generation_tasks.mjs",
       "sourceSha256": "3812afeff3c3738abb6799f9e96812fe76e1e078262612efe9aa59b9163e765f",
-      "destinationSha256": "7995315cba977808211225fe56dda823198b37a91ab190ef2578a7921118c1b7",
+      "destinationSha256": "198cf21f57483a78038a80422c1173f26e9689205190660aedb3f3f814cca9de",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -384,7 +384,7 @@
       "source": "web/video_tasks_panel.mjs",
       "destination": "frontend/src/features/generation/video_tasks_panel.mjs",
       "sourceSha256": "1f567635a4b88ab672b6f656d1c2ede14a5a79432592e26ccf2c39775281452d",
-      "destinationSha256": "5420b0883396c48d56f76e040c11c8c3b3f988eff930df7698805c2c89186c41",
+      "destinationSha256": "70785b549377a5883298f0a368dce20ab1a675ec5c565df6e01bc79eca5104ff",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
@@ -1462,7 +1462,7 @@
       "source": "tests/generation_input_regression.test.mjs",
       "destination": "tests/migrated_business/generation_input_regression.test.mjs",
       "sourceSha256": "29767c8a7a6cfba097488fdebc645a22ea0e0b47d93301cb50aff7716e36f816",
-      "destinationSha256": "dd5ee661acadfb25a0805ef77f7266b290ef0c611b842d42257dc2c30de663ef",
+      "destinationSha256": "2153f5faa655aadee3f4e459958b9942c8caccc8025ee3c1596c5bf8dbbeec12",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
@@ -2065,7 +2065,7 @@
         "Preflight race hardblock: ordinary 404 stays unresolved; explicit original-ID barrier competes atomically in the shared ledger, cannot execute, and allows replacement only with zero-attempt terminal cancellation. Prompt-free optimization references survive remount. Offline tests do not establish live acceptance.",
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained."
       ],
-      "destinationSha256": "9f1bfdc06c041b6b1a2777d3c9571c7394b4bbb8e957333c688c7046a90a38ff"
+      "destinationSha256": "ed535ed10332581b6f7831643d0b2403ba0a89acfe41a2c5f8ad61cad7391351"
     },
     {
       "source": null,

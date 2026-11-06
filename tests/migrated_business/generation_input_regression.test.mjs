@@ -182,3 +182,15 @@ test('local FL rejects reference ports without silently assigning frames or chan
  assert.throws(()=>bindLinkedTaskReference(s.table,row,s.fieldId,{...f.generation,model:LOCAL_VIDEO_MODEL},s.table.fields.find(f=>f.id==='media')),/首帧／尾帧接口/);
  assert.equal(JSON.stringify(row),before);
 });
+
+
+test('FL text mode rejects inline image references before request construction without rewriting input',()=>{
+ for(const model of [LOCAL_VIDEO_MODEL,'MiniMax H3 FL \u4f4e\u914d\uff08\u672c\u5730\uff09','MiniMax H3 FL \u9ad8\u914d\uff08\u672c\u5730\uff09']){
+  const state=importVideoTasks(readTableSnapshot(sourceNode())),row=state.table.records[0],field=state.table.fields.find(f=>f.id===state.fieldId);
+  setRowGenerationConfig(row,field.id,{...field.generation,model,mode:'text2video'});
+  row.values.prompt={kind:'column-template',version:1,segments:[{type:'text',text:'scene '},{type:'column',fieldId:'media',assetId:'a1'}]};
+  const before=JSON.stringify(state);
+  assert.throws(()=>generationInput(state.table,field.id,row.id),/FL/);
+  assert.equal(JSON.stringify(state),before);
+ }
+});

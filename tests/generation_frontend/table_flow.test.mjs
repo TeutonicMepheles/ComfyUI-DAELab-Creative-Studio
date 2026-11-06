@@ -130,3 +130,26 @@ test('a failed submit leaves the existing output visibly awaiting recovery witho
  const reports=[],prepared=[],f=fixture(t,{onPrepared:jobs=>prepared.push(...jobs),onReports:jobs=>reports.push(...jobs)});f.rejectOnce(503);
  await f.tasks.generate(f.field.id,f.row.id);assert.equal(prepared.length,1);assert.equal(reports.at(-1).phase,'needs_recovery');assert.equal(reports.at(-1).requestId,prepared[0].requestId);
 });
+
+
+test('a completed four-row batch reruns every current row with new requests and retained results',async t=>{
+ const f=fixture(t);
+ for(const id of ['second','third','fourth']){const row=structuredClone(f.row);row.id=id;row.selected=false;f.table.records.push(row);}
+ f.row.selected=true;
+ const first=f.tasks.generate(f.field.id,null,false,true);await f.submitted();f.complete();await first;
+ const initial=f.calls.find(call=>call.url.endsWith('/submit')).body.jobs;
+ const before=f.table.records.map(row=>structuredClone(row.values[f.field.id]));
+ const second=f.tasks.generateBatch(f.field.id),deadline=Date.now()+5000;
+ while(f.calls.filter(call=>call.url.endsWith('/submit')).length<2){assert.ok(Date.now()<deadline);await new Promise(resolve=>setTimeout(resolve,10));}
+ const jobs=f.calls.filter(call=>call.url.endsWith('/submit')).at(-1).body.jobs;
+ assert.deepEqual(jobs.map(job=>job.input.recordId),initial.map(job=>job.input.recordId));
+ assert.equal(new Set([...initial,...jobs].map(job=>job.requestId)).size,8);
+ assert.equal(new Set(jobs.map(job=>job.source.createdAt)).size,1);
+ f.complete();await second;
+ for(const [i,row] of f.table.records.entries()){
+  assert.equal(row.meta.studioGenerationRefs[f.field.id].length,2);
+  assert.equal(row.values[f.field.id].length,2);
+  assert.deepEqual(row.values[f.field.id][0],before[i][0]);
+ }
+ assert.equal(f.calls.some(call=>call.url.endsWith('/recover')),false);
+});
