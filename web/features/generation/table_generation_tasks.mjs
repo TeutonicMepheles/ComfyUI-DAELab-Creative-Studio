@@ -90,7 +90,7 @@ export function attachGenerationTasks({editor,getTable,getArchivedRows=()=>[],no
    notify(session.canReplace(ref.requestId)?'原请求已封存且不会执行；再次选择重新生成将创建新请求':'原任务已有提交事实，不能作为未提交请求封存；请查询原任务');
   }catch(error){if(alive&&captured===epoch)notify(error.message);}finally{submitting=false;if(alive)decorate();}
  }
- async function generate(fieldId,recordId=null,recover=false,unsubmittedOnly=false){
+ async function generate(fieldId,recordId=null,recover=false,unsubmittedOnly=false,allCurrentRows=false){
   if(!alive||submitting||!canGenerate())return;const captured=epoch;submitting=true;decorate();
   const guards=[];let prepared=[];
   try{
@@ -101,7 +101,7 @@ export function attachGenerationTasks({editor,getTable,getArchivedRows=()=>[],no
    if(unsubmittedOnly)await poll(true);
    await prepareGeneration(fieldId,recordId);
    if(!alive||captured!==epoch||!canGenerate())return;
-   const table=getTable(),candidates=unsubmittedOnly?table.records:recordId?table.records.filter(row=>row.id===recordId):generationRows(table,fieldId),rows=unsubmittedOnly?candidates.filter(row=>!reference(row,fieldId)&&!stateFor(row,fieldId)&&!row.values[fieldId]?.length):candidates,jobs=[];
+   const table=getTable(),candidates=unsubmittedOnly||allCurrentRows?table.records:recordId?table.records.filter(row=>row.id===recordId):generationRows(table,fieldId),rows=unsubmittedOnly?candidates.filter(row=>!reference(row,fieldId)&&!stateFor(row,fieldId)&&!row.values[fieldId]?.length):candidates,jobs=[];
    for(const row of rows){
     const old=stateFor(row,fieldId);if(old&&!old.legacy&&['waiting','running','pausing','interrupting','needs_recovery'].includes(old.phase))throw new Error('请先核对原任务，未知状态不能直接创建新任务');
     const input=generationInput(table,fieldId,row.id),attemptCount=generationAttempts(input.config),inputDigest=await generationInputDigest(input);
@@ -253,5 +253,5 @@ export function attachGenerationTasks({editor,getTable,getArchivedRows=()=>[],no
   if(refresh)refreshLive();
  }
  const timer=setInterval(()=>void poll(),3000);
-  return {reviewResult,fenceOriginal,stateFor,projectedTable,tasks:trackTaskCompletion(taskSnapshots),generate,pause,interrupt,restartOriginal,resume,decorate,get submitting(){return submitting;},invalidate(){epoch++;session.invalidate();},destroy(){alive=false;epoch++;session.dispose();clearInterval(timer);controlling.clear();live.clear();localErrors.clear();discovered.clear();discoveredByTarget.clear();editGroups.clear();missingRequests.clear();attemptGroups.clear();attemptTargets.clear();}};
+  return {reviewResult,fenceOriginal,stateFor,projectedTable,tasks:trackTaskCompletion(taskSnapshots),generate,generateBatch:fieldId=>generate(fieldId,null,false,false,true),pause,interrupt,restartOriginal,resume,decorate,get submitting(){return submitting;},invalidate(){epoch++;session.invalidate();},destroy(){alive=false;epoch++;session.dispose();clearInterval(timer);controlling.clear();live.clear();localErrors.clear();discovered.clear();discoveredByTarget.clear();editGroups.clear();missingRequests.clear();attemptGroups.clear();attemptTargets.clear();}};
 }

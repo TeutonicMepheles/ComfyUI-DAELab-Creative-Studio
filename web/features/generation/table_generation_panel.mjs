@@ -512,7 +512,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
  const promptInput=refreshSettingBars;editor.root.addEventListener('input',promptInput);
  editor.root.addEventListener('dae-prompt-column-settings',openPromptColumn);
  decorate();
- return {reviewResult:tasks.reviewResult,stateFor:tasks.stateFor,projectedTable:tasks.projectedTable,tasks:tasks.tasks,generate:tasks.generate,pause:tasks.pause,interrupt:tasks.interrupt,resume:tasks.resume,chooseSetting,setKind,close(){closeFrames();closeSettings();closePromptSources();},refresh(){syncFrameTags();refreshFrameTokens();refreshSettingBars();},get submitting(){return tasks.submitting;},open,renderFrame,syncPromptChanges(table,before){
+ return {reviewResult:tasks.reviewResult,stateFor:tasks.stateFor,projectedTable:tasks.projectedTable,tasks:tasks.tasks,generate:tasks.generate,generateBatch:tasks.generateBatch,pause:tasks.pause,interrupt:tasks.interrupt,resume:tasks.resume,chooseSetting,setKind,close(){closeFrames();closeSettings();closePromptSources();},refresh(){syncFrameTags();refreshFrameTokens();refreshSettingBars();},get submitting(){return tasks.submitting;},open,renderFrame,syncPromptChanges(table,before){
   if(noGenerationWork(table))return;
   for(const field of configOwners(table)){
    syncGenerationPromptSource(table,before,field.generation);const panel=configPanels.get(field.id);

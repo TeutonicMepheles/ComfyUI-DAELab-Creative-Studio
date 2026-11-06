@@ -263,6 +263,7 @@ export function generationInput(table,fieldId,recordId,{allowEmptyPrompt=false}=
  if(config.model===LOCAL_REFERENCE_VIDEO_MODEL&&config.mode!=='image2video')throw new Error('本地 H3 Ref 仅支持图片参考，请重新选择生成方式');
  if(generationFrameRoles(config).length&&document.segments.some(s=>s.type==='ref'))throw new Error('首帧／首尾帧模式不能在提示词中 @ 素材，请移除正文素材引用，并通过帧选择入口填入图片');
  if(!allowEmptyPrompt&&!document.segments.some(s=>s.type==='ref'||s.text?.trim()))throw new Error('本行提示词为空');
+ if(isLocalVideoModel(config.model)&&LOCAL_VIDEO_MODES.includes(config.mode)&&document.segments.some(s=>s.type==='ref'))throw new Error('本地 H3 FL 的当前方式不接受正文图片引用；请移除正文素材引用，需要图片时明确选择首帧／首尾帧并填入对应图片');
  const assets=[],frameBindings=row.meta?.generationFrames?.[owner.id];
  if(frameBindings)for(const frame of generationFrames(table,row,owner.id,config)){
   if(!frame.asset)throw new Error((frame.role==='first'?'首帧':'尾帧')+'：'+(frame.error||'请选择本行图片'));
