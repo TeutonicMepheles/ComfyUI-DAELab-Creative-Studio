@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "5a3cb2150ddd8fe6a53da9421b3f58835f6b71fbe9e8da39f31c211f5f941441",
+  "sourceFingerprint": "8005a12d17e4660fef3b02752efba1f56f6d4397d870a526ff3abf08f79b268a",
   "files": [
     {
       "path": "AGENTS.md",
@@ -624,7 +624,7 @@
     },
     {
       "path": "features/models/README.md",
-      "sha256": "9ab762cebb718e98109a0d361c1d3bcafd4e216be015359a2c7c9fccd2995629"
+      "sha256": "b66f5ebcb11f751b6d144c7510ac2375af3ea230a4b47072a2c51a9ac3d64f62"
     },
     {
       "path": "features/models/model_catalog.mjs",
@@ -636,7 +636,7 @@
     },
     {
       "path": "features/models/model_notes.js",
-      "sha256": "d4253311f9e2a087bed3ef95bf99770136fd92b843c655acf56eeec019ca4edd"
+      "sha256": "d7e658d234f258d17e7128f4ed85282af03eb18970233dbca42a2f84c9918400"
     },
     {
       "path": "features/models/source_badge.js",
@@ -1204,7 +1204,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "9ec137faeb29b12586d181cb5d6feb6dc32cdb345319388b988bf00ce859ff96"
+      "sha256": "3dad79b11e97cf0eb246eaa30f621f3bfc8678681e7c3e8a63d9923dd531a40b"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
