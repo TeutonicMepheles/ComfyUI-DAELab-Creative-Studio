@@ -17,3 +17,14 @@ test('actual slot matching preserves direction and excludes converted widgets',(
  assert.equal(matchingSlot(n,'input','COMFYTV_VIDEO'),0);
  assert.equal(matchingSlot(n,'input','COMFYTV_IMAGE'),-1);
 });
+
+test('frontend runtime input declarations expose text and group creation without opening other target schemas',()=>{
+ const hidden={input:{required:{applied_text:['STRING',{hidden:true}]}},output:['STRING']};
+ const inputs=['STRING','DAELAB_ASSETS'];
+ assert.equal(canConnectDefinition(hidden,'output','STRING',inputs),true);
+ assert.equal(canConnectDefinition(hidden,'output','DAELAB_ASSETS',inputs),true);
+ assert.equal(canConnectDefinition(hidden,'output','IMAGE',inputs),false);
+ assert.equal(canConnectDefinition(hidden,'output','DAELAB_ASSETS'),false);
+ assert.equal(canConnectDefinition(undefined,'output','STRING',inputs),false);
+ assert.equal(canConnectDefinition(hidden,'input','DAELAB_ASSETS',inputs),false);
+});

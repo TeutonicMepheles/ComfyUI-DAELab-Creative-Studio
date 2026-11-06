@@ -1272,7 +1272,7 @@
       "source": "web/llm_style_preview.js",
       "destination": "frontend/src/integrations/comfyui/business/llm_style_preview.js",
       "sourceSha256": "129748850824e58beac56b81431a838d3591acf958606fcb62a097ea9398abdd",
-      "destinationSha256": "f0dfab3ea52e67016720086d3d139c4bfdcf94cd230eeeac50d42128ff3dfbb2",
+      "destinationSha256": "c716efe49c817e88c6f5e3b5b78402ea5e561e9d0f22165ed6fea22009d20016",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
