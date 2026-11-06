@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "4a5ff7c6b025e8b0a646991eafd3499913c118a44240afdd6b06a92e84a8795d",
+  "specificationHash": "4d691a41c7b0ea633507b888f3647e6685b6b7b6370cdc35933f6b23929f522e",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -6620,8 +6620,8 @@
       "feature": "F-BIZ-043",
       "task": "TASK-M3-FEATURES-PROMPT",
       "owner": "features/prompt",
-      "requirement": "2026-11-04：文本生成复用现有节点；外接来源时原文框置灰禁用且保留内部草稿，断线后恢复；外部输入为空不回退旧草稿。表格勾选行及素材组沿用现有批量、顺序、审阅与确认输出，各行内容和参考独立。",
-      "requirementHash": "78d5ece05d28da4ac0c86e63279a59a0a8d09860dd136c8fdc5f6a54441b2d79",
+      "requirement": "2026-11-04：文本生成复用现有节点；外接来源时原文框隐去（隐藏）且保留内部草稿，断线后恢复；外部输入为空不回退旧草稿。表格勾选行及素材组沿用现有批量、顺序、审阅与确认输出，各行内容和参考独立。",
+      "requirementHash": "1b6e0c8acb92a27af2fdb3f4036013ee99a4a43b68ac7151d03b3ca4238b8cb7",
       "usecases": [
         "UC-BIZ-007"
       ],
@@ -12259,7 +12259,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "d25716e793e5ab56efe01796df2abf4bbde12d4306a4897e2857cdf03c9e0106",
+      "specificationHash": "c3dc6599ca41a2ad204d75640f18c1f1df60cf0a456b3eef863086c4250bcf8c",
       "assertions": [
         {
           "id": "AS-BIZ-048-001",
