@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "898dc943af5eb15f77a37c60e093a38c612c5015221324c27e082be27ec61b42",
+  "sourceFingerprint": "efd90b7b4d6d59ef147a811660019372b431d2a313a871094ab77db142b6c9f8",
   "files": [
     {
       "path": "AGENTS.md",
@@ -520,7 +520,7 @@
     },
     {
       "path": "features/generation/README.md",
-      "sha256": "21954c2545719dc2afe7df641674e336b386e22e9c8125de9465203dc15b3136"
+      "sha256": "20c78fe87593a8c887616ab96a2fb476a64631582e0a3ecf9e942b2871953ffa"
     },
     {
       "path": "features/generation/control_labels.js",
@@ -572,7 +572,7 @@
     },
     {
       "path": "features/generation/task_snapshots.mjs",
-      "sha256": "6cb8cf2f7aafc32e6a4009e74e0f97f0c26cc7f93e5a8d415947778dde4e49c7"
+      "sha256": "73b960b3dd5642c309fba814cf4a5eb5bcf8a3ad1d867a1e47dcf4864af15b5d"
     },
     {
       "path": "features/generation/video_task_linked_prompt.mjs",
@@ -588,7 +588,7 @@
     },
     {
       "path": "features/generation/video_tasks.css",
-      "sha256": "220fba4873b019b604ee37aec13364efffc82c994e42849ed717b799f2f0b700"
+      "sha256": "d925f1ad14e90680e12f9c2537f1c2ff9eaf8120b3885858ac9b0a064ee11e2f"
     },
     {
       "path": "features/generation/video_tasks_model.mjs",
@@ -596,7 +596,7 @@
     },
     {
       "path": "features/generation/video_tasks_panel.mjs",
-      "sha256": "ad70c3887e62e42cf6b296ee97c0960024f9bd6fdc7ef2177cee8f4887e5cf62"
+      "sha256": "5273b52444a03ba65143db2370a5c1a0c3e1724cb93bbdd82d0f30c0d8a82e08"
     },
     {
       "path": "features/groups/AGENTS.md",
@@ -1200,7 +1200,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "9be737616536438a1c90c1e60666422d84404d522ad4bd69af6162b3f496474c"
+      "sha256": "93098f8634af6633b61eebfe0ed12a79cd78013eae05711449f2fb3040e0d938"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

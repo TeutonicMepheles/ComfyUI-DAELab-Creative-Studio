@@ -348,13 +348,13 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
   const existing=new Map([...cards.children].map(card=>[card.dataset.record,card]));
   for(const [index,row] of state.table.records.entries()){
    let card=existing.get(row.id);if(!card){card=element('div',null,'video-task-card');card.dataset.record=row.id;}
-   existing.delete(row.id);const cfg=rowGenerationConfig(row,state.fieldId,field().generation),assets=tableAssets(state.table,row).filter(a=>a.fieldId!==state.fieldId).slice(0,3),phase=generation.stateFor(row,state.fieldId)?.phase||'';
+   existing.delete(row.id);const cfg=rowGenerationConfig(row,state.fieldId,field().generation),assets=tableAssets(state.table,row).filter(a=>a.fieldId!==state.fieldId).slice(0,3),phase=generation.stateFor(row,state.fieldId)?.phase||(linkedTable?'unsubmitted':'');
    let text='';try{text=promptText(effectivePrompt(state.table,row,cfg.promptFieldId),state.table,row);}catch{text='引用已失效';}
    const stamp=JSON.stringify([index,row.name,assets,phase]);
    if(card.dataset.stamp!==stamp){
     card.dataset.stamp=stamp;releaseThumbnails(card);card.replaceChildren();
     const select=button('',()=>selectTask(row.id));select.className='video-task-select';select.setAttribute('role','tab');select.ondblclick=()=>{selectTask(row.id);renameTask();};card.append(select);
-    element('span',select,'video-task-number',String(index+1));const thumbnails=element('span',select,'video-task-thumbs');if(!linkedTable)for(const asset of assets)mediaThumb(asset,thumbnails);const label=element('span',select,'video-task-card-label');element('strong',label,'',row.name||`任务${index+1}`);element('span',label,'video-task-card-prompt');if(phase)element('small',label,'',phases[phase]||phase);
+    element('span',select,'video-task-number',String(index+1));const thumbnails=element('span',select,'video-task-thumbs');if(!linkedTable)for(const asset of assets)mediaThumb(asset,thumbnails);const label=element('span',select,'video-task-card-label');element('strong',label,'',row.name||`任务${index+1}`);element('span',label,'video-task-card-prompt');if(phase)element('small',label,'',phase==='unsubmitted'?'未提交':phases[phase]||phase);
     const remove=tableIcon(button('删除任务',()=>removeTask(row.id)),'delete-bin-line',`删除${row.name||`任务${index+1}`}`);remove.classList.add('video-task-remove');card.append(remove);
    }
    const summary=card.querySelector('.video-task-card-prompt'),summaryText=text||'输入提示词…';if(summary.textContent!==summaryText)summary.textContent=summaryText;summary.hidden=Boolean(linkedTable);
@@ -391,7 +391,9 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
   renderPrice(row,cfg);
   header.hidden=!!fixedKind;
   if(!rail.hidden)renderCards();else if(cards.children.length){releaseThumbnails(cards);cards.replaceChildren();}
-  totalLabel.textContent=linkedTable?'共 '+state.table.records.length+' 个任务':'';totalLabel.hidden=!linkedTable;
+  const phasesNow=state.table.records.map(item=>generation.stateFor(item,state.fieldId)?.phase);
+  const completedCount=phasesNow.filter(phase=>phase==='complete').length,stoppedCount=phasesNow.filter(phase=>['interrupted','paused','stopped'].includes(phase)).length,failedCount=phasesNow.filter(phase=>['failed','needs_input','needs_recovery'].includes(phase)).length;
+  totalLabel.textContent=linkedTable?'共 '+state.table.records.length+' 个任务'+(completedCount?' · 已完成 '+completedCount:'')+(stoppedCount?' · 已中止 '+stoppedCount:'')+(failedCount?' · 异常 '+failedCount:''):'';totalLabel.hidden=!linkedTable;
   renderPrompt();syncRowHighlight();body.hidden=!row;bodyTop.hidden=!linkedTable&&!state.source&&!materials.children.length;
   const frames=row&&cfg?generationFrames(state.table,row,state.fieldId,cfg):[];
   for(const {asset,index,badge} of materialLabels){
