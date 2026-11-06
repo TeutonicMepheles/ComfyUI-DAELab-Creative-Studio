@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "3e1954cb935137bde2cfdbd2412061940a54568bbabb026d38e0de66be74113d",
+  "specificationHash": "420c3b79024662a5ede5db477fc9b92420a632217f0de003d04f4e46fbe193a1",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -5414,8 +5414,8 @@
       "feature": "F-BIZ-020",
       "task": "TASK-M3-FEATURES-STORYBOARD",
       "owner": "features/storyboard",
-      "requirement": "2026-11-04：有章节标识（Word 标题/章节层级）的文稿按章节拆表——一个章节一个多维表格，超过 10 行不切开，相邻章节不合并；无章节标识时每表最多 10 行，单个源表超 10 行切分、多个无标题源表各自独立且不跨表合并。折叠或展开章节不改变行身份、勾选状态、来源与已生成结果。",
-      "requirementHash": "5ff8a776f77378ef1ae0cc91dfca28c0322e089157810e5d04fa85ccfbc2d940",
+      "requirement": "2026-11-06：DOCX 每个独立源表对应一个多维表格（章节），不再按有无章节标识或 10 行上限拆分，相邻源表不合并；表名取 Word 真实标题、缺失用可区分回退名（「章节 N」/「表 N」），相邻不重名。旧 ScriptParser 面板的章节标题条与折叠层级为历史展示，新的 DAELAB.Table 输出不含该呈现。",
+      "requirementHash": "884cefe2e26263d2e8f1c6d0b6d17a5e567b36484268e7f1a0c099e0ad5797c0",
       "usecases": [
         "UC-BIZ-003"
       ],
@@ -11294,7 +11294,7 @@
         "EV-DATA",
         "EV-JOBS"
       ],
-      "specificationHash": "7ae0dc68ff41daaeab2addc8ca588e6e63d688e752bd9a3f505eb5afedaaa5ea",
+      "specificationHash": "59e88d158e351cfea2c1d60d2066e46646bfe186eebf46fde8a8c415350776e2",
       "assertions": [
         {
           "id": "AS-BIZ-023-001",
@@ -11332,7 +11332,7 @@
         "EV-DATA",
         "EV-JOBS"
       ],
-      "specificationHash": "21a5a564608c983d4179e7a07922b5ea47fca246c73606c2d2616ddccaeb3597",
+      "specificationHash": "121fcd688b682b894a5c8f6b32c0f8971aee9b7f6f6fc993d7919e2cad711c82",
       "assertions": [
         {
           "id": "AS-BIZ-024-001",
@@ -12676,7 +12676,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "cee2e88f06abf042b70a327763c899428745ff3011967246c9233399e4e2aaeb",
+      "specificationHash": "21dcaa1660a9b49e34821eaf143e25899b1ca745f6b89e7b7c43ab1befb5fb6d",
       "assertions": [
         {
           "id": "AS-BIZ-059-001",
@@ -12688,7 +12688,7 @@
         },
         {
           "id": "AS-BIZ-059-003",
-          "expected": "仍是解析节点与四列/每表最多 10 行，不改成普通 DAELAB.Table。"
+          "expected": "仍是解析节点与四列，不改成普通 DAELAB.Table。"
         }
       ],
       "status": "not-executed",
