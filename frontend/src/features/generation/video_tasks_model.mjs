@@ -16,6 +16,14 @@ export function syncVideoTaskReferences(state){
 }
 
 export const activeVideoTask=row=>Object.values(row?.meta?.generationColumns||{}).some(s=>['waiting','running','pausing'].includes(s.phase));
+// Selection controls the next submission; submitted requests remain reachable.
+export function videoTaskHistoryRows(state){
+ const current=new Set(state.table.records.map(row=>row.id)),seen=new Set();
+ return [...state.table.records,...(state.archivedTasks||[])].filter(row=>{
+  if(seen.has(row.id))return false;seen.add(row.id);
+  return row.meta?.studioGenerationRefs?.[state.fieldId]?.length||row.meta?.generationColumns?.[state.fieldId]||row.values[state.fieldId]?.length;
+ }).map(row=>({row,archived:!current.has(row.id)}));
+}
 export function taskConfig(config={},promptFieldId){
  if(config.model&&config.kind)return {...structuredClone(config),promptFieldId};
  return {version:1,kind:'video',model:LOCAL_VIDEO_MODEL,promptFieldId,mode:'text2video',settings:{width:512,height:288,duration:2,turbo:true,seed:-1}};

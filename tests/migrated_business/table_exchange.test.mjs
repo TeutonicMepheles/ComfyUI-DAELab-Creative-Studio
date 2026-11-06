@@ -4,7 +4,7 @@ import {setPromptSource} from '../../frontend/src/features/prompt/table_prompt_s
 import assert from 'node:assert/strict';
 import {createTableSnapshot,readTableSnapshot,writeTablePrompts} from '../../frontend/src/features/table/table_exchange.mjs';
 import {promptContent,toColumnPrompt} from '../../frontend/src/features/prompt/table_prompt_template.mjs';
-import {importVideoTasks,syncVideoTaskInputs,selectTaskPrompt} from '../../frontend/src/features/generation/video_tasks_model.mjs';
+import {importVideoTasks,syncVideoTaskInputs,selectTaskPrompt,videoTaskHistoryRows} from '../../frontend/src/features/generation/video_tasks_model.mjs';
 import {rowGenerationConfig,setRowGenerationConfig,generationFrames,syncGenerationFrameTags} from '../../frontend/src/features/generation/table_generation_model.mjs';
 import {createMaterialTable} from '../../frontend/src/application/table_material_columns.mjs';
 import {addRecord} from '../../frontend/src/application/table_model.mjs';
@@ -22,6 +22,10 @@ test('deselection and deletion archive task receipts, results and overrides acro
  assert.deepEqual(state.table.records,[]);assert.equal(state.currentId,'');
  assert.deepEqual(state.archivedTasks.find(r=>r.id===id).values[state.fieldId],saved.values[state.fieldId]);
  const restored=JSON.parse(JSON.stringify(state));
+ const history=videoTaskHistoryRows(restored);
+ assert.equal(history.length,1);assert.equal(history[0].archived,true);assert.equal(history[0].row.id,id);
+ assert.equal(history[0].row.meta.generationColumns[state.fieldId].requestId,'paid-once');
+ assert.deepEqual(history[0].row.values[state.fieldId],saved.values[state.fieldId]);
  previous=structuredClone(source);source.records.reverse();source.records.forEach(r=>r.selected=true);syncVideoTaskInputs(restored,source,previous);
  const task=restored.table.records.find(r=>r.id===id);
  assert.deepEqual(task.values[state.fieldId],saved.values[state.fieldId]);assert.deepEqual(task.meta,saved.meta);
