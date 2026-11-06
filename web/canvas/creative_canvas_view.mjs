@@ -192,6 +192,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         }paintSelection();}
     function startCardDrag(c,e){
         if(e.button!==0||drag||!selected.has(c.node.id)||e.shiftKey||e.ctrlKey||e.metaKey)return false;
+        if(e.target.closest('.dae-column-divider,[role=separator]'))return false;
         if(e.target.closest('button,input,textarea,select,a,label,video,audio,[contenteditable],[role=slider],td,th,.dae-creative-ports,.dae-column-slot,.dae-creative-width-handle,.video-task-prompt,.dae-edit-stage,.dae-edit-timeline,.gr-panel,.gr-local-menu,.gr-create-selection'))return false;
         const ids=expandGroupSelection(graph,selected,host.nodes(graph));
         const locked=host.nodes(graph).some(node=>node.type===GROUP_TYPE&&node.properties.locked&&(ids.has(node.id)||(node.properties.members||[]).some(id=>ids.has(id))));
@@ -962,6 +963,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
     for(const event of ['focusin','focusout','transitionrun','transitionend'])root.addEventListener(event,animateWires);
     root.addEventListener('pointerdown',e=>{
         if(e.button!==0||drag||e.target.closest('path[data-link-id],.dae-library-overlay'))return;
+        if(e.target.closest('.dae-column-divider,[role=separator]'))return;
         const port=nearestPort(e.clientX,e.clientY);
         if(port){setMagnet(port);portStarts.get(port)?.(e);}
     },true);
