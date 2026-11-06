@@ -7,7 +7,7 @@ export const KIND_LABELS={task:'任务',title:'标题 / 章节',header:'表头',
 const ACTIVE=new Set(['waiting','running','queued','preparing','submitting','recovering','pausing']);
 export const hasActiveGeneration=table=>table.records.some(r=>Object.values(r.meta?.generationColumns||{}).some(s=>ACTIVE.has(s.phase)));
 export function assertLimits(table){
- // The four-column/ten-row policy belongs to initial import projection only.
+ // The four-column template belongs to initial import projection only.
  // Once materialized this document follows the ordinary table editing limits.
  if(table.records.length>500||table.fields.length>64)throw new Error(`任务表 ${table.records.length} 行 / ${table.fields.length} 列，超过 500 行或 64 列限制，未提交`);
  const fields=new Set(),records=new Set();
