@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "a064ee10c7d84b56767433a2ecef01b8f684c861ebe2886b11f0328190ba5570",
+  "sourceFingerprint": "b7551c7e6d5bf3fab43356de46dd997481a5b44a5f2c6078ea5499d6a6f8224a",
   "files": [
     {
       "path": "AGENTS.md",
@@ -108,7 +108,7 @@
     },
     {
       "path": "canvas/creative_canvas_catalog.mjs",
-      "sha256": "9f91eba95d8248fcdc324bedcc0d7c180e2c0a665563a7b4c12bf849b0a67452"
+      "sha256": "bcb4c5e7859c15536525dca000a2c4d2f5237e70e944de2711829e8d2648a818"
     },
     {
       "path": "canvas/creative_canvas_model.mjs",
@@ -1200,7 +1200,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "249d49efc5d4167df34e7502b3d0615e37a52b229e38decd54f66c9eb30389a1"
+      "sha256": "732ce2d88f8bd184faf2c2f963f4770c27a4e59a3a29d9fb491c8b2a43fe4ee0"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
