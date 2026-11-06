@@ -249,7 +249,7 @@
       "source": "web/media_upload.js",
       "destination": "frontend/src/integrations/comfyui/canvas/media_upload.js",
       "sourceSha256": "652756732af498a98eee22908cf26904d2c786c03bc9b0057eb956bc0b53b7d3",
-      "destinationSha256": "455849c37e214dbca8d528b2bd9ee96717a6254ec512594fa73c0cded39f466c",
+      "destinationSha256": "9b87cbf71a0ac64ea659955db072343dd966ce935ce33f8a1df092680dd41c65",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
         "relocate into owner layer; rewrite relative module/style/resource paths",
@@ -1188,7 +1188,7 @@
       "source": null,
       "sourceSha256": null,
       "destination": "frontend/src/integrations/comfyui/canvas/restored_node_order.ts",
-      "destinationSha256": "2d78b926117362f1c569540fd82ddc94f3f67433ba2a397ab16c88601f9be39d",
+      "destinationSha256": "c355c5c6bc95b369c029cf774ad483b51681c1d752d2a70f67fa9798f5cea7e7",
       "kind": "production-source",
       "changes": [
         "Authored strict native restore boundary: stage one order read per owned node, revalidate workflow/root/node identity, preserve all non-order data.",
@@ -1200,7 +1200,7 @@
       "source": null,
       "sourceSha256": null,
       "destination": "tests/migrated_canvas/history_restored_order.test.mjs",
-      "destinationSha256": "88cf60f0d5b243f1cfd6606ccb45d3bffb5398bc94698e79c806dade300d9336",
+      "destinationSha256": "e81c7621d7441a36b11c52fd8f110d0f02ec15afccac47a514ca53d1aeecc166",
       "kind": "rule-regression",
       "changes": [
         "Authored synthetic native history contract tests for order-only restoration, both real generation wrapper orders, real edit detection, failed/ordinary loads and identity/getter boundaries."

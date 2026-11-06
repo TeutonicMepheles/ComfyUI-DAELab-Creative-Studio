@@ -119,7 +119,7 @@
     },
     {
       "destination": "frontend/src/integrations/comfyui/canvas/media_upload.js",
-      "destinationSha256": "455849c37e214dbca8d528b2bd9ee96717a6254ec512594fa73c0cded39f466c",
+      "destinationSha256": "9b87cbf71a0ac64ea659955db072343dd966ce935ce33f8a1df092680dd41c65",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
         "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."

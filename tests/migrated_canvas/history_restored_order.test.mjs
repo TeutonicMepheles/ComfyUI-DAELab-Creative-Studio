@@ -153,6 +153,34 @@ test('binding-owned material and group orders keep repeated undo/redo snapshots 
   }
 });
 
+test('native media minimum height normalization preserves four undo/redo cycles',async()=>{
+  const target=state();target.nodes[2].type='DAELAB.MediaUpload';target.nodes[2].size=[520,426];
+  const f=harness({target,afterLoad:({current})=>{
+    const n=current.nodes[2];n.size=[520,438];
+    Object.defineProperty(n,'computeSize',{value:()=>[520,438]});
+  }});
+  // Model an existing media node in the other side of the native history.
+  f.current.nodes[2].type='DAELAB.MediaUpload';f.current.nodes[2].size=[520,438];
+  f.tracker.activeState=clone(f.current);
+  for(let cycle=0;cycle<4;cycle++){
+    await f.tracker.undo();f.tracker.prepareForSave();
+    assert.equal(f.tracker.redoQueue.length,1);assert.deepEqual(f.graph.serialize(),f.tracker.activeState);
+    await f.tracker.redo();f.tracker.prepareForSave();
+    assert.equal(f.tracker.undoQueue.length,1);assert.deepEqual(f.graph.serialize(),f.tracker.activeState);
+  }
+  assert.deepEqual(target.nodes[2].size,[520,438]);
+});
+
+test('media reconciliation never adopts user resizing or another node size',async()=>{
+  for(const type of ['DAELAB.MediaUpload','Foreign.Media'])for(const size of [[520,600],[600,438]]){
+    const target=state();target.nodes[2].type=type;target.nodes[2].size=[520,426];
+    const f=harness({target,afterLoad:({current})=>{
+      const n=current.nodes[2];n.size=size;
+      Object.defineProperty(n,'computeSize',{value:()=>[520,438]});
+    }});await f.tracker.undo();assert.deepEqual(target.nodes[2].size,[520,426]);
+  }
+});
+
 test('order getter is read once; switching workflow or replacing a node during staging makes no writes',async()=>{
   for(const action of [f=>{f.app.extensionManager.workflow.activeWorkflow={};},f=>{f.current.nodes[1]={...f.current.nodes[1]};},f=>{throw Error('native order unavailable');}]){
     let reads=0;const f=harness({afterLoad:x=>Object.defineProperty(x.current.nodes[3],'order',{enumerable:true,get(){reads++;action(x);return 3;}})}),before=clone(f.target);

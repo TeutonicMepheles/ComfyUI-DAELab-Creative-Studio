@@ -18,3 +18,8 @@
 node --import ./tests/migrated_business/register.mjs --test tests/migrated_canvas/canvas_host.test.mjs tests/migrated_canvas/history_keyboard.test.mjs tests/migrated_canvas/history_workflow_lease.test.mjs tests/migrated_canvas/history_restored_order.test.mjs
 ```
 
+
+Native MediaUpload restores settle the DOM widget minimum before returning from
+configure. The history restore adapter reconciles a saved height only when the
+width is unchanged and the live height equals the native computed minimum above
+the saved height. Larger manual sizes and foreign node sizes remain unchanged.
