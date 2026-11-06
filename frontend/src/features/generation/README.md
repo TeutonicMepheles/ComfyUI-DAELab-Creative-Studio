@@ -10,7 +10,7 @@
 
 生成节点按实际连线自动识别表格、文字和图片。表格及 LLM 逐行结果单独接入，文字与图片可以组合；画布素材统一通过 Slot 接入，自动使用空闲兼容槽位，不显示用途选择菜单、不覆盖已有连线。旧槽位名称和序号保留，但接入不自动指定首尾帧或改变生成方式；在首帧／首尾帧任务的帧标签中通过 `@` 选择图片。节点正文不再提供“加入当前任务”快照落点。文生视频仅提交文字；参考模式提交已接入素材。旧正文投放副本与对应连线素材同步时合并，首尾帧及正文引用随素材身份迁移。断开文字／图片连线会清除该输入及对应任务的结果预览，仍连接的输入保留；断开表格或逐行来源后恢复空白任务，保留生成设置。清理随断线进入原生撤销记录，不删除服务账本或磁盘文件。输入识别由 generation_input.ts 维护，原生连线与画布共用。
 
-任务栏仅在连接表格或 LLM 逐行结果时显示，用于切换批量任务，不提供新增任务加号。批量正文为只读预览，仍可在来源表格修改；节点内单任务草稿保持可编辑。任务使用方形卡片，计数和刷新位于紧凑栏头，固定类型节点不再预留空标题栏。断线、切换来源和重载均按实际连线更新。
+任务栏仅在连接表格或 LLM 逐行结果时显示，用于切换批量任务，不提供新增任务加号。批量正文为只读预览，仍可在来源表格修改；节点内单任务草稿保持可编辑。任务使用矮横向卡片，计数和刷新位于紧凑栏头，固定类型节点不再预留空标题栏。断线、切换来源和重载均按实际连线更新。
 
 任务卡片与表内设置栏的类型、模型、生成方式和模型参数修改同步同一列表的所有可编辑任务。提示词、参考素材、首尾帧选择、抽卡次数与结果分别保留。执行、暂停或待恢复任务跳过并提示数量；不改变已有请求的冻结输入。缺参考素材保留所选模式，由该行预检提示，不自动改成文生模式。任务列表底栏明确显示共用设置范围。
 
@@ -81,3 +81,9 @@ node --import ./tests/migrated_business/register.mjs --test tests/generation_fro
 `generation_output_nodes.ts` 在宿主边界持有请求与输出节点的关联；任务服务只通过 prepared/report 回调提供数据，仍由 SQLite 保存执行事实。输出使用已有 `DAELAB.MediaUpload`，追加可选惰性 `source_report` 输入关联生成节点的既有 `task_report` 输出。该线表示请求来源，执行读取输出节点自身素材，不执行上游当前选择的任务。原有输出槽位和素材 JSON 保持兼容。
 
 定向检查：`tests/migrated_business/generation_output_nodes.test.mjs`、`tests/generation_frontend/table_flow.test.mjs`；实际环境范围见 [输出占位验证](../../../../docs/validation/GENERATION_OUTPUTS_20261030.md)。
+
+In bounded canvas panels, model settings and run controls stay visible while long
+prompts scroll inside the prompt area. The rail counts current source tasks and
+shows completed/stopped/error counts; batch progress retains its request scope
+and explicitly names source rows belonging to other batches. Receipt identities,
+selection and submission rules remain unchanged.

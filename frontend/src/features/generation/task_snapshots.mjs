@@ -15,6 +15,11 @@ export function generationTaskSnapshots(table,live=new Map(),localRequests=new M
  return [...groups].map(([kind,rows])=>{
   const latest=Math.max(...rows.map(row=>Number(row.source?.createdAt)||0));
   const scoped=rows.filter(row=>(Number(row.source?.createdAt)||0)===latest);
+  // Keep batch progress meaningful while explicitly accounting for source rows
+  // whose current receipt belongs to another submission.
+  const previous=rows.filter(row=>(Number(row.source?.createdAt)||0)!==latest);
+  const historicalStops=previous.filter(confirmedStop).length;
+  const historyDetail=previous.length?` · 其它批次 ${previous.length} 行`+(historicalStops?`，已中止 ${historicalStops}`:''):'';
   const stopped=scoped.filter(confirmedStop);
   const unverifiedStop=scoped.some(r=>['paused','interrupted','stopped'].includes(r.phase)&&!confirmedStop(r));
   const running=scoped.filter(r=>active.has(r.phase)),failed=scoped.filter(r=>['failed','needs_input','needs_recovery'].includes(r.phase)||r.error&&!confirmedStop(r));
@@ -27,7 +32,7 @@ export function generationTaskSnapshots(table,live=new Map(),localRequests=new M
   return {id:'generation:'+kind,label:kind==='image'?'图片生成':'视频生成',order:kind==='image'?20:30,state,done:completed,total,countLabel:'已完成',unit:'行',
    notificationKey:scoped.map(row=>row.requestId).sort().join('|'),
    notificationActive:scoped.some(row=>active.has(row.phase)&&(row.observed||localRequests.has(row.requestId))),
-   detail:detail+(failed.length?` · 异常 ${failed.length}`:''),
+   detail:(previous.length?'本批 · ':'')+detail+(failed.length?` · 异常 ${failed.length}`:'')+historyDetail,
    progress:grouped?Math.floor(scoped.reduce((sum,row)=>sum+(row.phase==='complete'?100:active.has(row.phase)&&row.stage==='generating'&&Number.isFinite(row.progress)?Math.max(0,Math.min(100,row.progress)):0),0)/scoped.length):current?.stage==='generating'&&Number.isFinite(current.progress)?current.progress:undefined};
  });
 }

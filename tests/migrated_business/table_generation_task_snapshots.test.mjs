@@ -41,6 +41,11 @@ test('a pending remainder keeps the sequence stopping, while a success race stay
 });
 
 const clone = globalThis.structuredClone.bind(globalThis);
+test('four source rows remain counted across submission times including an earlier cancellation',()=>{
+ const table={fields:[{id:'g',presentation:'generation',generation:{kind:'video'}}],records:['a','b','c','d'].map((id,i)=>({id,meta:{generationColumns:{g:{requestId:id,phase:i?'complete':'interrupted',state:i?'succeeded':'cancelled',source:{recordId:id,createdAt:i?20:10}}}}}))};
+ const snapshot=generationTaskSnapshots(table)[0];
+ assert.equal(snapshot.total,3);assert.equal(snapshot.done,3);assert.equal(snapshot.state,'success');assert.match(snapshot.detail,/其它批次 1 行/);assert.match(snapshot.detail,/已中止 1/);
+});
 test('reload verification of an old receipt does not announce its historical terminal result',t=>{
  t.mock.method(Date,'now',()=>9000);
  for(const [state,phase] of [['cancelled','interrupted'],['succeeded','complete']]){

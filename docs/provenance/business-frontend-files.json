@@ -319,7 +319,7 @@
       "source": "web/task_snapshots.mjs",
       "destination": "frontend/src/features/generation/task_snapshots.mjs",
       "sourceSha256": "4911f0d2226cd7d0969e5b87824d5f1acacdadd8e1dd719497593f638d9ed642",
-      "destinationSha256": "6cb8cf2f7aafc32e6a4009e74e0f97f0c26cc7f93e5a8d415947778dde4e49c7",
+      "destinationSha256": "73b960b3dd5642c309fba814cf4a5eb5bcf8a3ad1d867a1e47dcf4864af15b5d",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -353,7 +353,7 @@
       "source": "web/video_tasks.css",
       "destination": "frontend/src/features/generation/video_tasks.css",
       "sourceSha256": "f662c345f3f44010d82961172cb0954db3b8ec2ffb086dfb65cf11c89a0cbf07",
-      "destinationSha256": "220fba4873b019b604ee37aec13364efffc82c994e42849ed717b799f2f0b700",
+      "destinationSha256": "d925f1ad14e90680e12f9c2537f1c2ff9eaf8120b3885858ac9b0a064ee11e2f",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Correct the credit graphic to the host account balance Lucide coins icon, inlined as a yellow mask without host CSS/font dependencies.",
@@ -384,7 +384,7 @@
       "source": "web/video_tasks_panel.mjs",
       "destination": "frontend/src/features/generation/video_tasks_panel.mjs",
       "sourceSha256": "1f567635a4b88ab672b6f656d1c2ede14a5a79432592e26ccf2c39775281452d",
-      "destinationSha256": "ad70c3887e62e42cf6b296ee97c0960024f9bd6fdc7ef2177cee8f4887e5cf62",
+      "destinationSha256": "5273b52444a03ba65143db2370a5c1a0c3e1724cb93bbdd82d0f30c0d8a82e08",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
