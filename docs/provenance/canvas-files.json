@@ -67,7 +67,7 @@
       "source": "web/creative_canvas_catalog.mjs",
       "destination": "frontend/src/canvas/creative_canvas_catalog.mjs",
       "sourceSha256": "a007b85a24f0a6b45262cbf4dc401bc5e8bd3fba6ba4e005b9e2f189f74168b4",
-      "destinationSha256": "9f91eba95d8248fcdc324bedcc0d7c180e2c0a665563a7b4c12bf849b0a67452",
+      "destinationSha256": "bcb4c5e7859c15536525dca000a2c4d2f5237e70e944de2711829e8d2648a818",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths"
       ],
@@ -863,7 +863,7 @@
       "source": "tests/creative_canvas_catalog.test.mjs",
       "destination": "tests/migrated_canvas/creative_canvas_catalog.test.mjs",
       "sourceSha256": "90e2a99186f6a9aa6488bd1d904a9c29433aecedbda121b6ac058c0186caa062",
-      "destinationSha256": "ebaad8c7f2e746c88c7c00d54abfc66e41f10313bfcb580e7b32c05085e30e1f",
+      "destinationSha256": "f6025df92b2de34c727e7fa6bd9d9fa5623bf986a8272712b52df13222fced9f",
       "changes": [
         "point existing rule regression tests at migrated production modules"
       ],
