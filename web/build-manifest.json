@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "efd90b7b4d6d59ef147a811660019372b431d2a313a871094ab77db142b6c9f8",
+  "sourceFingerprint": "cf15a87838f833194b0ddab20ef90c646baa879c74e62e902575151425e6cfb5",
   "files": [
     {
       "path": "AGENTS.md",
@@ -520,7 +520,7 @@
     },
     {
       "path": "features/generation/README.md",
-      "sha256": "20c78fe87593a8c887616ab96a2fb476a64631582e0a3ecf9e942b2871953ffa"
+      "sha256": "59d32e1e51215980148d6b90c574cd22be6cf3ff87da400d365b2a8e4fa43c44"
     },
     {
       "path": "features/generation/control_labels.js",
@@ -564,11 +564,11 @@
     },
     {
       "path": "features/generation/table_generation_panel.mjs",
-      "sha256": "6e1a0236992cf4a670df6bbed9d0df6d36f7e2636f3a39aec285c9582a003a8e"
+      "sha256": "bcbb93fe9fa1ea9659f2c5b1e86116e525ce8fdc4c264926e86fd219ebb95839"
     },
     {
       "path": "features/generation/table_generation_tasks.mjs",
-      "sha256": "774ea1128ea176a916980c99ee1504e8c09b3d1db506073d67492b43df09f0d8"
+      "sha256": "7995315cba977808211225fe56dda823198b37a91ab190ef2578a7921118c1b7"
     },
     {
       "path": "features/generation/task_snapshots.mjs",
@@ -588,15 +588,15 @@
     },
     {
       "path": "features/generation/video_tasks.css",
-      "sha256": "d925f1ad14e90680e12f9c2537f1c2ff9eaf8120b3885858ac9b0a064ee11e2f"
+      "sha256": "24219238cecea060ce3df47dee6531a2b8edcd6662b296a68ad89e1ef93a43ce"
     },
     {
       "path": "features/generation/video_tasks_model.mjs",
-      "sha256": "a09e3dcb2d7f05c2f4852d1fe7c2316838737b060dc0fa515d9944c9834c3ad8"
+      "sha256": "e0e718630bb8c0083646fd3dd1b7769e6f0a4de213fcc2837adc450c3279fd6a"
     },
     {
       "path": "features/generation/video_tasks_panel.mjs",
-      "sha256": "5273b52444a03ba65143db2370a5c1a0c3e1724cb93bbdd82d0f30c0d8a82e08"
+      "sha256": "1941862303822533b66e445b839fb39f910adf39bf1c5c8e6f2921c5521abbbe"
     },
     {
       "path": "features/groups/AGENTS.md",
@@ -1200,7 +1200,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "93098f8634af6633b61eebfe0ed12a79cd78013eae05711449f2fb3040e0d938"
+      "sha256": "7313cc8671ae5fe4a7104b702578d9f2266c4eff02e05561cd5be3107a02bd97"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

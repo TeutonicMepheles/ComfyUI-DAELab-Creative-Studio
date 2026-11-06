@@ -87,3 +87,8 @@ prompts scroll inside the prompt area. The rail counts current source tasks and
 shows completed/stopped/error counts; batch progress retains its request scope
 and explicitly names source rows belonging to other batches. Receipt identities,
 selection and submission rules remain unchanged.
+
+The read-only task-records dialog includes submitted current and archived rows,
+with source row IDs, batch/request IDs, saved states and result previews.
+Deselected submitted rows remain in task progress but never enter the next
+submission scope. Reloaded unverified terminal states are labelled as saved records.
