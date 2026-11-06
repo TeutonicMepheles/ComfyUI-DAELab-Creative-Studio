@@ -81,6 +81,8 @@ class HighVideoTests(unittest.IsolatedAsyncioTestCase):
             for model in (HIGH_VIDEO_MODEL,HIGH_REFERENCE_VIDEO_MODEL):
                 self.assertEqual(catalog[model]['provider'],'local')
                 cap=await service.capabilities(model)
+                self.assertEqual(cap['sampling'],{'sampler':'lcm','steps':6})
+                self.assertNotIn('path',json.dumps(cap['weightBinding']))
                 self.assertEqual(cap['profile']['sampler'],'lcm');self.assertEqual(cap['profile']['nfe'],6)
                 self.assertNotIn('turbo',cap['schema']['properties'])
                 self.assertNotIn('turbo',cap['schema']['config']['settings'])
