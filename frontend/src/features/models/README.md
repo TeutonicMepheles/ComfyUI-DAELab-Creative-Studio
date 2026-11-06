@@ -6,4 +6,4 @@ States are `checking`, `available`, `unverified` and `unavailable`. `unverified`
 
 `model_catalog_discovery.mjs` reads the backend catalog, performs one non-inference discovery, and refreshes it on host reconnect events, page visibility, DeepSeek key changes and explicit model rechecks. It does not start Ollama, load weights, call a cloud model or submit a generation request.
 
-`model_notes.ts` renders hover/focus notes from the latest capability snapshot only. Weight precision comes from verified binding names, sampling from the validated workflow, and image counts from mode ranges. Notes expand inside the option flow and do not intercept pointer events; unknown fields stay omitted. Tier labels never imply speed or image quality.
+`model_notes.ts` renders hover/focus notes from the latest capability snapshot only. Weight precision comes from verified binding names, sampling from the validated workflow, and image counts from mode ranges. Notes use a bounded, non-interactive popup outside the whole menu without resizing options; unknown fields stay omitted. Tier labels never imply speed or image quality.
