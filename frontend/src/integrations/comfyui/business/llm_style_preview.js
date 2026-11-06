@@ -65,7 +65,7 @@ function register(){
     if(registered||api?.version!==1)return;
     api.registerAdapter('daelab.llm-style-preview',{
         matches:node=>node.type==='DAELAB.LLMStylePreviewB',
-        menu:[{label:'文本生成',type:'DAELAB.LLMStylePreviewB',icon:'sparkling-line'}],
+        menu:[{label:'文本生成',type:'DAELAB.LLMStylePreviewB',icon:'sparkling-line',inputTypes:['STRING','DAELAB_ASSETS']}],
         width:node=>STYLE_VARIANTS.find(v=>v.type===node.type)?.width||460,
         expanded:true,collapsible:false,floatingHeader:true,compactWidth:0,
         panel:node=>node.__llmStylePanel,

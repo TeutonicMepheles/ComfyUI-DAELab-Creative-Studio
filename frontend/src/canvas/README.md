@@ -20,3 +20,7 @@
 node --import ./tests/migrated_business/register.mjs --test tests/migrated_canvas/creative_canvas_model.test.mjs tests/migrated_canvas/creative_connections.test.mjs tests/migrated_canvas/creative_material_drop.test.mjs tests/migrated_canvas/creative_navigation.test.mjs
 ```
 
+Menu entries may declare frontend-owned inputTypes for real runtime sockets not
+present in the backend widget schema. Creation compatibility reads this metadata
+without constructing nodes; native target matching still uses actual slots and
+source target-type restrictions still apply.
