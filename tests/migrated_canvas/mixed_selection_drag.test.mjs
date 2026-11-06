@@ -34,6 +34,14 @@ test('interactive controls and locked members do not begin a mixed move',()=>{
  f.nodes.push({id:4,type:GROUP_TYPE,properties:{members:[1],locked:true}});assert.equal(f.api.startCardDrag(f.cards.get(2),f.event()),false);
  assert.ok(!f.events.includes('begin'));
 });
+
+test('column divider owns pointerdown ahead of selected card movement',()=>{
+ const f=fixture(),e=f.event();
+ e.target.closest=selector=>selector.includes('.dae-column-divider')?{}:null;
+ assert.equal(f.api.startCardDrag(f.cards.get(3),e),false);
+ assert.deepEqual(f.events,[]);
+ assert.deepEqual(f.cards.get(3).layout,{x:300,y:20});
+});
 test('selected group expands its members once and retains ownership on commit',()=>{
  const f=fixture(),owner={id:4,type:GROUP_TYPE,properties:{members:[1]}};f.nodes.push(owner);f.cards.set(4,{node:owner,layout:{x:400,y:20}});f.selected.delete(1);f.selected.add(4);
  f.api.startCardDrag(f.cards.get(2),f.event());f.api.moveCards(f.event(40,20));f.api.finishCardDrag();
