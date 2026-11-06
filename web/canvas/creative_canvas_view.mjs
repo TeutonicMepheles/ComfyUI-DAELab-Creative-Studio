@@ -828,7 +828,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         let menuGroup='';
         for(const item of orderedCreationEntries(menuItems())){
             const definition=host.nodeDefinition(item.type);if(!definition)continue;
-            const compatible=!context||(context.side==='output'?acceptsTargetType(context.node,item.type)&&sourceSlots(context.node,context.index).some(i=>canConnectDefinition(definition?.nodeData,context.side,context.node.outputs[i].type)):(context.index===MATERIAL_SLOT?inputSlots(context.node):[context.index]).some(i=>canConnectDefinition(definition?.nodeData,context.side,context.node.inputs[i].type)));
+            const compatible=!context||(context.side==='output'?acceptsTargetType(context.node,item.type)&&sourceSlots(context.node,context.index).some(i=>canConnectDefinition(definition?.nodeData,context.side,context.node.outputs[i].type,item.inputTypes)):(context.index===MATERIAL_SLOT?inputSlots(context.node):[context.index]).some(i=>canConnectDefinition(definition?.nodeData,context.side,context.node.inputs[i].type)));
             const group=creationSection(item.type);if(group!==menuGroup){const heading=el('h3','dae-creative-picker-section',group);list.append(heading);menuGroup=group;}
             const b=button('',()=>{
                 if(context&&!validConnection(context)){closePicker();message('来源已改变，请重新拖出连线');return;}
