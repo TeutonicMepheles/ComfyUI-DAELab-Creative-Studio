@@ -18,33 +18,40 @@ const TYPE='DAELAB.ScriptParser',widget=node=>node.widgets?.find(w=>w.name==='ta
 const notify=(message,severity='info')=>app.extensionManager?.toast?.add?.({severity,summary:'剧本文档解析器',detail:message,life:8000});
 export function createScriptBatchImport(node){
  const graph=node.graph,host=businessHost();
- const readTable=n=>n.__scriptTable||readScriptTable(widget(n)?.value);
- const members=()=>{const id=readTable(node).meta.script_parser.batch_id;return id?host.nodes(graph).filter(n=>n.type===TYPE&&readTable(n).meta.script_parser.batch_id===id):[node];};
+ const readTable=n=>(n.type===TYPE?n.__scriptTable:n.__dataTable)||readScriptTable(widget(n)?.value);
+ const members=()=>{const id=readTable(node).meta.script_parser.batch_id;return id?host.nodes(graph).filter(n=>[TYPE,'DAELAB.Table'].includes(n.type)&&readTable(n).meta.script_parser?.batch_id===id&&(n!==node||readTable(n).records.length)):readTable(node).records.length?[node]:[];};
  const key=n=>readTable(n).meta.script_parser.page_key||String(n.id);
- const read=()=>members().map(n=>({key:key(n),title:n.title,table:readTable(n)}));
- const write=pages=>{
+ const read=()=>({controller:readTable(node),pages:members().map(n=>({key:key(n),title:n.title,table:readTable(n)}))});
+ const write=next=>{
+  const {pages}=next;
   const existing=members(),byKey=new Map(existing.map(n=>[key(n),n])),created=[];
   // Create and validate all native node shells before touching the graph.
-  const targets=pages.map(p=>{let n=byKey.get(p.key);if(!n){n=host.createNode(TYPE);if(!n||!widget(n))throw new Error('剧本解析节点不可用，未提交拆表');created.push(n);}return [p,n];});
+  const targets=pages.map(p=>{let n=byKey.get(p.key);if(!n){n=host.createNode('DAELAB.Table');if(!n||!widget(n))throw new Error('多维表格节点不可用，未提交解析');created.push(n);}return [p,n];});
   const state=canvasState(graph),origin=state.cards[node.id]||{x:node.pos[0],y:node.pos[1],width:1060};
   let x=Math.max(origin.x+origin.width,...Object.values(state.cards).map(c=>c.x+(c.width||1060)))+80;
+  node.__scriptTable=structuredClone(next.controller);widget(node).value=JSON.stringify(next.controller);
   for(const [p,n] of targets){
-   const data=widget(n);n.__scriptTable=structuredClone(p.table);data.value=JSON.stringify(p.table);n.title=p.title;
+   const data=widget(n);if(n.type===TYPE)n.__scriptTable=structuredClone(p.table);else n.__dataTable=structuredClone(p.table);data.value=JSON.stringify(p.table);n.title=p.title;
    if(created.includes(n)){n.pos=[x,origin.y];host.addNode(graph,n);host.placeNode?.(n,{x,y:origin.y,width:1060});x+=1140;}
-   n.__scriptPanel?.render();
+   (n.__scriptPanel||n.__dataTablePanel)?.render();
   }
   // Normally pages are retained, even when emptied. This also rolls back a failed multi-node write.
   const wanted=new Set(pages.map(p=>p.key));for(const n of existing)if(!wanted.has(key(n))){graph.remove(n);delete state.cards[n.id];}
+  node.__scriptPanel?.render();
   graph.setDirtyCanvas?.(true,true);
  };
  const document=bindBusinessDocument(node,read,write);
  const snapshot=()=>JSON.stringify(read());
  return {snapshot,dispose:()=>document.dispose(),apply(normalized,mode,stamp){
   if(snapshot()!==stamp)throw new Error('同批次表格已变化，请重新解析；未覆盖当前编辑');
-  const before=read(),result=mode==='convert'?{pages:planLegacySplit(before.find(p=>p.key===key(node))),added:0,skipped:0,conflicts:[]}:planScriptImport(before,normalized,mode);
-  const batchId=before[0].table.meta.script_parser.batch_id||crypto.randomUUID();
+  const before=read(),planning=before.pages.length?before.pages:[{key:crypto.randomUUID(),title:'',table:structuredClone(before.controller)}];
+  const result=mode==='convert'?{pages:planLegacySplit(before.pages.find(p=>p.key===key(node))),added:0,skipped:0,conflicts:[]}:planScriptImport(planning,normalized,mode);
+  const batchId=before.controller.meta.script_parser.batch_id||crypto.randomUUID();
   for(const page of result.pages)Object.assign(page.table.meta.script_parser,{batch_id:batchId,page_key:page.key});
-  document.replace(result.pages);
+  const controller=structuredClone(before.controller);
+  Object.assign(controller.meta.script_parser,{batch_id:batchId,output_tables:result.pages.map(p=>({key:p.key,title:p.title,source_table_id:p.table.meta.script_parser.source_table_id}))});
+  for(const page of result.pages)for(const doc of page.table.meta.script_parser.documents){const docs=controller.meta.script_parser.documents,index=docs.findIndex(d=>d.document_id===doc.document_id);if(index<0)docs.push(structuredClone(doc));else docs[index]=structuredClone(doc);}
+  document.replace({controller,pages:result.pages});
   return result;
  }};
 }
@@ -73,7 +80,7 @@ app.registerExtension({name:'DAELab.ScriptParser',beforeRegisterNodeDef(type,dat
 let registered=false;
 function register(){const api=globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')];if(registered||api?.version!==1)return;installColumnBindings(app);
  api.registerAdapter('daelab.script-parser',{matches:node=>node.type===TYPE,menu:[{label:'剧本文档解析器',type:TYPE,icon:'file-text-line'}],presentation:'content',expanded:true,collapsible:false,resizable:true,fullHeight:true,workspace:()=>false,compactWidth:0,width:560,minWidth:560,
- initialAspectRatio:node=>node.__scriptTable?.records.length||node.__scriptTable?.meta.script_parser.documents.length?null:1,
+ initialAspectRatio:node=>node.__scriptTable?.records.length||node.__scriptTable?.meta.script_parser.documents.length&&!node.__scriptTable?.meta.script_parser.output_tables?.length?null:1,
  refresh(node){const layout=node.graph&&canvasState(node.graph).cards[node.id];if(node.__scriptTable?.records.length&&layout?.width===560&&layout.height===560)layout.width=1060;},
  tasks:node=>node.__scriptPanel?.tasks?.()||[],
  outputTargetTypes:()=>[IMAGE_GENERATION_NODE,VIDEO_GENERATION_NODE],

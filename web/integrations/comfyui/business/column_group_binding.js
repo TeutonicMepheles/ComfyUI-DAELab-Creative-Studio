@@ -8,6 +8,12 @@ import { inputSnapshot } from '../../../canvas/creative_input_exchange.mjs';
 import { restoreBoundColumnInputs } from './table_column_targets.js';
 const installed = new WeakSet(), running = new WeakSet();
 const tableFor = (node) => node.__scriptTable || node.__dataTable;
+// Native widgets restore before deferred panel installation. Never interpret
+// the previous panel's cached document as an edit of the restored workflow.
+function tableReady(node) {
+    const widget = node.widgets?.find(widget => widget.name === 'table_data');
+    return !widget || widget.value === JSON.stringify(tableFor(node));
+}
 const panelFor = (node) => node.__scriptPanel || node.__dataTablePanel;
 const states = (node) => (node.properties.daelabColumnBindings || {});
 const memberIds = (group) => Array.isArray(group.properties.members) ? group.properties.members : [];
@@ -93,7 +99,7 @@ function flushBindings(app, graph) {
             let changed = false;
             for (const node of graph._nodes) {
                 const table = tableFor(node);
-                if (!table || !panelFor(node) || node.mode)
+                if (!table || !panelFor(node) || node.mode || !tableReady(node))
                     continue;
                 restoreBoundColumnInputs(node);
                 const saved = states(node), fields = new Set([...Object.keys(saved), ...node.inputs.filter(i => i.daeColumnField).map(i => i.daeColumnField)]);
@@ -185,8 +191,10 @@ export function installColumnBindings(app) {
             const tracker = app.extensionManager?.workflow?.activeWorkflow?.changeTracker;
             if (app.isGraphReady === false || app.configuringGraph || tracker?._restoringState || tracker?.changeCount || !app.graph?._nodes.some(n => Object.keys(n.properties?.daelabColumnBindings || {}).length || n.inputs?.some(i => i.daeColumnField && i.link != null)))
                 return;
+            if (app.graph._nodes.some(node => Object.keys(states(node)).length && !tableReady(node)))
+                return;
             // Read-only comparison keeps ordinary ticks outside the host history machinery.
-            const dirty = app.graph._nodes.some(node => node.inputs?.some(input => input.daeColumnField && input.link != null && !states(node)[input.daeColumnField]) || Object.entries((node.properties.daelabColumnBindings || {})).some(([field, binding]) => {
+            const dirty = app.graph._nodes.some(node => tableReady(node) && (node.inputs?.some(input => input.daeColumnField && input.link != null && !states(node)[input.daeColumnField]) || Object.entries((node.properties.daelabColumnBindings || {})).some(([field, binding]) => {
                 // Native restore omits runtime IO annotations. Reconstruct them before the
                 // read-only comparison; otherwise a healthy restored link looks disconnected
                 // and entering amend() can consume the host's redo history without an edit.
@@ -198,7 +206,7 @@ export function installColumnBindings(app) {
                 catch {
                     return false;
                 }
-            }));
+            })));
             if (dirty)
                 try {
                     canvasHistory(app).amend(() => flush(app.graph));

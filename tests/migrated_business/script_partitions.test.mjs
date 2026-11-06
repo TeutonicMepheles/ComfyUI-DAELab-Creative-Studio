@@ -9,47 +9,54 @@ test('import and replacement preserve user titles while tracked default names ca
  const first=planScriptImport(custom,fixture(1)).pages;assert.equal(first[0].title,'我的剧本');
  const loaded=JSON.parse(JSON.stringify(first));assert.equal(planScriptImport(loaded,fixture(2),'replace').pages[0].title,'我的剧本');
  const defaults=start();defaults[0].title='剧本文档解析器';
- const named=planScriptImport(defaults,fixture(1)).pages;assert.equal(named[0].title,'同名章节 · 1');assert.equal(named[0].table.meta.script_parser.import_title,named[0].title);
+ const named=planScriptImport(defaults,fixture(1)).pages;assert.equal(named[0].title,'同名章节');assert.equal(named[0].table.meta.script_parser.import_title,named[0].title);
  const changed=fixture(1);changed.tasks[0].chapter='New chapter';
- assert.equal(planScriptImport(named,changed,'replace').pages[0].title,'New chapter · 1');
+ assert.equal(planScriptImport(named,changed,'replace').pages[0].title,'New chapter');
  named[0].title='用户改名';assert.equal(planScriptImport(named,changed,'replace').pages[0].title,'用户改名');
- const split=planScriptImport(custom,fixture(11)).pages;assert.equal(split[0].title,'我的剧本');assert.equal(split[1].title,'同名章节 · 2');
+ const split=planScriptImport(custom,fixture(11)).pages;assert.equal(split[0].title,'我的剧本');assert.equal(split.length,1);
 });
 function fixture(count,chapter='chapter-1'){
  return {document_id:'doc',filename:'synthetic.docx',assets:{a:{id:'a',url:'/view?filename=a.png',filename:'a.png'}},unassigned:[],audit:[],paragraphs:[{id:'p1',text:'主题原文'}],tables:[],tasks:Array.from({length:count},(_,i)=>({source_key:`doc:r${i}`,row_id:`r${i}`,table_id:'t1',values:{shot_no:'',scene:`画面 ${i}`,notes:'',narration:'未展示的旁白'},chapter:'同名章节',chapter_key:chapter,sources:{scene:[{cell_id:`c${i}`}]},context:['p1'],original_cells:[{text:`原文 ${i}`}],images:[{id:`o${i}`,asset_id:'a'}],issues:[]}))};
 }
-test('source table boundaries survive unnamed pagination and explicit chapters exceed ten without splitting',()=>{
+
+test('selected empty source tables are materialized once and excluded tables are omitted',()=>{
+ const input=fixture(0);input.inventory={tables:[{id:'t1',order:0},{id:'t2',order:1},{id:'excluded',order:2}]};input.choices={tables:{t1:{},t2:{}}};
+ const result=planScriptImport(start(),input);assert.equal(result.pages.length,2);
+ assert.deepEqual(result.pages.map(p=>p.table.meta.script_parser.source_table_id),['t1','t2']);
+ assert.ok(result.pages.every(p=>p.table.records.length===0));
+ assert.equal(planScriptImport(result.pages,input).pages.length,2);
+});
+test('each source table stays whole regardless of chapter labels or ten-row boundaries',()=>{
  const named=fixture(14);for(const task of named.tasks)task.chapter_explicit=true;
  const whole=planScriptImport(start(),named);assert.deepEqual(whole.pages.map(p=>p.table.records.length),[14]);
  assert.equal(whole.pages[0].table.meta.script_parser.chapter,'同名章节');validateFixedScript(whole.pages[0].table);
  const unnamed=fixture(26);unnamed.tasks.forEach((task,i)=>{task.chapter='';task.chapter_key='same-unsectioned-key';task.table_id=i<14?'t1':'t2';});
  const split=planScriptImport(start(),unnamed).pages;
- assert.deepEqual(split.map(p=>p.table.records.length),[10,4,10,2]);
- assert.deepEqual(split.map(p=>p.table.meta.script_parser.chapter),['表 1','表 1','表 2','表 2']);
- assert.deepEqual(split.map(p=>p.table.meta.script_parser.chapter_page),[1,2,1,2]);
- assert.ok(split.slice(0,2).every(p=>p.table.records.every(r=>r.meta.script_source.table_id==='t1')));
- assert.ok(split.slice(2).every(p=>p.table.records.every(r=>r.meta.script_source.table_id==='t2')));
+ assert.deepEqual(split.map(p=>p.table.records.length),[14,12]);
+ assert.deepEqual(split.map(p=>p.table.meta.script_parser.chapter),['表 1','表 2']);
+ assert.ok(split[0].table.records.every(r=>r.meta.script_source.table_id==='t1'));
+ assert.ok(split[1].table.records.every(r=>r.meta.script_source.table_id==='t2'));
  const revised=planScriptImport(split,unnamed,'revise');
  assert.deepEqual(revised.pages.flatMap(p=>p.table.records.map(r=>r.id)),split.flatMap(p=>p.table.records.map(r=>r.id)));
 });
 for(const count of [0,1,10,11,20,21])test(`fixed four fields and lossless pagination for ${count} rows`,()=>{
  const input=fixture(count),result=planScriptImport(start(),input);
- assert.equal(result.pages.length,Math.max(1,Math.ceil(count/10)));
+ assert.equal(result.pages.length,1);
  assert.equal(result.pages.flatMap(p=>p.table.records).length,count);
- for(const page of result.pages){assert.equal(page.table.fields.length,4);assert.ok(page.table.records.length<=10);assert.deepEqual(readScriptTable(JSON.stringify(page.table)).records,page.table.records);}
+ for(const page of result.pages){assert.equal(page.table.fields.length,4);assert.deepEqual(readScriptTable(JSON.stringify(page.table)).records,page.table.records);}
  const rows=result.pages.flatMap(p=>p.table.records);assert.deepEqual(rows.map(r=>r.values['sp-shot_no']),Array.from({length:count},(_,i)=>String(i+1)));
  assert.deepEqual(rows.map(r=>r.meta.script_original),input.tasks.map(t=>t.original_cells));
 });
-test('same-named chapters stay separate; append fills only the final page and skips duplicates',()=>{
+test('chapters within one source table stay together and append skips duplicate source rows',()=>{
  const n=fixture(14);for(let i=11;i<14;i++)n.tasks[i].chapter_key='chapter-2';
- const first=planScriptImport(start(),n);assert.deepEqual(first.pages.map(p=>p.table.records.length),[10,1,3]);
+ const first=planScriptImport(start(),n);assert.deepEqual(first.pages.map(p=>p.table.records.length),[14]);
  const extra=fixture(16);extra.tasks=extra.tasks.slice(14);const result=planScriptImport(first.pages,extra);
- assert.deepEqual(result.pages.map(p=>p.table.records.length),[10,3,3]);
+ assert.deepEqual(result.pages.map(p=>p.table.records.length),[16]);
  assert.equal(planScriptImport(result.pages,n).skipped,14);
- assert.equal(result.pages[0].key,'node-1');assert.equal(result.pages[1].key,first.pages[1].key);
+ assert.equal(result.pages[0].key,'node-1');
 });
 test('reparse across a chapter boundary preserves record IDs, edited rich text, image order and references',()=>{
- const n=fixture(11),first=planScriptImport(start(),n).pages,old=first[1].table.records[0];
+ const n=fixture(11),first=planScriptImport(start(),n).pages,old=first[0].table.records[10];
  old.values['sp-scene']={kind:'column-template',version:1,segments:[{type:'text',text:'手改'},{type:'column',fieldId:'sp-reference',assetId:old.values['sp-reference'][0].id}]};
  old.values['sp-reference'].push({id:'manual',url:'/view?filename=manual.png'});
  const frozen=structuredClone(old);n.tasks[10].chapter_key='chapter-2';n.tasks[10].values.scene='改映射';n.tasks[0].values.scene='更新';
@@ -76,7 +83,7 @@ test('import pagination does not lock subsequent ordinary row and column edits',
 test('explicit legacy split retains original table and every edited value, active jobs block structural edits',()=>{
  const old=planScriptImport(start(),fixture(10)).pages[0].table;old.meta.script_parser.field_policy='nonempty';old.records.push({...structuredClone(old.records[0]),id:'last'});
  old.records[0].values.unknown={keep:true};const before=structuredClone(old),pages=planLegacySplit({key:'old',title:'旧表',table:old});
- assert.deepEqual(pages[0].table.meta.script_parser.legacy_table,before);assert.deepEqual(pages[0].table.records[0].meta.script_legacy_values.unknown,{keep:true});assert.equal(pages[1].table.records[0].id,'last');
+ assert.deepEqual(pages[0].table.meta.script_parser.legacy_table,before);assert.deepEqual(pages[0].table.records[0].meta.script_legacy_values.unknown,{keep:true});assert.equal(pages[0].table.records.at(-1).id,'last');
  pages[0].table.records[0].meta.generationColumns={job:{phase:'running'}};
  assert.throws(()=>planScriptImport(pages,fixture(1)),/进行中/);assert.deepEqual(old,before);
 });

@@ -43,7 +43,9 @@ export function createScriptParserPanel({node,app,getTable,setTable,notify,docum
  }
  function updatePending(){
   const t=getTable(),docs=t.meta.script_parser.documents;
-  const hasTable=Boolean((!isFixedScript(t)&&t.fields.length)||t.records.length||docs.length);
+  const exported=Array.isArray(t.meta.script_parser.output_tables)?t.meta.script_parser.output_tables:[];
+  const hasTable=Boolean((!isFixedScript(t)&&t.fields.length)||t.records.length||docs.length&&!exported.length);
+  emptyTitle.textContent=exported.length?`已创建 ${exported.length} 张独立多维表格，可继续上传 DOCX`:'上传分镜文档，生成多维表格';
   if(!hasTable&&root.dataset.expanded==='true')workbench?.close();
   root.dataset.empty=String(!hasTable);empty.hidden=hasTable;editor.root.hidden=!hasTable||chapterCollapsed;
   const parser=t.meta.script_parser,source=t.records.find(r=>r.meta?.script_source)?.meta.script_source;
@@ -137,7 +139,7 @@ export function createScriptParserPanel({node,app,getTable,setTable,notify,docum
    try{if(!editor.canAsync(normalized.editTicket)||snapshot()!==normalized.baseSnapshot)throw new Error('预览期间任务表已变化，请重新归一核对');
     const filename=normalized.filename,result=batchImport?batchImport.apply(normalized,mode,normalized.baseSnapshot):mode==='revise'?reviseImport(getTable(),normalized):importTasks(getTable(),normalized,{mode,allowUnresolved});
     if(!batchImport)editor.applyAsync(normalized.editTicket,t=>{for(const key of Object.keys(t))delete t[key];Object.assign(t,result.table);});
-    cancel();updatePending();message(mode==='revise'?`已应用解析调整；保留 ${result.conflicts.length} 项手工编辑，可在导入详情查看。`:`${filename} · 已导入 ${result.added} 条记录${result.pages?`，共 ${result.pages.length} 张表（源表独立；无章节每页最多 10 行）`:''}${result.skipped?`，跳过 ${result.skipped} 条重复来源`:''}${result.newVersion?'；同名文档已作为新版本追加':''}。可撤销。`);
+    cancel();updatePending();message(mode==='revise'?`已应用解析调整；保留 ${result.conflicts.length} 项手工编辑，可在导入详情查看。`:`${filename} · 已导入 ${result.added} 条记录${result.pages?`，共 ${result.pages.length} 张独立多维表格（每个源表一张）`:''}${result.skipped?`，跳过 ${result.skipped} 条重复来源`:''}${result.newVersion?'；同名文档已作为新版本追加':''}。可撤销。`);
    }catch(e){message(e.message,true);notify(e.message,'error');}
   }
  };

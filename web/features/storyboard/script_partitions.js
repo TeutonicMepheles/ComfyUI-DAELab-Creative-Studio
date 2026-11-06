@@ -1,4 +1,4 @@
-export const SCRIPT_ROW_LIMIT = 10;
+export const SCRIPT_ROW_LIMIT = 500;
 const ids = ['sp-shot_no', 'sp-scene', 'sp-reference', 'sp-notes'];
 const copy = (value) => structuredClone(value);
 function setImportTitle(page, title) {
@@ -11,11 +11,10 @@ function setImportTitle(page, title) {
 }
 const same = (a, b) => JSON.stringify(a ?? '') === JSON.stringify(b ?? '');
 const active = new Set(['waiting', 'running', 'queued', 'preparing', 'submitting', 'recovering', 'pausing']);
-function chapterIdentity(documentId, tableId, key) {
-    const prefix = `${documentId}:table:${tableId}:`;
-    return key.startsWith(prefix) ? key : prefix + key;
+function chapterIdentity(documentId, tableId, _key) {
+    return `${documentId}:table:${tableId}`;
 }
-const chapterLimit = (source) => source.chapter_explicit === true ? 500 : SCRIPT_ROW_LIMIT;
+const chapterLimit = (_source) => SCRIPT_ROW_LIMIT;
 export const isFixedScript = (table) => table.meta?.script_parser?.field_policy === 'fixed-four';
 export function emptyFixedScript() {
     return { version: 1, view: 'table', fields: [
@@ -28,8 +27,8 @@ export function emptyFixedScript() {
 export function validateFixedScript(table) {
     if (!isFixedScript(table))
         return;
-    if (table.records.length > chapterLimit(table.meta.script_parser))
-        throw new Error('无章节的剧本解析表每页最多 10 行，请将超出的任务放入下一页；本次修改未应用');
+    if (table.records.length > SCRIPT_ROW_LIMIT)
+        throw new Error('单张源表超过 500 行，未截断或自动拆分');
     if (table.fields.length !== 4 || table.fields.some((f, i) => f.id !== ids[i] || f.hidden))
         throw new Error('剧本解析表固定为镜号/序号、画面描述、画面参考、备注四列');
     if (table.fields[2]?.type !== 'content' || table.fields.some((f, i) => i !== 2 && !(['text', 'longtext', 'json'].includes(f.type))))
@@ -172,10 +171,24 @@ export function planScriptImport(current, normalized, mode = 'append') {
             page.table.meta.script_parser.chapter = row.meta.script_source.chapter || `表 ${row.meta.script_source.source_table_number}`;
             page.table.meta.script_parser.chapter_explicit = row.meta.script_source.chapter_explicit;
             page.table.meta.script_parser.source_table_number = row.meta.script_source.source_table_number;
-            page.table.meta.script_parser.chapter_page = candidates.length + 1;
-            setImportTitle(page, `${page.table.meta.script_parser.chapter} · ${candidates.length + 1}`);
+            page.table.meta.script_parser.source_table_id = row.meta.script_source.table_id || '';
+            setImportTitle(page, page.table.meta.script_parser.chapter);
         }
         page.table.records.push(row);
+    }
+    // A selected header-only table is still an independent source table.
+    const selected = normalized.choices?.tables;
+    for (const source of normalized.inventory?.tables || normalized.tables || []) {
+        if (selected && !selected[source.id])
+            continue;
+        const identity = chapterIdentity(normalized.document_id, source.id, '');
+        if (pages.some(p => p.table.meta.script_parser.chapter_key === identity))
+            continue;
+        const page = pages.find(p => !p.table.records.length && !p.table.meta.script_parser.chapter_key) || { key: crypto.randomUUID(), title: '', table: emptyFixedScript() };
+        if (!pages.includes(page))
+            pages.push(page);
+        Object.assign(page.table.meta.script_parser, { chapter_key: identity, source_table_id: source.id, source_table_number: (source.order ?? 0) + 1, chapter: source.chapter || `表 ${(source.order ?? 0) + 1}` });
+        setImportTitle(page, page.table.meta.script_parser.chapter);
     }
     // Keep empty pages and their node connections after revision; never silently delete native nodes.
     for (const page of pages) {
