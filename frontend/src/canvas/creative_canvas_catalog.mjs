@@ -13,10 +13,9 @@ export function declaredInputTypes(input={}) {
 }
 /** @param {readonly string[]} runtimeInputs */
 export function canConnectDefinition(definition,side,type,runtimeInputs=[]) {
-    if(!definition)return false;
     return side==='output'
-        ? [...declaredInputTypes(definition.input),...runtimeInputs].some(input=>socketCompatible(type,input))
-        : (definition.output||[]).some(output=>socketCompatible(output,type));
+        ? [...declaredInputTypes(definition?.input),...runtimeInputs].some(input=>socketCompatible(type,input))
+        : (definition?.output||[]).some(output=>socketCompatible(output,type));
 }
 export function matchingSlot(node,side,type) {
     return side==='output'

@@ -25,6 +25,9 @@ test('frontend runtime input declarations expose text and group creation without
  assert.equal(canConnectDefinition(hidden,'output','DAELAB_ASSETS',inputs),true);
  assert.equal(canConnectDefinition(hidden,'output','IMAGE',inputs),false);
  assert.equal(canConnectDefinition(hidden,'output','DAELAB_ASSETS'),false);
- assert.equal(canConnectDefinition(undefined,'output','STRING',inputs),false);
+ assert.equal(canConnectDefinition(undefined,'output','STRING',inputs),true);
  assert.equal(canConnectDefinition(hidden,'input','DAELAB_ASSETS',inputs),false);
 });
+
+test("loaded frontend virtual classes can declare real sockets without backend nodeData",()=>{assert.equal(canConnectDefinition(undefined,"output","STRING",["STRING","DAELAB_ASSETS"]),true);assert.equal(canConnectDefinition(undefined,"output","DAELAB_ASSETS",["STRING","DAELAB_ASSETS"]),true);assert.equal(canConnectDefinition(undefined,"output","IMAGE",["STRING","DAELAB_ASSETS"]),false);assert.equal(canConnectDefinition(undefined,"output","STRING"),false);});
+
