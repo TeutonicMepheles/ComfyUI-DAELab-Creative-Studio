@@ -465,7 +465,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
    if(receipt?.recovery?.available===false){notice=receipt.recovery.message||generationErrorText(receipt.recovery.reason);schedule();return;}
    return generation.generate(state.fieldId,row.id,true);
   }
-  binding?.finish();return generation.generate(state.fieldId,row.id);
+  binding?.finish();return batchMode()?generation.generateBatch(state.fieldId):generation.generate(state.fieldId,row.id);
  }
  prompt.addEventListener('click',event=>{if(!event.target.closest('.dae-prompt-ref'))binding?.start(event);});
  cards.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight'].includes(event.key))return;event.preventDefault();const index=state.table.records.findIndex(r=>r.id===state.currentId),row=state.table.records[index+(event.key==='ArrowLeft'?-1:1)];if(row){selectTask(row.id);requestAnimationFrame(()=>cards.querySelector('[aria-selected=true]')?.focus());}});
