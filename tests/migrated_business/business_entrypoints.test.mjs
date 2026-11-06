@@ -46,7 +46,7 @@ test('production entry closure loads before graph initialization and exposes onl
  const media=adapters.find(adapter=>adapter.matches({type:'DAELAB.ImageGenerate'})),release=registerAdapter('test.actual-media-defaults',media);t.after(release);
  for(const type of ['DAELAB.ImageGenerate','DAELAB.VideoGenerate']){
   const node={id:77,type,properties:{outputRatio:'16:9'}},state={cards:{}};
-  const fresh=cardState(state,node);assert.equal(fresh.width/fresh.height,5/4);assert.equal(node.properties.outputRatio,'16:9');
+  const fresh=cardState(state,node);assert.equal(fresh.width,640);assert.equal(fresh.height,360);assert.equal(fresh.width/fresh.height,16/9);assert.equal(node.properties.outputRatio,'16:9');
   const saved={cards:{77:{x:1,y:2,width:777,height:333,expanded:true}}};assert.deepEqual(cardState(saved,node),saved.cards[77]);assert.equal(saved.cards[77].width,777);assert.equal(saved.cards[77].height,333);
  }
  assert.equal(media.initialAspectRatio({type:'DAELAB.LibTV.VideoGenerate'}),16/9);
