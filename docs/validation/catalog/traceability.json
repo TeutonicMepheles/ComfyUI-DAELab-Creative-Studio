@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "e7c935ef93ffe56216693af54aae399b5f4f7bc8ae9bd2b2ddedcabd79fab9c1",
+  "specificationHash": "3e1954cb935137bde2cfdbd2412061940a54568bbabb026d38e0de66be74113d",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -3127,8 +3127,8 @@
       "feature": "F-CAN-023",
       "task": "TASK-M1-DESIGN-UI",
       "owner": "design/ui",
-      "requirement": "2026-11-04：新建图片/视频生成节点外框初始 5:4（用户截图外框近似比例），取代其此前16:9要求；旧通用生成节点保留原默认及保存尺寸；新建空剧本文档解析器外框初始 1:1。展示名无 DAELAB 前缀，稳定类型 ID 仍为 DAELAB.ScriptParser。已保存或手调尺寸保留。解析落表后按表格撑高可调宽，不再钉死正方形。不改变生成分辨率。通用多维表格不在此条。",
-      "requirementHash": "0a7e9fcce33153f01d80623a05802da753f1b01d0a8e53c31258befa5c1cb105",
+      "requirement": "2026-11-06：新建图片/视频生成节点默认外框改定为 640×360px（16:9），略窄于「文本生成」节点（`DAELAB.LLMStylePreviewB`，默认 700px），取代 2026-11-04 的 5:4 外框。仅新建默认尺寸采用此值，不改变生成分辨率；旧通用生成节点保留原默认及保存尺寸；新建空剧本文档解析器外框初始 1:1。展示名无 DAELAB 前缀，稳定类型 ID 仍为 DAELAB.ScriptParser。已保存或手调尺寸保留。解析落表后按表格撑高可调宽，不再钉死正方形。通用多维表格不在此条。",
+      "requirementHash": "e3f3bf6816fc5b853b4c28a5becb18bdff94f8e5c9872dbafbad29974f50ac67",
       "usecases": [
         "UC-CAN-007",
         "UC-CAN-013"
@@ -8521,7 +8521,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "a674c30caf0ae1b0c9b32c37bab9844569ee654a83cf8d06f254e751dda0fd44",
+      "specificationHash": "c28a60c9cf1d3ba79bf8e35acf257afe630390424e3204d58876bc70de56ff0e",
       "assertions": [
         {
           "id": "AS-CAN-002-001",
@@ -9523,7 +9523,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "11d57fc32348ebe31a78f90f340bf3765c274d9c8900e03749cff60d538df29b",
+      "specificationHash": "a9f3191ad31a55404fd8e2352f07d62e7af1912fb4cb9ac2568bda72ce35cbe0",
       "assertions": [
         {
           "id": "AS-CAN-025-001",
@@ -10242,7 +10242,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "1b39583867a056b4ef61bfc1f43d3e61f791005ead4a743031b4a40e47372cc4",
+      "specificationHash": "e5cdd504f28fca2aac7c0e56083048d0bdc5d4bd9ec5e703eb6338e10721ecf8",
       "assertions": [
         {
           "id": "AS-CAN-042-001",
