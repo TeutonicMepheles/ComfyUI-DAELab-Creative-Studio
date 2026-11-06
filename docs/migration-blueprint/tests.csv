@@ -567,7 +567,7 @@ business:tests/task_snapshots.test.mjs","","规格已定义；自动化与产品
 "TC-BIZ-059","分镜解析结果为可编辑多维表格","F-BIZ-020","UC-BIZ-003","host","P0","M3","固定 DOCX 分镜夹具。","隔离宿主；解析器入口。","完成一次分镜解析。
 编辑一格文字，撤销/重做，保存并重载。","解析结果是可编辑分镜多维表，单元格与画面描述可原位改。
 撤销重做与保存重载保留编辑；来源关系仍在。
-仍是解析节点与四列/每表最多 10 行，不改成普通 DAELAB.Table。","混合","不付费","business:web/script_parser_panel.mjs
+仍是解析节点与四列，不改成普通 DAELAB.Table。","混合","不付费","business:web/script_parser_panel.mjs
 business:web/data_table_editor.mjs","","规格已定义；自动化与产品执行状态均待实施/待执行"
 "TC-SYS-001","仅新包的最小安装","F-SYS-001 F-SYS-009 F-SYS-016","UC-SYS-001 UC-SYS-007","host","P0","M1","E2 空用户目录及仅测试环境启用的最小节点/面板契约夹具","移除旧包加载路径且不配置可选服务","安装发布产物并启动
 读取节点清单并打开画布
