@@ -67,7 +67,7 @@
       "source": "web/creative_canvas_catalog.mjs",
       "destination": "frontend/src/canvas/creative_canvas_catalog.mjs",
       "sourceSha256": "a007b85a24f0a6b45262cbf4dc401bc5e8bd3fba6ba4e005b9e2f189f74168b4",
-      "destinationSha256": "b73faa734b5332c9f78cae723a687d153d4da175db9f3923e9c56c3efb641627",
+      "destinationSha256": "bcb4c5e7859c15536525dca000a2c4d2f5237e70e944de2711829e8d2648a818",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths"
       ],
@@ -88,7 +88,7 @@
       "source": "web/creative_canvas_view.mjs",
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
       "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
-      "destinationSha256": "04b45fc6d0470c4a6d00e9feb389369d42f5bf80b715022cd991c9bf8d19e8c0",
+      "destinationSha256": "8e42e9e430799660becdcde4ff523bf3be981c58af53ba65a5de3d566496aec6",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
         "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
@@ -863,7 +863,7 @@
       "source": "tests/creative_canvas_catalog.test.mjs",
       "destination": "tests/migrated_canvas/creative_canvas_catalog.test.mjs",
       "sourceSha256": "90e2a99186f6a9aa6488bd1d904a9c29433aecedbda121b6ac058c0186caa062",
-      "destinationSha256": "c87afac0ebf2a631e4836adfdb26488f62c7d231258fe2d0cce24e45c6254b7d",
+      "destinationSha256": "f6025df92b2de34c727e7fa6bd9d9fa5623bf986a8272712b52df13222fced9f",
       "changes": [
         "point existing rule regression tests at migrated production modules"
       ],
@@ -883,7 +883,7 @@
       "source": "tests/creative_connections.test.mjs",
       "destination": "tests/migrated_canvas/creative_connections.test.mjs",
       "sourceSha256": "690df3067bf71bd36c95bb507ef38e1cfd93c4c0d5c2da877f3b51eddd8c07c6",
-      "destinationSha256": "93880f1bb4958a3022610210b26a48e7415138d84e36b2cd349a75d6da1baa21",
+      "destinationSha256": "352e6bdfdd98b14d002c6aaca6518b327952f8f2ada2d3be0b8274c69fc96076",
       "changes": [
         "point existing rule regression tests at migrated production modules",
         "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained."
@@ -1007,7 +1007,7 @@
       "source": null,
       "destination": "frontend/src/contracts/canvas_host.ts",
       "sourceSha256": null,
-      "destinationSha256": "d1cd923b2f54ef86f405cdf4f34c444e3a49701f7245fd1c69b618fdfe4a52f8",
+      "destinationSha256": "45b9a1cb4df3c262974955ecc3d0ecf7bd5455774a0a4774187085df7ab8c362",
       "changes": [
         "Typed native-graph and host history contract; native references remain the sole editable authority.",
         "Declare typed prepareNativeShortcut for sole native keyboard history ownership; preserve programmatic history commands and native graph authority."

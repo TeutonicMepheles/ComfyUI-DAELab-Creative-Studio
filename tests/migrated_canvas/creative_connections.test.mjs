@@ -3,6 +3,14 @@ import assert from 'node:assert/strict';
 import {MATERIAL_SLOT,resolveOutput,targetChoices,outputSelector,inputSlots} from '../../frontend/src/canvas/creative_connections.mjs';
 import {registerAdapter} from '../../frontend/src/canvas/creative_contract.mjs';
 const upload=kind=>({type:'DAELAB.MediaUpload',widgets:[{name:'asset_data',value:JSON.stringify({filename:'asset',kind})}],outputs:['COMFYTV_IMAGE','COMFYTV_IMAGES','COMFYTV_VIDEO','IMAGE','VIDEO'].map(type=>({type}))});
+
+test('text and material groups resolve the real text-generation inputs without altering indices',()=>{
+ const target={type:'DAELAB.LLMStylePreviewB',inputs:[{name:'原文',type:'STRING'},{name:'参考图片',type:'IMAGE'},{name:'素材组',type:'DAELAB_ASSETS'},{name:'多维表格',type:'STRING'},{name:'其他输入',type:'*'}]};
+ const before=JSON.stringify(target);
+ assert.equal(targetChoices({type:'DAELAB.TextInput',outputs:[{type:'STRING'}]},MATERIAL_SLOT,target)[0].index,0);
+ assert.equal(targetChoices({type:'DAELAB.MaterialGroup',outputs:[{type:'DAELAB_ASSETS'}]},MATERIAL_SLOT,target)[0].index,2);
+ assert.equal(JSON.stringify(target),before);
+});
 test('one material outlet resolves each target without changing other edges',()=>{
  const image=upload('image'),video=upload('video');
  for(const [type,slot] of [['COMFYTV_IMAGE',0],['COMFYTV_IMAGES',1],['IMAGE',3]])assert.equal(resolveOutput(image,MATERIAL_SLOT,type),slot);

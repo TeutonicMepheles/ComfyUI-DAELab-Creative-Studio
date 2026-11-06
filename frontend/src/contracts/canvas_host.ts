@@ -15,6 +15,8 @@ export interface CanvasWidget {
   callback?: (value: unknown, canvas: unknown, node: CanvasNode, position: null, event: Event) => void;
 }
 export interface CanvasNodeDefinition { nodeData?: unknown }
+/** Frontend-owned real input sockets absent from the backend widget schema. */
+export interface CanvasCreationInputDeclaration { inputTypes?: readonly string[] }
 export interface CanvasHistoryPort {
   /** Fail before a mutation when serialization/history cannot safely record it. */
   assertEditable(): void;
