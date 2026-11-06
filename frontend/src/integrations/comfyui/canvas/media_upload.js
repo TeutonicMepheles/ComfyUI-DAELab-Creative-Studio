@@ -114,7 +114,12 @@ function install(node){
 app.registerExtension({name:'DAELab.MediaUpload',beforeRegisterNodeDef(type,definition){
     if(definition.name!==UPLOAD_TYPE)return;
     const created=type.prototype.onNodeCreated;type.prototype.onNodeCreated=function(){created?.apply(this,arguments);install(this);};
-    const configured=type.prototype.onConfigure;type.prototype.onConfigure=function(){configured?.apply(this,arguments);install(this);this.__mediaUpload.reload();};
+    const configured=type.prototype.onConfigure;type.prototype.onConfigure=function(){configured?.apply(this,arguments);install(this);this.__mediaUpload.reload();
+        // Settle the native DOM widget minimum before the history loader returns.
+        // Larger saved sizes and the user's width remain unchanged.
+        const minimum=this.computeSize?.();
+        if(minimum&&Number.isFinite(minimum[1])&&minimum[1]>this.size[1])this.setSize([this.size[0],minimum[1]]);
+    };
     const connections=type.prototype.onConnectionsChange;type.prototype.onConnectionsChange=function(){const result=connections?.apply(this,arguments);this.__mediaUpload?.render();return result;};
     const removed=type.prototype.onRemoved;type.prototype.onRemoved=function(){this.__mediaUpload?.destroy();removed?.apply(this,arguments);};
     const connect=type.prototype.onConnectOutput;type.prototype.onConnectOutput=function(index){if(!slotAllowed(this.__mediaUpload?.kind(),index))return false;return connect?.apply(this,arguments)??true;};

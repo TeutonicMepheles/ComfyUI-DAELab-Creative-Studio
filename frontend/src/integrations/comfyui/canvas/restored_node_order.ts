@@ -8,6 +8,7 @@ type StagedNode = {
   type: string;
   descriptor: PropertyDescriptor | undefined;
   order: number | undefined;
+  height: {saved:number[];live:number[]|Float32Array|Float64Array;minimum:number;height:number}|undefined;
 };
 
 const ownedTypes = new Set(['DAELAB.Table', 'DAELAB.LLMStylePreviewB',
@@ -29,8 +30,9 @@ const sameDescriptor = (a: PropertyDescriptor | undefined, b: PropertyDescriptor
 
 /**
  * Native configure recomputes execution order, while ChangeTracker retains the
- * original restore argument as activeState. Amend only owned numeric orders in
- * that argument after successful explicit restoration. No graph serialization,
+ * original restore argument as activeState. Amend owned numeric orders and
+ * proved native MediaUpload minimum-height clamps after explicit restoration.
+ * User widths and heights above the native minimum remain untouched. No graph serialization,
  * live mutation, comparator changes or history queue ownership belongs here.
  */
 export function reconcileRestoredNodeOrder(
@@ -85,7 +87,19 @@ export function reconcileRestoredNodeOrder(
         if (!validOrder(value)) return false;
         order = value;
       }
-      staged.push({saved, live, id: id as NodeId, key, type, descriptor, order});
+      let height:StagedNode['height'];
+      if(type==='DAELAB.MediaUpload'){
+        const a=data(saved,'size'),b=live.size;
+        const compute=live.computeSize;
+        if(Array.isArray(a)&&(Array.isArray(b)||b instanceof Float32Array||b instanceof Float64Array)&&a.length===2&&b.length===2&&a!==b&&
+          a.every(value=>typeof value==='number'&&Number.isFinite(value)&&value>0)&&
+          b.every(value=>typeof value==='number'&&Number.isFinite(value)&&value>0)&&
+          a[0]===b[0]&&b[1]>a[1]&&Object.getOwnPropertyDescriptor(a,'1')?.writable===true&&typeof compute==='function'){
+          const minimum:unknown=compute.call(live);
+          if(Array.isArray(minimum)&&minimum[1]===b[1])height={saved:a,live:b,minimum:b[1],height:a[1]};
+        }
+      }
+      staged.push({saved, live, id: id as NodeId, key, type, descriptor, order,height});
     }
     // Getters/lookup may synchronously change workflow or replace a same-ID
     // node. Complete every staged identity check before the final lease check.
@@ -96,7 +110,9 @@ export function reconcileRestoredNodeOrder(
       if (data(entry.saved, 'id') !== entry.id || data(entry.saved, 'type') !== entry.type ||
           nodeKey(entry.live.id) !== entry.key || entry.live.type !== entry.type ||
           lookup.call(graph, entry.id) !== entry.live ||
-          (entry.order !== undefined && !sameDescriptor(entry.descriptor, Object.getOwnPropertyDescriptor(entry.saved, 'order')))) return false;
+          (entry.order !== undefined && !sameDescriptor(entry.descriptor, Object.getOwnPropertyDescriptor(entry.saved, 'order'))) ||
+          (entry.height&&(data(entry.saved,'size')!==entry.height.saved||entry.live.size!==entry.height.live||
+            entry.height.saved[0]!==entry.height.live[0]||entry.height.saved[1]!==entry.height.height||entry.height.live[1]!==entry.height.minimum))) return false;
     }
     if (savedNodes.length !== savedMembers.length || nativeNodes.length !== nativeMembers.length ||
         savedMembers.some((node, index) => savedNodes[index] !== node) ||
@@ -107,7 +123,8 @@ export function reconcileRestoredNodeOrder(
     return false;
   }
   let changed = false;
-  for (const {saved, descriptor, order} of staged) {
+  for (const {saved, descriptor, order,height} of staged) {
+    if(height){height.saved[1]=height.minimum;changed=true;}
     if (order === undefined || descriptor?.value === order) continue;
     Object.defineProperty(saved, 'order', {...descriptor, value: order});
     changed = true;
