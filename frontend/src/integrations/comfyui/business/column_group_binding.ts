@@ -19,6 +19,12 @@ interface App {graph:Graph;rootGraph:Graph;configuringGraph?:boolean;isGraphRead
 declare const LiteGraph:{createNode:(type:string)=>Node|null};
 const installed=new WeakSet<App>(),running=new WeakSet<Graph>();
 const tableFor=(node:Node)=>node.__scriptTable||node.__dataTable;
+// Native widgets restore before deferred panel installation. Never interpret
+// the previous panel's cached document as an edit of the restored workflow.
+function tableReady(node:Node):boolean {
+ const widget=node.widgets?.find(widget=>widget.name==='table_data');
+ return !widget||widget.value===JSON.stringify(tableFor(node));
+}
 const panelFor=(node:Node)=>node.__scriptPanel||node.__dataTablePanel;
 const states=(node:Node)=>(node.properties.daelabColumnBindings||{}) as Record<string,ColumnBinding>;
 const memberIds=(group:Node)=>Array.isArray(group.properties.members)?group.properties.members as (string|number)[]:[];
@@ -65,7 +71,7 @@ function flushBindings(app:App,graph:Graph){
   for(let pass=0;pass<3;pass++){
    let changed=false;
    for(const node of graph._nodes){
-    const table=tableFor(node);if(!table||!panelFor(node)||node.mode)continue;
+    const table=tableFor(node);if(!table||!panelFor(node)||node.mode||!tableReady(node))continue;
     restoreBoundColumnInputs(node);const saved=states(node),fields=new Set([...Object.keys(saved),...node.inputs.filter(i=>i.daeColumnField).map(i=>i.daeColumnField!)]);
     for(const fieldId of fields){
      let input=node.inputs.find(i=>i.daeColumnField===fieldId);
@@ -97,15 +103,16 @@ export function installColumnBindings(app:App){
  const timer=setInterval(()=>{
   const tracker=app.extensionManager?.workflow?.activeWorkflow?.changeTracker;
   if(app.isGraphReady===false||app.configuringGraph||tracker?._restoringState||tracker?.changeCount||!app.graph?._nodes.some(n=>Object.keys(n.properties?.daelabColumnBindings||{}).length||n.inputs?.some(i=>i.daeColumnField&&i.link!=null)))return;
+  if(app.graph._nodes.some(node=>Object.keys(states(node)).length&&!tableReady(node)))return;
   // Read-only comparison keeps ordinary ticks outside the host history machinery.
-  const dirty=app.graph._nodes.some(node=>node.inputs?.some(input=>input.daeColumnField&&input.link!=null&&!states(node)[input.daeColumnField])||Object.entries((node.properties.daelabColumnBindings||{}) as Record<string,ColumnBinding>).some(([field,binding])=>{
+  const dirty=app.graph._nodes.some(node=>tableReady(node)&&(node.inputs?.some(input=>input.daeColumnField&&input.link!=null&&!states(node)[input.daeColumnField])||Object.entries((node.properties.daelabColumnBindings||{}) as Record<string,ColumnBinding>).some(([field,binding])=>{
    // Native restore omits runtime IO annotations. Reconstruct them before the
    // read-only comparison; otherwise a healthy restored link looks disconnected
    // and entering amend() can consume the host's redo history without an edit.
    restoreBoundColumnInputs(node);
    const table=tableFor(node),input=node.inputs.find(i=>i.daeColumnField===field),link=input?.link==null?null:app.graph.links instanceof Map?app.graph.links.get(input.link):app.graph.links[String(input.link)],group=link&&app.graph.getNodeById(link.origin_id);
    try{return !!table&&(!group||String(group.id)!==binding.groupId||columnStamp(table,field)!==binding.columnStamp||groupStamp(groupItems(group))!==binding.groupStamp);}catch{return false;}
-  }));
+  })));
   if(dirty)try{canvasHistory(app).amend(()=>flush(app.graph));}catch{/* flush reports the owned error once. */}
  },250);
  (timer as unknown as {unref?:()=>void}).unref?.();

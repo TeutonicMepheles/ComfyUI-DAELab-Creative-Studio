@@ -3,6 +3,30 @@ import assert from 'node:assert/strict';
 import {installColumnBindings,bindColumnGroup,boundColumnTargets} from '../../frontend/src/integrations/comfyui/business/column_group_binding.ts';
 import {canvasHistory} from '../../frontend/src/integrations/comfyui/canvas/creative_history.mjs';
 
+test('deferred table installation cannot reverse a restored deletion or enter history',()=>{
+ const interval=globalThis.setInterval;let tick;
+ globalThis.setInterval=callback=>{tick=callback;return {unref(){}};};
+ try{
+  const f=fixture();f.history.begin();bindColumnGroup(f.app,f.table,'media',f.group);f.history.end();
+  const restored=structuredClone(f.table.__dataTable),properties=structuredClone(f.table.properties);
+  f.history.begin();f.table.__dataTable.records[0].values.media=[];f.history.end();
+  const deleted=structuredClone(f.table.__dataTable),deletedProperties=structuredClone(f.table.properties),members=[...f.group.properties.members];
+  const tracker=f.app.extensionManager.workflow.activeWorkflow.changeTracker;
+  let captures=0;tracker.captureCanvasState=()=>{captures++;};
+  for(let cycle=0;cycle<4;cycle++){
+   // Configure has restored widget/properties/group, but the old editor remains.
+   f.table.__dataTable=restored;f.table.properties=structuredClone(deletedProperties);
+   f.table.widgets=[{name:'table_data',value:JSON.stringify(deleted)}];
+   tick();f.app.daelabColumnBindings.flush(f.graph);
+   assert.deepEqual(f.group.properties.members,members);assert.equal(captures,0);
+   assert.deepEqual(f.table.properties,deletedProperties);
+   // Deferred install catches up; a healthy restored state stays read-only.
+   f.table.__dataTable=structuredClone(deleted);tick();assert.equal(captures,0);
+  }
+  assert.notDeepEqual(properties,deletedProperties);
+ }finally{globalThis.setInterval=interval;delete globalThis.LiteGraph;delete globalThis.window;}
+});
+
 function fixture(){
  let serial=0,linkSerial=0;const snapshots=[];
  const graph={_nodes:[],links:{},extra:{},getNodeById(id){return this._nodes.find(n=>String(n.id)===String(id));},add(n){n.graph=this;this._nodes.push(n);},serialize(){return {nodes:this._nodes.map(n=>({id:n.id,type:n.type,properties:structuredClone(n.properties),inputs:structuredClone(n.inputs),widgets:structuredClone(n.widgets),table:structuredClone(n.__dataTable)})),links:structuredClone(this.links)};}};
