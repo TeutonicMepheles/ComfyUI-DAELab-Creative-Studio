@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "898dc943af5eb15f77a37c60e093a38c612c5015221324c27e082be27ec61b42",
+  "sourceFingerprint": "cb37fef9bbd2689ada6c2d1dcae4c349ec28fa55d2d2579d36dd64d854740b6a",
   "files": [
     {
       "path": "AGENTS.md",
@@ -520,7 +520,7 @@
     },
     {
       "path": "features/generation/README.md",
-      "sha256": "21954c2545719dc2afe7df641674e336b386e22e9c8125de9465203dc15b3136"
+      "sha256": "59d32e1e51215980148d6b90c574cd22be6cf3ff87da400d365b2a8e4fa43c44"
     },
     {
       "path": "features/generation/control_labels.js",
@@ -564,15 +564,15 @@
     },
     {
       "path": "features/generation/table_generation_panel.mjs",
-      "sha256": "6e1a0236992cf4a670df6bbed9d0df6d36f7e2636f3a39aec285c9582a003a8e"
+      "sha256": "bcbb93fe9fa1ea9659f2c5b1e86116e525ce8fdc4c264926e86fd219ebb95839"
     },
     {
       "path": "features/generation/table_generation_tasks.mjs",
-      "sha256": "774ea1128ea176a916980c99ee1504e8c09b3d1db506073d67492b43df09f0d8"
+      "sha256": "7995315cba977808211225fe56dda823198b37a91ab190ef2578a7921118c1b7"
     },
     {
       "path": "features/generation/task_snapshots.mjs",
-      "sha256": "6cb8cf2f7aafc32e6a4009e74e0f97f0c26cc7f93e5a8d415947778dde4e49c7"
+      "sha256": "73b960b3dd5642c309fba814cf4a5eb5bcf8a3ad1d867a1e47dcf4864af15b5d"
     },
     {
       "path": "features/generation/video_task_linked_prompt.mjs",
@@ -588,15 +588,15 @@
     },
     {
       "path": "features/generation/video_tasks.css",
-      "sha256": "220fba4873b019b604ee37aec13364efffc82c994e42849ed717b799f2f0b700"
+      "sha256": "24219238cecea060ce3df47dee6531a2b8edcd6662b296a68ad89e1ef93a43ce"
     },
     {
       "path": "features/generation/video_tasks_model.mjs",
-      "sha256": "a09e3dcb2d7f05c2f4852d1fe7c2316838737b060dc0fa515d9944c9834c3ad8"
+      "sha256": "e0e718630bb8c0083646fd3dd1b7769e6f0a4de213fcc2837adc450c3279fd6a"
     },
     {
       "path": "features/generation/video_tasks_panel.mjs",
-      "sha256": "ad70c3887e62e42cf6b296ee97c0960024f9bd6fdc7ef2177cee8f4887e5cf62"
+      "sha256": "5420b0883396c48d56f76e040c11c8c3b3f988eff930df7698805c2c89186c41"
     },
     {
       "path": "features/groups/AGENTS.md",
@@ -1200,7 +1200,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "9be737616536438a1c90c1e60666422d84404d522ad4bd69af6162b3f496474c"
+      "sha256": "278b68c4d7e64d63474fc5bc8f405208601c45d5c6f2556cdb90923ad82208ae"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

@@ -33,7 +33,7 @@ export const generationTaskStyle=`
 @media(prefers-reduced-motion:reduce){.dae-ui .generation-progress{animation:none;border-style:dashed}}
 `;
 
-export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,getConfig,onUpdate=()=>{},onPrepared=()=>{},onReports=()=>{},canGenerate=()=>true}){
+export function attachGenerationTasks({editor,getTable,getArchivedRows=()=>[],notify,prepareGeneration,getConfig,onUpdate=()=>{},onPrepared=()=>{},onReports=()=>{},canGenerate=()=>true}){
  let alive=true,polling=false,submitting=false,epoch=0;const controlling=new Set();
   const live=new Map(),localErrors=new Map(),discovered=new Map(),discoveredByTarget=new Map(),editGroups=new Map(),missingRequests=new Set(),attemptGroups=new Map(),attemptTargets=new Map();
  const targetKey=(recordId,fieldId)=>JSON.stringify([recordId,fieldId]);
@@ -62,7 +62,7 @@ export function attachGenerationTasks({editor,getTable,notify,prepareGeneration,
  const projectTable=source=>{const table=structuredClone(source);for(const row of table.records){row.meta||={};row.meta.generationColumns=Object.fromEntries(table.fields.filter(isGeneration).map(field=>[field.id,stateFor(row,field.id)]).filter(([,value])=>value));}return table;};
  const projectedTable=()=>projectTable(getTable());
  // No generation columns means no generation capsules; preserve the public full projection.
- const taskSnapshots=()=>{const table=getTable();return table.fields.some(field=>field.presentation==='generation')?generationTaskSnapshots(projectTable(table),live,editGroups):[];};
+ const taskSnapshots=()=>{const table=getTable();if(!table.fields.some(field=>field.presentation==='generation'))return [];const ids=new Set(table.records.map(row=>row.id)),archived=getArchivedRows().filter(row=>!ids.has(row.id));return generationTaskSnapshots(projectTable(archived.length?{...table,records:[...table.records,...archived]}:table),live,editGroups);};
  function ingest(response){
   const accepted=[],touched=new Set();
   for(const report of response.jobs||[])if(session.ingest(report)){

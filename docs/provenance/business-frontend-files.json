@@ -281,7 +281,7 @@
       "source": "web/table_generation_panel.mjs",
       "destination": "frontend/src/features/generation/table_generation_panel.mjs",
       "sourceSha256": "547d0543ec0e6359f0146f429ca9a11f9d4cce5682e1c212f01439492b1c9a50",
-      "destinationSha256": "6e1a0236992cf4a670df6bbed9d0df6d36f7e2636f3a39aec285c9582a003a8e",
+      "destinationSha256": "bcbb93fe9fa1ea9659f2c5b1e86116e525ce8fdc4c264926e86fd219ebb95839",
       "kind": "production-source",
       "changes": [
         "2026-11-02: Explain the local one-image reference mode and explicit width/height scaling.",
@@ -303,7 +303,7 @@
       "source": "web/table_generation_tasks.mjs",
       "destination": "frontend/src/features/generation/table_generation_tasks.mjs",
       "sourceSha256": "3812afeff3c3738abb6799f9e96812fe76e1e078262612efe9aa59b9163e765f",
-      "destinationSha256": "774ea1128ea176a916980c99ee1504e8c09b3d1db506073d67492b43df09f0d8",
+      "destinationSha256": "7995315cba977808211225fe56dda823198b37a91ab190ef2578a7921118c1b7",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -319,7 +319,7 @@
       "source": "web/task_snapshots.mjs",
       "destination": "frontend/src/features/generation/task_snapshots.mjs",
       "sourceSha256": "4911f0d2226cd7d0969e5b87824d5f1acacdadd8e1dd719497593f638d9ed642",
-      "destinationSha256": "6cb8cf2f7aafc32e6a4009e74e0f97f0c26cc7f93e5a8d415947778dde4e49c7",
+      "destinationSha256": "73b960b3dd5642c309fba814cf4a5eb5bcf8a3ad1d867a1e47dcf4864af15b5d",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -353,7 +353,7 @@
       "source": "web/video_tasks.css",
       "destination": "frontend/src/features/generation/video_tasks.css",
       "sourceSha256": "f662c345f3f44010d82961172cb0954db3b8ec2ffb086dfb65cf11c89a0cbf07",
-      "destinationSha256": "220fba4873b019b604ee37aec13364efffc82c994e42849ed717b799f2f0b700",
+      "destinationSha256": "24219238cecea060ce3df47dee6531a2b8edcd6662b296a68ad89e1ef93a43ce",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Correct the credit graphic to the host account balance Lucide coins icon, inlined as a yellow mask without host CSS/font dependencies.",
@@ -370,7 +370,7 @@
       "source": "web/video_tasks_model.mjs",
       "destination": "frontend/src/features/generation/video_tasks_model.mjs",
       "sourceSha256": "3572671a035745a74966e2cdd6e7e6f421a49938218c7d03ee2f9601f902c684",
-      "destinationSha256": "a09e3dcb2d7f05c2f4852d1fe7c2316838737b060dc0fa515d9944c9834c3ad8",
+      "destinationSha256": "e0e718630bb8c0083646fd3dd1b7769e6f0a4de213fcc2837adc450c3279fd6a",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -384,7 +384,7 @@
       "source": "web/video_tasks_panel.mjs",
       "destination": "frontend/src/features/generation/video_tasks_panel.mjs",
       "sourceSha256": "1f567635a4b88ab672b6f656d1c2ede14a5a79432592e26ccf2c39775281452d",
-      "destinationSha256": "ad70c3887e62e42cf6b296ee97c0960024f9bd6fdc7ef2177cee8f4887e5cf62",
+      "destinationSha256": "5420b0883396c48d56f76e040c11c8c3b3f988eff930df7698805c2c89186c41",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
@@ -1738,7 +1738,7 @@
       "source": "tests/table_exchange.test.mjs",
       "destination": "tests/migrated_business/table_exchange.test.mjs",
       "sourceSha256": "e2c523d0935cc760c2405d7f3ae8b29d82685971e96ce37fca9ebc288d307fde",
-      "destinationSha256": "acd4726af839597dfad80b9fed716b965bca41f4ddd53e46654dc0fb5e84ef16",
+      "destinationSha256": "165ae7cc4c5109142650e14b805059c451861d5b2e0e25c60c2ec9cce78326d0",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",

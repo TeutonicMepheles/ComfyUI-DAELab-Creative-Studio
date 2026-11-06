@@ -41,6 +41,11 @@ test('a pending remainder keeps the sequence stopping, while a success race stay
 });
 
 const clone = globalThis.structuredClone.bind(globalThis);
+test('four source rows remain counted across submission times including an earlier cancellation',()=>{
+ const table={fields:[{id:'g',presentation:'generation',generation:{kind:'video'}}],records:['a','b','c','d'].map((id,i)=>({id,meta:{generationColumns:{g:{requestId:id,phase:i?'complete':'interrupted',state:i?'succeeded':'cancelled',source:{recordId:id,createdAt:i?20:10}}}}}))};
+ const snapshot=generationTaskSnapshots(table)[0];
+ assert.equal(snapshot.total,3);assert.equal(snapshot.done,3);assert.equal(snapshot.state,'success');assert.match(snapshot.detail,/其它批次 1 行/);assert.match(snapshot.detail,/已中止 1/);
+});
 test('reload verification of an old receipt does not announce its historical terminal result',t=>{
  t.mock.method(Date,'now',()=>9000);
  for(const [state,phase] of [['cancelled','interrupted'],['succeeded','complete']]){
@@ -89,15 +94,23 @@ function addLegacyGeneration(table,id='image',kind='image',extra={}) {
  table.records[0].meta.generationColumns[id]={requestId:'old-'+id,phase:'running'};
  return table;
 }
-function owner(t,table,{identity,read}={}) {
+function owner(t,table,{identity,read,getArchivedRows}={}) {
  const state={table,reads:0,edits:0};
  const editor={root:{querySelectorAll:()=>[]},taskIdentity:identity,change(){state.edits++;},
   beginAsync(){throw new Error('A read-only task snapshot must not open an edit ticket');},
   canAsync(){return false;},releaseAsync(){},applyAsync(){throw new Error('A read-only task snapshot must not apply a result');}};
- const tasks=attachGenerationTasks({editor,getTable:()=>{state.reads++;return read?read(state):state.table;},notify(){}});
+ const tasks=attachGenerationTasks({editor,getTable:()=>{state.reads++;return read?read(state):state.table;},getArchivedRows,notify(){}});
  t.after(()=>tasks.destroy());
  return {state,tasks};
 }
+test('archived submitted rows remain in progress without entering the submission table',t=>{
+ const table=addLegacyGeneration(tableFixture()),archived=clone(table.records[0]);archived.id='deselected';
+ archived.meta.generationColumns.image.requestId='archived-request';
+ const before=JSON.stringify(table),saved=JSON.stringify(archived),o=owner(t,table,{getArchivedRows:()=>[archived,table.records[0]]});
+ assert.equal(o.tasks.tasks()[0].total,2);
+ assert.equal(o.tasks.projectedTable().records.length,1);
+ assert.equal(JSON.stringify(table),before);assert.equal(JSON.stringify(archived),saved);assert.equal(o.state.edits,0);
+});
 function cloneObserver(t) {
  const values=[];
  t.mock.method(globalThis,'structuredClone',value=>{values.push(value);return clone(value);});
