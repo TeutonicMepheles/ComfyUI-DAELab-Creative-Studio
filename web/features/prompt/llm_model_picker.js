@@ -1,3 +1,4 @@
+import { updateModelNote } from '../models/model_notes.js';
 // @ts-expect-error Shared ESM popover owns placement, scale, escape and cleanup.
 import { createSettingsPopover, promptSettingsStyle } from './table_prompt_settings.mjs';
 // @ts-expect-error Existing shared controls retain native button semantics.
@@ -47,6 +48,7 @@ export function createLLMModelPicker(select, { active = () => true } = {}) {
             spinner.setAttribute('aria-label', '正在检测此模型');
             control.append(spinner);
         }
+        updateModelNote(control, entry);
         control.title = modelOptionPresentation(entry).statusLabel;
         control.dataset.modelStatus = entry?.status || 'unverified';
     };
@@ -98,7 +100,7 @@ export function createLLMModelPicker(select, { active = () => true } = {}) {
         (menu.root.querySelector('[aria-selected=true]:not(:disabled)') || menu.root.querySelector('button:not(:disabled)'))?.focus({ preventScroll: true });
     }
     function sync() {
-        const next = JSON.stringify([select.value, select.disabled, options().map(option => [option.value, option.textContent, option.disabled, catalog.get(option.value)?.status])]);
+        const next = JSON.stringify([select.value, select.disabled, options().map(option => [option.value, option.textContent, option.disabled, catalog.get(option.value)?.status, catalog.get(option.value)?.capability])]);
         if (stamp !== next) {
             stamp = next;
             const option = options().find(option => option.value === select.value) || null;

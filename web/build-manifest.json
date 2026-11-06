@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "659380ae7ed97042faefe8a85dc877cf25c7182d1d37d5ab93f80698a04cd403",
+  "sourceFingerprint": "5a3cb2150ddd8fe6a53da9421b3f58835f6b71fbe9e8da39f31c211f5f941441",
   "files": [
     {
       "path": "AGENTS.md",
@@ -96,7 +96,7 @@
     },
     {
       "path": "canvas/README.md",
-      "sha256": "c2eed37e77923c45fe88fa6ca5a158ec8c55a4fb4dabf3cdf5df965c2149c4af"
+      "sha256": "4076f7f70b9563143bf7a9252903de6cc2788733a8fd13e341ce3b1bc46607e1"
     },
     {
       "path": "canvas/creation_menu.js",
@@ -108,7 +108,7 @@
     },
     {
       "path": "canvas/creative_canvas_catalog.mjs",
-      "sha256": "bcb4c5e7859c15536525dca000a2c4d2f5237e70e944de2711829e8d2648a818"
+      "sha256": "b73faa734b5332c9f78cae723a687d153d4da175db9f3923e9c56c3efb641627"
     },
     {
       "path": "canvas/creative_canvas_model.mjs",
@@ -116,7 +116,7 @@
     },
     {
       "path": "canvas/creative_canvas_view.mjs",
-      "sha256": "8e42e9e430799660becdcde4ff523bf3be981c58af53ba65a5de3d566496aec6"
+      "sha256": "04b45fc6d0470c4a6d00e9feb389369d42f5bf80b715022cd991c9bf8d19e8c0"
     },
     {
       "path": "canvas/creative_connections.mjs",
@@ -560,15 +560,15 @@
     },
     {
       "path": "features/generation/table_generation_model.mjs",
-      "sha256": "7e672804f5242ca6b3f4e84737a26d6f001ceb5088d32c0df1593ba5dc65ce34"
+      "sha256": "69700bb744ca2a5632c23d184025840882ca077f7668e61978e9a67df718b0e6"
     },
     {
       "path": "features/generation/table_generation_panel.mjs",
-      "sha256": "ac89fa3055c134ea7483cc88d8ea441e6895780c1c0d162f17600954f635fe7c"
+      "sha256": "c91175014a998434a03b9cade141399645e17d1ef595a1073b160e72a11c1b82"
     },
     {
       "path": "features/generation/table_generation_tasks.mjs",
-      "sha256": "198cf21f57483a78038a80422c1173f26e9689205190660aedb3f3f814cca9de"
+      "sha256": "7995315cba977808211225fe56dda823198b37a91ab190ef2578a7921118c1b7"
     },
     {
       "path": "features/generation/task_snapshots.mjs",
@@ -596,7 +596,7 @@
     },
     {
       "path": "features/generation/video_tasks_panel.mjs",
-      "sha256": "70785b549377a5883298f0a368dce20ab1a675ec5c565df6e01bc79eca5104ff"
+      "sha256": "5420b0883396c48d56f76e040c11c8c3b3f988eff930df7698805c2c89186c41"
     },
     {
       "path": "features/groups/AGENTS.md",
@@ -624,7 +624,7 @@
     },
     {
       "path": "features/models/README.md",
-      "sha256": "c6923f053a054785974a0778f609fcb54db97c544b2c32369b68355a4942b18b"
+      "sha256": "9ab762cebb718e98109a0d361c1d3bcafd4e216be015359a2c7c9fccd2995629"
     },
     {
       "path": "features/models/model_catalog.mjs",
@@ -633,6 +633,10 @@
     {
       "path": "features/models/model_catalog_ui.mjs",
       "sha256": "da7e3a888a08cc2df5e482679086ac074471ebc54d69ee1bda3314f5bf00e3e6"
+    },
+    {
+      "path": "features/models/model_notes.js",
+      "sha256": "d4253311f9e2a087bed3ef95bf99770136fd92b843c655acf56eeec019ca4edd"
     },
     {
       "path": "features/models/source_badge.js",
@@ -660,7 +664,7 @@
     },
     {
       "path": "features/prompt/llm_model_picker.js",
-      "sha256": "a940b8267a223839cd2d720814d35bad7e71eaf7d93ce563efb036a4ff4da677"
+      "sha256": "460ab274e0291cda2dab46d74d44ee6399580c5c590b2ba7e7522586d384a765"
     },
     {
       "path": "features/prompt/llm_slot_model.mjs",
@@ -732,7 +736,7 @@
     },
     {
       "path": "features/prompt/table_prompt_settings.mjs",
-      "sha256": "5f2188204928d59ca61d191d4cdaf31adf6a8e598239480e09400741abc6e5df"
+      "sha256": "4ba4c43a1c8e2dbcbb93bf96575f103eb12582addfffae4c2df5dfe349f1bf24"
     },
     {
       "path": "features/prompt/table_prompt_source.mjs",
@@ -1072,7 +1076,7 @@
     },
     {
       "path": "integrations/comfyui/business/llm_style_preview.js",
-      "sha256": "c716efe49c817e88c6f5e3b5b78402ea5e561e9d0f22165ed6fea22009d20016"
+      "sha256": "f0dfab3ea52e67016720086d3d139c4bfdcf94cd230eeeac50d42128ff3dfbb2"
     },
     {
       "path": "integrations/comfyui/business/model_catalog_discovery.mjs",
@@ -1200,7 +1204,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "e967d3b8eff910795745ea19140cdaa1d4bc5915b632a355bf987039f49521a2"
+      "sha256": "9ec137faeb29b12586d181cb5d6feb6dc32cdb345319388b988bf00ce859ff96"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
