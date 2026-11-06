@@ -1202,7 +1202,7 @@
       "source": "web/creative_canvas_adapter.js",
       "destination": "frontend/src/integrations/comfyui/business/creative_canvas_adapter.js",
       "sourceSha256": "87d4a3ec66de9d84f4be88202779471a416ba4046a820ef1ce83780d3711f9b1",
-      "destinationSha256": "b0de4840f6efe5ed5c87e4ffd5d8f77cf38103a4f37a4e54631daa1e3975b36b",
+      "destinationSha256": "5c3428791c0febd84f27f565c80e33f39347bf27ecf00671da95bac9b284103f",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
@@ -1356,7 +1356,7 @@
         "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending.",
         "2026-11-04 task24: compact typed media surface, new 5:4 defaults, provider colors and matching model menu typography/icon alignment; upward constrained popovers. Original source identity retained."
       ],
-      "destinationSha256": "c47f5ee3098e107853b4438fa3d08c005bba19f48a7e57ba3d529ef2ca98a1a0"
+      "destinationSha256": "dcaaead959f94c758bdf15a37b875101f619cde9b54bc091755995793b41e6f4"
     },
     {
       "source": null,

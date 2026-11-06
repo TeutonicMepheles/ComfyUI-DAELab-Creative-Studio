@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "3dd01e4b214d85ac8dbee0e4093252127bf2cba6ee937f3aa43a4e4ad992f076",
+  "sourceFingerprint": "d593f91408e9e70bc570a01790808a82ce01bc79ff44c96755783239e55e13df",
   "files": [
     {
       "path": "AGENTS.md",
@@ -1052,7 +1052,7 @@
     },
     {
       "path": "integrations/comfyui/business/creative_canvas_adapter.js",
-      "sha256": "b0de4840f6efe5ed5c87e4ffd5d8f77cf38103a4f37a4e54631daa1e3975b36b"
+      "sha256": "5c3428791c0febd84f27f565c80e33f39347bf27ecf00671da95bac9b284103f"
     },
     {
       "path": "integrations/comfyui/business/daelab_comfytv_storyboard.js",
@@ -1200,7 +1200,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "3b29b2d0ff0b5900d7ac558b17f926eda7056c4921600ce56c77f73f59778aa0"
+      "sha256": "fcbff04acf500450a674870e592bdd5d2290dbc737985f698adbd5d8b4e121ba"
     },
     {
       "path": "integrations/comfyui/media_exports.js",
