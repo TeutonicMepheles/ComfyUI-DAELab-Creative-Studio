@@ -259,16 +259,21 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
     function clearMaterialPorts(c){
         for(const entry of c.materialPorts?.values()||[]){entry.original.classList.remove('dae-projected-source');if(magneticPort===entry.port)setMagnet(null);entry.port.remove();}
         c.materialPorts?.clear();
+        for(const original of c.suppressedColumnSources||[])original.classList.remove('dae-projected-source');
+        c.suppressedColumnSources?.clear();
     }
     function projectMaterialPorts(c){
         const adapter=adapterFor(c.node),targets=typeof adapter?.projectedMaterialTargets==='function'?adapter.projectedMaterialTargets(c.node):adapter?.materialTargets?.(c.node);
-        const entries=[...(targets||[]).map(target=>({...target,side:'input'})),...(adapter?.materialSources?.(c.node)||[]).map(source=>({...source,side:'output'}))];
+        const allEntries=[...(targets||[]).map(target=>({...target,side:'input'})),...(adapter?.materialSources?.(c.node)||[]).map(source=>({...source,side:'output'}))];
+        const anchorFor=entry=>entry.anchorElement||entry.element.closest('th')||entry.element;
+        const inputAnchors=new Set(allEntries.filter(entry=>entry.side==='input'&&entry.project!==false).map(anchorFor));
+        const suppressed=new Set();
+        // One effective receiving Slot per column. Snapshot export remains in
+        // the column menu; do not project a second output button over its input.
+        const entries=allEntries.filter(entry=>{if(entry.side==='output'&&entry.project!==false&&inputAnchors.has(anchorFor(entry))){suppressed.add(entry.element);if(!entry.element.classList.contains('dae-projected-source'))entry.element.classList.add('dae-projected-source');return false;}return true;});
+        for(const original of c.suppressedColumnSources||[])if(!suppressed.has(original))original.classList.remove('dae-projected-source');
+        c.suppressedColumnSources=suppressed;
         if(!entries.length&&!c.materialPorts?.size)return;
-        // Input binding and output snapshot can belong to the same header.
-        // Keep their full 32px controls plus 8px hit halos apart, regardless of
-        // creation order (including replacement/recreated header elements).
-        const sidesByAnchor=new Map();
-        for(const entry of entries){if(entry.project===false)continue;const anchor=entry.anchorElement||entry.element.closest('th')||entry.element;let sides=sidesByAnchor.get(anchor);if(!sides)sidesByAnchor.set(anchor,sides=new Set());sides.add(entry.side);}
         // Existing input projections have no setup writes. Measure this stable
         // pass before painting; creation and source hiding keep their old order.
         const anchors=new Map(),seen=new Set(),measurements=[];
@@ -307,16 +312,15 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
             let clipElement=entry.clipElement;
             if(!clipElement)for(let parent=anchor.parentElement;parent&&parent!==c.element;parent=parent.parentElement){if(/auto|scroll|hidden|clip/.test(getComputedStyle(parent).overflowX)){clipElement=parent;break;}}
             const r=anchor.getBoundingClientRect(),clip=clipElement?.getBoundingClientRect();
-            const offset=sidesByAnchor.get(anchor)?.size===2?(entry.side==='input'?-24:24):0;
             const measured={port,
                 hidden:c.body.hidden||c.body.inert||!r.width||!r.height||!!clip&&(r.left+r.width/2<clip.left||r.left+r.width/2>clip.right||r.bottom<=clip.top||r.top>=clip.bottom),
-                disabled:!!original.disabled,left:`${(r.left+r.width/2-bounds.left)/zoom-16+offset}px`,top:`${(r.top-bounds.top)/zoom-54}px`,
+                disabled:!!original.disabled,left:`${(r.left+r.width/2-bounds.left)/zoom-16}px`,top:`${(r.top-bounds.top)/zoom-54}px`,
                 label:String(entry.label||`${c.node.title} 列${entry.side==='input'?'输入':'输出'}`),title:String(entry.label||(entry.side==='input'?'拖入素材组，填充此列':'输出为素材组'))};
             if(batch)measurements.push(measured);else paint(measured);
         }
         }catch(error){for(const measured of measurements)paint(measured);throw error;}
         for(const measured of measurements)paint(measured);
-        for(const [original,entry] of c.materialPorts)if(!current.has(original)){original.classList.remove('dae-projected-source');if(magneticPort===entry.port)setMagnet(null);entry.port.remove();c.materialPorts.delete(original);}
+        for(const [original,entry] of c.materialPorts)if(!current.has(original)){if(!suppressed.has(original))original.classList.remove('dae-projected-source');if(magneticPort===entry.port)setMagnet(null);entry.port.remove();c.materialPorts.delete(original);}
     }
     function materialSources(c){
         for(const projected of c.materialPorts?.values()||[]){

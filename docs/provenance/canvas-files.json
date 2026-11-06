@@ -88,7 +88,7 @@
       "source": "web/creative_canvas_view.mjs",
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
       "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
-      "destinationSha256": "3010ab717a6b02ecf556040216222e2cc7cf438a6bffc4b83739490666666bd3",
+      "destinationSha256": "11ba3b49b3947a53df4bec6fbf8f4a7f171806d47855d3b3cec42de02c5def4f",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
         "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
