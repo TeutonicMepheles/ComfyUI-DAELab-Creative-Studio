@@ -154,7 +154,16 @@ class NativeProvider:
             props['ratio'] = {'type': 'string', 'displayName': '比例', 'enum': ['auto', *IMAGE_RATIOS]}
             schema_config['settings'].insert(0, 'ratio')
             schema_config['imageSize'] = image_size_schema()
-        return {'model': model, 'kind': kind, 'local': True, 'available': True, 'schema': {'properties': props, 'config': schema_config}}
+        graph = prepared['graph']
+        sample = graph.get('sample', {}).get('inputs', {})
+        schedule = graph.get('schedule', {}).get('inputs', {})
+        sampler = graph.get('sampler', {}).get('inputs', {})
+        return {'model': model, 'kind': kind, 'local': True, 'available': True,
+                'weightBinding': prepared['models'],
+                'sampling': {'sampler': sample.get('sampler_name', sampler.get('sampler_name')),
+                             'steps': sample.get('steps', schedule.get('steps')),
+                             **({'turboSteps': 8} if kind == 'video' and turbo and self.video_profile != 'base' else {})},
+                'schema': {'properties': props, 'config': schema_config}}
 
     def build(self, data, media, request_id):
         config = data['config']

@@ -165,7 +165,11 @@ class AdmissionTests(unittest.IsolatedAsyncioTestCase):
                 async def validate(self,*_args):pass
                 async def enqueue(self,*_args,**_kwargs):raise AssertionError('capability must not queue')
             provider=NativeProvider('video',inventory=Inventory(bindings,lambda:set()),queue=Host(),media_input=lambda _:None)
-            props=(await provider.capabilities(VIDEO_MODEL))['schema']['properties']
+            cap=await provider.capabilities(VIDEO_MODEL)
+            props=cap['schema']['properties']
+            self.assertEqual(cap['weightBinding']['diffusion_models']['name'], 'diffusion_models')
+            self.assertNotIn('path', json.dumps(cap['weightBinding']))
+            self.assertEqual(cap['sampling'], {'sampler':'res_multistep','steps':20})
             self.assertEqual([props['width']['default'],props['height']['default'],props['duration']['default']],[512,288,2])
             self.assertFalse(props['turbo']['default']);self.assertEqual(props['width']['displayName'],'宽度')
             provider.inventory.bindings['loras']={**bindings['video_vae'],'name':'turbo'}

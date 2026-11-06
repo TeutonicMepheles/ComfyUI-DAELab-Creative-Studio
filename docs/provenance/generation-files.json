@@ -320,7 +320,7 @@
     },
     {
       "destination": "backend/providers/native.py",
-      "destinationSha256": "5c8c8ec027a51380951b17be20ae7db7801059261f810f6972a6d2e6386674b5",
+      "destinationSha256": "9f9e37363ff8de3d6b6d580cb848c6ae39782f55b46437181321b3c06611360d",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -671,7 +671,7 @@
     },
     {
       "destination": "tests/generation/test_native_and_admission.py",
-      "destinationSha256": "6c538845ed0f18ab228a35fd5269b7c3a70e1e5767d7fa346cc4298cfa640a27",
+      "destinationSha256": "a456a94e3ad6f26997a6d9b1620eb79a6a8dfec519a21b0d77bbce9fa7d50718",
       "kind": "offline-test-evidence",
       "source": null,
       "sourceSha256": null,
@@ -885,7 +885,7 @@
     },
     {
       "destination": "backend/providers/native_text.py",
-      "destinationSha256": "bb41cae49ce83ced6c553376e2ca2833ccb4f96d951a373b821886d46c54eeaf",
+      "destinationSha256": "79e2fcac913f432d0b02e9e1e1c3b1eee0d611d0f39189d0d6f11e52da53e41a",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -919,7 +919,7 @@
     },
     {
       "destination": "backend/providers/high_video.py",
-      "destinationSha256": "9d1649eda450675adbc463b4117f0bce856db307c7d259b050cc6dc24eab44f0",
+      "destinationSha256": "18d7eee13344c297235d98fdd31f4ed13e52012c3fe2cbc6e2e5f8e60d49b2e8",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,

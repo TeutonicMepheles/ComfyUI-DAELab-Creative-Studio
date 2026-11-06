@@ -1,3 +1,4 @@
+import {updateModelNote} from '../models/model_notes.js';
 // @ts-expect-error Shared ESM popover owns placement, scale, escape and cleanup.
 import {createSettingsPopover,promptSettingsStyle} from './table_prompt_settings.mjs';
 // @ts-expect-error Existing shared controls retain native button semantics.
@@ -27,7 +28,7 @@ export function createLLMModelPicker(select:HTMLSelectElement,{active=()=>true}:
   name.className='generation-prompt-setting-label';name.textContent=label(option?.textContent||'选择模型');badge.className='generation-model-source';badge.textContent=modelSourceBadge(entry||null);badge.dataset.source=modelSourceKind(entry||null);
   control.replaceChildren(name,badge);prependGenerationModelIcon(control,option?.value||'');
   if(entry?.checking){const spinner=document.createElement('span');spinner.className='generation-model-loading';spinner.textContent='◌';spinner.setAttribute('aria-label','正在检测此模型');control.append(spinner);}
-  control.title=modelOptionPresentation(entry).statusLabel;control.dataset.modelStatus=entry?.status||'unverified';
+  updateModelNote(control,entry);control.title=modelOptionPresentation(entry).statusLabel;control.dataset.modelStatus=entry?.status||'unverified';
  };
  function renderOptions(){
   if(!menu)return;const list=document.createElement('div');list.className='llm-model-options';list.setAttribute('role','listbox');list.setAttribute('aria-label','文本模型');
@@ -52,7 +53,7 @@ export function createLLMModelPicker(select:HTMLSelectElement,{active=()=>true}:
   (menu.root.querySelector<HTMLButtonElement>('[aria-selected=true]:not(:disabled)')||menu.root.querySelector<HTMLButtonElement>('button:not(:disabled)'))?.focus({preventScroll:true});
  }
  function sync(){
-  const next=JSON.stringify([select.value,select.disabled,options().map(option=>[option.value,option.textContent,option.disabled,catalog.get(option.value)?.status])]);
+  const next=JSON.stringify([select.value,select.disabled,options().map(option=>[option.value,option.textContent,option.disabled,catalog.get(option.value)?.status,catalog.get(option.value)?.capability])]);
   if(stamp!==next){stamp=next;const option=options().find(option=>option.value===select.value)||null;render(root,option);root.disabled=select.disabled;root.setAttribute('aria-label','选择文本模型，当前：'+label(option?.textContent||'未选择'));}
   if(menu&&!available())menu.close();else if(menu&&menuStamp!==next){menuStamp=next;renderOptions();}
  }
