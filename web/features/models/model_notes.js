@@ -42,17 +42,48 @@ export function modelNoteText(entry) {
     return lines.join('；');
 }
 let serial = 0;
-/** Inline notes expand in flow, so they cannot cover another option or intercept clicks. */
+const bound = new WeakSet();
+let current = null, popup = null, frame = 0;
+function hideNote() { cancelAnimationFrame(frame); popup?.remove(); popup = null; current = null; }
+function placeNote() {
+    if (!current?.isConnected || !popup) {
+        hideNote();
+        return;
+    }
+    const owner = current.closest('.generation-settings-popover') || current, r = owner.getBoundingClientRect();
+    const below = Math.max(0, innerHeight - r.bottom - 16), above = Math.max(0, r.top - 16), available = Math.max(below, above);
+    popup.style.width = Math.min(360, innerWidth - 16) + 'px';
+    popup.style.maxHeight = available + 'px';
+    popup.style.left = Math.max(8, Math.min(r.left, innerWidth - popup.offsetWidth - 8)) + 'px';
+    popup.style.top = (below >= popup.offsetHeight ? r.bottom + 8 : Math.max(8, r.top - popup.offsetHeight - 8)) + 'px';
+    frame = requestAnimationFrame(placeNote);
+}
+function showNote(control) {
+    const text = control.querySelector('.dae-model-note')?.textContent;
+    if (!text)
+        return;
+    hideNote();
+    current = control;
+    popup = document.createElement('small');
+    popup.className = 'dae-model-note-popup';
+    popup.textContent = text;
+    popup.setAttribute('aria-hidden', 'true');
+    document.body.append(popup);
+    placeNote();
+}
+/** Notes do not resize controls or their observed popovers, including focus-to-pointer transitions. */
 export function updateModelNote(control, entry) {
     if (!document.getElementById('dae-model-notes-style')) {
         const style = document.createElement('style');
         style.id = 'dae-model-notes-style';
-        style.textContent = '.dae-ui .dae-model-note-owner{flex-wrap:wrap!important}.dae-ui .dae-model-note{display:none;flex:0 0 100%;box-sizing:border-box;min-width:0;max-width:100%;white-space:normal;text-align:left;font:400 11px/1.45 sans-serif;color:var(--dae-text-muted,#aaa);overflow-wrap:anywhere;pointer-events:none}.dae-ui .dae-model-note-owner:is(:hover,:focus-visible)>small.dae-model-note{display:block}';
+        style.textContent = '.dae-model-note{position:absolute!important;width:1px!important;height:1px!important;clip-path:inset(50%);overflow:hidden;pointer-events:none}.dae-model-note-popup{position:fixed;z-index:2147483000;box-sizing:border-box;padding:8px 10px;border-radius:6px;background:var(--dae-surface,#262626);color:var(--dae-text-muted,#ccc);box-shadow:0 2px 8px #0006;white-space:normal;text-align:left;font:400 11px/1.45 sans-serif;overflow-wrap:anywhere;overflow:hidden;pointer-events:none}';
         document.head.append(style);
     }
     const text = modelNoteText(entry);
     let note = control.querySelector(':scope > .dae-model-note');
     if (!text) {
+        if (current === control)
+            hideNote();
         if (note && control.getAttribute('aria-describedby') === note.id)
             control.removeAttribute('aria-describedby');
         note?.remove();
@@ -68,4 +99,17 @@ export function updateModelNote(control, entry) {
     note.textContent = text;
     control.classList.add('dae-model-note-owner');
     control.setAttribute('aria-describedby', note.id);
+    if (!bound.has(control)) {
+        bound.add(control);
+        control.addEventListener('pointerenter', () => showNote(control));
+        control.addEventListener('focus', () => showNote(control));
+        control.addEventListener('pointerleave', () => { if (current === control && !control.matches(':focus-visible'))
+            hideNote(); });
+        control.addEventListener('blur', () => { if (current === control && !control.matches(':hover'))
+            hideNote(); });
+        control.addEventListener('keydown', event => { if (event.key === 'Escape' && current === control)
+            hideNote(); });
+    }
+    if (current === control && popup)
+        popup.textContent = text;
 }
