@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "77533bef2e4f6a98e15de21328cfab1b8a14c709eda153508a728f6d4c16dd77",
+  "specificationHash": "4a5ff7c6b025e8b0a646991eafd3499913c118a44240afdd6b06a92e84a8795d",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -7050,8 +7050,8 @@
       "feature": "F-BIZ-049",
       "task": "TASK-M4-FEATURES-TASKS",
       "owner": "features/tasks",
-      "requirement": "2026-11-04：表格接入生成节点后自动进入批量模式，节点显示“共 N 个任务”，N 为当前勾选行数；勾选变化即时更新，未勾选时不显示任务数或显示 0 并禁用提交。",
-      "requirementHash": "8d307bad3543218f4be07eff230f49a30255f5568a5c365a7f0915627079bc0e",
+      "requirement": "2026-11-06：表格接入生成节点后自动进入批量模式。节点顶部“当前列表 N 个任务”为当前勾选并同步入节点的行数（可含已完成/已中止，非“待提交”），“生成剩余 M 个任务”才按未有请求与结果的任务计。提交后任务按稳定行身份 + 批次/requestId 固定，取消勾选不删除已运行/已完成任务，同一行多次生成按批次区分；顶部任务数按当前勾选行计、不依赖回执时间戳，任务卡批次进度以最近一次提交为口径、其它批次的源行以“其它批次 N 行，已中止 K”明确列出，失败/中止/恢复/被过滤的行也明确对应、不静默丢；取消勾选后已提交任务从当前列表移除，仍通过只读“任务记录 N 行（归档 M）”可达（按源行分组展示当前及归档的已提交请求与保留结果，不覆盖后端全部历史）。勾选变化即时更新；未勾选时不显示任务数或显示 0 并禁用提交（沿用 2026-11-04）。任务卡为更矮的横向矩形控件，模型配置与生成按钮在默认 640×360 节点内常驻显示，不因任务卡挤占而滚动隐藏，长内容仅在正文区域内滚动。",
+      "requirementHash": "707457dfda30fd5bbb0ea0bf8498af1d1781ba6889b45b53c8c89f152935e8d8",
       "usecases": [
         "UC-BIZ-020"
       ],
@@ -12605,7 +12605,7 @@
         "EV-ARCH",
         "EV-JOBS"
       ],
-      "specificationHash": "1d3e2d3845736b2b9ceeccb8713e9b998881a55526a13398fc059933e1d62987",
+      "specificationHash": "df9d79864937aa8694b88cd22d36ccdfe6361d0825c9cec6c396ef5a4d145165",
       "assertions": [
         {
           "id": "AS-BIZ-057-001",
