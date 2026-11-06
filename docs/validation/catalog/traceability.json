@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "039122208883a5013b83379f5f98470cfc6fc038c7335a056cc750f902aad201",
+  "specificationHash": "420c3b79024662a5ede5db477fc9b92420a632217f0de003d04f4e46fbe193a1",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -5414,8 +5414,8 @@
       "feature": "F-BIZ-020",
       "task": "TASK-M3-FEATURES-STORYBOARD",
       "owner": "features/storyboard",
-      "requirement": "2026-11-06：DOCX 每个独立源表对应一个多维表格（章节），不再按有无章节标识或 10 行上限拆分，相邻源表不合并；章节标题取 Word 真实标题、缺失用可区分回退名（「章节 N」/「表 N」），相邻不重名。折叠或展开章节不改变行身份、勾选状态、来源与已生成结果。",
-      "requirementHash": "668a2c1c95d5a479e9f7b7264714e5edaae6f651155f9d0676e53df893cf5c48",
+      "requirement": "2026-11-06：DOCX 每个独立源表对应一个多维表格（章节），不再按有无章节标识或 10 行上限拆分，相邻源表不合并；表名取 Word 真实标题、缺失用可区分回退名（「章节 N」/「表 N」），相邻不重名。旧 ScriptParser 面板的章节标题条与折叠层级为历史展示，新的 DAELAB.Table 输出不含该呈现。",
+      "requirementHash": "884cefe2e26263d2e8f1c6d0b6d17a5e567b36484268e7f1a0c099e0ad5797c0",
       "usecases": [
         "UC-BIZ-003"
       ],
@@ -11294,7 +11294,7 @@
         "EV-DATA",
         "EV-JOBS"
       ],
-      "specificationHash": "645c667975eb6af679fb83a9eaedbd079d17f5e9844c274ab083f1c8591008e2",
+      "specificationHash": "59e88d158e351cfea2c1d60d2066e46646bfe186eebf46fde8a8c415350776e2",
       "assertions": [
         {
           "id": "AS-BIZ-023-001",
@@ -11332,7 +11332,7 @@
         "EV-DATA",
         "EV-JOBS"
       ],
-      "specificationHash": "19794ed99e77dccca1e52e2a202787684e00cb1565e2aa7ec83c9f4d9ba6888c",
+      "specificationHash": "121fcd688b682b894a5c8f6b32c0f8971aee9b7f6f6fc993d7919e2cad711c82",
       "assertions": [
         {
           "id": "AS-BIZ-024-001",
@@ -12676,7 +12676,7 @@
       "evals": [
         "EV-UI"
       ],
-      "specificationHash": "5185d05096c1adcafc53ce4f602d8a1993e941c3fdf59137c730dae274681f2f",
+      "specificationHash": "21dcaa1660a9b49e34821eaf143e25899b1ca745f6b89e7b7c43ab1befb5fb6d",
       "assertions": [
         {
           "id": "AS-BIZ-059-001",
