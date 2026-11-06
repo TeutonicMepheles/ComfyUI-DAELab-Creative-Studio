@@ -315,7 +315,7 @@ business:web/script_parser_panel.mjs
 business:nodes/daelab_comfytv_storyboard/script_contract.py","frontend/src/features/storyboard; frontend/src/application","M3","保留用户编辑与生成身份，导入作为一个可撤销事务。","重复导入不重复行；内容变更的新文档版本可追踪。
 读入期间表格变化、容量超限或类型冲突整次拒绝；活动任务期间不改写其输入快照。
 分镜解析导入默认四列（镜号/画面描述/画面参考/备注），画面描述初始为提示词列；单元格可原位编辑，撤销重做、保存重载，保留来源与修订保护。导入完成后该表按标准多维表格提供完整编辑（含增列、指定提示词列、列输出、拆出文本与单元格输出）。
-2026-11-04：有章节标识（Word 标题/章节层级）的文稿按章节拆表——一个章节一个多维表格，超过 10 行不切开，相邻章节不合并；无章节标识时每表最多 10 行，单个源表超 10 行切分、多个无标题源表各自独立且不跨表合并。折叠或展开章节不改变行身份、勾选状态、来源与已生成结果。","UC-BIZ-003","TC-BIZ-023 TC-BIZ-024 TC-BIZ-059"
+2026-11-06：DOCX 每个独立源表对应一个多维表格（章节），不再按有无章节标识或 10 行上限拆分，相邻源表不合并；章节标题取 Word 真实标题、缺失用可区分回退名（「章节 N」/「表 N」），相邻不重名。折叠或展开章节不改变行身份、勾选状态、来源与已生成结果。","UC-BIZ-003","TC-BIZ-023 TC-BIZ-024 TC-BIZ-059"
 "F-BIZ-021","既有通用文稿和表格文件导入","保留","源码已存在；既有入口接收 DOCX/XLSX/XLSM/CSV/TSV/TXT/MD/PDF，支持程度以解析器与夹具核定。","business:nodes/daelab_comfytv_storyboard/document_import.py
 business:web/data_table_nodes.mjs:111
 business:nodes/daelab_comfytv_storyboard/import_node.py","backend/storyboard; frontend/src/features/storyboard","M3","迁移现有可用格式，不把扩展名列表当所有复杂文档已通过。","逐格式提供正常、空、损坏和结构异常夹具并记录支持限制。
