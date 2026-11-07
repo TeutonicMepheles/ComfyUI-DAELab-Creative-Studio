@@ -39,13 +39,70 @@ def detect_conflicts(package_root: Path, custom_node_roots: list[Path]) -> list[
     return sorted(set(conflicts))
 
 
+def register_coexistence_self_check(server, arbitration):
+    """Run the node/route coexistence self-check once every custom node and
+    route is registered (aiohttp startup), failing closed on any mismatch.
+
+    The node check reads the global ``NODE_CLASS_MAPPINGS`` and compares each
+    contested class ``__module__`` against the arbitration owner; the route
+    check inspects the registered route table for a wildcard that would shadow
+    the prompt-optimization named actions. ``server._creative_studio_coexistence_check``
+    is also exposed for the isolated host harness to invoke deterministically.
+    """
+    from .coexistence import (
+        check_node_owners, check_prompt_optimization_routes, check_contested_routes,
+        CONTESTED_NODES,
+    )
+
+    def _collect_errors():
+        errors = []
+        try:
+            import nodes as _nodes
+            global_mappings = getattr(_nodes, "NODE_CLASS_MAPPINGS", {})
+        except ImportError:
+            global_mappings = {}
+        node_modules = {node_id: global_mappings[node_id].__module__
+                        for node_id in CONTESTED_NODES if node_id in global_mappings}
+        errors.extend(check_node_owners(node_modules, arbitration))
+        registered = [(route.method, route.path) for route in getattr(server, "routes", [])
+                      if hasattr(route, "method") and hasattr(route, "path")]
+        errors.extend(check_contested_routes(registered, arbitration))
+        errors.extend(check_prompt_optimization_routes(registered, arbitration))
+        return errors
+
+    async def _verify(_app):
+        errors = _collect_errors()
+        if errors:
+            raise RuntimeError("Creative Studio coexistence self-check failed: " + "; ".join(errors))
+
+    server._creative_studio_coexistence_check = _collect_errors
+    app = getattr(server, "app", None)
+    if app is not None:
+        app.on_startup.append(_verify)
+
+
 def assemble(entry_file: str):
     import folder_paths
+    from .coexistence import (
+        load_arbitration, validate_arbitration, filter_readonly_mappings,
+        authorized_legacy_packages,
+    )
     root = Path(entry_file).resolve().parent
+    user_directory = Path(folder_paths.get_user_directory())
+    arbitration = load_arbitration(user_directory)
     conflicts = detect_conflicts(root, [Path(p) for p in folder_paths.get_folder_paths("custom_nodes")])
     if conflicts:
-        paths = "; ".join(map(str, conflicts))
-        raise RuntimeError(f"Creative Studio refused duplicate ownership of DAELAB.MediaUpload, DAELAB.TextInput, DAELAB.MaterialGroup, DAELAB.VideoEdit and/or business node IDs. Disable conflicting packages first: {paths}")
+        if arbitration is None:
+            paths = "; ".join(map(str, conflicts))
+            raise RuntimeError(f"Creative Studio refused duplicate ownership of DAELAB.MediaUpload, DAELAB.TextInput, DAELAB.MaterialGroup, DAELAB.VideoEdit and/or business node IDs. Disable conflicting packages first: {paths}")
+        errors = validate_arbitration(arbitration)
+        if errors:
+            raise RuntimeError("coexistence.json is incomplete or inconsistent: " + "; ".join(errors))
+        allowed = authorized_legacy_packages(arbitration)
+        unauthorized = [path for path in conflicts if path.name not in allowed]
+        if unauthorized:
+            paths = "; ".join(map(str, unauthorized))
+            raise RuntimeError(f"Creative Studio refused coexistence: present package(s) are not authorized in coexistence.json: {paths}")
     from server import PromptServer
     from .diagnostics import register_diagnostics
     register_diagnostics(PromptServer.instance, root)
@@ -118,10 +175,15 @@ def assemble(entry_file: str):
         raise RuntimeError("Creative Studio internal generation node ownership overlaps")
     from ....compat.workflows import readonly_node_mappings
     compatibility_mappings = readonly_node_mappings()
+    if arbitration is not None:
+        compatibility_mappings = filter_readonly_mappings(compatibility_mappings, arbitration)
     if compatibility_mappings.keys() & (canvas_mappings.keys() | business_mappings.keys() | generation_mappings.keys()):
         raise RuntimeError("Creative Studio internal compatibility node ownership overlaps")
     compatibility_names = {key: key.rsplit('.', 1)[-1] + ' · 历史只读' for key in compatibility_mappings}
     PromptServer.instance._creative_studio_integrated = frozenset(integrated)
+    if arbitration is not None:
+        PromptServer.instance._creative_studio_coexistence = arbitration
+        register_coexistence_self_check(PromptServer.instance, arbitration)
     # The acceptance fixture is installed only by the isolated host harness.
     # No provider transport, worker, model process or generation is started here.
     return {**canvas_mappings, **business_mappings, **generation_mappings, **compatibility_mappings}, {**canvas_names, **business_names, **generation_names, **compatibility_names}
