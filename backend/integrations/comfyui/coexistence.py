@@ -241,3 +241,22 @@ def check_prompt_optimization_routes(registered_routes, arbitration: dict) -> li
         if len(matches) != 1:
             errors.append(f"{literal}: expected exactly one handler (owner {owner!r}), found {len(matches)}")
     return errors
+
+
+def check_contested_routes(registered_routes, arbitration: dict) -> list[str]:
+    """Fail-closed route self-check for the six literal contested routes.
+
+    Each ``routeOwners`` literal route must be registered exactly once; a
+    second literal registration means the legacy package did not yield its
+    route, and aiohttp would silently pick one handler by registration order.
+    """
+    errors = []
+    owners = _normalize_route_owners(arbitration.get("routeOwners", {}))
+    registered = list(registered_routes)
+    for key in sorted(CONTESTED_ROUTES):
+        method, path = key.split(" ", 1)
+        expected = owners.get(key)
+        matches = [p for (m, p) in registered if m == method and p == path]
+        if len(matches) != 1:
+            errors.append(f"{key}: expected exactly one handler (owner {expected!r}), found {len(matches)}")
+    return errors

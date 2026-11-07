@@ -49,7 +49,10 @@ def register_coexistence_self_check(server, arbitration):
     the prompt-optimization named actions. ``server._creative_studio_coexistence_check``
     is also exposed for the isolated host harness to invoke deterministically.
     """
-    from .coexistence import check_node_owners, check_prompt_optimization_routes, CONTESTED_NODES
+    from .coexistence import (
+        check_node_owners, check_prompt_optimization_routes, check_contested_routes,
+        CONTESTED_NODES,
+    )
 
     def _collect_errors():
         errors = []
@@ -63,6 +66,7 @@ def register_coexistence_self_check(server, arbitration):
         errors.extend(check_node_owners(node_modules, arbitration))
         registered = [(route.method, route.path) for route in getattr(server, "routes", [])
                       if hasattr(route, "method") and hasattr(route, "path")]
+        errors.extend(check_contested_routes(registered, arbitration))
         errors.extend(check_prompt_optimization_routes(registered, arbitration))
         return errors
 

@@ -196,6 +196,27 @@ class RouteSelfCheckTests(unittest.TestCase):
         self.assertTrue(any("expected exactly one handler" in error for error in errors))
 
 
+class ContestedRouteSelfCheckTests(unittest.TestCase):
+    def _literal_routes(self):
+        return [tuple(key.split(" ", 1)) for key in coexistence.CONTESTED_ROUTES]
+
+    def test_each_literal_route_registered_once_passes(self):
+        routes = self._literal_routes()
+        self.assertEqual(coexistence.check_contested_routes(routes, valid_arbitration()), [])
+
+    def test_duplicate_literal_route_fails(self):
+        routes = self._literal_routes()
+        routes.append(("POST", "/daelab/storyboard/parse-prompts"))
+        errors = coexistence.check_contested_routes(routes, valid_arbitration())
+        self.assertEqual(len(errors), 1)
+        self.assertIn("parse-prompts", errors[0])
+
+    def test_missing_literal_route_fails(self):
+        routes = [tuple(key.split(" ", 1)) for key in coexistence.CONTESTED_ROUTES][:-1]
+        errors = coexistence.check_contested_routes(routes, valid_arbitration())
+        self.assertTrue(any("expected exactly one handler" in error for error in errors))
+
+
 class ExtensionOwnerSelfCheckTests(unittest.TestCase):
     def test_correct_owners_pass(self):
         sources = {
