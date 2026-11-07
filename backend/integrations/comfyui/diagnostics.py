@@ -75,7 +75,8 @@ class Diagnostics:
                 "configured": bool(getattr(generation, 'providers', {})),
                 "readinessVerified": False,
                 "reason": getattr(self.server, '_creative_studio_generation_configuration_error', None),
-            }})
+            },
+            "coexistence": getattr(self.server, "_creative_studio_coexistence", None)})
 
 
 def register_diagnostics(server, root: Path):
