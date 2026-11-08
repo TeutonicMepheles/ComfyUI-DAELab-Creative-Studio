@@ -149,6 +149,34 @@ class ModuleClassificationTests(unittest.TestCase):
     def test_unrelated_module_is_unknown(self):
         self.assertEqual(coexistence.classify_module("some.other.package"), "unknown")
 
+    def test_studio_full_path_module_is_classified_as_studio(self):
+        self.assertEqual(coexistence.classify_module(
+            r"B:\x\custom_nodes\ComfyUI-DAELab-Creative-Studio.backend.integrations.comfyui.business_nodes.approved_result"),
+            "studio")
+
+    def test_cnl_full_path_module_is_classified_as_cnl(self):
+        self.assertEqual(coexistence.classify_module(
+            r"B:\x\custom_nodes\ComfyUI-DAELab-Custom-Nodes-Library.nodes.daelab_comfytv_storyboard.node"),
+            "cnl")
+
+    def test_posix_full_path_module_is_classified(self):
+        self.assertEqual(coexistence.classify_module(
+            "/x/custom_nodes/ComfyUI-DAELab-Custom-Nodes-Library.nodes.daelab_comfytv_storyboard.node"),
+            "cnl")
+
+    def test_repo_checkout_path_is_not_classified_as_studio(self):
+        self.assertEqual(coexistence.classify_module(
+            r"B:\GithubProject\ComfyUI-DAELab-Creative-Studio\.local\reviewer-gap-final-b4992bb"),
+            "unknown")
+
+    def test_repo_root_tools_path_is_not_classified(self):
+        self.assertEqual(coexistence.classify_module(
+            r"B:\GithubProject\ComfyUI-DAELab-Creative-Studio\.local\tools\build.mjs"),
+            "unknown")
+
+    def test_empty_module_name_is_unknown(self):
+        self.assertEqual(coexistence.classify_module(""), "unknown")
+
 
 class NodeOwnerSelfCheckTests(unittest.TestCase):
     def test_correct_owners_pass(self):
