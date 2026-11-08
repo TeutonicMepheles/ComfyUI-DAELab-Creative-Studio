@@ -68,10 +68,20 @@ _CNL_PREFIX = "ComfyUI-DAELab-Custom-Nodes-Library"
 
 
 def classify_module(module_name: str) -> str:
-    """Map a registered class ``__module__`` to its owner package ID."""
-    if module_name == _STUDIO_PREFIX or module_name.startswith(_STUDIO_PREFIX + "."):
+    """Map a registered class ``__module__`` to its owner package ID.
+
+    ComfyUI exposes ``__module__`` either as a dotted name
+    (``ComfyUI-DAELab-Creative-Studio.backend…``) or, in this deployment, as a
+    full import path (``…\\custom_nodes\\ComfyUI-DAELab-Creative-Studio.backend…``).
+    Taking the last path segment's first dotted component recognises both forms
+    while structurally excluding a bare directory segment such as a repo
+    checkout path (``…\\PACKAGE\\.local\\…``), whose last segment is unrelated.
+    """
+    tail = module_name.replace("\\", "/").rsplit("/", 1)[-1]
+    component = tail.split(".", 1)[0]
+    if component == _STUDIO_PREFIX:
         return "studio"
-    if module_name == _CNL_PREFIX or module_name.startswith(_CNL_PREFIX + "."):
+    if component == _CNL_PREFIX:
         return "cnl"
     return "unknown"
 
