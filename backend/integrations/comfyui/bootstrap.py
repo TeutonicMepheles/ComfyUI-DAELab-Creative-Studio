@@ -106,6 +106,8 @@ def assemble(entry_file: str):
     from server import PromptServer
     from .diagnostics import register_diagnostics
     register_diagnostics(PromptServer.instance, root)
+    from .model_scan import register_model_scan
+    register_model_scan(PromptServer.instance, root)
     from .services import register_core_services
     from ...contracts.errors import StorageError
     services = None
