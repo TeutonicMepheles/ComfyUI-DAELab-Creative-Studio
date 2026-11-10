@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "4b1c0b2baaa037c4ceb1e10dc04c91c39e0ad708830d3227808df948aac3ffdb",
+  "sourceFingerprint": "0c66f08f41a25e8146c8fd2d0dedace71d72ee574683b7d6eb36f52fab6a7f3b",
   "files": [
     {
       "path": "AGENTS.md",
@@ -639,6 +639,14 @@
       "sha256": "d7e658d234f258d17e7128f4ed85282af03eb18970233dbca42a2f84c9918400"
     },
     {
+      "path": "features/models/model_scan_api.mjs",
+      "sha256": "917fd40d438598175b4c1d378e1c2084a24ec9271a9ba81e670f4e4e2341bcd3"
+    },
+    {
+      "path": "features/models/model_scan_ui.mjs",
+      "sha256": "40bddf6f4b4ef2867e872f9490d83929d2b0fcec27b5e496a43a46ca967c9028"
+    },
+    {
       "path": "features/models/source_badge.js",
       "sha256": "ae3ab50fff20bfabed604217ec3e94dc588a621a98e31b5f72d843ca1dcdee5e"
     },
@@ -664,7 +672,7 @@
     },
     {
       "path": "features/prompt/llm_model_picker.js",
-      "sha256": "460ab274e0291cda2dab46d74d44ee6399580c5c590b2ba7e7522586d384a765"
+      "sha256": "0f28bc4eefe421bbfe8186395b68de65be56a1cca44b89cb21d04c1da9b4f372"
     },
     {
       "path": "features/prompt/llm_slot_model.mjs",
@@ -1208,7 +1216,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "dc14ca90f9a416adf1718c3b18b9c9aea1a302643f78d73c20ccf2305febc1ab"
+      "sha256": "47373643dd1bdc2e65781138b5b1c7b8643e0683a180868bb72db96ca82b763c"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

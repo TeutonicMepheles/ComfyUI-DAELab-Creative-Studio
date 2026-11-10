@@ -10,6 +10,8 @@ import { getModelCatalog } from '../models/model_catalog.mjs';
 import { modelSourceBadge, modelSourceKind } from '../models/source_badge.js';
 // @ts-expect-error Existing model status presentation sanitizes provider errors.
 import { modelOptionPresentation } from '../models/model_catalog_ui.mjs';
+// @ts-expect-error Manual model scan is self-contained and cleans up on dispose.
+import { createModelScanButton } from '../models/model_scan_ui.mjs';
 const label = (value) => value.replace(/（(?:本地|Comfy|来源未知)）\s*(?:◌)?$/, '').replace(/\s*◌$/, '').trim();
 /** The native select remains the business value/event owner; only its view changes. */
 export function createLLMModelPicker(select, { active = () => true } = {}) {
@@ -20,7 +22,7 @@ export function createLLMModelPicker(select, { active = () => true } = {}) {
         document.head.append(style);
     }
     const catalog = getModelCatalog();
-    let menu = null, stamp = '', menuStamp = '', disposed = false;
+    let menu = null, stamp = '', menuStamp = '', disposed = false, scanControl = null, scanFooter = null;
     const root = createTableButton('', () => { if (menu)
         menu.close();
     else
@@ -81,14 +83,23 @@ export function createLLMModelPicker(select, { active = () => true } = {}) {
         }
         menu.root.querySelector('.llm-model-options')?.remove();
         menu.root.append(list);
+        if (scanFooter)
+            menu.root.append(scanFooter);
         menu.reposition();
     }
     function open() {
         if (!available())
             return;
-        menu = createSettingsPopover(root, '模型', () => { menu = null; menuStamp = ''; }, { placement: 'above' });
+        menu = createSettingsPopover(root, '模型', () => { scanControl?.dispose(); scanControl = null; scanFooter = null; menu = null; menuStamp = ''; }, { placement: 'above' });
         menu.root.classList.add('generation-model-popover');
         renderOptions();
+        const control = createModelScanButton({ active: () => available() });
+        scanControl = control;
+        scanFooter = document.createElement('div');
+        scanFooter.className = 'llm-model-scan';
+        scanFooter.append(control.root);
+        menu.root.append(scanFooter);
+        menu.reposition();
         menu.root.addEventListener('keydown', event => {
             if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key))
                 return;
