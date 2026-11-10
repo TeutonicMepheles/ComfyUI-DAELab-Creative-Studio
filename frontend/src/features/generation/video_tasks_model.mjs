@@ -26,7 +26,7 @@ export function videoTaskHistoryRows(state){
 }
 export function taskConfig(config={},promptFieldId){
  if(config.model&&config.kind)return {...structuredClone(config),promptFieldId};
- return {version:1,kind:'video',model:LOCAL_VIDEO_MODEL,promptFieldId,mode:'text2video',settings:{width:512,height:288,duration:2,turbo:true,seed:-1}};
+ return {version:1,kind:'video',model:LOCAL_VIDEO_MODEL,promptFieldId,mode:'text2video',settings:{width:512,height:288,duration:2,turbo:false,seed:-1}};
 }
 
 export function familyTaskConfig(config,promptFieldId,kind=null,fallback=null){

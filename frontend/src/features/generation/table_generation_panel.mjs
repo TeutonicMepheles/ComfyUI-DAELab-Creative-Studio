@@ -335,7 +335,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
   closeSettings();closeFrames();closePromptSources();
   const table=getTable(),prompt=findField(fieldId);if(!anchor||!prompt||promptSourceId(table)!==fieldId)return;
   const owner=promptGenerationOwner(table,fieldId),baseline=JSON.stringify([owner?.id,owner?.generation,owner?.generationConfigRevision]);
-  const draft=structuredClone(owner?.generation||{version:1,kind:'video',model:LOCAL_VIDEO_MODEL,promptFieldId:fieldId,mode:'text2video',settings:{width:512,height:288,duration:2,turbo:true,seed:-1}});
+  const draft=structuredClone(owner?.generation||{version:1,kind:'video',model:LOCAL_VIDEO_MODEL,promptFieldId:fieldId,mode:'text2video',settings:{width:512,height:288,duration:2,turbo:false,seed:-1}});
   const frameColumns={...owner?.generationFrameColumns};
   let parameterView=null;
   let stopModelStatus=()=>{},stopProbeRetry=()=>{};

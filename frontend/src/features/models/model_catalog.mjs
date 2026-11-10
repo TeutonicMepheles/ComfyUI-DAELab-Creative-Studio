@@ -18,8 +18,6 @@ export const GENERATION_MODEL_DEFINITIONS=Object.freeze([
     {id:'Seedance 2.0 Fast',label:'Seedance 2.0 Fast',family:'generation',kind:'video',provider:'comfy'},
     {id:'Seedance 2.0 Mini',label:'Seedance 2.0 Mini',family:'generation',kind:'video',provider:'comfy'},
     {id:'Minimax H3',label:'Minimax H3',family:'generation',kind:'video',provider:'comfy'},
-    {id:'MiniMax H3 FL（本地）',label:'MiniMax H3 FL（本地）',family:'generation',kind:'video',provider:'local'},
-    {id:'MiniMax H3 Ref（本地）',label:'MiniMax H3 Ref（本地）',family:'generation',kind:'video',provider:'local'},
     {id:'MiniMax H3 FL 低配（本地）',label:'MiniMax H3 FL 低配（本地）',family:'generation',kind:'video',provider:'local'},
     {id:'MiniMax H3 Ref 低配（本地）',label:'MiniMax H3 Ref 低配（本地）',family:'generation',kind:'video',provider:'local'},
     {id:'MiniMax H3 FL 高配（本地）',label:'MiniMax H3 FL 高配（本地）',family:'generation',kind:'video',provider:'local'},

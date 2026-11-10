@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "f886584c9d21f090b8490ade2290df9b58bddf84a511474e5c5d05da5c4b17d3",
+  "sourceFingerprint": "53f149b1eda2e74949d2a3bc37c1abba19d8b3f334b7e5ca4bd23c2d13b1c109",
   "files": [
     {
       "path": "AGENTS.md",
@@ -564,7 +564,7 @@
     },
     {
       "path": "features/generation/table_generation_panel.mjs",
-      "sha256": "20b32d05fb08d863e00089a79d22e54e918e25ef730b516ea490b495e9957589"
+      "sha256": "c5f859041fad472251602849c384a9b70ffda7433c76e5e8a81df5f973c062db"
     },
     {
       "path": "features/generation/table_generation_tasks.mjs",
@@ -592,7 +592,7 @@
     },
     {
       "path": "features/generation/video_tasks_model.mjs",
-      "sha256": "e0e718630bb8c0083646fd3dd1b7769e6f0a4de213fcc2837adc450c3279fd6a"
+      "sha256": "7c6b8809370303522407761543ce0c77a0aa0729bdc0b04f847a5709c8452f5d"
     },
     {
       "path": "features/generation/video_tasks_panel.mjs",
@@ -628,7 +628,7 @@
     },
     {
       "path": "features/models/model_catalog.mjs",
-      "sha256": "99608214dcea4abcb714b070f2fa10a6c591fb35d8ed36da6a68e60835f0ea10"
+      "sha256": "2f3857fb1daced0cccb7c3f074287b7c5ace3e416d148d152bf99ae1b985bdce"
     },
     {
       "path": "features/models/model_catalog_ui.mjs",
@@ -644,7 +644,7 @@
     },
     {
       "path": "features/models/model_scan_ui.mjs",
-      "sha256": "2ee4a50d3d25fc35e4c51f3c90c041c3813f2c8ada5701b8878037803a636e42"
+      "sha256": "b9a053dae5655f471f7fe89f427017cb2c137ad3fa3043f3827715a34f7a9ec0"
     },
     {
       "path": "features/models/source_badge.js",
@@ -1216,7 +1216,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "8369af4254fb0e21c5e79e3dbf856883f2d63e02be8a6aa7c64dd45fbc9e0cc2"
+      "sha256": "02ef0a9267a3b95443a97f5724dd972a58315280591e089cfce40729011d62ad"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

@@ -5,7 +5,7 @@ from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 import unittest
 
-from backend.providers.high_video import HighVideoProvider, HIGH_VIDEO_MODEL, HIGH_REFERENCE_VIDEO_MODEL, FLEX_SIGMAS
+from backend.providers.high_video import FlexVideoProvider, HIGH_VIDEO_MODEL, HIGH_REFERENCE_VIDEO_MODEL, FLEX_SIGMAS
 from backend.providers.native import ModelInventory, NativeProvider
 from backend.providers.parameters import VIDEO_MODEL, VIDEO_FILES
 from backend.providers.contracts import ProviderUnavailable
@@ -30,7 +30,7 @@ class HighVideoTests(unittest.IsolatedAsyncioTestCase):
                 'segments':[{'type':'text','text':'Keep each reference subject.'}]}
 
     def provider(self, reference=False, items=None):
-        return HighVideoProvider(reference=reference,inventory=ModelInventory(items or bindings(reference),lambda:[]),
+        return FlexVideoProvider(reference=reference,inventory=ModelInventory(items or bindings(reference),lambda:[]),
                                  queue=None,media_input=lambda item:item['name'])
 
     def test_flex_is_required_and_connected_to_official_lcm_manual_sigma_path(self):

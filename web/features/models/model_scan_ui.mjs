@@ -9,12 +9,10 @@ import { createSettingsPopover } from '../prompt/table_prompt_settings.mjs';
 import { createTableButton } from '../../ui/table_controls.mjs';
 import { scanModels, applyModels, getGenerationFileReport } from './model_scan_api.mjs';
 
-/** Family → display name, locked by Product (10 local model families). */
+/** Family → display name, locked by Product (local model families). */
 const FAMILY_LABEL = Object.freeze({
   image: 'Qwen-Image-2.1 Turbo（本地）',
   image_base: 'Qwen-Image-2.1（本地）',
-  video: 'MiniMax H3 FL（本地）',
-  video_reference: 'MiniMax H3 Ref（本地）',
   video_base: 'MiniMax H3 FL 低配（本地）',
   video_reference_base: 'MiniMax H3 Ref 低配（本地）',
   video_high: 'MiniMax H3 FL 高配（本地）',
@@ -40,7 +38,7 @@ const el = (tag, cls, text) => {
   return node;
 };
 
-const FILE_STATUS = {missing: '缺少', wrongSize: '大小不符', ambiguous: '存在同名文件', pathMismatch: '配置路径不符', unconfigured: '尚未配置'};
+const FILE_STATUS = {missing: '缺少', wrongComponent: '配置与档位不符，需使用', wrongSize: '大小不符', ambiguous: '存在同名文件', pathMismatch: '配置路径不符', unconfigured: '尚未配置'};
 
 export function generationFileReport(kind) {
   const root = el('details', 'generation-file-report');

@@ -48,8 +48,8 @@ def read_configuration(user_directory):
                  "video": {"diffusion_models", "text_encoders", "video_vae", "audio_vae", "loras"}}
     permitted['image_base'] = permitted['image'] - {'mmproj'}
     permitted['video_reference'] = permitted['video'] - {'loras'}
-    permitted['video_base'] = permitted['video'] - {'loras'}
-    permitted['video_reference_base'] = permitted['video'] - {'loras'}
+    permitted['video_base'] = permitted['video']
+    permitted['video_reference_base'] = permitted['video']
     permitted['text_pe'] = {'text_encoders'}
     permitted['text_27b'] = {'text_encoders'}
     permitted['video_high'] = permitted['video']

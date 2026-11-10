@@ -110,7 +110,7 @@ def match_installed_families(folder_paths, config):
             key: ({**item, "bytes": sizes[item["sha256"]]} if item["sha256"] in sizes else item)
             for key, item in items.items()
         }
-    missing = [entry for entry in entries if entry["family"] not in bindings]
+    missing = [entry for entry in entries if entry["category"] not in bindings.get(entry["family"], {})]
     candidates = discover(folder_paths, missing)
     families = {}
     incomplete = set()
@@ -121,7 +121,9 @@ def match_installed_families(folder_paths, config):
             incomplete.add(family)
             continue
         families.setdefault(family, {})[category] = {**found[0], "sha256": entry["sha256"]}
-    bindings.update((family, items) for family, items in families.items() if family not in incomplete)
+    for family, items in families.items():
+        if family not in incomplete:
+            bindings.setdefault(family, {}).update(items)
     if not bindings:
         return config
     defaults = config or {"qwenBinding": None, "resourceLock": _default_resource_lock(folder_paths.get_user_directory())}
@@ -145,7 +147,7 @@ def generation_file_report(folder_paths, kind, config):
     """Report the installed components of the generation menu's local profiles."""
     entries = [e for e in load_manifest() if e["family"].split("_")[0] == kind]
     bindings = config["modelBindings"] if config else {}
-    candidates = discover(folder_paths, [e for e in entries if e["family"] not in bindings])
+    candidates = discover(folder_paths, [e for e in entries if e["category"] not in bindings.get(e["family"], {})])
     expected_sizes = {e["sha256"]: e["bytes"] for e in entries}
     # Explicit stacks can also require an optional accelerator LoRA.
     catalog_keys = {(e["family"], e["category"]) for e in entries}
@@ -159,10 +161,11 @@ def generation_file_report(folder_paths, kind, config):
         directory = CATEGORY_DIR.get(key, key)
         files = profiles.setdefault(family, [])
         name = entry["name"]
-        if family in bindings:
-            item = bindings[family].get(key)
-            status = "unconfigured"
-            if item is not None:
+        item = bindings.get(family, {}).get(key)
+        if item is not None:
+            if kind == "video" and family in {"video_base", "video_high", "video_reference_base", "video_reference_high"} and _basename(item["name"]) != name:
+                status = "wrongComponent"
+            else:
                 name = item["name"]
                 status = _configured_file_status(folder_paths, directory, item, expected_sizes)
         else:
