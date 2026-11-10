@@ -66,6 +66,9 @@ export const promptSettingsStyle=`
 
 .dae-ui .generation-model-source{flex:none;display:inline-flex;align-items:center;border-radius:999px;padding:2px 7px;font-size:11px;line-height:1.4;background:color-mix(in srgb,var(--dae-text) 12%,transparent);color:var(--dae-text-muted);white-space:nowrap}
 .dae-ui .generation-model-source[hidden]{display:none}
+.dae-ui.generation-model-popover .generation-file-report{margin-top:6px;padding-top:8px;border-top:1px solid var(--dae-border-control);color:var(--dae-text-muted);font-size:12px}
+.dae-ui.generation-model-popover .generation-file-report summary{cursor:pointer}
+.dae-ui.generation-model-popover .generation-file-profile{padding:6px 0;overflow-wrap:anywhere}
 
 .dae-ui.generation-settings-popover .generation-model-icon{display:block;flex:0 0 20px;width:20px;height:20px;background:currentColor;mask:var(--table-icon) center/contain no-repeat}
 .dae-ui.generation-settings-popover.generation-parameters-popover{width:400px;gap:0;padding:18px;border-radius:20px}

@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from backend.integrations.comfyui.model_scan import discover, match, suggest, confirm, _hash_file, match_installed_families
+from backend.integrations.comfyui.model_scan import discover, match, suggest, confirm, _hash_file, match_installed_families, generation_file_report
 from backend.providers.native import ModelInventory
 from backend.providers.contracts import ProviderUnavailable
 
@@ -29,6 +29,27 @@ class FakeFolderPaths:
 
 
 class ModelScanDiscoveryTests(unittest.TestCase):
+    def test_generation_menu_checks_only_supported_local_files_in_its_mode(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            model = root / 'model.safetensors'
+            model.write_bytes(b'123')
+            folder = FakeFolderPaths({'diffusion_models': {name: (str(model), 3) for name in (model.name, 'unrelated.bin')}})
+            entry = dict(family='video', category='diffusion_models', name=model.name, bytes=3, sha256=_sha(b'123'))
+            entries = [entry, dict(entry, family='image'), dict(entry, family='text_pe'),
+                       dict(entry, family='video_high', bytes=4), dict(entry, family='video_high', category='video_vae', name='missing.safetensors')]
+            with patch('backend.integrations.comfyui.model_scan.load_manifest', return_value=entries):
+                report = generation_file_report(folder, 'video', None)
+                self.assertEqual(set(report), {'video', 'video_high'})
+                self.assertEqual(report['video'][0]['status'], 'found')
+                self.assertEqual([item['status'] for item in report['video_high']], ['wrongSize', 'missing'])
+                self.assertEqual(report['video_high'][1]['category'], 'vae')
+                folder._files['diffusion_models']['sub/' + model.name] = (str(model), 3)
+                self.assertEqual(generation_file_report(folder, 'video', None)['video'][0]['status'], 'ambiguous')
+                explicit = {'modelBindings': {'video': {'diffusion_models': {'name': model.name, 'path': str(root/'old'), 'sha256': entry['sha256']},
+                                                        'loras': {'name': 'extra.safetensors', 'path': str(root/'extra.safetensors'), 'sha256': 'a'*64}}}}
+                self.assertEqual([item['status'] for item in generation_file_report(folder, 'video', explicit)['video']], ['pathMismatch', 'missing'])
+
     def test_automatic_match_is_portable_and_only_hashes_on_submission(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

@@ -40,6 +40,44 @@ const el = (tag, cls, text) => {
   return node;
 };
 
+const FILE_STATUS = {missing: '缺少', wrongSize: '大小不符', ambiguous: '存在同名文件', pathMismatch: '配置路径不符', unconfigured: '尚未配置'};
+
+export function generationFileReport(kind) {
+  const root = el('details', 'generation-file-report');
+  const summary = el('summary', '', '正在检查本机模型文件…');
+  root.append(summary);
+  const controller = new AbortController();
+  async function load() {
+    try {
+      const response = await fetch('/daelab/studio/model-files?kind=' + encodeURIComponent(kind), {
+        signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15000)]),
+      });
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const {profiles} = await response.json();
+      if (controller.signal.aborted) return;
+      const entries = Object.entries(profiles);
+      let complete = 0;
+      for (const [family, files] of entries) {
+        const issues = files.filter(file => file.status !== 'found');
+        if (!issues.length) complete++;
+        const label = (FAMILY_LABEL[family] || family).replace('（本地）', '');
+        const group = el('div', 'generation-file-profile');
+        group.append(el('strong', '', label + (issues.length ? ' · 待处理 ' + issues.length + ' 项' : ' · 文件齐全')));
+        for (const file of issues) {
+          group.append(el('div', '', (FILE_STATUS[file.status] || file.status) + ' · ' + file.category + '/' + file.name));
+        }
+        root.append(group);
+      }
+      summary.textContent = '本机模型文件 · ' + complete + '/' + entries.length + ' 组齐全';
+      root.open = complete < entries.length;
+    } catch (error) {
+      if (!controller.signal.aborted) summary.textContent = '读取本机模型目录失败，重新打开菜单可重试';
+    }
+  }
+  void load();
+  return {root, dispose: () => controller.abort()};
+}
+
 function describeFamily(item) {
   const family = FAMILY_LABEL[item.family] || item.family;
   const category = CATEGORY_LABEL[item.category] || item.category;

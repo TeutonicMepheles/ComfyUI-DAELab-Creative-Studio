@@ -1,4 +1,5 @@
 import {updateModelNote} from '../models/model_notes.js';
+import {generationFileReport} from '../models/model_scan_ui.mjs';
 import {abovePopoverLayout} from '../prompt/settings_popover_layout.js';
 import {modelSourceBadge,modelSourceKind} from '../models/source_badge.js';
 import {FIELD_TYPES} from '../../application/table_model.mjs';
@@ -187,7 +188,7 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
   if(settingsMenu?.anchor===anchor){closeSettings();return;}closeSettings();closeFrames();closePromptSources();
   const combined=key==='parameters',spec=combined?{label:'生成参数'}:PROMPT_SETTINGS_TEMPLATE.find(item=>item.key===key),field=findField(fieldId),row=()=>getTable().records.find(r=>r.id===recordId);if(!spec||!field||!row())return;
   const currentConfig=()=>frameConfig(fieldId,row());
-  let parameterView=null,stopProbe=()=>{};
+  let parameterView=null,stopProbe=()=>{},fileReport=null;
   const menu=createSettingsPopover(anchor,key==='duration'?'选择视频时长':spec.label,()=>{stopProbe();parameterView?.dispose?.();parameterView=null;if(settingsMenu===menu)settingsMenu=null;},{placement:'above'});settingsMenu=menu;
   if(combined)menu.root.classList.add('generation-parameters-popover');if(key==='model')menu.root.classList.add('generation-model-popover');
   const content=el('div',menu.root),status=el('p',menu.root);if(key==='size'||key==='duration')content.className='generation-settings-fields';status.setAttribute('role','status');
@@ -230,7 +231,8 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
   const retryProbe=button('\u91cd\u65b0\u68c0\u6d4b',()=>{});status.after(retryProbe);
   const retryBinding=bindModelProbeRetry(retryProbe,{catalog:modelCatalog,getModel:()=>draft.model,active,retry:async()=>{await modelCatalog.retry(draft.model,{active});if(active()&&modelCatalog.get(draft.model)?.available){menu.close();void chooseSetting(fieldId,recordId,key,anchor);}}});
   const stopChoices=modelCatalog.subscribe(()=>{if(!active())return;for(const control of content.querySelectorAll('[data-model-id]')){const entry=modelCatalog.get(control.dataset.modelId);control.disabled=entry?.status==='unavailable'||entry?.checking;updateModelNote(control,entry);control.title=modelOptionPresentation(entry).statusLabel;const label=control.querySelector('[data-probe-retry-label]');if(label)label.hidden=entry?.status!=='unknown';let spinner=control.querySelector('.generation-model-loading');if(entry?.checking&&!spinner){spinner=el('span',control,'\u25cc');spinner.className='generation-model-loading';spinner.setAttribute('role','status');spinner.setAttribute('aria-label','\u6b63\u5728\u68c0\u6d4b\u6b64\u6a21\u578b');}else if(!entry?.checking)spinner?.remove();control.setAttribute('data-model-status',entry?.status||'unverified');}if(modelCatalog.get(draft.model)?.status==='unknown')status.textContent=modelOptionPresentation(modelCatalog.get(draft.model)).statusLabel;else if(schemaError&&!busy&&modelCatalog.get(draft.model)?.available){schemaError='';menu.close();void chooseSetting(fieldId,recordId,key,anchor);}});
-  stopProbe=()=>{retryBinding();stopChoices();};
+  stopProbe=()=>{retryBinding();stopChoices();fileReport?.dispose();};
+  if(key==='model'){fileReport=generationFileReport(draft.kind);menu.root.append(fileReport.root);}
   if(key==='attempts'){choices(Array.from({length:MAX_GENERATION_ATTEMPTS},(_,index)=>[index+1,`${index+1} 次`]),generationAttempts(draft),(next,id)=>{next.attempts=id;},false);return;}
   if(key==='kind')choices([['video','视频生成'],['image','图片生成']].filter(([id])=>kinds.includes(id)),draft.kind,(next,id)=>{next.kind=id;next.model=generationModelIDs(id)[0];next.mode='';next.settings={};});
   else if(key==='model')choices(generationModelIDs(draft.kind).map(name=>[name,generationModelLabel(name)]),draft.model,(next,id)=>{next.model=id;if(next.kind==='video'&&typeof next.settings.duration==='number')next.settings.duration=Math.min(next.settings.duration,isLocalVideoModel(id)?15:30);});

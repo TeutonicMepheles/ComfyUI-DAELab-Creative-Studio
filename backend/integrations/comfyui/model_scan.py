@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import asyncio
 import json
 from pathlib import Path
 
@@ -125,6 +126,56 @@ def match_installed_families(folder_paths, config):
         return config
     defaults = config or {"qwenBinding": None, "resourceLock": _default_resource_lock(folder_paths.get_user_directory())}
     return {**defaults, "modelBindings": bindings}
+
+
+def _configured_file_status(folder_paths, directory, item, expected_sizes):
+    resolved = folder_paths.get_full_path(directory, item["name"])
+    if not resolved:
+        return "missing"
+    if Path(resolved).resolve() != Path(item["path"]).resolve():
+        return "pathMismatch"
+    try:
+        size = Path(resolved).stat().st_size
+    except OSError:
+        return "missing"
+    return "found" if expected_sizes.get(item["sha256"], size) == size else "wrongSize"
+
+
+def generation_file_report(folder_paths, kind, config):
+    """Report the installed components of the generation menu's local profiles."""
+    entries = [e for e in load_manifest() if e["family"].split("_")[0] == kind]
+    bindings = config["modelBindings"] if config else {}
+    candidates = discover(folder_paths, [e for e in entries if e["family"] not in bindings])
+    expected_sizes = {e["sha256"]: e["bytes"] for e in entries}
+    # Explicit stacks can also require an optional accelerator LoRA.
+    catalog_keys = {(e["family"], e["category"]) for e in entries}
+    for family in {e["family"] for e in entries}:
+        for key, item in bindings.get(family, {}).items():
+            if (family, key) not in catalog_keys:
+                entries.append({"family": family, "category": key, "name": item["name"]})
+    profiles = {}
+    for entry in entries:
+        family, key = entry["family"], entry["category"]
+        directory = CATEGORY_DIR.get(key, key)
+        files = profiles.setdefault(family, [])
+        name = entry["name"]
+        if family in bindings:
+            item = bindings[family].get(key)
+            status = "unconfigured"
+            if item is not None:
+                name = item["name"]
+                status = _configured_file_status(folder_paths, directory, item, expected_sizes)
+        else:
+            found = candidates[family, key]
+            if not found:
+                status = "missing"
+            elif len(found) > 1:
+                status = "ambiguous"
+            else:
+                name = found[0]["name"]
+                status = "found" if found[0]["bytes"] == entry["bytes"] else "wrongSize"
+        files.append({"category": directory, "name": name, "status": status})
+    return profiles
 
 
 def _hash_file(path: Path) -> str:
@@ -258,8 +309,21 @@ class ModelScan:
         self.server = server
         self.root = root
         self.folder_paths = folder_paths
-        self.routes = (("POST", "/daelab/studio/scan-models", self.scan),
+        self.routes = (("GET", "/daelab/studio/model-files", self.files),
+                       ("POST", "/daelab/studio/scan-models", self.scan),
                        ("POST", "/daelab/studio/apply-models", self.apply))
+
+    async def files(self, request):
+        from aiohttp import web
+        kind = request.query.get("kind")
+        if kind not in {"image", "video"}:
+            return web.json_response({"error": "请选择图片或视频生成模式。"}, status=400)
+        try:
+            config = read_existing(self.folder_paths.get_user_directory())
+            profiles = await asyncio.to_thread(generation_file_report, self.folder_paths, kind, config)
+        except (OSError, TypeError, ValueError) as error:
+            return web.json_response({"error": str(error)}, status=500)
+        return web.json_response({"profiles": profiles}, headers={"Cache-Control": "no-store"})
 
     async def scan(self, request):
         from aiohttp import web
