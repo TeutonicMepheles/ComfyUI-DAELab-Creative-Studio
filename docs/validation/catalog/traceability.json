@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "9a75166b515d3ba427ebff22ea40a67c182967f92e99765933c772c654872f25",
+  "specificationHash": "02b07d94b0a8b2700f2b954fc8025dc696e42a76547507b3c632ffd1a45e9334",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -7695,8 +7695,8 @@
       "feature": "F-SYS-022",
       "task": "TASK-M4-BACKEND-PROVIDERS",
       "owner": "backend/providers",
-      "requirement": "2026-11-10：手动「扫描模型」按已知模型清单哈希反查生成 local-generation.json。清单逐档位（family）记录 category/name/bytes/sha256；扫描按 native.py:85 目录映射枚举、先按文件名+大小筛候选、对每个文件算一次 sha256 并复用到引用它的绑定；命中填绝对路径，同名异哈希标冲突交人裁决（改用时同时写 path 与该文件真实 sha256 并提示量化/版本变化），未命中报缺失；结果写完整 schemaVersion:1 的 suggested.json（从现有配置合并 schemaVersion/enabled/resourceLock/qwenBinding，新机器生成最小完整配置）供人确认后原样替换；不自动启动 Ollama、不下载、不替换量化；确认后重启生效。",
-      "requirementHash": "a6fb0ec5f2c6e8975c82df6f136a6d797c7ce3648ff6f3e1ea873034920b5ecc",
+      "requirement": "2026-11-10：手动『扫描模型』按已知模型清单哈希反查生成 local-generation.json。清单逐档位（family）记录 category/name/bytes/sha256；扫描按 native.py:85 目录映射枚举、按文件名（保留子目录前缀的原始串）筛候选——bytes 仅用于报告与冲突判断、不淘汰候选，避免换量化/版本被误报为缺失——对每个文件算一次 sha256 并复用到引用它的绑定；命中填绝对路径，同名异大小或异哈希标 conflict 交人裁决（改用时同时写 path 与该文件真实 sha256 并提示量化/版本变化），未命中报缺失；suggested.json 预览只含确定命中、完整 schemaVersion:1（从现有配置合并 schemaVersion/enabled/resourceLock/qwenBinding，新机器生成最小完整配置）；确认时按扫描结果与勾选的冲突重新生成并直接写入 local-generation.json、不读回预览；不自动启动 Ollama、不下载、不替换量化；确认后重启生效。",
+      "requirementHash": "f1469ac0d5037326d324a3322f62dca2c3b22118b683cae3fc50434cc98fade6",
       "usecases": [
         "UC-SYS-012",
         "UC-SYS-013",
@@ -14216,7 +14216,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "f467fdbeb6b3a2a4dec3c5836bc1d07665209b69d7f3e80f78e8c87c2937c3c0",
+      "specificationHash": "be19bafaca7de4f9c9c73d9caf15f00be9b6b03567e63974b00cc470f7e773a4",
       "assertions": [
         {
           "id": "AS-SYS-037-001",
@@ -14285,7 +14285,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "3abd989f138190044c55723a7ac6f46f9993f1dd8957bb7b05ebcd1a55842fa2",
+      "specificationHash": "3e9bff930d1d4722a14a6b2f11f4666405e29a5bd993cfb62b5144112657caf6",
       "assertions": [
         {
           "id": "AS-SYS-039-001",
