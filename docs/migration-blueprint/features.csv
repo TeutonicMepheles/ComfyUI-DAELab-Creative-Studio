@@ -507,7 +507,8 @@ business:web/llm_io_model.mjs","backend/providers; frontend/src/features/generat
 生成节点、LLM 优化节点和多维表格消费同一只读目录投影。
 已保存逻辑模型缺失时保持原 ID 并标为不可用，不静默换成其他模型。2026-11-04 起移除 DeepSeek 云 API 文本通道；Comfy 工作区积分的文本模型（如 GPT-6 Luna）保留，本地 Qwen 仍是默认文本模型。
 2026-11-04：模型名后短胶囊从目录读取本地/API实际路由；开源/闭源须有明示模型信息，无依据时省略该属性。同名不同路由正确区分，不靠名称猜测，不改变可用性、模型ID或费用，不复制升级/VIP文案。 本地采用青绿、API采用蓝紫主题色，列表与触发项一致且保留文字，不只靠颜色辨认。
-2026-11-04：移除 DeepSeek 云 API 文本通道。模型目录、模型列表、能力快照与健康诊断不再出现 DeepSeek 行、密钥字段或连接状态；已保存工作流引用 DeepSeek 模型时保留原 ID 并标为不可用，不静默换成 Qwen 或其他模型，不改写用户配置；宿主残留的旧密钥不被读取，也不写入工作流、任务快照、账本、日志或诊断导出。本次只移除 DeepSeek 独立密钥通道，Comfy 积分文本模型（GPT-6 Luna，走官方 OpenAIChatNode / Partner Responses，不读 OpenAI 密钥）与图片/视频云能力保持不变。","UC-SYS-012 UC-SYS-013","TC-SYS-037"
+2026-11-04：移除 DeepSeek 云 API 文本通道。模型目录、模型列表、能力快照与健康诊断不再出现 DeepSeek 行、密钥字段或连接状态；已保存工作流引用 DeepSeek 模型时保留原 ID 并标为不可用，不静默换成 Qwen 或其他模型，不改写用户配置；宿主残留的旧密钥不被读取，也不写入工作流、任务快照、账本、日志或诊断导出。本次只移除 DeepSeek 独立密钥通道，Comfy 积分文本模型（GPT-6 Luna，走官方 OpenAIChatNode / Partner Responses，不读 OpenAI 密钥）与图片/视频云能力保持不变。
+2026-11-10：手动「扫描模型」按已知模型清单哈希反查生成 local-generation.json。清单逐档位（family）记录 category/name/bytes/sha256；扫描按 native.py:85 目录映射枚举、先按文件名+大小筛候选、对每个文件算一次 sha256 并复用到引用它的绑定；命中填绝对路径，同名异哈希标冲突交人裁决（改用时同时写 path 与该文件真实 sha256 并提示量化/版本变化），未命中报缺失；结果写完整 schemaVersion:1 的 suggested.json（从现有配置合并 schemaVersion/enabled/resourceLock/qwenBinding，新机器生成最小完整配置）供人确认后原样替换；不自动启动 Ollama、不下载、不替换量化；确认后重启生效。","UC-SYS-012 UC-SYS-013 UC-SYS-014","TC-SYS-037 TC-SYS-039"
 "F-SYS-023","模型选项的隐式可用性状态","重构","现有控件可能显示不可用原因，未统一可选、检测中、待验证和不可用状态。","business:web/llm_io_model.mjs","frontend/src/ui; frontend/src/features/generation; frontend/src/features/prompt","M4","不可用置灰禁用，检测中显示加载圆环，可用保持默认；检测原因只写结构化日志，不出现在菜单、节点或 Toast。","选项只表达可选、检测中、待验证或不可用；不展示底层检测错误文本。
 不可用项禁用且可访问名称包含不可用状态；检测中显示加载指示。
 原因仅写入结构化日志，不进入菜单、节点正文或 Toast。","UC-SYS-013","TC-SYS-038"

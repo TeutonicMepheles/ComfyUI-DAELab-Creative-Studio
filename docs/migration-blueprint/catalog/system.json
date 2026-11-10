@@ -423,14 +423,16 @@
         "生成节点、LLM 优化节点和多维表格消费同一只读目录投影。",
         "已保存逻辑模型缺失时保持原 ID 并标为不可用，不静默换成其他模型。2026-11-04 起移除 DeepSeek 云 API 文本通道；Comfy 工作区积分的文本模型（如 GPT-6 Luna）保留，本地 Qwen 仍是默认文本模型。",
         "2026-11-04：模型名后短胶囊从目录读取本地/API实际路由；开源/闭源须有明示模型信息，无依据时省略该属性。同名不同路由正确区分，不靠名称猜测，不改变可用性、模型ID或费用，不复制升级/VIP文案。 本地采用青绿、API采用蓝紫主题色，列表与触发项一致且保留文字，不只靠颜色辨认。",
-        "2026-11-04：移除 DeepSeek 云 API 文本通道。模型目录、模型列表、能力快照与健康诊断不再出现 DeepSeek 行、密钥字段或连接状态；已保存工作流引用 DeepSeek 模型时保留原 ID 并标为不可用，不静默换成 Qwen 或其他模型，不改写用户配置；宿主残留的旧密钥不被读取，也不写入工作流、任务快照、账本、日志或诊断导出。本次只移除 DeepSeek 独立密钥通道，Comfy 积分文本模型（GPT-6 Luna，走官方 OpenAIChatNode / Partner Responses，不读 OpenAI 密钥）与图片/视频云能力保持不变。"
+        "2026-11-04：移除 DeepSeek 云 API 文本通道。模型目录、模型列表、能力快照与健康诊断不再出现 DeepSeek 行、密钥字段或连接状态；已保存工作流引用 DeepSeek 模型时保留原 ID 并标为不可用，不静默换成 Qwen 或其他模型，不改写用户配置；宿主残留的旧密钥不被读取，也不写入工作流、任务快照、账本、日志或诊断导出。本次只移除 DeepSeek 独立密钥通道，Comfy 积分文本模型（GPT-6 Luna，走官方 OpenAIChatNode / Partner Responses，不读 OpenAI 密钥）与图片/视频云能力保持不变。",
+        "2026-11-10：手动「扫描模型」按已知模型清单哈希反查生成 local-generation.json。清单逐档位（family）记录 category/name/bytes/sha256；扫描按 native.py:85 目录映射枚举、先按文件名+大小筛候选、对每个文件算一次 sha256 并复用到引用它的绑定；命中填绝对路径，同名异哈希标冲突交人裁决（改用时同时写 path 与该文件真实 sha256 并提示量化/版本变化），未命中报缺失；结果写完整 schemaVersion:1 的 suggested.json（从现有配置合并 schemaVersion/enabled/resourceLock/qwenBinding，新机器生成最小完整配置）供人确认后原样替换；不自动启动 Ollama、不下载、不替换量化；确认后重启生效。"
       ],
       "acceptance_ids": [
         "AC-SYS-022-001",
         "AC-SYS-022-002",
         "AC-SYS-022-003",
         "AC-SYS-022-004",
-        "AC-SYS-022-005"
+        "AC-SYS-022-005",
+        "AC-SYS-022-006"
       ]
     },
     {
@@ -827,6 +829,32 @@
       ],
       "exceptions": [
         "屏幕阅读器名称包含禁用或忙碌状态。"
+      ]
+    },
+    {
+      "id": "UC-SYS-014",
+      "title": "手动扫描模型生成本地生成配置",
+      "features": [
+        "F-SYS-022"
+      ],
+      "actor": "创作者",
+      "preconditions": [
+        "本机 ComfyUI 模型目录已放好权重；本地生成配置存在或缺失。",
+        "已发布受支持模型清单（family/category/name/bytes/sha256）。"
+      ],
+      "steps": [
+        "在设置/模型管理点「扫描模型」。",
+        "查看三类结果：命中、同名异哈希、未找到。",
+        "对冲突项决定是否改用，然后「确认应用」或取消。"
+      ],
+      "outcomes": [
+        "命中项填入该机绝对路径；冲突项按裁决写 path 与真实 sha256；未找到项保持缺失。",
+        "确认后生成完整 schemaVersion:1 的 local-generation.json；重启后本地模型灰→可选。",
+        "取消不改变原配置。"
+      ],
+      "exceptions": [
+        "换量化/改名/微调的文件哈希不命中，标冲突交人裁决，不自动当可用。",
+        "节点缺失（如 CLIPLoaderGGUF）单独报，不归扫描处理。"
       ]
     }
   ],
@@ -2057,6 +2085,37 @@
         "菜单和 Toast 不含底层检测错误；原因仅在日志。"
       ],
       "automation": "混合",
+      "execution_policy": "不付费",
+      "existing_coverage": []
+    },
+    {
+      "id": "TC-SYS-039",
+      "title": "扫描模型哈希反查生成配置",
+      "features": [
+        "F-SYS-022"
+      ],
+      "usecases": [
+        "UC-SYS-014"
+      ],
+      "level": "contract",
+      "priority": "P0",
+      "phase": "M4",
+      "fixture": "合成模型清单（含命中/同名异哈希/缺失三类）+ 合成模型文件。",
+      "setup": [
+        "不启动真实 Ollama；禁止任何真实云端 HTTP。",
+        "扫描只读 ComfyUI 模型目录、按文件算一次哈希并复用。"
+      ],
+      "steps": [
+        "触发扫描，核对三类结果。",
+        "对冲突项确认改用。",
+        "确认应用，重启（或重新检测）后核对可用性。"
+      ],
+      "expected": [
+        "命中项填正确绝对路径；冲突项写 path 与该文件真实 sha256；缺失项报缺失。",
+        "suggested.json 为完整 schemaVersion:1，从现有配置合并 resourceLock/qwenBinding；新机器生成最小完整配置。",
+        "确认后 read_configuration() 通过；不自动启动 Ollama、不下载、不换量化。"
+      ],
+      "automation": "自动",
       "execution_policy": "不付费",
       "existing_coverage": []
     }
