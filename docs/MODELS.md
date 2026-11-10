@@ -24,7 +24,7 @@ Qwen 使用本机 Ollama 回环接口 `127.0.0.1:11434`。注册清单、已安�
 
 模型权重与每台机器的运行配置不随本仓库或 CC 安装包分发：
 
-- **CC 安装包**（`Creative-Studio-local-test-*.zip`，约 17 MB / 382 文件）只含 `custom_nodes` 下的节点包，不含 ComfyUI 本体、torch、模型权重，也不含每台机器的 `local-generation.json`。
+- **CC 安装包**（`Creative-Studio-local-test-*.zip`，约 17 MB）只含 `custom_nodes` 下的节点包，不含 ComfyUI 本体、torch、模型权重，也不含每台机器的 `local-generation.json`。
 - **离线整包**（`D:\ShipComfy`，338.69 GiB / 45,568 文件）含全量模型权重与便携 Ollama，已全量校验（缺失 0、不匹配 0）。以 `--models-directory <SHIP>\03-models\ComfyUI\models` 让 ComfyUI 直接引用硬盘上的模型，不必搬运。
 
 工作流 JSON 只保存稳定的逻辑模型 ID，不写机器路径或文件哈希，可跨机器复制；接收方装好 CC 包即可打开编辑，生成则需自备权重与配置。
