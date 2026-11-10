@@ -1,4 +1,4 @@
-"""Explicit host-local model configuration. No discovery, model startup or download."""
+"""Compose explicit and manifest-matched model bindings for this ComfyUI host."""
 from __future__ import annotations
 
 import json
@@ -12,6 +12,7 @@ from ...providers.qwen_binding import QwenModelBinding
 from ...providers.comfy_video import SeedanceProvider, MinimaxProvider
 from ...providers.comfy_image import ComfyImageProvider
 from .comfy_video import ComfyVideoQueue, stage_seedance_input
+from .model_scan import CONFIG_FILENAME, match_installed_families
 
 SHA = re.compile(r"^[a-f0-9]{64}$")
 
@@ -110,7 +111,10 @@ def create_host_queue(server):
 
 
 def assemble_host_generation(server, core, folder_paths, *, native_queue=None):
-    config = read_configuration(folder_paths.get_user_directory())
+    user_directory = folder_paths.get_user_directory()
+    config = read_configuration(user_directory)
+    if config is not None or not (Path(user_directory) / "daelab/creative-studio" / CONFIG_FILENAME).exists():
+        config = match_installed_families(folder_paths, config)
     import nodes
     from .generation_nodes.native_host import install_native_admission
     async def release_native_models():

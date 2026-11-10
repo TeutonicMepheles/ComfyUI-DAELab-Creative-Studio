@@ -1,16 +1,4 @@
-"""Assisted local model configuration: manual scan + hash reverse-lookup + human confirm.
-
-The host never discovers or downloads models on its own. This module only turns
-a *known* model manifest (``family/category/name/bytes/sha256``, one entry per
-supported model × quantization) and a manual scan of ComfyUI's model
-directories into a *suggested* ``local-generation.json``. Nothing is applied
-until the user confirms, and nothing is ever matched by filename alone: a
-file's identity is its content hash, so a same-name-but-different-hash file is
-surfaced as a conflict for a human to decide.
-
-The manifest lives next to this module (``model_manifest.json``) and carries no
-machine paths. Scanning only fills the missing ``path`` back in.
-"""
+"""Match manifest stacks in memory at startup. Manual SHA-256 scans can persist explicit bindings."""
 from __future__ import annotations
 
 import hashlib
@@ -87,13 +75,17 @@ def discover(folder_paths, entries: list[dict]) -> dict:
     that must be surfaced as a conflict, not silently treated as missing.
     """
     candidates: dict[tuple[str, str], list[dict]] = {}
+    names_by_directory = {}
     for entry in entries:
         key = (entry["family"], entry["category"])
         directory = CATEGORY_DIR.get(entry["category"], entry["category"])
         found: list[dict] = []
-        for name in folder_paths.get_filename_list(directory):
-            if _basename(name) != entry["name"]:
-                continue
+        if directory not in names_by_directory:
+            names = {}
+            for name in folder_paths.get_filename_list(directory):
+                names.setdefault(_basename(name), []).append(name)
+            names_by_directory[directory] = names
+        for name in names_by_directory[directory].get(entry["name"], []):
             full = folder_paths.get_full_path(directory, name)
             if not full:
                 continue
@@ -105,6 +97,34 @@ def discover(folder_paths, entries: list[dict]) -> dict:
             found.append({"name": name, "path": str(path), "bytes": size})
         candidates[key] = found
     return candidates
+
+
+def match_installed_families(folder_paths, config):
+    """Resolve complete manifest stacks for this host. Preflight verifies their content."""
+    entries = load_manifest()
+    bindings = dict(config["modelBindings"]) if config else {}
+    sizes = {entry["sha256"]: entry["bytes"] for entry in entries}
+    for family, items in list(bindings.items()):
+        bindings[family] = {
+            key: ({**item, "bytes": sizes[item["sha256"]]} if item["sha256"] in sizes else item)
+            for key, item in items.items()
+        }
+    missing = [entry for entry in entries if entry["family"] not in bindings]
+    candidates = discover(folder_paths, missing)
+    families = {}
+    incomplete = set()
+    for entry in missing:
+        family, category = entry["family"], entry["category"]
+        found = candidates[family, category]
+        if len(found) != 1 or found[0]["bytes"] != entry["bytes"]:
+            incomplete.add(family)
+            continue
+        families.setdefault(family, {})[category] = {**found[0], "sha256": entry["sha256"]}
+    bindings.update((family, items) for family, items in families.items() if family not in incomplete)
+    if not bindings:
+        return config
+    defaults = config or {"qwenBinding": None, "resourceLock": _default_resource_lock(folder_paths.get_user_directory())}
+    return {**defaults, "modelBindings": bindings}
 
 
 def _hash_file(path: Path) -> str:

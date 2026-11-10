@@ -5,7 +5,9 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from backend.integrations.comfyui.model_scan import discover, match, suggest, confirm, _hash_file
+from backend.integrations.comfyui.model_scan import discover, match, suggest, confirm, _hash_file, match_installed_families
+from backend.providers.native import ModelInventory
+from backend.providers.contracts import ProviderUnavailable
 
 
 def _sha(b: bytes) -> str:
@@ -27,6 +29,29 @@ class FakeFolderPaths:
 
 
 class ModelScanDiscoveryTests(unittest.TestCase):
+    def test_automatic_match_is_portable_and_only_hashes_on_submission(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            model = root / 'model.safetensors'
+            model.write_bytes(b'xxxx')
+            folder = FakeFolderPaths({'diffusion_models': {'sub/model.safetensors': (str(model), 4)}})
+            folder.get_user_directory = lambda: root
+            entry = dict(family='video', category='diffusion_models', name=model.name, bytes=4, sha256=_sha(b'good'))
+            missing = dict(entry, family='video_high', category='loras', name='missing.safetensors')
+            with patch('backend.integrations.comfyui.model_scan.load_manifest', return_value=[entry, dict(entry, family='video_high'), missing]):
+                config = match_installed_families(folder, None)
+                self.assertEqual(set(config['modelBindings']), {'video'})
+                stack = config['modelBindings']['video']
+                self.assertEqual(stack['diffusion_models']['name'], 'sub/model.safetensors')
+                inventory = ModelInventory(stack, lambda: {}, folder.get_full_path)
+                models = inventory.descriptions(stack)
+                with patch('backend.providers.native._verify_shared', side_effect=AssertionError('preview must not hash')):
+                    inventory.check_available(models, {})
+                with self.assertRaises(ProviderUnavailable):
+                    inventory.verify(models, {})
+                folder._files['diffusion_models']['other/model.safetensors'] = (str(model), 4)
+                self.assertIsNone(match_installed_families(folder, None))
+
     def test_maps_categories_and_matches_by_name(self):
         root = Path(tempfile.mkdtemp(prefix='model-scan-'))
         diffusion = root / 'diffusion.safetensors'

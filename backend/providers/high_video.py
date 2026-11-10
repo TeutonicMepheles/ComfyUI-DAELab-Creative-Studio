@@ -1,5 +1,6 @@
 """Separate BF16/Flex profiles following the official Pika native graph."""
 import hashlib
+from pathlib import PureWindowsPath
 import uuid
 
 from .native import NativeProvider
@@ -34,7 +35,7 @@ class HighVideoProvider(NativeProvider):
                     'text_encoders': 'qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors',
                     'audio_vae': 'minimax_h3_audio_vae_fp32.safetensors'}
         for key, name in required.items():
-            if models[key]['name'] != name:
+            if PureWindowsPath(models[key]['name']).name != name:
                 raise ProviderUnavailable('High profile requires its matching BF16/Flex component: ' + name)
         names = {key: info['name'] for key, info in models.items()}
         staged = [{**item, 'native_input': self.media_input(item)} for item in media]

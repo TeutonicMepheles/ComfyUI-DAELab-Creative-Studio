@@ -62,7 +62,7 @@ class NativeTextProvider(NativeProvider):
             raise ProviderUnavailable('Missing native node: TextGenerate')
         models = self.inventory.descriptions(['text_encoders'])
         graph = self._graph(models, 'Capability validation only.')
-        await asyncio.to_thread(self.inventory.verify, models, graph)
+        await asyncio.to_thread(self.inventory.check_available, models, graph)
         await self.queue.validate('pe-capability-probe', graph)
         return {'model': self.model, 'provider': 'local', 'kind': 'text', 'local': True, 'available': True,
                 'weightBinding': models, 'maxOutputTokens': PE_LIMIT, 'modes': ['reverse'], 'requiresReference': True}

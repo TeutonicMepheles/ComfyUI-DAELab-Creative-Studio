@@ -71,6 +71,15 @@ class ModelInventory:
         return {key: {k: self.bindings[key][k] for k in ('name', 'sha256')} for key in keys}
 
     def verify(self, models, graph):
+        self._check(models, graph, preview=False)
+
+    def check_available(self, models, graph):
+        if any("bytes" in binding for binding in self.bindings.values()):
+            self._check(models, graph, preview=True)
+        else:
+            self.verify(models, graph)
+
+    def _check(self, models, graph, *, preview):
         missing = sorted({n['class_type'] for n in graph.values()} - set(self.node_types()))
         if missing:
             raise ProviderUnavailable('Missing native nodes: ' + ', '.join(missing))
@@ -87,6 +96,10 @@ class ModelInventory:
                 if not resolved or Path(resolved).resolve() != path.resolve():
                     raise ProviderUnavailable('Native model resolution differs from the pinned file: ' + key)
             stat = path.stat()
+            if "bytes" in binding and binding["bytes"] != stat.st_size:
+                raise ProviderUnavailable('Local model size differs from the fixed stack: ' + expected['name'])
+            if preview:
+                continue
             stamp = (str(path.resolve()), stat.st_size, stat.st_mtime_ns, expected['sha256'])
             if self._verified.get(key) == stamp:
                 continue
@@ -132,7 +145,8 @@ class NativeProvider:
         data = {'config': {'model': model, 'kind': kind, 'mode': 'text2image' if kind == 'image' else 'text2video', 'settings': settings}, 'segments': [{'type': 'text', 'text': 'Capability validation only; no execution.'}]}
         # Validate loaders and the reference node without staging synthetic media.
         prepared = await asyncio.to_thread(self._prepare, data, [], 'capability-probe')
-        await self.preflight({'prepared': prepared, 'media': []})
+        await asyncio.to_thread(self.inventory.check_available, prepared['models'], prepared['graph'])
+        await self.queue.validate(prepared['native_task_id'], prepared['graph'])
         props = {'width': {'type': 'integer', 'displayName': '宽度', 'default': settings['width'], 'min': 256 if kind == 'image' else 32, 'max': 2048 if kind == 'image' else 16384, 'step': 32},
                  'height': {'type': 'integer', 'displayName': '高度', 'default': settings['height'], 'min': 256 if kind == 'image' else 32, 'max': 2048 if kind == 'image' else 16384, 'step': 32},
                  'seed': {'type': 'integer', 'displayName': '种子（-1 为随机）', 'default': -1, 'min': -1, 'max': 9007199254740991},
@@ -144,7 +158,7 @@ class NativeProvider:
         if kind == 'video':
             turbo = not self.reference and 'loras' in self.inventory.bindings
             if turbo:
-                await asyncio.to_thread(self.inventory.verify, self.inventory.descriptions(['loras']), {'turbo': {'class_type': 'LoraLoaderModelOnly'}})
+                await asyncio.to_thread(self.inventory.check_available, self.inventory.descriptions(['loras']), {'turbo': {'class_type': 'LoraLoaderModelOnly'}})
             props.update(duration={'type': 'number', 'displayName': '时长（秒）', 'default': 2, 'min': .2, 'max': 15}, turbo={'type': 'boolean', 'displayName': '启用 8 步加速', 'default': turbo})
             if self.reference:
                 del props['turbo']

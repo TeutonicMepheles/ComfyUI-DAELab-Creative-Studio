@@ -2,7 +2,7 @@
 
 表格编辑不需要模型。本仓库的真实模型验收限定为 `qwen3.5:9b-q4_K_M`、Qwen-Image-2.1 Turbo 和 MiniMax H3 FL / Ref；不自动下载替代模型，不以云端回退验证本次重构。界面列出其他配置项不代表本环境已经具备执行能力。
 
-宿主从其 **user 目录**下的 `daelab/creative-studio/local-generation.json` 读取显式配置。文件缺失或 `enabled=false` 时不装配本地生成。配置字段的权威实现是 [local_generation.py](../backend/integrations/comfyui/local_generation.py)：
+宿主从其 **user 目录**下的 `daelab/creative-studio/local-generation.json` 读取显式配置。未配置的档位按 ComfyUI 的模型目录自动匹配，已有档位沿用显式绑定。`enabled=false` 关闭本地生成。配置字段的权威实现是 [local_generation.py](../backend/integrations/comfyui/local_generation.py)：
 
 | 字段 | 要求 |
 | --- | --- |
@@ -29,7 +29,7 @@ Qwen 使用本机 Ollama 回环接口 `127.0.0.1:11434`。注册清单、已安�
 
 工作流 JSON 只保存稳定的逻辑模型 ID，不写机器路径或文件哈希，可跨机器复制；接收方装好 CC 包即可打开编辑，生成则需自备权重与配置。
 
-每台新机器的 `local-generation.json` 必须各自生成一次，三条来源：
+接收方安装支持自动匹配的 Studio 后，将 MiniMax 主权重放在 `diffusion_models`、编码器放在 `text_encoders`、音频和视频 VAE 放在 `vae`、Flex 适配器放在 `loras`，重启即可按本机路径识别。自动匹配要求每个组件有唯一的同名候选且大小符合清单，整组齐全后才登记。匹配结果保存在内存中。需要显式指定模型时，可以通过以下方式生成配置：
 
 1. 设置界面「扫描模型」按官方模型清单哈希反查生成（需宿主带此功能；清单见 [model_manifest.json](../backend/integrations/comfyui/model_manifest.json)，条目为 family/category/name/bytes/sha256，不含任何本机路径）；
 2. 以现有配置为模板改路径：每条 `path` 改为该机绝对路径、`resourceLock` 改为该机 `.lock` 路径（`qwenBinding` 的 `manifestPath`/`installedManifestPath`/`blobsRoot` 同步）；`sha256` 是文件内容指纹、不是路径——文件相同则沿用原值，仅换量化/重新下载导致字节变化才重算（`certutil -hashfile <file> SHA256` 去空格转小写）；`manifestSha256` 与各绑定 `bytes` 是清单属性，不要动；
@@ -39,7 +39,7 @@ Qwen 使用本机 Ollama 回环接口 `127.0.0.1:11434`。注册清单、已安�
 
 配置读取、能力查询和界面设置不等于推理验收。当前本地模型执行记录、首失败和未覆盖项见 [验证状态](validation/STATUS.md)。
 
-本地文生图使用 Qwen-Image-2.1 Turbo；文生视频、首帧与首尾帧使用 MiniMax H3 FL；1–9 张图片参考使用独立的 MiniMax H3 Ref。Ref 的图片顺序保留为 `<Picture N>` 编号，当前不接入视频或音频参考。生成节点与多维表格共用这些提供方和任务服务。权重格式与名称来自显式绑定，不自动切换量化版本；图片 GGUF 编码器需要已安装的 `CLIPLoaderGGUF` 节点及匹配的 mmproj 文件。首次能力查询会校验模型文件哈希，界面最多等待 120 秒。
+本地文生图使用 Qwen-Image-2.1 Turbo；文生视频、首帧与首尾帧使用 MiniMax H3 FL；1–9 张图片参考使用独立的 MiniMax H3 Ref。Ref 的图片顺序保留为 `<Picture N>` 编号，当前不接入视频或音频参考。生成节点与多维表格共用这些提供方和任务服务。权重格式与名称来自显式绑定，不自动切换量化版本；图片 GGUF 编码器需要已安装的 `CLIPLoaderGGUF` 节点及匹配的 mmproj 文件。清单档位查询时检查文件信息、节点及原生工作流，实际提交前核对权重 SHA-256。
 
 ## LLM 优化
 
