@@ -143,20 +143,22 @@ def match(candidates: dict, entries: list[dict]) -> tuple[list[dict], list[dict]
         if not found:
             missing.append({"family": entry["family"], "category": entry["category"], "name": entry["name"]})
             continue
-        candidate = found[0]
-        actual = hashes.get(candidate["path"])
+        # When several same-name files exist, prefer the one whose content hash
+        # matches; otherwise fall back to the first for the conflict report.
+        chosen = next((candidate for candidate in found if hashes.get(candidate["path"]) == entry["sha256"]), found[0])
+        actual = hashes.get(chosen["path"])
         if actual is None:
             missing.append({"family": entry["family"], "category": entry["category"], "name": entry["name"]})
             continue
         if actual == entry["sha256"]:
             hits.append({"family": entry["family"], "category": entry["category"],
-                         "name": candidate["name"], "path": candidate["path"], "sha256": entry["sha256"]})
+                         "name": chosen["name"], "path": chosen["path"], "sha256": entry["sha256"]})
         else:
             conflicts.append({"family": entry["family"], "category": entry["category"],
-                              "name": candidate["name"], "path": candidate["path"],
+                              "name": chosen["name"], "path": chosen["path"],
                               "expectedSha256": entry["sha256"], "actualSha256": actual,
-                              "expectedBytes": entry["bytes"], "actualBytes": candidate["bytes"],
-                              "sizeMismatch": candidate["bytes"] != entry["bytes"]})
+                              "expectedBytes": entry["bytes"], "actualBytes": chosen["bytes"],
+                              "sizeMismatch": chosen["bytes"] != entry["bytes"]})
     return hits, conflicts, missing
 
 
@@ -275,7 +277,7 @@ class ModelScan:
             body = {}
         adopt = body.get("adoptConflicts") if isinstance(body, dict) else None
         if adopt is not None and (not isinstance(adopt, list) or not all(isinstance(item, dict) and item.get("family") and item.get("category") for item in adopt)):
-            return web.json_response({"schemaVersion": 1, "error": "adoptConflicts 必须是包含 family/category 的对象数组。"}, status=400)
+            return web.json_response({"schemaVersion": 1, "error": "确认的冲突项列表格式无效，每项需包含 family 与 category。"}, status=400)
         adopted = []
         if adopt:
             chosen = {(item["family"], item["category"]) for item in adopt}

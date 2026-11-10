@@ -123,6 +123,28 @@ class ModelScanMatchTests(unittest.TestCase):
         self.assertEqual(len(hits), 2)
         self.assertEqual(hasher.call_count, 1)
 
+    def test_multiple_same_name_files_prefer_the_hash_match(self):
+        root = Path(tempfile.mkdtemp(prefix='model-scan-'))
+        (root / 'a').mkdir(); (root / 'b').mkdir()
+        good = root / 'a' / 'model.safetensors'; good.write_bytes(b'correct')
+        wrong = root / 'b' / 'model.safetensors'; wrong.write_bytes(b'wrong-content')
+        folder = FakeFolderPaths({
+            'diffusion_models': {
+                'a/model.safetensors': (str(good), 7),
+                'b/model.safetensors': (str(wrong), 13),
+            },
+        })
+        entries = [
+            {'family': 'image', 'category': 'diffusion_models', 'name': 'model.safetensors', 'bytes': 7, 'sha256': _sha(b'correct')},
+        ]
+        candidates = discover(folder, entries)
+        hits, conflicts, missing = match(candidates, entries)
+        # The hash match wins even though found[0] is the wrong-size file.
+        self.assertEqual(len(hits), 1)
+        self.assertEqual(hits[0]['path'], str(good))
+        self.assertEqual(conflicts, [])
+        self.assertEqual(missing, [])
+
 
 class ModelScanSuggestTests(unittest.TestCase):
     def test_minimal_new_config_generates_default_resource_lock(self):

@@ -65,7 +65,7 @@ export function createModelScanButton({ active = () => true } = {}) {
   function renderBody(container) {
     const scanBtn = createTableButton('开始扫描', () => runScan(container));
     scanBtn.className = 'model-scan-action';
-    const hint = el('p', 'model-scan-hint', '按文件名+大小预筛候选，再对候选算 SHA-256 与已知清单核对；同名异哈希交你裁决，不自动换量化、不下载、不启动 Ollama。');
+    const hint = el('p', 'model-scan-hint', '按文件名筛候选、大小用于冲突判断，再对候选算 SHA-256 与已知清单核对；同名冲突（异大小/异哈希）交你裁决，不自动换量化、不下载、不启动 Ollama。');
     const results = el('div', 'model-scan-results');
     const actions = el('div', 'model-scan-footer');
     container.append(scanBtn, hint, results, actions);
@@ -102,7 +102,7 @@ export function createModelScanButton({ active = () => true } = {}) {
     }
     const adopted = new Set();
     if (conflicts.length) {
-      results.append(el('h4', 'model-scan-section', '同名·哈希不符（疑似装错量化/版本）'));
+      results.append(el('h4', 'model-scan-section', '同名冲突（异大小/异哈希）'));
       for (const conflict of conflicts) {
         const key = `${conflict.family}\u0000${conflict.category}`;
         const label = el('label', 'model-scan-line model-scan-conflict');
@@ -119,7 +119,7 @@ export function createModelScanButton({ active = () => true } = {}) {
     const applyButton = createTableButton('确认应用', () => apply());
     applyButton.className = 'model-scan-apply';
     applyButton.disabled = true;
-    applyButton.title = '把命中项（和勾选的同名异哈希项）写入 local-generation.json，需重启生效';
+    applyButton.title = '把命中项（和勾选的同名冲突项）写入 local-generation.json，需重启生效';
     actions.append(applyButton);
 
     function syncApply() {
