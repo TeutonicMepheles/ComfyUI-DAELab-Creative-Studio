@@ -22,6 +22,11 @@ LICENSES = {'web/design/vendor/alibaba-puhuiti-3/LICENSE.txt',
 FONT_MANIFEST = 'web/design/vendor/alibaba-puhuiti-3/manifest.json'
 FONT_NAMES = {'AlibabaPuHuiTi-3-55-Regular.woff2', 'AlibabaPuHuiTi-3-65-Medium.woff2',
               'AlibabaPuHuiTi-3-75-SemiBold.woff2'}
+# Non-.py runtime data under backend/ that must ship with the product. The scan
+# manifest is read next to model_scan.py at scan time (not import time), so a
+# rule that only collects backend/**/*.py would silently drop it and break
+# "扫描模型" in the packaged candidate.
+RUNTIME_DATA = {'backend/integrations/comfyui/model_manifest.json'}
 FORBIDDEN_PARTS = {'.git', '.local', 'node_modules', 'tests', 'test', 'test_fixtures',
                    'frontend', 'dev', '__pycache__', '.venv', 'venv', 'secrets', 'credentials'}
 FORBIDDEN_SUFFIXES = {'.safetensors', '.gguf', '.ckpt', '.pt', '.pth', '.bin', '.onnx',
@@ -60,7 +65,7 @@ def possible(name):
     p = PurePosixPath(name)
     if name.startswith('tools/migration/legacy_probe/') or name == 'tools/migration/prepare_e5.py':
         return False  # Explicit isolated acceptance helpers, never installed with the product.
-    return (name in FIXED or name.startswith('web/')
+    return (name in FIXED or name in RUNTIME_DATA or name.startswith('web/')
             or len(p.parts) == 1 and p.name.startswith(('LICENSE', 'NOTICE'))
             or p.parts[0] in {'backend', 'compat'} and p.suffix == '.py'
             or name.startswith('tools/migration/') and p.suffix == '.py'

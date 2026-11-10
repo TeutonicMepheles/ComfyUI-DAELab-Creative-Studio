@@ -104,6 +104,22 @@ class CandidateContractTests(unittest.TestCase):
         self.assertEqual(raw, again)
         self.assertEqual(record, same)
 
+    def test_backend_runtime_data_file_is_packaged_and_loadable(self):
+        files = synthetic_tree()
+        files['backend/integrations/comfyui/model_manifest.json'] = json.dumps({
+            'entries': [
+                {'family': 'image', 'category': 'diffusion_models', 'name': 'qwen_image.safetensors',
+                 'bytes': 10, 'sha256': 'a' * 64},
+            ],
+        }).encode()
+        raw, record = candidate_bytes(files, REVISION)
+        self.assertIn('backend/integrations/comfyui/model_manifest.json', {row['path'] for row in record['files']})
+        with tempfile.TemporaryDirectory() as temporary, zipfile.ZipFile(io.BytesIO(raw)) as archive:
+            archive.extractall(temporary)
+            packaged = json.loads((Path(temporary) / PACKAGE / 'backend/integrations/comfyui/model_manifest.json').read_bytes())
+            self.assertTrue(packaged['entries'])
+            self.assertEqual(packaged['entries'][0]['family'], 'image')
+
     def test_missing_changed_duplicate_and_unmanifested_web_files_are_rejected(self):
         for alteration in ('missing', 'changed', 'duplicate', 'unmanifested'):
             with self.subTest(alteration=alteration):
