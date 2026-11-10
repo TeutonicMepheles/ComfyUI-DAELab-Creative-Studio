@@ -1,0 +1,264 @@
+{
+ "schemaVersion": 1,
+ "purpose": "已知本地模型清单：扫描宿主 ComfyUI 模型目录时按 name+bytes 预筛、按 sha256 核对身份；命中即确定匹配，同名异哈希交人工裁决。清单不含任何本机路径。",
+ "entryContract": [
+  "family",
+  "category",
+  "name",
+  "bytes",
+  "sha256"
+ ],
+ "categoryDirMapping": "backend/providers/native.py: mmproj->text_encoders, video_vae->vae, audio_vae->vae, 其余同名",
+ "provenance": {
+  "identitySource": "宿主 local-generation.json（schemaVersion 1、enabled true、10 个 family / 35 条绑定 / 20 个唯一权重文件）",
+  "hashCheck": "35 条逐条与离线整包 sha256.tsv（45,568 行，全量校验 missing=0 mismatch=0）比对：matched=35 missing=0 mismatch=0",
+  "note": "bytes 与 sha256 均为真实测量值，不是模板；同一模型的不同量化是不同文件，因此按「模型×档位」逐条登记。"
+ },
+ "entries": [
+  {
+   "family": "image",
+   "category": "diffusion_models",
+   "name": "qwen_image_2.1_turbo_int8_convrot.safetensors",
+   "bytes": 7256787829,
+   "sha256": "8144a0182964aa8403ad6dbc011db837304167d235161b9aabaa8532e967314c"
+  },
+  {
+   "family": "image",
+   "category": "mmproj",
+   "name": "mmproj-Qwen-Image-2.1-Turbo-Abliterated-Uncensored-F16.gguf",
+   "bytes": 1159029984,
+   "sha256": "d9870a1f168db3d814596216aaf35702154147b443572c7939acca1802621ac6"
+  },
+  {
+   "family": "image",
+   "category": "text_encoders",
+   "name": "Qwen-Image-2.1-Turbo-Abliterated-Uncensored-Q8_0.gguf",
+   "bytes": 8709520096,
+   "sha256": "f8f9f6276b726db5291f4a5343089612cb5fd08aa81e8f0791dc66d2c03d07ca"
+  },
+  {
+   "family": "image",
+   "category": "vae",
+   "name": "qwen_image_2.1_vae_bf16.safetensors",
+   "bytes": 675509688,
+   "sha256": "bb21f7473051e1ac368515dd3f2e15cd44d7a11748ee8823e1ddca3e4876b7c9"
+  },
+  {
+   "family": "image_base",
+   "category": "diffusion_models",
+   "name": "qwen_image_2.1_bf16.safetensors",
+   "bytes": 14230280616,
+   "sha256": "89f4158d066cc33906a199fca85634f766892dd78f49b6698dabf187ac86c4bc"
+  },
+  {
+   "family": "image_base",
+   "category": "text_encoders",
+   "name": "qwen3vl_8b_int8_convrot.safetensors",
+   "bytes": 9350798360,
+   "sha256": "8bfd0f6e12abf2d2d697ecc888e5e90b0d6741d6708f05799f53afa560452e8f"
+  },
+  {
+   "family": "image_base",
+   "category": "vae",
+   "name": "qwen_image_2.1_vae_bf16.safetensors",
+   "bytes": 675509688,
+   "sha256": "bb21f7473051e1ac368515dd3f2e15cd44d7a11748ee8823e1ddca3e4876b7c9"
+  },
+  {
+   "family": "text_27b",
+   "category": "text_encoders",
+   "name": "qwen3.8_27b_w4a8.safetensors",
+   "bytes": 17286101500,
+   "sha256": "9b992a8f6142e6bad602ecc7bab1a56580483c2651824dd0ae64c346e08f60a5"
+  },
+  {
+   "family": "text_pe",
+   "category": "text_encoders",
+   "name": "qwen3.5_9b_qwen_image_2.1_pe_i2i.int8_convrot.safetensors",
+   "bytes": 9471072252,
+   "sha256": "32707d01b427e488af252b95c551989aad59f9fec611a694f5db6bde7f0f1f6c"
+  },
+  {
+   "family": "video",
+   "category": "audio_vae",
+   "name": "minimax_h3_audio_vae_fp32.safetensors",
+   "bytes": 605254808,
+   "sha256": "8e505d95dd1561d47abd43d4238fd40d9bb1ae9e147ed0a4cba778d76ae4db48"
+  },
+  {
+   "family": "video",
+   "category": "diffusion_models",
+   "name": "MiniMax-H3_FL2VA-NVFP4.safetensors",
+   "bytes": 11663443448,
+   "sha256": "1519c19084ba0387a5f5c3983fcf32aee5923045de1ef4e44c04ca2e2ba486e5"
+  },
+  {
+   "family": "video",
+   "category": "text_encoders",
+   "name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+   "bytes": 15687142551,
+   "sha256": "35a88d51044231fe332301d7a62aa81e3f2cba62febeb446e2c1e3e0ef76f2c6"
+  },
+  {
+   "family": "video",
+   "category": "video_vae",
+   "name": "minimax_h3_video_vae_fp16.safetensors",
+   "bytes": 5207808496,
+   "sha256": "7c1f131492e7eddacaac9069a61b81bdd39de5cc96561e677c5eab1cdce5e522"
+  },
+  {
+   "family": "video_base",
+   "category": "audio_vae",
+   "name": "minimax_h3_audio_vae_fp32.safetensors",
+   "bytes": 605254808,
+   "sha256": "8e505d95dd1561d47abd43d4238fd40d9bb1ae9e147ed0a4cba778d76ae4db48"
+  },
+  {
+   "family": "video_base",
+   "category": "diffusion_models",
+   "name": "minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+   "bytes": 20970379616,
+   "sha256": "e889202c41dafb67b10d67b97f0d8541508036a6090af23425a5c2615d03c47a"
+  },
+  {
+   "family": "video_base",
+   "category": "text_encoders",
+   "name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+   "bytes": 15687142551,
+   "sha256": "35a88d51044231fe332301d7a62aa81e3f2cba62febeb446e2c1e3e0ef76f2c6"
+  },
+  {
+   "family": "video_base",
+   "category": "video_vae",
+   "name": "minimax_h3_video_vae_int8_convrot.safetensors",
+   "bytes": 2811065184,
+   "sha256": "52a2c8c73583c86e4f41cdcce3a6ad0ea562987bc0bf3d60a0cef5f5c8e60c0e"
+  },
+  {
+   "family": "video_high",
+   "category": "audio_vae",
+   "name": "minimax_h3_audio_vae_fp32.safetensors",
+   "bytes": 605254808,
+   "sha256": "8e505d95dd1561d47abd43d4238fd40d9bb1ae9e147ed0a4cba778d76ae4db48"
+  },
+  {
+   "family": "video_high",
+   "category": "diffusion_models",
+   "name": "minimax_h3_fl2va_pruned_bf16.safetensors",
+   "bytes": 40225724176,
+   "sha256": "a32572fb90b5508b201ec7c2eddcc184b13ddfd3c6f6d2cf06a0b46535d541b4"
+  },
+  {
+   "family": "video_high",
+   "category": "loras",
+   "name": "pika_h3_flex_fl2va_v1_bf16.safetensors",
+   "bytes": 1956172304,
+   "sha256": "cc5453aeecd6189468409003fe4cf1b57e52ff3a830a0a154b87decbe07358b7"
+  },
+  {
+   "family": "video_high",
+   "category": "text_encoders",
+   "name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+   "bytes": 15687142551,
+   "sha256": "35a88d51044231fe332301d7a62aa81e3f2cba62febeb446e2c1e3e0ef76f2c6"
+  },
+  {
+   "family": "video_high",
+   "category": "video_vae",
+   "name": "minimax_h3_video_vae_fp16.safetensors",
+   "bytes": 5207808496,
+   "sha256": "7c1f131492e7eddacaac9069a61b81bdd39de5cc96561e677c5eab1cdce5e522"
+  },
+  {
+   "family": "video_reference",
+   "category": "audio_vae",
+   "name": "minimax_h3_audio_vae_fp32.safetensors",
+   "bytes": 605254808,
+   "sha256": "8e505d95dd1561d47abd43d4238fd40d9bb1ae9e147ed0a4cba778d76ae4db48"
+  },
+  {
+   "family": "video_reference",
+   "category": "diffusion_models",
+   "name": "MiniMax-H3_Ref2VA-NVFP4.safetensors",
+   "bytes": 11663443448,
+   "sha256": "f970a8a32ded2b4b72f68a624244f8e39d488b1fe0992b9de7133b400dbc95e2"
+  },
+  {
+   "family": "video_reference",
+   "category": "text_encoders",
+   "name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+   "bytes": 15687142551,
+   "sha256": "35a88d51044231fe332301d7a62aa81e3f2cba62febeb446e2c1e3e0ef76f2c6"
+  },
+  {
+   "family": "video_reference",
+   "category": "video_vae",
+   "name": "minimax_h3_video_vae_fp16.safetensors",
+   "bytes": 5207808496,
+   "sha256": "7c1f131492e7eddacaac9069a61b81bdd39de5cc96561e677c5eab1cdce5e522"
+  },
+  {
+   "family": "video_reference_base",
+   "category": "audio_vae",
+   "name": "minimax_h3_audio_vae_fp32.safetensors",
+   "bytes": 605254808,
+   "sha256": "8e505d95dd1561d47abd43d4238fd40d9bb1ae9e147ed0a4cba778d76ae4db48"
+  },
+  {
+   "family": "video_reference_base",
+   "category": "diffusion_models",
+   "name": "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
+   "bytes": 20970379616,
+   "sha256": "9255f52b6677845ad238f20dfaafa94727053694127ab7f255c048f0f9365779"
+  },
+  {
+   "family": "video_reference_base",
+   "category": "text_encoders",
+   "name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+   "bytes": 15687142551,
+   "sha256": "35a88d51044231fe332301d7a62aa81e3f2cba62febeb446e2c1e3e0ef76f2c6"
+  },
+  {
+   "family": "video_reference_base",
+   "category": "video_vae",
+   "name": "minimax_h3_video_vae_int8_convrot.safetensors",
+   "bytes": 2811065184,
+   "sha256": "52a2c8c73583c86e4f41cdcce3a6ad0ea562987bc0bf3d60a0cef5f5c8e60c0e"
+  },
+  {
+   "family": "video_reference_high",
+   "category": "audio_vae",
+   "name": "minimax_h3_audio_vae_fp32.safetensors",
+   "bytes": 605254808,
+   "sha256": "8e505d95dd1561d47abd43d4238fd40d9bb1ae9e147ed0a4cba778d76ae4db48"
+  },
+  {
+   "family": "video_reference_high",
+   "category": "diffusion_models",
+   "name": "minimax_h3_ref2va_pruned_bf16.safetensors",
+   "bytes": 40225724176,
+   "sha256": "37c0da793e20ca735272ec2be655f08a2e10f97a3ec8fdfb40f5b39a736ed6fe"
+  },
+  {
+   "family": "video_reference_high",
+   "category": "loras",
+   "name": "pika_h3_flex_ref2va_v1_bf16.safetensors",
+   "bytes": 1956172304,
+   "sha256": "de3745ceb7d8d5c20898dd8fa3a05f1c0b00089ccd55297b2a8bab95c766b0e0"
+  },
+  {
+   "family": "video_reference_high",
+   "category": "text_encoders",
+   "name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+   "bytes": 15687142551,
+   "sha256": "35a88d51044231fe332301d7a62aa81e3f2cba62febeb446e2c1e3e0ef76f2c6"
+  },
+  {
+   "family": "video_reference_high",
+   "category": "video_vae",
+   "name": "minimax_h3_video_vae_fp16.safetensors",
+   "bytes": 5207808496,
+   "sha256": "7c1f131492e7eddacaac9069a61b81bdd39de5cc96561e677c5eab1cdce5e522"
+  }
+ ]
+}
