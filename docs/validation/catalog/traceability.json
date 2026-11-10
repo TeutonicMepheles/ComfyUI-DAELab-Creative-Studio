@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "4d691a41c7b0ea633507b888f3647e6685b6b7b6370cdc35933f6b23929f522e",
+  "specificationHash": "02b07d94b0a8b2700f2b954fc8025dc696e42a76547507b3c632ffd1a45e9334",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -1032,14 +1032,16 @@
         "AC-SYS-022-002",
         "AC-SYS-022-003",
         "AC-SYS-022-004",
-        "AC-SYS-022-005"
+        "AC-SYS-022-005",
+        "AC-SYS-022-006"
       ],
       "usecases": [
         "UC-BIZ-009",
         "UC-BIZ-010",
         "UC-BIZ-014",
         "UC-SYS-012",
-        "UC-SYS-013"
+        "UC-SYS-013",
+        "UC-SYS-014"
       ],
       "tests": [
         "TC-BIZ-020",
@@ -1053,7 +1055,8 @@
         "TC-BIZ-046",
         "TC-BIZ-047",
         "TC-SYS-036",
-        "TC-SYS-037"
+        "TC-SYS-037",
+        "TC-SYS-039"
       ],
       "evals": [
         "EV-ARCH",
@@ -7586,10 +7589,12 @@
       "requirementHash": "451da1f89ba22a8c3d7fc92d1dac1a4bf32a27a09c04b9ea67f6ba858c77c071",
       "usecases": [
         "UC-SYS-012",
-        "UC-SYS-013"
+        "UC-SYS-013",
+        "UC-SYS-014"
       ],
       "tests": [
-        "TC-SYS-037"
+        "TC-SYS-037",
+        "TC-SYS-039"
       ],
       "evals": [
         "EV-ARCH"
@@ -7606,10 +7611,12 @@
       "requirementHash": "099120433a87dd580f63920d36cd5e7ff132740cc37b056cbdfeeb0e77acc810",
       "usecases": [
         "UC-SYS-012",
-        "UC-SYS-013"
+        "UC-SYS-013",
+        "UC-SYS-014"
       ],
       "tests": [
-        "TC-SYS-037"
+        "TC-SYS-037",
+        "TC-SYS-039"
       ],
       "evals": [
         "EV-ARCH"
@@ -7626,10 +7633,12 @@
       "requirementHash": "9919af573582ab1d0f0d557f7379ab8114a75812a1283d77eca166acfe9531b8",
       "usecases": [
         "UC-SYS-012",
-        "UC-SYS-013"
+        "UC-SYS-013",
+        "UC-SYS-014"
       ],
       "tests": [
-        "TC-SYS-037"
+        "TC-SYS-037",
+        "TC-SYS-039"
       ],
       "evals": [
         "EV-ARCH"
@@ -7646,10 +7655,12 @@
       "requirementHash": "b038c6dceeebaf914f48dba48299513a4b5c14ea829bfea0f5fbc615965719cc",
       "usecases": [
         "UC-SYS-012",
-        "UC-SYS-013"
+        "UC-SYS-013",
+        "UC-SYS-014"
       ],
       "tests": [
-        "TC-SYS-037"
+        "TC-SYS-037",
+        "TC-SYS-039"
       ],
       "evals": [
         "EV-ARCH"
@@ -7666,10 +7677,34 @@
       "requirementHash": "c8ece3dff6b4a0802c85597d041c68eb61be77b9d2f0da488482cf230adaa986",
       "usecases": [
         "UC-SYS-012",
-        "UC-SYS-013"
+        "UC-SYS-013",
+        "UC-SYS-014"
       ],
       "tests": [
-        "TC-SYS-037"
+        "TC-SYS-037",
+        "TC-SYS-039"
+      ],
+      "evals": [
+        "EV-ARCH"
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "AC-SYS-022-006",
+      "feature": "F-SYS-022",
+      "task": "TASK-M4-BACKEND-PROVIDERS",
+      "owner": "backend/providers",
+      "requirement": "2026-11-10：手动『扫描模型』按已知模型清单哈希反查生成 local-generation.json。清单逐档位（family）记录 category/name/bytes/sha256；扫描按 native.py:85 目录映射枚举、按文件名（保留子目录前缀的原始串）筛候选——bytes 仅用于报告与冲突判断、不淘汰候选，避免换量化/版本被误报为缺失——对每个文件算一次 sha256 并复用到引用它的绑定；命中填绝对路径，同名异大小或异哈希标 conflict 交人裁决（改用时同时写 path 与该文件真实 sha256 并提示量化/版本变化），未命中报缺失；suggested.json 预览只含确定命中、完整 schemaVersion:1（从现有配置合并 schemaVersion/enabled/resourceLock/qwenBinding，新机器生成最小完整配置）；确认时按扫描结果与勾选的冲突重新生成并直接写入 local-generation.json、不读回预览；不自动启动 Ollama、不下载、不替换量化；确认后重启生效。",
+      "requirementHash": "f1469ac0d5037326d324a3322f62dca2c3b22118b683cae3fc50434cc98fade6",
+      "usecases": [
+        "UC-SYS-012",
+        "UC-SYS-013",
+        "UC-SYS-014"
+      ],
+      "tests": [
+        "TC-SYS-037",
+        "TC-SYS-039"
       ],
       "evals": [
         "EV-ARCH"
@@ -14175,12 +14210,13 @@
         "AC-SYS-022-002",
         "AC-SYS-022-003",
         "AC-SYS-022-004",
-        "AC-SYS-022-005"
+        "AC-SYS-022-005",
+        "AC-SYS-022-006"
       ],
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "1fcb932b90e0dc235f06253eefb7372409cfc1775e96dfca1c199455f88aa5e4",
+      "specificationHash": "be19bafaca7de4f9c9c73d9caf15f00be9b6b03567e63974b00cc470f7e773a4",
       "assertions": [
         {
           "id": "AS-SYS-037-001",
@@ -14226,6 +14262,46 @@
       ],
       "status": "not-executed",
       "evidence": []
+    },
+    {
+      "id": "TC-SYS-039",
+      "phase": "M4",
+      "priority": "P0",
+      "level": "contract",
+      "features": [
+        "F-SYS-022"
+      ],
+      "usecases": [
+        "UC-SYS-014"
+      ],
+      "acceptance": [
+        "AC-SYS-022-001",
+        "AC-SYS-022-002",
+        "AC-SYS-022-003",
+        "AC-SYS-022-004",
+        "AC-SYS-022-005",
+        "AC-SYS-022-006"
+      ],
+      "evals": [
+        "EV-ARCH"
+      ],
+      "specificationHash": "3e9bff930d1d4722a14a6b2f11f4666405e29a5bd993cfb62b5144112657caf6",
+      "assertions": [
+        {
+          "id": "AS-SYS-039-001",
+          "expected": "命中项填正确绝对路径；冲突项写 path 与该文件真实 sha256；缺失项报缺失。"
+        },
+        {
+          "id": "AS-SYS-039-002",
+          "expected": "suggested.json 为完整 schemaVersion:1，从现有配置合并 resourceLock/qwenBinding；新机器生成最小完整配置。"
+        },
+        {
+          "id": "AS-SYS-039-003",
+          "expected": "确认后 read_configuration() 通过；不自动启动 Ollama、不下载、不换量化。"
+        }
+      ],
+      "status": "not-executed",
+      "evidence": []
     }
   ],
   "evals": [
@@ -14262,7 +14338,8 @@
         "TC-SYS-022",
         "TC-SYS-030",
         "TC-SYS-034",
-        "TC-SYS-037"
+        "TC-SYS-037",
+        "TC-SYS-039"
       ],
       "status": "not-executed"
     },

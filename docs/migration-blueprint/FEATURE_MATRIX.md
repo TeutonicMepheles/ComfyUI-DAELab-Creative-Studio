@@ -1896,7 +1896,7 @@
 | [F-SYS-019](FEATURE_MATRIX.md#f-sys-019) | 结果未知与断点恢复 | 保留 | M4 | 2 | 6 |
 | [F-SYS-020](FEATURE_MATRIX.md#f-sys-020) | 文件范围与敏感数据边界 | 保留 | M2 | 2 | 3 |
 | [F-SYS-021](FEATURE_MATRIX.md#f-sys-021) | 旧库退出与数据回滚 | 重构 | M6 | 3 | 4 |
-| [F-SYS-022](FEATURE_MATRIX.md#f-sys-022) | 统一只读模型目录与启动发现 | 重构 | M4 | 2 | 1 |
+| [F-SYS-022](FEATURE_MATRIX.md#f-sys-022) | 统一只读模型目录与启动发现 | 重构 | M4 | 3 | 2 |
 | [F-SYS-023](FEATURE_MATRIX.md#f-sys-023) | 模型选项的隐式可用性状态 | 重构 | M4 | 1 | 1 |
 
 <a id="f-sys-001"></a>
@@ -2296,8 +2296,9 @@
 - `AC-SYS-022-003` 已保存逻辑模型缺失时保持原 ID 并标为不可用，不静默换成其他模型。2026-11-04 起移除 DeepSeek 云 API 文本通道；Comfy 工作区积分的文本模型（如 GPT-6 Luna）保留，本地 Qwen 仍是默认文本模型。
 - `AC-SYS-022-004` 2026-11-04：模型名后短胶囊从目录读取本地/API实际路由；开源/闭源须有明示模型信息，无依据时省略该属性。同名不同路由正确区分，不靠名称猜测，不改变可用性、模型ID或费用，不复制升级/VIP文案。 本地采用青绿、API采用蓝紫主题色，列表与触发项一致且保留文字，不只靠颜色辨认。
 - `AC-SYS-022-005` 2026-11-04：移除 DeepSeek 云 API 文本通道。模型目录、模型列表、能力快照与健康诊断不再出现 DeepSeek 行、密钥字段或连接状态；已保存工作流引用 DeepSeek 模型时保留原 ID 并标为不可用，不静默换成 Qwen 或其他模型，不改写用户配置；宿主残留的旧密钥不被读取，也不写入工作流、任务快照、账本、日志或诊断导出。本次只移除 DeepSeek 独立密钥通道，Comfy 积分文本模型（GPT-6 Luna，走官方 OpenAIChatNode / Partner Responses，不读 OpenAI 密钥）与图片/视频云能力保持不变。
+- `AC-SYS-022-006` 2026-11-10：手动『扫描模型』按已知模型清单哈希反查生成 local-generation.json。清单逐档位（family）记录 category/name/bytes/sha256；扫描按 native.py:85 目录映射枚举、按文件名（保留子目录前缀的原始串）筛候选——bytes 仅用于报告与冲突判断、不淘汰候选，避免换量化/版本被误报为缺失——对每个文件算一次 sha256 并复用到引用它的绑定；命中填绝对路径，同名异大小或异哈希标 conflict 交人裁决（改用时同时写 path 与该文件真实 sha256 并提示量化/版本变化），未命中报缺失；suggested.json 预览只含确定命中、完整 schemaVersion:1（从现有配置合并 schemaVersion/enabled/resourceLock/qwenBinding，新机器生成最小完整配置）；确认时按扫描结果与勾选的冲突重新生成并直接写入 local-generation.json、不读回预览；不自动启动 Ollama、不下载、不替换量化；确认后重启生效。
 
-**关联：** [UC-SYS-012](USE_CASES.md#uc-sys-012)、[UC-SYS-013](USE_CASES.md#uc-sys-013)；[TC-SYS-037](TEST_CASES.md#tc-sys-037)
+**关联：** [UC-SYS-012](USE_CASES.md#uc-sys-012)、[UC-SYS-013](USE_CASES.md#uc-sys-013)、[UC-SYS-014](USE_CASES.md#uc-sys-014)；[TC-SYS-037](TEST_CASES.md#tc-sys-037)、[TC-SYS-039](TEST_CASES.md#tc-sys-039)
 
 <a id="f-sys-023"></a>
 
