@@ -7,7 +7,7 @@
 import { createSettingsPopover } from '../prompt/table_prompt_settings.mjs';
 // @ts-expect-error Existing shared controls retain native button semantics.
 import { createTableButton } from '../../ui/table_controls.mjs';
-import { scanModels, applyModels } from './model_scan_api.mjs';
+import { scanModels, applyModels, getGenerationFileReport } from './model_scan_api.mjs';
 
 /** Family → display name, locked by Product (10 local model families). */
 const FAMILY_LABEL = Object.freeze({
@@ -46,16 +46,11 @@ export function generationFileReport(kind) {
   const root = el('details', 'generation-file-report');
   const summary = el('summary', '', '正在检查本机模型文件…');
   root.append(summary);
-  const controller = new AbortController();
+  let disposed = false;
   async function load() {
     try {
-      const response = await fetch('/daelab/studio/model-files?kind=' + encodeURIComponent(kind), {
-        signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15000)]),
-      });
-      if (!response.ok) throw new Error('HTTP ' + response.status);
-      const {profiles} = await response.json();
-      if (controller.signal.aborted) return;
-      const entries = Object.entries(profiles);
+      const entries = await getGenerationFileReport(kind);
+      if (disposed) return;
       let complete = 0;
       for (const [family, files] of entries) {
         const issues = files.filter(file => file.status !== 'found');
@@ -71,11 +66,11 @@ export function generationFileReport(kind) {
       summary.textContent = '本机模型文件 · ' + complete + '/' + entries.length + ' 组齐全';
       root.open = complete < entries.length;
     } catch (error) {
-      if (!controller.signal.aborted) summary.textContent = '读取本机模型目录失败，重新打开菜单可重试';
+      if (!disposed) summary.textContent = '读取本机模型目录失败，重新打开菜单可重试';
     }
   }
   void load();
-  return {root, dispose: () => controller.abort()};
+  return {root, dispose: () => { disposed = true; }};
 }
 
 function describeFamily(item) {
