@@ -20,6 +20,23 @@ Qwen 使用本机 Ollama 回环接口 `127.0.0.1:11434`。注册清单、已安�
 
 本指南不提供虚构路径或通用哈希模板。为目标机器准备实际清单并重启独立宿主后，在设置界面重新读取模型选项；缺失节点、权重或哈希不匹配须先解决。配置中无需写入云端密钥。机器路径、清单和权重留在宿主 user 或本地数据目录，不提交源码仓库。
 
+## 分发与新机接入
+
+模型权重与每台机器的运行配置不随本仓库或 CC 安装包分发：
+
+- **CC 安装包**（`Creative-Studio-local-test-*.zip`，约 17 MB / 382 文件）只含 `custom_nodes` 下的节点包，不含 ComfyUI 本体、torch、模型权重，也不含每台机器的 `local-generation.json`。
+- **离线整包**（`D:\ShipComfy`，338.69 GiB / 45,568 文件）含全量模型权重与便携 Ollama，已全量校验（缺失 0、不匹配 0）。以 `--models-directory <SHIP>\03-models\ComfyUI\models` 让 ComfyUI 直接引用硬盘上的模型，不必搬运。
+
+工作流 JSON 只保存稳定的逻辑模型 ID，不写机器路径或文件哈希，可跨机器复制；接收方装好 CC 包即可打开编辑，生成则需自备权重与配置。
+
+每台新机器的 `local-generation.json` 必须各自生成一次，三条来源：
+
+1. 设置界面「扫描模型」按官方模型清单哈希反查生成（需宿主带此功能；清单见 [model_manifest.json](../backend/integrations/comfyui/model_manifest.json)，条目为 family/category/name/bytes/sha256，不含任何本机路径）；
+2. 以现有配置为模板改路径：每条 `path` 改为该机绝对路径、`resourceLock` 改为该机 `.lock` 路径（`qwenBinding` 的 `manifestPath`/`installedManifestPath`/`blobsRoot` 同步）；`sha256` 是文件内容指纹、不是路径——文件相同则沿用原值，仅换量化/重新下载导致字节变化才重算（`certutil -hashfile <file> SHA256` 去空格转小写）；`manifestSha256` 与各绑定 `bytes` 是清单属性，不要动；
+3. 手写最小配置（`schemaVersion:1` + `enabled:true` + `resourceLock` + `modelBindings`）。
+
+生成后重启宿主并在设置界面重新读取；仍置灰则看 `GET /daelab/studio/capabilities` 的 `localGeneration.reason`。文本模型需本机 Ollama 服务已运行（Studio 不自动启动、不下载）；云端模型走 ComfyUI 账户登录，与本机配置无关。
+
 配置读取、能力查询和界面设置不等于推理验收。当前本地模型执行记录、首失败和未覆盖项见 [验证状态](validation/STATUS.md)。
 
 本地文生图使用 Qwen-Image-2.1 Turbo；文生视频、首帧与首尾帧使用 MiniMax H3 FL；1–9 张图片参考使用独立的 MiniMax H3 Ref。Ref 的图片顺序保留为 `<Picture N>` 编号，当前不接入视频或音频参考。生成节点与多维表格共用这些提供方和任务服务。权重格式与名称来自显式绑定，不自动切换量化版本；图片 GGUF 编码器需要已安装的 `CLIPLoaderGGUF` 节点及匹配的 mmproj 文件。首次能力查询会校验模型文件哈希，界面最多等待 120 秒。
