@@ -9,17 +9,21 @@ import {bindPanelAvailability} from '../../../ui/creative_panel_state.mjs';
 import {createFavoriteButton} from '../../../features/assets/asset_favorite.mjs?v=20261015-2';
 import {inputSnapshot} from '../../../canvas/creative_input_exchange.mjs';
 import {textSnapshot} from '../../../features/assets/text_input_model.mjs?v=20261015-mixed2';
+import {GENERATION_NODE_TYPES} from '../../../features/generation/node_families.js';
 
 const TYPE='DAELAB.TextInput';
+const textTargets=[...GENERATION_NODE_TYPES,'DAELAB.LLMStylePreviewB'];
 registerAdapter('daelab.text-input',{
     matches:node=>node.type===TYPE,width:350,expanded:true,floatingHeader:true,
     menu:[{label:'输入文本',type:TYPE,icon:'edit-line'}],
-    panel:node=>node.__daeTextPanel,outputLabel:'文本',
+    panel:node=>node.__daeTextPanel,refresh:node=>node.__daeTextPanel?.sync(),outputLabel:'文本',
+    canConnectInput:node=>node.inputs?.some(input=>['text','source_report'].includes(input.name)&&input.link!=null)===true,
+    outputTargetTypes:()=>textTargets,
     inputSnapshot:node=>textSnapshot(node,inputSnapshot),
 });
 function install(node){
     if(!node.inputs?.some(i=>i.name==='text'))node.addInput('text','STRING');
-    // Expose the existing text widget's STRING socket in the unified canvas port.
+    // Keep the native socket for linked text results and saved workflows.
     const textInput=node.inputs?.find(i=>i.name==='text');if(textInput)delete textInput.widget;
     if(node.__daeTextPanel)return;
     const widget=node.widgets?.find(w=>w.name==='text');if(!widget)return;
@@ -38,9 +42,10 @@ function install(node){
     const favoriteBar=document.createElement('div');favoriteBar.className='dae-text-favorite-bar';favoriteBar.append(favoriteStatus,favorite.button);root.append(favoriteBar);
     const sync=()=>{
         const linked=node.inputs?.some(i=>i.name==='text'&&i.link!=null);
-        input.readOnly=linked;input.placeholder=linked?'等待上游生成并应用结果':'输入描述或提示词';
+        const waiting=node.properties?.textOutputPending&&node.inputs?.some(i=>i.name==='source_report'&&i.link!=null);
+        input.readOnly=!!(linked||waiting);input.placeholder=input.readOnly?'等待上游生成结果':'输入描述或提示词';
         const snapshot=textSnapshot(node,inputSnapshot);
-        if(linked||document.activeElement!==input)input.value=snapshot.texts?.join('\n\n')||'';
+        if(input.readOnly||document.activeElement!==input)input.value=snapshot.texts?.join('\n\n')||'';
         if(node.graph)node.setOutputData?.(0,snapshot.ready===false?null:input.value);
         favorite.sync();
     };

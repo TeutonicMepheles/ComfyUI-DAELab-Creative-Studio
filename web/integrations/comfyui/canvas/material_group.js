@@ -20,6 +20,9 @@ registerAdapter('daelab.material-group',{
 });
 app.registerExtension({
     name:'DAELAB.MaterialGroups',
+    loadedGraphNode(node){
+        if(node.type===GROUP_TYPE&&node.properties.generationOutputOwner&&node.title==='生成输出')node.title='生成结果';
+    },
     commands:[{id:'DAELAB.MaterialGroups.Create',label:'选中素材打组 (Ctrl+G)',function:()=>app.daelabMaterialGroups?.createFromSelection()}],
     beforeRegisterNodeDef(type,definition){
         if(definition.name!==GROUP_TYPE)return;

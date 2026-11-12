@@ -26,7 +26,7 @@ export function videoTaskHistoryRows(state){
 }
 export function taskConfig(config={},promptFieldId){
  if(config.model&&config.kind)return {...structuredClone(config),promptFieldId};
- return {version:1,kind:'video',model:LOCAL_VIDEO_MODEL,promptFieldId,mode:'text2video',settings:{width:512,height:288,duration:2,turbo:false,seed:-1}};
+ return {version:1,kind:'video',model:LOCAL_VIDEO_MODEL,promptFieldId,mode:'omni2video',settings:{width:512,height:288,duration:2,turbo:false,seed:-1}};
 }
 
 export function familyTaskConfig(config,promptFieldId,kind=null,fallback=null){
@@ -38,7 +38,7 @@ export function familyTaskConfig(config,promptFieldId,kind=null,fallback=null){
 export function createVideoTasks(values={},kind=null){
  const table=createMaterialTable(),field=addGenerationColumn(table,{name:'生成结果'}),row=table.records[0];table.records=[row];
  const model=values.model||LOCAL_VIDEO_MODEL;
- field.generation=model===LOCAL_VIDEO_MODEL?taskConfig({},field.generation.promptFieldId):{version:1,kind:'video',model,promptFieldId:field.generation.promptFieldId,mode:values.mode||'text2video',settings:{duration:Number(values.duration)||5,resolution:values.resolution||(model==='Minimax H3'?'768P':'720p'),ratio:values.ratio||'16:9',...(model==='Minimax H3'?{}:{enableSound:values.sound?'on':'off'})}};
+ field.generation=model===LOCAL_VIDEO_MODEL?taskConfig({},field.generation.promptFieldId):{version:1,kind:'video',model,promptFieldId:field.generation.promptFieldId,mode:(kind==='video'?'omni2video':values.mode)||'omni2video',settings:{duration:Number(values.duration)||5,resolution:values.resolution||(model==='Minimax H3'?'768P':'720p'),ratio:values.ratio||'16:9',...(model==='Minimax H3'?{}:{enableSound:values.sound??true})}};
  if(kind==='image')field.generation={version:1,kind:'image',model:LOCAL_IMAGE_MODEL,promptFieldId:field.generation.promptFieldId,mode:'text2image',settings:{ratio:'auto'}};
  table.meta.generationProject=values.project_uuid||'';
  row.values[field.generation.promptFieldId]=toColumnPrompt(values.prompt||'',row);

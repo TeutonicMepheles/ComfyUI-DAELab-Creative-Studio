@@ -45,6 +45,14 @@ class HighVideoTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn('turbo',graph)
         self.assertEqual(len(FLEX_SIGMAS.split(','))-1,6)
 
+    def test_tail_only_uses_the_native_last_frame_input(self):
+        data = self.data()
+        data['config']['mode'] = 'lastImage2video'
+        graph = self.provider().build(data, [{'kind':'image','name':'end.png'}], 'tail-only')['graph']
+        self.assertNotIn('first_frame', graph['condition']['inputs'])
+        self.assertEqual(graph['condition']['inputs']['last_frame'], ['last_frame', 0])
+        self.assertEqual(graph['last_frame']['inputs']['image'], 'end.png')
+
     def test_ref_keeps_two_frozen_references_and_its_own_lora(self):
         graph=self.provider(True).build(self.data(True),[{'kind':'image','name':'first.png'},{'kind':'image','name':'second.png'}],'high-ref')['graph']
         self.assertEqual(graph['condition']['class_type'],'MiniMaxH3ReferenceToVideo')

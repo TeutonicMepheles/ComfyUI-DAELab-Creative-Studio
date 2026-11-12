@@ -43,7 +43,7 @@ class FlexVideoProvider(NativeProvider):
         names = {key: info['name'] for key, info in models.items()}
         staged = [{**item, 'native_input': self.media_input(item)} for item in media]
         prefix = 'daelab/creative-studio/' + hashlib.sha256(request_id.encode()).hexdigest()[:24]
-        graph = video_graph(compile_segments(data.get('segments', []), media), values, staged, names, prefix, reference=self.reference)
+        graph = video_graph(compile_segments(data.get('segments', []), media), values, staged, names, prefix, reference=self.reference, last_only=config.get("mode") == "lastImage2video")
         graph['flex'] = {'class_type': 'LoraLoaderModelOnly', 'inputs': {'model': ['model', 0], 'lora_name': names['loras'], 'strength_model': 1.0}}
         graph['guider']['inputs']['model'] = ['flex', 0]
         graph['sampler']['inputs']['sampler_name'] = 'lcm'

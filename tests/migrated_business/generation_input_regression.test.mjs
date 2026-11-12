@@ -75,7 +75,10 @@ test('parser and generic table export the same row-expanded template into genera
  for(const type of ['DAELAB.ScriptParser','DAELAB.Table']){
   const n=sourceNode(type);assert(isTableSource(n));
   const state=importVideoTasks(readTableSnapshot(n));
-  for(const row of state.table.records)assert.equal(generationInput(state.table,state.fieldId,row.id).segments.map(s=>s.text).join(''),row.id+'的运镜下，呈现画面'+row.id);
+  for(const row of state.table.records){
+   const output=state.table.fields.find(f=>f.id===state.fieldId);setRowGenerationConfig(row,state.fieldId,{...output.generation,model:'Seedance 2.5'});
+   assert.equal(generationInput(state.table,state.fieldId,row.id).segments.map(s=>s.text).join(''),row.id+'的运镜下，呈现画面'+row.id);
+  }
  }
  assert.equal(isTableSource({type:'Unrelated'}),false);
 });
@@ -123,7 +126,7 @@ test('local FL modes remain separate and unsupported saved modes are not offered
  const modes=['text2video','singleImage2video','frames2video'];
  const schema={properties:{modeType:{items:Object.fromEntries(modes.map(m=>[m,[]]))}},config:{strictModes:true}};
  const config={kind:'video',model:LOCAL_VIDEO_MODEL,mode:'mixed2video'};
- assert.deepEqual(generationParameterModes(config,schema),modes);assert.deepEqual(generationModes(schema,'video'),modes);assert.equal(config.mode,'mixed2video');
+ assert.deepEqual(generationParameterModes(config,schema),['omni2video','frames2video']);assert.deepEqual(generationModes(schema,'video'),['omni2video','frames2video']);assert.equal(config.mode,'mixed2video');
  const s=importVideoTasks(readTableSnapshot(sourceNode())),f=s.table.fields.find(f=>f.id===s.fieldId);
  setRowGenerationConfig(s.table.records[0],s.fieldId,{...f.generation,model:LOCAL_VIDEO_MODEL,mode:'mixed2video'});
  assert.throws(()=>generationInput(s.table,s.fieldId,'1'),/仅支持/);
@@ -179,7 +182,7 @@ test('cloud text-to-video switches on a structured media mention, not text refer
 test('local FL rejects reference ports without silently assigning frames or changing the prompt',()=>{
  const s=importVideoTasks(readTableSnapshot(sourceNode())),f=s.table.fields.find(f=>f.id===s.fieldId),row=s.table.records[0];
  const before=JSON.stringify(row);
- assert.throws(()=>bindLinkedTaskReference(s.table,row,s.fieldId,{...f.generation,model:LOCAL_VIDEO_MODEL},s.table.fields.find(f=>f.id==='media')),/首帧／尾帧接口/);
+ assert.throws(()=>bindLinkedTaskReference(s.table,row,s.fieldId,{...f.generation,model:LOCAL_VIDEO_MODEL,mode:'text2video'},s.table.fields.find(f=>f.id==='media')),/首帧／尾帧接口/);
  assert.equal(JSON.stringify(row),before);
 });
 

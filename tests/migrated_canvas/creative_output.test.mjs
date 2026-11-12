@@ -5,6 +5,7 @@ test('reuse only a live active target connected from this output',()=>{
     const target={id:2,type:'Text',mode:0};
     const source={id:1,outputs:[{links:[7]}],graph:{links:{7:{origin_id:1,origin_slot:0,target_id:2}},getNodeById:id=>id===2?target:null}};
     assert.equal(connectedOutputNode(source,'Text'),target);
+    source.graph.links[7].origin_id='1';assert.equal(connectedOutputNode(source,'Text'),target);
     assert.equal(connectedOutputNode(source,'Other'),null);
     target.mode=4;assert.equal(connectedOutputNode(source,'Text'),null);
     target.mode=0;source.graph.links[7].origin_id=3;assert.equal(connectedOutputNode(source,'Text'),null);

@@ -4,7 +4,7 @@ import {bindBusinessService} from '../../frontend/src/contracts/business.js';
 import {createModelCatalog,getModelCatalog,MODEL_STATUS,resetModelCatalogForTests} from '../../frontend/src/features/models/model_catalog.mjs';
 import {modelOptionPresentation} from '../../frontend/src/features/models/model_catalog_ui.mjs';
 import {createPromptOptimizationApi} from '../../frontend/src/features/prompt/prompt_optimization_api.mjs';
-import {loadModelDefinitions,refreshModelCatalog,startModelCatalogDiscovery} from '../../frontend/src/integrations/comfyui/business/model_catalog_discovery.mjs';
+import {loadModelDefinitions,refreshModelCatalog,checkLocalTextModels} from '../../frontend/src/integrations/comfyui/business/model_catalog_discovery.mjs';
 
 test('catalog definition refresh replaces added and removed model identities',async()=>{
  const catalog=createModelCatalog();
@@ -61,6 +61,8 @@ test('native PE and 27B discover through the actual optimization capability endp
   assert.equal(action,'capabilities');const id=JSON.parse(options.body).model;calls.push(id);assert.ok(ids.includes(id));
   return Response.json({available:true,models:[{id,available:true,provider:'local',modes:[id===ids[0]?'reverse':'polish']}]});
  }});
- try{await refreshModelCatalog({force:true});for(const id of ids){const model=getModelCatalog().get(id);assert.equal(model.status,'available');assert.equal(model.provider,'local');}assert.deepEqual(calls.sort(),ids.sort());}
+ try{await refreshModelCatalog({force:true});assert.deepEqual(calls,[]);
+  await Promise.all([checkLocalTextModels(),checkLocalTextModels()]);await refreshModelCatalog({force:true});await checkLocalTextModels();
+  for(const id of ids){const model=getModelCatalog().get(id);assert.equal(model.status,'available');assert.equal(model.provider,'local');}assert.deepEqual(calls.sort(),ids.sort());}
  finally{release();optimization();resetModelCatalogForTests();}
 });

@@ -49,7 +49,7 @@
     },
     {
       "destination": "backend/integrations/comfyui/canvas_nodes/text_input.py",
-      "destinationSha256": "c726592f4f340e848ae1d6011d7509018038157fc132e638c8663de2a7dcc968",
+      "destinationSha256": "358e46994758475e7b66dafc1dd2e8b003585d42807b7a0bfd640b9e65d32b40",
       "changes": [
         "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
       ]
@@ -77,7 +77,7 @@
     },
     {
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
-      "destinationSha256": "8e42e9e430799660becdcde4ff523bf3be981c58af53ba65a5de3d566496aec6",
+      "destinationSha256": "c414a4abc27b594799889192f433fc45465f0f9c4aa2e4401a3235e9d213dffb",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
         "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
@@ -112,14 +112,14 @@
     },
     {
       "destination": "frontend/src/integrations/comfyui/canvas/material_group.js",
-      "destinationSha256": "02902c36a873515da5500d6d0c48373cfe3ade91c6f63f961fe83f616789bab6",
+      "destinationSha256": "9867d57d2d4935b2d7d057289bcb79ff5508bec62d53bf931a013e89a3c16ebf",
       "changes": [
         "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
       ]
     },
     {
       "destination": "frontend/src/integrations/comfyui/canvas/media_upload.js",
-      "destinationSha256": "9b87cbf71a0ac64ea659955db072343dd966ce935ce33f8a1df092680dd41c65",
+      "destinationSha256": "90c97edb4b93fe777808cdc37ffa1505ccdcd525f466df687bfdf56a94f829ad",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
         "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
@@ -127,7 +127,7 @@
     },
     {
       "destination": "frontend/src/integrations/comfyui/canvas/text_input.js",
-      "destinationSha256": "99bc0a3b7b4db969500a2c43b02857c905050b75901909710217de25391971d1",
+      "destinationSha256": "93423cfbfd91d72ca8492716c8d16e6cc6235f756b87317b1cce48692c0792b7",
       "changes": [
         "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable."
       ]

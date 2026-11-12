@@ -16,6 +16,12 @@ async function optimizationProbe(model){
     return {...capability,...selected,available:selected?.available===true,provider:selected?.provider||model.provider};
 }
 
+export function checkLocalTextModels(){
+    optimizationApi||=createPromptOptimizationApi();
+    const catalog=getModelCatalog();
+    return catalog.refresh(optimizationProbe,{filters:{family:'optimization',provider:'local'}});
+}
+
 export async function loadModelDefinitions(catalog,{force=false,request=businessJson}={}){
     if(definitionsLoaded&&!force)return;
     const result=await request('generation','models');
@@ -30,7 +36,7 @@ export async function refreshModelCatalog({force=false}={}){
     lastRefresh=Date.now();
     return Promise.all([
         catalog.refresh(generationProbe,{force,filters:{family:'generation'}}),
-        catalog.refresh(optimizationProbe,{force,filters:{family:'optimization'}}),
+        Promise.all(catalog.snapshot({family:'optimization'}).filter(model=>model.provider!=='local').map(model=>catalog.check(model.id,optimizationProbe,{force}))),
     ]);
 }
 
@@ -39,8 +45,7 @@ export function startModelCatalogDiscovery(){
     if(started)return;
     started=true;
     optimizationApi||=createPromptOptimizationApi();
-    const catalog=getModelCatalog();
-    const refresh=()=>{if(Date.now()-lastRefresh<1000)return;catalog.invalidate();void refreshModelCatalog({force:true}).catch(()=>{});};
+    const refresh=()=>{if(Date.now()-lastRefresh<1000)return;void refreshModelCatalog({force:true}).catch(()=>{});};
     globalThis.addEventListener?.('online',refresh);
     globalThis.addEventListener?.('pageshow',refresh);
     globalThis.addEventListener?.('daelab:studio-reconnected',refresh);

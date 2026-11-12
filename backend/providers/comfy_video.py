@@ -32,7 +32,11 @@ class ComfyVideoProvider:
         if option is None:
             raise ProviderUnavailable(f'当前 ComfyUI 的 {self.label} 节点不支持此模型版本。')
         inputs = {**option['inputs'].get('required', {}), **option['inputs'].get('optional', {})}
-        return {name: (spec['options'] if kind == 'COMBO' else kind, spec) for name, (kind, spec) in inputs.items()}
+        options = {name: (spec['options'] if kind == 'COMBO' else kind, spec) for name, (kind, spec) in inputs.items()}
+        if 'generate_audio' in options:
+            kind, spec = options['generate_audio']
+            options['generate_audio'] = (kind, {**spec, 'default': True})
+        return options
 
     async def capabilities(self, model):
         def inspect():
@@ -80,6 +84,17 @@ class ComfyVideoProvider:
             raise InvalidInput('此生成方式只接收对应数量的首帧／尾帧图片。')
         if mode == 'mixed2video' and (not media or any(m['kind'] not in {'image', 'video'} for m in media)):
             raise InvalidInput('全能参考需要图片或视频素材。')
+        if mode == 'mixed2video':
+            for kind, label in (('image', '图片'), ('video', '视频')):
+                count = sum(item['kind'] == kind for item in media)
+                if not count:
+                    continue
+                group = f'reference_{kind}s'
+                if group not in options:
+                    raise InvalidInput(f'{config["model"]} 不接收{label}参考。')
+                slots = options[group][1]['template']['names']
+                if f'{kind}_{count}' not in slots:
+                    raise InvalidInput(f'{config["model"]} 最多接收 {len(slots)} 个{label}参考。')
         if mode in ('singleImage2video', 'frames2video') and any(segment.get('type') == 'asset' for segment in data.get('segments', [])):
             raise InvalidInput('首帧／首尾帧模式不能在提示词中 @ 素材，请通过帧选择入口填入图片。')
         prompt = compile_segments(data.get('segments', []), media)
@@ -105,10 +120,10 @@ class ComfyVideoProvider:
             kind = item['kind']
             counts[kind] += 1
             node_id = 'reference_' + str(index)
+            target = ('first_frame' if index == 0 else 'last_frame') if mode != 'mixed2video' else f'model.reference_{kind}s.{kind}_{counts[kind]}'
             path = self.media_input(item)
             graph[node_id] = {'class_type': 'LoadImage' if kind == 'image' else 'LoadVideo',
                               'inputs': {'image' if kind == 'image' else 'file': path}}
-            target = ('first_frame' if index == 0 else 'last_frame') if mode != 'mixed2video' else f'model.reference_{kind}s.{kind}_{counts[kind]}'
             inputs[target] = [node_id, 0]
         prefix = 'daelab/creative-studio/' + hashlib.sha256(request_id.encode()).hexdigest()[:24]
         graph['save'] = {'class_type': 'SaveVideo', 'inputs': {'video': ['generate', 0], 'filename_prefix': prefix,

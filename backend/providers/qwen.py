@@ -7,7 +7,7 @@ import json
 from ..contracts.errors import InvalidInput
 from .contracts import Observation, ProviderUnavailable, SubmissionRejected, SubmissionUncertain
 from .parameters import QWEN_MODEL
-from .canvas_instructions import INSTRUCTIONS, REVERSE_INSTRUCTIONS
+from .canvas_instructions import INSTRUCTIONS, purpose_instruction, reverse_instruction
 from .optimization_instructions import INSTRUCTIONS as TABLE_INSTRUCTIONS
 from .optimization_contract import validate_snapshot, suggestion
 
@@ -53,7 +53,8 @@ def qwen_request(data, image_bytes=None):
         if mode == 'polish' and image_bytes is not None:
             raise InvalidInput('Text polishing does not implicitly send an attached image.')
         text = json.dumps({'prompt': '' if mode == 'reverse' else data['source'], 'requirements': data['instruction']}, ensure_ascii=False)
-        instructions = REVERSE_INSTRUCTIONS if mode == 'reverse' else INSTRUCTIONS
+        instructions = (reverse_instruction(data.get('purpose')) if mode == 'reverse'
+                        else '\n'.join(filter(None, (INSTRUCTIONS, purpose_instruction(data.get('purpose'))))))
         context, maximum = 8192, 768
     body = {'model': QWEN_MODEL, 'system': instructions, 'prompt': text, 'stream': False, 'think': False, 'keep_alive': 0,
             'options': {'num_ctx': context, 'num_predict': maximum, 'temperature': .4}}

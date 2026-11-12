@@ -150,7 +150,7 @@ class NativeProvider:
         props = {'width': {'type': 'integer', 'displayName': '宽度', 'default': settings['width'], 'min': 256 if kind == 'image' else 32, 'max': 2048 if kind == 'image' else 16384, 'step': 32},
                  'height': {'type': 'integer', 'displayName': '高度', 'default': settings['height'], 'min': 256 if kind == 'image' else 32, 'max': 2048 if kind == 'image' else 16384, 'step': 32},
                  'seed': {'type': 'integer', 'displayName': '种子（-1 为随机）', 'default': -1, 'min': -1, 'max': 9007199254740991},
-                 'modeType': {'items': {'text2image': [0, 0]} if kind == 'image' else {'text2video': [0, 0], 'singleImage2video': [1, 1], 'frames2video': [2, 2]}}}
+                 'modeType': {'items': {'text2image': [0, 0]} if kind == 'image' else {'text2video': [0, 0], 'singleImage2video': [1, 1], 'lastImage2video': [1, 1], 'frames2video': [2, 2]}}}
         if self.reference:
             props['modeType']['items'] = {'image2video': [1, 9]}
         if kind == 'image' and {'LoadImage', 'ImageScale'}.issubset(set(self.inventory.node_types())):
@@ -212,7 +212,7 @@ class NativeProvider:
         names = {key: info['name'] for key, info in models.items()}
         prepared_media = [{**item, 'native_input': self.media_input(item)} for item in media]
         prefix = 'daelab/creative-studio/' + hashlib.sha256(request_id.encode()).hexdigest()[:24]
-        graph = image_graph(prompt, values, names, prefix, media=prepared_media, profile=self.image_profile) if self.kind == 'image' else video_graph(prompt, values, prepared_media, names, prefix, reference=self.reference)
+        graph = image_graph(prompt, values, names, prefix, media=prepared_media, profile=self.image_profile) if self.kind == 'image' else video_graph(prompt, values, prepared_media, names, prefix, reference=self.reference, last_only=config.get('mode') == 'lastImage2video')
         return {'kind': self.kind, 'model': self.model, 'models': models, 'settings': values, 'graph': graph,
                 'native_task_id': str(uuid.uuid5(uuid.NAMESPACE_URL, 'creative-studio:' + request_id))}
 

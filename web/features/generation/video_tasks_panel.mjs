@@ -56,11 +56,11 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
  root.dataset.fixedKind=String(!!fixedKind);
  const header=element('header',root,'video-task-heading');
  let changingType=false;
- const typeTabs=element('div',header,'video-task-types');typeTabs.setAttribute('role','group');typeTabs.setAttribute('aria-label','生成类型');
+ const typeTabs=element('div',header,'dae-media-types');typeTabs.setAttribute('role','group');typeTabs.setAttribute('aria-label','生成类型');
  typeTabs.hidden=!!fixedKind;
  const typeButtons=new Map();
  for(const [kind,label,icon] of [['image','图片','image-line'],['video','视频','film-line']]){
-  const control=button('',()=>changeType(kind));control.className='video-task-type';control.title=label+'生成';typeTabs.append(control);
+  const control=button('',()=>changeType(kind));control.className='dae-media-type';control.title=label+'生成';typeTabs.append(control);
   const glyph=element('span',control,'dae-table-icon');glyph.setAttribute('aria-hidden','true');glyph.style.setProperty('--table-icon',`url("${new URL('../../design/vendor/remixicon/'+icon+'.svg',import.meta.url).href}")`);element('span',control,'',label);typeButtons.set(kind,control);
  }
  const importButton=tableIcon(button('重新导入表格',()=>importSource()),'restart-line','重新导入表格');importButton.classList.add('video-task-import');importButton.hidden=true;
@@ -118,10 +118,10 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
  function priceRequest(row,cfg){
   if(!row||!isComfyGenerationModel(cfg?.model)||node.mode||inputError||!isDocumentReady())return null;
   try{
-   const frozen=generationInput(state.table,state.fieldId,row.id);
+   const frozen=generationInput(state.table,state.fieldId,row.id,{autoImageMode:true});
    if(!frozen.segments.some(segment=>segment.type==='text'&&segment.text?.trim()))return null;
-   if(['image2image','image2video','mixed2video'].includes(cfg.mode)&&!frozen.assets.length)return null;
-   const input={model:cfg.model,kind:cfg.kind,mode:cfg.mode,settings:cfg.settings,media:frozen.assets.map(asset=>({kind:asset.kind}))};
+   if(['image2image','image2video','mixed2video'].includes(frozen.config.mode)&&!frozen.assets.length)return null;
+   const input={model:cfg.model,kind:cfg.kind,mode:frozen.config.mode,settings:cfg.settings,media:frozen.assets.map(asset=>({kind:asset.kind}))};
    return {input,stamp:JSON.stringify(frozen)};
   }catch{return null;}
  }
@@ -140,7 +140,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
    estimate.setAttribute('aria-label',price?'当前任务预计 '+estimate.textContent+' 积分':'');
   }).catch(()=>{if(currentRequest()){estimate.hidden=true;estimate.textContent='';}});
  }
- function notify(message){notice=message;status.textContent=message;}
+ function notify(message){notice=message;status.textContent=message;status.hidden=!message;}
  function acceptMaterials(key,collection,{replace=true}={}){
   const row=state.table.records.find(r=>r.id===key);if(!row)throw new Error('任务已删除');
   if(node.mode||generation.submitting||active(row))throw new Error('请先中止当前生成');
@@ -174,9 +174,14 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
  }
  function schedule(){if(!disposed&&frame===null)frame=requestAnimationFrame(()=>{frame=null;render();});}
  const nativeDocument=documentFactory?.(()=>state,next=>{state=next;persist();promptStamp='';schedule();});
- const batchMode=()=>Boolean(state.source||state.approvedSource||state.table.records.length>1);
+ let hasBatchInput=false;
+ const batchMode=()=>Boolean(hasBatchInput||state.source||state.approvedSource||state.table.records.length>1);
  const remainingTasks=()=>state.table.records.filter(row=>!generation?.stateFor(row,state.fieldId)&&!row.values[state.fieldId]?.length);
- const active=row=>['waiting','running','pausing','interrupting'].includes(generation?.stateFor(row,state.fieldId)?.phase);
+ const activePhase=report=>['waiting','running','pausing','interrupting'].includes(report?.phase);
+ const active=row=>{
+  const report=generation?.stateFor(row,state.fieldId);
+  return activePhase(report)||!!report?.history?.some(activePhase);
+ };
  state.sourceScope={...taskIdentity,nodeId:String(node.id)};
  let historyGroup=null;
  function mutate(update,{render:draw=true,group=null,writePrompts=false}={}){
@@ -209,7 +214,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
  const editor={root,nativeDocument,taskIdentity:{...taskIdentity,nodeId:String(node.id)},beginAsync:(target={},id=crypto.randomUUID())=>nativeDocument?.beginRequest(id,target),canAsync:ticket=>nativeDocument?.canApply(ticket),releaseAsync:ticket=>nativeDocument?.releaseRequest(ticket),applyAsync:(tickets,update,options)=>nativeDocument?.controller.applyResults(tickets,'应用生成结果',draft=>update(draft.table),options),change:(update,options)=>mutate(next=>update(next.table),{...options,writePrompts:true}),
   refreshCells(){promptStamp='';schedule();},focusCell(id){selectTask(id);materials.scrollIntoView({block:'nearest'});},
   openTextSide:side.open,openDialog(title){const dialog=element('dialog',document.body,'dae-ui video-task-dialog');element('strong',dialog,'',title);dialogs.add(dialog);dialog.addEventListener('close',()=>{dialogs.delete(dialog);dialog.remove();});dialog.showModal();return dialog;}};
- generation=attachGenerationColumns({editor,getTable,getArchivedRows:()=>videoTaskHistoryRows(state).filter(item=>item.archived).map(item=>item.row),notify,kinds:fixedKind?[fixedKind]:['video','image'],observe:false,onRefresh:schedule,onPrepared:jobs=>outputNodes?.prepare(jobs,{batch:!!(state.source||state.approvedSource),rows:state.table.records}),onReports:reports=>outputNodes?.update(reports),canGenerate:()=>!disposed&&isDocumentReady()&&!node.mode&&!inputError&&(!fixedKind||config()?.kind===fixedKind),editPromptTemplate:id=>promptUI.editTemplate(id,state.currentId)});
+ generation=attachGenerationColumns({editor,getTable,autoImageMode:true,allowAttempts:()=>!batchMode(),getArchivedRows:()=>videoTaskHistoryRows(state).filter(item=>item.archived).map(item=>item.row),notify,kinds:fixedKind?[fixedKind]:['video','image'],observe:false,onRefresh:schedule,onPrepared:jobs=>outputNodes?.prepare(jobs,{batch:batchMode(),rows:state.table.records}),onReports:reports=>outputNodes?.update(reports),canGenerate:()=>!disposed&&isDocumentReady()&&!node.mode&&!inputError&&(!fixedKind||config()?.kind===fixedKind),editPromptTemplate:id=>promptUI.editTemplate(id,state.currentId)});
  promptUI=createPromptEditor({editor,getTable,notify,renderFrame:generation.renderFrame});
  function selectTask(id){binding?.finish();generation.close();clearRowHighlight();mutate(next=>{next.currentId=id;});syncRowHighlight();}
  async function changeType(kind){
@@ -219,13 +224,12 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
   finally{changingType=false;schedule();}
  }
  function removeTask(id){
-  const row=state.table.records.find(r=>r.id===id);if(!row||node.mode||generation.submitting)return;
+  const row=state.table.records.find(r=>r.id===id);if(!row||node.mode)return;
+  if(generation.submitting||active(row)){notify('生成中，请勿删除');return;}
   if(linkedTable&&state.source?.key===linkedTable.key){
    if(!deselectTableRow(linkedTable.node,id))return;
    syncSource();return;
   }
-  if(active(row)&&!window.confirm('当前任务正在进行中，确认取消吗？'))return;
-  if(active(row))void generation.pause([generation.stateFor(row,state.fieldId)]);
   binding?.finish();generation.close();
   mutate(next=>{const index=next.table.records.findIndex(r=>r.id===id);next.table.records.splice(index,1);if(next.currentId===id)next.currentId=next.table.records[Math.min(index,next.table.records.length-1)]?.id||'';});
  }
@@ -241,7 +245,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
    const link=node.graph?.links[input.link],source=node.graph?.getNodeById(link?.origin_id);
    return source&&['table','rows'].includes(generationInputKind(source,link.origin_slot));
   });
-  if(rail.hidden===batch){rail.hidden=!batch;schedule();}
+  if(hasBatchInput!==batch){hasBatchInput=batch;generation.close();rail.hidden=!batch;schedule();}
   const connected=new Set((node.inputs||[]).filter(input=>input.link!=null).map(input=>{
    const link=node.graph?.links[input.link];return link?String(link.origin_id)+':'+link.origin_slot:null;
   }));
@@ -254,7 +258,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
     if(detachedSource){
      const previous=config()||field()?.generation,empty=createVideoTasks();
      const output=empty.table.fields.find(field=>field.id===empty.fieldId);
-     if(previous)output.generation={...structuredClone(previous),promptFieldId:output.generation.promptFieldId,mode:'text2video'};
+     if(previous)output.generation={...structuredClone(previous),promptFieldId:output.generation.promptFieldId,mode:previous.kind==='image'?'text2image':'omni2video'};
      const scope=next.sourceScope;for(const key of Object.keys(next))delete next[key];Object.assign(next,empty,{sourceScope:scope});
     }else for(const name of detachedInputs)clearLinkedTaskInput(next,name);
    },{group:'input-disconnect'});
@@ -350,7 +354,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
     }
     if(next.table.records.some(r=>r.id===state.currentId))next.currentId=state.currentId;
    }
-   binding?.finish();delete prompt.dataset.inlineEditing;generation.invalidate();if(nativeDocument)nativeDocument.replace({...next,sourceScope:state.sourceScope});else{history?.begin();try{state=next;persist();}finally{history?.end();}}promptStamp='';resultsStamp='';generation.refresh();schedule();notify(`已导入 ${next.table.records.length} 个勾选行任务`);
+   binding?.finish();delete prompt.dataset.inlineEditing;generation.invalidate();if(nativeDocument)nativeDocument.replace({...next,sourceScope:state.sourceScope});else{history?.begin();try{state=next;persist();}finally{history?.end();}}promptStamp='';resultsStamp='';notice='';generation.refresh();schedule();
    }catch(error){inputError=error.message;notify(error.message);}
  }
  const thumbnails=new IntersectionObserver(entries=>{for(const {target,isIntersecting} of entries)if(isIntersecting){thumbnails.unobserve(target);target.src=target.dataset.thumbnailSrc;delete target.dataset.thumbnailSrc;}});
@@ -384,7 +388,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
    }
    const summary=card.querySelector('.video-task-card-prompt'),summaryText=text||'输入提示词…';if(summary.textContent!==summaryText)summary.textContent=summaryText;summary.hidden=Boolean(linkedTable);
    const selected=row.id===state.currentId,select=card.querySelector('[role=tab]');card.dataset.selected=String(selected);select.setAttribute('aria-selected',String(selected));select.tabIndex=selected?0:-1;select.title=row.name||`任务${index+1}`;
-   card.querySelector('.video-task-remove').disabled=!!node.mode||generation.submitting;
+   card.querySelector('.video-task-remove').disabled=!!node.mode;
    if(cards.children[index]!==card)cards.insertBefore(card,cards.children[index]||null);
   }
   for(const card of existing.values()){releaseThumbnails(card);card.remove();}
@@ -432,7 +436,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
   emptyMaterial.disabled=locked||!!uploadController||!row;
   root.dataset.kind=cfg?.kind||'video';typeTabs.setAttribute('aria-busy',String(changingType));for(const [kind,control] of typeButtons){control.disabled=locked||!row;control.setAttribute('aria-pressed',String(cfg?.kind===kind));}
   prompt.inert=locked;
-  const sharedSettings=state.table.records.length>1,settingsLocked=locked||['paused','needs_recovery'].includes(generation.stateFor(row,state.fieldId)?.phase);
+  const sharedSettings=batchMode(),settingsLocked=locked||['paused','needs_recovery'].includes(generation.stateFor(row,state.fieldId)?.phase);
   typeTabs.setAttribute('aria-label',sharedSettings?'全部任务生成类型':'生成类型');typeTabs.title=sharedSettings?'修改后同步全部任务；提示词和参考素材分别保留':'';
   for(const control of typeButtons.values())control.disabled=settingsLocked||!row;
   if(cfg)settings.update(cfg,sharedSettings?'全部任务':'当前任务',sharedSettings?'all':'cell');settings.root.hidden=!row;settings.root.inert=settingsLocked;
@@ -484,8 +488,9 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
  }
  window.addEventListener('dae-canvas-layout',syncRowHighlight);
  persist();generation.refresh();sync();
- return {root,status,run,creativeButtons:[],creativeFields:[],tasks:generation.tasks,sync,close:()=>{side.hide();generation.close();materials.dataset.selected='false';materials.dispatchEvent(new Event('dae-cell-selection-change'));materials.dataset.selected=String(!node.mode);materials.dispatchEvent(new Event('dae-cell-selection-change'));},assets:()=>videoTaskAssets({...state,table:generation.projectedTable()}),
+ return {root,status,run,batchMode,creativeButtons:[],creativeFields:[],tasks:generation.tasks,sync,close:()=>{side.hide();generation.close();materials.dataset.selected='false';materials.dispatchEvent(new Event('dae-cell-selection-change'));materials.dataset.selected=String(!node.mode);materials.dispatchEvent(new Event('dae-cell-selection-change'));},assets:()=>videoTaskAssets({...state,table:generation.projectedTable()}),
   hasActiveRows:ids=>state.table.records.some(row=>ids.includes(row.id)&&active(row)),
+  deletionWarning:()=>generation.submitting||state.table.records.some(active)?'生成中，请勿删除':'',
   materialTargets:()=>[],
   acceptMaterials,
   acceptResult(message){if(message.daelab_video_task_result)return;notify('原生任务已完成；新任务请使用节点内运行按钮');},

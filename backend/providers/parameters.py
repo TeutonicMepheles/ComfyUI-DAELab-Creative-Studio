@@ -3,6 +3,7 @@
 No model discovery, queue, network or seed regeneration occurs on recovery.
 """
 import math
+import re
 import secrets
 
 from ..contracts.errors import InvalidInput
@@ -28,7 +29,7 @@ VIDEO_FILES = {
     'audio_vae': 'minimax_h3_audio_vae_fp32.safetensors',
     'loras': 'minimax_h3_fl2v_turbo_8step_v1.0_comfyui_bf16.safetensors',
 }
-MODES = {'text2video': 0, 'singleImage2video': 1, 'frames2video': 2}
+MODES = {'text2video': 0, 'singleImage2video': 1, 'lastImage2video': 1, 'frames2video': 2}
 
 
 class StructuredPrompt(str):
@@ -141,7 +142,31 @@ def image_graph(text, values, files, prefix, *, media=(), profile="turbo"):
     return graph
 
 
-def video_graph(text, values, media, files, prefix, *, reference=False):
+def minimax_frame_prompt(text, *, first, last, duration):
+    # Replace a prior alignment line only when it is a model header, never scene prose.
+    line, separator, body = text.partition('\n')
+    if separator and (
+        re.fullmatch(r'帧对齐：<Picture 1>（\[Shot \d+\]）对应(?:首帧 0\.00|尾帧 \d+\.\d{2}) 秒(?:；<Picture 2>（\[Shot \d+\]）对应尾帧 \d+\.\d{2} 秒)?。', line.rstrip('\r'))
+        or (line.startswith(('For the target video, at 0.00 seconds into the target video, <Picture 1>',
+                             'How the reference pictures align with the target video — '))
+            and line.rstrip().endswith(('is fully referenced.', 'mark of the target video.')))
+    ):
+        text = body.lstrip('\r\n')
+    if not first and not last:
+        return text
+    if last:
+        shots = re.findall(r'(?m)^\s*(?:integrated_multimodal_description\s*:\s*)?\[Shot (\d+)\]', text)
+        shot = shots[-1] if shots else '1'
+        opening = 'Picture 1 (from Shot 1) aligns with the 0.00-second mark of the target video; ' if first else ''
+        ending = f'Picture 2 (from Shot {shot})' if first else f'<Picture 1> (from [Shot {shot}])'
+        header = (f'How the reference pictures align with the target video — {opening}{ending} '
+                  f'aligns with the {duration:.2f}-second mark of the target video.')
+    else:
+        header = 'For the target video, at 0.00 seconds into the target video, <Picture 1> (from [Shot 1]) is fully referenced.'
+    return header + '\n\n' + text
+
+
+def video_graph(text, values, media, files, prefix, *, reference=False, last_only=False):
     length = max(5, round(values['duration'] * 24))
     length += (5 - length % 17) % 17
     for span in reversed(text.reference_spans):
@@ -175,7 +200,10 @@ def video_graph(text, values, media, files, prefix, *, reference=False):
             graph[name] = node('LoadImage', image=item['native_input'])
             graph['condition']['inputs'][f'ref_images.ref_image_{index}'] = [name, 0]
             continue
-        name = 'first_frame' if index == 0 else 'last_frame'
+        name = 'last_frame' if last_only or index else 'first_frame'
         graph[name] = node('LoadImage', image=item['native_input'])
         graph['condition']['inputs'][name] = [name, 0]
+    inputs = graph['condition']['inputs']
+    inputs['prompt'] = minimax_frame_prompt(inputs['prompt'], first='first_frame' in inputs,
+                                          last='last_frame' in inputs, duration=length / graph['video']['inputs']['fps'])
     return graph

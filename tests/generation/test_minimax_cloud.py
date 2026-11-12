@@ -11,6 +11,8 @@ def schema(node_id):
         return None
     inputs = {'prompt': ('STRING', {'default': ''}), 'resolution': ('COMBO', {'options': ['768P', '2K']}),
               'duration': ('INT', {'default': 5, 'min': 4, 'max': 15})}
+    for kind, maximum in [('image', 9), ('video', 3)]:
+        inputs[f'reference_{kind}s'] = ('COMFY_AUTOGROW_V3', {'template': {'names': [f'{kind}_{i+1}' for i in range(maximum)]}})
     if node_id != MinimaxProvider.nodes['frames2video']:
         inputs['ratio'] = ('COMBO', {'options': ['16:9', '9:16'], 'default': '16:9'})
     return {'required': {'model': ('COMFY_DYNAMICCOMBO_V3', {'options': [
@@ -63,6 +65,7 @@ class MinimaxCloudTests(unittest.IsolatedAsyncioTestCase):
     async def test_frame_roles_and_local_cloud_identity_are_separate(self):
         media = [{'kind': 'image', 'name': 'first.png'}, {'kind': 'image', 'name': 'last.png'}]
         graph = self.provider.build(self.data('frames2video'), media, 'frames')['graph']
+        self.assertEqual(graph['generate']['inputs']['model.prompt'], '合成测试')
         self.assertEqual(graph['generate']['inputs']['first_frame'], ['reference_0', 0])
         self.assertEqual(graph['generate']['inputs']['last_frame'], ['reference_1', 0])
         self.assertEqual(MODELS['Minimax H3'], 'comfy-minimax')

@@ -1,10 +1,12 @@
 import {registerAdapter} from '../../../../canvas/creative_contract.mjs';
 import {readAsset} from '../../../../features/assets/media_upload_model.mjs';
+import {generationOutputConnected} from '../generation_output_binding.js';
 registerAdapter('daelab.upload', {
     matches: node => node.type === 'DAELAB.MediaUpload', width:350, expanded:true,
     menu:[{label:'上传元素',type:'DAELAB.MediaUpload',icon:'upload-2-line'}],
     inputLabels:{source_report:'来源任务',source_video:'来源剪辑'},
     canConnectInput:node=>!!node.properties?.editOutput||!!node.properties?.generationOutput&&node.properties.generationOutput.groupId==null,
+    deletionWarning:node=>node.properties?.materialPlaceholder?.busy&&generationOutputConnected(node,node.properties.generationOutput?.nodeId)?'生成中，请勿删除':'',
     prepareCopy(node,data){if(data.properties){delete data.properties.generationOutput;delete data.properties.editOutput;if(data.properties.materialPlaceholder)data.properties.materialPlaceholder={phase:'stopped',label:'副本未绑定任务',detail:'请从生成节点重新生成',busy:false};}},
     tasks: node => node.__mediaUpload?.tasks()||[],
     panel: node => node.__mediaUpload,

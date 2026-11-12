@@ -146,7 +146,7 @@ function createPanel(node){
   const report=linkedReport(node);if(!report)return;
   const next=clone(node.__dataTable);writeGenerationResults(next,report);if(JSON.stringify(next)!==JSON.stringify(node.__dataTable)){editor.nativeDocument.replace(next,{derived:true,afterWrite:()=>{editor.render();updateSummary();}});}
  };
- const presentation=isGeneric(node)?installContentPresentation({root,editor,getTable:()=>node.__dataTable,notify,editPromptTemplate:id=>promptUI.editTemplate(id),extractText:selection=>createTextNodeFromCell(node,node.__dataTable,selection),outputTable:detail=>{
+ const presentation=isGeneric(node)?installContentPresentation({root,editor,columnMenuOnClick:false,getTable:()=>node.__dataTable,notify,editPromptTemplate:id=>promptUI.editTemplate(id),extractText:selection=>createTextNodeFromCell(node,node.__dataTable,selection),outputTable:detail=>{
   const key=tableOutputKey(detail.fieldId,detail.scope==='cell'?detail.recordId:null);
   (detail.anchor||root).dispatchEvent(new CustomEvent('dae-table-output',{bubbles:true,detail:{...detail,key}}));
  },onPresentationChange:active=>views.setContent(active)}):null;

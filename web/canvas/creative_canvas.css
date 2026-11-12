@@ -144,7 +144,15 @@
   --dae-canvas-zoom:initial;
   --dae-canvas-inverse-zoom:initial;
 }
-.dae-creative .dae-text-input>textarea[data-creative-field]{border:0!important;border-radius:var(--dae-radius-card)!important;background:transparent!important;box-shadow:none;outline:none!important}
+.dae-creative .dae-text-input>textarea[data-creative-field]{
+  border:0!important;border-radius:var(--dae-radius-card)!important;background:transparent!important;box-shadow:none;outline:none!important;
+  resize:none!important;overflow-y:auto;scrollbar-width:auto;scrollbar-color:auto;
+}
+.dae-creative .dae-text-input>textarea::-webkit-scrollbar{width:10px}
+.dae-creative .dae-text-input>textarea::-webkit-scrollbar-track{background:transparent;margin-block:10px}
+.dae-creative .dae-text-input>textarea::-webkit-scrollbar-thumb{border-inline:2px solid transparent;border-radius:6px;background:var(--dae-border-control) padding-box}
+.dae-creative .dae-text-input>textarea::-webkit-scrollbar-thumb:hover{background-color:var(--dae-text-muted)}
+.dae-creative .dae-text-input>textarea::-webkit-scrollbar-button{display:none}
 .dae-creative-card:has(>.dae-creative-body>.dae-text-input textarea:focus-visible){border-color:var(--dae-focus);box-shadow:0 0 0 1px var(--dae-focus),var(--dae-elevation-card)}
 .dae-creative button.dae-creative-header-action{display:grid;place-items:center;width:32px;min-width:32px;height:32px;min-height:32px;padding:0!important;border:0!important;border-radius:6px!important;background:transparent!important;color:var(--dae-text)!important}
 .dae-creative .dae-creative-card>button.dae-creative-header-action{position:absolute;top:12px;right:12px;z-index:3}

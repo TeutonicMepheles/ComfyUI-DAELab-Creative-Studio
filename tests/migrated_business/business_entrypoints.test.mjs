@@ -41,7 +41,7 @@ test('production entry closure loads before graph initialization and exposes onl
  }
  assert.equal(table.onConnectInput(1,'STRING',{}, {type:'DAELAB.TextInput'},0),true,'other native inputs keep their contract');
  for(const extension of extensions)extension.registerCustomNodes?.();
- assert.deepEqual([...types.keys()],['DAELAB.LLMStylePreviewB']);
+ assert.equal(types.size,0,'server-backed nodes must not be shadowed by a second client registration');
  const formal=new Set(['DAELAB.Table','DAELAB.StoryboardImport','DAELAB.ScriptParser','DAELAB.LLMStylePreviewB','DAELAB.LibTV.VideoGenerate','DAELAB.ImageGenerate','DAELAB.VideoGenerate']);
  const media=adapters.find(adapter=>adapter.matches({type:'DAELAB.ImageGenerate'})),release=registerAdapter('test.actual-media-defaults',media);t.after(release);
  for(const type of ['DAELAB.ImageGenerate','DAELAB.VideoGenerate']){
@@ -57,8 +57,15 @@ test('production entry closure loads before graph initialization and exposes onl
   for(const extension of extensions)await extension.beforeRegisterNodeDef?.(Unknown,{name:type});
   assert.deepEqual(Object.getOwnPropertyDescriptors(Unknown.prototype),before,type);
  }
- const node=new(types.get('DAELAB.LLMStylePreviewB'))();
- assert.deepEqual(node.inputs.map(v=>[v.name,v.type]),[['原文','STRING'],['参考图片','IMAGE'],['素材组','DAELAB_ASSETS'],['多维表格','STRING'],['其他输入','*']]);
- assert.deepEqual(node.outputs.map(v=>[v.name,v.type]),[['结果','STRING'],['逐行结果','STRING']]);
- assert.deepEqual(node.widgets.map(v=>v.name),['applied_text','applied_rows']);
+ for(let registration=0;registration<2;registration++){
+  class NativeText extends LGraphNode{removeInput(index){this.inputs.splice(index,1);}}
+  const data={name:'DAELAB.LLMStylePreviewB',display_name:'已应用提示词'};
+  for(const extension of extensions)await extension.beforeRegisterNodeDef?.(NativeText,data);
+  const node=new NativeText();node.properties={};for(const name of ['applied_text','applied_rows']){node.addInput(name,'STRING');node.addWidget('text',name,'');}
+  node.addOutput('结果','STRING');node.addOutput('逐行结果','STRING');node.onNodeCreated();
+  assert.equal(data.display_name,'文本生成');assert.equal(typeof node.onAdded,'function');
+  assert.deepEqual(node.inputs.map(v=>[v.name,v.type]),[['原文','STRING'],['参考图片','IMAGE'],['素材组','DAELAB_ASSETS'],['多维表格','STRING'],['其他输入','*']]);
+  assert.deepEqual(node.outputs.map(v=>[v.name,v.type]),[['结果','STRING'],['逐行结果','STRING']]);
+  assert.deepEqual(node.widgets.map(v=>[v.name,v.hidden,v.serializeValue()]),[['applied_text',true,''],['applied_rows',true,'']]);
+ }
 });

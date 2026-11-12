@@ -78,6 +78,10 @@ class Native27BTests(unittest.IsolatedAsyncioTestCase):
         body=prompt.split('<|im_start|>user\n',1)[1].split('<|im_end|>',1)[0]
         self.assertEqual(json.loads(body),{'prompt':source,'requirements':'Keep line\nbreaks'})
 
+    def test_repeated_native_requests_get_distinct_cache_keys(self):
+        inputs = {'prompt': 'same text', 'max_length': 1024}
+        self.assertNotEqual(NativeText.IS_CHANGED(**inputs), NativeText.IS_CHANGED(**inputs))
+
     def test_native_27b_disables_only_mtp_and_preserves_pe_defaults(self):
         calls=[]
         class Clip:

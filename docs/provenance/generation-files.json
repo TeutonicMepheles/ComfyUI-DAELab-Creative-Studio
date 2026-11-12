@@ -92,7 +92,7 @@
     },
     {
       "destination": "backend/generation/http.py",
-      "destinationSha256": "31d58264c9f89c072f3b823ddf9c44cc9905f476ee6a6801861eab96a15811c7",
+      "destinationSha256": "f2e035596b2ce67d6c2aebfddf447f1e28ed611a94cd7fd86d819f96d6250d32",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -275,7 +275,7 @@
     },
     {
       "destination": "backend/providers/canvas_instructions.py",
-      "destinationSha256": "b0bb08127a8fa1ef1d37c64dd7b2df9a4e87a6403744d4fa2662f47ef3bd4fef",
+      "destinationSha256": "32ba91ee181d0844efd5d0d9c15cd0d48b2c5e53c6457bc819ad68c3d375dceb",
       "kind": "migrated-pure-rule",
       "source": "nodes/prompt_optimization/canvas.py",
       "sourceSha256": "dab18cc14060d8b3df3956a22fa04f188ac653e99951fdf5f3c302d3b34dec9d",
@@ -378,7 +378,7 @@
     },
     {
       "destination": "backend/providers/parameters.py",
-      "destinationSha256": "a22bac5ea59c0debb0e023f7e71e117f2afc81eb5709be245e7f74929218a5f4",
+      "destinationSha256": "f3072c087340a3e89f82d758f08e51f2d521a6e020a1e5520688c20dc747d469",
       "kind": "migrated-pure-rule",
       "source": "nodes/libtv_bridge/table_generation.py",
       "sourceSha256": "0a79d391377741187a91f0a7aa641c13d5bd7c70837b21ad25752b7a376e1ca0",
@@ -407,7 +407,7 @@
     },
     {
       "destination": "backend/providers/qwen.py",
-      "destinationSha256": "6414728273206643359f2d5e0f0a1f275a3eba59a9cde561b3df0a80a0ff2f74",
+      "destinationSha256": "7918742bbbadb1301858ab2b1b3cbca6630fe71f3cab0d919b2324f89abdbee9",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -694,7 +694,7 @@
     },
     {
       "destination": "tests/generation/test_parameters.py",
-      "destinationSha256": "de0a1f2e6894e7ae2be911c2ff46d9eca9fb7d909fd0128affb5cef2e274fb2b",
+      "destinationSha256": "eadb2fd797ba1d8c44a19fe80672302b705bcd9ee0d2b32050d67d54d78ff7a9",
       "kind": "offline-test-evidence",
       "source": null,
       "sourceSha256": null,
@@ -843,7 +843,7 @@
       "source": null,
       "destination": "frontend/src/features/prompt/text_templates.ts",
       "sourceSha256": null,
-      "destinationSha256": "de3036ed74e3ef40173530ed8e8387b9590de2863ead076b7823d0ccb27dc950",
+      "destinationSha256": "6d4b7c433136480f77ef040e7aa570544cd7bd271f6e088dc239f2e57fdf5189",
       "origin": "authored",
       "changes": [
         "2026-11-04: typed entry identity, provider source presentation and editable template contracts with focused regression coverage."
@@ -854,7 +854,7 @@
       "source": null,
       "destination": "tests/migrated_business/generation_families.test.mjs",
       "sourceSha256": null,
-      "destinationSha256": "defc3f4a46a2e2afefee317ee6a4254804913c2e14a55713064ff31a89601fa7",
+      "destinationSha256": "de1aa983d194c029fdf059157768b9bd2d0cb0ea860beccbcb68667b02d25e78",
       "origin": "authored",
       "changes": [
         "2026-11-04: typed entry identity, provider source presentation and editable template contracts with focused regression coverage."
@@ -885,7 +885,7 @@
     },
     {
       "destination": "backend/providers/native_text.py",
-      "destinationSha256": "79e2fcac913f432d0b02e9e1e1c3b1eee0d611d0f39189d0d6f11e52da53e41a",
+      "destinationSha256": "98c00e973a5f3dd57ca2ece512248db36229ea6a604d584ac7ad71ba90149324",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -896,7 +896,7 @@
     },
     {
       "destination": "backend/integrations/comfyui/generation_nodes/native_text.py",
-      "destinationSha256": "acd985bee65da720ef01c5fb878e4ddbd5fd70b53903d4df4de0d65f431fa16a",
+      "destinationSha256": "7cdb054be85e2147e003c4ab02e7b2f110ee5f1e3f155975064a71287e41d9fb",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,
@@ -908,7 +908,7 @@
     },
     {
       "destination": "backend/providers/native_27b.py",
-      "destinationSha256": "10150016fec60b62b8cb965843d0b43950edb5fa779e78dc14e39d46c3335a1e",
+      "destinationSha256": "24276714643b9bd1776c914f30076e8a0e2d5d7c5341131bb71c1009561cbefe",
       "kind": "authored-production-adapter",
       "source": null,
       "sourceSha256": null,

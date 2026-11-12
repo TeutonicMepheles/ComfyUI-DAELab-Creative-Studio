@@ -1,6 +1,6 @@
 const resolving=new Set();
 export function textSnapshot(node,read){
-    if(node.mode||resolving.has(node))return {version:1,ready:false,texts:[]};
+    if(node.mode||resolving.has(node)||node.properties?.textOutputPending&&node.inputs?.some(i=>i.name==='source_report'&&i.link!=null))return {version:1,ready:false,texts:[]};
     const input=node.inputs?.find(i=>i.name==='text');
     if(input?.link==null)return {version:1,texts:[String(node.widgets?.find(w=>w.name==='text')?.value??'')]};
     const link=node.graph?.links[input.link],source=node.graph?.getNodeById(link?.origin_id);

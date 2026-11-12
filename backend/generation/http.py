@@ -140,6 +140,8 @@ def routes(service):
             if payload.get('mode') == 'reverse':
                 assets.append(await asyncio.to_thread(image_data_reference, service.assets, payload.get('imageDataUrl')))
             data = {key: payload.get(key) for key in ('model', 'mode', 'source', 'instruction')}
+            if 'purpose' in payload:
+                data['purpose'] = payload['purpose']
             data.update(entry='canvas', assets=assets)
             source_scope = payload.get('sourceScope')
             if source_scope is not None and not isinstance(source_scope, dict):

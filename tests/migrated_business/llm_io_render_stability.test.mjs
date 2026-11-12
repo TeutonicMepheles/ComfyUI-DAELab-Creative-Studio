@@ -36,7 +36,7 @@ function environment(t){
   }
   append(...nodes){for(const node of nodes){this.children.push(node);node.parentElement=this;}}
   replaceChildren(...nodes){this.children=[];this.append(...nodes);}
-  before(){} after(node){this.afterNode=node;}
+  before(node){this.beforeNode=node;} after(node){this.afterNode=node;}
   remove(){this.isConnected=false;}
   closest(){return this.section;}
   querySelector(selector){return this.queries?.[selector]??null;}
@@ -78,18 +78,18 @@ function panel(t,env,id,{proposal=false,provider='qwen',nativeInstruction=false,
   const editor=new Function('el','saved','variant','write','fields','releases','sharedFields','return ('+editorFactories[0]+');')(el,state,{id:'B'},write,[],[],undefined);
   return editor(label,key,fallback,cls).input;
  };
- const root=new Element(),source=nativeSource?makeField('原始文字','source','','llm-style-source'):new Element('textarea'),instruction=nativeInstruction?makeField('处理要求','instruction','fallback','llm-style-instruction'):new Element('textarea'),select=new Element('select'),run=new Element('button'),result=new Element(),heading=new Element(),materialHint=new Element(),sourceSection=new Element();
+ const root=new Element(),source=nativeSource?makeField('原始文字','source','','llm-style-source'):new Element('textarea'),instruction=nativeInstruction?makeField('处理要求','instruction','fallback','llm-style-instruction'):new Element('textarea'),select=new Element('select'),run=new Element('button'),footer=new Element(),materialHint=new Element(),sourceSection=new Element();
  root.modes=['polish','reverse'].map(mode=>{const button=new Element('button');button.dataset.mode=mode;return button;});
- source.section=sourceSection;instruction.value=state().instruction;run.append(new Element('span'));result.queries={'.llm-style-result-head':heading};materialHint.parentElement=new Element();
- const release=bindIOPanel({node,nativeDocument,root,source,instruction,select,run,result,materialHint});
+ source.section=sourceSection;instruction.value=state().instruction;run.append(new Element('span'));materialHint.parentElement=new Element();
+ const release=bindIOPanel({node,nativeDocument,root,source,instruction,select,run,footer,materialHint});
  t.after(()=>{release();nativeDocument.dispose();});
- const [paragraph,status,actions]=result.children,[apply,undo,regenerate,recover]=actions.children,imageSection=sourceSection.afterNode,imageBox=imageSection.children[1],[image,imageText]=imageBox.children;
- return {node,upstream,state,outputs,history,nativeDocument,root,source,instruction,select,run,paragraph,status,apply,undo,regenerate,recover,sourceSection,imageSection,imageBox,image,imageText,release};
+ const status=footer.beforeNode,imageSection=sourceSection.afterNode,imageBox=imageSection.children[1],[image,imageText]=imageBox.children;
+ return {node,upstream,state,outputs,history,nativeDocument,root,source,instruction,select,run,status,sourceSection,imageSection,imageBox,image,imageText,release};
 }
 
 test('table connections disable reverse even with one row or invalid input; disconnect restores single-image mode',t=>{
  const env=environment(t),a=panel(t,env,30),b=panel(t,env,31),table=createMaterialTable(),field=addField(table,{name:'提示词',type:'text'});
- setPromptSource(table,field.id);table.records=table.records.slice(0,1);table.records[0].selected=true;table.records[0].values[field.id]='表格原文';
+ a.state().model='gpt-6-luna';setPromptSource(table,field.id);table.records=table.records.slice(0,1);table.records[0].selected=true;table.records[0].values[field.id]='表格原文';
  a.upstream.type='DAELAB.Table';a.upstream.widgets=[{name:'table_data',value:JSON.stringify(table)}];a.state().mode='reverse';env.tick();
  assert.equal(a.root.modes[1].disabled,true);assert.equal(a.state().mode,'polish');assert.equal(a.source.value,'表格原文');assert.equal(a.root.classList.contains('has-task-list'),true);assert.equal(b.root.modes[1].disabled,false);
  a.state().mode='reverse';env.tick();assert.equal(a.state().mode,'polish');
@@ -99,14 +99,9 @@ test('table connections disable reverse even with one row or invalid input; disc
  env.reset();env.tick();assert.equal(env.writes.length,0);
 });
 
-test('completed optimization receipts label current model IDs and legacy aliases without rewriting saved results',t=>{
- const env=environment(t);
- for(const [index,[provider,label]] of [[QWEN_MODEL,'本地 Qwen 结果'],['qwen','本地 Qwen 结果'],['deepseek-flash','DeepSeek 结果'],['deepseek','DeepSeek 结果'],['gpt-6-luna','GPT-6 Luna 结果（Comfy）']].entries()){
-  const a=panel(t,env,50+index,{proposal:true,provider}),before=JSON.stringify(a.state());
-  assert.ok(a.status.textContent.startsWith(label),`${provider}: ${a.status.textContent}`);
-  assert.doesNotMatch(a.status.textContent,/示例结果|未调用模型/);
-  env.tick();assert.equal(JSON.stringify(a.state()),before);
- }
+test('opening an older saved proposal does not add a recovery control or publish on load',t=>{
+ const env=environment(t),a=panel(t,env,50,{proposal:true}),before=JSON.stringify(a.state());
+ env.tick();assert.equal(a.run.beforeNode,undefined);assert.equal(a.state().appliedIO,undefined);assert.equal(JSON.stringify(a.state()),before);
 });
 
 test('PE table mode follows per-row reference images and model switches without bypassing missing images',t=>{
@@ -126,9 +121,9 @@ test('PE table mode follows per-row reference images and model switches without 
 test('LLM model options use logical catalog values while legacy aliases remain read-compatible',t=>{
  const env=environment(t),a=panel(t,env,32);
  const options=a.select.children,values=options.filter(option=>!option.disabled).map(option=>option.value);
- assert.ok(values.includes(QWEN_MODEL));assert.equal(values.includes('qwen'),false);assert.equal(values.includes('deepseek'),false);
+ assert.ok(values.includes('qwen3.8-27b-w4a8'));assert.ok(!values.includes(QWEN_MODEL));assert.equal(values.includes('qwen'),false);assert.equal(values.includes('deepseek'),false);
  assert.equal(options.find(option=>option.value==='qwen'),undefined);
- assert.equal(a.state().model,'qwen');assert.equal(a.select.value,QWEN_MODEL);
+ assert.equal(a.state().model,'qwen');assert.equal(a.select.value,'qwen3.8-27b-w4a8');
 });
 
 test('manual source persists with native history and caret, while links temporarily take precedence in independent panels',async t=>{
@@ -156,7 +151,7 @@ test('two unchanged panels perform no repeated DOM writes while polling fresh in
  env.reset();for(let i=0;i<3;i++){a.release.sync();b.release.sync();}env.tick();
  assert.deepEqual(env.timers.map(timer=>timer.delay),[500,500]);
  assert.equal(a.outputs.length-initialOutputs[0],4);assert.equal(b.outputs.length-initialOutputs[1],4);
- assert.equal(env.reads.get(a.upstream)-initialReads[0],8);assert.equal(env.reads.get(b.upstream)-initialReads[1],8);
+ assert.equal(env.reads.get(a.upstream)-initialReads[0],4);assert.equal(env.reads.get(b.upstream)-initialReads[1],4);
  assert.deepEqual([JSON.stringify(a.state()),JSON.stringify(b.state())],before);assert.equal(a.history.begins+b.history.begins+a.history.amends+b.history.amends,0);
  assert.equal(env.writes.length,0,JSON.stringify(env.writes.map(({property,value})=>({property,value}))));
  // Actual DOM is authoritative for reconciliation, not a remembered render key.
@@ -169,7 +164,7 @@ test('two unchanged panels perform no repeated DOM writes while polling fresh in
 test('fresh input, derived instructions, mode/error/waiting and image changes still reconcile independently',async t=>{
  const env=environment(t),a=panel(t,env,3),b=panel(t,env,4),bBefore=JSON.stringify(b.state());
  a.upstream.snapshot={version:1,inputMode:'image-instructions',texts:['连线要求'],assets:[{kind:'image',filename:'first.png',name:'首图'}]};a.release.sync();
- assert.equal(a.state().mode,'reverse');assert.equal(a.instruction.value,'连线要求');assert.equal(a.instruction.readOnly,true);assert.equal(a.sourceSection.hidden,true);assert.equal(a.imageSection.hidden,false);assert.equal(a.image.alt,'首图');assert.match(a.image.src,/first.png/);assert.equal(a.imageBox.classList.contains('has-image'),true);assert.equal(a.history.amends,1);assert.equal(a.history.begins,0);
+ assert.equal(a.state().mode,'reverse');assert.match(a.instruction.value,/^观察参考图片[\s\S]*连线要求$/);assert.equal(a.instruction.readOnly,true);assert.equal(a.sourceSection.hidden,true);assert.equal(a.imageSection.hidden,false);assert.equal(a.image.alt,'首图');assert.match(a.image.src,/first.png/);assert.equal(a.imageBox.classList.contains('has-image'),true);assert.equal(a.history.amends,1);assert.equal(a.history.begins,0);
  a.upstream.snapshot.assets[0]={kind:'image',filename:'second.png',name:'次图'};a.release.sync();assert.match(a.image.src,/second.png/);assert.equal(a.image.alt,'次图');
  a.upstream.snapshot={version:1,texts:['新输入']};a.release.sync();assert.equal(a.state().mode,'polish');assert.equal(a.instruction.value,'手动要求');assert.equal(a.instruction.readOnly,false);assert.equal(a.source.value,'新输入');assert.equal(a.image.hidden,true);assert.equal(a.imageText.hidden,false);assert.equal(a.imageBox.classList.contains('has-image'),false);
  for(const mode of [2,4,0]){a.node.mode=mode;a.release.sync();assert.equal(a.run.disabled,!!mode);assert.equal(a.instruction.disabled,!!mode);assert.equal(a.root.modes[0].disabled,!!mode);}
@@ -181,38 +176,8 @@ test('fresh input, derived instructions, mode/error/waiting and image changes st
  env.reset();a.release.sync();b.release.sync();assert.equal(env.writes.length,0);
 });
 
-test('saved proposal, apply/undo history and stale native output preserve their existing behavior',async t=>{
- const env=environment(t),a=panel(t,env,5,{proposal:true}),b=panel(t,env,6);
- assert.equal(a.paragraph.textContent,'结果 5');assert.equal(a.apply.disabled,false);assert.match(a.status.textContent,/待应用/);
- await a.apply.click();assert.equal(a.history.begins,1);assert.equal(a.state().appliedIO.requestId,'review-5');assert.equal(a.apply.hidden,true);assert.equal(a.undo.hidden,false);assert.deepEqual(a.outputs.at(-1),[0,'结果 5']);assert.match(a.status.textContent,/已应用/);
- env.reset();a.release.sync();b.release.sync();assert.equal(env.writes.length,0);
- await a.undo.click();a.release.sync();assert.equal(a.state().appliedIO,undefined);assert.equal(a.state().ioResult.requestId,'review-5');assert.equal(a.undo.hidden,true);assert.deepEqual(a.outputs.at(-1),[0,null]);assert.equal(a.history.begins,1);
- a.upstream.snapshot.texts[0]='changed';a.release.sync();assert.equal(a.apply.disabled,true);assert.match(a.status.textContent,/输入已改变/);assert.deepEqual(a.outputs.at(-1),[0,null]);assert.equal(b.paragraph.textContent,'');
-});
-
-test('manual result review edits apply through the original ticket and become read-only when stale',async t=>{
- const env=environment(t),a=panel(t,env,15,{proposal:true});
- assert.equal(a.paragraph.tagName,'p');
- assert.equal(a.paragraph.contentEditable,'plaintext-only');
- a.paragraph.textContent='人工修改后的结果\n第二行';await a.paragraph.emit('input');
- assert.equal(a.state().ioResult.rows[0].result,'结果 15','the saved receipt stays immutable while reviewing');
- assert.match(a.status.textContent,/结果已修改/);
- await a.apply.click();
- assert.equal(a.state().appliedIO.rows[0].result,'人工修改后的结果\n第二行');
- assert.deepEqual(a.outputs.at(-1),[0,'人工修改后的结果\n第二行']);
- a.upstream.snapshot.texts[0]='changed';a.release.sync();
- assert.equal(a.paragraph.contentEditable,'false');assert.equal(a.apply.disabled,true);
-});
-
-test('nullable result text and normalized boolean controls retain DOM assignment semantics',t=>{
+test('normalized boolean controls retain DOM assignment semantics',t=>{
  const env=environment(t),a=panel(t,env,9,{proposal:true});
- for(const result of [null,undefined,'']){
-  a.state().ioResult.rows[0].result=result;a.release.sync();assert.equal(a.paragraph.textContent,'');
-  env.reset();a.release.sync();assert.equal(env.writes.length,0);
- }
- // Native textContent null/undefined normalize to empty; no redundant clear.
- a.paragraph.textContent=null;assert.equal(a.paragraph.textContent,'');a.paragraph.textContent=undefined;assert.equal(a.paragraph.textContent,'');
- env.reset();a.release.sync();assert.equal(env.writes.length,0);
  // IDL booleans are read as booleans even when another control wrote a raw
  // truthy value. Reconciliation still restores the current product state.
  a.instruction.readOnly='false';assert.equal(a.instruction.readOnly,true);a.source.disabled=1;a.image.hidden=null;a.imageBox.classList.toggle('has-image',true);
@@ -229,9 +194,13 @@ test('delayed service success and failure update busy/result/task states without
  submitted=waitRequest();const running=a.run.emit('click');assert.equal(a.run.disabled,true);assert.equal(a.run.lastChild.textContent,'生成中…');assert.equal(a.run.getAttribute('aria-busy'),'true');assert.equal(b.run.disabled,false);await submitted;
  assert.equal(a.release.tasks()[0].state,'running');const body=requests[0];env.reset();a.release.sync();b.release.sync();assert.equal(env.writes.length,0);
  resolveRequest(new Response(JSON.stringify({requestId:body.requestId,result:'服务结果',source:body.sourceScope,state:'succeeded',receipt:{kind:'text',text:'服务结果'},inputFingerprint:'a'.repeat(64)})));await running;
- assert.equal(a.run.disabled,false);assert.equal(a.run.getAttribute('aria-busy'),'false');assert.equal(a.run.lastChild.textContent,'生成');assert.equal(a.paragraph.textContent,'服务结果');assert.equal(a.apply.disabled,false);assert.equal(a.release.tasks()[0].state,'success');assert.equal(a.state().ioResult,undefined);assert.equal(a.state().studioTextRequests.requests.length,1);assert.equal(b.paragraph.textContent,'');
+ assert.equal(a.run.disabled,false);assert.equal(a.run.getAttribute('aria-busy'),'false');assert.equal(a.run.lastChild.textContent,'重新生成');assert.deepEqual(a.outputs.at(-1),[0,'服务结果']);assert.equal(a.release.tasks()[0].state,'success');assert.equal(a.state().ioResult,undefined);assert.equal(a.state().studioTextRequests.requests.length,1);assert.equal(b.state().appliedIO,undefined);
+ submitted=waitRequest();const again=a.run.emit('click');await submitted;const second=requests[1];
+ assert.equal(second.source,body.source);assert.notEqual(second.requestId,body.requestId);
+ resolveRequest(Response.json({requestId:second.requestId,result:'第二次结果',source:second.sourceScope,state:'succeeded',receipt:{kind:'text',text:'第二次结果'},inputFingerprint:'a'.repeat(64)}));await again;
+ assert.deepEqual(a.outputs.at(-1),[0,'第二次结果']);
  submitted=waitRequest();const failing=b.run.emit('click');await submitted;resolveRequest(new Response(JSON.stringify({error:'确定性测试失败'}),{status:503}));await failing;
- assert.equal(b.run.disabled,false);assert.match(b.status.textContent,/确定性测试失败/);assert.equal(b.release.tasks()[0].state,'error');assert.equal(a.paragraph.textContent,'服务结果');
+ assert.equal(b.run.disabled,false);assert.match(b.status.textContent,/确定性测试失败/);assert.equal(b.release.tasks()[0].state,'error');assert.equal(a.state().appliedIO.rows[0].result,'第二次结果');
  env.reset();a.release.sync();b.release.sync();assert.equal(env.writes.length,0);
 });
 
@@ -277,7 +246,7 @@ test('slot-derived instruction and manual restoration reconcile after external s
  const env=environment(t),a=panel(t,env,15),b=panel(t,env,16),beforeB=JSON.stringify(b.state());
  a.node.properties.llmStylePreview={...a.state(),instruction:'保存的手动要求'};env.tick();assert.equal(a.instruction.value,'保存的手动要求');
  a.upstream.snapshot={version:1,inputMode:'image-instructions',texts:['来自 Slot 的要求'],assets:[{kind:'image',filename:'slot.png'}]};env.tick();
- assert.equal(a.state().manualInstruction,'保存的手动要求');assert.equal(a.instruction.value,'来自 Slot 的要求');assert.equal(a.instruction.readOnly,true);
+ assert.equal(a.state().instructionDrafts.seedance,'保存的手动要求');assert.match(a.instruction.value,/^观察参考图片[\s\S]*来自 Slot 的要求$/);assert.equal(a.instruction.readOnly,true);
  env.reset();env.tick();assert.equal(env.writes.length,0);
  a.upstream.snapshot={version:1,texts:['恢复普通输入']};env.tick();assert.equal(a.instruction.value,'保存的手动要求');assert.equal(a.instruction.readOnly,false);assert.equal(a.state().slotInstruction,undefined);assert.equal(a.state().manualInstruction,undefined);
  a.node.properties.llmStylePreview={...a.state(),instruction:'再次外部恢复'};env.tick();assert.equal(a.instruction.value,'再次外部恢复');

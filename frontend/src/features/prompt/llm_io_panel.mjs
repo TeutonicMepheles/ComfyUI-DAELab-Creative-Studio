@@ -1,14 +1,14 @@
 import {modelSourceBadge,modelSourceKind} from '../models/source_badge.js';
 import {generationInputDigest} from '../generation/generation_session.js';
 import {ensureIdentity} from './prompt_optimization_model.mjs';
-import {assertBusinessService,businessJson} from '../../contracts/business.js';
+import {assertBusinessService} from '../../contracts/business.js';
 import {snapshotJson} from '../../contracts/json_snapshot.js';
-import {createTableButton,tableIcon} from '../../ui/table_controls.mjs';
-import {tableHistory} from '../../application/table_host_history.mjs';
+import {createTableButton} from '../../ui/table_controls.mjs';
 
-import {availableModes,applyIOResult,undoIOResult} from './llm_io_model.mjs';
-import {slotRows,slotSignature,outputText,hasTableInput} from './llm_slot_model.mjs';
+import {availableModes} from './llm_io_model.mjs';
+import {slotRows,slotSignature,outputText,hasTableInput,optimizationPurpose} from './llm_slot_model.mjs';
 import {optimizeRow} from './llm_local_provider.mjs';
+import {changeInstructionTarget,processingInstruction} from './text_templates.js';
 import {createLLMTask} from './llm_task_model.mjs';
 import {getModelCatalog} from '../models/model_catalog.mjs';
 import {canSubmitModel,updateModelOption,modelOptionPresentation,bindModelProbeRetry} from '../models/model_catalog_ui.mjs';
@@ -19,48 +19,44 @@ const setProperty=(element,key,value)=>{if(element[key]!==value)element[key]=val
 const setAttribute=(element,key,value)=>{if(element.getAttribute(key)!==value)element.setAttribute(key,value);};
 const toggleAttribute=(element,key,enabled)=>{if(element.hasAttribute(key)!==enabled)element.toggleAttribute(key,enabled);};
 const toggleClass=(element,key,enabled)=>{if(element.classList.contains(key)!==enabled)element.classList.toggle(key,enabled);};
-export function bindIOPanel({node,nativeDocument=null,root,source,instruction,select,modelControl=null,run,upload,result,materialHint}){
+export function bindIOPanel({node,nativeDocument=null,checkLocalTextModels,root,source,instruction,select,modelControl=null,run,footer,materialHint}){
     const saved=()=>node.properties.llmStylePreview;
     saved().instruction??=instruction.value;
     if(!['polish','reverse'].includes(saved().mode))saved().mode='polish';
     const listeners=[],on=(el,event,fn)=>{el.addEventListener(event,fn);listeners.push(()=>el.removeEventListener(event,fn));};
     const make=(tag,cls,text)=>{const e=document.createElement(tag);e.className=cls;if(text)e.textContent=text;return e;};
-    const heading=result.querySelector('.llm-style-result-head');heading.querySelector('.llm-style-result-actions')?.remove();result.before(heading);
-    const paragraph=make('p','llm-style-result-editor',''),status=make('div','llm-style-preview-status');status.setAttribute('role','status');
-    paragraph.contentEditable='plaintext-only';paragraph.spellcheck=false;paragraph.setAttribute('role','textbox');paragraph.setAttribute('aria-label','审阅结果');paragraph.setAttribute('aria-multiline','true');
-    const actions=make('div','llm-style-result-actions');result.replaceChildren(paragraph,status,actions);
+    const status=make('div','llm-style-preview-status');status.setAttribute('role','status');
+    footer.before(status);
     const changed=()=>{node.graph?.change?.();render();};
-    const apply=createTableButton('',()=>{
-        if(disposed||busy||node.mode||apply.disabled)return;
-        if(typeof globalThis.confirm==='function'&&!globalThis.confirm('确认应用文本结果？将应用 '+(saved().ioResult?.rows?.length||1)+' 行，保留来源和连线。'))return;
-        try{
-            const confirm=()=>{if(!nativeDocument)return applyIOResult(saved(),signature());if(!proposalTicket&&restoredProposal===saved().ioResult?.requestId)proposalTicket=nativeDocument.beginRequest(restoredProposal);if(!proposalTicket||!nativeDocument.canApply(proposalTicket))throw new Error('输入或工作流已变化，请重新生成');let applied=false;nativeDocument.controller.applyResult(proposalTicket,'应用 LLM 审阅结果',draft=>{const historical=draft.ioResult;if(proposalState)draft.ioResult=snapshotJson(proposalState);applied=applyIOResult(draft,signature());if(historical===undefined)delete draft.ioResult;else draft.ioResult=historical;});return applied;};
-            const context=globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root);
-            if(node.outputs?.[1]?.links?.length){
-                const history=nativeDocument?null:tableHistory();history?.begin();
-                try{if(confirm())message='已应用 · 逐行结果通过连线传递';}finally{history?.end();}
-            }else if(context?.confirmOutput?context.confirmOutput(confirm):confirm())message=context?.confirmOutput?(hasTableInput(node)||slotRows(node).length>1?'已应用 · 已输出文本素材组':'已应用 · 结果文本框已连接'):'已应用 · 下游通过连线读取';
-        }catch(error){message=error.message;}
-        changed();
-    });tableIcon(apply,'check-line','同意更改');
-    const undo=createTableButton('',()=>{if(nativeDocument){void Promise.resolve(nativeDocument.undo()).catch(error=>{message=error.message;render();});return;}if(undoIOResult(saved())){message='已撤销应用';changed();}});tableIcon(undo,'arrow-go-back-line','撤销应用');
-    const recover=createTableButton('恢复原结果',()=>void recoverProposal());
-    const regenerate=createTableButton('',()=>run.click());tableIcon(regenerate,'restart-line','重新生成');
-    for(const b of [apply,undo,regenerate])b.classList.add('llm-style-result-action');actions.append(apply,undo,regenerate,recover);
+    function publishResult(proposal){
+        if(!proposal.complete||proposal.signature!==signature()||!nativeDocument.canApply(proposalTicket))throw new Error('输入或工作流已变化，请重新生成');
+        const commit=()=>nativeDocument.controller.applyResult(proposalTicket,'输出优化结果',draft=>{
+            draft.appliedIO=snapshotJson(proposal);
+            delete draft.ioResult;delete draft.ioUndo;
+        });
+        const context=globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root);
+        const written=context?.confirmOutput&&(!node.outputs?.[1]?.links?.length||node.outputs?.[0]?.links?.length)
+            ?context.confirmOutput(commit,proposal.rows.map(row=>row.result))
+            :commit();
+        if(!written)throw new Error('结果未输出，请重新生成');
+        message='';
+    }
     const sourceSection=source.closest('.llm-style-source');source.placeholder='输入原始文字，或连接文本节点';
     const imageSection=make('section','llm-style-section llm-style-image-source'),imageBox=make('div','llm-style-image-upload'),image=make('img','llm-style-image-preview'),imageText=make('span','llm-style-image-text','通过 Slot 连接参考图片');
     imageSection.append(make('span','llm-style-label','参考图片'),imageBox);imageBox.append(image,imageText);sourceSection.after(imageSection);materialHint.parentElement.hidden=true;
     const modelCatalog=getModelCatalog(),sourceBadge=make('span','llm-model-source');sourceBadge.hidden=!!modelControl;if(select.parentElement)select.after(sourceBadge);
     let models=[],modelListSignature='';
+    const textModels=()=>modelCatalog.snapshot({family:'optimization'}).filter(model=>model.id!=='qwen3.5:9b-q4_K_M');
     const logicalModel=model=>{
+        if(model==='qwen'||model==='qwen3.5:9b-q4_K_M')return 'qwen3.8-27b-w4a8';
         if(models.some(option=>option.id===model))return model;
-        if(model==='qwen'||model==='deepseek')return models.find(option=>option.provider===model)?.id||model;
+        if(model==='deepseek')return models.find(option=>option.provider===model)?.id||model;
         return model;
     };
-    const initialModels=modelCatalog.snapshot({family:'optimization'});
-    saved().model??=(initialModels.find(model=>model.provider==='qwen')||initialModels[0])?.id||'';
+    const initialModels=textModels();
+    saved().model??=(initialModels.find(model=>model.id==='qwen3.8-27b-w4a8')||initialModels[0])?.id||'';
     function rebuildModelOptions(){
-        const discovered=modelCatalog.snapshot({family:'optimization'}),signature=JSON.stringify(discovered.map(model=>[model.id,model.label,model.provider]));
+        const discovered=textModels(),signature=JSON.stringify(discovered.map(model=>[model.id,model.label,model.provider]));
         if(signature===modelListSignature)return;
         modelListSignature=signature;
         models=discovered.map(model=>({
@@ -70,8 +66,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
             logo:model.provider==='comfy'?'openai':model.provider,
         }));
         const previous=saved().model;
-        const selectedModel=models.some(model=>model.id===previous)?previous:
-            (previous==='qwen'||previous==='deepseek'?models.find(model=>model.provider===previous)?.id||previous:previous);
+        const selectedModel=logicalModel(previous);
         select.replaceChildren(...models.map(model=>updateModelOption(new Option(model.label+(model.logo==='openai'?' · Comfy':''),model.id),modelCatalog.get(model.id))));
         if(!models.some(model=>model.id===selectedModel)){const legacy=new Option('已保存但不可用（历史模型）',previous||'');legacy.disabled=true;select.add(legacy);}
         select.value=selectedModel||'';
@@ -84,24 +79,12 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
     const generationTask=createLLMTask();
     const taskRail=make('div','llm-io-task-rail');taskRail.setAttribute('role','tablist');taskRail.setAttribute('aria-label','优化任务');root.append(taskRail);
     let selectedId='',railStamp='';
-    let busy=false,disposed=false,message='',task=[],lastInput='',proposalTicket=null,proposalState=null;
-    const restoredProposal=saved().ioResult?.complete?saved().ioResult.requestId:null;
-    const project=proposal=>{proposalState=snapshotJson(proposal);};
+    let busy=false,disposed=false,message='',task=[],lastInput='',proposalTicket=null;
     function signature(){try{return slotSignature(node);}catch{return '';}}
-    function selectedResult(displayed,rows){return displayed?.rows.find(row=>row.id===selectedId)||(rows.length===1?displayed?.rows[0]:null)||null;}
-    function editResult(result,text){
-        if(!result||paragraph.contentEditable==='false')return;
-        const displayed=proposalState||saved().ioResult||saved().appliedIO;
-        if(!displayed?.complete||displayed.requestId===saved().appliedIO?.requestId)return;
-        proposalState=snapshotJson(displayed);
-        const target=proposalState.rows.find(row=>row.id===result.id);
-        if(!target)return;
-        target.result=text;message='结果已修改，同意更改后应用';
-        setProperty(status,'textContent',message);
-    }
     function render(){
         if(disposed)return;
         let rows=[],error='',waiting=false;try{rows=slotRows(node);}catch(e){error=e.message;waiting=!!e.waiting;}
+        setProperty(select,'value',logicalModel(saved().model));
         const tableInput=hasTableInput(node),pe=logicalModel(saved().model)==='qwen-image-2.1-pe',tableMode=pe?'reverse':'polish',inputKey=JSON.stringify([tableInput,rows,pe]),modes=availableModes(rows);
         // PE processes one reference image per row through the existing reverse
         // provider. Other table models retain the text-optimization contract.
@@ -110,8 +93,7 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
         if(logicalModel(saved().model)==='qwen3.8-27b-w4a8')modes.reverse=false;
         if(!rows.some(row=>row.id===selectedId))selectedId=rows[0]?.id||'';
         const selectedRow=rows.find(row=>row.id===selectedId);
-        const displayed=proposalState||saved().ioResult||saved().appliedIO;
-        const nextRailStamp=JSON.stringify([rows.map(row=>[row.id,row.name,row.text]),selectedId,displayed?.rows.map(row=>[row.id,row.result])]);
+        const nextRailStamp=JSON.stringify([rows.map(row=>[row.id,row.name,row.text]),selectedId]);
         const showTasks=rows.length>1||tableInput&&rows.length>0;
         setProperty(taskRail,'hidden',!showTasks);
         toggleClass(root,'has-task-list',showTasks);
@@ -128,21 +110,25 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
             const linkedInstructions=[...new Set(rows.map(r=>r.instruction).filter(Boolean))].join('\n\n');
             if(linkedInstructions){
                 if(next.slotInstruction===undefined)next.manualInstruction=next.instruction;
-                next.slotInstruction=linkedInstructions;next.instruction=linkedInstructions;setProperty(instruction,'value',linkedInstructions);next.mode='reverse';
+                next.slotInstruction=linkedInstructions;next.instruction=linkedInstructions;setProperty(instruction,'value',linkedInstructions);
             }else if(next.slotInstruction!==undefined){
                 next.instruction=next.manualInstruction||'';setProperty(instruction,'value',next.instruction);delete next.slotInstruction;delete next.manualInstruction;
             }
-            if(tableInput)next.mode=tableMode;
-            else if(!modes[next.mode]){if(modes.reverse)next.mode='reverse';else if(modes.polish)next.mode='polish';}
+            let mode=tableInput?tableMode:linkedInstructions?'reverse':next.mode;
+            if(!tableInput&&!modes[mode]){if(modes.reverse)mode='reverse';else if(modes.polish)mode='polish';}
+            changeInstructionTarget(next,'mode',mode);
             try{if(JSON.stringify(next)!==JSON.stringify(saved())){if(nativeDocument)nativeDocument.replace(next,{derived:true});else Object.assign(saved(),next);}lastInput=inputKey;}catch(error){message=error.message;}
         }
         // Native history can replace saved configuration without recreating this
         // panel. Reconcile changed text only; ordinary input already persisted
         // before this render, so equal values keep their caret/selection intact.
-        const savedInstruction=saved().instruction;
-        if(savedInstruction!=null)setProperty(instruction,'value',String(savedInstruction));
+        setProperty(instruction,'value',processingInstruction(saved(),selectedRow?.instruction));
         for(const b of root.querySelectorAll('[data-mode]')){const selected=b.dataset.mode===saved().mode;setAttribute(b,'aria-pressed',String(selected));toggleAttribute(b,'data-primary',selected);}
         const mode=saved().mode||'polish',reverse=mode==='reverse',disabled=busy||!!node.mode;
+        for(const b of root.querySelectorAll('[data-purpose]')){
+            const selected=b.dataset.purpose===(saved().purpose||'video');
+            setAttribute(b,'aria-pressed',String(selected));setProperty(b,'disabled',disabled);
+        }
         const linked=node.inputs?.some(input=>input.link!=null)||false;
         setProperty(sourceSection,'hidden',reverse||linked);setProperty(imageSection,'hidden',!reverse);
         setProperty(source,'readOnly',linked);
@@ -150,67 +136,48 @@ export function bindIOPanel({node,nativeDocument=null,root,source,instruction,se
         const first=selectedRow?.image;setProperty(image,'hidden',!first);if(first&&image.getAttribute('src')!==first.url)image.src=first.url;setProperty(image,'alt',first?.name||'参考图片');setProperty(imageText,'hidden',!!first);toggleClass(imageBox,'has-image',!!first);
         for(const control of [source,instruction,select])setProperty(control,'disabled',disabled||control===source&&linked);
         setProperty(instruction,'readOnly',saved().slotInstruction!==undefined);
-        for(const picker of root.querySelectorAll('[aria-label="提示词模板"]'))setProperty(picker,'disabled',disabled||saved().slotInstruction!==undefined);
+        const videoPurpose=saved().purpose!=='image';
+        for(const picker of root.querySelectorAll('[aria-label="提示词模板"]')){setProperty(picker,'hidden',videoPurpose||reverse);setProperty(picker,'disabled',disabled||saved().slotInstruction!==undefined);}
+        for(const target of root.querySelectorAll('[aria-label="目标视频模型"]')){setProperty(target,'hidden',!videoPurpose);setProperty(target,'value',saved().videoTarget||'seedance');setProperty(target,'disabled',disabled);}
         for(const b of root.querySelectorAll('[data-mode]')){setProperty(b,'disabled',disabled||tableInput&&(pe?b.dataset.mode==='polish':b.dataset.mode==='reverse'));setProperty(b,'title',tableInput?(pe?'PE 按行处理参考图片':'表格输入仅支持文字优化'):'');}
         const valid=modes[mode],modelReady=canSubmitModel(modelCatalog.get(logicalModel(saved().model)));
-        setProperty(run,'disabled',disabled||!!error||!valid||!modelReady);setProperty(run,'title','使用原始文字或连线输入生成建议；应用后输出');setProperty(run.lastChild,'textContent',busy?'生成中…':'生成');setAttribute(run,'aria-busy',String(busy));
-        const d=displayed,stamp=signature(),stale=d?.signature!==stamp,isApplied=!!d?.requestId&&saved().appliedIO?.requestId===d.requestId;
-        const result=selectedResult(d,rows),resultProvider=models.find(model=>model.id===logicalModel(d?.provider))?.provider||(String(d?.provider||'').startsWith('deepseek')?'deepseek':d?.provider);
-        setProperty(paragraph,'textContent',result?.result||'');
-        setProperty(paragraph,'contentEditable',disabled||!d?.complete||stale||isApplied?'false':'plaintext-only');
-        setProperty(apply,'disabled',disabled||!d?.complete||stale||isApplied||!!nativeDocument&&(proposalTicket?!nativeDocument.canApply(proposalTicket):restoredProposal!==d?.requestId));setProperty(apply,'hidden',isApplied);
-        setProperty(recover,'disabled',disabled||!nativeDocument);setProperty(undo,'disabled',disabled||!saved().ioUndo);setProperty(undo,'hidden',!saved().ioUndo);setProperty(regenerate,'disabled',run.disabled||!d);
-        setProperty(status,'textContent',(modelCatalog.get(logicalModel(saved().model))?.status==='unknown'?modelOptionPresentation(modelCatalog.get(logicalModel(saved().model))).statusLabel:'')||error||(d&&stale?'输入已改变，请重新生成':message|| (d?`${resultProvider==='qwen'?'本地 Qwen 结果':resultProvider==='deepseek'?'DeepSeek 结果':d.provider==='qwen-image-2.1-pe'?'PE 本地结果':d.provider==='qwen3.8-27b-w4a8'?'27B 本地结果':d.provider==='gpt-6-luna'?'GPT-6 Luna 结果（Comfy）':'示例结果 · 未调用模型'}${isApplied?' · 已应用':' · 待应用'}`:rows.length&&!valid?'当前输入不支持此模式':rows.length?`${rows.length} 项输入 · 等待生成`:'请输入原始文字或连接输入')));
+        setProperty(run,'disabled',disabled||!!error||!valid||!modelReady);setProperty(run,'title','生成并输出优化结果');setProperty(run.lastChild,'textContent',busy?'生成中…':saved().appliedIO?'重新生成':'生成');setAttribute(run,'aria-busy',String(busy));
+        const receipt=saved().appliedIO;
+        setProperty(status,'textContent',error||message||(modelCatalog.get(logicalModel(saved().model))?.status==='unknown'?modelOptionPresentation(modelCatalog.get(logicalModel(saved().model))).statusLabel:'')||(receipt&&receipt.signature===signature()?(receipt.rows.some(row=>row.dialogueFallback)?'模型未完整保留对白，对应任务已按原文输出':'已输出优化结果'):rows.length&&!valid?'当前输入不支持此模式':rows.length?`${rows.length} 项输入 · 等待生成`:'请输入原始文字或连接输入'));
         task=[...generationTask.snapshot(),...(!busy&&error?[{id:'llm-input',label:waiting?'等待输入':'输入异常',state:waiting?'queued':'error',detail:error}]:[])];
         try{node.setOutputData?.(0,outputText(node));}catch{node.setOutputData?.(0,null);}
         modelControl?.sync();
     }
     on(select,'change',()=>{message='';saved().model=select.value;syncSourceBadge(select.value);changed();});for(const field of [source,instruction])on(field,'input',()=>{message='';changed();});
-    on(paragraph,'input',()=>{
-        if(disposed||busy||node.mode)return;
-        let rows=[];try{rows=slotRows(node);}catch{}
-        editResult(selectedResult(proposalState||saved().ioResult||saved().appliedIO,rows),paragraph.textContent||'');
-    });
-    on(paragraph,'keydown',event=>{
-        if((event.ctrlKey||event.metaKey)&&event.key==='Enter'&&!event.isComposing){event.preventDefault();apply.click();}
-    });
     for(const b of root.querySelectorAll('[data-mode]'))on(b,'click',()=>{message='';changed();});
     on(run,'click',async()=>{
-        if(run.disabled||node.mode)return;
+        if(disposed||busy||run.disabled||node.mode)return;
+        if(saved().purpose!=='image'&&(!saved().purpose||!saved().videoTarget)&&nativeDocument)nativeDocument.edit('设置视频提示词用途',draft=>{draft.purpose='video';draft.videoTarget??='seedance';});
         const state=saved(),graph=node.graph,stamp=signature();busy=true;message='';render();
         const current=()=>!disposed&&node.graph===graph&&(!nativeDocument||nativeDocument.canApply(proposalTicket))&&!node.mode&&signature()===stamp;
         const rowTickets=[];
         try{
-            const rows=slotRows(node),provider=logicalModel(state.model);if(!supported(provider))throw new Error('该历史模型配置不可执行，请明确选择已接入的提供方');if(!canSubmitModel(modelCatalog.get(provider)))throw new Error('模型不可用，请重新检测');
+            const rows=slotRows(node),provider=logicalModel(state.model);if(!supported(provider))throw new Error('该历史模型配置不可执行，请明确选择已接入的提供方');if(checkLocalTextModels){
+                await checkLocalTextModels();
+                if(disposed||node.graph!==graph||node.mode||signature()!==stamp||nativeDocument&&!nativeDocument.isCurrent())throw new Error('输入或工作流已变化，未提交');
+            }
+            if(!canSubmitModel(modelCatalog.get(provider)))throw new Error('所选模型不可用，请检查模型文件或选择其他模型');
             assertBusinessService('optimization');generationTask.start(rows.length,state.mode,provider);render();
-            const proposal={version:1,requestId:crypto.randomUUID(),rows:[],mode:state.mode,instruction:state.instruction||'',signature:stamp,provider,complete:false};if(proposalTicket)nativeDocument?.releaseRequest(proposalTicket);proposalTicket=nativeDocument?.beginRequest(proposal.requestId)||null;project(proposal);
-            if(!nativeDocument)throw new Error('原生编辑会话尚未就绪，未提交');const identity=ensureIdentity(graph,node),inputDigest=await generationInputDigest(stamp);if(!current())throw new Error('输入或工作流已变化，未提交');const existing=[];let offset=0;do{const page=await businessJson('generation','status',{source:{...identity,nodeId:proposalTicket.documentId},limit:500,offset});existing.push(...page.jobs);offset=page.nextOffset;}while(Number.isSafeInteger(offset)&&offset>0);if(!current())throw new Error('输入或工作流已变化，未提交');if(existing.some(report=>report.source?.operation==='standalone-optimization'&&report.source.inputDigest===inputDigest&&!['succeeded','failed','cancelled'].includes(report.state)))throw new Error('原请求尚未确定，请先恢复原结果；未创建新请求');const createdAt=Date.now(),requests=rows.map((row,index)=>{const requestId=crypto.randomUUID(),ticket=nativeDocument.beginRequest(requestId,{recordId:String(row.id),fieldId:'instruction'});rowTickets.push(ticket);return {requestId,recordId:String(row.id),sourceScope:{...identity,nodeId:ticket.documentId,workflowSession:ticket.workflowSession,epoch:ticket.epoch,recordId:String(row.id),fieldId:'instruction',inputVersion:ticket.inputVersion,operation:'standalone-optimization',groupId:proposal.requestId,rowIndex:index,rowCount:rows.length,inputDigest,createdAt}};});nativeDocument.edit('记录优化请求',draft=>{draft.studioTextRequests={groupId:proposal.requestId,inputDigest,requests};});
+            const proposal={version:1,requestId:crypto.randomUUID(),rows:[],mode:state.mode,instruction:state.instruction||'',signature:stamp,provider,complete:false};if(proposalTicket)nativeDocument?.releaseRequest(proposalTicket);proposalTicket=nativeDocument?.beginRequest(proposal.requestId)||null;
+            if(!nativeDocument)throw new Error('原生编辑会话尚未就绪，未提交');const identity=ensureIdentity(graph,node),inputDigest=await generationInputDigest(stamp);if(!current())throw new Error('输入或工作流已变化，未提交');
+            if(!node.outputs?.[1]?.links?.length||node.outputs?.[0]?.links?.length)globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root)?.prepareTextOutput?.();
+            const createdAt=Date.now(),requests=rows.map((row,index)=>{const requestId=crypto.randomUUID(),ticket=nativeDocument.beginRequest(requestId,{recordId:String(row.id),fieldId:'instruction'});rowTickets.push(ticket);return {requestId,recordId:String(row.id),sourceScope:{...identity,nodeId:ticket.documentId,workflowSession:ticket.workflowSession,epoch:ticket.epoch,recordId:String(row.id),fieldId:'instruction',inputVersion:ticket.inputVersion,operation:'standalone-optimization',groupId:proposal.requestId,rowIndex:index,rowCount:rows.length,inputDigest,createdAt}};});nativeDocument.edit('记录优化请求',draft=>{draft.studioTextRequests={groupId:proposal.requestId,inputDigest,requests};});
             if(supported(provider))for(const row of rows){
                 if(!current())throw new Error('输入或节点状态已改变，已停止后续提交');
                 message=`${modelLabel(provider)} 处理中 ${proposal.rows.length+1}/${rows.length} · 并发 1`;render();
                 const reference=requests[proposal.rows.length],ticket=rowTickets[proposal.rows.length];
-                const output=await optimizeRow(row,state.mode,row.instruction??state.instruction??'',{model:provider,requestId:reference.requestId,sourceScope:reference.sourceScope});if(!nativeDocument.canApply(ticket))throw new Error('输入或工作流已变化，结果保留在账本中');
+                const output=await optimizeRow(row,state.mode,processingInstruction(state,row.instruction),{purpose:optimizationPurpose(state),model:provider,requestId:reference.requestId,sourceScope:reference.sourceScope});if(!nativeDocument.canApply(ticket))throw new Error('输入或工作流已变化，结果保留在账本中');
                 if(!current())throw new Error('输入或节点状态已改变，结果未应用');
-                proposal.rows.push(output);project(proposal);generationTask.completeRow();render();
+                proposal.rows.push(output);generationTask.completeRow();render();
             }
-            if(current()){proposal.complete=true;project(proposal);message='';generationTask.finish();}
+            if(current()){proposal.complete=true;publishResult(proposal);generationTask.finish();}
         }catch(e){message='异常：'+e.message;generationTask.fail(e.message);}finally{for(const ticket of rowTickets)nativeDocument?.releaseRequest(ticket);busy=false;render();}
     });
-    async function recoverProposal(){
-        if(disposed||busy||node.mode||!nativeDocument)return;
-        busy=true;const stamp=signature(),rows=slotRows(node),ticket=nativeDocument.beginRequest(crypto.randomUUID());render();
-        try{
-            const inputDigest=await generationInputDigest(stamp),identity=ensureIdentity(node.graph,node),reports=[];let offset=0;
-            do{const response=await businessJson('generation','status',{source:{...identity,nodeId:ticket.documentId},limit:500,offset});reports.push(...response.jobs);offset=response.nextOffset;}while(Number.isSafeInteger(offset)&&offset>0);
-            if(!nativeDocument.canApply(ticket)||signature()!==stamp)throw new Error('输入或工作流已变化，原结果仅保留在账本');
-            const matches=reports.filter(report=>report.source?.operation==='standalone-optimization'&&report.source.documentId===identity.documentId&&report.source.tableId===identity.tableId&&report.source.nodeId===ticket.documentId&&report.source.fieldId==='instruction'&&report.source.inputDigest===inputDigest).sort((a,b)=>(a.source.createdAt||0)-(b.source.createdAt||0)),latest=matches.at(-1);
-            if(!latest)throw new Error('当前输入没有可恢复的结果；未提交新任务');
-            const group=matches.filter(report=>report.source.groupId===latest.source.groupId).sort((a,b)=>a.source.rowIndex-b.source.rowIndex);
-            if(group.length!==rows.length||group.some((report,index)=>report.source.rowCount!==rows.length||report.source.rowIndex!==index||report.source.recordId!==String(rows[index].id)||report.state!=='succeeded'||report.receipt?.kind!=='text'||report.receipt.text!==report.result))throw new Error('原任务尚未全部完成；请继续查询原结果，未重新提交');
-            if(proposalTicket)nativeDocument.releaseRequest(proposalTicket);nativeDocument.releaseRequest(ticket);proposalTicket=nativeDocument.beginRequest(latest.source.groupId);
-            project({version:1,requestId:latest.source.groupId,signature:stamp,provider:logicalModel(saved().model),mode:saved().mode,instruction:saved().instruction||'',complete:true,rows:rows.map((row,index)=>({...row,result:group[index].result,requestId:group[index].requestId,status:'completed'}))});message='原结果已恢复，请审阅后同意更改';
-        }catch(error){message=error.message;}finally{nativeDocument.releaseRequest(ticket);busy=false;render();}
-    }
     const retryProbe=createTableButton('\u91cd\u65b0\u68c0\u6d4b',()=>{});if(select.parentElement)select.after(retryProbe);else root.append(retryProbe);
     const stopRetry=bindModelProbeRetry(retryProbe,{catalog:modelCatalog,getModel:()=>logicalModel(saved().model),active:()=>!disposed&&root.isConnected,retry:()=>{const id=logicalModel(saved().model);return modelCatalog.retry(id,{active:()=>!disposed&&root.isConnected&&logicalModel(saved().model)===id});}});
     const unsubscribeModels=modelCatalog.subscribe(()=>{refreshModelOptions();render();});

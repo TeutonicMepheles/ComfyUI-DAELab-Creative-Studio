@@ -66,6 +66,15 @@ test('column frame sources select the first image in each row and retain individ
  assert.equal(generationFrames(table,row,prompt,config)[0].asset.id,'extra-0');
  const restored=normalizeTable(JSON.parse(JSON.stringify(table)));
  assert.equal(generationFrames(restored,restored.records[0],prompt,config)[0].asset.id,'extra-0');
+ for(const [sources,expectedMode,expectedId] of [[{first:null,last},'lastImage2video','last-0'],[{first,last:null},'singleImage2video','first-0']]){
+  applyColumnFrameSources(table,prompt,sources);
+  const saved=normalizeTable(JSON.parse(JSON.stringify(table))),tasks=importVideoTasks(saved);
+  const input=generationInput(tasks.table,tasks.fieldId,row.id);
+  assert.equal(input.config.mode,expectedMode);assert.deepEqual(input.assets.map(a=>a.id),[expectedId]);
+ }
+ applyColumnFrameSources(table,prompt,{first:null,last:null});
+ const empty=importVideoTasks(table);
+ assert.throws(()=>generationInput(empty.table,empty.fieldId,row.id),/至少选择一张首帧或尾帧图片/);
  applyColumnFrameSources(table,prompt,{first,last:first});assert(generationFrames(table,row,prompt,config).every(f=>f.asset.id==='first-0'));
  row.values[first]=[];applyColumnFrameSources(table,prompt,{first,last:first});assert(generationFrames(table,row,prompt,config).every(f=>!f.asset));
  assert.throws(()=>applyColumnFrameSources(table,prompt,{first:'deleted'}),/图片列已变化/);

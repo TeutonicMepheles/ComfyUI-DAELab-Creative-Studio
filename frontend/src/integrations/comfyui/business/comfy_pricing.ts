@@ -29,7 +29,7 @@ export function createComfyPriceEstimator(definition: (type: string) => NodeDefi
     for (const {name, type: widgetType} of badge.depends_on.widgets || []) {
       const setting = name.replace(/^model\./, ''), spec = specs[name];
       let value = name === 'model' ? model : input.settings[setting === 'generate_audio' ? 'enableSound' : setting];
-      value ??= spec?.[1]?.default ?? spec?.[1]?.options?.[0] ?? (Array.isArray(spec?.[0]) ? spec[0][0] : null);
+      value ??= setting === 'generate_audio' ? true : spec?.[1]?.default ?? spec?.[1]?.options?.[0] ?? (Array.isArray(spec?.[0]) ? spec[0][0] : null);
       if (widgetType === 'BOOLEAN') value = value === true || value === 'on' || value === 1;
       else if (widgetType === 'INT' || widgetType === 'FLOAT') value = value === null ? null : Number(value);
       else if (typeof value === 'string') value = value.trim().toLowerCase();
