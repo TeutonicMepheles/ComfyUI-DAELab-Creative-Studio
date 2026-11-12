@@ -762,3 +762,10 @@ MiniMax H3 FL（本地）","规格已定义；自动化与产品执行状态均�
 确认应用，重启（或重新检测）后核对可用性。","命中项填正确绝对路径；冲突项写 path 与该文件真实 sha256；缺失项报缺失。
 suggested.json 为完整 schemaVersion:1，从现有配置合并 resourceLock/qwenBinding；新机器生成最小完整配置。
 确认后 read_configuration() 通过；不自动启动 Ollama、不下载、不换量化。","自动","不付费","","","规格已定义；自动化与产品执行状态均待实施/待执行"
+"TC-SYS-040","启动自动匹配未配置档位（name+size，提交哈希兜底）","F-SYS-022","UC-SYS-012","contract","P0","M4","合成模型清单（family/category/name/bytes/sha256）+ 合成模型文件（含唯一命中、wrongSize、ambiguous、missing、同名同 size 异内容五类）。","不启动真实 Ollama；禁止任何真实云端 HTTP。
+启动装配只按 name 枚举、比对字节数，不实算哈希；提交路径才算 SHA-256。","触发宿主启动装配（match_installed_families），核对未配置 category 的匹配结果。
+核对 wrongSize / ambiguous / missing 的 family 整组不登记。
+核对同名同 size 异内容的文件：能力探测报可用、提交时抛 ProviderUnavailable。","name+size 唯一匹配且字节数一致的 family 整组登记进内存，sha256 取清单期望值。
+wrongSize / ambiguous / missing 的 family 标未完成、不登记。
+同名同 size 异内容的文件启动报可用（check_available 只查 size），提交时 verify 按 SHA-256 抛 ProviderUnavailable，不静默用错权重。
+不写 local-generation.json、不下载、不启动 Ollama；已有显式绑定沿用、不覆盖。","自动","不付费","","","规格已定义；自动化与产品执行状态均待实施/待执行"

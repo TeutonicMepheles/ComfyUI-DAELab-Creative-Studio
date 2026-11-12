@@ -52,7 +52,7 @@
 | [UC-SYS-009](USE_CASES.md#uc-sys-009) | 导出可定位且脱敏的诊断 | 维护者 | 3 |
 | [UC-SYS-010](USE_CASES.md#uc-sys-010) | 长时间处理大型创作项目 | 创作者 | 7 |
 | [UC-SYS-011](USE_CASES.md#uc-sys-011) | 维护可追踪的单产品版本 | 开发与发布维护者 | 5 |
-| [UC-SYS-012](USE_CASES.md#uc-sys-012) | 打开应用后在各入口看到同一模型目录 | 创作者 | 1 |
+| [UC-SYS-012](USE_CASES.md#uc-sys-012) | 打开应用后在各入口看到同一模型目录 | 创作者 | 2 |
 | [UC-SYS-013](USE_CASES.md#uc-sys-013) | 选择不可用或检测中的模型 | 创作者 | 1 |
 | [UC-SYS-014](USE_CASES.md#uc-sys-014) | 手动扫描模型生成本地生成配置 | 创作者 | 1 |
 
@@ -1422,7 +1422,7 @@
 
 - 已保存工作流引用已移除的 DeepSeek 模型时显示不可用并保留原 ID，不发起优化请求。
 
-**测试：** [TC-SYS-037](TEST_CASES.md#tc-sys-037)
+**测试：** [TC-SYS-037](TEST_CASES.md#tc-sys-037)、[TC-SYS-040](TEST_CASES.md#tc-sys-040)
 
 <a id="uc-sys-013"></a>
 

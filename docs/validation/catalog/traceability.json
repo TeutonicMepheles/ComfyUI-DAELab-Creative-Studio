@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "specificationHash": "427b4a80d0310d11bb7ad1b56b4bfa37e4f151e4ab87797528449a965787144d",
+  "specificationHash": "2b5ffd7a79f3a2cd6451a7ba86717aa651e758eed677c1a3c5f66ec1f3470f07",
   "status": "Specification and execution plan only; no product acceptance claimed.",
   "tasks": [
     {
@@ -1056,7 +1056,8 @@
         "TC-BIZ-047",
         "TC-SYS-036",
         "TC-SYS-037",
-        "TC-SYS-039"
+        "TC-SYS-039",
+        "TC-SYS-040"
       ],
       "evals": [
         "EV-ARCH",
@@ -7594,10 +7595,12 @@
       ],
       "tests": [
         "TC-SYS-037",
-        "TC-SYS-039"
+        "TC-SYS-039",
+        "TC-SYS-040"
       ],
       "evals": [
-        "EV-ARCH"
+        "EV-ARCH",
+        "EV-JOBS"
       ],
       "status": "not-executed",
       "evidence": []
@@ -7616,10 +7619,12 @@
       ],
       "tests": [
         "TC-SYS-037",
-        "TC-SYS-039"
+        "TC-SYS-039",
+        "TC-SYS-040"
       ],
       "evals": [
-        "EV-ARCH"
+        "EV-ARCH",
+        "EV-JOBS"
       ],
       "status": "not-executed",
       "evidence": []
@@ -7638,10 +7643,12 @@
       ],
       "tests": [
         "TC-SYS-037",
-        "TC-SYS-039"
+        "TC-SYS-039",
+        "TC-SYS-040"
       ],
       "evals": [
-        "EV-ARCH"
+        "EV-ARCH",
+        "EV-JOBS"
       ],
       "status": "not-executed",
       "evidence": []
@@ -7660,10 +7667,12 @@
       ],
       "tests": [
         "TC-SYS-037",
-        "TC-SYS-039"
+        "TC-SYS-039",
+        "TC-SYS-040"
       ],
       "evals": [
-        "EV-ARCH"
+        "EV-ARCH",
+        "EV-JOBS"
       ],
       "status": "not-executed",
       "evidence": []
@@ -7682,10 +7691,12 @@
       ],
       "tests": [
         "TC-SYS-037",
-        "TC-SYS-039"
+        "TC-SYS-039",
+        "TC-SYS-040"
       ],
       "evals": [
-        "EV-ARCH"
+        "EV-ARCH",
+        "EV-JOBS"
       ],
       "status": "not-executed",
       "evidence": []
@@ -7695,8 +7706,8 @@
       "feature": "F-SYS-022",
       "task": "TASK-M4-BACKEND-PROVIDERS",
       "owner": "backend/providers",
-      "requirement": "2026-11-10（2026-11-12 修订）：本地模型配置两条路径——启动自动匹配与手动扫描。启动自动匹配（2026-11-12）：未配置档位在宿主启动时按模型目录自动匹配进内存、不写 local-generation.json；逐 family/category 按 name 枚举候选，要求每个组件有唯一同名候选且字节数（bytes）与清单一致，整组齐全才登记该 family，否则整组标未完成、不登记；匹配结果 sha256 取清单期望值、启动时不实算哈希；可用性探测只核节点、路径与字节数、不哈希，提交时按内容 SHA-256 兜底——size 匹配但哈希不符抛 ProviderUnavailable，不静默用错权重；已有显式绑定沿用、不覆盖；新增 GET /daelab/studio/model-files 报告各档位组件状态（found/wrongSize/missing/ambiguous/pathMismatch/unconfigured）；不下载、不启动 Ollama。手动扫描（2026-11-10）：手动『扫描模型』按已知模型清单哈希反查生成 local-generation.json；扫描按 native.py:85 目录映射枚举、按文件名（保留子目录前缀的原始串）筛候选——bytes 仅用于报告与冲突判断、不淘汰候选，避免换量化/版本被误报为缺失——对每个文件算一次 sha256 并复用到引用它的绑定；命中填绝对路径，同名异大小或异哈希标 conflict 交人裁决（改用时同时写 path 与该文件真实 sha256 并提示量化/版本变化），未命中报缺失；suggested.json 预览只含确定命中、完整 schemaVersion:1（从现有配置合并 schemaVersion/enabled/resourceLock/qwenBinding，新机器生成最小完整配置）；确认时按扫描结果与勾选的冲突重新生成并直接写入 local-generation.json、不读回预览；不自动启动 Ollama、不下载、不替换量化；确认后重启生效。同名异量化两条路径结论一致：手动扫描在扫描时标 conflict 交人裁决，启动自动匹配先按 size 报可用、提交时哈希不符才失败。",
-      "requirementHash": "5b26213d0708feb8173a1ef69e99264719efa2eb0a5b9337ffe38f9238f881c2",
+      "requirement": "2026-11-10（2026-11-12 修订；2026-11-12 二修）：本地模型配置以启动自动匹配为主、辅以模型文件报告。启动自动匹配：未配置档位在宿主启动时按模型目录自动匹配进内存、不写 local-generation.json；按缺失的 category 逐项按 name 枚举候选（已绑定的 category 沿用显式绑定、不覆盖），要求每个组件有唯一同名候选且字节数（bytes）与清单一致，整组齐全才登记该 family，否则整组标未完成、不登记；匹配结果 sha256 取清单期望值、启动时不实算哈希；可用性探测只核节点、路径与字节数、不哈希，提交时按内容 SHA-256 兜底——size 匹配但哈希不符抛 ProviderUnavailable，不静默用错权重；同名同 size 异内容的文件先按 size 报可用、提交时哈希不符才失败；已有显式绑定沿用、不覆盖；新增 GET /daelab/studio/model-files 报告各档位组件状态（found/wrongSize/missing/ambiguous/pathMismatch/unconfigured）；不下载、不启动 Ollama。手动扫描的界面入口已移除；后端 scan-models/apply-models 端点仍保留但无现行 UI 调用。auto-match 只做内存装配、不产生 durable 配置；写出 durable 哈希校验配置的程序化入口仅剩 scan 端点（无 UI），故 durable 配置来源=手写 local-generation.json 与 scan 端点两条，不得把「自动匹配可用」当成「已生成配置」。清理孤儿端点属另一变更。",
+      "requirementHash": "5c70d7940c37874ccbc510798b6680239b6a520da1ed2bea912030cf592b8137",
       "usecases": [
         "UC-SYS-012",
         "UC-SYS-013",
@@ -7704,10 +7715,12 @@
       ],
       "tests": [
         "TC-SYS-037",
-        "TC-SYS-039"
+        "TC-SYS-039",
+        "TC-SYS-040"
       ],
       "evals": [
-        "EV-ARCH"
+        "EV-ARCH",
+        "EV-JOBS"
       ],
       "status": "not-executed",
       "evidence": []
@@ -14216,7 +14229,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "17f1b0a94663e53e27537958c00aac6d7e8ac3ed0f7fade4da95e6e4c8937234",
+      "specificationHash": "0927f80a83ca3268ce692752bbf4e6fdbc37eb0b3d4b257f397a1209ec2f2fa6",
       "assertions": [
         {
           "id": "AS-SYS-037-001",
@@ -14285,7 +14298,7 @@
       "evals": [
         "EV-ARCH"
       ],
-      "specificationHash": "b8d0bd176d29fe10fef19a43ffa95e3028f67496a398988f5c9119a24344677d",
+      "specificationHash": "0f1aaf6e84c966cc2d48203b11bdccacdb9bcf7838cf9ad83c006dda759e0203",
       "assertions": [
         {
           "id": "AS-SYS-039-001",
@@ -14298,6 +14311,51 @@
         {
           "id": "AS-SYS-039-003",
           "expected": "确认后 read_configuration() 通过；不自动启动 Ollama、不下载、不换量化。"
+        }
+      ],
+      "status": "not-executed",
+      "evidence": []
+    },
+    {
+      "id": "TC-SYS-040",
+      "phase": "M4",
+      "priority": "P0",
+      "level": "contract",
+      "features": [
+        "F-SYS-022"
+      ],
+      "usecases": [
+        "UC-SYS-012"
+      ],
+      "acceptance": [
+        "AC-SYS-022-001",
+        "AC-SYS-022-002",
+        "AC-SYS-022-003",
+        "AC-SYS-022-004",
+        "AC-SYS-022-005",
+        "AC-SYS-022-006"
+      ],
+      "evals": [
+        "EV-ARCH",
+        "EV-JOBS"
+      ],
+      "specificationHash": "b0a3648b39f0e37c1577390b9450824d79ce60591af13f77b8357427786574d1",
+      "assertions": [
+        {
+          "id": "AS-SYS-040-001",
+          "expected": "name+size 唯一匹配且字节数一致的 family 整组登记进内存，sha256 取清单期望值。"
+        },
+        {
+          "id": "AS-SYS-040-002",
+          "expected": "wrongSize / ambiguous / missing 的 family 标未完成、不登记。"
+        },
+        {
+          "id": "AS-SYS-040-003",
+          "expected": "同名同 size 异内容的文件启动报可用（check_available 只查 size），提交时 verify 按 SHA-256 抛 ProviderUnavailable，不静默用错权重。"
+        },
+        {
+          "id": "AS-SYS-040-004",
+          "expected": "不写 local-generation.json、不下载、不启动 Ollama；已有显式绑定沿用、不覆盖。"
         }
       ],
       "status": "not-executed",
@@ -14339,7 +14397,8 @@
         "TC-SYS-030",
         "TC-SYS-034",
         "TC-SYS-037",
-        "TC-SYS-039"
+        "TC-SYS-039",
+        "TC-SYS-040"
       ],
       "status": "not-executed"
     },
@@ -14476,7 +14535,8 @@
         "TC-SYS-020",
         "TC-SYS-021",
         "TC-SYS-035",
-        "TC-SYS-036"
+        "TC-SYS-036",
+        "TC-SYS-040"
       ],
       "status": "not-executed"
     },
