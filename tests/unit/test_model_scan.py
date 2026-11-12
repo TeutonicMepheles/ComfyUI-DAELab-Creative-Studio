@@ -124,6 +124,97 @@ class ModelScanDiscoveryTests(unittest.TestCase):
         self.assertEqual(candidates[('image', 'diffusion_models')][0]['name'], 'sub/model.safetensors')
 
 
+class AutoMatchContractTests(unittest.TestCase):
+    """TC-SYS-040 supplement; retain the original discovery/hash guard above."""
+
+    def fixture(self, root):
+        files, entries = {}, []
+        for category, name, body in [('diffusion_models', 'main.safetensors', b'main'),
+                                     ('text_encoders', 'text.safetensors', b'text')]:
+            path = root / name
+            path.write_bytes(body)
+            files[category] = {name: (str(path), len(body))}
+            entries.append(dict(family='video_high', category=category, name=name,
+                                bytes=len(body), sha256=_sha(body)))
+        folder = FakeFolderPaths(files)
+        folder.get_user_directory = lambda: root / 'user'
+        return folder, entries
+
+    def test_tc_sys_040_fills_missing_category_in_an_existing_family(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            folder, entries = self.fixture(root)
+            pinned = dict(name='explicit-main.safetensors', path=str(root / 'explicit-main.safetensors'), sha256='a' * 64)
+            original = {'resourceLock': str(root / 'shared.lock'), 'qwenBinding': None,
+                        'modelBindings': {'video_high': {'diffusion_models': pinned}}}
+            before = json.dumps(original, sort_keys=True)
+            with patch('backend.integrations.comfyui.model_scan.load_manifest', return_value=entries):
+                result = match_installed_families(folder, original)
+            self.assertEqual(set(result['modelBindings']['video_high']), {'diffusion_models', 'text_encoders'})
+            self.assertEqual(result['modelBindings']['video_high']['diffusion_models'], pinned)
+            self.assertEqual(result['modelBindings']['video_high']['text_encoders'], {
+                'name': 'text.safetensors', 'path': str(root / 'text.safetensors'),
+                'bytes': 4, 'sha256': _sha(b'text')})
+            self.assertEqual(json.dumps(original, sort_keys=True), before)
+            self.assertEqual(result['resourceLock'], original['resourceLock'])
+
+    def test_tc_sys_040_preserves_explicit_binding_and_unknown_config_without_alias_mutation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            folder, entries = self.fixture(root)
+            explicit = {entry['category']: {'name': 'pinned/' + entry['name'],
+                        'path': str(root / ('pinned-' + entry['name'])), 'sha256': entry['sha256']}
+                        for entry in entries}
+            original = {'resourceLock': str(root / 'shared.lock'), 'qwenBinding': {'opaque': ['keep']},
+                        'future': {'keep': True}, 'modelBindings': {'video_high': explicit}}
+            before = json.dumps(original, sort_keys=True)
+            with patch('backend.integrations.comfyui.model_scan.load_manifest', return_value=entries), \
+                 patch.object(folder, 'get_filename_list', side_effect=AssertionError('explicit categories must not discover')):
+                result = match_installed_families(folder, original)
+            for category, item in explicit.items():
+                self.assertEqual({key: result['modelBindings']['video_high'][category][key] for key in item}, item)
+                self.assertEqual(result['modelBindings']['video_high'][category]['bytes'], 4)
+            self.assertEqual(result['future'], original['future'])
+            self.assertEqual(result['qwenBinding'], original['qwenBinding'])
+            result['modelBindings']['video_high']['diffusion_models']['name'] = 'changed-result-only'
+            self.assertEqual(json.dumps(original, sort_keys=True), before)
+
+    def test_tc_sys_040_wrong_size_rejects_the_entire_automatic_family(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            folder, entries = self.fixture(root)
+            (root / 'text.safetensors').write_bytes(b'wrong-size')
+            with patch('backend.integrations.comfyui.model_scan.load_manifest', return_value=entries):
+                self.assertIsNone(match_installed_families(folder, None))
+                # A partial explicit family is retained, but no additional
+                # automatic categories may leak in from an incomplete stack.
+                pinned = {'diffusion_models': {'name': 'pinned', 'path': str(root / 'pinned'), 'sha256': 'a' * 64}}
+                original = {'resourceLock': str(root / 'shared.lock'), 'qwenBinding': None,
+                            'modelBindings': {'video_high': pinned}}
+                result = match_installed_families(folder, original)
+            self.assertEqual(result['modelBindings']['video_high'], pinned)
+
+    def test_tc_sys_040_automatic_match_never_creates_or_overwrites_durable_configuration(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            folder, entries = self.fixture(root)
+            user = folder.get_user_directory()
+            with patch('backend.integrations.comfyui.model_scan.load_manifest', return_value=entries):
+                result = match_installed_families(folder, None)
+                self.assertEqual(set(result['modelBindings']['video_high']), {'diffusion_models', 'text_encoders'})
+                self.assertFalse(user.exists(), 'automatic matching must not even create user directories')
+                config_path = user / 'daelab/creative-studio/local-generation.json'
+                config_path.parent.mkdir(parents=True)
+                raw = b'{"manual":"keep exact bytes"}\r\n'
+                config_path.write_bytes(raw)
+                original = {'resourceLock': str(root / 'shared.lock'), 'qwenBinding': None, 'modelBindings': {}}
+                result = match_installed_families(folder, original)
+            self.assertEqual(set(result['modelBindings']['video_high']), {'diffusion_models', 'text_encoders'})
+            self.assertEqual(config_path.read_bytes(), raw)
+            self.assertEqual([path.relative_to(user).as_posix() for path in user.rglob('*') if path.is_file()],
+                             ['daelab/creative-studio/local-generation.json'])
+
+
 class ModelScanMatchTests(unittest.TestCase):
     def test_classifies_hit_conflict_and_missing(self):
         root = Path(tempfile.mkdtemp(prefix='model-scan-'))
