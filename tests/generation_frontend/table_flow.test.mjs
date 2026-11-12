@@ -27,17 +27,35 @@ function fixture(t,hooks={}){
  return {tasks,native,calls,notices,field,row,original,rejectOnce(status){submitFault=status;},statusFailure(status){statusFault=status;},get table(){return table;},get steps(){return steps;},async submitted(){let timeout;try{await Promise.race([submissionReady,new Promise((_,reject)=>{timeout=setTimeout(()=>reject(new Error('Generation did not reach the test submit handler')),5000);})]);}finally{clearTimeout(timeout);}},complete(){release();},switch(){epoch++;}};
 }
 test('injected batch submits all three untouched rows in one shared request',async t=>{
- const f=fixture(t);
+ const f=fixture(t);f.field.generation.attempts=4;
  for(const id of ['second','third']){const row=structuredClone(f.row);row.id=id;row.selected=false;f.table.records.push(row);}
  f.row.selected=true;
  const pending=f.tasks.generate(f.field.id,null,false,true);await f.submitted();
  const jobs=f.calls.find(call=>call.url.endsWith('/submit')).body.jobs;
  assert.deepEqual(jobs.map(job=>job.input.recordId),[f.row.id,'second','third']);
  assert.equal(new Set(jobs.map(job=>job.requestId)).size,3);
+ assert.ok(jobs.every(job=>job.source.groupCount===1));
  f.complete();await pending;
  assert.equal(f.calls.filter(call=>call.url.endsWith('/submit')).length,1);
  assert.deepEqual(f.table.records.map(row=>f.tasks.stateFor(row,f.field.id)?.phase),['complete','complete','complete']);
  assert.deepEqual(f.table.records.map(row=>row.values[f.field.id].length),[1,1,1]);
+});
+
+test('image node resolves each row from current input images including after a reference is removed',async t=>{
+ const f=fixture(t,{autoImageMode:true});
+ const column=f.table.fields[0].id;
+ const image={id:'reference',kind:'image',url:'/view?filename=reference.png'};
+ const withImage=structuredClone(f.row);withImage.id='with-image';withImage.values[column]=[image];
+ f.table.records.push(withImage);
+ f.field.generation.mode='image2image';
+ f.row.meta={generationReferences:{[f.field.id]:[{fieldId:column,assetId:image.id}]}};
+ f.row.values[f.field.id]=[{...image,id:'previous-output'}];
+ const pending=f.tasks.generateBatch(f.field.id);
+ await f.submitted();
+ const [plain,reference]=f.calls.find(call=>call.url.endsWith('/submit')).body.jobs.map(job=>job.input);
+ f.complete();await pending;
+ assert.equal(plain.config.mode,'text2image');assert.deepEqual(plain.assets,[]);
+ assert.equal(reference.config.mode,'image2image');assert.deepEqual(reference.assets,[{...image,fieldId:column}]);
 });
 
 test('injected batch skips completed receipts and existing outputs',async t=>{

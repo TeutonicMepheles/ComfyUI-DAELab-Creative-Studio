@@ -1,8 +1,8 @@
 // Shared graph/layout policy; no business state or panel access.
 export function connectedOutputNode(source,type,index=0){
-    for(const id of source.outputs?.[index]?.links||[]){
+    for(const id of [...(source.outputs?.[index]?.links||[])].reverse()){
         const link=source.graph?.links[id],target=source.graph?.getNodeById(link?.target_id);
-        if(link?.origin_id===source.id&&link.origin_slot===index&&target?.type===type&&!target.mode)return target;
+        if(link&&String(link.origin_id)===String(source.id)&&link.origin_slot===index&&target?.type===type&&!target.mode)return target;
     }
     return null;
 }

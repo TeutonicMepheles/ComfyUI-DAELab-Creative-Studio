@@ -20,7 +20,17 @@ function register(){
         menu:[{label:'多维表格',type:'DAELAB.Table',icon:'layout-grid-line'},{label:'图片生成',type:IMAGE_GENERATION_NODE,icon:'image-line'},{label:'视频生成',type:VIDEO_GENERATION_NODE,icon:'video-line'}],
         materialItem:(node,key)=>materialItem(node.__dataTable,key),
         takeMaterialItem(node,key,expected){const editor=node.__dataTablePanel?.editor;if(!editor)throw new Error('表格尚未就绪');editor.change(table=>takeMaterialItem(table,key,expected));},
-        materialOutput:node=>isGenerationNode(node.type),
+        dropOutput:node=>isGenerationNode(node.type)?{
+            get type(){
+                const hasInput=node.inputs?.some(slot=>slot.link!=null);
+                return !hasInput||node.__libtvPanel?.batchMode()?'DAELAB.MaterialGroup':'DAELAB.MediaUpload';
+            },
+            existing(){return node.__libtvPanel?.batchMode()?null:node.__generationOutputs?.activeOutput();},
+            bind(target){
+                if(!node.__generationOutputs)throw new Error('生成节点尚未就绪，请重试');
+                node.__generationOutputs.bindWaiting(target);
+            },
+        }:null,
         assets:node=>node.__libtvPanel?.assets?.()||videoResultAssets(node),
         materialTargets(node){
             if(isGenerationNode(node.type))return node.__libtvPanel?.materialTargets?.()||[];
@@ -61,11 +71,12 @@ function register(){
         preview:node=>({url:node.properties?.daelabLibTVResult,kind:'video'}),
         inputLabels:{table_json:'表格任务',first_frame:'首帧',last_frame:'尾帧',reference_images:'参考图片',reference_video:'参考视频',text_input:'描述文本'},
         canConnectInput:node=>node.type!=='DAELAB.Table',
-        outputTargetTypes:node=>tables.includes(node.type)?[IMAGE_GENERATION_NODE,VIDEO_GENERATION_NODE]:undefined,
+        deletionWarning:node=>node.__libtvPanel?.deletionWarning(),
+        outputTargetTypes:node=>tables.includes(node.type)?[IMAGE_GENERATION_NODE,VIDEO_GENERATION_NODE]:[],
         inputNames:(node,source,slot)=>isGenerationNode(node.type)?generationInputNames(node,source,slot):undefined,
         inputSelection:node=>isGenerationNode(node.type)?'first-free':undefined,
         prepareCopy(node,data){
-            if(data.properties)delete data.properties.daelabColumnBindings;
+            if(data.properties){delete data.properties.daelabColumnBindings;delete data.properties.generationOutputGroupId;}
             if(data.properties?.[NAMESPACE])delete data.properties[NAMESPACE];
             for(const [i,w] of (node.widgets||[]).entries())if(data.widgets_values){
                 if(w.name==='request_id')data.widgets_values[i]=`copy-${crypto.randomUUID()}`;

@@ -5,7 +5,7 @@ from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 import unittest
 
-from backend.providers.high_video import HighVideoProvider, HIGH_VIDEO_MODEL, HIGH_REFERENCE_VIDEO_MODEL, FLEX_SIGMAS
+from backend.providers.high_video import FlexVideoProvider, HIGH_VIDEO_MODEL, HIGH_REFERENCE_VIDEO_MODEL, FLEX_SIGMAS
 from backend.providers.native import ModelInventory, NativeProvider
 from backend.providers.parameters import VIDEO_MODEL, VIDEO_FILES
 from backend.providers.contracts import ProviderUnavailable
@@ -30,7 +30,7 @@ class HighVideoTests(unittest.IsolatedAsyncioTestCase):
                 'segments':[{'type':'text','text':'Keep each reference subject.'}]}
 
     def provider(self, reference=False, items=None):
-        return HighVideoProvider(reference=reference,inventory=ModelInventory(items or bindings(reference),lambda:[]),
+        return FlexVideoProvider(reference=reference,inventory=ModelInventory(items or bindings(reference),lambda:[]),
                                  queue=None,media_input=lambda item:item['name'])
 
     def test_flex_is_required_and_connected_to_official_lcm_manual_sigma_path(self):
@@ -44,6 +44,14 @@ class HighVideoTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(graph['sample']['inputs']['sigmas'],['schedule',0])
         self.assertNotIn('turbo',graph)
         self.assertEqual(len(FLEX_SIGMAS.split(','))-1,6)
+
+    def test_tail_only_uses_the_native_last_frame_input(self):
+        data = self.data()
+        data['config']['mode'] = 'lastImage2video'
+        graph = self.provider().build(data, [{'kind':'image','name':'end.png'}], 'tail-only')['graph']
+        self.assertNotIn('first_frame', graph['condition']['inputs'])
+        self.assertEqual(graph['condition']['inputs']['last_frame'], ['last_frame', 0])
+        self.assertEqual(graph['last_frame']['inputs']['image'], 'end.png')
 
     def test_ref_keeps_two_frozen_references_and_its_own_lora(self):
         graph=self.provider(True).build(self.data(True),[{'kind':'image','name':'first.png'},{'kind':'image','name':'second.png'}],'high-ref')['graph']

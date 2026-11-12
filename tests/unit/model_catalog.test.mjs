@@ -34,7 +34,8 @@ test('catalog filtering and invalidation keep logical identities while rebuildin
  assert.equal(catalog.snapshot({family:'optimization'}).every(model=>model.status==='available'),true);
  const invalidated=catalog.invalidate({family:'optimization'});
  assert.equal(invalidated.every(model=>model.status==='unverified'&&model.capability===null),true);
- const generation=catalog.snapshot({family:'generation'});assert.equal(generation.length,16);
+ const generation=catalog.snapshot({family:'generation'});assert.equal(generation.length,14);
+ assert.equal(generation.some(model=>['MiniMax H3 FL（本地）','MiniMax H3 Ref（本地）'].includes(model.id)),false);
  assert.equal(generation[0].id,'Qwen-Image-2.1 Turbo（本地）');
  for(const id of ['MiniMax H3 FL 低配（本地）','MiniMax H3 Ref 低配（本地）','MiniMax H3 FL 高配（本地）','MiniMax H3 Ref 高配（本地）'])assert.ok(generation.some(model=>model.id===id));
 });

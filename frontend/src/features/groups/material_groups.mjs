@@ -4,7 +4,7 @@ import {canvasState,graphLinks} from '../../canvas/creative_canvas_model.mjs';
 import {createGroupArchive,safeDownloadName} from './material_group_download.js';
 import {assetURL} from '../assets/media_upload_model.mjs';
 import {UPLOAD_TYPE} from '../assets/media_upload_model.mjs';
-import {inputSnapshot} from '../../canvas/creative_contract.mjs';
+import {deletionWarning,inputSnapshot} from '../../canvas/creative_contract.mjs';
 import {normalizeAsset,saveFavorite} from '../assets/asset_library_model.mjs';
 
 import {GROUP_TYPE as TYPE,canJoinMaterialGroup,isGroupMember,selectedMaterialGroup,selectionMaterialType} from './material_group_model.mjs?v=20261102-typed1';
@@ -105,6 +105,8 @@ export function installMaterialGroups(host,view){
     function ungroup(g){
         if(selectedMaterialGroup(view.selectedIds.map(node).filter(Boolean),groups())!==g){syncToolbar();return;}
         const members=(g.properties.members||[]).map(node).filter(Boolean);
+        const warning=g.properties.generationOutputOwner&&deletionWarning(members);
+        if(warning){say(warning);return;}
         change(()=>{for(const n of members){const c=card(n.id);if(c)c.style.display='';}host.removeNode(host.graph(),g);delete cards()[g.id];selected=null;selectionActive=false;view.sync();view.select(null);for(const n of members)view.select(n,{toggle:true});},'已解组，素材保留，可撤销。');
     }
     function createNode(type,title){const n=host.createNode(type);if(!n)throw new Error(`缺少节点 ${type}`);host.addNode(host.graph(),n);n.title=title;return n;}
@@ -134,7 +136,11 @@ export function installMaterialGroups(host,view){
             if(g.properties.reviewCustomColor){const value=g.properties.reviewCustomColor;const swatch=button('',()=>change(()=>g.properties.reviewColor=value,'组颜色已更新。'),'gr-swatch');swatch.title='自定义颜色 '+value;swatch.setAttribute('aria-label','自定义颜色 '+value);swatch.setAttribute('aria-pressed',String(g.properties.reviewColor===value));swatch.style.setProperty('--gr-swatch',value);colors.append(swatch);custom.style.background=value;custom.style.color='#141414';}
             custom.append(picker);colors.append(custom);
         const numbers=button('序号',()=>change(()=>g.properties.showNumbers=g.properties.showNumbers===false,'素材序号显示已更新。'));numbers.prepend(icon('list-ordered'));numbers.title='显示素材序号';numbers.classList.add('gr-number-toggle');numbers.setAttribute('aria-pressed',String(g.properties.showNumbers!==false));
-        const remove=button('删除组',()=>change(()=>{const ids=new Set([g.id,...g.properties.members]);for(const other of groups())if(!ids.has(other.id))other.properties.members=other.properties.members.filter(id=>!ids.has(id));for(const id of ids){const n=node(id);if(n)host.removeNode(host.graph(),n);delete cards()[id];}selected=null;selectionActive=false;view.sync();},'已删除组及内部节点，可撤销。'),'gr-delete-group');remove.prepend(icon('delete-bin-line'));remove.title='删除组及内部节点（可撤销）';
+        const remove=button('删除组',()=>{
+            const ids=new Set([g.id,...g.properties.members]),warning=deletionWarning([...ids].map(node));
+            if(warning){say(warning);return;}
+            change(()=>{for(const other of groups())if(!ids.has(other.id))other.properties.members=other.properties.members.filter(id=>!ids.has(id));for(const id of ids){const n=node(id);if(n)host.removeNode(host.graph(),n);delete cards()[id];}selected=null;selectionActive=false;view.sync();},'已删除组及内部节点，可撤销。');
+        },'gr-delete-group');remove.prepend(icon('delete-bin-line'));remove.title='删除组及内部节点（可撤销）';
         panel.append(save,download,dissolve,el('span','gr-divider'),arrange,el('span','gr-divider'),numbers,el('span','gr-divider'),colors,el('span','gr-divider'),options,el('span','gr-divider'),remove);
     }
     const decorated=new Map();
@@ -176,7 +182,16 @@ export function installMaterialGroups(host,view){
             if(moving!==null&&drag.target?.id===g.id)ids.splice(drag.target.index,0,moving);
             const count=g.properties.layout==='vertical'?1:g.properties.layout==='horizontal'?Math.max(1,ids.length):Math.min(2,Math.max(1,ids.length));
             const gap=6,padding=12;
-            p.width=g.properties.collapsed?450:count*350+(count-1)*gap+padding*2;
+            const waiting=!!g.properties.generationOutputOwner&&!members.length;
+            let preview=gc.querySelector('.gr-waiting-result');
+            if(waiting&&!preview){
+                preview=el('div','dae-ui dae-upload-stage gr-waiting-result');
+                const hint=el('div','dae-upload-empty dae-upload-placeholder');
+                hint.setAttribute('role','status');
+                hint.append(el('strong','','等待上游生成结果'),el('small','','结果将在此处显示'));
+                preview.append(hint);gc.append(preview);
+            }else if(!waiting)preview?.remove();
+            p.width=waiting?350:g.properties.collapsed?450:count*350+(count-1)*gap+padding*2;
             let y=padding,maxBottom=y;
             for(let i=0;i<ids.length;i++){
                 const id=ids[i],c=card(id);if(!c)continue;
@@ -193,8 +208,8 @@ export function installMaterialGroups(host,view){
                 }
                 if(i%count===count-1)y=maxBottom+gap;
             }
-            gc.style.width=p.width+'px';gc.style.height=(g.properties.collapsed?100:Math.max(120,maxBottom+padding))+'px';
-            let badge=gc.querySelector('.gr-group-count');if(!badge){badge=el('span','gr-group-count');const heading=gc.querySelector('.dae-creative-heading');heading.prepend(icon('folder-image-line'));heading.append(badge);}badge.style.display=p.width*(canvasState(host.graph()).viewport.zoom||1)<300?'none':'';badge.textContent=`${members.length} 项 · 整组输出${g.properties.locked?' · 已锁定':''}`;
+            gc.style.width=p.width+'px';gc.style.height=waiting?'auto':(g.properties.collapsed?100:Math.max(120,maxBottom+padding))+'px';
+            let badge=gc.querySelector('.gr-group-count');if(!badge){badge=el('span','gr-group-count');const heading=gc.querySelector('.dae-creative-heading');heading.prepend(icon('folder-image-line'));heading.append(badge);}badge.style.display=waiting||p.width*(canvasState(host.graph()).viewport.zoom||1)<300?'none':'';badge.textContent=`${members.length} 项 · 整组输出${g.properties.locked?' · 已锁定':''}`;
             const port=gc.querySelector('[data-side=output][data-slot]');if(port){port.setAttribute('aria-label',`${g.title} 整组素材输出`);port.title=`整组输出 · ${members.length} 项`;}
         }
         layoutElements=elements;layoutSignature=groupLayoutSignature(elements);

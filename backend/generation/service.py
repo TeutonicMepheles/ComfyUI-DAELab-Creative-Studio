@@ -94,7 +94,7 @@ class GenerationService:
         }
         models = []
         for model, provider_id in sorted(MODELS.items()):
-            if model in {'qwen', 'deepseek'}:
+            if model in {'qwen', 'deepseek', VIDEO_MODEL, REFERENCE_VIDEO_MODEL}:
                 continue
             provider = self.providers.get(provider_id)
             text = provider_id.endswith('-text')

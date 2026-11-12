@@ -85,6 +85,8 @@ register();
 
 ## 生成结果输出
 
+图片与视频生成节点通过 `dropOutput(node)` 返回 `{type,existing(),bind(target)}`。单项生成中拖线选中原结果框。在接入上游之前或在批量模式下拖线，可在落点指定输出组。生成节点随工作流保存该组的 ID，之后提交的任务写入该组。已经提交的任务按原绑定更新。已有节点不接受该输出。
+
 `assets(node)` 和 `outputMaterials(node,key)` 的快照可附带 `groups:[{label,count}]`，按顺序将平铺 assets 划分为连续的素材组；count 必须为正整数，总和等于 assets 长度。宿主按 label 命名并分别创建组，单素材也成组。业务提供任务名称和分组边界，宿主不解析任务或行数据；未提供 groups 的输出保持原行为。
 
 可选 `materialSources(node)` 返回 `{element,key,label?}[]`，使用稳定列 ID 和 `.dae-material-slot`。宿主拥有点击、拖线及空白处创建菜单。`outputMaterials(node,key)` 返回 `{version:1,ready,assets,label?,skipped?}`；assets 使用本地 `/view` URL、kind、id、name 和可选 provenance，按业务顺序提供。已有图像或视频素材即可输出，包括过期结果或重新生成期间保留的结果；业务只跳过没有可用素材的行。

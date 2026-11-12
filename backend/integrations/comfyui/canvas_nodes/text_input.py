@@ -6,11 +6,16 @@ class TextInput(io.ComfyNode):
     @classmethod
     def define_schema(cls):
         return io.Schema(node_id='DAELAB.TextInput', display_name='输入文本', category='DAELab/素材',
-                         inputs=[io.String.Input('text', default='', multiline=True)],
+                         inputs=[io.String.Input('text', default='', multiline=True),
+                                 io.String.Input('source_report', optional=True, force_input=True, lazy=True)],
                          outputs=[io.String.Output('text')])
 
     @classmethod
-    def execute(cls, text=''):
+    def check_lazy_status(cls, **kwargs):
+        return []
+
+    @classmethod
+    def execute(cls, text='', source_report=None):
         catalog = asset_catalog()
         if text:
             catalog.register_text(text, provenance=consume_source('native-text-consume'))

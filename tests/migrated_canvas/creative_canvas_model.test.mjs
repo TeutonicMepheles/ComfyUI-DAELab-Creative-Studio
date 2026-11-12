@@ -1,4 +1,5 @@
-import '../../frontend/src/integrations/comfyui/canvas/adapters/upload.mjs';
+import '../migrated_business/register.mjs';
+await import('../../frontend/src/integrations/comfyui/canvas/adapters/upload.mjs');
 import {registerAdapter} from '../../frontend/src/canvas/creative_contract.mjs';
 registerAdapter('test.business',{matches:n=>['DAELAB.Table','DAELAB.StoryboardImport','DAELAB.LibTV.VideoGenerate','ComfyTV.VideoExtractFrameStage'].includes(n.type)});
 import test from 'node:test';

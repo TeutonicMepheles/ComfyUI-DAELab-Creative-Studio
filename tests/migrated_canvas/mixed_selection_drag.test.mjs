@@ -11,17 +11,23 @@ function fixture(){
  const nodes=[{id:1,type:'DAELAB.MediaUpload',properties:{}},{id:2,type:'DAELAB.LibTV.VideoGenerate',properties:{}},{id:3,type:'DAELAB.ScriptParser',properties:{}}];
  const graph={getNodeById:id=>nodes.find(n=>n.id===id)},selected=new Set([1,2,3]),cards=new Map(nodes.map(n=>[n.id,{node:n,layout:{x:n.id*100,y:20}}]));
  const events=[],root={focus(){},setPointerCapture(){events.push('capture');},hasPointerCapture:()=>true,releasePointerCapture(){events.push('release');}},state={viewport:{zoom:.5}};
- const globals={GROUP_TYPE,expandGroupSelection,graph,selected,cards,root,state,host:{nodes:()=>nodes},message:m=>events.push(m),raise(){},update(){},drawWires(){},dirty(){events.push('dirty');},history:{begin(){events.push('begin');},end(){events.push('end');}}};
+ const globals={GROUP_TYPE,expandGroupSelection,graph,selected,cards,root,state,host:{nodes:()=>nodes},message:m=>events.push(m),select(node){selected.clear();selected.add(node.id);},raise(){},update(){},drawWires(){},dirty(){events.push('dirty');},history:{begin(){events.push('begin');},end(){events.push('end');}}};
  const api=new Function(...Object.keys(globals),`let drag=null;${fns.join('\n')}return {startCardDrag,moveCards,finishCardDrag};`)(...Object.values(globals));
- const event=(x=0,y=0,interactive=false)=>({button:0,pointerId:7,clientX:x,clientY:y,target:{closest:()=>interactive?{}:null}});
+ const event=(x=0,y=0,interactive=false)=>({button:0,pointerId:7,clientX:x,clientY:y,target:{closest:()=>interactive?{}:null},defaultPrevented:false,preventDefault(){this.defaultPrevented=true;}});
  return{api,nodes,selected,cards,events,event};
 }
 test('mixed selection moves by identical zoom-adjusted delta and commits one transaction',()=>{
- const f=fixture();assert.equal(f.api.startCardDrag(f.cards.get(2),f.event()),true);assert.deepEqual(f.events,[]);
+ const f=fixture(),down=f.event();assert.equal(f.api.startCardDrag(f.cards.get(2),down),true);assert.equal(down.defaultPrevented,true);assert.deepEqual(f.events,[]);
  f.api.moveCards(f.event(2,1));assert.deepEqual(f.events,[]);
  f.api.moveCards(f.event(40,20));for(const [id,c]of f.cards)assert.deepEqual(c.layout,{x:id*100+80,y:60});
  f.api.moveCards(f.event(50,30));f.api.finishCardDrag();assert.equal(f.events.filter(e=>e==='begin').length,1);assert.equal(f.events.filter(e=>e==='end').length,1);
  for(const n of f.nodes)assert.equal(n.properties.daelabLayoutRevision,1);
+});
+test('first drag on an unselected card moves only that card and suppresses text selection',()=>{
+ const f=fixture(),down=f.event();f.selected.delete(2);
+ assert.equal(f.api.startCardDrag(f.cards.get(2),down),true);assert.equal(down.defaultPrevented,true);
+ f.api.moveCards(f.event(20,0));f.api.finishCardDrag();
+ assert.deepEqual([...f.cards.values()].map(c=>c.layout.x),[100,240,300]);
 });
 test('cancel restores every position and temporary group membership',()=>{
  const f=fixture(),owner={id:4,type:GROUP_TYPE,properties:{members:[1]}};f.nodes.push(owner);
@@ -30,7 +36,7 @@ test('cancel restores every position and temporary group membership',()=>{
  assert.ok(f.nodes.every(n=>!n.properties.daelabLayoutRevision));
 });
 test('interactive controls and locked members do not begin a mixed move',()=>{
- const f=fixture();assert.equal(f.api.startCardDrag(f.cards.get(2),f.event(0,0,true)),false);
+ const f=fixture(),down=f.event(0,0,true);assert.equal(f.api.startCardDrag(f.cards.get(2),down),false);assert.equal(down.defaultPrevented,false);
  f.nodes.push({id:4,type:GROUP_TYPE,properties:{members:[1],locked:true}});assert.equal(f.api.startCardDrag(f.cards.get(2),f.event()),false);
  assert.ok(!f.events.includes('begin'));
 });

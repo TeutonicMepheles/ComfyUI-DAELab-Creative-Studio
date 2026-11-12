@@ -10,8 +10,6 @@ import {getModelCatalog} from '../models/model_catalog.mjs';
 import {modelSourceBadge,modelSourceKind} from '../models/source_badge.js';
 // @ts-expect-error Existing model status presentation sanitizes provider errors.
 import {modelOptionPresentation} from '../models/model_catalog_ui.mjs';
-// @ts-expect-error Manual model scan is self-contained and cleans up on dispose.
-import {createModelScanButton} from '../models/model_scan_ui.mjs';
 
 interface Menu {root:HTMLDivElement;close:()=>void;reposition:()=>void;}
 const label=(value:string)=>value.replace(/（(?:本地|Comfy|来源未知)）\s*(?:◌)?$/,'').replace(/\s*◌$/,'').trim();
@@ -19,7 +17,7 @@ const label=(value:string)=>value.replace(/（(?:本地|Comfy|来源未知)）\s
 /** The native select remains the business value/event owner; only its view changes. */
 export function createLLMModelPicker(select:HTMLSelectElement,{active=()=>true}:{active?:()=>boolean}={}){
  if(!document.getElementById('dae-llm-model-picker-css')){const style=document.createElement('style');style.id='dae-llm-model-picker-css';style.textContent=promptSettingsStyle;document.head.append(style);}
- const catalog=getModelCatalog();let menu:Menu|null=null,stamp='',menuStamp='',disposed=false,scanControl:{root:HTMLElement;dispose:()=>void}|null=null,scanFooter:HTMLDivElement|null=null;
+ const catalog=getModelCatalog();let menu:Menu|null=null,stamp='',menuStamp='',disposed=false;
  const root=createTableButton('',()=>{if(menu)menu.close();else open();}) as HTMLButtonElement;
  root.className='llm-model-trigger generation-prompt-setting';root.setAttribute('aria-haspopup','dialog');root.setAttribute('aria-expanded','false');
  select.hidden=true;select.tabIndex=-1;
@@ -42,12 +40,11 @@ export function createLLMModelPicker(select:HTMLSelectElement,{active=()=>true}:
    }) as HTMLButtonElement;
    render(control,option);control.disabled=option.disabled;control.dataset.modelId=option.value;control.setAttribute('role','option');control.setAttribute('aria-selected',String(option.value===select.value));control.setAttribute('aria-pressed',String(option.value===select.value));list.append(control);
   }
-  menu.root.querySelector('.llm-model-options')?.remove();menu.root.append(list);if(scanFooter)menu.root.append(scanFooter);menu.reposition();
+  menu.root.querySelector('.llm-model-options')?.remove();menu.root.append(list);menu.reposition();
  }
  function open(){
   if(!available())return;
-  menu=createSettingsPopover(root,'模型',()=>{scanControl?.dispose();scanControl=null;scanFooter=null;menu=null;menuStamp='';},{placement:'above'}) as Menu;menu.root.classList.add('generation-model-popover');renderOptions();
-  const control=createModelScanButton({active:()=>available()});scanControl=control;scanFooter=document.createElement('div');scanFooter.className='llm-model-scan';scanFooter.append(control.root);menu.root.append(scanFooter);menu.reposition();
+  menu=createSettingsPopover(root,'选择模型',()=>{menu=null;menuStamp='';},{placement:'above'}) as Menu;menu.root.classList.add('generation-model-popover');renderOptions();
   menu.root.addEventListener('keydown',event=>{
    if(!['ArrowDown','ArrowUp','Home','End'].includes(event.key))return;event.preventDefault();
    const controls=Array.from(menu?.root.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')||[]),index=controls.indexOf(document.activeElement as HTMLButtonElement);

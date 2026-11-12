@@ -5,8 +5,6 @@ import {createBusinessDocument} from '../../frontend/src/application/business_do
 import {snapshotJson} from '../../frontend/src/contracts/json_snapshot.js';
 import {bindIOPanel} from '../../frontend/src/features/prompt/llm_io_panel.mjs';
 import {slotSignature} from '../../frontend/src/features/prompt/llm_slot_model.mjs';
-import {bindBusinessService} from '../../frontend/src/contracts/business.js';
-import {generationInputDigest} from '../../frontend/src/features/generation/generation_session.js';
 import ts from 'typescript';
 import {removeOwnedWidgets} from '../../frontend/src/integrations/comfyui/business/dynamic_widget_lifecycle.mjs';
 
@@ -87,20 +85,20 @@ function dom(t){
   const saved={document:globalThis.document,Option:globalThis.Option,setInterval:globalThis.setInterval,clearInterval:globalThis.clearInterval};
   Object.assign(globalThis,{document:{createElement:tag=>new Element(tag)},Option:class extends Element{constructor(text,value){super('option');this.textContent=text;this.value=value;}},setInterval:()=>1,clearInterval(){}});
   t.after(()=>Object.assign(globalThis,saved));
-  const root=new Element(),source=new Element('textarea'),instruction=new Element('textarea'),select=new Element('select'),run=new Element('button'),upload=new Element('button'),result=new Element('section'),materialHint=new Element();
-  const sourceSection=new Element('section'),heading=new Element(),materials=new Element();sourceSection.className='llm-style-source';heading.className='llm-style-result-head';
-  sourceSection.append(source);materials.append(materialHint);result.append(heading);root.append(sourceSection,materials,result);run.append(new Element('span'));
-  return {root,source,instruction,select,run,upload,result,materialHint};
+  const root=new Element(),source=new Element('textarea'),instruction=new Element('textarea'),select=new Element('select'),run=new Element('button'),footer=new Element('footer'),materialHint=new Element();
+  const sourceSection=new Element('section'),materials=new Element();sourceSection.className='llm-style-source';
+  sourceSection.append(source);materials.append(materialHint);footer.append(run);root.append(sourceSection,materials,footer);run.append(new Element('span'));
+  return {root,source,instruction,select,run,footer,materialHint};
 }
-function deferred(){let resolve;const promise=new Promise(done=>{resolve=done;});return {promise,resolve};}
 
-test('native onAdded before onConfigure rebinds the actual two-row review panel and retires the prior owner',t=>{
+test('native onAdded before onConfigure rebinds the actual two-row output panel and retires the prior owner',t=>{
   const source=fs.readFileSync(new URL('../../frontend/src/integrations/comfyui/business/llm_style_preview.js',import.meta.url),'utf8');
-  const tree=ts.createSourceFile('entry.js',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS),classes=[];
-  function visit(node){if(ts.isClassDeclaration(node)&&node.name?.text==='LLMStylePreview')classes.push(node.getText(tree));ts.forEachChild(node,visit);}visit(tree);assert.equal(classes.length,1);
+  const tree=ts.createSourceFile('entry.js',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
+  const binding=tree.statements.find(node=>ts.isFunctionDeclaration(node)&&node.name?.text==='bindTextGeneration');
+  assert.ok(binding);
   const mounts=[];let historySteps=0;
   class Base {
-    constructor(title){this.title=title;this.widgets=[];this.inputs=[];this.outputs=[];}
+    constructor(title){this.title=title;this.widgets=[];this.inputs=[];this.outputs=[];this.properties={};}
     addInput(name,type){this.inputs.push({name,type});}addOutput(name,type){this.outputs.push({name,type});}
     addWidget(_type,name){const widget={name};this.widgets.push(widget);return widget;}
     addDOMWidget(name,_type,root){const widget={name,onRemove:()=>root.remove()};this.widgets.push(widget);return widget;}
@@ -113,37 +111,24 @@ test('native onAdded before onConfigure rebinds the actual two-row review panel 
       history:{begin(){historySteps++;},end(){},amend(change){change();},undo(){},redo(){}}});
   }
   function mount(node,_variant,{nativeDocument}){
-    const elements=dom(t),release=bindIOPanel({node,nativeDocument,...elements}),apply=elements.result.querySelector('.llm-style-result-actions').children[0];
-    const panel={...elements,apply,nativeDocument,sync:release.sync,invalidate:()=>nativeDocument.invalidate(),destroy(){release();nativeDocument.dispose();elements.root.remove();}};mounts.push(panel);return panel;
+    const elements=dom(t),release=bindIOPanel({node,nativeDocument,...elements});
+    const panel={...elements,nativeDocument,sync:release.sync,invalidate:()=>nativeDocument.invalidate(),destroy(){release();nativeDocument.dispose();elements.root.remove();}};mounts.push(panel);return panel;
   }
-  const Node=new Function('LGraphNode','variant','bindBusinessDocument','createLLMStylePanel','removeOwnedWidgets',`return (${classes[0]});`)(Base,{id:'B',type:'DAELAB.LLMStylePreviewB',width:700,height:520},bind,mount,removeOwnedWidgets);
-  const node=new Node();node.id=7;node.mode=0;node.type='DAELAB.LLMStylePreviewB';
+  new Function('type','variant','bindBusinessDocument','createLLMStylePanel','removeOwnedWidgets','checkLocalTextModels',`${binding.getText(tree)};bindTextGeneration(type,variant);`)(Base,{id:'B',type:'DAELAB.LLMStylePreviewB',width:700,height:520},bind,mount,removeOwnedWidgets,()=>assert.fail("restore must not probe models"));
+  const node=new Base();node.onNodeCreated();node.id=7;node.mode=0;node.type='DAELAB.LLMStylePreviewB';
   const rows=[{id:'one',text:'first',image:{kind:'image',url:'/view?filename=one.png'}},{id:'two',text:'second',image:{kind:'image',url:'/view?filename=two.png'}}];
   const upstream={id:8,type:'Synthetic',mode:0},symbol=Symbol.for('DAELAB.CreativeCanvas.API.v1'),previous=globalThis[symbol];
   globalThis[symbol]={inputSnapshot:()=>({version:1,rows})};t.after(()=>{if(previous===undefined)delete globalThis[symbol];else globalThis[symbol]=previous;node.onRemoved();});
   node.graph={session:'first-workflow',links:{1:{origin_id:8,origin_slot:0}},getNodeById:id=>id===7?node:upstream,change(){}};node.inputs[0].link=1;
-  node.onAdded();const old=mounts[0],ticket=old.nativeDocument.beginRequest('prior-owner');assert.equal(old.apply.disabled,true);
+  node.onAdded();const old=mounts[0],ticket=old.nativeDocument.beginRequest('prior-owner');assert.equal(old.footer.children.length,1);
   node.properties.llmStylePreview={version:1,mode:'polish',model:'qwen',instruction:'keep refs'};
   node.properties.llmStylePreview.ioResult={version:1,requestId:'saved-two-rows',complete:true,provider:'qwen',signature:slotSignature(node),rows:rows.map(row=>({...row,result:row.text+' result'}))};
-  node.onConfigure();const restored=node.__llmStylePanel;assert.equal(restored.apply.disabled,false);assert.notEqual(restored,old);assert.equal(old.nativeDocument.canApply(ticket),false);assert.equal(node.widgets.filter(widget=>widget.name==='llm_style_preview').length,1);
-  assert.equal(restored.apply.disabled,false);old.apply.onclick({preventDefault(){},stopPropagation(){}});assert.equal(node.properties.llmStylePreview.appliedIO,undefined);
-  restored.apply.onclick({preventDefault(){},stopPropagation(){}});assert.deepEqual(node.properties.llmStylePreview.appliedIO.rows.map(row=>[row.id,row.image.url,row.result]),[['one','/view?filename=one.png','first result'],['two','/view?filename=two.png','second result']]);assert.equal(historySteps,1);
-  node.graph.session='second-workflow';delete node.properties.llmStylePreview.appliedIO;rows[1].text='changed';node.onConfigure();assert.equal(mounts[2].apply.disabled,true);assert.equal(restored.nativeDocument.isCurrent(),false);
+  node.onConfigure();const restored=node.__llmStylePanel;assert.notEqual(restored,old);assert.equal(old.nativeDocument.canApply(ticket),false);assert.equal(node.widgets.filter(widget=>widget.name==='llm_style_preview').length,1);
+  assert.deepEqual(restored.footer.children,[restored.run]);assert.equal(node.properties.llmStylePreview.appliedIO,undefined);assert.equal(historySteps,0);
+  node.graph.session='second-workflow';rows[1].text='changed';node.onConfigure();assert.equal(restored.nativeDocument.isCurrent(),false);
+
 });
-// recoverProposal deliberately returns void from its click handler. Its finally
-// render changes this real control from busy to idle on both success and error.
-// Observe that boundary in the fake DOM instead of guessing async turn counts.
-function observeBusyCycle(control,t){
-  const descriptor=Object.getOwnPropertyDescriptor(control,'disabled'),finished=deferred(),transitions=[];
-  let disabled=Boolean(control.disabled),seenBusy=false;
-  Object.defineProperty(control,'disabled',{configurable:true,enumerable:true,get:()=>disabled,set(value){
-    disabled=Boolean(value);transitions.push(disabled);
-    if(disabled)seenBusy=true;else if(seenBusy)finished.resolve();
-  }});
-  t.after(()=>{if(descriptor)Object.defineProperty(control,'disabled',descriptor);else delete control.disabled;});
-  return {finished:finished.promise,transitions};
-}
-test('actual LLM panel mounts the imported fixture with nested proxies and applies/undoes restored proposals',t=>{
+test('actual LLM panel mounts the imported fixture with nested proxies without applying historical proposals',t=>{
   const elements=dom(t),fixture=JSON.parse(fs.readFileSync(new URL('../fixtures/performance/FX-PERF-S-no-video.json',import.meta.url)));
   const seed=fixture.nodes.find(node=>node.type==='DAELAB.LLMStylePreviewB');
   const a=documentFor({...seed.properties.llmStylePreview,future:{ids:['asset-A','reference-A'],nested:{opaque:true}}});
@@ -152,73 +137,8 @@ test('actual LLM panel mounts the imported fixture with nested proxies and appli
   a.value.ioResult={version:1,requestId:'saved-result',signature:slotSignature(node),provider:'qwen',complete:true,rows:[{id:'stable-row',result:'已保存建议',future:{preserve:[null,3]}}]};
   const release=bindIOPanel({node,nativeDocument:a.doc,...elements});t.after(release);
   assert.equal(a.steps,0,'mounting preserves the native load without an edit');
-  const apply=elements.result.querySelector('.llm-style-result-actions').children[0];assert.equal(apply.disabled,false);
-  apply.onclick({preventDefault(){},stopPropagation(){}});
-  assert.equal(a.value.appliedIO.requestId,'saved-result');assert.equal(a.steps,1);assert.deepEqual(a.value.appliedIO.rows[0].future,{preserve:[null,3]});
+  assert.deepEqual(elements.footer.children,[elements.run]);
+  assert.equal(a.value.appliedIO,undefined);
+  assert.deepEqual(a.value.ioResult.rows[0].future,{preserve:[null,3]});
   assert.deepEqual(a.value.future,{ids:['asset-A','reference-A'],nested:{opaque:true}});
-  a.doc.undo();release.sync();assert.equal(a.value.appliedIO,undefined);assert.equal(a.value.ioResult.requestId,'saved-result');
-  a.doc.redo();release.sync();assert.equal(a.value.appliedIO.requestId,'saved-result');
-});
-
-test('actual LLM recovery detaches nested Slot proxies, stays read-only until review and preserves history',{timeout:5000},async t=>{
-  const elements=dom(t),a=documentFor({instruction:'保持主体',mode:'polish',model:'qwen',future:{opaque:['keep']},ioResult:{complete:false,requestId:'old-read-only',rows:[],future:{preserve:true}}});
-  const upstream={id:10,type:'DAELAB.MaterialGroup',mode:0};
-  const graph={links:{1:{origin_id:10,origin_slot:0}},getNodeById:()=>upstream,change(){}};
-  const node={id:11,mode:0,inputs:[{link:1}],outputs:[{},{}],properties:{},graph};
-  Object.defineProperty(node.properties,'llmStylePreview',{get:()=>a.doc.read()});
-  const snapshot={version:1,rows:[{id:'row-A',text:'原始提示词',future:{stable:'row-meta'},image:{kind:'image',filename:'synthetic.png',type:'input',assetId:'asset-A',referenceId:'reference-A',future:{opaque:[null,{stable:true}]}}}]};
-  const symbol=Symbol.for('DAELAB.CreativeCanvas.API.v1'),previous=globalThis[symbol];globalThis[symbol]={inputSnapshot:()=>reactive(snapshot)};
-  t.after(()=>{if(previous===undefined)delete globalThis[symbol];else globalThis[symbol]=previous;});
-  const inputDigest=await generationInputDigest(slotSignature(node)),requests=[];
-  t.after(bindBusinessService('generation',{async request(action,options){
-    const payload=JSON.parse(options.body);requests.push({action,payload});
-    assert.equal(action,'status');assert.equal(options.method,'POST');
-    return Response.json({jobs:[{requestId:'original-row-request',state:'succeeded',result:'已恢复建议',receipt:{kind:'text',text:'已恢复建议'},
-      source:{...payload.source,fieldId:'instruction',operation:'standalone-optimization',inputDigest,createdAt:1,groupId:'original-group',rowIndex:0,rowCount:1,recordId:'row-A'}}]});
-  }}));
-  const release=bindIOPanel({node,nativeDocument:a.doc,...elements});t.after(release);
-  const actions=elements.result.querySelector('.llm-style-result-actions');
-  const recover=actions.children[3],cycle=observeBusyCycle(recover,t),digestGate=deferred();
-  const originalDigest=crypto.subtle.digest;let digestCalls=0;
-  t.mock.method(crypto.subtle,'digest',async function(...args){digestCalls++;await digestGate.promise;return Reflect.apply(originalDigest,this,args);});
-  actions.children[3].onclick({preventDefault(){},stopPropagation(){}});
-  try{
-    // Deliberately keep the real WebCrypto call pending across the old loop's
-    // entire budget. These turns prove absence of completion, not readiness.
-    for(let n=0;n<100;n++)await new Promise(resolve=>setImmediate(resolve));
-    assert.equal(digestCalls,1);assert.equal(requests.length,0);
-    assert.equal(recover.disabled,true);assert.deepEqual(cycle.transitions,[true]);
-    assert.equal(elements.result.children[0].textContent,'');
-  }finally{
-    digestGate.resolve();await cycle.finished;
-  }
-  assert.deepEqual(cycle.transitions,[true,false]);
-  assert.equal(elements.result.children[0].textContent,'已恢复建议');assert.equal(requests.length,1);assert.equal(a.steps,0);
-  assert.equal(a.value.appliedIO,undefined);assert.deepEqual(a.value.ioResult,{complete:false,requestId:'old-read-only',rows:[],future:{preserve:true}});
-  assert.equal(actions.children[0].disabled,false);actions.children[0].onclick({preventDefault(){},stopPropagation(){}});
-  assert.equal(a.steps,1);assert.equal(a.value.appliedIO.requestId,'original-group');
-  assert.deepEqual(a.value.appliedIO.rows[0].future,snapshot.rows[0].future);
-  assert.deepEqual(a.value.appliedIO.rows[0].image.future,snapshot.rows[0].image.future);
-  assert.equal(a.value.appliedIO.rows[0].image.assetId,'asset-A');assert.equal(a.value.appliedIO.rows[0].image.referenceId,'reference-A');
-  assert.equal(a.value.ioResult.requestId,'old-read-only');assert.equal(snapshot.rows[0].image.future.opaque[1].stable,true);
-  a.doc.undo();release.sync();assert.equal(a.value.appliedIO,undefined);assert.equal(a.value.ioResult.requestId,'old-read-only');
-  a.doc.redo();release.sync();assert.equal(a.value.appliedIO.requestId,'original-group');assert.equal(requests.length,1);
-});
-
-test('actual LLM recovery failure reaches the same busy-to-idle boundary before error assertions',{timeout:5000},async t=>{
-  const elements=dom(t),a=documentFor({instruction:'保持主体',mode:'polish',model:'qwen',future:{opaque:['keep']}});
-  const node={id:21,mode:0,inputs:[],outputs:[{},{}],properties:{},graph:{links:{},getNodeById(){},change(){}}};
-  Object.defineProperty(node.properties,'llmStylePreview',{get:()=>a.doc.read()});
-  let requests=0;
-  t.after(bindBusinessService('generation',{async request(action){
-    requests++;assert.equal(action,'status');throw new Error('确定性恢复查询失败');
-  }}));
-  const release=bindIOPanel({node,nativeDocument:a.doc,...elements});t.after(release);
-  const recover=elements.result.querySelector('.llm-style-result-actions').children[3],cycle=observeBusyCycle(recover,t);
-  const before=json(a.value);
-  recover.onclick({preventDefault(){},stopPropagation(){}});
-  await cycle.finished;
-  assert.deepEqual(cycle.transitions,[true,false]);assert.equal(recover.disabled,false);assert.equal(requests,1);
-  assert.equal(elements.result.querySelector('.llm-style-preview-status').textContent,'确定性恢复查询失败');
-  assert.equal(a.steps,0);assert.deepEqual(a.value,before);assert.equal(a.value.appliedIO,undefined);
 });

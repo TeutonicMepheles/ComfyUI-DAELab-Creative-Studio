@@ -69,13 +69,16 @@ Seedance 参考图在提交前适配官方尺寸限制：宽高比 0.4–2.5、�
 
 云端 H3 与 `MiniMax H3 FL（本地）` 分别路由；本地版仍只支持文生视频和图片首尾帧，不会自动回退到云端。
 
-本地还提供低配 int8 档位，与旧 profile 并列：
+生成菜单提供 MiniMax H3 FL、Ref 各自的高配和低配。四档都绑定五个组件：
 
-- 名称：`MiniMax H3 FL 低配（本地）`（首帧/图生视频）、`MiniMax H3 Ref 低配（本地）`（双图参考）；后续 BF16 档位按同一规则以“高配（本地）”命名。显示名只带档位与（本地），量化、步数、帧率放在模型信息里。
-- 绑定：`video_base` / `video_reference_base` 两族，只在提供绑定时注册；provider 为 `local-h3-base`、`local-h3-reference-base`，加载链为 UNETLoader + CLIPLoader(type=minimax) + 视频/音频 VAE，条件节点分别为 `MiniMaxH3ImageToVideo` / `MiniMaxH3ReferenceToVideo`。
-- 参数：20 步、`res_multistep`、`simple`、24fps，强制不加 Turbo LoRA（旧设置里的 `turbo:true` 对低配不生效）；界面时长仍为整数秒，2 秒按既有换算在执行层得到 56 帧。
-- 兼容：旧 `MiniMax H3 FL（本地）` / `Ref（本地）` 是各自独立的旧 profile（主模型、量化、步数与 LoRA 各自读取原配置），保持不动；默认仍是旧条目，已保存工作流的选择不迁移、不改写。
-- 缺失：绑定缺失或哈希不符时，该条目在画布内报“不可用＋原因”，不回退到旧 profile、云端或其它档位。
+| 档位 | 主模型 | 视频 VAE | 必需 LoRA |
+|---|---|---|---|
+| FL 高配 | minimax_h3_fl2va_pruned_bf16 | minimax_h3_video_vae_fp16 | pika_h3_flex_fl2va_v1_bf16 |
+| FL 低配 | minimax_h3_fl2va_pruned_int8_convrot | minimax_h3_video_vae_int8_convrot | pika_h3_flex_fl2va_v1_bf16 |
+| Ref 高配 | minimax_h3_ref2va_pruned_bf16 | minimax_h3_video_vae_fp16 | pika_h3_flex_ref2va_v1_bf16 |
+| Ref 低配 | minimax_h3_ref2va_pruned_int8_convrot | minimax_h3_video_vae_int8_convrot | pika_h3_flex_ref2va_v1_bf16 |
+
+文件扩展名均为 `.safetensors`。四档共用 `minimax_h3_audio_vae_fp32` 和 `qwen3vl_32b_minimax_h3_nvfp4_awq`。Flex 使用 6 步 LCM，低配沿用分块视频解码。缺少对应 LoRA 时，在菜单文件检查中显示缺失文件。
 
 ## GPT Image（ComfyUI 账户）
 

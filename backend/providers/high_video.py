@@ -1,4 +1,4 @@
-"""Separate BF16/Flex profiles following the official Pika native graph."""
+"""BF16 and INT8 Flex profiles following the official Pika native graph."""
 import hashlib
 from pathlib import PureWindowsPath
 import uuid
@@ -12,11 +12,13 @@ HIGH_REFERENCE_VIDEO_MODEL = 'MiniMax H3 Ref 高配（本地）'
 FLEX_SIGMAS = '1.0, 0.972973, 0.923077, 0.8, 0.571429, 0.333333, 0.0'
 
 
-class HighVideoProvider(NativeProvider):
-    def __init__(self, *, reference=False, **ports):
-        super().__init__('video', reference=reference, **ports)
-        self.id = 'local-h3-reference-high' if reference else 'local-h3-high'
-        self.model = HIGH_REFERENCE_VIDEO_MODEL if reference else HIGH_VIDEO_MODEL
+class FlexVideoProvider(NativeProvider):
+    def __init__(self, *, reference=False, low=False, **ports):
+        super().__init__('video', reference=reference, video_profile='base' if low else 'turbo', **ports)
+        self.precision = 'int8_convrot' if low else 'bf16'
+        if not low:
+            self.id = 'local-h3-reference-high' if reference else 'local-h3-high'
+            self.model = HIGH_REFERENCE_VIDEO_MODEL if reference else HIGH_VIDEO_MODEL
 
     def build(self, data, media, request_id):
         # This profile's required Flex adapter is not a legacy Turbo option.
@@ -29,23 +31,25 @@ class HighVideoProvider(NativeProvider):
                               {**config.get('settings', {}), 'turbo': False}, [] if self.reference else media)
         models = self.inventory.descriptions(VIDEO_FILES)
         variant = 'ref2va' if self.reference else 'fl2va'
-        required = {'diffusion_models': f'minimax_h3_{variant}_pruned_bf16.safetensors',
+        video_vae = 'fp16' if self.precision == 'bf16' else 'int8_convrot'
+        required = {'diffusion_models': f'minimax_h3_{variant}_pruned_{self.precision}.safetensors',
                     'loras': f'pika_h3_flex_{variant}_v1_bf16.safetensors',
-                    'video_vae': 'minimax_h3_video_vae_fp16.safetensors',
+                    'video_vae': f'minimax_h3_video_vae_{video_vae}.safetensors',
                     'text_encoders': 'qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors',
                     'audio_vae': 'minimax_h3_audio_vae_fp32.safetensors'}
         for key, name in required.items():
             if PureWindowsPath(models[key]['name']).name != name:
-                raise ProviderUnavailable('High profile requires its matching BF16/Flex component: ' + name)
+                raise ProviderUnavailable(self.model + ' 需要匹配的组件：' + name)
         names = {key: info['name'] for key, info in models.items()}
         staged = [{**item, 'native_input': self.media_input(item)} for item in media]
         prefix = 'daelab/creative-studio/' + hashlib.sha256(request_id.encode()).hexdigest()[:24]
-        graph = video_graph(compile_segments(data.get('segments', []), media), values, staged, names, prefix, reference=self.reference)
+        graph = video_graph(compile_segments(data.get('segments', []), media), values, staged, names, prefix, reference=self.reference, last_only=config.get("mode") == "lastImage2video")
         graph['flex'] = {'class_type': 'LoraLoaderModelOnly', 'inputs': {'model': ['model', 0], 'lora_name': names['loras'], 'strength_model': 1.0}}
         graph['guider']['inputs']['model'] = ['flex', 0]
         graph['sampler']['inputs']['sampler_name'] = 'lcm'
         graph['schedule'] = {'class_type': 'ManualSigmas', 'inputs': {'sigmas': FLEX_SIGMAS}}
-        graph['decode_video'] = {'class_type': 'VAEDecode', 'inputs': {'samples': ['sample', 0], 'vae': ['video_vae', 0]}}
+        if self.precision == 'bf16':
+            graph['decode_video'] = {'class_type': 'VAEDecode', 'inputs': {'samples': ['sample', 0], 'vae': ['video_vae', 0]}}
         if self.reference:
             graph['condition']['inputs']['audio_vae'] = ['audio_vae', 0]
         return {'kind': 'video', 'model': self.model, 'models': models, 'settings': values, 'graph': graph,
@@ -57,6 +61,6 @@ class HighVideoProvider(NativeProvider):
         schema['properties'].pop('turbo', None)
         schema['config']['settings'] = [key for key in schema['config']['settings'] if key != 'turbo']
         result['sampling'] = {'sampler': 'lcm', 'steps': 6}
-        result['profile'] = {'precision': 'bf16', 'adapter': 'pika_h3_flex', 'strength': 1.0,
+        result['profile'] = {'precision': self.precision, 'adapter': 'pika_h3_flex', 'strength': 1.0,
                              'sampler': 'lcm', 'sigmas': FLEX_SIGMAS, 'nfe': 6, 'fps': 24}
         return result

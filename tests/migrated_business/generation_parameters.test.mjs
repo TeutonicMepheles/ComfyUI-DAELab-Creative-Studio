@@ -12,6 +12,15 @@ import {applyGenerationModelDefaults,needsGenerationPromptSelector} from '../../
 import {normalizeTable} from '../../frontend/src/features/table/data_table_model.mjs';
 import {OPTIMIZATION_MODELS} from '../../frontend/src/features/prompt/prompt_optimization_model.mjs';
 
+test('new video tasks enable audio and saved off survives normalizing the model settings',()=>{
+ const config=sound=>createVideoTasks({model:'Seedance 2.5',sound}).table.fields.find(field=>field.generation).generation;
+ assert.equal(config().settings.enableSound,true);
+ assert.equal(config(false).settings.enableSound,false);
+ const saved=config(false);saved.settings.enableSound='off';
+ normalizeLocalGenerationConfig(saved,{properties:{modeType:{items:{text2video:[]}},enableSound:{type:'boolean',default:true}},config:{settings:['enableSound']}});
+ assert.equal(saved.settings.enableSound,false);
+});
+
 test('shared task choices preserve each row inputs, bindings and existing results across reload',()=>{
  const state=createVideoTasks(),table=state.table,field=table.fields.find(f=>f.id===state.fieldId),first=table.records[0];
  first.values[field.generation.promptFieldId]='first prompt';first.values[field.id]=[{id:'existing-result'}];
@@ -43,7 +52,7 @@ test('explicit shared text mode is not silently changed by an existing material 
  const before=structuredClone(table);applyTaskGenerationConfig(table,field.id,{...field.generation,mode:'text2video'});
  syncGenerationPromptMode(table,before,field.id,field.generation);
  assert.equal(rowGenerationConfig(row,field.id,field.generation).mode,'text2video');
- assert.deepEqual(row.values,before.records[0].values);
+ assert.deepEqual(row.values[field.generation.promptFieldId].segments,[{type:'text',text:'Independent prompt'}]);
 });
 
 test('H3 ratio presets use exact 32-aligned dimensions and obey live size bounds',()=>{
@@ -67,13 +76,15 @@ test('new local H3 uses a preset while old custom dimensions and unrelated setti
 test('combined video summary preserves saved values without mutating config or adding defaults',()=>{
  const config={kind:'video',model:'Seedance 2.5',mode:'frames2video',settings:{resolution:'720p',duration:9,enableSound:'off'}};
  const before=structuredClone(config),items=promptSettingsItems(config,{combined:true});
- assert.deepEqual(items.map(x=>x.key),['kind','model','parameters']);
- assert.match(items[2].text,/首尾帧 · 比例 · 9s · 音频关闭/);
+ assert.deepEqual(items.map(x=>x.key),['kind','model','mode','parameters']);
+ assert.equal(items[2].text,'首尾帧');assert.equal(items[2].hidden,false);
+ assert.equal(items[3].text,'比例 · 9s · 音频关闭');
+ assert.equal(promptSettingsItems({kind:'image'},{combined:true}).find(item=>item.key==='mode').hidden,true);
  assert.deepEqual(config,before);
  assert.equal(promptSettingsItems(config).length,6,'existing table settings keep their individual entry points');
 });
 test('image summary omits stale video duration; pixels stay internal',()=>{
- assert.equal(generationParametersSummary({kind:'image',mode:'text2image',settings:{width:1024,height:1024,duration:9}}),'文生图 · 1:1');
+ assert.equal(generationParametersSummary({kind:'image',mode:'text2image',settings:{width:1024,height:1024,duration:9}}),'全能参考 · 1:1');
 });
 
 test('official image settings remain editable and summarize the selected dimensions and quality',()=>{
@@ -82,11 +93,11 @@ test('official image settings remain editable and summarize the selected dimensi
  assert.deepEqual(generationParameterSpecs(schema,'image2image').map(x=>x.name),['size','custom_width','custom_height','quality','background']);
  const config={kind:'image',model:'GPT Image 2',mode:'text2image',settings:{size:'1536x1024',quality:'low',width:512,height:288}};
  const before=structuredClone(config);
- assert.equal(generationParametersSummary(config),'文生图 · 3:2 · 质量 low');
+ assert.equal(generationParametersSummary(config),'全能参考 · 3:2 · 质量 low');
  assert.deepEqual(config,before);
- assert.equal(generationParametersSummary({...config,settings:{size:'Custom',custom_width:2048,custom_height:1152}}),'文生图 · 16:9');
- assert.equal(generationParametersSummary({...config,model:'Qwen-Image-2.1 Turbo（本地）'}),'文生图 · 16:9');
- assert.equal(generationParametersSummary({...config,kind:'video',model:'Seedance 2.5',mode:'text2video'}),'文生视频 · 16:9');
+ assert.equal(generationParametersSummary({...config,settings:{size:'Custom',custom_width:2048,custom_height:1152}}),'全能参考 · 16:9');
+ assert.equal(generationParametersSummary({...config,model:'Qwen-Image-2.1 Turbo（本地）'}),'全能参考 · 16:9');
+ assert.equal(generationParametersSummary({...config,kind:'video',model:'Seedance 2.5',mode:'text2video'}),'16:9');
 });
 
 test('new cloud MiniMax tasks use its resolution default and preserve explicit saved values',()=>{
@@ -109,9 +120,9 @@ test('local and cloud model versions share their brand; unknown models keep a sa
 });
 test('mode choices only show declared capabilities and do not revive unsupported saved modes',()=>{
  const schema={properties:{modeType:{items:{text2video:[],singleImage2video:[],frames2video:[]}}}};
- assert.deepEqual(generationParameterModes({kind:'video',mode:'text2video'},schema),['text2video','singleImage2video','frames2video']);
+ assert.deepEqual(generationParameterModes({kind:'video',mode:'text2video'},schema),['omni2video','frames2video']);
  const config={kind:'video',mode:'mixed2video'};
- assert.deepEqual(generationParameterModes(config,schema),['text2video','singleImage2video','frames2video']);
+ assert.deepEqual(generationParameterModes(config,schema),['omni2video','frames2video']);
  assert.equal(config.mode,'mixed2video');
 });
 
@@ -125,9 +136,9 @@ test('image and mixed references share one omnireference choice without rewritin
  const schema={properties:{modeType:{items:{text2video:[],frames2video:[],image2video:[],mixed2video:[]}}}};
  for(const mode of ['image2video','mixed2video']){
   const config={kind:'video',model:'Seedance 2.5',mode,settings:{duration:4}},before=structuredClone(config);
-  assert.deepEqual(generationParameterModes(config,schema),['text2video','frames2video','mixed2video']);
-  assert.equal(generationModeChoice(mode,schema),'mixed2video');
-  assert.match(generationParametersSummary(config),/^全能参考/);
+  assert.deepEqual(generationParameterModes(config,schema),['omni2video','frames2video']);
+  assert.equal(generationModeChoice(mode,schema),'omni2video');
+  assert.doesNotMatch(generationParametersSummary(config),/全能参考/);
   assert.equal(promptSettingsItems(config).find(item=>item.key==='mode').text,'全能参考');
   assert.deepEqual(config,before);
  }
@@ -170,8 +181,9 @@ test('user-facing generation identities use the agreed Comfy and omnireference l
 test('single-frame and image-reference modes never become unsupported alternatives',()=>{
  for(const mode of ['singleImage2video','frames2video','image2video','mixed2video','text2image']){
   const schema={properties:{modeType:{items:{[mode]:[]}}}};
-  assert.deepEqual(generationModes(schema,mode.endsWith('image')?'image':'video'),[mode]);
-  assert.equal(generationModeChoice(mode,schema),mode);
+  const expected=mode==='text2image'?mode:mode.includes('frames')||mode==='singleImage2video'?'frames2video':'omni2video';
+  assert.deepEqual(generationModes(schema,mode.endsWith('image')?'image':'video'),[expected]);
+  assert.equal(generationModeChoice(mode,schema),expected);
  }
  assert.deepEqual(generationParameterModes({model:'unavailable',kind:'image',mode:'image2image'},{}),[]);
 });

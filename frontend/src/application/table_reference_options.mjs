@@ -1,10 +1,10 @@
 import {isTextColumn,promptSourceId} from '../features/prompt/table_prompt_source.mjs';
 import {columnValue,effectivePrompt} from '../features/prompt/table_prompt_template.mjs';
-import {isGeneration,rowGenerationConfig,generationFrameRoles,generationConfigField} from '../features/generation/table_generation_model.mjs';
+import {isGeneration,rowGenerationConfig,generationFrameRoles,textOnlyVideoInput} from '../features/generation/table_generation_model.mjs';
 export function columnReferenceOptions(table,row,fieldId=promptSourceId(table)){
-    const framesOnly=fieldId&&table.fields.filter(isGeneration).some(field=>{
-        const owner=generationConfigField(table,field.id),config=rowGenerationConfig(row,owner.id,owner.generation);
-        return config.promptFieldId===fieldId&&generationFrameRoles(config).length;
+    const textOnly=fieldId&&table.fields.filter(f=>isGeneration(f)||f.id===fieldId&&f.generation).some(owner=>{
+        const config=rowGenerationConfig(row,owner.id,owner.generation);
+        return config.promptFieldId===fieldId&&(generationFrameRoles(config).length||textOnlyVideoInput(config));
     });
     return table.fields.flatMap(f=>{
         if(isTextColumn(table,f)){
@@ -15,7 +15,7 @@ export function columnReferenceOptions(table,row,fieldId=promptSourceId(table)){
             return [{...f,textPreview:preview,valueType:'text'}];
         }
         const value=row.values[f.id];
-        if(framesOnly||!['assets','content'].includes(f.type)||!Array.isArray(value)||!value.length)return [];
+        if(textOnly||!['assets','content'].includes(f.type)||!Array.isArray(value)||!value.length)return [];
         if(value.length===1)return {...f,assetIndex:0,asset:value[0]};
         return [{...f,children:value.map((asset,assetIndex)=>({...f,assetIndex,asset}))}];
     });

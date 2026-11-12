@@ -266,7 +266,7 @@
       "source": "web/table_generation_model.mjs",
       "destination": "frontend/src/features/generation/table_generation_model.mjs",
       "sourceSha256": "eee30572bc581bfd1c90925935d73227ee29578d0dbfb8779bd6e763912b532d",
-      "destinationSha256": "7e672804f5242ca6b3f4e84737a26d6f001ceb5088d32c0df1593ba5dc65ce34",
+      "destinationSha256": "3025ce17eee70f2931048ec687aefb28e2668f82732b7f6a5d1d1e3be0f79fe3",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -281,7 +281,7 @@
       "source": "web/table_generation_panel.mjs",
       "destination": "frontend/src/features/generation/table_generation_panel.mjs",
       "sourceSha256": "547d0543ec0e6359f0146f429ca9a11f9d4cce5682e1c212f01439492b1c9a50",
-      "destinationSha256": "fad527eb410f4e83ad05568b86239514a96297c703664c7c6f45dee50d3a5d42",
+      "destinationSha256": "f7951c9547469a3e4abe9e8db3858bd63a68e66536a6f21509b2831435ef04b5",
       "kind": "production-source",
       "changes": [
         "2026-11-02: Explain the local one-image reference mode and explicit width/height scaling.",
@@ -303,7 +303,7 @@
       "source": "web/table_generation_tasks.mjs",
       "destination": "frontend/src/features/generation/table_generation_tasks.mjs",
       "sourceSha256": "3812afeff3c3738abb6799f9e96812fe76e1e078262612efe9aa59b9163e765f",
-      "destinationSha256": "198cf21f57483a78038a80422c1173f26e9689205190660aedb3f3f814cca9de",
+      "destinationSha256": "3e8c005a4cfeccfae5e675f6d3900d37b89e9111165ba3f4feb95375ffbdf2d2",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -332,7 +332,7 @@
       "source": "web/video_task_linked_prompt.mjs",
       "destination": "frontend/src/features/generation/video_task_linked_prompt.mjs",
       "sourceSha256": "66481e0db0bc4f8e85bae00f9c14cac6dd294138f990cf1c711b8ad1f619b53b",
-      "destinationSha256": "380092e524d1a47397ac5897ef1c4e3393c90087b23451d5ffb9192dc341ccfa",
+      "destinationSha256": "595688c24091f6e83fb0c520c347a1c06586430185e9025e33372ca530058b72",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -353,7 +353,7 @@
       "source": "web/video_tasks.css",
       "destination": "frontend/src/features/generation/video_tasks.css",
       "sourceSha256": "f662c345f3f44010d82961172cb0954db3b8ec2ffb086dfb65cf11c89a0cbf07",
-      "destinationSha256": "24219238cecea060ce3df47dee6531a2b8edcd6662b296a68ad89e1ef93a43ce",
+      "destinationSha256": "5ac5991b3181d1d81795eb5d971b83e18f2f35d631f6419fc1fbdd4a99aec197",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Correct the credit graphic to the host account balance Lucide coins icon, inlined as a yellow mask without host CSS/font dependencies.",
@@ -370,7 +370,7 @@
       "source": "web/video_tasks_model.mjs",
       "destination": "frontend/src/features/generation/video_tasks_model.mjs",
       "sourceSha256": "3572671a035745a74966e2cdd6e7e6f421a49938218c7d03ee2f9601f902c684",
-      "destinationSha256": "e0e718630bb8c0083646fd3dd1b7769e6f0a4de213fcc2837adc450c3279fd6a",
+      "destinationSha256": "8d05bd009c5af69572d23bbc710524026fe15374be90f9450c7be8c93397834f",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -384,7 +384,7 @@
       "source": "web/video_tasks_panel.mjs",
       "destination": "frontend/src/features/generation/video_tasks_panel.mjs",
       "sourceSha256": "1f567635a4b88ab672b6f656d1c2ede14a5a79432592e26ccf2c39775281452d",
-      "destinationSha256": "70785b549377a5883298f0a368dce20ab1a675ec5c565df6e01bc79eca5104ff",
+      "destinationSha256": "861da2c3ecccae196196f5a7f4a3f1dd9de286d5aec1a64bce2641c5b11568ba",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
@@ -421,7 +421,7 @@
       "source": "web/llm_io_panel.mjs",
       "destination": "frontend/src/features/prompt/llm_io_panel.mjs",
       "sourceSha256": "62133e0e28f809abcf5b59cca42eb091cce6cbc57749f88b01f6134c4171c89e",
-      "destinationSha256": "9d8f491a980d84042723be8b755f374888e09d9f5c40154626cf245d015962c5",
+      "destinationSha256": "aa38afa7b49d028a83282bff112ba65af63c221ffe9a75efdfffb8b664f61676",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -443,7 +443,7 @@
       "source": "web/llm_local_provider.mjs",
       "destination": "frontend/src/features/prompt/llm_local_provider.mjs",
       "sourceSha256": "76762831347dc9159e7ab404e8e5203966ae9469b0745c53d284c7db5738f9d1",
-      "destinationSha256": "70edd7116eba33643b56085c5955d837a68786fa0bef2120a6b27d692d4d4f90",
+      "destinationSha256": "c559393b4c1ae5aa8d899d53891c84ae912b0c98d48f073e3814c9d501a5c478",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -458,7 +458,7 @@
       "source": "web/llm_slot_model.mjs",
       "destination": "frontend/src/features/prompt/llm_slot_model.mjs",
       "sourceSha256": "6a6a558a5b9c1f8b481e726cbf4d1772390530e9732edfd24d0a58fb6e8cec9e",
-      "destinationSha256": "129b86c38ea0fe673c69a8de16936ec964a50d625ba05cfa828014ef8b40d279",
+      "destinationSha256": "ccc306ce4d74054f55ff9e46ac2c4331772bf58537789dfbfbb2be6cf1b311f1",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -469,7 +469,7 @@
       "source": "web/llm_style_preview.css",
       "destination": "frontend/src/features/prompt/llm_style_preview.css",
       "sourceSha256": "91ecfb9d971e13ef211a313656fdac10bb7f430b79582058f63b27224e9112d5",
-      "destinationSha256": "58c946998e5057796d1b8de4cf92b58cedb6a7123cbb4677c9ccc64648e52929",
+      "destinationSha256": "1d5f396ddd01f014e3ef3ab663e147ad91f0da945e42903709e52a7a3036e02f",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -484,7 +484,7 @@
       "source": "web/llm_style_preview_panel.mjs",
       "destination": "frontend/src/features/prompt/llm_style_preview_panel.mjs",
       "sourceSha256": "78d3e2dd23a3fbf1cc216ca90f9fce223889f06475ed49234cc84020426bd166",
-      "destinationSha256": "3ab62e2dcad707a4cba0f577275e3e772895cb067861c7f05cf12efae2d5ecdf",
+      "destinationSha256": "5ecd4a629698491d6707f5dd4c50a50f7a352f7f54020eb273a6b8470b2f6b64",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -653,7 +653,7 @@
       "source": "web/table_prompt_settings.mjs",
       "destination": "frontend/src/features/prompt/table_prompt_settings.mjs",
       "sourceSha256": "bfe4726e48470729694c7a86878e50662a3ec0fad7837a9323bbb21a022c432a",
-      "destinationSha256": "4ba4c43a1c8e2dbcbb93bf96575f103eb12582addfffae4c2df5dfe349f1bf24",
+      "destinationSha256": "eff4af61a8ee9db703c9fdb93439b8fb361bde88f75fca5ae00355ee0168bd96",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
@@ -1108,9 +1108,10 @@
       "source": "web/table_ui.css",
       "destination": "frontend/src/features/table/table_ui.css",
       "sourceSha256": "bc0453f9322d52be6e7a6d8c718d64c0819293acdf6c6f29ea148b8fdede6555",
-      "destinationSha256": "e4916c15771e039ea437f5bdf8fc8e84e5989026d3c1bc2105296b24c0d4f998",
+      "destinationSha256": "1de64dec0cf593f3f4aadaea0f8d489f25abf054562c606acea06575cb3ecaa6",
       "kind": "production-source",
       "changes": [
+        "2026-11-11: Fit the inline header name editor to its label and keep row checkbox styles on the checkbox.",
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
         "Limit unused canvas zoom custom-property inheritance to owned content data cells; retain public root values and live screen-size chrome/row-gutter consumers. Performance benefit requires real-host measurement.",
         "PR #12: table-driven generation, frame/reference selection and batch LLM workflow; follow-up preserves task archives and legacy table input. Original upstream hash retained.",
@@ -1202,7 +1203,7 @@
       "source": "web/creative_canvas_adapter.js",
       "destination": "frontend/src/integrations/comfyui/business/creative_canvas_adapter.js",
       "sourceSha256": "87d4a3ec66de9d84f4be88202779471a416ba4046a820ef1ce83780d3711f9b1",
-      "destinationSha256": "5c3428791c0febd84f27f565c80e33f39347bf27ecf00671da95bac9b284103f",
+      "destinationSha256": "3bbbcf03c18e1be5cf880320786cd5dae28cbb8c1d07bba717b6c16f761094db",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
@@ -1272,7 +1273,7 @@
       "source": "web/llm_style_preview.js",
       "destination": "frontend/src/integrations/comfyui/business/llm_style_preview.js",
       "sourceSha256": "129748850824e58beac56b81431a838d3591acf958606fcb62a097ea9398abdd",
-      "destinationSha256": "c716efe49c817e88c6f5e3b5b78402ea5e561e9d0f22165ed6fea22009d20016",
+      "destinationSha256": "f8692cd76e24d953fd8c5b165df9dfb2fbe10f7aeabffcc072503161264764f6",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",
@@ -1356,7 +1357,7 @@
         "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending.",
         "2026-11-04 task24: compact typed media surface, new 5:4 defaults, provider colors and matching model menu typography/icon alignment; upward constrained popovers. Original source identity retained."
       ],
-      "destinationSha256": "dcaaead959f94c758bdf15a37b875101f619cde9b54bc091755995793b41e6f4"
+      "destinationSha256": "1b9f5393ce5010a6183c4d4f922823420f252820ef6511a8cb8d716c634c10b9"
     },
     {
       "source": null,
@@ -1521,7 +1522,7 @@
       "source": "tests/llm_provider_transport.test.mjs",
       "destination": "tests/migrated_business/llm_provider_transport.test.mjs",
       "sourceSha256": "7e48d4862ab5f67a7c70d14f7a44a614b3433b0ab65f018797b7ca93bb27bd0d",
-      "destinationSha256": "4b82fed8da0a9fe728abe83ac94f8ecbb86d0777258e7d5031a363facacb3ebc",
+      "destinationSha256": "c60c78600a5b21bf75e0e1b1555dce55321de3e2dd03bcd81620375c4baf8449",
       "kind": "rule-test",
       "changes": [
         "Relocate original pure rules and rewrite source paths; adapt explicit native-node list dependency where required.",
@@ -2087,7 +2088,7 @@
         "Extend the existing inert DOM with standard class membership and attribute presence operations for actual-control reconciliation; retain proxy, recovery and native history assertions.",
         "2026-11-04 task19 follow-up: rebind text panel after native configure, dispose prior tickets/widgets, preserve signature/current-owner checks; original two-row replay regression."
       ],
-      "destinationSha256": "7aa722c0fd90287cbc7d609da734c77d357c2a02f17248f9fbbbec73540c1ecf"
+      "destinationSha256": "01629b740bd59886efb446be18c41aa39b7a23c41cda514e451eceb3ee40e37e"
     },
     {
       "origin": "authored",

@@ -22,7 +22,7 @@
       "source": "nodes/text_input.py",
       "destination": "backend/integrations/comfyui/canvas_nodes/text_input.py",
       "sourceSha256": "ceb2e947ad3caaecbe76ac68fb6f7c7f592883afba43aaa28eb62f769c1424ad",
-      "destinationSha256": "c726592f4f340e848ae1d6011d7509018038157fc132e638c8663de2a7dcc968",
+      "destinationSha256": "358e46994758475e7b66dafc1dd2e8b003585d42807b7a0bfd640b9e65d32b40",
       "changes": [
         "relocate to owning backend module without changing node identifiers or declared slot order",
         "Explicit input-asset registration and immutable identity/reference metadata; retain native workflow/slots/occurrence IDs and reject unavailable or changed sources."

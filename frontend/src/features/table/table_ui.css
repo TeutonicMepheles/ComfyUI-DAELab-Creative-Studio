@@ -124,7 +124,7 @@
 }
 [data-canvas-panel=true] [data-content-presentation=true] .dae-table :is(.field-settings,.video-reference-toggle,.cell-grip,.row-grip,.asset-add,.asset-remove){display:none!important}
 [data-canvas-panel=true] [data-content-presentation=true] .table-choice{width:32px!important;min-width:32px}
-[data-canvas-panel=true] [data-content-presentation=true] .table-choice input{display:none}
+[data-canvas-panel=true] [data-content-presentation=true] .table-choice > input[type=checkbox]{display:none}
 [data-canvas-panel=true] [data-content-presentation=true] .content-row-number{display:block;opacity:0;font-size:12px;cursor:pointer}
 [data-canvas-panel=true] [data-content-presentation=true] tr:hover .content-row-number{opacity:1}
 [data-canvas-panel=true] [data-content-presentation=true] .field-title{padding-right:34px;color:var(--dae-text);font-size:14px}
@@ -232,9 +232,9 @@
 
 /* Keep linked media highlights inside clipped media containers. */
 [data-canvas-panel=true] [data-content-presentation=true] .dae-table[data-structure] .table-choice{width:var(--table-choice-width,68px)!important;min-width:var(--table-choice-width,68px);padding:10px 4px!important;overflow:visible}
-[data-canvas-panel=true] [data-content-presentation=true] .dae-table[data-structure] .table-choice input{display:inline-block;accent-color:var(--dae-primary,#b8b1ff);position:absolute;right:12px;top:18px;width:16px;height:16px;margin:0!important;opacity:0}
+[data-canvas-panel=true] [data-content-presentation=true] .dae-table[data-structure] .table-choice > input[type=checkbox]{display:inline-block;accent-color:var(--dae-primary,#b8b1ff);position:absolute;right:12px;top:18px;width:16px;height:16px;margin:0!important;opacity:0}
 [data-canvas-panel=true] [data-content-presentation=true] .dae-table[data-structure] .table-choice .content-row-number{display:inline-block;position:absolute;top:16px;right:12px;opacity:1;pointer-events:none;font-size:12px;color:var(--dae-text-muted)}
-[data-canvas-panel=true] [data-content-presentation=true] .dae-table[data-structure] :is(tr:hover,tr:focus-within,tr[data-row-selected=true]) .table-choice input,[data-canvas-panel=true] [data-content-presentation=true] .dae-table[data-structure] th.table-choice input{opacity:1}
+[data-canvas-panel=true] [data-content-presentation=true] .dae-table[data-structure] :is(tr:hover,tr:focus-within,tr[data-row-selected=true]) .table-choice > input[type=checkbox],[data-canvas-panel=true] [data-content-presentation=true] .dae-table[data-structure] th.table-choice > input[type=checkbox]{opacity:1}
 [data-canvas-panel=true] [data-content-presentation=true] .dae-table[data-structure] :is(tr:hover,tr:focus-within,tr[data-row-selected=true]) .content-row-number{opacity:0}
 [data-canvas-panel=true] [data-content-presentation=true] .dae-table[data-structure] th[data-column]{padding-left:18px!important;padding-right:18px!important;cursor:grab;user-select:none;touch-action:none}
 [data-canvas-panel=true] [data-content-presentation=true] .dae-table[data-structure] .field-title{padding-right:0!important;cursor:inherit}
@@ -286,7 +286,7 @@
 [data-canvas-panel=true] .dae-table[data-structure] th[data-structure-moving=true]{cursor:grabbing}
 
 [data-canvas-panel=true] .dae-table[data-structure] .table-add-row:focus-visible{outline-offset:-3px!important}
-[data-canvas-panel=true] [data-content-presentation=true] .dae-table[data-structure] th.table-choice input{top:50%;transform:translateY(-50%)}
+[data-canvas-panel=true] [data-content-presentation=true] .dae-table[data-structure] th.table-choice > input[type=checkbox]{top:50%;transform:translateY(-50%)}
 
 [data-canvas-panel=true] .dae-table[data-structure] .table-add-row-label{position:sticky;left:18px}
 
@@ -342,8 +342,8 @@
 .dae-ui.dae-inline-columns button[data-active=true]{background:var(--dae-primary-container);color:var(--dae-on-primary-container)}
 .dae-ui .dae-prompt-ref:not([data-invalid=true]):not([data-frame-role]){background:var(--dae-secondary-container);color:var(--dae-on-secondary-container)}
 [data-canvas-panel=true] [data-content-presentation=true] .dae-table[data-named-rows=true][data-structure] .table-choice .content-row-number{left:36px;right:12px;top:12px;line-height:20px;opacity:1;pointer-events:auto;text-align:left;cursor:grab;touch-action:none;user-select:none}
-[data-canvas-panel=true] [data-content-presentation=true] .dae-table[data-named-rows=true][data-structure] .table-choice input{left:12px;right:auto;opacity:1}
-[data-canvas-panel=true] [data-content-presentation=true] .dae-table[data-named-rows=true][data-structure] tbody .table-choice input{top:14px}
+[data-canvas-panel=true] [data-content-presentation=true] .dae-table[data-named-rows=true][data-structure] .table-choice > input[type=checkbox]{left:12px;right:auto;opacity:1}
+[data-canvas-panel=true] [data-content-presentation=true] .dae-table[data-named-rows=true][data-structure] tbody .table-choice > input[type=checkbox]{top:14px}
 [data-canvas-panel=true] .dae-table[data-named-rows=true][data-structure] tbody .table-choice{cursor:grab;touch-action:none;user-select:none}
 
 /* Reserve the hint lane before hover: moving the settings target on entry lets
@@ -354,3 +354,5 @@
 :is(.dae-creative,.dae-ui) button.dae-table-material-remove{position:absolute;right:2px;top:2px;z-index:2;display:grid;place-items:center;box-sizing:border-box;width:22px!important;height:22px!important;min-width:22px!important;min-height:22px!important;max-width:22px!important;max-height:22px!important;border:1px solid var(--dae-border-control)!important;border-radius:6px!important;padding:0!important;background:var(--dae-surface-low)!important;color:var(--dae-text-muted)!important;font:16px/1 var(--dae-font-family);cursor:pointer}
 :is(.dae-creative,.dae-ui) button.dae-table-material-remove:is(:hover,:focus-visible){color:var(--dae-danger)!important;border-color:var(--dae-danger)!important}
 :is(.dae-creative,.dae-ui) button.dae-table-material-remove:focus-visible{outline:2px solid var(--dae-focus);outline-offset:2px}
+.dae-table .field-name:has(>.table-name-editor){flex:1}
+.dae-ui .dae-table input.table-name-editor{box-sizing:border-box;width:100%;min-width:0;height:1.6em;margin:0;padding:0 2px;font:inherit;color:inherit;user-select:text}

@@ -9,6 +9,13 @@ export function registerAdapter(id, adapter) {
     return () => { if (adapters.get(id) === adapter) adapters.delete(id); };
 }
 export function adapterFor(node) { return [...adapters.values()].find(a => a.matches(node)); }
+export function deletionWarning(nodes) {
+    for(const node of nodes){
+        const warning=node&&adapterFor(node)?.deletionWarning?.(node);
+        if(warning)return warning;
+    }
+    return '';
+}
 export function menuItems() { return [...adapters.values()].flatMap(a => a.menu || []); }
 // The registry owns reads as well as registration, so every entrypoint shares
 // exactly one adapter identity without a contract/exchange import cycle.

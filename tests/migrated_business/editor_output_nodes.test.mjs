@@ -51,11 +51,19 @@ test('output placement avoids existing cards and keeps prior exports unchanged',
 
 test('a verified export-session completion automatically publishes once without another export submission',async t=>{
  const f=fixture(),state={},calls=[];
+ const waiting=f.create('DAELAB.MediaUpload');f.graph.add(waiting);f.controller.bindWaiting(waiting);
+ assert.equal(f.controller.waitingOutput(),waiting);assert.equal(waiting.properties.materialPlaceholder.phase,'idle');
+ const link=waiting.inputs[1].link;
  const session=new ExportSession(new MediaExportService({async submit(value){calls.push(value.requestId);return{schemaVersion:1,requestId:value.requestId,state:'succeeded',version:1,fingerprint:'a'.repeat(64),editFingerprint:'b'.repeat(64),native:{promptId:'native',nodeId:'save',listIndex:0},providerTaskId:'native',cancelRequested:false,result:{kind:'assets',items:[{asset_id:'asset',reference_id:'ref',sha256:'c'.repeat(64),bytes:99}]},errorCode:null,source:{...value.source,operation:'video_export'},attempt:1,output:{filename:'verified.mp4',subfolder:'exports',type:'output'},recoveryAction:'read_result'};}}),{
   input:()=>({edit_data:JSON.stringify({version:1,clips:[{id:'one',duration:1}]}),connections:{},source:{documentId:'doc',nodeId:String(f.source.id)}}),current:()=>true,
   begin:()=>({}),canApply:()=>true,release(){},saveReference(ref){state.ref=ref;},apply(_ticket,binding){state.binding=binding;return true;},binding:()=>state.binding,
   changed(view){if(view.currentOutput&&!view.copied)f.controller.publish(view.currentOutput);}
  });t.after(()=>session.dispose());
- await session.start();assert.equal(f.outputs().length,1);assert.equal(JSON.parse(f.outputs()[0].widgets[0].value).filename,'verified.mp4');
+ await session.start();assert.deepEqual(f.outputs(),[waiting]);assert.equal(waiting.inputs[1].link,link);assert.equal(waiting.properties.materialPlaceholder,undefined);assert.equal(JSON.parse(waiting.widgets[0].value).filename,'verified.mp4');
  await session.inputChanged();assert.equal(f.outputs().length,1);assert.equal(calls.length,1);
+});
+
+test('a disconnected waiting card does not receive the next export',()=>{
+ const f=fixture(),target=f.create('DAELAB.MediaUpload');f.graph.add(target);f.controller.bindWaiting(target);target.inputs[1].link=null;
+ f.controller.publish(f.binding('next'));assert.equal(f.outputs().length,2);assert.equal(target.widgets[0].value,'{}');
 });

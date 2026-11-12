@@ -3,7 +3,7 @@ import json
 import uuid
 
 from .native_text import NativeTextProvider
-from .canvas_instructions import INSTRUCTIONS
+from .canvas_instructions import INSTRUCTIONS, purpose_instruction
 from ..contracts.errors import InvalidInput
 
 QWEN_27B_MODEL = 'qwen3.8-27b-w4a8'
@@ -11,12 +11,13 @@ QWEN_27B_PROVIDER = 'local-qwen-27b-text'
 QWEN_27B_LIMIT = 1024
 
 
-def official_nonthinking_prompt(source, instruction):
+def official_nonthinking_prompt(source, instruction, purpose=None):
     # Qwen's official single-turn ChatML rendering, enable_thinking=false.
     # Keep the two newlines in the explicit non-thinking assistant prefix.
     body = json.dumps({'prompt': source, 'requirements': instruction}, ensure_ascii=False)
     body = body.replace('<', '\\u003c').replace('>', '\\u003e')
-    return ('<|im_start|>system\n' + INSTRUCTIONS + '<|im_end|>\n'
+    system = '\n'.join(filter(None, (INSTRUCTIONS, purpose_instruction(purpose))))
+    return ('<|im_start|>system\n' + system + '<|im_end|>\n'
             '<|im_start|>user\n' + body + '<|im_end|>\n'
             '<|im_start|>assistant\n<think>\n\n</think>\n\n')
 
@@ -32,7 +33,7 @@ class Native27BProvider(NativeTextProvider):
             raise InvalidInput('Native 27B text or instruction is invalid or too long.')
         models = self.inventory.descriptions(['text_encoders'])
         return {'kind': 'text', 'model': self.model, 'models': models,
-                'graph': self._graph(models, official_nonthinking_prompt(source, instruction)),
+                'graph': self._graph(models, official_nonthinking_prompt(source, instruction, data.get('purpose'))),
                 'native_task_id': str(uuid.uuid5(uuid.NAMESPACE_URL, 'creative-studio:' + request_id))}
 
     @staticmethod

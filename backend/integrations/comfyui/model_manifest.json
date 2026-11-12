@@ -10,8 +10,8 @@
  ],
  "categoryDirMapping": "backend/providers/native.py: mmproj->text_encoders, video_vae->vae, audio_vae->vae, 其余同名",
  "provenance": {
-  "identitySource": "宿主 local-generation.json（schemaVersion 1、enabled true、10 个 family / 35 条绑定 / 20 个唯一权重文件）",
-  "hashCheck": "35 条逐条与离线整包 sha256.tsv（45,568 行，全量校验 missing=0 mismatch=0）比对：matched=35 missing=0 mismatch=0",
+  "identitySource": "组件身份沿用宿主固定绑定；高低档分别指定 BF16 / INT8 主模型与视频 VAE，使用各自 FL / Ref 的 Flex LoRA。",
+  "hashCheck": "组件字节数与哈希来源为离线整包 sha256.tsv；高低档共用的文件保留相同身份。",
   "note": "bytes 与 sha256 均为真实测量值，不是模板；同一模型的不同量化是不同文件，因此按「模型×档位」逐条登记。"
  },
  "entries": [
@@ -79,34 +79,6 @@
    "sha256": "32707d01b427e488af252b95c551989aad59f9fec611a694f5db6bde7f0f1f6c"
   },
   {
-   "family": "video",
-   "category": "audio_vae",
-   "name": "minimax_h3_audio_vae_fp32.safetensors",
-   "bytes": 605254808,
-   "sha256": "8e505d95dd1561d47abd43d4238fd40d9bb1ae9e147ed0a4cba778d76ae4db48"
-  },
-  {
-   "family": "video",
-   "category": "diffusion_models",
-   "name": "MiniMax-H3_FL2VA-NVFP4.safetensors",
-   "bytes": 11663443448,
-   "sha256": "1519c19084ba0387a5f5c3983fcf32aee5923045de1ef4e44c04ca2e2ba486e5"
-  },
-  {
-   "family": "video",
-   "category": "text_encoders",
-   "name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
-   "bytes": 15687142551,
-   "sha256": "35a88d51044231fe332301d7a62aa81e3f2cba62febeb446e2c1e3e0ef76f2c6"
-  },
-  {
-   "family": "video",
-   "category": "video_vae",
-   "name": "minimax_h3_video_vae_fp16.safetensors",
-   "bytes": 5207808496,
-   "sha256": "7c1f131492e7eddacaac9069a61b81bdd39de5cc96561e677c5eab1cdce5e522"
-  },
-  {
    "family": "video_base",
    "category": "audio_vae",
    "name": "minimax_h3_audio_vae_fp32.safetensors",
@@ -119,6 +91,13 @@
    "name": "minimax_h3_fl2va_pruned_int8_convrot.safetensors",
    "bytes": 20970379616,
    "sha256": "e889202c41dafb67b10d67b97f0d8541508036a6090af23425a5c2615d03c47a"
+  },
+  {
+   "family": "video_base",
+   "category": "loras",
+   "name": "pika_h3_flex_fl2va_v1_bf16.safetensors",
+   "bytes": 1956172304,
+   "sha256": "cc5453aeecd6189468409003fe4cf1b57e52ff3a830a0a154b87decbe07358b7"
   },
   {
    "family": "video_base",
@@ -170,34 +149,6 @@
    "sha256": "7c1f131492e7eddacaac9069a61b81bdd39de5cc96561e677c5eab1cdce5e522"
   },
   {
-   "family": "video_reference",
-   "category": "audio_vae",
-   "name": "minimax_h3_audio_vae_fp32.safetensors",
-   "bytes": 605254808,
-   "sha256": "8e505d95dd1561d47abd43d4238fd40d9bb1ae9e147ed0a4cba778d76ae4db48"
-  },
-  {
-   "family": "video_reference",
-   "category": "diffusion_models",
-   "name": "MiniMax-H3_Ref2VA-NVFP4.safetensors",
-   "bytes": 11663443448,
-   "sha256": "f970a8a32ded2b4b72f68a624244f8e39d488b1fe0992b9de7133b400dbc95e2"
-  },
-  {
-   "family": "video_reference",
-   "category": "text_encoders",
-   "name": "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
-   "bytes": 15687142551,
-   "sha256": "35a88d51044231fe332301d7a62aa81e3f2cba62febeb446e2c1e3e0ef76f2c6"
-  },
-  {
-   "family": "video_reference",
-   "category": "video_vae",
-   "name": "minimax_h3_video_vae_fp16.safetensors",
-   "bytes": 5207808496,
-   "sha256": "7c1f131492e7eddacaac9069a61b81bdd39de5cc96561e677c5eab1cdce5e522"
-  },
-  {
    "family": "video_reference_base",
    "category": "audio_vae",
    "name": "minimax_h3_audio_vae_fp32.safetensors",
@@ -210,6 +161,13 @@
    "name": "minimax_h3_ref2va_pruned_int8_convrot.safetensors",
    "bytes": 20970379616,
    "sha256": "9255f52b6677845ad238f20dfaafa94727053694127ab7f255c048f0f9365779"
+  },
+  {
+   "family": "video_reference_base",
+   "category": "loras",
+   "name": "pika_h3_flex_ref2va_v1_bf16.safetensors",
+   "bytes": 1956172304,
+   "sha256": "de3745ceb7d8d5c20898dd8fa3a05f1c0b00089ccd55297b2a8bab95c766b0e0"
   },
   {
    "family": "video_reference_base",

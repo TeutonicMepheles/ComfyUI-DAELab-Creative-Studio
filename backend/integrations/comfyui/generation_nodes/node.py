@@ -101,7 +101,7 @@ def make_node(service, node_id=NODE_ID, display_name='DAELAB · 生成节点', m
                     io.Int.Input('duration', default=4, min=4, max=30),
                     io.Combo.Input('resolution', options=['480p', '720p', '1080p', '4k', '768P', '2K']),
                     io.Combo.Input('ratio', options=['16:9', '9:16', '1:1', '4:3', '3:4', '21:9', 'adaptive']),
-                    io.Boolean.Input('sound', default=False),
+                    io.Boolean.Input('sound', default=True),
                     io.String.Input('reference_files', default='[]', multiline=True),
                     io.Image.Input('first_frame', optional=True),
                     io.Image.Input('last_frame', optional=True),
@@ -120,7 +120,7 @@ def make_node(service, node_id=NODE_ID, display_name='DAELAB · 生成节点', m
 
         @classmethod
         def execute(cls, project_uuid, request_id, model, mode, prompt, duration, resolution, ratio,
-                    sound=False, reference_files='[]', first_frame=None, last_frame=None,
+                    sound=True, reference_files='[]', first_frame=None, last_frame=None,
                     reference_images=None, reference_video=None, text_input=None, table_json=None, task_data='', texts=None, images=None, groups=None, videos=None):
             if not task_data:
                 raise InvalidInput('Legacy LibTV execution is retired. Run the shared generation panel before reading its completed result.')

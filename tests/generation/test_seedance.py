@@ -19,6 +19,8 @@ def schema(name):
         return None
     inputs = {'prompt': ('STRING', {'default': ''}), 'resolution': ('COMBO', {'options': ['480p', '720p']}),
               'duration': ('INT', {'default': 5, 'min': 4, 'max': 30}), 'generate_audio': ('BOOLEAN', {'default': True})}
+    for kind, maximum in [('image', 9), ('video', 3)]:
+        inputs[f'reference_{kind}s'] = ('COMFY_AUTOGROW_V3', {'template': {'names': [f'{kind}_{i+1}' for i in range(maximum)]}})
     if name != NODES['frames2video']:
         inputs['ratio'] = ('COMBO', {'options': ['16:9', '9:16'], 'default': '16:9'})
     return {'required': {'model': ('COMFY_DYNAMICCOMBO_V3', {'options': [
@@ -81,6 +83,18 @@ class SeedanceTests(unittest.IsolatedAsyncioTestCase):
             self.assertNotIn('synthetic-token', json.dumps(prepared))
             self.assertEqual(prepared, self.provider.build(data, media, 'request-1'))
             self.assertNotEqual(inputs['seed'], self.provider.build(data, media, 'request-2')['graph']['generate']['inputs']['seed'])
+        await self.authorized(check)
+
+    async def test_reference_count_must_fit_the_selected_models_actual_slots(self):
+        async def check():
+            data = self.input()
+            data['segments'] = [{'type': 'text', 'text': '镜头描述'}]
+            for kind, maximum in [('image', 9), ('video', 3)]:
+                media = [{'kind': kind, 'filename': str(n)} for n in range(maximum + 1)]
+                with self.assertRaisesRegex(InvalidInput, f'最多接收 {maximum}'):
+                    self.provider.build(data, media, 'too-many')
+                graph = self.provider.build(data, media[:-1], 'last-slot')['graph']
+                self.assertIn(f'model.reference_{kind}s.{kind}_{maximum}', graph['generate']['inputs'])
         await self.authorized(check)
 
     async def test_frames_use_first_last_slots_and_video_cannot_silently_become_a_frame(self):

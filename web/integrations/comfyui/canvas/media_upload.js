@@ -34,7 +34,12 @@ function install(node){
     function render(){
         if(disposed)return;
         const previousName=asset?.name;
-        asset=readAsset(data.value);favorite.sync();const savedPlaceholder=node.properties?.materialPlaceholder;const detached=node.properties?.generationOutput&&!generationOutputConnected(node,node.properties.generationOutput.nodeId);const placeholder=detached&&savedPlaceholder?{phase:'stopped',label:'已断开来源',detail:'重新连接原生成节点以同步状态',busy:false}:savedPlaceholder;const next=JSON.stringify([asset,asset?null:placeholder]);if(next===signature)return;signature=next;
+        asset=readAsset(data.value);favorite.sync();const savedPlaceholder=node.properties?.materialPlaceholder;
+        const edit=node.properties?.editOutput;
+        const sourceLink=edit&&savedPlaceholder?node.inputs?.find(slot=>slot.name==='source_video')?.link:null;
+        const link=sourceLink!=null&&(node.graph?.links?.get?.(sourceLink)??node.graph?.links?.[sourceLink]);
+        const detached=edit?String(link?.origin_id)!==edit.nodeId:node.properties?.generationOutput&&!generationOutputConnected(node,node.properties.generationOutput.nodeId);
+        const placeholder=detached&&savedPlaceholder?{phase:'stopped',label:'已断开来源',detail:edit?'从剪辑节点拖出新的结果框':'从生成节点拖出新的结果框',busy:false}:savedPlaceholder;const next=JSON.stringify([asset,asset?null:placeholder]);if(next===signature)return;signature=next;
         root.dataset.hasAsset=String(!!asset);
         if(asset&&(!node.title||node.title==='上传'||node.title===UPLOAD_TYPE||node.title===previousName))node.title=asset.name;
         releasePlayer?.();releasePlayer=null;stage.querySelector('video')?.pause();stage.replaceChildren();status.textContent='';

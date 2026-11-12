@@ -28,14 +28,11 @@
 .llm-style .llm-style-result{padding:12px;border-radius:var(--dae-radius-control);background:var(--dae-surface);border:1px solid var(--dae-border);flex:none}
 .llm-style .llm-style-result-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .llm-style .llm-style-result p{margin:8px 0 0;line-height:1.8;overflow-wrap:anywhere;color:var(--dae-text-muted)}
-.llm-style .llm-style-result-editor[contenteditable=true]:focus-visible{outline:2px solid var(--dae-focus);outline-offset:2px}
 .llm-style .llm-style-footer{display:flex;align-items:center;gap:12px;padding-top:12px;border-top:1px solid var(--dae-border);flex:none}
 .llm-style .llm-style-footer select{max-width:240px;flex:1;min-height:36px;padding:6px 12px;border:1px solid var(--dae-border);border-radius:var(--dae-radius-control);background:var(--dae-surface);color:var(--dae-text);font:inherit}
 .llm-style .llm-style-footer button{margin-left:auto;display:flex;gap:6px;align-items:center;justify-content:center;min-width:104px;min-height:36px;padding:6px 16px;border:0;border-radius:var(--dae-radius-button);background:var(--dae-primary-container);color:var(--dae-on-primary-container);font:500 var(--dae-font-body)/1.5 var(--dae-font-family)}
 .llm-style .llm-style-note{text-align:center;color:var(--dae-text-muted);font-size:var(--dae-font-caption);line-height:1.2;flex:none}
-.llm-style-B .llm-style-body{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .llm-style .llm-style-column{display:flex;flex-direction:column;gap:12px}
-.llm-style-B .llm-style-column:last-child .llm-style-result{flex:1;background:var(--dae-surface-raised)}
 .llm-style-B .llm-style-source textarea{height:134px}
 .llm-style-C .llm-style-instruction textarea{height:156px;background:var(--dae-surface-raised);border-left:3px solid var(--dae-accent)}
 .llm-style .llm-style-details{border:1px solid var(--dae-border);border-radius:var(--dae-radius-control);padding:8px 12px}
@@ -54,9 +51,8 @@
 .llm-style-E .llm-style-result{border-top:2px solid var(--dae-accent)}
 .llm-style-E .llm-style-instruction textarea{height:72px}
 
-.dae-ui.llm-style-B{height:520px}
-.llm-style .llm-style-result-actions{display:flex;gap:4px}
-.dae-ui.llm-style .llm-style-result-action{display:flex!important;align-items:center;justify-content:center;width:36px!important;min-width:36px!important;height:36px!important;padding:0!important;border-radius:50%!important}
+.dae-ui.llm-style-B{height:574px}
+.llm-style-B .llm-prompt-purpose{order:-2;align-self:flex-start}
 
 .dae-ui.llm-style-B .llm-style-modes{height:40px;border:1px solid var(--dae-border-control);border-radius:46px;background:transparent;padding:3px;gap:4px}
 .dae-ui.llm-style-B .llm-style-modes button{height:32px!important;min-height:32px!important;border:0!important;background:transparent!important;font-weight:500!important;padding:0 8px!important}
@@ -66,7 +62,6 @@
 .dae-ui.llm-style-B .llm-style-instruction textarea{height:111px}
 .dae-ui.llm-style-B textarea{font-size:14px;line-height:23px}
 .llm-style-B .llm-style-preview-status{font-size:12px;color:var(--dae-text-muted);margin-top:8px;line-height:18px}
-.llm-style-B .llm-style-result p{max-height:215px;overflow:auto}
 .llm-style-B .llm-style-materials .llm-style-caption{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 .dae-ui.llm-style-B .llm-style-modes{border-color:#707070}
@@ -82,12 +77,6 @@
 .llm-style-B .llm-style-image-head{display:flex;align-items:center;justify-content:space-between;height:23px}
 .dae-ui.llm-style-B .llm-style-image-remove{display:flex;align-items:center;justify-content:center;width:24px!important;min-width:24px!important;min-height:23px!important;height:23px!important;padding:0!important;border:0!important;background:transparent!important}
 
-.dae-ui.llm-style-B .llm-style-column:last-child{gap:6px;min-height:0}
-.dae-ui.llm-style-B .llm-style-result-head{height:23px;flex:none;line-height:23px}
-.dae-ui.llm-style-B .llm-style-result-head .llm-style-label{font-weight:500}
-.dae-ui.llm-style-B .llm-style-column:last-child .llm-style-result{display:flex;flex-direction:column;min-height:0;border-color:#707070;border-radius:8px;background:var(--dae-surface)}
-.dae-ui.llm-style-B .llm-style-result p{margin:0;flex:1;min-height:0;max-height:none;overflow:auto}
-.dae-ui.llm-style-B .llm-style-result-actions{justify-content:flex-end;flex:none;margin-top:8px}
 .dae-ui.llm-io .llm-style-source textarea{height:90px}
 .dae-ui.llm-io .llm-style-instruction textarea{height:60px}
 .llm-io .llm-io-sources{display:flex;gap:5px;flex-wrap:wrap}
@@ -102,10 +91,9 @@
 .dae-ui.llm-io .llm-io-row p{overflow:visible;white-space:pre-wrap;line-height:1.5;margin:4px 0}
 .llm-io .llm-io-after{color:var(--dae-text)!important}
 
-.dae-ui.llm-style-B .llm-style-result p{white-space:pre-wrap}
 .llm-io-task-rail{display:flex;order:-1;gap:8px;overflow-x:auto;flex:none;max-width:100%;padding:2px;scrollbar-width:thin}
 .llm-io-task-rail[hidden]{display:none}
-.dae-ui.llm-style-B.has-task-list{height:610px}
+.dae-ui.llm-style-B.has-task-list{height:664px}
 .dae-ui.llm-style-B .llm-io-task-rail button{display:grid;grid-template-columns:24px minmax(0,1fr);gap:4px 8px;flex:0 0 190px;text-align:left;padding:10px;border:1px solid var(--dae-border,#444)!important;border-radius:12px!important;background:var(--dae-surface-low,#202020)!important}
 .dae-ui.llm-style-B .llm-io-task-rail button[aria-selected=true]{border-color:var(--dae-focus,#b8c4ff)!important;background:color-mix(in srgb,var(--dae-focus,#b8c4ff) 12%,var(--dae-surface,#242424))!important;box-shadow:inset 0 0 0 1px var(--dae-focus,#b8c4ff)}
 .llm-io-task-number{grid-row:span 2;align-self:center;text-align:center;background:var(--dae-surface-high,#333);border-radius:6px;padding:4px}
@@ -120,15 +108,17 @@
 .dae-ui.llm-style-B .llm-model-source[data-source=api]{color:var(--dae-info,#b8c4ff);background:color-mix(in srgb,var(--dae-info,#b8c4ff) 18%,transparent)}
 
 /* Keep the editor surfaces fixed in the node; only their text scrolls. */
-.dae-ui.llm-style-B .llm-style-body{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr);min-height:0;overflow:hidden!important}
+.dae-ui.llm-style-B .llm-style-body{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);min-height:0;overflow:hidden!important}
 .dae-ui.llm-style-B .llm-style-column{min-width:0;min-height:0;overflow:hidden}
 .dae-ui.llm-style-B :is(.llm-style-source,.llm-style-instruction){flex:1 1 0;min-height:0;overflow:hidden}
 .dae-ui.llm-style-B :is(.llm-style-source,.llm-style-instruction) textarea{flex:1 1 0;height:0!important;min-height:0!important;resize:none;overflow:auto;overscroll-behavior:contain}
+.dae-ui.llm-style-B :is(.llm-style-source,.llm-style-instruction) textarea:focus-visible{outline-offset:-2px}
 .dae-ui.llm-style-B .llm-style-label{flex:none}
 .llm-style-instruction-head{display:flex;align-items:center;gap:8px;flex:none;min-height:32px;min-width:0}
 .llm-style-instruction-head select{flex:1 1 0;min-width:0;width:0;height:32px;min-height:32px!important;padding:4px 28px 4px 8px!important;font:inherit;text-overflow:ellipsis}
-.dae-ui.llm-style-B .llm-style-result-editor{overscroll-behavior:contain}
 .dae-ui.llm-style-B .llm-style-preview-status{flex:none;max-height:4.2em;overflow:auto}
-.dae-ui.llm-style-B .llm-style-footer button.llm-model-trigger{display:inline-flex;justify-content:flex-start;gap:7px;flex:0 1 auto;min-width:0;max-width:calc(100% - 96px);height:36px;min-height:36px;margin-left:0;padding:6px!important;border:0!important;border-radius:8px!important;background:transparent!important;color:var(--dae-text-muted)!important;font:400 14px/1.5 var(--dae-font-family)!important}
+.dae-ui.llm-style-B .llm-style-footer{gap:8px}
+.dae-ui.llm-style-B .llm-style-footer button[data-primary]{flex:none;white-space:nowrap}
+.dae-ui.llm-style-B .llm-style-footer button.llm-model-trigger{display:inline-flex;justify-content:flex-start;gap:7px;flex:0 1 auto;min-width:0;height:36px;min-height:36px;margin-left:0;padding:6px!important;border:0!important;border-radius:8px!important;background:transparent!important;color:var(--dae-text-muted)!important;font:400 14px/1.5 var(--dae-font-family)!important}
 .llm-model-trigger .generation-prompt-setting-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .llm-model-trigger .generation-model-icon{display:block;flex:none;width:18px;height:18px;background:currentColor;mask:var(--table-icon) center/contain no-repeat}

@@ -32,6 +32,11 @@ class NativeText:
                              'max_length': ('INT', {'default': 2048, 'min': 1, 'max': 2048})},
                 'optional': {'image': ('IMAGE',), 'profile': (['pe', 'qwen27b'], {'default': 'pe'})}}
 
+    @classmethod
+    def IS_CHANGED(cls, **kwargs):
+        # A new queue submission must run text generation even for the same prompt.
+        return float('nan')
+
     def execute(self, clip, prompt, max_length, image=None, profile='pe'):
         if profile not in ('pe', 'qwen27b') or profile == 'qwen27b' and image is not None:
             raise ValueError('Unsupported native text profile or reference input.')

@@ -105,5 +105,11 @@
 @media(prefers-reduced-motion:reduce) {
   :is(.dae-creative,.dae-ui){--dae-duration-fast:0ms}
 }
+.dae-ui .dae-media-types{display:flex;align-items:center;gap:4px}
+.dae-ui .dae-media-types[hidden]{display:none!important}
+.dae-ui .dae-media-types button.dae-media-type{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:6px 10px;border:0!important;border-radius:10px!important;background:transparent!important;color:var(--dae-text-muted)!important;font:500 14px/1.5 var(--dae-font-family)!important;white-space:nowrap;cursor:pointer}
+.dae-ui .dae-media-types button.dae-media-type:hover:not(:disabled){background:var(--dae-surface-hover)!important}
+.dae-ui .dae-media-types button.dae-media-type[aria-pressed=true]{background:var(--dae-surface-high)!important;color:var(--dae-text)!important}
+.dae-ui .dae-media-type .dae-table-icon{width:18px;height:18px}
 /* Probe retry owns hidden; node button display rules must not reveal it. */
 :is(.dae-creative,.dae-ui) [data-model-retry][hidden]{display:none!important}

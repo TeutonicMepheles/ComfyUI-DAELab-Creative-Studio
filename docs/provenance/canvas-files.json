@@ -14,7 +14,7 @@
       "source": "web/creative_theme.css",
       "destination": "frontend/src/design/creative_theme.css",
       "sourceSha256": "eb35668cbdf400db5d3ed873258de5019f19ceae9f66daee876136615c3970f3",
-      "destinationSha256": "a85a8c87ca25d8e12e615a43e1a68213453ce120ede09730e36904d8f98fd18e",
+      "destinationSha256": "b932f6eae262158bd200b756cf9c217b47852b0b9f437fe285690745902a3edf",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "Scoped base-select picker fallback preserves native anchor alternatives and adds viewport-wide inline choices; real edge-menu acceptance pending.",
@@ -88,8 +88,10 @@
       "source": "web/creative_canvas_view.mjs",
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
       "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
-      "destinationSha256": "8e42e9e430799660becdcde4ff523bf3be981c58af53ba65a5de3d566496aec6",
+      "destinationSha256": "c414a4abc27b594799889192f433fc45465f0f9c4aa2e4401a3235e9d213dffb",
       "changes": [
+        "2026-11-12: Hide unconnected upload ports until a media asset is present.",
+        "2026-11-10: Prevent native text selection when a node drag begins, including the first drag on a generation card.",
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
         "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
         "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
@@ -131,7 +133,7 @@
       "source": "web/creative_canvas.css",
       "destination": "frontend/src/canvas/creative_canvas.css",
       "sourceSha256": "a858f0328a4f03c28c98a9d6742cbfc615e4ce1a4db8f50f50b2a3e0bca420ee",
-      "destinationSha256": "048dd5d977f4e96eef57f9c9970a03ab23ae087a808b0c7f86090227a85d4283",
+      "destinationSha256": "cbfaf077bd5a38ebb9b1452f881659804f7dc4903a583339d3e5a32736e2bfbe",
       "changes": [
         "2026-11-03: Use a compact square empty parser with a matching visible workbench surface and the Script Document Parser display name; preserve populated tables and user sizing.",
         "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
@@ -163,7 +165,7 @@
       "source": "web/creative_contract.mjs",
       "destination": "frontend/src/canvas/creative_contract.mjs",
       "sourceSha256": "ff1e340622b67aa5d4ffcf2138e8da5a1660a4b9343bfae3a12a3ee67de4a01e",
-      "destinationSha256": "c51ad7454f9fe3c3d57ee6591143e21de415893b94cf3c612a13ce10fb8848aa",
+      "destinationSha256": "d121a842b38a0ce9d75c81daf3de9eeab38ea177158ea1bbecaf3eb7888e688c",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "move mature inputSnapshot into registry owner; exchange re-exports same function to remove circular dependency"
@@ -208,7 +210,7 @@
       "source": "web/creative_output.mjs",
       "destination": "frontend/src/canvas/creative_output.mjs",
       "sourceSha256": "7e3fbc2bb73548d3c855665caaac2e71ffb056971937a2dde9052fa0ff9b8173",
-      "destinationSha256": "7a83da638d250b5894ae835decae182a79b1526400a2a8b731fc1dc49957c8c8",
+      "destinationSha256": "d2771d9a22f0784f6c3abf1ab2c9a0a0caf6f0ac5c98086bdc088b37617f21d5",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "2026-11-02: connect table output to material-group lineage through the stable table_json/source_report slots."
@@ -249,7 +251,7 @@
       "source": "web/media_upload.js",
       "destination": "frontend/src/integrations/comfyui/canvas/media_upload.js",
       "sourceSha256": "652756732af498a98eee22908cf26904d2c786c03bc9b0057eb956bc0b53b7d3",
-      "destinationSha256": "9b87cbf71a0ac64ea659955db072343dd966ce935ce33f8a1df092680dd41c65",
+      "destinationSha256": "b893f7c37cf61c479f58872ebaf0a483971b9c9b8d8c2b3fec32bd3bb124b7e9",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
         "relocate into owner layer; rewrite relative module/style/resource paths",
@@ -265,7 +267,7 @@
       "source": "web/material_group.js",
       "destination": "frontend/src/integrations/comfyui/canvas/material_group.js",
       "sourceSha256": "67d2b8989a842b69688415f7f5f18fd748c3839a1856393507d52149377049f2",
-      "destinationSha256": "ad21cc853f6dc7e39d071112ecc869fb6281056afbca809a0a839d9b6eaccc6c",
+      "destinationSha256": "9867d57d2d4935b2d7d057289bcb79ff5508bec62d53bf931a013e89a3c16ebf",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "remove implicit destructive prototype migration on graph load",
@@ -280,7 +282,7 @@
       "source": "web/text_input.js",
       "destination": "frontend/src/integrations/comfyui/canvas/text_input.js",
       "sourceSha256": "635fdff2f9c16011f0797bc947222b0ea7ba127e31cf82b7bc9c50fa57567bfa",
-      "destinationSha256": "99bc0a3b7b4db969500a2c43b02857c905050b75901909710217de25391971d1",
+      "destinationSha256": "93423cfbfd91d72ca8492716c8d16e6cc6235f756b87317b1cce48692c0792b7",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "Actual-host nested keyboard follow-up: shared save propagation in nested panel/popover; keep local editor keys and IME/229 ownership.",
@@ -292,7 +294,7 @@
       "source": "web/video_edit.js",
       "destination": "frontend/src/integrations/comfyui/canvas/video_edit.js",
       "sourceSha256": "cff552275a3cdcc69a505a353801c0a9d781d82b7cef4ecc017ca35ca9f87aa6",
-      "destinationSha256": "40f6c18cc4b5144b30414331cab3e49932ab3b48b6c149930ba24a9e813a2020",
+      "destinationSha256": "5a5fd9217b299099b631d2306321f237bbb5a5fa1e8c3601a1c2285d1c42e61d",
       "changes": [
         "2026-11-02: Freeze all results of direct batch editing inputs and resolve each saved timeline member without a single-preview fallback.",
         "relocate into owner layer; rewrite relative module/style/resource paths",
@@ -383,7 +385,7 @@
       "source": "web/text_input_model.mjs",
       "destination": "frontend/src/features/assets/text_input_model.mjs",
       "sourceSha256": "4c81e02f87c236bcf89cf03d653b888d3bda220bc4cccd8c6d6ae6a1ddea1616",
-      "destinationSha256": "4c81e02f87c236bcf89cf03d653b888d3bda220bc4cccd8c6d6ae6a1ddea1616",
+      "destinationSha256": "ebdb9c304f6665153a6950ae184bff69ffe2ca87dbc9dd3baa4e49bb9e24a08d",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths"
       ],
@@ -419,7 +421,7 @@
       "source": "web/material_groups.css",
       "destination": "frontend/src/features/groups/material_groups.css",
       "sourceSha256": "8080b8c2d5cbba4ef167a79a54b16f64b6cbe7108728501c5c5acd1606f526c3",
-      "destinationSha256": "eac85d8339d62aaecc0a9863050c40aa27ecf5263c9dca1cd0ac8d4cc2a3ad7a",
+      "destinationSha256": "c2dcaebe90c6ffbc61408dc10abb440b7475074f0efde152631f3d92710b8f31",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "2026-10-29: anchor create-group action to visible selected materials; retain screen-sized accent selection outlines. Original source hash retained.",
@@ -435,7 +437,7 @@
       "source": "web/material_groups.mjs",
       "destination": "frontend/src/features/groups/material_groups.mjs",
       "sourceSha256": "91c47c4439efda72218a2749e00030e570bf1731a3eb100282347aecc463e144",
-      "destinationSha256": "2b9554a3e7c615fb16474a628cbcff82f9dd63a3d4a7230a538c7793411418bb",
+      "destinationSha256": "afbe5f7a05c846ae5d2e4e15f1e1e113f73c056f8e53462676cc2aa02f4b8fd3",
       "changes": [
         "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
         "relocate into owner layer; rewrite relative module/style/resource paths",
@@ -523,7 +525,7 @@
       "source": "web/adapters/upload.mjs",
       "destination": "frontend/src/integrations/comfyui/canvas/adapters/upload.mjs",
       "sourceSha256": "d7f056a0370ab81a251090b665d6481c337534a28e94fcd0ebf684a4e73c27c4",
-      "destinationSha256": "ea341c80ff2a00e5f96b68f86f03c8cac94fefc59f7a8b601af69afbf46247f5",
+      "destinationSha256": "35d2a1e5e49140a199795e9629a1d45cc0daa74776d6df02b0180ffe81000b59",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
         "2026-10-30: request-bound output placeholders, copy isolation and ready-only group material snapshots; see GENERATION_OUTPUTS_20261030 validation.",
@@ -873,7 +875,7 @@
       "source": "tests/creative_canvas_model.test.mjs",
       "destination": "tests/migrated_canvas/creative_canvas_model.test.mjs",
       "sourceSha256": "f70af54f8a476f17e69aec156793dfee1e80e75d9cd13b9edd3ee9b7b123bf5c",
-      "destinationSha256": "432e61a82282d7d872a8d4b81f29269940bafefe499e5aa2e11a4771dcdbcbfc",
+      "destinationSha256": "7b396d045db268a7a975feac056a250adfddc6a0f1d94945ef49e584ccd0aec0",
       "changes": [
         "point existing rule regression tests at migrated production modules"
       ],
@@ -926,7 +928,7 @@
       "source": "tests/creative_output.test.mjs",
       "destination": "tests/migrated_canvas/creative_output.test.mjs",
       "sourceSha256": "47f9d462140c0626d17571619f22e7d9ce2d53d6b8b5a43650b78bea466726a0",
-      "destinationSha256": "4f91fe9ba18f126177bd826f95189b30e054005873215d33fe1daf03c419bc08",
+      "destinationSha256": "f64bc781716f50411f6be59d51c2fd1960f3d151b20e216cad3f9598bf1a7fcf",
       "changes": [
         "point existing rule regression tests at migrated production modules",
         "2026-11-02: cover the persistent table-output lineage connection."
@@ -1235,7 +1237,7 @@
       "source": null,
       "destination": "frontend/src/integrations/comfyui/canvas/editor_output_nodes.ts",
       "sourceSha256": null,
-      "destinationSha256": "ce22f2c45820e5af56f09d2370ac35d989216dd4a945e4cfd105a45657aea511",
+      "destinationSha256": "b2af3b1d45cbd72d0ba0140cfb52ab46c8da6277ee026c4920ac553bb5ff23dd",
       "changes": [
         "2026-11-03 task51: verified export materialization with request identity, persistent lineage, rollback, copy/workflow guards and idempotence."
       ],
@@ -1246,7 +1248,7 @@
       "source": null,
       "destination": "tests/migrated_business/editor_output_nodes.test.mjs",
       "sourceSha256": null,
-      "destinationSha256": "3bfa4f89525cfa24726388ac8fab9c8a47e706c126682c21556f599b0c5ef23f",
+      "destinationSha256": "bcf5c52b67f75c3768794bdec5e1cfbffbdc98f590dc446a0a7d9bc53075b36f",
       "changes": [
         "2026-11-03 task51: verified export materialization with request identity, persistent lineage, rollback, copy/workflow guards and idempotence."
       ],

@@ -35,11 +35,11 @@ export function replaceLinkedTaskText(table,row,config,texts){
 }
 
 export function bindLinkedTaskReference(table,row,fieldId,config,column,{preserveMode=false}={}){
- if(!preserveMode&&config.model===LOCAL_VIDEO_MODEL&&(row.values[column.id]?.length||0)>0)throw new Error('本地 H3 FL 不支持多图或视频参考，请使用首帧／尾帧接口，或点击提示词中的帧标签选择图片');
+ if(!preserveMode&&config.mode!=='omni2video'&&config.model===LOCAL_VIDEO_MODEL&&(row.values[column.id]?.length||0)>0)throw new Error('本地 H3 FL 不支持多图或视频参考，请使用首帧／尾帧接口，或点击提示词中的帧标签选择图片');
  const columns=table.fields.filter(f=>preserveMode?!f.readonly&&['content','assets'].includes(f.type):f.id===column.id||['first_frame','last_frame','reference_images','reference_video','group'].includes(generationInputRole(f.videoInput||'')));
  row.meta||={};row.meta.generationReferences||={};
  row.meta.generationReferences[fieldId]=columns.flatMap(f=>(row.values[f.id]||[]).map(a=>({fieldId:f.id,assetId:a.id})));
- if(preserveMode||config.kind!=='video')return;
+ if(preserveMode||config.kind!=='video'||config.mode==='omni2video')return;
  const hasVideo=columns.some(f=>row.values[f.id]?.some?.(a=>a.kind==='video'));
  const next={...config,mode:hasVideo?'mixed2video':columns.some(f=>row.values[f.id]?.length)?'image2video':'text2video'};
  setRowGenerationConfig(row,fieldId,next);

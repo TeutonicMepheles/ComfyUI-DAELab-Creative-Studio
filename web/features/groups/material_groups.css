@@ -109,6 +109,8 @@
 .dae-creative[data-group-review=true] .dae-upload-stage:has(.dae-upload-empty){aspect-ratio:16 / 9;min-height:0;box-sizing:border-box}
 .dae-creative[data-group-review=true] .dae-upload-empty{min-height:0;padding:12px;max-width:100%;box-sizing:border-box}
 .dae-creative[data-group-review=true] .dae-creative-card[data-upload=true] .dae-upload-stage{cursor:grab}
+.dae-creative[data-group-review=true] .dae-creative-card[data-review-group=true]:has(>.gr-waiting-result){border:0!important;background:transparent;box-shadow:none}
+.dae-creative-card:has(>.gr-waiting-result)>.dae-creative-heading>.dae-creative-icon{display:none}
 
 /* A selected member owns the visible connection controls of its group. */
 .dae-creative .dae-creative-card[data-review-member][data-selected="true"] > .dae-creative-ports button:not(:disabled){opacity:1;pointer-events:auto;}

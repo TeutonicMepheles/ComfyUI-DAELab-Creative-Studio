@@ -205,7 +205,7 @@ function install(node){
     syncTimer=setInterval(syncConnections,400);
     const availability=bindPanelAvailability(node,panel.root);
     const dom=node.addDOMWidget('video_edit','custom',panel.root,{serialize:false,hideOnZoom:false,getValue:()=>'',setValue:()=>{},getMinHeight:()=>660});dom.serialize=false;
-    node.__videoEdit={...panel,currentResult:()=>resumeExport()?currentResult:null,currentBinding:()=>resumeExport()&&currentResult?structuredClone(currentBinding):null,tasks:()=>disposed?[]:[...(exportTask?[{...exportTask}]:[]),...[...operations.values()].map(t=>({...t}))],syncConnections,
+    node.__videoEdit={...panel,materialOutputs,currentResult:()=>resumeExport()?currentResult:null,currentBinding:()=>resumeExport()&&currentResult?structuredClone(currentBinding):null,tasks:()=>disposed?[]:[...(exportTask?[{...exportTask}]:[]),...[...operations.values()].map(t=>({...t}))],syncConnections,
         output(_url,_data,report){
             // A direct whole-workflow native run is readable history; it has no
             // issued HTTP edit ticket and cannot silently bind the current edit.
@@ -224,6 +224,7 @@ registerAdapter('daelab.video-edit',{
     materialOutput:true,
     assets:node=>{const url=resultFor(node),binding=node.__videoEdit?.currentBinding?.(),identity=binding?{id:binding.asset.asset_id,assetId:binding.asset.asset_id,referenceId:binding.asset.reference_id,contentSha256:binding.asset.sha256,byteSize:binding.asset.bytes,provenance:{operation:'video_export',requestId:binding.reference.requestId,fingerprint:binding.fingerprint,inputDigest:binding.reference.inputDigest,source:{...binding.reference.source}}}:{};return {version:1,ready:!!url,assets:url?[{...localAsset(url),...identity,url,kind:'video',name:'剪辑结果.mp4'}]:[]};},
     canConnectOutput,
+    dropOutput:node=>({type:'DAELAB.MediaUpload',existing:()=>node.__videoEdit.materialOutputs.waitingOutput(),bind:target=>node.__videoEdit.materialOutputs.bindWaiting(target)}),
     inputLabels:{assets:'素材组'},
     prepareCopy(node,serialized){
         const url=resultFor(node);serialized.properties??={};delete serialized.properties.daelabEditExport;delete serialized.properties.daelabEditBinding;
@@ -247,7 +248,11 @@ app.registerExtension({name:'DAELAB.VideoEdit',beforeConfigureGraph(){loadEpoch+
     const created=type.prototype.onNodeCreated;type.prototype.onNodeCreated=function(){created?.apply(this,arguments);install(this);};
     const configured=type.prototype.onConfigure;type.prototype.onConfigure=function(){configured?.apply(this,arguments);if(!this.inputs.some(input=>input.name.startsWith('groups.')))this.addInput('groups.group0','DAELAB_ASSETS');install(this);this.__videoEdit.reload();};
     const connections=type.prototype.onConnectionsChange;type.prototype.onConnectionsChange=function(){connections?.apply(this,arguments);requestAnimationFrame(()=>this.__videoEdit?.syncConnections());};
-    const connect=type.prototype.onConnectOutput;type.prototype.onConnectOutput=function(){if(!app.configuringGraph&&!canConnectOutput(this))return false;return connect?.apply(this,arguments)??true;};
+    const connect=type.prototype.onConnectOutput;type.prototype.onConnectOutput=function(index,inputType,input,target){
+        const waiting=target?.type==='DAELAB.MediaUpload'&&input?.name==='source_video'&&target.properties?.editOutput?.nodeId===String(this.id);
+        if(!app.configuringGraph&&!waiting&&!canConnectOutput(this))return false;
+        return connect?.apply(this,arguments)??true;
+    };
     const removed=type.prototype.onRemoved;type.prototype.onRemoved=function(){this.__videoEdit?.destroy();removed?.apply(this,arguments);};
     const executed=type.prototype.onExecuted;type.prototype.onExecuted=function(message){executed?.apply(this,arguments);const ref=message?.videos?.[0];if(ref)this.__videoEdit?.output('/view?'+new URLSearchParams(ref),message.edit_data?.[0],message.creative_studio_export?.[0]);};
 }});

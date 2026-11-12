@@ -17,10 +17,6 @@
 .dae-video-tasks .dae-table-icon{display:block;width:20px;height:20px;flex:none;background:currentColor;mask:var(--table-icon) center/contain no-repeat}
 .video-task-heading{display:flex;align-items:center;gap:12px;min-height:36px}
 .dae-ui.dae-video-tasks button.video-task-import{display:grid;place-items:center;flex:none;width:24px;height:24px;min-height:24px;margin-left:0;padding:2px!important;color:var(--dae-text-muted,#aaa)!important}
-.video-task-types{display:flex;align-items:center;gap:4px}
-.dae-ui.dae-video-tasks button.video-task-type{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:6px 10px;border-radius:10px!important;color:var(--dae-text-muted,#aaa)!important;font-size:14px!important;font-weight:500}
-.dae-ui.dae-video-tasks button.video-task-type[aria-pressed=true]{background:var(--dae-surface-high,#383838)!important;color:var(--dae-text,#eee)!important}
-.dae-video-tasks .video-task-type .dae-table-icon{width:18px;height:18px}
 .video-task-body-top{display:flex;align-items:flex-start;gap:12px;min-width:0}
 .video-task-rail{display:flex;flex:none;flex-direction:column;gap:4px;min-width:0;align-items:stretch}
 .video-task-rail-heading{display:flex;align-items:center;gap:8px;min-height:24px;font-size:12px;color:var(--dae-text-muted)}
@@ -59,7 +55,6 @@
 .dae-ui.dae-video-tasks .generation-prompt-settings button[data-setting=kind]{display:none}
 .dae-ui.dae-video-tasks .generation-prompt-settings .dae-table-icon{width:18px;height:18px}
 .dae-ui.dae-video-tasks .generation-prompt-settings button[data-setting=model]{flex:0 1 auto;max-width:45%}
-.dae-ui.dae-video-tasks .generation-prompt-settings button[data-setting=parameters]{flex:0 1 auto;width:max-content;min-width:0;padding:6px 10px!important;border-radius:10px!important}
 .dae-video-tasks .generation-prompt-setting-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .video-task-actions{display:flex;align-items:center;gap:6px;margin-left:auto;flex:none}
 .video-task-credit-estimate{max-width:180px;font-size:12px;line-height:1.4;color:var(--dae-text-muted,#aaa);text-align:right}
@@ -84,7 +79,6 @@
 .video-task-credit-estimate:not([hidden]){display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
 .video-task-credit-estimate::after{content:"";display:block;flex:none;width:14px;height:14px;background-color:var(--color-yellow-500,#e9c400);-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cg fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E%3Cpath d='M13.744 17.736a6 6 0 1 1-7.48-7.48M15 6h1v4'/%3E%3Cpath d='m6.134 14.768l.866-.5l2 3.464'/%3E%3Ccircle cx='16' cy='8' r='6'/%3E%3C/g%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cg fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E%3Cpath d='M13.744 17.736a6 6 0 1 1-7.48-7.48M15 6h1v4'/%3E%3Cpath d='m6.134 14.768l.866-.5l2 3.464'/%3E%3Ccircle cx='16' cy='8' r='6'/%3E%3C/g%3E%3C/svg%3E");-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
 
-.dae-video-tasks .video-task-types[hidden]{display:none!important}
 
 /* Typed media entries use the canvas frame as their only surface. */
 .dae-ui.dae-video-tasks[data-fixed-kind=true]{padding:0;gap:0;background:transparent;border-radius:inherit}

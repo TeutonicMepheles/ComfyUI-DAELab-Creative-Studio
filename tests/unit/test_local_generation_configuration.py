@@ -124,7 +124,7 @@ class LocalGenerationConfigurationTests(unittest.TestCase):
     def test_low_tier_video_families_reject_unknown_categories_or_extra_families(self):
         config = copy.deepcopy(self.config)
         config['modelBindings']['video_base'] = {'diffusion_models': {'name': 'fl.safetensors', 'path': str(self.root / 'fl.safetensors'), 'sha256': 'd' * 64},
-                                                 'loras': {'name': 'turbo.safetensors', 'path': str(self.root / 'turbo.safetensors'), 'sha256': '3' * 64}}
+                                                 'mmproj': {'name': 'projection.gguf', 'path': str(self.root / 'projection.gguf'), 'sha256': '3' * 64}}
         self.save(config)
         with self.assertRaises(ValueError):
             read_configuration(self.user)

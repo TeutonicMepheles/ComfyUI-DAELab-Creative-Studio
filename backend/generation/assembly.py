@@ -6,7 +6,7 @@ from ..providers.native import NativeProvider, ModelInventory
 from ..providers.qwen import QwenProvider, LoopbackOllama
 from ..providers.native_text import NativeTextProvider
 from ..providers.native_27b import Native27BProvider
-from ..providers.high_video import HighVideoProvider
+from ..providers.high_video import FlexVideoProvider
 
 
 def assemble_generation(core, *, native_queue=None, model_bindings=None, node_types=None,
@@ -27,10 +27,10 @@ def assemble_generation(core, *, native_queue=None, model_bindings=None, node_ty
             provider = Native27BProvider(inventory=ModelInventory(model_bindings['text_27b'], node_types, resolve_model),
                                          queue=native_queue, media_input=lambda item: stage_native_input(core.assets, item))
             providers[provider.id] = provider
-        for family in ('video_high', 'video_reference_high'):
+        for family in ('video_high', 'video_reference_high', 'video_base', 'video_reference_base'):
             if family not in (model_bindings or {}):
                 continue
-            provider = HighVideoProvider(reference=family == 'video_reference_high',
+            provider = FlexVideoProvider(reference=family.startswith('video_reference'), low=family.endswith('_base'),
                 inventory=ModelInventory(model_bindings[family], node_types, resolve_model), queue=native_queue,
                 media_input=lambda item: stage_native_input(core.assets, item))
             providers[provider.id] = provider
@@ -39,8 +39,6 @@ def assemble_generation(core, *, native_queue=None, model_bindings=None, node_ty
             'image_base': ('image', False, 'base', 'turbo'),
             'video': ('video', False, 'turbo', 'turbo'),
             'video_reference': ('video', True, 'turbo', 'turbo'),
-            'video_base': ('video', False, 'turbo', 'base'),
-            'video_reference_base': ('video', True, 'turbo', 'base'),
         }
         for binding_kind, (kind, reference, image_profile, video_profile) in profiles.items():
             if binding_kind.endswith('_base') and binding_kind not in (model_bindings or {}):

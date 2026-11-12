@@ -11,13 +11,13 @@ import {generationModelIconURL,generationModelLabel} from '../generation/generat
 // Shared setting entries for table cells and standalone generation nodes.
 export const PROMPT_SETTINGS_TEMPLATE=Object.freeze([
  {key:'kind',label:'生成类型',icon:'video-line'},
- {key:'model',label:'模型',icon:'box-3-line'},
- {key:'mode',label:'参考模式',icon:'film-line'},
+ {key:'model',label:'选择模型',icon:'box-3-line'},
+ {key:'mode',label:'生成方式',icon:'film-line'},
  {key:'attempts',label:'抽卡次数',icon:'file-copy-line'},
  {key:'size',label:'比例／分辨率',icon:'aspect-ratio-line',settings:['ratio','resolution','width','height']},
  {key:'duration',label:'时间',icon:'time-line',settings:['duration']},
 ]);
-export const generationModeLabels={text2video:'文生视频',singleImage2video:'首帧',frames2video:'首尾帧',image2video:'全能参考',mixed2video:'全能参考',text2image:'文生图',image2image:'参考图',audio2video:'音频参考'};
+export const generationModeLabels={omni2video:'全能参考',text2video:'文生视频',singleImage2video:'首帧',frames2video:'首尾帧',image2video:'全能参考',mixed2video:'全能参考',text2image:'文生图',image2image:'参考图',audio2video:'音频参考'};
 function sizeLabel(settings,config){
  if(settings.ratio==='auto'||settings.size==='auto'||settings.ratio==='adaptive')return '自动比例';
  const explicit=config.kind==='image'&&isComfyGenerationModel(config.model)?String(settings.size||'').match(/^(\d+)[x×](\d+)$/i):null;
@@ -26,15 +26,15 @@ function sizeLabel(settings,config){
  if(!ratio&&width>0&&height>0&&Number.isInteger(width)&&Number.isInteger(height)){let a=width,b=height;while(b){[a,b]=[b,a%b];}ratio=`${width/a}:${height/a}`;}
  return ratio||'比例';
 }
-export function generationParametersSummary(config){
- const settings=config.settings||{},sound=settings.enableSound,attempts=generationAttempts(config);
- return [generationModeLabels[config.mode]||config.mode||'选择方式',sizeLabel(settings,config),config.kind==='image'&&isComfyGenerationModel(config.model)&&settings.quality?`质量 ${settings.quality}`:'',config.kind==='video'&&settings.duration!=null?`${settings.duration}s`:'',attempts>1?`抽卡 ${attempts} 次`:'',sound!==undefined?(['on',true,1].includes(sound)?'音频开启':'音频关闭'):''].filter(Boolean).join(' · ');
+export function generationParametersSummary(config,showAttempts=true){
+ const settings=config.settings||{},sound=settings.enableSound,attempts=showAttempts?generationAttempts(config):1;
+ return [config.kind==='image'?'全能参考':'',sizeLabel(settings,config),config.kind==='image'&&isComfyGenerationModel(config.model)&&settings.quality?`质量 ${settings.quality}`:'',config.kind==='video'&&settings.duration!=null?`${settings.duration}s`:'',attempts>1?`抽卡 ${attempts} 次`:'',sound!==undefined?(['on',true,1].includes(sound)?'音频开启':'音频关闭'):''].filter(Boolean).join(' · ');
 }
-export function promptSettingsItems(config,{combined=false}={}){
- const settings=config.settings||{},video=config.kind==='video',attempts=generationAttempts(config);
- const labels={kind:video?'视频生成':'图片生成',model:generationModelLabel(config.model)||'选择模型',mode:generationModeLabels[config.mode]||config.mode||'选择方式',attempts:`${attempts} 次`,size:sizeLabel(settings,config),duration:settings.duration!=null&&settings.duration!==''?`${settings.duration}s`:'设置时长'};
- const items=PROMPT_SETTINGS_TEMPLATE.map(item=>({...item,icon:item.key==='kind'&&!video?'image-line':item.icon,text:labels[item.key],hidden:item.key==='duration'&&!video}));
- return combined?[...items.slice(0,2),{key:'parameters',label:'生成参数',icon:'settings-3-line',text:generationParametersSummary(config)}]:items;
+export function promptSettingsItems(config,{combined=false,showAttempts=true}={}){
+ const settings=config.settings||{},video=config.kind==='video',attempts=showAttempts?generationAttempts(config):1;
+ const labels={kind:video?'视频生成':'图片生成',model:generationModelLabel(config.model)||'选择模型',mode:generationModeLabels[video?generationModeChoice(config.mode):config.mode]||config.mode||'选择方式',attempts:`${attempts} 次`,size:sizeLabel(settings,config),duration:settings.duration!=null&&settings.duration!==''?`${settings.duration}s`:'设置时长'};
+ const items=PROMPT_SETTINGS_TEMPLATE.map(item=>({...item,icon:item.key==='kind'&&!video?'image-line':item.icon,text:labels[item.key],hidden:item.key==='duration'&&!video||item.key==='attempts'&&!showAttempts}));
+ return combined?[...items.slice(0,2),{...items[2],hidden:!video},{key:'parameters',label:'生成参数',icon:'settings-3-line',text:generationParametersSummary(config,showAttempts)}]:items;
 }
 export function createPromptSettingsBar(onActivate,{combined=false,fixedKind=null}={}){
  const root=document.createElement('div');root.className='generation-prompt-settings';root.setAttribute('role','group');
@@ -48,7 +48,7 @@ export function createPromptSettingsBar(onActivate,{combined=false,fixedKind=nul
  return {root,update(config,name,scope='cell'){
   const suffix=scope==='all'?'同步全部任务':'只修改当前单元格';
   const next=JSON.stringify([config,name,scope,getModelCatalog().get(config.model)?.provider,getModelCatalog().get(config.model)?.capability]);if(next===signature)return;signature=next;root.setAttribute('aria-label',name+' · 生成设置（'+suffix+'）');
-  for(const item of promptSettingsItems(config,{combined})){const {control,icon,label,badge}=controls.get(item.key);const title=`${name} · ${item.label}：${item.text}（${item.key==='attempts'?'只修改当前任务':suffix}）`;
+  for(const item of promptSettingsItems(config,{combined,showAttempts:scope!=='all'})){const {control,icon,label,badge}=controls.get(item.key);const title=`${name} · ${item.label}：${item.text}（${item.key==='attempts'?'只修改当前任务':suffix}）`;
    label.textContent=item.key==='model'?item.text.replace(/（(?:本地|Comfy|来源未知)）$/,''):item.text;badge.textContent=item.key==='model'?modelSourceBadge(getModelCatalog().get(config.model)):'';badge.dataset.source=modelSourceKind(getModelCatalog().get(config.model));if(item.key==='model')updateModelNote(control,getModelCatalog().get(config.model));control.hidden=Boolean(item.hidden)||item.key==='kind'&&!!fixedKind;control.title=title;control.setAttribute('aria-label',title);icon.style.setProperty('--table-icon',`url("${item.key==='model'?generationModelIconURL(config.model):new URL('../../design/vendor/remixicon/'+item.icon+'.svg',import.meta.url).href}")`);
   }
  }};
@@ -66,36 +66,43 @@ export const promptSettingsStyle=`
 
 .dae-ui .generation-model-source{flex:none;display:inline-flex;align-items:center;border-radius:999px;padding:2px 7px;font-size:11px;line-height:1.4;background:color-mix(in srgb,var(--dae-text) 12%,transparent);color:var(--dae-text-muted);white-space:nowrap}
 .dae-ui .generation-model-source[hidden]{display:none}
-.dae-ui.generation-model-popover .generation-file-report{margin-top:6px;padding-top:8px;border-top:1px solid var(--dae-border-control);color:var(--dae-text-muted);font-size:12px}
+.dae-ui.generation-model-popover .generation-file-report{contain:inline-size;margin:2px 12px 0;padding:8px 0 4px;border-top:1px solid color-mix(in srgb,var(--dae-border-control,#555) 60%,transparent);color:var(--dae-text-muted);font-size:12px}
 .dae-ui.generation-model-popover .generation-file-report summary{cursor:pointer}
 .dae-ui.generation-model-popover .generation-file-profile{padding:6px 0;overflow-wrap:anywhere}
 
 .dae-ui.generation-settings-popover .generation-model-icon{display:block;flex:0 0 20px;width:20px;height:20px;background:currentColor;mask:var(--table-icon) center/contain no-repeat}
 .dae-ui.generation-settings-popover.generation-parameters-popover{width:400px;gap:0;padding:18px;border-radius:20px}
 .dae-ui.generation-parameters-popover>strong{display:none}
+.dae-ui.generation-settings-popover .generation-scope-note{display:grid;gap:2px;margin-block-start:6px;padding-block-start:10px;border-top:1px solid var(--dae-border-control,#555);font-size:12px;line-height:1.55;color:var(--dae-text-muted,#bbb)}
+.dae-ui.generation-parameters-popover .generation-scope-note{margin-block-start:16px}
+.dae-ui.generation-settings-popover .generation-scope-note strong{margin-bottom:2px;font-size:inherit;font-weight:600;color:var(--dae-text,#ededed)}
 .dae-ui .generation-parameter-sections{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;min-width:0}
 .dae-ui .generation-parameter-sections>section{grid-column:1/-1}
 .dae-ui .generation-parameter-sections:has(>[data-parameter=height])>[data-parameter=width],.dae-ui .generation-parameter-sections:has(>[data-parameter=width])>[data-parameter=height]{grid-column:auto}
 .dae-ui .generation-parameter-section{display:flex;flex-direction:column;gap:8px;min-width:0}
 .dae-ui .generation-parameter-title{font-size:14px;font-weight:400;color:var(--dae-text-muted)}
-.dae-ui .generation-parameter-choices{display:flex;flex-wrap:wrap;gap:2px;padding:3px;border-radius:14px;background:color-mix(in srgb,var(--dae-surface-high) 88%,var(--dae-text) 12%)}
-:is(.dae-ui.generation-form,.dae-ui .generation-form) .generation-parameter-choices button{flex:1 1 60px;width:auto;min-width:0;min-height:42px;justify-content:center;text-align:center;padding:8px!important;border-radius:9px;white-space:normal}
+.dae-ui .generation-parameter-choices{display:flex;flex-wrap:wrap;gap:2px;padding:3px}
+.dae-ui :is(.generation-parameter-choices,.generation-duration-viewport){border-radius:10px;background:color-mix(in srgb,var(--dae-surface-high,#303030) 97%,var(--dae-text,#ededed))}
+:is(.dae-ui.generation-form,.dae-ui .generation-form) .generation-parameter-choices button{flex:1 1 60px;width:auto;min-width:0;min-height:42px;justify-content:center;text-align:center;padding:8px!important;border-radius:8px;white-space:normal}
 :is(.dae-ui.generation-form,.dae-ui .generation-form) .generation-parameter-choices button[aria-pressed]+button[aria-pressed]{margin:0}
-:is(.dae-ui.generation-form,.dae-ui .generation-form) .generation-parameter-choices button[aria-pressed=true]{background:color-mix(in srgb,var(--dae-surface-high) 76%,var(--dae-text) 24%);box-shadow:none}
-:is(.dae-ui.generation-form,.dae-ui .generation-form) .generation-parameter-choices button[aria-pressed=true]::after{display:none}
+:is(.dae-ui.generation-form,.dae-ui .generation-form) .generation-parameter-choices button[aria-pressed=true]{background:color-mix(in srgb,var(--dae-surface-high,#303030) 88%,var(--dae-text,#ededed))!important}
+:is(.dae-ui.generation-form,.dae-ui .generation-form) .generation-parameter-choices button[aria-pressed=true]::after{content:none}
 :is(.dae-ui.generation-form,.dae-ui .generation-form) .generation-ratio-choices button{flex-direction:column;gap:6px;flex-basis:42px;font-size:14px!important}
 .dae-ui .generation-ratio-shape{box-sizing:border-box;display:block;width:var(--ratio-width);height:var(--ratio-height);border:1.5px solid currentColor;border-radius:2px;opacity:.8}
 .dae-ui .generation-image-size-choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr))}
 .dae-ui .generation-image-size-choices button{justify-content:center;text-align:center}
 .dae-ui .generation-image-size-choices small{display:block;font-size:10px;line-height:1.2;white-space:nowrap;opacity:.7}
-.dae-ui.generation-settings-popover .generation-parameter-choices button[aria-pressed]{box-sizing:border-box;border:1px solid var(--dae-border-control)!important;box-shadow:none}
-.dae-ui.generation-settings-popover .generation-parameter-choices button[aria-pressed=true]{box-shadow:none;border-color:var(--dae-accent)!important;background:color-mix(in srgb,var(--dae-surface-high) 76%,var(--dae-text) 24%)!important;color:var(--dae-text)!important}
-.dae-ui .generation-duration-viewport{min-width:0;overflow:hidden;border-radius:14px;background:color-mix(in srgb,var(--dae-surface-high) 88%,var(--dae-text) 12%)}
-.dae-ui.generation-settings-popover .generation-duration-choices{position:relative;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;background:transparent;mask-image:linear-gradient(to right,var(--duration-edge-left,#000) 0,var(--duration-edge-left,#000) 8px,#000 52px,#000 calc(100% - 52px),var(--duration-edge-right,#000) calc(100% - 8px),var(--duration-edge-right,#000) 100%)}
-.dae-ui .generation-duration-choices[data-overflow-left=true]{--duration-edge-left:transparent}
-.dae-ui .generation-duration-choices[data-overflow-right=true]{--duration-edge-right:transparent}
+.dae-ui.generation-settings-popover .generation-parameter-choices button[aria-pressed]{box-sizing:border-box;border:0!important;box-shadow:none}
+.dae-ui.generation-settings-popover .generation-parameter-choices button[aria-pressed=false]{background:transparent!important}
+.dae-ui:is(.generation-settings-popover,.generation-form) button[aria-pressed=false],.dae-ui .generation-form button[aria-pressed=false]{border-color:transparent!important;box-shadow:none}
+.dae-ui .generation-duration-viewport{--duration-width:48px;position:relative;min-width:0;overflow:hidden}
+.dae-ui .generation-duration-viewport:has(button)::before{content:"";position:absolute;inset-block:3px;left:50%;width:var(--duration-width);transform:translateX(-50%);border-radius:8px;background:color-mix(in srgb,var(--dae-surface-high,#303030) 88%,var(--dae-text,#ededed));pointer-events:none}
+.dae-ui.generation-settings-popover .generation-duration-choices{position:relative;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-inline:0;gap:2px;background:transparent;user-select:none;touch-action:pan-y pinch-zoom;overscroll-behavior-x:contain;mask-image:linear-gradient(to right,transparent,#000 15%,#000 85%,transparent)}
+.dae-ui .generation-duration-choices::before,.dae-ui .generation-duration-choices::after{content:'';flex:0 0 max(0px,calc(50% - var(--duration-width)/2 - 2px))}
+.dae-ui.generation-settings-popover .generation-duration-choices[data-dragging] button[aria-pressed]{cursor:grabbing}
 .dae-ui.generation-settings-popover .generation-duration-choices::-webkit-scrollbar{display:none}
-.dae-ui.generation-settings-popover .generation-duration-choices button{flex:0 0 auto;min-width:42px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.dae-ui.generation-settings-popover .generation-duration-choices button[aria-pressed]{flex:0 0 var(--duration-width);min-width:0;white-space:nowrap;font-variant-numeric:tabular-nums;cursor:grab}
+.dae-ui.generation-settings-popover .generation-duration-choices button[aria-pressed=true],.dae-ui.generation-settings-popover .generation-duration-choices[data-dragging] button[aria-pressed]:hover{background:transparent!important}
 .dae-ui.generation-settings-popover .generation-parameter-section>label{margin:0}
 .dae-ui.generation-settings-popover .generation-parameter-section input[type=checkbox]{width:20px;height:20px;min-height:20px}
 .dae-ui.generation-settings-popover button:disabled{opacity:.45;cursor:default}
@@ -112,6 +119,24 @@ export const promptSettingsStyle=`
 .dae-ui.generation-settings-popover :focus-visible{outline:2px solid var(--dae-focus,#b8c4ff);outline-offset:-2px}
 .dae-ui.generation-settings-popover [role=status]{margin:0;color:var(--dae-text-muted,#bbb)}
 .dae-ui.generation-settings-popover [role=status]:empty{display:none}
+.dae-ui.generation-settings-popover:is(.generation-mode-popover,.generation-model-popover,.generation-parameters-popover:not(.generation-column-settings)){border:none;border-radius:12px;background:var(--dae-surface,#262626);box-shadow:0 4px 14px #0004}
+.dae-ui.generation-settings-popover:is(.generation-mode-popover,.generation-model-popover){width:200px;padding:4px;gap:3px}
+.dae-ui.generation-settings-popover.generation-model-popover{width:max-content;min-width:min(200px,100%)}
+.dae-ui.generation-mode-popover>strong{display:none}
+.dae-ui.generation-model-popover>strong{padding:5px 12px 3px;font-size:12px!important}
+.dae-ui.generation-mode-popover>div{display:grid;gap:3px}
+.dae-ui.generation-model-popover>div:has(>button[data-model-id]){display:grid;gap:6px}
+.dae-ui.generation-mode-popover button[data-generation-mode],.dae-ui.generation-settings-popover.generation-model-popover button[data-model-id]{gap:9px;min-height:35px;padding:6px 12px!important;border:0!important;border-radius:8px;font-size:13px!important}
+.dae-ui.generation-mode-popover button[data-generation-mode]+button[data-generation-mode],.dae-ui.generation-model-popover button[data-model-id]+button[data-model-id]{margin:0}
+.dae-ui.generation-mode-popover button[data-generation-mode][aria-pressed=false],.dae-ui.generation-model-popover button[data-model-id][aria-pressed=false]{background:transparent!important}
+.dae-ui.generation-settings-popover :is(button[data-generation-mode],button[data-model-id],.generation-parameter-choices button[aria-pressed]):enabled:hover{background:color-mix(in srgb,var(--dae-surface-high,#383838) 84%,var(--dae-accent,#b8c4ff))!important;color:var(--dae-accent,#b8c4ff)!important}
+.dae-ui.generation-mode-popover button[data-generation-mode]::before{content:"";width:16px;height:16px;flex:none;background:currentColor;mask:var(--mode-icon) center/contain no-repeat}
+.dae-ui.generation-mode-popover button[data-generation-mode=frames2video]{--mode-icon:url("${new URL('../../design/vendor/remixicon/film-line.svg',import.meta.url).href}")}
+.dae-ui.generation-mode-popover button[data-generation-mode=omni2video]{--mode-icon:url("${new URL('../../design/vendor/remixicon/sparkling-line.svg',import.meta.url).href}")}
+.dae-ui.generation-mode-popover button[data-generation-mode][aria-pressed=true]::after,.dae-ui.generation-model-popover button[data-model-id][aria-pressed=true]::after{content:"";width:18px;height:18px;margin-left:auto;background:currentColor;mask:url("${new URL('../../design/vendor/remixicon/check-line.svg',import.meta.url).href}") center/contain no-repeat}
+.dae-ui .generation-prompt-setting:is([data-setting=model],[data-setting=mode],[data-setting=parameters])::after{content:"";width:6px;height:6px;border:solid currentColor;border-width:0 1.5px 1.5px 0;transform:rotate(45deg);flex:none}
+.dae-ui .generation-prompt-setting[aria-expanded=true]::after{transform:rotate(225deg)}
+
 
 .dae-ui .generation-duration{min-width:0;margin:4px 0}
 .dae-ui .generation-duration-caption{display:block;margin-bottom:10px;font-size:12px;color:var(--dae-text-muted,#b5b5b5);opacity:.65}
@@ -140,7 +165,7 @@ export const promptSettingsStyle=`
 .dae-ui .generation-prompt-settings{display:flex;align-items:center;gap:4px;height:32px;min-width:0;overflow:hidden;white-space:nowrap}
 .dae-ui .generation-prompt-settings button.generation-prompt-setting{display:inline-flex;align-items:center;justify-content:flex-start;gap:4px;flex:0 1 auto;width:max-content;min-width:24px;min-height:28px;height:28px;margin:0!important;padding:3px 4px!important;border:0!important;border-radius:4px!important;background:transparent!important;color:var(--dae-text-muted,#b5b5b5)!important;font:400 11px/1.5 var(--dae-font-family)!important;white-space:nowrap;cursor:pointer}
 .dae-ui .generation-prompt-settings button.generation-prompt-setting[data-setting=model]{flex-shrink:2}
-.dae-ui .generation-prompt-settings button.generation-prompt-setting:hover:not(:disabled){background:var(--dae-surface-high,#383838)!important}
+.dae-ui .generation-prompt-settings button.generation-prompt-setting:is(:hover,[aria-expanded=true]):not(:disabled){background:var(--dae-surface-high,#383838)!important}
 .dae-ui .generation-prompt-settings button.generation-prompt-setting:focus-visible{outline:2px solid var(--dae-focus,#b8c4ff);outline-offset:-2px}
 .dae-ui .generation-prompt-settings .dae-table-icon{display:block;flex:none;width:12px;height:12px;background:currentColor;mask:var(--table-icon) center/contain no-repeat}
 .dae-ui .generation-prompt-setting-label{min-width:0;overflow:hidden;text-overflow:ellipsis}
@@ -152,8 +177,13 @@ export const promptSettingsStyle=`
 }
 `;
 
+function savedSetting(spec,value){
+ if(spec.name==='enableSound'&&spec.type==='boolean'&&(value==='on'||value==='off'))return value==='on';
+ return value;
+}
 export function generationSettingSpecs(schema,mode){
  const props=schema.properties||{},config=schema.config||{};
+ if(mode==='omni2video')mode=['mixed2video','image2video','text2video'].find(key=>Object.hasOwn(props.modeType?.items||{},key));
  return ['settings','advancedSettings'].flatMap(bucket=>{const keys=config[bucket]||[];return (Array.isArray(keys)?keys:keys[mode]||[]).filter(key=>props[key]).map(key=>({...props[key],name:props[key].originalField||key}));});
 }
 const generationParameterOrder=['ratio','resolution','width','height','size','custom_width','custom_height','quality','background','duration','enableSound','sound','generateAudio'];
@@ -167,7 +197,7 @@ export function generationDurationOptions(spec,current){
  return Array.from({length:Math.max(0,Math.min(1000,max-min+1))},(_,index)=>min+index);
 }
 export function generationParameterModes(config,schema){
- if(isLocalGenerationModel(config.model))return Object.keys(schema.properties?.modeType?.items||{});
+ if(config.kind!=='video'&&isLocalGenerationModel(config.model))return Object.keys(schema.properties?.modeType?.items||{});
  return generationModes(schema,config.kind);
 }
 export const LOCAL_VIDEO_SIZE_PRESETS=Object.freeze([
@@ -219,18 +249,20 @@ export function createLocalImageSizePicker(config,schema,onChange){
  return root;
 }
 // One view over the existing schema and setting editor. It never saves or submits by itself.
-export function createGenerationParameters(config,schema,{onMode,onSetting,onSettings,onAttempts=()=>{},showAttempts=true}){
+export function createGenerationParameters(config,schema,{onMode,onSetting,onSettings,onAttempts=()=>{},showAttempts=true,showMode=true}){
  const root=document.createElement('div');root.className='generation-parameter-sections';
  const cleanups=[];root.dispose=()=>{for(const cleanup of cleanups.splice(0))cleanup();};
  const section=(name,parent=root)=>{const block=document.createElement('section'),title=document.createElement('div');block.className='generation-parameter-section';title.className='generation-parameter-title';title.textContent=name;block.append(title);parent.append(block);return block;};
  const choices=parameterChoices;
   if(showAttempts){const attemptSection=section('抽卡次数');
    choices(attemptSection,'抽卡次数',Array.from({length:MAX_GENERATION_ATTEMPTS},(_,index)=>[index+1,`${index+1} 次`]),generationAttempts(config),id=>onAttempts(id));}
- const modes=generationParameterModes(config,schema),modeSection=section('生成方式');
- const selectedMode=isLocalGenerationModel(config.model)?config.mode:generationModeChoice(config.mode,schema);
- choices(modeSection,'生成方式',modes.map(id=>[id,generationModeLabels[id]||id||'默认']),selectedMode,id=>{if(id!==config.mode)return onMode(id);});
- if(config.mode&&!modes.includes(selectedMode)){
-  const warning=document.createElement('p');warning.setAttribute('role','status');warning.textContent='当前模型不支持已保存的生成方式，请重新选择。';modeSection.append(warning);
+ if(showMode){
+  const modes=generationParameterModes(config,schema),modeSection=section('生成方式');
+  const selectedMode=generationModeChoice(config.mode,schema);
+  choices(modeSection,'生成方式',modes.map(id=>[id,generationModeLabels[id]||id||'默认']),selectedMode,id=>{if(id!==config.mode)return onMode(id);});
+  if(config.mode&&!modes.includes(selectedMode)){
+   const warning=document.createElement('p');warning.setAttribute('role','status');warning.textContent='当前模型不支持已保存的生成方式，请重新选择。';modeSection.append(warning);
+  }
  }
  const localVideo=isLocalVideoModel(config.model),localImage=isLocalImageModel(config.model);
  if(localVideo)root.append(createLocalVideoSizePicker(config,schema,onSettings));
@@ -238,28 +270,84 @@ export function createGenerationParameters(config,schema,{onMode,onSetting,onSet
  for(const spec of generationParameterSpecs(schema,config.mode).filter(spec=>!(localVideo||localImage)||!['width','height','ratio','resolution'].includes(spec.name))){
   if(['custom_width','custom_height'].includes(spec.name)&&config.settings?.size!=='Custom')continue;
   const title=({resolution:'清晰度',duration:'生成时长',enableSound:'生成音频',sound:'生成音频',generateAudio:'生成音频'})[spec.name]||spec.displayName||spec.title||spec.name,block=section(title);block.dataset.parameter=spec.name;
-  const value=config.settings?.[spec.name]??spec.default,items=spec.enum?.map(item=>typeof item==='object'?[item.value,String(item.displayName||item.label||item.value)]:[item,String(item)]);
+  const value=savedSetting(spec,config.settings?.[spec.name])??spec.default,items=spec.enum?.map(item=>typeof item==='object'?[item.value,String(item.displayName||item.label||item.value)]:[item,String(item)]);
   if(spec.name==='duration'){
    const viewport=document.createElement('div');viewport.className='generation-duration-viewport';block.append(viewport);
-   const group=choices(viewport,title,generationDurationOptions(spec,value).map(seconds=>[seconds,seconds+'s']),value,id=>onSetting(spec.name,id));group.classList.add('generation-duration-choices');
-   const updateEdges=()=>{group.dataset.overflowLeft=String(group.scrollLeft>1);group.dataset.overflowRight=String(group.scrollWidth-group.clientWidth-group.scrollLeft>1);};
-   group.addEventListener('scroll',updateEdges,{passive:true});
-   const sizeObserver=new ResizeObserver(updateEdges);sizeObserver.observe(group);cleanups.push(()=>sizeObserver.disconnect());
+   const seconds=generationDurationOptions(spec,value);
+   const group=choices(viewport,title,seconds.map(id=>[id,id+'s']),value,id=>select(seconds.indexOf(id),true));group.classList.add('generation-duration-choices');
+   if(!seconds.length)continue;
+   const buttons=group.children;
+   let selected=seconds.indexOf(Number(value)),committed=Number(value),timer,sliding=false;
+   const center=index=>buttons[index].offsetLeft+(buttons[index].offsetWidth-group.clientWidth)/2;
+   const nearest=()=>buttons.length===1?0:Math.max(0,Math.min(buttons.length-1,Math.round((group.scrollLeft-center(0))/(buttons[1].offsetLeft-buttons[0].offsetLeft))));
+   function highlight(index){
+    if(selected>=0)buttons[selected].setAttribute('aria-pressed','false');
+    selected=index;buttons[index].setAttribute('aria-pressed','true');
+   }
+   function select(index,animate=false){
+    clearTimeout(timer);highlight(index);
+    const left=center(index);
+    sliding=animate&&Math.abs(group.scrollLeft-left)>1&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    group.scrollTo({left,behavior:sliding?'smooth':'instant'});
+    if(seconds[index]!==committed){committed=seconds[index];onSetting(spec.name,committed);}
+   }
+   let drag=null,dragged=false;
+   group.addEventListener('scroll',()=>{
+    if(sliding){if(Math.abs(group.scrollLeft-center(selected))<=1)sliding=false;return;}
+    const index=nearest();if(index!==selected)highlight(index);
+    clearTimeout(timer);
+    if(!drag)timer=setTimeout(()=>{if(group.isConnected)select(nearest());},140);
+   },{passive:true});
+   const sizeObserver=new ResizeObserver(()=>{if(!drag&&selected>=0)group.scrollLeft=center(selected);});
+   sizeObserver.observe(group);cleanups.push(()=>{sizeObserver.disconnect();clearTimeout(timer);});
+   group.addEventListener('pointerdown',event=>{
+    if(!event.isPrimary||event.button!==0)return;
+    dragged=false;
+    if(seconds.length<2)return;
+    clearTimeout(timer);
+    if(sliding){group.scrollTo({left:group.scrollLeft,behavior:'instant'});sliding=false;}
+    if(event.pointerType==='mouse'){event.preventDefault();event.target.focus({preventScroll:true});}
+    drag={pointer:event.pointerId,x:event.clientX,left:group.scrollLeft,scale:group.getBoundingClientRect().width/group.offsetWidth};
+    event.target.setPointerCapture(event.pointerId);
+   });
+   group.addEventListener('pointermove',event=>{
+    if(drag?.pointer!==event.pointerId)return;
+    const distance=event.clientX-drag.x;
+    if(!dragged&&Math.abs(distance)<4)return;
+    dragged=true;group.dataset.dragging='true';
+    group.scrollLeft=drag.left-distance/drag.scale;
+   });
+   group.addEventListener('pointercancel',event=>{
+    if(drag?.pointer!==event.pointerId)return;
+    group.scrollLeft=drag.left;drag=null;delete group.dataset.dragging;
+   });
+   group.addEventListener('lostpointercapture',event=>{
+    if(drag?.pointer!==event.pointerId)return;
+    drag=null;delete group.dataset.dragging;
+    if(dragged)select(nearest());
+   });
+   group.addEventListener('click',event=>{
+    if(dragged&&event.detail){event.preventDefault();event.stopImmediatePropagation();}
+   },true);
    group.addEventListener('wheel',event=>{
     if(event.ctrlKey||event.metaKey||group.scrollWidth<=group.clientWidth)return;
     const delta=Math.abs(event.deltaX)>Math.abs(event.deltaY)?event.deltaX:event.deltaY;
     if(!delta)return;
+    sliding=false;
     event.preventDefault();event.stopPropagation();
-    group.scrollLeft+=delta*(event.deltaMode===1?16:event.deltaMode===2?group.clientWidth:1);
+    const pixels=delta*(event.deltaMode===1?16:event.deltaMode===2?group.clientWidth:1);
+    const step=buttons.length>1?buttons[1].offsetLeft-buttons[0].offsetLeft:0;
+    group.scrollLeft+=Math.abs(event.deltaY)>Math.abs(event.deltaX)?Math.sign(pixels)*Math.min(Math.abs(pixels),step):pixels;
    },{passive:false});
-   const selected=group.querySelector('[aria-pressed=true]');
-   requestAnimationFrame(()=>{if(!group.isConnected)return;if(selected)group.scrollLeft=selected.offsetLeft-group.offsetLeft-(group.clientWidth-selected.offsetWidth)/2;updateEdges();});
   }else if(items?.length||spec.type==='boolean'||spec.component==='switch'){
    const options=items||((spec.component==='switch'&&spec.type!=='boolean')?[[1,'开启'],[0,'关闭']]:[[true,'开启'],[false,'关闭']]);
    if(spec.name==='ratio')for(const item of options){if(item[0]==='adaptive')item[1]='自动';}
    if(spec.name==='enableSound')for(const item of options){if(item[0]==='on')item[1]='开启';if(item[0]==='off')item[1]='关闭';}
    if(spec.name==='background')for(const item of options)item[1]=({auto:'自动',opaque:'不透明',transparent:'透明'})[item[0]]||item[1];
-   const group=choices(block,title,options,value,id=>onSetting(spec.name,id));
+   const group=choices(block,title,options,value,id=>{
+    if(spec.name==='ratio')options.forEach(([ratio],i)=>group.children[i].setAttribute('aria-pressed',String(ratio===id)));
+    onSetting(spec.name,id);
+   });
    if(spec.name==='ratio')decorateRatioChoices(group,options);
    if(spec.name==='size'&&config.kind==='image')decorateImageSizeChoices(group,options);
   }else{
@@ -270,19 +358,21 @@ export function createGenerationParameters(config,schema,{onMode,onSetting,onSet
  }
  return root;
 }
-export const generationModeChoice=(mode,schema)=>mode==='image2video'&&schema?.properties?.modeType?.items?.mixed2video?'mixed2video':mode;
+export const generationModeChoice=mode=>['text2video','image2video','mixed2video'].includes(mode)?'omni2video':['singleImage2video','lastImage2video'].includes(mode)?'frames2video':mode;
 export function generationModes(schema,kind){
  const modes=Object.keys(schema.properties?.modeType?.items||{});
- if(schema.config?.strictModes)return modes;
- return [...new Set(modes.map(mode=>generationModeChoice(mode,schema)))];
+ if(kind!=='video')return modes;
+ const available=modes.map(generationModeChoice);
+ return ['omni2video','frames2video'].filter(mode=>available.includes(mode));
 }
 // Use the same local preset transition in column and cell configuration.
 export function normalizeLocalGenerationConfig(config,schema){
- const modes=Object.keys(schema.properties?.modeType?.items||{});
- if(!modes.includes(config.mode))config.mode=modes[0]||'';
+ const modes=generationModes(schema,config.kind);
+ const chosen=generationModeChoice(config.mode);
+ config.mode=modes.includes(chosen)?chosen:modes[0]||'';
  const previous=config.settings||{},settings={};
  for(const spec of generationSettingSpecs(schema,config.mode)){
-  const value=previous[spec.name],choices=spec.enum?.map(v=>typeof v==='object'?v.value:v);
+  const value=savedSetting(spec,previous[spec.name]),choices=spec.enum?.map(v=>typeof v==='object'?v.value:v);
   const valid=value!==undefined&&(!choices||choices.includes(value))&&
    (spec.type==='boolean'?typeof value==='boolean':
     ['integer','number'].includes(spec.type)?typeof value==='number'&&Number.isFinite(value)&&
@@ -306,7 +396,7 @@ export function promptSettingSpecs(schema,mode,key,settings={}){
 }
 export function generationSettingWarning(config,schema){
  const modes=Object.keys(schema.properties?.modeType?.items||{}),warnings=[];
- if(config.mode&&!modes.includes(config.mode))warnings.push('生成方式“'+(generationModeLabels[config.mode]||config.mode)+'”');
+ if(config.mode&&!modes.includes(config.mode)&&!generationModes(schema,config.kind).includes(generationModeChoice(config.mode)))warnings.push('生成方式“'+(generationModeLabels[config.mode]||config.mode)+'”');
  const specs=generationSettingSpecs(schema,config.mode);
  for(const [key,value] of Object.entries(config.settings||{})){
   const spec=specs.find(item=>item.name===key),choices=spec?.enum?.map(item=>typeof item==='object'?item.value:item)||[];
@@ -351,15 +441,18 @@ export function createGenerationSetting(spec,config,onChange,unrestricted=false)
 export function createSettingsPopover(anchor,title,onClose,{placement='below',onEscape=()=>false,resolveAnchor=null}={}){
  const root=document.createElement('div');root.className='dae-ui generation-settings-popover generation-form';root.id='generation-setting-'+crypto.randomUUID();root.setAttribute('role','dialog');root.setAttribute('aria-label',title);
  const heading=document.createElement('strong');heading.textContent=title;root.append(heading);document.body.append(root);anchor.setAttribute('aria-expanded','true');anchor.setAttribute('aria-controls',root.id);
- let closed=false;
+ const settingsBar=anchor.dataset.setting==='parameters'?anchor.closest('.generation-prompt-settings'):null;
+ let closed=false,offsetInBar;
  const releaseAnchor=()=>{if(anchor.getAttribute('aria-controls')===root.id){anchor.removeAttribute('aria-controls');anchor.setAttribute('aria-expanded','false');}};
  const currentAnchor=()=>{if(closed)return null;const next=resolveAnchor?resolveAnchor():anchor;if(!next?.isConnected||!next.getClientRects().length){close();return null;}if(next!==anchor){releaseAnchor();anchor=next;anchor.setAttribute('aria-expanded','true');anchor.setAttribute('aria-controls',root.id);}return anchor;};
- const place=()=>{const current=currentAnchor();if(!current)return;const r=current.getBoundingClientRect(),scale=Number.isFinite(r.width/current.offsetWidth)&&current.offsetWidth>0?r.width/current.offsetWidth:1,modelMenu=root.classList.contains('generation-model-popover'),triggerIcon=modelMenu?current.querySelector('.dae-table-icon'):null,optionIcon=modelMenu?root.querySelector('.generation-model-icon'):null;
+ const place=event=>{if(event?.type==='scroll'&&root.contains(event.target))return;const current=currentAnchor();if(!current)return;const r=current.getBoundingClientRect(),bar=settingsBar?.getBoundingClientRect(),scale=bar&&settingsBar.offsetHeight?bar.height/settingsBar.offsetHeight:current.offsetWidth?r.width/current.offsetWidth:1,modelMenu=root.classList.contains('generation-model-popover'),triggerIcon=modelMenu?current.querySelector('.dae-table-icon'):null,optionIcon=modelMenu?root.querySelector('.generation-model-icon'):null;
   root.style.transformOrigin='top left';root.style.transform=`scale(${scale})`;root.style.maxWidth=Math.max(0,(innerWidth-16)/scale)+'px';
   if(modelMenu){const style=getComputedStyle(current);root.style.setProperty('--generation-model-font-size',parseFloat(style.fontSize)+'px');root.style.setProperty('--generation-model-weight',style.fontWeight);root.style.setProperty('--generation-model-scale','1');root.style.setProperty('--generation-model-gap',(parseFloat(style.columnGap)||7)+'px');const badge=current.querySelector('.generation-model-source');if(badge)root.style.setProperty('--generation-model-badge-font-size',parseFloat(getComputedStyle(badge).fontSize)+'px');root.style.setProperty('--generation-model-icon-size',(triggerIcon?.offsetWidth||18)+'px');}
   if(placement==='above'){
+   const position={left:r.left,top:r.top};
+   if(bar&&scale){offsetInBar??=(r.left-bar.left)/scale;position.left=bar.left+offsetInBar*scale;}
    const alignment=triggerIcon&&optionIcon?{anchorCenter:triggerIcon.getBoundingClientRect().left+triggerIcon.getBoundingClientRect().width/2,iconOffset:optionIcon.getBoundingClientRect().left+optionIcon.getBoundingClientRect().width/2-root.getBoundingClientRect().left}:undefined;
-   let layout=abovePopoverLayout(r,{width:innerWidth,height:innerHeight},{width:root.offsetWidth*scale,height:root.offsetHeight*scale},alignment);root.style.maxHeight=layout.maxHeight/scale+'px';root.style.paddingBlock=layout.maxHeight/scale<80?'2px':'';root.dataset.limited=String(layout.maxHeight/scale<80);layout=abovePopoverLayout(r,{width:innerWidth,height:innerHeight},{width:root.offsetWidth*scale,height:root.offsetHeight*scale},alignment);root.style.left=layout.left+'px';root.style.top=layout.top+'px';
+   let layout=abovePopoverLayout(position,{width:innerWidth,height:innerHeight},{width:root.offsetWidth*scale,height:root.offsetHeight*scale},alignment);root.style.maxHeight=layout.maxHeight/scale+'px';root.style.paddingBlock=layout.maxHeight/scale<80?'2px':'';root.dataset.limited=String(layout.maxHeight/scale<80);layout=abovePopoverLayout(position,{width:innerWidth,height:innerHeight},{width:root.offsetWidth*scale,height:root.offsetHeight*scale},alignment);root.style.left=layout.left+'px';root.style.top=layout.top+'px';
   }else{root.style.left=Math.max(8,Math.min(r.left,innerWidth-root.offsetWidth*scale-8))+'px';root.style.top=Math.max(8,Math.min(r.bottom+8,innerHeight-root.offsetHeight*scale-8))+'px';}
  };
  const outside=e=>{const current=currentAnchor();if(current&&!root.contains(e.target)&&!current.contains(e.target))close();};

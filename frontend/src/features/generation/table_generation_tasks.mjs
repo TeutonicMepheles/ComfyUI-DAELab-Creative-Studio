@@ -3,7 +3,7 @@ import {generationTaskSnapshots,trackTaskCompletion} from './task_snapshots.mjs'
 import {createTableButton as button,tableIcon} from '../../ui/table_controls.mjs';
 import {GenerationSession,generationInputDigest} from './generation_session.js';
 import {request,modelCapabilities} from './table_generation_api.mjs';
-import {generationReportNeedsApply,generationReceipt,recoveryJob,isLocalGenerationModel,needsGenerationProject,isGeneration,generationRows,generationInput,generationAttempts,applyGenerationResult,appendGenerationResult} from './table_generation_model.mjs';
+import {generationReportNeedsApply,generationReceipt,recoveryJob,isLocalGenerationModel,needsGenerationProject,isGeneration,generationRows,generationConfigField,rowGenerationConfig,generationInput,generationAttempts,applyGenerationResult,appendGenerationResult} from './table_generation_model.mjs';
 import {getModelCatalog} from '../models/model_catalog.mjs';
 const el=(tag,parent,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;parent?.append(node);return node;};
 const phaseNames={waiting:'等待提交',running:'生成中',pausing:'中止中',interrupting:'中止中',paused:'原任务已停止',interrupted:'已中止',stopped:'已停止后续提交',failed:'生成失败',needs_input:'待补充',needs_recovery:'执行状态待核实',complete:'已完成',stale:'输入已变化'};
@@ -33,9 +33,10 @@ export const generationTaskStyle=`
 @media(prefers-reduced-motion:reduce){.dae-ui .generation-progress{animation:none;border-style:dashed}}
 `;
 
-export function attachGenerationTasks({editor,getTable,getArchivedRows=()=>[],notify,prepareGeneration,getConfig,onUpdate=()=>{},onPrepared=()=>{},onReports=()=>{},canGenerate=()=>true}){
+export function attachGenerationTasks({editor,getTable,getArchivedRows=()=>[],notify,prepareGeneration,getConfig,onUpdate=()=>{},onPrepared=()=>{},onReports=()=>{},canGenerate=()=>true,autoImageMode=false}){
  let alive=true,polling=false,submitting=false,epoch=0;const controlling=new Set();
   const live=new Map(),localErrors=new Map(),discovered=new Map(),discoveredByTarget=new Map(),editGroups=new Map(),missingRequests=new Set(),attemptGroups=new Map(),attemptTargets=new Map();
+ const buildInput=(table,fieldId,recordId,videoModes)=>generationInput(table,fieldId,recordId,{autoImageMode,videoModes});
  const targetKey=(recordId,fieldId)=>JSON.stringify([recordId,fieldId]);
  const targetReferences=(row,fieldId)=>[...new Map([...(row?.meta?.studioGenerationRefs?.[fieldId]||[]),...(discoveredByTarget.get(targetKey(row?.id,fieldId))?.values()||[])].map(ref=>[ref.requestId,ref])).values()].sort((a,b)=>(a.source.createdAt||0)-(b.source.createdAt||0));
  const reference=(row,fieldId)=>{const stable=identity(),refs=targetReferences(row,fieldId).filter(ref=>ref.source?.recordId===row?.id&&ref.source?.fieldId===fieldId&&(!stable||ref.source.documentId===stable.documentId&&ref.source.tableId===stable.tableId&&ref.source.nodeId===stable.nodeId));return refs.at(-1);};
@@ -102,17 +103,26 @@ export function attachGenerationTasks({editor,getTable,getArchivedRows=()=>[],no
    await prepareGeneration(fieldId,recordId);
    if(!alive||captured!==epoch||!canGenerate())return;
    const table=getTable(),candidates=unsubmittedOnly||allCurrentRows?table.records:recordId?table.records.filter(row=>row.id===recordId):generationRows(table,fieldId),rows=unsubmittedOnly?candidates.filter(row=>!reference(row,fieldId)&&!stateFor(row,fieldId)&&!row.values[fieldId]?.length):candidates,jobs=[];
+   const owner=generationConfigField(table,fieldId),capabilities=new Map();
    for(const row of rows){
     const old=stateFor(row,fieldId);if(old&&!old.legacy&&['waiting','running','pausing','interrupting','needs_recovery'].includes(old.phase))throw new Error('请先核对原任务，未知状态不能直接创建新任务');
-    const input=generationInput(table,fieldId,row.id),attemptCount=generationAttempts(input.config),inputDigest=await generationInputDigest(input);
+    const config=rowGenerationConfig(row,owner.id,owner.generation);
+    if(!capabilities.has(config.model))capabilities.set(config.model,await modelCapabilities(config));
+    const modes=capabilities.get(config.model)?.schema?.properties?.modeType?.items;
+    let input;
+    try{input=buildInput(table,fieldId,row.id,modes);}
+    catch(error){
+     if(rows.length===1)throw error;
+     throw new Error((row.name||'任务 '+(table.records.indexOf(row)+1))+'：'+error.message);
+    }
+    const attemptCount=recordId==null?1:generationAttempts(input.config),inputDigest=await generationInputDigest(input);
     for(let attemptIndex=0;attemptIndex<attemptCount;attemptIndex++){
      const requestId=crypto.randomUUID(),guard=editor.beginAsync({recordId:row.id,fieldId},requestId);guards.push(guard);
      jobs.push({requestId,input,inputDigest,attemptIndex,attemptCount});
-     if(jobs.length>500)throw new Error('本次提交最多 500 次生成，请减少勾选行或抽卡次数');
+     if(jobs.length>500)throw new Error('本次提交最多 500 次生成，请减少勾选行');
     }
    }
    if(!jobs.length)throw new Error('没有可生成的行，请补充提示词或检查任务状态');
-   for(const config of new Map(jobs.map(job=>[job.input.config.model,job.input.config])).values())await modelCapabilities(config);
    await poll(true);if(unsubmittedOnly&&rows.some(row=>reference(row,fieldId)||stateFor(row,fieldId)||row.values[fieldId]?.length))throw new Error('任务状态已变化，请重新检查尚未生成的任务');if(rows.some(row=>['waiting','running','pausing','interrupting','needs_recovery'].includes(stateFor(row,fieldId)?.phase)))throw new Error('账本中仍有原任务，请先恢复查询');
    if(!alive||captured!==epoch||!canGenerate()||guards.some(ticket=>!editor.canAsync(ticket)))throw new Error('预检期间输入或工作流已变化，未提交');
    const stable=identity(),group='generation:'+crypto.randomUUID(),createdAt=Date.now();for(const job of jobs)editGroups.set(job.requestId,group);
@@ -164,7 +174,7 @@ export function attachGenerationTasks({editor,getTable,getArchivedRows=()=>[],no
   const row=getTable().records.find(row=>row.id===recordId),ref=requestId?targetReferences(row,fieldId).find(ref=>ref.requestId===requestId):reference(row,fieldId);if(!ref)throw new Error('没有可审阅的新任务引用');
   const ticket=editor.beginAsync({recordId,fieldId},crypto.randomUUID());
   try{session.watch(ref);const response=await request('status',{requestIds:[ref.requestId]}),report=response.jobs.find(report=>report.requestId===ref.requestId);if(!report||!session.ingest(report))throw new Error('原任务身份不匹配');
-   const digest=await generationInputDigest(generationInput(getTable(),fieldId,recordId));if(!alive||!editor.canAsync(ticket))throw new Error('输入或工作流已变化，结果只供查看');editor.releaseAsync(ticket);
+   const digest=await generationInputDigest(buildInput(getTable(),fieldId,recordId));if(!alive||!editor.canAsync(ticket))throw new Error('输入或工作流已变化，结果只供查看');editor.releaseAsync(ticket);
    if(!session.review(ref.requestId,digest,{...identity(),nodeId:ticket.documentId}))throw new Error('原结果与当前输入不匹配或尚未完成');return true;
   }finally{editor.releaseAsync(ticket);}
  }
@@ -242,7 +252,7 @@ export function attachGenerationTasks({editor,getTable,getArchivedRows=()=>[],no
       const ticket=editor.beginAsync({recordId:row.id,fieldId:field.id},crypto.randomUUID());
       try{const response=await request('status',{requestIds:[old.requestId]}),report=response.jobs.find(s=>s.requestId===old.requestId);if(report?.phase!=='complete'||!report.result?.url)throw new Error(report?.error||'原结果暂不可用，请恢复原任务');
        if(!alive||!dialog.isConnected)return;
-       session.ingest(report);if(!editor.canAsync(ticket))throw new Error('输入或工作流已变化');const digest=await generationInputDigest(generationInput(getTable(),field.id,row.id));if(!editor.canAsync(ticket))throw new Error('输入或工作流已变化');editor.releaseAsync(ticket);if(!session.review(old.requestId,digest,{...identity(),nodeId:ticket.documentId}))throw new Error('结果与当前输入不匹配，仅供查看');dialog.remove();
+       session.ingest(report);if(!editor.canAsync(ticket))throw new Error('输入或工作流已变化');const digest=await generationInputDigest(buildInput(getTable(),field.id,row.id));if(!editor.canAsync(ticket))throw new Error('输入或工作流已变化');editor.releaseAsync(ticket);if(!session.review(old.requestId,digest,{...identity(),nodeId:ticket.documentId}))throw new Error('结果与当前输入不匹配，仅供查看');dialog.remove();
       }catch(error){notify(error.message);}finally{editor.releaseAsync(ticket);}
      }));}dialog.append(button('关闭',()=>dialog.remove()));
     }),'folder-image-line','已有生成结果'));
