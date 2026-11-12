@@ -59,7 +59,7 @@ function withLocalBatch(fn,{turbo=false}={}) {
 }
 
 test('catalog has exact approved scope, one task owner per feature, stable complete AC links',()=>{
-  assert.equal(catalog.features.length,126);assert.equal(catalog.usecases.length,49);assert.equal(catalog.tests.length,145);
+  assert.equal(catalog.features.length,126);assert.equal(catalog.usecases.length,49);assert.equal(catalog.tests.length,146);
   assert.equal(trace.acceptance.length,catalog.features.reduce((n,f)=>n+f.acceptance.length,0));
   const owners=trace.tasks.flatMap(t=>t.features);
   assert.equal(owners.length,126);assert.equal(new Set(owners).size,126);

@@ -2,7 +2,7 @@
 
 本文件由 `catalog/*.json` 生成；修改目录中的源数据后运行 `node docs/migration-blueprint/render_catalog.mjs --write`。不要单独修改生成表。
 
-共 145 个测试定义。统一状态：**规格已定义；自动化与产品执行状态均待实施/待执行**。自动化列是目标执行方式，既有覆盖是复用候选，不表示此测试已经实现或运行。测试环境、夹具、公共前端矩阵、性能预算和证据格式见 [测试策略](TEST_STRATEGY.md)。
+共 146 个测试定义。统一状态：**规格已定义；自动化与产品执行状态均待实施/待执行**。自动化列是目标执行方式，既有覆盖是复用候选，不表示此测试已经实现或运行。测试环境、夹具、公共前端矩阵、性能预算和证据格式见 [测试策略](TEST_STRATEGY.md)。
 
 每个界面测试都叠加两实例、模式切换、保存重载、焦点溢出和相关缩放检查；表内和表外生成都需覆盖。真实生成仅使用本地 Qwen/MiniMax；其他通道只做协议模拟，不能据此声明真实效果通过。
 
@@ -153,6 +153,7 @@
 | [TC-SYS-037](TEST_CASES.md#tc-sys-037) | 生成、LLM 与表格共用模型目录投影 | M4 | P0 | contract | 自动 | 不付费 |
 | [TC-SYS-038](TEST_CASES.md#tc-sys-038) | 模型选项隐式状态且不展示检测错误 | M4 | P1 | host | 混合 | 不付费 |
 | [TC-SYS-039](TEST_CASES.md#tc-sys-039) | 扫描模型哈希反查生成配置 | M4 | P0 | contract | 自动 | 不付费 |
+| [TC-SYS-040](TEST_CASES.md#tc-sys-040) | 启动自动匹配未配置档位（name+size，提交哈希兜底） | M4 | P0 | contract | 自动 | 不付费 |
 
 <a id="tc-can-001"></a>
 
@@ -4706,5 +4707,39 @@
 - 命中项填正确绝对路径；冲突项写 path 与该文件真实 sha256；缺失项报缺失。
 - suggested.json 为完整 schemaVersion:1，从现有配置合并 resourceLock/qwenBinding；新机器生成最小完整配置。
 - 确认后 read_configuration() 通过；不自动启动 Ollama、不下载、不换量化。
+
+**旧测试复用候选：** 无；迁移实施时建立。
+
+<a id="tc-sys-040"></a>
+
+## TC-SYS-040 启动自动匹配未配置档位（name+size，提交哈希兜底）
+
+**阶段：** M4；**优先级：** P0；**层级：** contract；**方式：** 自动；**执行策略：** 不付费。
+
+**功能：** [F-SYS-022](FEATURE_MATRIX.md#f-sys-022)
+
+**用例：** [UC-SYS-012](USE_CASES.md#uc-sys-012)
+
+**真实模型白名单：** 无；本用例使用无模型调用的测试方法。
+
+**夹具：** 合成模型清单（family/category/name/bytes/sha256）+ 合成模型文件（含唯一命中、wrongSize、ambiguous、missing、同名同 size 异内容五类）。
+
+**准备**
+
+- 不启动真实 Ollama；禁止任何真实云端 HTTP。
+- 启动装配只按 name 枚举、比对字节数，不实算哈希；提交路径才算 SHA-256。
+
+**步骤**
+
+1. 触发宿主启动装配（match_installed_families），核对未配置 category 的匹配结果。
+2. 核对 wrongSize / ambiguous / missing 的 family 整组不登记。
+3. 核对同名同 size 异内容的文件：能力探测报可用、提交时抛 ProviderUnavailable。
+
+**可判断的期望**
+
+- name+size 唯一匹配且字节数一致的 family 整组登记进内存，sha256 取清单期望值。
+- wrongSize / ambiguous / missing 的 family 标未完成、不登记。
+- 同名同 size 异内容的文件启动报可用（check_available 只查 size），提交时 verify 按 SHA-256 抛 ProviderUnavailable，不静默用错权重。
+- 不写 local-generation.json、不下载、不启动 Ollama；已有显式绑定沿用、不覆盖。
 
 **旧测试复用候选：** 无；迁移实施时建立。

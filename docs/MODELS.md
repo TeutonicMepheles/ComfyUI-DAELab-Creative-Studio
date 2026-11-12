@@ -29,11 +29,10 @@ Qwen 使用本机 Ollama 回环接口 `127.0.0.1:11434`。注册清单、已安�
 
 工作流 JSON 只保存稳定的逻辑模型 ID，不写机器路径或文件哈希，可跨机器复制；接收方装好 CC 包即可打开编辑，生成则需自备权重与配置。
 
-接收方安装支持自动匹配的 Studio 后，将 MiniMax 主权重放在 `diffusion_models`、编码器放在 `text_encoders`、音频和视频 VAE 放在 `vae`、Flex 适配器放在 `loras`，重启即可按本机路径识别。自动匹配要求每个组件有唯一的同名候选且大小符合清单，整组齐全后才登记。匹配结果保存在内存中，可用性探测按字节数判断、不实算哈希，实际提交时按内容 SHA-256 兜底。需要显式指定模型时，可以通过以下方式生成配置：
+接收方安装支持自动匹配的 Studio 后，将 MiniMax 主权重放在 `diffusion_models`、编码器放在 `text_encoders`、音频和视频 VAE 放在 `vae`、Flex 适配器放在 `loras`，重启即可按本机路径识别。自动匹配要求每个组件有唯一的同名候选且大小符合清单，整组齐全后才登记。匹配结果保存在内存中，可用性探测按字节数判断、不实算哈希，实际提交时按内容 SHA-256 兜底。自动匹配不产生 durable 配置，界面上「可用」不等于「已生成配置」；写 durable 的 `local-generation.json` 只有两条路——手写（含模板改路径）与后端 scan 端点（无界面入口）：
 
-1. 设置界面「扫描模型」按官方模型清单哈希反查生成（需宿主带此功能；清单见 [model_manifest.json](../backend/integrations/comfyui/model_manifest.json)，条目为 family/category/name/bytes/sha256，不含任何本机路径）；
-2. 以现有配置为模板改路径：每条 `path` 改为该机绝对路径、`resourceLock` 改为该机 `.lock` 路径（`qwenBinding` 的 `manifestPath`/`installedManifestPath`/`blobsRoot` 同步）；`sha256` 是文件内容指纹、不是路径——文件相同则沿用原值，仅换量化/重新下载导致字节变化才重算（`certutil -hashfile <file> SHA256` 去空格转小写）；`manifestSha256` 与各绑定 `bytes` 是清单属性，不要动；
-3. 手写最小配置（`schemaVersion:1` + `enabled:true` + `resourceLock` + `modelBindings`）。
+1. 手写最小配置（`schemaVersion:1` + `enabled:true` + `resourceLock` + `modelBindings`），或以现有配置为模板改路径：每条 `path` 改为该机绝对路径、`resourceLock` 改为该机 `.lock` 路径（`qwenBinding` 的 `manifestPath`/`installedManifestPath`/`blobsRoot` 同步）；`sha256` 是文件内容指纹、不是路径——文件相同则沿用原值，仅换量化/重新下载导致字节变化才重算（`certutil -hashfile <file> SHA256` 去空格转小写）；`manifestSha256` 与各绑定 `bytes` 是清单属性，不要动；
+2. 后端 scan 端点（`scan-models`/`apply-models`）按官方模型清单哈希反查写出 durable 配置（无界面入口；清单见 [model_manifest.json](../backend/integrations/comfyui/model_manifest.json)，条目为 family/category/name/bytes/sha256，不含任何本机路径）。
 
 生成后重启宿主并在设置界面重新读取；仍置灰则看 `GET /daelab/studio/capabilities` 的 `localGeneration.reason`。文本模型需本机 Ollama 服务已运行（Studio 不自动启动、不下载）；云端模型走 ComfyUI 账户登录，与本机配置无关。
 
@@ -67,7 +66,7 @@ Seedance 参考图在提交前适配官方尺寸限制：宽高比 0.4–2.5、�
 
 界面的 `Minimax H3` 接入官方 `MinimaxHailuo03TextToVideoNode`、`MinimaxHailuo03FirstLastFrameNode` 和 `MinimaxHailuo03ReferenceNode`，保留已有工作流模型名称，并在接口边界映射为官方 `MiniMax H3`。支持文生视频、首帧、首尾帧及图片／视频全能参考；模式和参数读取已安装节点的实际定义。与 Seedance 共用登录、文件冻结和任务恢复通道，取消及付费验证限制同上。
 
-云端 H3 与 `MiniMax H3 FL（本地）` 分别路由；本地版仍只支持文生视频和图片首尾帧，不会自动回退到云端。
+云端 H3 与本地档位分别路由；本地版仍只支持文生视频和图片首尾帧，不会自动回退到云端。
 
 生成菜单提供 MiniMax H3 FL、Ref 各自的高配和低配。四档都绑定五个组件：
 
