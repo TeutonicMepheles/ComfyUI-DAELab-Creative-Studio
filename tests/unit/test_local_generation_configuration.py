@@ -92,12 +92,12 @@ class LocalGenerationConfigurationTests(unittest.TestCase):
         def compose(*args, **kwargs):
             captured.update(kwargs)
             return SimpleNamespace(admission=object(), providers={}, enabled_remote_providers=set())
-        with patch('backend.integrations.comfyui.local_generation.read_configuration', return_value={'explicit': True}), \
+        with patch('backend.integrations.comfyui.local_generation.read_configuration', return_value=None), \
              patch('backend.integrations.comfyui.local_generation.compose_configured_generation', side_effect=compose), \
              patch('backend.integrations.comfyui.generation_nodes.native_host.install_native_admission'), \
              patch.dict(sys.modules, {'nodes': SimpleNamespace(NODE_CLASS_MAPPINGS={}), 'comfy': SimpleNamespace(model_management=management), 'comfy.model_management': management}):
             queue = SimpleNamespace(validate_prompt=lambda *_: self.fail('Assembly must not validate or submit a graph'))
-            generation = assemble_host_generation(object(), object(), SimpleNamespace(get_user_directory=lambda: self.user, get_full_path=lambda *_: None), native_queue=queue)
+            generation = assemble_host_generation(object(), object(), SimpleNamespace(get_user_directory=lambda: self.user, get_filename_list=lambda _: [], get_full_path=lambda *_: None), native_queue=queue)
             self.assertEqual(set(generation.providers), {'comfy-seedance', 'comfy-minimax', 'comfy-gpt-image', 'comfy-gpt-text'})
             self.assertEqual(generation.enabled_remote_providers, set(generation.providers))
             self.assertEqual(events, [])  # Composition itself never releases models.

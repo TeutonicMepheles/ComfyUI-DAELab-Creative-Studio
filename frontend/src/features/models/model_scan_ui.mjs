@@ -7,7 +7,7 @@
 import { createSettingsPopover } from '../prompt/table_prompt_settings.mjs';
 // @ts-expect-error Existing shared controls retain native button semantics.
 import { createTableButton } from '../../ui/table_controls.mjs';
-import { scanModels, applyModels } from './model_scan_api.mjs';
+import { scanModels, applyModels, getGenerationFileReport } from './model_scan_api.mjs';
 
 /** Family → display name, locked by Product (10 local model families). */
 const FAMILY_LABEL = Object.freeze({
@@ -39,6 +39,39 @@ const el = (tag, cls, text) => {
   if (text != null) node.textContent = text;
   return node;
 };
+
+const FILE_STATUS = {missing: '缺少', wrongSize: '大小不符', ambiguous: '存在同名文件', pathMismatch: '配置路径不符', unconfigured: '尚未配置'};
+
+export function generationFileReport(kind) {
+  const root = el('details', 'generation-file-report');
+  const summary = el('summary', '', '正在检查本机模型文件…');
+  root.append(summary);
+  let disposed = false;
+  async function load() {
+    try {
+      const entries = await getGenerationFileReport(kind);
+      if (disposed) return;
+      let complete = 0;
+      for (const [family, files] of entries) {
+        const issues = files.filter(file => file.status !== 'found');
+        if (!issues.length) complete++;
+        const label = (FAMILY_LABEL[family] || family).replace('（本地）', '');
+        const group = el('div', 'generation-file-profile');
+        group.append(el('strong', '', label + (issues.length ? ' · 待处理 ' + issues.length + ' 项' : ' · 文件齐全')));
+        for (const file of issues) {
+          group.append(el('div', '', (FILE_STATUS[file.status] || file.status) + ' · ' + file.category + '/' + file.name));
+        }
+        root.append(group);
+      }
+      summary.textContent = '本机模型文件 · ' + complete + '/' + entries.length + ' 组齐全';
+      root.open = complete < entries.length;
+    } catch (error) {
+      if (!disposed) summary.textContent = '读取本机模型目录失败，重新打开菜单可重试';
+    }
+  }
+  void load();
+  return {root, dispose: () => { disposed = true; }};
+}
 
 function describeFamily(item) {
   const family = FAMILY_LABEL[item.family] || item.family;

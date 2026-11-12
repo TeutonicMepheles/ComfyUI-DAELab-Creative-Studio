@@ -56,7 +56,7 @@ class QwenCapabilityTests(unittest.IsolatedAsyncioTestCase):
         class Inventory:
             def descriptions(self, keys):
                 return {key: {'name': IMAGE_FILES[key], 'sha256': 'fixed'} for key in keys}
-            def verify(self, models, graph): pass
+            def check_available(self, models, graph): pass
             def node_types(self): return nodes
         class Queue:
             async def validate(self, *args): pass
