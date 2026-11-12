@@ -29,7 +29,7 @@ Qwen 使用本机 Ollama 回环接口 `127.0.0.1:11434`。注册清单、已安�
 
 工作流 JSON 只保存稳定的逻辑模型 ID，不写机器路径或文件哈希，可跨机器复制；接收方装好 CC 包即可打开编辑，生成则需自备权重与配置。
 
-接收方安装支持自动匹配的 Studio 后，将 MiniMax 主权重放在 `diffusion_models`、编码器放在 `text_encoders`、音频和视频 VAE 放在 `vae`、Flex 适配器放在 `loras`，重启即可按本机路径识别。自动匹配要求每个组件有唯一的同名候选且大小符合清单，整组齐全后才登记。匹配结果保存在内存中。需要显式指定模型时，可以通过以下方式生成配置：
+接收方安装支持自动匹配的 Studio 后，将 MiniMax 主权重放在 `diffusion_models`、编码器放在 `text_encoders`、音频和视频 VAE 放在 `vae`、Flex 适配器放在 `loras`，重启即可按本机路径识别。自动匹配要求每个组件有唯一的同名候选且大小符合清单，整组齐全后才登记。匹配结果保存在内存中，可用性探测按字节数判断、不实算哈希，实际提交时按内容 SHA-256 兜底。需要显式指定模型时，可以通过以下方式生成配置：
 
 1. 设置界面「扫描模型」按官方模型清单哈希反查生成（需宿主带此功能；清单见 [model_manifest.json](../backend/integrations/comfyui/model_manifest.json)，条目为 family/category/name/bytes/sha256，不含任何本机路径）；
 2. 以现有配置为模板改路径：每条 `path` 改为该机绝对路径、`resourceLock` 改为该机 `.lock` 路径（`qwenBinding` 的 `manifestPath`/`installedManifestPath`/`blobsRoot` 同步）；`sha256` 是文件内容指纹、不是路径——文件相同则沿用原值，仅换量化/重新下载导致字节变化才重算（`certutil -hashfile <file> SHA256` 去空格转小写）；`manifestSha256` 与各绑定 `bytes` 是清单属性，不要动；
