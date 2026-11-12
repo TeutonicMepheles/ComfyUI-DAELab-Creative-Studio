@@ -251,7 +251,7 @@
       "source": "web/media_upload.js",
       "destination": "frontend/src/integrations/comfyui/canvas/media_upload.js",
       "sourceSha256": "652756732af498a98eee22908cf26904d2c786c03bc9b0057eb956bc0b53b7d3",
-      "destinationSha256": "90c97edb4b93fe777808cdc37ffa1505ccdcd525f466df687bfdf56a94f829ad",
+      "destinationSha256": "b893f7c37cf61c479f58872ebaf0a483971b9c9b8d8c2b3fec32bd3bb124b7e9",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
         "relocate into owner layer; rewrite relative module/style/resource paths",
@@ -875,7 +875,7 @@
       "source": "tests/creative_canvas_model.test.mjs",
       "destination": "tests/migrated_canvas/creative_canvas_model.test.mjs",
       "sourceSha256": "f70af54f8a476f17e69aec156793dfee1e80e75d9cd13b9edd3ee9b7b123bf5c",
-      "destinationSha256": "432e61a82282d7d872a8d4b81f29269940bafefe499e5aa2e11a4771dcdbcbfc",
+      "destinationSha256": "7b396d045db268a7a975feac056a250adfddc6a0f1d94945ef49e584ccd0aec0",
       "changes": [
         "point existing rule regression tests at migrated production modules"
       ],

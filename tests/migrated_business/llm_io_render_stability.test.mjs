@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import ts from 'typescript';
 import {bindIOPanel} from '../../frontend/src/features/prompt/llm_io_panel.mjs';
+import {generationInputDigest} from '../../frontend/src/features/generation/generation_session.js';
 import {slotSignature} from '../../frontend/src/features/prompt/llm_slot_model.mjs';
 import {createBusinessDocument} from '../../frontend/src/application/business_document.js';
 import {bindBusinessService} from '../../frontend/src/contracts/business.js';
@@ -99,9 +100,9 @@ test('table connections disable reverse even with one row or invalid input; disc
  env.reset();env.tick();assert.equal(env.writes.length,0);
 });
 
-test('opening an older saved proposal does not add a recovery control or publish on load',t=>{
+test('opening an older saved proposal exposes explicit recovery without publishing on load',t=>{
  const env=environment(t),a=panel(t,env,50,{proposal:true}),before=JSON.stringify(a.state());
- env.tick();assert.equal(a.run.beforeNode,undefined);assert.equal(a.state().appliedIO,undefined);assert.equal(JSON.stringify(a.state()),before);
+ env.tick();assert.ok(a.root.children.find(child=>child.textContent==='恢复原结果'));assert.equal(a.run.beforeNode,undefined);assert.equal(a.state().appliedIO,undefined);assert.equal(JSON.stringify(a.state()),before);
 });
 
 test('PE table mode follows per-row reference images and model switches without bypassing missing images',t=>{
@@ -252,4 +253,56 @@ test('slot-derived instruction and manual restoration reconcile after external s
  a.node.properties.llmStylePreview={...a.state(),instruction:'再次外部恢复'};env.tick();assert.equal(a.instruction.value,'再次外部恢复');
  assert.equal(JSON.stringify(b.state()),beforeB);assert.equal(b.instruction.value,'手动要求');assert.equal(a.state().ioResult,undefined);assert.equal(b.state().ioResult,undefined);
  env.reset();env.tick();assert.equal(env.writes.length,0);
+});
+
+
+test('unknown original request blocks replacement submission after panel reload',async t=>{
+ const env=environment(t),a=panel(t,env,81);a.state().purpose='image';a.release.sync();
+ const digest=await generationInputDigest(slotSignature(a.node));let submits=0,queries=0;
+ a.state().studioTextRequests={groupId:'original',requests:[{requestId:'original-request'}]};const before=JSON.stringify(a.state().studioTextRequests);
+ t.after(bindBusinessService('generation',{request:async(action,options)=>{queries++;assert.equal(action,'status');return Response.json({jobs:[{state:'unknown',source:{...JSON.parse(options.body).source,operation:'standalone-optimization',inputDigest:digest}}]});}}));
+ t.after(bindBusinessService('optimization',{request(){submits++;throw new Error('must not submit');}}));
+ await a.run.emit('click');assert.equal(queries,1);assert.equal(submits,0);assert.match(a.status.textContent,/原请求尚未确定/);assert.equal(JSON.stringify(a.state().studioTextRequests),before);assert.equal(a.state().appliedIO,undefined);
+});
+
+function recoverySetup(t,id){
+ const env=environment(t),a=panel(t,env,id);a.state().purpose='image';
+ a.upstream.snapshot={version:1,rows:[{id:'row-A',text:'原文甲',image:{kind:'image',filename:'a.png',future:{referenceId:'keep-A'}}},{id:'row-B',text:'原文乙'}]};a.release.sync();
+ const recover=a.root.children.find(child=>child.textContent==='恢复原结果');return {a,env,recover};
+}
+test('read-only ledger recovery restores the original ordered group through one native output transaction and undo/redo',async t=>{
+ const {a,recover}=recoverySetup(t,82),digest=await generationInputDigest(slotSignature(a.node));let queries=0,submits=0;
+ t.after(bindBusinessService('optimization',{request(){submits++;throw new Error('recovery never submits');}}));
+ t.after(bindBusinessService('generation',{request:async(action,options)=>{
+  queries++;assert.equal(action,'status');const source=JSON.parse(options.body).source;
+  const jobs=['row-A','row-B'].map((recordId,rowIndex)=>({requestId:'original-'+rowIndex,state:'succeeded',result:'恢复'+rowIndex,receipt:{kind:'text',text:'恢复'+rowIndex},source:{...source,operation:'standalone-optimization',fieldId:'instruction',inputDigest:digest,groupId:'original-group',createdAt:1,rowIndex,rowCount:2,recordId}}));
+  return Response.json({jobs:jobs.reverse()});
+ }}));
+ await recover.emit('click');assert.equal(queries,1);assert.equal(submits,0);assert.equal(a.history.begins,1);assert.equal(a.state().appliedIO.requestId,'original-group');
+ assert.deepEqual(a.state().appliedIO.rows.map(row=>[row.id,row.requestId,row.result]),[['row-A','original-0','恢复0'],['row-B','original-1','恢复1']]);assert.equal(a.state().appliedIO.rows[0].image.future.referenceId,'keep-A');assert.deepEqual(a.state().unknown,{kept:82});
+ a.nativeDocument.undo();a.release.sync();assert.equal(a.state().appliedIO,undefined);a.nativeDocument.redo();a.release.sync();assert.equal(a.state().appliedIO.requestId,'original-group');assert.equal(queries,1);assert.equal(submits,0);
+});
+test('recovery transport failure and incomplete groups never publish or replace original requests',async t=>{
+ const {a,recover}=recoverySetup(t,83);let fail=true;
+ t.after(bindBusinessService('generation',{request:async()=>{if(fail)throw new Error('read-only failure');return Response.json({jobs:[]});}}));
+ const before=JSON.stringify(a.state());await recover.emit('click');assert.match(a.status.textContent,/read-only failure/);assert.equal(JSON.stringify(a.state()),before);assert.equal(a.history.begins,0);
+ fail=false;await recover.emit('click');assert.match(a.status.textContent,/没有可恢复/);assert.equal(JSON.stringify(a.state()),before);assert.equal(a.history.begins,0);
+});
+test('delayed recovery response cannot publish after input or workflow invalidation',async t=>{
+ const {a,recover}=recoverySetup(t,84),digest=await generationInputDigest(slotSignature(a.node));let answer,started;
+ const pending=new Promise(resolve=>{started=resolve;});
+ t.after(bindBusinessService('generation',{request:async(action,options)=>{const source=JSON.parse(options.body).source;started();return new Promise(resolve=>{answer=()=>resolve(Response.json({jobs:['row-A','row-B'].map((recordId,rowIndex)=>({state:'succeeded',result:'原结果',receipt:{kind:'text',text:'原结果'},source:{...source,operation:'standalone-optimization',fieldId:'instruction',inputDigest:digest,groupId:'old',createdAt:1,rowIndex,rowCount:2,recordId}}))}));});}}));
+ const running=recover.emit('click');await pending;a.state().instruction='新要求';answer();await running;assert.equal(a.state().appliedIO,undefined);assert.equal(a.history.begins,0);assert.match(a.status.textContent,/输入或工作流已变化/);
+});
+
+test('incomplete, unknown and mismatched ledger groups remain read-only during recovery',async t=>{
+ const {a,recover}=recoverySetup(t,85),digest=await generationInputDigest(slotSignature(a.node));let variant='unknown',submits=0;
+ t.after(bindBusinessService('optimization',{request(){submits++;throw new Error('must not submit');}}));
+ t.after(bindBusinessService('generation',{request:async(action,options)=>{
+  assert.equal(action,'status');const source=JSON.parse(options.body).source;
+  let jobs=['row-A','row-B'].map((recordId,rowIndex)=>({requestId:'old-'+rowIndex,state:'succeeded',result:'old',receipt:{kind:'text',text:'old'},source:{...source,operation:'standalone-optimization',fieldId:'instruction',inputDigest:digest,groupId:'original',createdAt:1,rowIndex,rowCount:2,recordId}}));
+  if(variant==='unknown')jobs[1].state='unknown';else if(variant==='missing')jobs.pop();else if(variant==='receipt')jobs[1].receipt.text='forged';else jobs[1].source.recordId='wrong-row';
+  return Response.json({jobs});
+ }}));
+ const before=JSON.stringify(a.state());for(variant of ['unknown','missing','receipt','identity']){await recover.emit('click');assert.match(a.status.textContent,/尚未全部完成/);assert.equal(JSON.stringify(a.state()),before);assert.equal(a.history.begins,0);}assert.equal(submits,0);
 });

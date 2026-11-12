@@ -59,16 +59,18 @@ test('actual prompt parse releases its request after panel close without applyin
     assert.equal(JSON.stringify(f.table),before);assert.equal(f.binding.steps,0);
   }finally{f.panel.destroy();}
 });
-test('actual LLM review apply and undo use native document history and retain the proposal',async()=>{
+test('actual LLM explicit recovery and undo use native document history under the footer contract',async()=>{
   dom();const upstream={id:1,type:'PrimitiveString',widgets:[{name:'value',value:'合成测试文字'}]};
   const node={id:2,inputs:[{link:1}],outputs:[{},{}],properties:{llmStylePreview:{version:1,mode:'polish',model:'qwen',instruction:''}},graph:{links:{1:{origin_id:1,origin_slot:0}},getNodeById:()=>upstream,change(){}},setOutputData(){}};
   node.properties.llmStylePreview.ioResult={version:1,requestId:'synthetic-review',complete:true,provider:'qwen',signature:slotSignature(node),rows:[{id:'r',text:'合成测试文字',result:'经显式审阅的文本'}]};
   const binding=documentFor(()=>node.properties.llmStylePreview,next=>{node.properties.llmStylePreview=next;},value=>[value.mode,value.model,value.instruction]);
   const root=new Element(),source=new Element(),instruction=new Element(),select=new Element(),run=new Element(),result=new Element(),heading=new Element(),materialHint=new Element();materialHint.parentElement=new Element();result.querySelector=()=>heading;select.add=option=>select.append(option);
-  const release=bindIOPanel({node,nativeDocument:binding.doc,root,source,instruction,select,run,result,materialHint});
+  const release=bindIOPanel({node,nativeDocument:binding.doc,root,source,instruction,select,run,footer:result,materialHint});
   try{
-    const actions=result.children[2],apply=actions.children[0],undo=actions.children[1],event={preventDefault(){},stopPropagation(){}};
-    assert.equal(apply.disabled,false);await apply.onclick(event);assert.equal(binding.steps,1);assert.equal(node.properties.llmStylePreview.appliedIO.requestId,'synthetic-review');
-    await undo.onclick(event);assert.equal(node.properties.llmStylePreview.appliedIO,undefined);assert.equal(node.properties.llmStylePreview.ioResult.requestId,'synthetic-review');assert.equal(binding.steps,1);
+    const recover=root.children.find(child=>child.textContent==='恢复原结果');
+    assert.ok(recover);assert.equal(node.properties.llmStylePreview.appliedIO,undefined);
+    await recover.onclick({preventDefault(){},stopPropagation(){}});
+    assert.equal(binding.steps,1);assert.equal(node.properties.llmStylePreview.appliedIO.requestId,'synthetic-review');
+    binding.doc.undo();assert.equal(node.properties.llmStylePreview.appliedIO,undefined);assert.equal(node.properties.llmStylePreview.ioResult.requestId,'synthetic-review');assert.equal(binding.steps,1);
   }finally{release();binding.doc.dispose();}
 });

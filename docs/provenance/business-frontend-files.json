@@ -421,7 +421,7 @@
       "source": "web/llm_io_panel.mjs",
       "destination": "frontend/src/features/prompt/llm_io_panel.mjs",
       "sourceSha256": "62133e0e28f809abcf5b59cca42eb091cce6cbc57749f88b01f6134c4171c89e",
-      "destinationSha256": "776afac9ba9d987b90d473bd0f6581c1e0876e6b202f249a9b97eb20549a06d6",
+      "destinationSha256": "aa38afa7b49d028a83282bff112ba65af63c221ffe9a75efdfffb8b664f61676",
       "kind": "production-source",
       "changes": [
         "Selective formal-node closure; relocate by responsibility and rewrite package-relative imports/resources.",

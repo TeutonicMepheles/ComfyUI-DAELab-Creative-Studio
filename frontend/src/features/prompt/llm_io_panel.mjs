@@ -1,7 +1,7 @@
 import {modelSourceBadge,modelSourceKind} from '../models/source_badge.js';
 import {generationInputDigest} from '../generation/generation_session.js';
 import {ensureIdentity} from './prompt_optimization_model.mjs';
-import {assertBusinessService} from '../../contracts/business.js';
+import {assertBusinessService,businessJson} from '../../contracts/business.js';
 import {snapshotJson} from '../../contracts/json_snapshot.js';
 import {createTableButton} from '../../ui/table_controls.mjs';
 
@@ -41,6 +41,8 @@ export function bindIOPanel({node,nativeDocument=null,checkLocalTextModels,root,
         if(!written)throw new Error('结果未输出，请重新生成');
         message='';
     }
+    // Defer busy rendering until the shared async button has captured its idle state.
+    const recover=createTableButton('恢复原结果',()=>Promise.resolve().then(recoverProposal));root.append(recover);
     const sourceSection=source.closest('.llm-style-source');source.placeholder='输入原始文字，或连接文本节点';
     const imageSection=make('section','llm-style-section llm-style-image-source'),imageBox=make('div','llm-style-image-upload'),image=make('img','llm-style-image-preview'),imageText=make('span','llm-style-image-text','通过 Slot 连接参考图片');
     imageSection.append(make('span','llm-style-label','参考图片'),imageBox);imageBox.append(image,imageText);sourceSection.after(imageSection);materialHint.parentElement.hidden=true;
@@ -142,6 +144,7 @@ export function bindIOPanel({node,nativeDocument=null,checkLocalTextModels,root,
         for(const b of root.querySelectorAll('[data-mode]')){setProperty(b,'disabled',disabled||tableInput&&(pe?b.dataset.mode==='polish':b.dataset.mode==='reverse'));setProperty(b,'title',tableInput?(pe?'PE 按行处理参考图片':'表格输入仅支持文字优化'):'');}
         const valid=modes[mode],modelReady=canSubmitModel(modelCatalog.get(logicalModel(saved().model)));
         setProperty(run,'disabled',disabled||!!error||!valid||!modelReady);setProperty(run,'title','生成并输出优化结果');setProperty(run.lastChild,'textContent',busy?'生成中…':saved().appliedIO?'重新生成':'生成');setAttribute(run,'aria-busy',String(busy));
+        setProperty(recover,'disabled',disabled||!nativeDocument);
         const receipt=saved().appliedIO;
         setProperty(status,'textContent',error||message||(modelCatalog.get(logicalModel(saved().model))?.status==='unknown'?modelOptionPresentation(modelCatalog.get(logicalModel(saved().model))).statusLabel:'')||(receipt&&receipt.signature===signature()?(receipt.rows.some(row=>row.dialogueFallback)?'模型未完整保留对白，对应任务已按原文输出':'已输出优化结果'):rows.length&&!valid?'当前输入不支持此模式':rows.length?`${rows.length} 项输入 · 等待生成`:'请输入原始文字或连接输入'));
         task=[...generationTask.snapshot(),...(!busy&&error?[{id:'llm-input',label:waiting?'等待输入':'输入异常',state:waiting?'queued':'error',detail:error}]:[])];
@@ -165,6 +168,8 @@ export function bindIOPanel({node,nativeDocument=null,checkLocalTextModels,root,
             assertBusinessService('optimization');generationTask.start(rows.length,state.mode,provider);render();
             const proposal={version:1,requestId:crypto.randomUUID(),rows:[],mode:state.mode,instruction:state.instruction||'',signature:stamp,provider,complete:false};if(proposalTicket)nativeDocument?.releaseRequest(proposalTicket);proposalTicket=nativeDocument?.beginRequest(proposal.requestId)||null;
             if(!nativeDocument)throw new Error('原生编辑会话尚未就绪，未提交');const identity=ensureIdentity(graph,node),inputDigest=await generationInputDigest(stamp);if(!current())throw new Error('输入或工作流已变化，未提交');
+            const existing=await ledgerReports(identity);if(!current())throw new Error('输入或工作流已变化，未提交');
+            if(existing.some(report=>report.source?.operation==='standalone-optimization'&&report.source.inputDigest===inputDigest&&!['succeeded','failed','cancelled'].includes(report.state)))throw new Error('原请求尚未确定，请先恢复原结果；未创建新请求');
             if(!node.outputs?.[1]?.links?.length||node.outputs?.[0]?.links?.length)globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v1')]?.getPanelContext?.(root)?.prepareTextOutput?.();
             const createdAt=Date.now(),requests=rows.map((row,index)=>{const requestId=crypto.randomUUID(),ticket=nativeDocument.beginRequest(requestId,{recordId:String(row.id),fieldId:'instruction'});rowTickets.push(ticket);return {requestId,recordId:String(row.id),sourceScope:{...identity,nodeId:ticket.documentId,workflowSession:ticket.workflowSession,epoch:ticket.epoch,recordId:String(row.id),fieldId:'instruction',inputVersion:ticket.inputVersion,operation:'standalone-optimization',groupId:proposal.requestId,rowIndex:index,rowCount:rows.length,inputDigest,createdAt}};});nativeDocument.edit('记录优化请求',draft=>{draft.studioTextRequests={groupId:proposal.requestId,inputDigest,requests};});
             if(supported(provider))for(const row of rows){
@@ -178,6 +183,30 @@ export function bindIOPanel({node,nativeDocument=null,checkLocalTextModels,root,
             if(current()){proposal.complete=true;publishResult(proposal);generationTask.finish();}
         }catch(e){message='异常：'+e.message;generationTask.fail(e.message);}finally{for(const ticket of rowTickets)nativeDocument?.releaseRequest(ticket);busy=false;render();}
     });
+    async function ledgerReports(identity){
+        const reports=[];let offset=0;
+        do{const response=await businessJson('generation','status',{source:{...identity,nodeId:proposalTicket.documentId},limit:500,offset});reports.push(...response.jobs);offset=response.nextOffset;}while(Number.isSafeInteger(offset)&&offset>0);
+        return reports;
+    }
+    async function recoverProposal(){
+        if(disposed||busy||node.mode||!nativeDocument)return;
+        const stamp=signature(),graph=node.graph,rows=slotRows(node);busy=true;message='';
+        if(proposalTicket)nativeDocument.releaseRequest(proposalTicket);
+        proposalTicket=nativeDocument.beginRequest(crypto.randomUUID());render();
+        try{
+            let proposal=saved().ioResult;
+            if(!proposal?.complete||proposal.signature!==stamp){
+                const identity=ensureIdentity(graph,node),inputDigest=await generationInputDigest(stamp),reports=await ledgerReports(identity);
+                const matches=reports.filter(report=>report.source?.operation==='standalone-optimization'&&report.source.documentId===identity.documentId&&report.source.tableId===identity.tableId&&report.source.nodeId===proposalTicket.documentId&&report.source.fieldId==='instruction'&&report.source.inputDigest===inputDigest).sort((a,b)=>(a.source.createdAt||0)-(b.source.createdAt||0));
+                const latest=matches.at(-1);if(!latest)throw new Error('当前输入没有可恢复的结果；未提交新任务');
+                const group=matches.filter(report=>report.source.groupId===latest.source.groupId).sort((a,b)=>a.source.rowIndex-b.source.rowIndex);
+                if(group.length!==rows.length||group.some((report,index)=>report.source.rowCount!==rows.length||report.source.rowIndex!==index||report.source.recordId!==String(rows[index].id)||report.state!=='succeeded'||report.receipt?.kind!=='text'||report.receipt.text!==report.result))throw new Error('原任务尚未全部完成；请继续查询原结果，未重新提交');
+                proposal={version:1,requestId:latest.source.groupId,signature:stamp,provider:logicalModel(saved().model),mode:saved().mode,instruction:saved().instruction||'',complete:true,rows:rows.map((row,index)=>({...row,result:group[index].result,requestId:group[index].requestId,status:'completed'}))};
+            }
+            if(disposed||node.graph!==graph||node.mode||signature()!==stamp||!nativeDocument.canApply(proposalTicket))throw new Error('输入或工作流已变化，原结果只保留在账本');
+            publishResult(snapshotJson(proposal));message='原结果已恢复并输出；未提交新任务';
+        }catch(error){message=error.message;}finally{busy=false;render();}
+    }
     const retryProbe=createTableButton('\u91cd\u65b0\u68c0\u6d4b',()=>{});if(select.parentElement)select.after(retryProbe);else root.append(retryProbe);
     const stopRetry=bindModelProbeRetry(retryProbe,{catalog:modelCatalog,getModel:()=>logicalModel(saved().model),active:()=>!disposed&&root.isConnected,retry:()=>{const id=logicalModel(saved().model);return modelCatalog.retry(id,{active:()=>!disposed&&root.isConnected&&logicalModel(saved().model)===id});}});
     const unsubscribeModels=modelCatalog.subscribe(()=>{refreshModelOptions();render();});
