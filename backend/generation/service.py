@@ -2,6 +2,8 @@
 
 All durable facts live in JobLedger. Worker references are lifecycle handles only.
 """
+from ..providers.prompt_rewrite import checked_result
+
 import asyncio
 from contextlib import asynccontextmanager
 import json
@@ -467,7 +469,8 @@ class GenerationService:
             job = (await complete_blocking(self._transition, job, 'fetching'))
         def finish():
             if observation.text is not None:
-                receipt = {'kind': 'text', 'text': observation.text, 'metadata': observation.metadata}
+                text, review = checked_result(observation.text, job['snapshot']['input'])
+                receipt = {'kind': 'text', 'text': text, 'metadata': {**(observation.metadata or {}), **review}}
             else:
                 refs = []
                 for file in observation.files:
@@ -486,6 +489,9 @@ class GenerationService:
             return self._transition(current, 'succeeded', result=receipt)
         try:
             return await complete_blocking(finish)
+        except InvalidInput:
+            state = 'failed' if job['snapshot']['input'].get('rewrite') is not None else 'needs_recovery'
+            return (await complete_blocking(self._transition, (await complete_blocking(self.jobs.get, job['request_id'])), state, error_code='result_unverified'))
         except Exception:
             return (await complete_blocking(self._transition, (await complete_blocking(self.jobs.get, job['request_id'])), 'needs_recovery', error_code='result_unverified'))
 

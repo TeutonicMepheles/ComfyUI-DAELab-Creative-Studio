@@ -8,6 +8,7 @@ from ..contracts.errors import InvalidInput
 from .contracts import Observation, ProviderUnavailable, SubmissionRejected, SubmissionUncertain
 from .parameters import QWEN_MODEL
 from .canvas_instructions import INSTRUCTIONS, purpose_instruction, reverse_instruction
+from .prompt_rewrite import instructions as rewrite_instructions
 from .optimization_instructions import INSTRUCTIONS as TABLE_INSTRUCTIONS
 from .optimization_contract import validate_snapshot, suggestion
 
@@ -55,7 +56,9 @@ def qwen_request(data, image_bytes=None):
         text = json.dumps({'prompt': '' if mode == 'reverse' else data['source'], 'requirements': data['instruction']}, ensure_ascii=False)
         instructions = (reverse_instruction(data.get('purpose')) if mode == 'reverse'
                         else '\n'.join(filter(None, (INSTRUCTIONS, purpose_instruction(data.get('purpose'))))))
-        context, maximum = 8192, 768
+        if data.get('rewrite') is not None:
+            instructions = rewrite_instructions(data)
+        context, maximum = (16384, 3072) if data.get('rewrite') is not None else (8192, 768)
     body = {'model': QWEN_MODEL, 'system': instructions, 'prompt': text, 'stream': False, 'think': False, 'keep_alive': 0,
             'options': {'num_ctx': context, 'num_predict': maximum, 'temperature': .4}}
     if image_bytes is not None:

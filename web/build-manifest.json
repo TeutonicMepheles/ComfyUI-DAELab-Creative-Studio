@@ -1,6 +1,6 @@
 {
   "version": "0.1.0-dev.0",
-  "sourceFingerprint": "8532cda28624639fa9247adf02f609642a83cca1b08f78f5b4de2a5089874d00",
+  "sourceFingerprint": "745ce21bc0543aef816268dba2dcd2b954d621d2e6306a920078496312275bee",
   "files": [
     {
       "path": "AGENTS.md",
@@ -656,7 +656,7 @@
     },
     {
       "path": "features/prompt/README.md",
-      "sha256": "a4c91f0162414715c65805686f13fb91552bfb7f5446941794d2824cb45386fd"
+      "sha256": "7d92fb086da66933cebb7798eb5d98d8289d106b013d549f5935f2b7978de66c"
     },
     {
       "path": "features/prompt/llm_io_model.mjs",
@@ -664,11 +664,11 @@
     },
     {
       "path": "features/prompt/llm_io_panel.mjs",
-      "sha256": "aa38afa7b49d028a83282bff112ba65af63c221ffe9a75efdfffb8b664f61676"
+      "sha256": "f44626625532397c82682e2ab55d87dad25412dbc90be13ead47209d46caa234"
     },
     {
       "path": "features/prompt/llm_local_provider.mjs",
-      "sha256": "a94f454706d3a0a1d3f9647eac2ed9d0a8ee7bb6de431adfe89086f75049e958"
+      "sha256": "1b7c57904ca1f716b1c15a02fc518d9295147e9cd050525554f54dc50175fa7e"
     },
     {
       "path": "features/prompt/llm_model_picker.js",
@@ -676,15 +676,15 @@
     },
     {
       "path": "features/prompt/llm_slot_model.mjs",
-      "sha256": "ccc306ce4d74054f55ff9e46ac2c4331772bf58537789dfbfbb2be6cf1b311f1"
+      "sha256": "f612c3fc1c14b475ea16dfa4bb3a96b280b14c146e29749a7620257792e43c1f"
     },
     {
       "path": "features/prompt/llm_style_preview.css",
-      "sha256": "1d5f396ddd01f014e3ef3ab663e147ad91f0da945e42903709e52a7a3036e02f"
+      "sha256": "f7bacfd7ab180dc71cf447f0d25fbc50515df38788b32bafe100e311d9025832"
     },
     {
       "path": "features/prompt/llm_style_preview_panel.mjs",
-      "sha256": "5ecd4a629698491d6707f5dd4c50a50f7a352f7f54020eb273a6b8470b2f6b64"
+      "sha256": "fb8f630f1592ef9d429174e41fd483641c0eb7978c882217b370aa601e66fd44"
     },
     {
       "path": "features/prompt/llm_task_model.mjs",
@@ -731,6 +731,10 @@
       "sha256": "6e02666081e085f90fd7ee7989becd85bb79ed6a7d7b5065b8f3ef6511f087be"
     },
     {
+      "path": "features/prompt/rewrite_templates.js",
+      "sha256": "0129dc08d8a9ddad515d28e8b47abc20f78af4b18d884f461e8d5b26a3394dca"
+    },
+    {
       "path": "features/prompt/settings_popover_layout.js",
       "sha256": "f84d1ca031b562455585dea95b91e497d091b8b28ae03499b195a1d3ae3c9407"
     },
@@ -764,7 +768,7 @@
     },
     {
       "path": "features/prompt/text_templates.js",
-      "sha256": "7945f271783c63c5d874602dc6e1b1a827dbb2ee46e0d30ec914dda7bc8c5392"
+      "sha256": "44ffbe26908e81d75fa177f05b9bb40a3db58ee758c22df185fcbfb4f1d369b8"
     },
     {
       "path": "features/storyboard/AGENTS.md",
@@ -1084,7 +1088,7 @@
     },
     {
       "path": "integrations/comfyui/business/llm_style_preview.js",
-      "sha256": "f8692cd76e24d953fd8c5b165df9dfb2fbe10f7aeabffcc072503161264764f6"
+      "sha256": "dd65d3ed91c98f94f5c8cab8d9ee24dcda42d98753d08daeccd9f92240d09f6e"
     },
     {
       "path": "integrations/comfyui/business/model_catalog_discovery.mjs",
@@ -1216,7 +1220,7 @@
     },
     {
       "path": "integrations/comfyui/index.js",
-      "sha256": "220cae13029d58c39e02f3a1f82aa88234914ca5dc60204c1bc074a5c52d5fb4"
+      "sha256": "f7a869866671f2a7fdbe61769c278c490734cc5cbac08c56959f5bf56ebf7509"
     },
     {
       "path": "integrations/comfyui/media_exports.js",

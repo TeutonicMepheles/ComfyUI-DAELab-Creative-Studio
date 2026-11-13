@@ -122,3 +122,17 @@
 .dae-ui.llm-style-B .llm-style-footer button.llm-model-trigger{display:inline-flex;justify-content:flex-start;gap:7px;flex:0 1 auto;min-width:0;height:36px;min-height:36px;margin-left:0;padding:6px!important;border:0!important;border-radius:8px!important;background:transparent!important;color:var(--dae-text-muted)!important;font:400 14px/1.5 var(--dae-font-family)!important}
 .llm-model-trigger .generation-prompt-setting-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .llm-model-trigger .generation-model-icon{display:block;flex:none;width:18px;height:18px;background:currentColor;mask:var(--table-icon) center/contain no-repeat}
+
+.dae-ui.llm-style-B .llm-style-instruction-head{display:flex;gap:8px;flex-wrap:wrap;min-height:0}
+.dae-ui.llm-style-B .llm-style-instruction-head select{flex:1 1 130px;min-width:0;width:0}
+.dae-ui.llm-style-B .llm-style-instruction-head input{flex:1 1 100px;min-width:0;width:0}
+.dae-ui.llm-style-B .llm-rewrite-review{display:flex;flex-wrap:wrap;gap:8px;min-height:0;max-height:240px;overflow:auto}
+.dae-ui.llm-style-B .llm-rewrite-review[hidden]{display:none}
+.dae-ui.llm-style-B .llm-rewrite-review textarea{flex:1 0 100%;box-sizing:border-box;width:100%;height:96px;resize:vertical}
+.dae-ui.llm-style-B .llm-rewrite-details{flex:1 0 100%;white-space:pre-wrap;overflow-wrap:anywhere}
+
+.dae-ui.llm-style-B .llm-rewrite-review{flex:1 1 auto;max-height:none;align-content:flex-start}
+.dae-ui.llm-style-B .llm-rewrite-review>.llm-style-label{flex:1 0 100%}
+.dae-ui.llm-style-B .llm-rewrite-review .llm-rewrite-original{height:54px;min-height:54px;resize:none}
+
+.dae-ui.llm-style-B .llm-rewrite-actions{display:flex;gap:8px;flex:none}

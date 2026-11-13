@@ -1,3 +1,4 @@
+import {rewriteOptions} from './rewrite_templates.js';
 import {pairInputs,tableInput} from './llm_io_model.mjs';
 import {readTableSnapshot} from '../../application/table_exchange.mjs';
 const API=Symbol.for('DAELAB.CreativeCanvas.API.v1');
@@ -34,7 +35,7 @@ export function slotRows(node,seen=new Set()){
     return pairInputs(snapshots);
 }
 export function optimizationPurpose(state){return state.purpose==='video'&&state.videoTarget?'video-'+state.videoTarget:state.purpose;}
-export function slotSignature(node,seen){const s=node.properties?.llmStylePreview||{};return JSON.stringify([slotRows(node,seen),s.mode||'polish',s.instruction||'',s.model||'qwen',...(s.purpose?[optimizationPurpose(s)]:[])]);}
+export function slotSignature(node,seen){const s=node.properties?.llmStylePreview||{};return JSON.stringify([slotRows(node,seen),s.mode||'polish',s.instruction||'',s.model||'qwen',...(s.purpose?[optimizationPurpose(s)]:[]),...(s.rewriteStrength?[rewriteOptions(s)]:[])]);}
 export function appliedSnapshot(node,seen){
     const a=node.properties?.llmStylePreview?.appliedIO;
     if(node.mode||!a?.complete||a.signature!==slotSignature(node,seen))return {version:1,ready:false,texts:[]};

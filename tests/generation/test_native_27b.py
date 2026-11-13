@@ -53,6 +53,14 @@ class Native27BTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(response.status,200)
             self.assertEqual(captured[0]['input']['model'],QWEN_27B_MODEL)
             self.assertEqual(json.loads(response.body)['model'],QWEN_27B_MODEL)
+            rewrite={'version':1,'strength':'expand','task':'text2image'}
+            response=await handlers['/daelab/prompt-optimization/polish'](Request({'contractVersion':1,'requestId':'route27b-rewrite','model':QWEN_27B_MODEL,'mode':'polish','source':'White gift box','instruction':'Keep the subject','purpose':'image','rewrite':rewrite}))
+            self.assertEqual(response.status,200)
+            self.assertEqual(captured[-1]['input']['rewrite'],rewrite)
+            prepared=provider.build(captured[-1]['input'],[],'rewrite-graph')['graph']['save']['inputs']
+            self.assertEqual(prepared['max_length'],3072)
+            self.assertIn('added_details',prepared['prompt'])
+
             data={'entry':'canvas','model':QWEN_27B_MODEL,'mode':'polish','source':'White gift box','instruction':'Keep the subject'}
             graph=provider.build(data,[],'native27b')['graph']
             self.assertEqual(graph['save']['inputs']['profile'],'qwen27b')

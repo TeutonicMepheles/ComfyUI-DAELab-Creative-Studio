@@ -19,7 +19,7 @@ function bindTextGeneration(type,variant){
     }
     proto.onNodeCreated=function(...args){
         const result=created?.apply(this,args);
-        this.properties.llmStylePreview??={version:1,mode:'polish',purpose:'video',videoTarget:'seedance'};
+        this.properties.llmStylePreview??={version:1,mode:'polish',purpose:'image',rewriteStrength:'faithful',rewriteTask:'text2image',instruction:''};
         hideResultSockets(this);
         this.addInput('原文','STRING');this.addInput('参考图片','IMAGE');this.addInput('素材组','DAELAB_ASSETS');
         this.addInput('多维表格','STRING');this.addInput('其他输入','*');
@@ -35,7 +35,7 @@ function bindTextGeneration(type,variant){
     };
     function install(node){
         if(node.__llmStylePanel||!node.graph)return;
-        const nativeDocument=bindBusinessDocument(node,()=>node.properties.llmStylePreview,value=>{node.properties.llmStylePreview=value;node.graph?.change?.();},value=>({mode:value.mode,purpose:value.purpose,videoTarget:value.videoTarget,instruction:value.instruction,model:value.model,source:value.source}));
+        const nativeDocument=bindBusinessDocument(node,()=>node.properties.llmStylePreview,value=>{node.properties.llmStylePreview=value;node.graph?.change?.();},value=>({mode:value.mode,purpose:value.purpose,videoTarget:value.videoTarget,instruction:value.instruction,model:value.model,source:value.source,rewriteStrength:value.rewriteStrength,rewriteTask:value.rewriteTask,rewriteDuration:value.rewriteDuration}));
         const panel=createLLMStylePanel(node,variant,{nativeDocument,checkLocalTextModels});node.__llmStylePanel=panel;
         const panelHeight=()=>variant.height+(panel.root.classList.contains('has-task-list')?90:0);
         const widget=node.addDOMWidget('llm_style_preview','custom',panel.root,{serialize:false,hideOnZoom:false,getMinHeight:panelHeight,getHeight:panelHeight,getValue:()=>'',setValue:()=>panel.sync()});
