@@ -20,3 +20,5 @@ python -m unittest discover -s tests/unit -p "test_*.py" -v
 提示词列按钮的真实宿主回归：显式设置 `STUDIO_TEST_URL` 后运行 `node tests/browser/prompt_source_header.mjs`。验证指定/重复点击不弹窗、旧事件不复活、配置保留、两实例隔离、保存重开和画布缩放；仅访问回环 .local 宿主，生成请求全部拦截。
 
 连续上传回归：显式设置 `STUDIO_TEST_URL` 后运行 `node tests/browser/material_upload_add.mjs`。上传合成 PNG，检查初次/再次上传、删除后追加、保存重开、两实例和缩放下的固定“＋”入口；拦截生成请求，不执行模型。仅使用回环 .local 隔离宿主。
+
+时长左对齐回归：显式设置 `STUDIO_TEST_URL` 后运行 `node tests/browser/duration_left_alignment.mjs`。在真实生成节点中使用能力元数据替身，检查左侧无留白、滚轮/拖动/点击/末项、两实例隔离、保存重开及缩放；不执行生成。
