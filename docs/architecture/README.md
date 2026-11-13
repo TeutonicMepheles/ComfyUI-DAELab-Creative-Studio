@@ -3,6 +3,7 @@
 - `OWNERSHIP.md`：模块依赖与数据所有权。
 - `EDITING.md`：原生工作流、文档控制器、事务与异步结果。
 - `JOBS_ASSETS.md`、`ASSET_REGISTRATION.md`：任务账本、资产身份、结果验证。
+- [PROMPT_REWRITE.md](PROMPT_REWRITE.md)：模型模板、处理强度、审阅协议和来源。
 - `LOCAL_GENERATION.md`：本地提供方、执行与资源准入。
 - `FRONTEND_INTERACTION.md`：按任务选择相关 UI 章节及真实宿主验收。
 - `CONTRIBUTING_CONTROLS.md`：共享控件和生命周期。

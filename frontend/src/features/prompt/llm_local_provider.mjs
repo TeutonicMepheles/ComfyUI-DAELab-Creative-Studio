@@ -28,7 +28,7 @@ function tagChineseDialogue(source,lines){
     }
     return scene;
 }
-export async function optimizeRow(row,mode,instruction,{fetcher=businessFetch,model='qwen',requestId=crypto.randomUUID(),sourceScope,purpose}={}){
+export async function optimizeRow(row,mode,instruction,{fetcher=businessFetch,model='qwen',requestId=crypto.randomUUID(),sourceScope,purpose,rewrite}={}){
     model=({'qwen3.5:9b-q4_K_M':'qwen','gpt-6-luna':'gpt-6-luna',qwen:'qwen'})[model]||model;
     if(!['qwen','gpt-6-luna','qwen-image-2.1-pe','qwen3.8-27b-w4a8'].includes(model))throw new Error('不支持的模型提供者');
     if(model==='qwen-image-2.1-pe'&&mode!=='reverse')throw new Error('PE 需要参考图文本增强模式');
@@ -55,13 +55,15 @@ export async function optimizeRow(row,mode,instruction,{fetcher=businessFetch,mo
         else throw new Error('请先登录 Comfy 账户；GPT 文本生成使用 Comfy 积分');
         auth?.assertCurrent?.();
     }
-    const response=await fetcher('/daelab/prompt-optimization/polish',{method:'POST',headers,body:JSON.stringify({contractVersion:1,requestId,model,mode,purpose,source:row.text||'',instruction,imageDataUrl,...(sourceScope?{sourceScope}:{})})});
+    const response=await fetcher('/daelab/prompt-optimization/polish',{method:'POST',headers,body:JSON.stringify({contractVersion:1,requestId,model,mode,purpose,...(rewrite?{rewrite}:{}),source:row.text||'',instruction,imageDataUrl,...(sourceScope?{sourceScope}:{})})});
     const data=await response.json();
     if(!response.ok&&['qwen-image-2.1-pe','qwen3.8-27b-w4a8'].includes(model)&&data.error==='incomplete_text_response')throw new Error('本地模型输出未完成或达到长度上限，结果未应用');
     if(!response.ok)throw new Error(data.error||'模型请求失败，未自动重试');
     if(data.requestId!==requestId||typeof data.result!=='string'||!data.result.trim())throw new Error('返回结果无效，未自动重试');
     if(sourceScope){const same=Object.keys(sourceScope).every(key=>data.source?.[key]===sourceScope[key]);if(!same||data.state!=='succeeded'||data.receipt?.kind!=='text'||data.receipt.text!==data.result||!/^[a-f0-9]{64}$/.test(data.inputFingerprint||''))throw new Error('返回回执身份不一致，结果未应用');}
     let result=data.result;
+    const review=data.receipt?.metadata?.rewrite;
+    if(rewrite&&(!review||review.version!==1||!Array.isArray(review.added_details)||!Array.isArray(review.warnings)))throw new Error('缺少提示词审阅回执，结果未输出');
     if(mode==='polish'&&purpose==='video-seedance'){
         // Drop an added two-person roll call only when both descriptions recur in the scene.
         const cast=result.match(/^\s*(?:一个|一名|一位)([\p{Script=Han}]+?)(?:和|与)(?:一个|一名|一位)([\p{Script=Han}]+)。\s*/u);
@@ -74,12 +76,13 @@ export async function optimizeRow(row,mode,instruction,{fetcher=businessFetch,mo
             (_,speaker,curly,corner,straight)=>speaker+'{'+(curly??corner??straight)+'}');
     }
     let dialogueFallback=false;
-    if(lines.length&&!keepsSpokenLines(result,lines)){
+    if(rewrite&&lines.length&&!keepsSpokenLines(result,lines))throw new Error('模型未完整保留对白，结果未输出；请检查原任务');
+    if(!rewrite&&lines.length&&!keepsSpokenLines(result,lines)){
         result=tagChineseDialogue(result,spokenLines(result));
         if(!keepsSpokenLines(result,lines)){
             result=tagChineseDialogue(row.text,lines);
             dialogueFallback=true;
         }
     }
-    return {...row,result,...(dialogueFallback?{dialogueFallback}:{}),status:'completed',requestId,model:data.model,usage:data.usage};
+    return {...row,result,...(review?{review}:{}),...(dialogueFallback?{dialogueFallback}:{}),status:'completed',requestId,model:data.model,usage:data.usage};
 }

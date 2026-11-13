@@ -1,12 +1,10 @@
 # 提示词与 LLM 编辑
 
-文本生成顶部可切换视频提示词和图片提示词，默认视频。用途随工作流保存，并与每行处理要求一同用于润色或图片反推。
+文本生成按目标模型提供 Qwen Image / MiniMax H3 × 保真整理 / 生成扩写四个模板。任务模式独立选择，补充要求可编辑。新节点默认 Qwen Image 保真整理；旧模板、自定义要求及 Seedance 配置保持历史兼容，选择新模板才切换协议。
 
-图片反推从参考图的可见内容写起。图片用途描述单幅画面，视频用途按 Seedance 或 MiniMax H3 描述当前镜头。润色和反推分别保留各用途的处理要求草稿。镜头、动作和对白在文本节点整理；首尾帧的图片顺序和时间由生成节点提交时确定。
+新协议返回正文、新增细节与警告，先审阅后同意更改；只将校验通过的正文输出。切换模板、任务、输入或时长使旧建议失效。来源与任务边界见 [提示词改写契约](../../../../docs/architecture/PROMPT_REWRITE.md)。表格 AI 优化的动态引用合同不变。
 
-视频提示词在处理要求旁选择 Seedance（默认）或 MiniMax H3。切换时，处理要求框显示对应模型的模板；两个视频模型和图片用途分别保留编辑稿。生成时按当前任务提交框中显示的要求，包括该行连入的要求。图片提示词沿用原有的模板菜单。外部连线禁用内部正文编辑但保留草稿，断线恢复；空外部输入不回退草稿。模型来源胶囊读取共享目录的 provider。
-
-多维表格保留唯一提示词列：已选列的表头按钮打开整列模型配置，不取消指定；删除当前提示词列前需先将其他文本列设为提示词。
+多维表格保留唯一提示词列：表头按钮只设定该列为提示词，已选列点击不改动状态、不弹出模型配置。整列模型配置入口、事件和弹窗已移除；已有工作流的配置数据仍保留。删除当前提示词列前需先将其他文本列设为提示词。
 
 负责表格提示词引用、模板、单格覆盖、优化请求、逐行结果审阅以及独立 LLM 面板。
 
@@ -39,3 +37,7 @@ node --import ./tests/migrated_business/register.mjs --test tests/migrated_busin
 表格组合经 application/table_model.mjs 和 table_editor.mjs；通用引用菜单与内联控件归 ui。提示词列保留结构化片段、模板及单格覆盖，服务只提供可审阅结果。尚无单独页面，可在 [表格预览](../../../../dev/table/README.md) 检查真实提示词组件；优化服务在该页不可用，不代表两 LLM 宿主验收。
 
 Text model picker: llm_model_picker.ts adapts the existing native select through the shared generation settings popover; it preserves model IDs, availability and change events. B layout scrolls within text surfaces, hides the linked source editor and restores its draft on disconnect.
+
+文本节点的原文和处理要求不参与剩余高度压缩；处理要求至少保留五行可读区，空间不足时表单滚动，长文本在输入框内滚动。图片反推、旧处理要求和新补充要求共用布局。真实几何回归见 `tests/browser/requirements_layout.mjs`。
+
+生成时长选项从左侧开始排列和吸附，不为居中选择预留左侧空白。首次打开及恢复已保存值均保留实际时长，点击、滚轮和拖动继续按整数选项选择。

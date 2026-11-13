@@ -32,6 +32,7 @@ const REVERSE_INSTRUCTIONS = {
 };
 
 type PromptState = {
+    rewriteStrength?: string;
     mode?: string; purpose?: string; videoTarget?: string; instruction?: string;
     slotInstruction?: string; manualInstruction?: string; instructionDrafts?: Record<string,string>;
 };
@@ -56,6 +57,7 @@ function defaultInstruction(target: ReturnType<typeof instructionTarget>) {
 }
 
 export function processingInstruction(state: PromptState, rowInstruction?: string) {
+    if (state.rewriteStrength) return rowInstruction ?? state.instruction ?? '';
     const target = instructionTarget(state);
     if (state.slotInstruction !== undefined || rowInstruction !== undefined) {
         const linked = rowInstruction ?? '';
@@ -113,6 +115,7 @@ function polishInstruction(state: PromptState, target: ReturnType<typeof instruc
 
 export function changeInstructionTarget(state: PromptState, key: 'mode' | 'purpose' | 'videoTarget', value: string) {
     if (state[key] === value) return;
+    if (state.rewriteStrength) { state[key] = value; return; }
     const field = state.slotInstruction === undefined ? 'instruction' : 'manualInstruction';
     const drafts = state.instructionDrafts ??= {};
     const previous = instructionTarget(state);

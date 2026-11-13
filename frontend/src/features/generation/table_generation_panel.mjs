@@ -12,7 +12,7 @@ import {effectivePrompt,toColumnPrompt} from '../prompt/table_prompt_template.mj
 import {frameReferenceOptions,createReferenceMenu,materialReferenceLabel} from '../../application/table_reference_options.mjs';
 import {PROMPT_SETTINGS_TEMPLATE,createPromptSettingsBar,promptSettingsStyle,normalizeLocalGenerationConfig,generationModeLabels,generationModeChoice,generationSettingSpecs,generationParameterSpecs,generationModes,promptSettingSpecs,generationSettingWarning,createGenerationSetting,createGenerationParameters,createLocalVideoSizePicker,createLocalImageSizePicker,createSettingsPopover} from '../prompt/table_prompt_settings.mjs';
 import {prependGenerationModelIcon,generationModelLabel} from './generation_model_icons.mjs';
-import {promptGenerationOwner,applyColumnGenerationConfig,applyColumnFrameSources,applyTaskGenerationConfig} from './table_generation_model.mjs';
+import {applyTaskGenerationConfig} from './table_generation_model.mjs';
 import {getModelCatalog} from '../models/model_catalog.mjs';
 import {canSubmitModel,updateModelOption,modelOptionPresentation,bindModelProbeRetry} from '../models/model_catalog_ui.mjs';
 const el=(tag,parent,text)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;parent?.append(node);return node;};
@@ -75,7 +75,6 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
 .dae-ui .generation-form label{display:flex;flex-direction:column;gap:6px;min-width:0}
 .dae-ui .generation-form :is(input,select){box-sizing:border-box;width:100%;min-width:0;min-height:36px;font:inherit;color:var(--dae-text);background:var(--dae-surface);border:1px solid var(--dae-border-control);border-radius:6px;padding:6px}
 .dae-ui .generation-form [role=status]{white-space:pre-wrap;overflow-wrap:anywhere}
-.dae-ui.generation-column-settings input[type=checkbox]{width:20px;height:20px;min-height:20px;align-self:flex-start}
 .dae-ui .dae-prompt-ref[data-frame-role=first]{background:#544323;color:#ffe0a1}
 .dae-ui .dae-prompt-ref[data-frame-role=last]{background:#49395f;color:#e5caff}
 .dae-ui .dae-prompt-ref[data-frame-role][data-invalid=true]{background:#542e36;color:#ffd1d1}
@@ -83,17 +82,6 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
 .dae-ui .generation-model-loading{flex:none;margin-left:6px;animation:dae-model-spin 1s linear infinite}
 @keyframes dae-model-spin{to{transform:rotate(360deg)}}
 `+promptSettingsStyle+`
-.dae-ui.generation-column-settings .generation-column-toolbar{display:grid;grid-template-columns:68px minmax(0,1fr) 36px 32px;gap:6px;align-items:center;margin-bottom:22px}
-.dae-ui.generation-column-settings .generation-column-toolbar select{min-width:0;border:0;border-radius:9px;text-overflow:ellipsis}
-.dae-ui.generation-column-settings .generation-column-toolbar button{width:100%;min-height:36px;height:36px;padding:8px!important;justify-content:center}
-.dae-ui.generation-column-settings .generation-column-toolbar button[data-primary=true]{background:var(--dae-primary,#b8c4ff);color:var(--dae-on-primary,#202234)}
-.dae-ui.generation-column-settings .generation-column-toolbar button[aria-label=取消]{font-size:22px!important}
-.dae-ui.generation-column-settings details{margin-top:18px;color:var(--dae-text-muted)}
-.dae-ui.generation-column-settings summary{cursor:pointer}
-.dae-ui.generation-column-settings .generation-frame-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px}
-.dae-ui.generation-column-settings .generation-frame-columns label{margin:0;color:var(--dae-text-muted)}
-.dae-ui.generation-column-settings .generation-frame-columns small{grid-column:1/-1;color:var(--dae-text-muted)}
-.dae-ui.generation-column-settings [role=status]:not(:empty){margin-top:14px}
 `;
  const findField=id=>getTable().fields.find(f=>f.id===id);
  const configOwners=table=>new Set(table.fields.filter(field=>field?.generation&&(isGeneration(field)||field.id===promptSourceId(table))).map(field=>generationConfigField(table,field.id)));
@@ -344,84 +332,6 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
    });
   }
  }
- function openPromptColumn({detail:{fieldId,anchor}}){
-  closeSettings();closeFrames();closePromptSources();
-  const table=getTable(),prompt=findField(fieldId);if(!anchor||!prompt||promptSourceId(table)!==fieldId)return;
-  const owner=promptGenerationOwner(table,fieldId),baseline=JSON.stringify([owner?.id,owner?.generation,owner?.generationConfigRevision]);
-  const draft=structuredClone(owner?.generation||{version:1,kind:'video',model:LOCAL_VIDEO_MODEL,promptFieldId:fieldId,mode:'omni2video',settings:{width:512,height:288,duration:2,turbo:false,seed:-1}});
-  const frameColumns={...owner?.generationFrameColumns};
-  let parameterView=null;
-  let stopModelStatus=()=>{},stopProbeRetry=()=>{};
-  const menu=createSettingsPopover(anchor,prompt.name+' · 整列模型配置',()=>{stopModelStatus();stopProbeRetry();parameterView?.dispose();if(settingsMenu===menu)settingsMenu=null;},{placement:'above'});settingsMenu=menu;
-  const body=menu.root;body.classList.add('generation-column-settings','generation-parameters-popover');let schema=null,sequence=0,loading=false;
-  const active=()=>alive&&settingsMenu===menu&&body.isConnected;
-  const toolbar=el('div',body);toolbar.className='generation-column-toolbar';
-  const label=(name)=>{const input=el('select',toolbar);input.setAttribute('aria-label',name);return input;};
-  const kind=label('生成类型');for(const [id,name] of [['video','视频'],['image','图片']])kind.add(new Option(name,id));kind.value=draft.kind;
-  const model=label('模型'),settings=el('section',body),status=el('p',body);status.setAttribute('role','status');
-  const apply=button('应用全部',()=>{
-   try{
-    if(!active()||loading||!schema)return;
-    if(!canSubmitModel(modelCatalog.get(draft.model)))throw new Error('模型不可用，请重新检测');
-    const current=promptGenerationOwner(getTable(),fieldId);
-    if(JSON.stringify([current?.id,current?.generation,current?.generationConfigRevision])!==baseline)throw new Error('列配置已变化，请重新打开');
-    if(!canGenerate()||tasks.submitting)throw new Error('任务提交中，请稍后应用');
-    const inputs=[...settings.querySelectorAll('input,select')];if(inputs.some(input=>!input.reportValidity()))return;
-    for(const input of inputs)input.onchange?.();
-    const skip=new Set(getTable().records.filter(row=>protectedSettings(tasks.stateFor(row,current?.id||fieldId))).map(row=>row.id));
-    editor.change(t=>{applyColumnGenerationConfig(t,fieldId,draft,{skip});applyColumnFrameSources(t,fieldId,frameColumns,{skip});});
-    menu.close();refreshFrameTokens();refreshSettingBars();notify(skip.size?`已同步可编辑任务，保留 ${skip.size} 条执行、暂停或待恢复任务的配置`:'已应用整列全部行的模型配置');
-   }catch(error){status.textContent=error.message;}
-  },true);
-  tableIcon(apply,'check-line','应用全部');apply.title='应用全部：将模型配置应用到本列所有行（包括未勾选行）';
-  const cancel=button('×',()=>menu.close());cancel.setAttribute('aria-label','取消');cancel.title='取消';toolbar.append(apply,cancel);
-  function fillModels(){model.replaceChildren();refreshModelControl(model,generationModelIDs(draft.kind),draft.model);}
-  function drawSettings(){
-   const focusKey=settings.contains(document.activeElement)?document.activeElement.dataset.focusKey:null,expanded=settings.querySelector('details')?.open;
-   parameterView?.dispose();parameterView=null;settings.replaceChildren();if(!schema)return;
-   parameterView=createGenerationParameters(draft,schema,{
-    onMode:id=>{draft.mode=id;draft.settings={};applyGenerationModelDefaults(draft,schema);drawSettings();},
-    onSetting:(name,value)=>{if(value===undefined)delete draft.settings[name];else draft.settings[name]=value;if(name!=='duration'&&name!=='ratio')drawSettings();},
-    onSettings:values=>{Object.assign(draft.settings,values);drawSettings();},
-    showAttempts:false
-   });settings.append(parameterView);
-   const roles=generationFrameRoles(draft);
-   if(roles.length){
-    const columns=el('section');columns.className='generation-frame-columns';parameterView.firstElementChild.after(columns);
-    const fields=getTable().fields.filter(field=>['content','assets'].includes(field.type)&&field.presentation!=='prompt'&&field.id!==owner?.id);
-    for(const role of roles){
-     const name=role==='first'?'首帧图片列':'尾帧图片列',row=el('label',columns,name),select=el('select',row);select.setAttribute('aria-label',name);select.dataset.focusKey='frame-column:'+role;
-     const none=new Option('无','');select.add(new Option('保留逐行选择',''));select.add(none);for(const field of fields)select.add(new Option(field.name,field.id));
-     if(frameColumns[role]&&!fields.some(field=>field.id===frameColumns[role])){const missing=new Option('原图片列已删除，请重新选择',frameColumns[role]);missing.disabled=true;select.add(missing);}
-     select.value=frameColumns[role]||'';if(frameColumns[role]===null)none.selected=true;
-     select.onchange=()=>{frameColumns[role]=none.selected?null:select.value;};
-    }
-    el('small',columns,'每行取所选列的第一张图片，应用后仍可单独修改。');
-   }
-   const localVideo=isLocalVideoModel(draft.model);
-   const parameterNames=new Set(generationParameterSpecs(schema,draft.mode).map(spec=>spec.name));
-   const extras=generationSettingSpecs(schema,draft.mode).filter(spec=>!parameterNames.has(spec.name)&&(!localVideo||!['width','height'].includes(spec.name)));
-   if(extras.length){const more=el('details',settings);more.open=Boolean(expanded);el('summary',more,'更多设置');for(const spec of extras)more.append(createGenerationSetting(spec,draft,()=>{}));}
-   if(focusKey)settings.querySelector(`[data-focus-key="${CSS.escape(focusKey)}"]`)?.focus({preventScroll:true});
-  }
-  async function load({force=false}={}){
-   const token=++sequence;loading=true;schema=null;apply.disabled=true;parameterView?.dispose();parameterView=null;settings.replaceChildren();status.textContent='正在读取模型选项…';
-   try{
-    const caps=await catalogModelCapabilities(draft,{force,active:()=>active()&&token===sequence});if(!active()||token!==sequence)return;
-    if(!canSubmitModel(modelCatalog.get(draft.model)))throw new Error('模型不可用，请重新检测');
-    schema=caps.schema;applyGenerationModelDefaults(draft,schema);const modes=generationModes(schema,draft.kind),chosen=generationModeChoice(draft.mode,schema);
-    draft.mode=modes.includes(chosen)?chosen:modes[0]||'';
-    drawSettings();apply.disabled=!modes.length;status.textContent='';
-   }catch(error){if(active()&&token===sequence)status.textContent=error.message;}
-   finally{if(token===sequence)loading=false;}
-  }
-  kind.onchange=()=>{draft.kind=kind.value;draft.model=generationModelIDs(draft.kind)[0];draft.mode='';draft.settings={};fillModels();void load();};
-  model.onchange=()=>{draft.model=model.value;draft.mode='';draft.settings={};void load();};
-  fillModels();void load();
-  const retryProbe=button('重新检测',()=>{});status.after(retryProbe);
-  stopProbeRetry=bindModelProbeRetry(retryProbe,{catalog:modelCatalog,getModel:()=>draft.model,active,retry:()=>load({force:true})});
-  stopModelStatus=modelCatalog.subscribe(()=>{if(!active())return;stopProbeRetry.sync?.();refreshModelControl(model,generationModelIDs(draft.kind),draft.model);const entry=modelCatalog.get(draft.model);if(!canSubmitModel(entry)){apply.disabled=true;if(entry?.status==='unknown')status.textContent=modelOptionPresentation(entry).statusLabel;}else if(!schema&&!loading&&entry?.available)void load();});
- }
  function open(fieldId){
   fieldId=generationConfigField(getTable(),fieldId)?.id||fieldId;
   closeSettings();closePromptSources();
@@ -527,7 +437,6 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
  }
  const observer=new MutationObserver(decorate);if(observe)observer.observe(editor.root,{childList:true,subtree:true});
  const promptInput=refreshSettingBars;editor.root.addEventListener('input',promptInput);
- editor.root.addEventListener('dae-prompt-column-settings',openPromptColumn);
  decorate();
  return {reviewResult:tasks.reviewResult,stateFor:tasks.stateFor,projectedTable:tasks.projectedTable,tasks:tasks.tasks,generate:tasks.generate,generateBatch:tasks.generateBatch,pause:tasks.pause,interrupt:tasks.interrupt,resume:tasks.resume,chooseSetting,setKind,close(){closeFrames();closeSettings();closePromptSources();},refresh(){syncFrameTags();refreshFrameTokens();refreshSettingBars();},get submitting(){return tasks.submitting;},open,renderFrame,syncPromptChanges(table,before){
   if(noGenerationWork(table))return;
@@ -538,5 +447,5 @@ ${generationTaskStyle}.dae-ui .generation-form{display:flex;flex-direction:colum
   }
   syncGenerationConfigOwners(table,before);
   for(const field of configOwners(table))syncGenerationPromptMode(table,before,field.id,configPanels.get(field.id)?.draft||field.generation);
- },invalidate(){tasks.invalidate();closeFrames();closeSettings();closePromptSources();},destroy(){alive=false;tasks.destroy();closeFrames();closeSettings();closePromptSources();clearTimeout(promptSourceTimer);configPanels.clear();observer.disconnect();editor.root.removeEventListener('input',promptInput);editor.root.removeEventListener('dae-prompt-column-settings',openPromptColumn);style.remove();}};
+ },invalidate(){tasks.invalidate();closeFrames();closeSettings();closePromptSources();},destroy(){alive=false;tasks.destroy();closeFrames();closeSettings();closePromptSources();clearTimeout(promptSourceTimer);configPanels.clear();observer.disconnect();editor.root.removeEventListener('input',promptInput);style.remove();}};
 }

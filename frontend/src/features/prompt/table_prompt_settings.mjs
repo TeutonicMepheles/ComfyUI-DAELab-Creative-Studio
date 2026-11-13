@@ -96,9 +96,9 @@ export const promptSettingsStyle=`
 .dae-ui.generation-settings-popover .generation-parameter-choices button[aria-pressed=false]{background:transparent!important}
 .dae-ui:is(.generation-settings-popover,.generation-form) button[aria-pressed=false],.dae-ui .generation-form button[aria-pressed=false]{border-color:transparent!important;box-shadow:none}
 .dae-ui .generation-duration-viewport{--duration-width:48px;position:relative;min-width:0;overflow:hidden}
-.dae-ui .generation-duration-viewport:has(button)::before{content:"";position:absolute;inset-block:3px;left:50%;width:var(--duration-width);transform:translateX(-50%);border-radius:8px;background:color-mix(in srgb,var(--dae-surface-high,#303030) 88%,var(--dae-text,#ededed));pointer-events:none}
-.dae-ui.generation-settings-popover .generation-duration-choices{position:relative;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-inline:0;gap:2px;background:transparent;user-select:none;touch-action:pan-y pinch-zoom;overscroll-behavior-x:contain;mask-image:linear-gradient(to right,transparent,#000 15%,#000 85%,transparent)}
-.dae-ui .generation-duration-choices::before,.dae-ui .generation-duration-choices::after{content:'';flex:0 0 max(0px,calc(50% - var(--duration-width)/2 - 2px))}
+.dae-ui .generation-duration-viewport:has(button)::before{content:"";position:absolute;inset-block:3px;left:3px;width:var(--duration-width);border-radius:8px;background:color-mix(in srgb,var(--dae-surface-high,#303030) 88%,var(--dae-text,#ededed));pointer-events:none}
+.dae-ui.generation-settings-popover .generation-duration-choices{position:relative;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-inline:3px;gap:2px;background:transparent;user-select:none;touch-action:pan-y pinch-zoom;overscroll-behavior-x:contain;mask-image:linear-gradient(to right,#000 85%,transparent)}
+.dae-ui .generation-duration-choices::after{content:'';flex:0 0 max(0px,calc(100% - var(--duration-width) - 2px))}
 .dae-ui.generation-settings-popover .generation-duration-choices[data-dragging] button[aria-pressed]{cursor:grabbing}
 .dae-ui.generation-settings-popover .generation-duration-choices::-webkit-scrollbar{display:none}
 .dae-ui.generation-settings-popover .generation-duration-choices button[aria-pressed]{flex:0 0 var(--duration-width);min-width:0;white-space:nowrap;font-variant-numeric:tabular-nums;cursor:grab}
@@ -119,7 +119,7 @@ export const promptSettingsStyle=`
 .dae-ui.generation-settings-popover :focus-visible{outline:2px solid var(--dae-focus,#b8c4ff);outline-offset:-2px}
 .dae-ui.generation-settings-popover [role=status]{margin:0;color:var(--dae-text-muted,#bbb)}
 .dae-ui.generation-settings-popover [role=status]:empty{display:none}
-.dae-ui.generation-settings-popover:is(.generation-mode-popover,.generation-model-popover,.generation-parameters-popover:not(.generation-column-settings)){border:none;border-radius:12px;background:var(--dae-surface,#262626);box-shadow:0 4px 14px #0004}
+.dae-ui.generation-settings-popover:is(.generation-mode-popover,.generation-model-popover,.generation-parameters-popover){border:none;border-radius:12px;background:var(--dae-surface,#262626);box-shadow:0 4px 14px #0004}
 .dae-ui.generation-settings-popover:is(.generation-mode-popover,.generation-model-popover){width:200px;padding:4px;gap:3px}
 .dae-ui.generation-settings-popover.generation-model-popover{width:max-content;min-width:min(200px,100%)}
 .dae-ui.generation-mode-popover>strong{display:none}
@@ -278,27 +278,27 @@ export function createGenerationParameters(config,schema,{onMode,onSetting,onSet
    if(!seconds.length)continue;
    const buttons=group.children;
    let selected=seconds.indexOf(Number(value)),committed=Number(value),timer,sliding=false;
-   const center=index=>buttons[index].offsetLeft+(buttons[index].offsetWidth-group.clientWidth)/2;
-   const nearest=()=>buttons.length===1?0:Math.max(0,Math.min(buttons.length-1,Math.round((group.scrollLeft-center(0))/(buttons[1].offsetLeft-buttons[0].offsetLeft))));
+   const position=index=>buttons[index].offsetLeft-buttons[0].offsetLeft;
+   const nearest=()=>buttons.length===1?0:Math.max(0,Math.min(buttons.length-1,Math.round((group.scrollLeft-position(0))/(buttons[1].offsetLeft-buttons[0].offsetLeft))));
    function highlight(index){
     if(selected>=0)buttons[selected].setAttribute('aria-pressed','false');
     selected=index;buttons[index].setAttribute('aria-pressed','true');
    }
    function select(index,animate=false){
     clearTimeout(timer);highlight(index);
-    const left=center(index);
+    const left=position(index);
     sliding=animate&&Math.abs(group.scrollLeft-left)>1&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     group.scrollTo({left,behavior:sliding?'smooth':'instant'});
     if(seconds[index]!==committed){committed=seconds[index];onSetting(spec.name,committed);}
    }
    let drag=null,dragged=false;
    group.addEventListener('scroll',()=>{
-    if(sliding){if(Math.abs(group.scrollLeft-center(selected))<=1)sliding=false;return;}
+    if(sliding){if(Math.abs(group.scrollLeft-position(selected))<=1)sliding=false;return;}
     const index=nearest();if(index!==selected)highlight(index);
     clearTimeout(timer);
     if(!drag)timer=setTimeout(()=>{if(group.isConnected)select(nearest());},140);
    },{passive:true});
-   const sizeObserver=new ResizeObserver(()=>{if(!drag&&selected>=0)group.scrollLeft=center(selected);});
+   const sizeObserver=new ResizeObserver(()=>{if(!drag&&selected>=0)group.scrollLeft=position(selected);});
    sizeObserver.observe(group);cleanups.push(()=>{sizeObserver.disconnect();clearTimeout(timer);});
    group.addEventListener('pointerdown',event=>{
     if(!event.isPrimary||event.button!==0)return;

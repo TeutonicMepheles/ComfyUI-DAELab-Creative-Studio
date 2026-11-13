@@ -1,4 +1,5 @@
-import {TEXT_TEMPLATES,DEFAULT_TEXT_INSTRUCTION,changeInstructionTarget} from './text_templates.js';
+import {REWRITE_TEMPLATES,REWRITE_TASKS,chooseRewriteTemplate} from './rewrite_templates.js';
+import {DEFAULT_TEXT_INSTRUCTION,changeInstructionTarget} from './text_templates.js';
 import {stopCanvasPropagation} from '../../ui/list_editor_controls.mjs';
 import {bindIOPanel} from './llm_io_panel.mjs';
 import {createTableButton,tableTheme} from '../../ui/table_controls.mjs';
@@ -27,7 +28,9 @@ export function createLLMStylePanel(node,variant,{nativeDocument=null,checkLocal
     const releases=[],fields=[],buttons=[];let interaction=null,modelControl=null;
     const saved=()=>node.properties.llmStylePreview||={version:1,mode:'polish'};
     const write=(key,value,group=null)=>{if(nativeDocument)nativeDocument.edit('编辑 LLM 配置',draft=>{draft[key]=value;},{group});else{saved()[key]=value;node.graph?.change?.();}};
-    const switchTarget=(key,value)=>{if(nativeDocument)nativeDocument.edit('切换提示词模板',draft=>changeInstructionTarget(draft,key,value));else{changeInstructionTarget(saved(),key,value);node.graph?.change?.();}sync();};
+    const switchTarget=(key,value)=>{
+        if(saved().rewriteStrength&&key==='purpose'){const id=(value==='image'?'qwen-':'minimax-')+saved().rewriteStrength;if(nativeDocument)nativeDocument.edit('切换模型提示词模板',draft=>chooseRewriteTemplate(draft,id));else{chooseRewriteTemplate(saved(),id);node.graph?.change?.();}sync();return;}
+if(nativeDocument)nativeDocument.edit('切换提示词模板',draft=>changeInstructionTarget(draft,key,value));else{changeInstructionTarget(saved(),key,value);node.graph?.change?.();}sync();};
     const button=(label,fn,primary=false)=>{const b=createTableButton(label,fn,primary);buttons.push(b);return b;};
     const top=el('div','llm-style-top');const badge=el('span','llm-style-badge',variant.id);top.append(badge,el('span','llm-style-caption',variant.label.slice(2)),el('span','llm-style-preview-tag','样式预览'));if(variant.id!=='B')root.append(top);
     const tabs=el('div','llm-style-modes');tabs.setAttribute('role','group');tabs.setAttribute('aria-label','处理方式');
@@ -43,14 +46,24 @@ export function createLLMStylePanel(node,variant,{nativeDocument=null,checkLocal
     }
     function editor(label,key,fallback,cls){const section=el('label',`llm-style-section ${cls}`),caption=el('span','llm-style-label',label);section.append(caption);const input=el('textarea');input.setAttribute('aria-label',`${variant.id} ${label}`);input.spellcheck=false;input.value=saved()[key]??fallback;let group=null;input.addEventListener('focus',()=>{group=crypto.randomUUID();});input.addEventListener('blur',()=>{group=null;});input.addEventListener('input',()=>write(key,input.value,group));section.append(input);fields.push(input);const release=sharedFields?.bindCreativeField(input);if(release)releases.push(release);return {section,input,key,fallback,caption};}
     const source=editor('原始文字','source',variant.id==='B'?'':SOURCE,'llm-style-source');
-    const instruction=editor('处理要求','instruction',variant.id==='B'?DEFAULT_TEXT_INSTRUCTION:INSTRUCTION,'llm-style-instruction');
+    const instruction=editor(variant.id==='B'?'补充要求':'处理要求','instruction',variant.id==='B'?(saved().rewriteStrength?'':DEFAULT_TEXT_INSTRUCTION):INSTRUCTION,'llm-style-instruction');
     if(variant.id==='B'){
-        const templates=el('select');templates.setAttribute('aria-label','提示词模板');templates.add(new Option('选择模板（应用后可编辑）',''));
-        for(const template of TEXT_TEMPLATES)templates.add(new Option(template.label,template.id));
-        templates.addEventListener('change',()=>{const template=TEXT_TEMPLATES.find(item=>item.id===templates.value);if(!template||instruction.input.disabled||instruction.input.readOnly)return;instruction.input.value=template.text;instruction.input.dispatchEvent(new Event('input',{bubbles:true}));templates.value='';});
-        const target=el('select');target.setAttribute('aria-label','目标视频模型');target.add(new Option('Seedance','seedance'));target.add(new Option('MiniMax H3','minimax'));
+        const templates=el('select');templates.setAttribute('aria-label','提示词模板');const legacy=new Option('自定义（原配置）','');legacy.disabled=true;templates.add(legacy);
+        for(const template of REWRITE_TEMPLATES)templates.add(new Option(template.label,template.id));
+        const editRewrite=(label,fn)=>{if(nativeDocument)nativeDocument.edit(label,fn);else{fn(saved());node.graph?.change?.();}sync();};
+        templates.addEventListener('change',()=>{if(templates.value)editRewrite('切换模型提示词模板',draft=>chooseRewriteTemplate(draft,templates.value));});
+        const task=el('select');task.setAttribute('aria-label','生成任务');
+        for(const entry of REWRITE_TASKS){const option=new Option(entry.label,entry.id);option.dataset.purpose=entry.purpose;task.add(option);}
+        task.addEventListener('change',()=>editRewrite('切换生成任务',draft=>{draft.rewriteTask=task.value;}));
+        const duration=el('input');duration.type='number';duration.min='0.01';duration.max='120';duration.step='0.01';duration.placeholder='时长（秒）';duration.setAttribute('aria-label','目标视频时长（秒）');
+        duration.addEventListener('change',()=>editRewrite('设置目标视频时长',draft=>{if(duration.value==='')delete draft.rewriteDuration;else draft.rewriteDuration=Number(duration.value);}));
+        const target=el('select');target.setAttribute('aria-label','目标视频模型');target.add(new Option('Seedance（历史配置）','seedance'));target.add(new Option('MiniMax H3','minimax'));
         target.addEventListener('change',()=>switchTarget('videoTarget',target.value));
-        const heading=el('div','llm-style-instruction-head');heading.append(instruction.caption,target,templates);instruction.section.prepend(heading);fields.push(target,templates);
+        const heading=el('div','llm-style-instruction-head');heading.append(templates,target);
+        const configuration=el('div','llm-style-instruction-head');configuration.append(task,duration);
+        instruction.section.prepend(heading,configuration);fields.push(target,templates,task,duration);
+        for(const control of [templates,task,duration,target]){const release=sharedFields.bindCreativeField(control);if(release)releases.push(release);}
+
     }
     if(nativeDocument)for(const field of [source,instruction])releases.push(bindUnfocusedHistoryGuard(field.input,{isCurrent:()=>nativeDocument.isCurrent()}));
     const materials=el('div','llm-style-materials');

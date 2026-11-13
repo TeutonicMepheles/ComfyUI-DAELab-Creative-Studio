@@ -4,6 +4,7 @@ import uuid
 
 from .native import NativeProvider
 from .canvas_instructions import reverse_instruction
+from .prompt_rewrite import instructions as rewrite_instructions
 from .contracts import ProviderUnavailable
 from ..contracts.errors import InvalidInput
 
@@ -43,7 +44,7 @@ class NativeTextProvider(NativeProvider):
         if any(not isinstance(v, str) or len(v) > limit for v, limit in ((source, 12000), (instruction, 4000))):
             raise InvalidInput('PE input text is invalid or too long.')
         models = self.inventory.descriptions(['text_encoders'])
-        purpose = reverse_instruction(data.get('purpose'))
+        purpose = rewrite_instructions(data) if data.get('rewrite') is not None else reverse_instruction(data.get('purpose'))
         graph = self._graph(models, '\n\n'.join(v for v in (source, instruction, purpose) if v.strip()), self.media_input(media[0]))
         return {'kind': 'text', 'model': self.model, 'models': models, 'graph': graph,
                 'native_task_id': str(uuid.uuid5(uuid.NAMESPACE_URL, 'creative-studio:' + request_id))}

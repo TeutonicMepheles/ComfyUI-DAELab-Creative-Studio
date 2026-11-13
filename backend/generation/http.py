@@ -142,6 +142,8 @@ def routes(service):
             data = {key: payload.get(key) for key in ('model', 'mode', 'source', 'instruction')}
             if 'purpose' in payload:
                 data['purpose'] = payload['purpose']
+            if 'rewrite' in payload:
+                data['rewrite'] = payload['rewrite']
             data.update(entry='canvas', assets=assets)
             source_scope = payload.get('sourceScope')
             if source_scope is not None and not isinstance(source_scope, dict):

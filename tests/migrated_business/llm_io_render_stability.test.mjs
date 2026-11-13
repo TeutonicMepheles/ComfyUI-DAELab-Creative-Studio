@@ -306,3 +306,17 @@ test('incomplete, unknown and mismatched ledger groups remain read-only during r
  }}));
  const before=JSON.stringify(a.state());for(variant of ['unknown','missing','receipt','identity']){await recover.emit('click');assert.match(a.status.textContent,/尚未全部完成/);assert.equal(JSON.stringify(a.state()),before);assert.equal(a.history.begins,0);}assert.equal(submits,0);
 });
+
+
+test('model rewrite stages a detached proposal, requires acceptance and discards stale suggestions',async t=>{
+ const env=environment(t),a=panel(t,env,90),b=panel(t,env,91);
+ Object.assign(a.state(),{purpose:'image',rewriteStrength:'expand',rewriteTask:'text2image'});
+ const releaseGeneration=bindBusinessService('generation',{request:async()=>Response.json({jobs:[],nextOffset:null})});
+ const releaseOptimization=bindBusinessService('optimization',{request(_action,options){const body=JSON.parse(options.body);return Promise.resolve(Response.json({requestId:body.requestId,result:'reviewed cat',source:body.sourceScope,state:'succeeded',receipt:{kind:'text',text:'reviewed cat',metadata:{rewrite:{version:1,added_details:['warm light'],warnings:[]}}},inputFingerprint:'a'.repeat(64)}));}});
+ t.after(()=>{releaseOptimization();releaseGeneration();});
+ await a.run.emit('click');const review=a.status.beforeNode,accept=review.afterNode.children.find(el=>el.textContent==='同意更改');
+ assert.equal(review.hidden,false);assert.equal(a.state().appliedIO,undefined);assert.equal(b.state().appliedIO,undefined);
+ await accept.emit('click');assert.equal(a.state().appliedIO.rows[0].result,'reviewed cat');assert.equal(review.hidden,true);
+ await a.run.emit('click');assert.equal(review.hidden,false);a.state().rewriteStrength='faithful';env.tick();assert.equal(review.hidden,true);
+ await accept.emit('click');assert.notEqual(a.state().appliedIO.signature,slotSignature(a.node));
+});

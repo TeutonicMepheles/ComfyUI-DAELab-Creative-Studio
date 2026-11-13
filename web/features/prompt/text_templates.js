@@ -41,6 +41,8 @@ function defaultInstruction(target) {
     return [...lines, DEFAULT_TEXT_INSTRUCTION].join('\n');
 }
 export function processingInstruction(state, rowInstruction) {
+    if (state.rewriteStrength)
+        return rowInstruction ?? state.instruction ?? '';
     const target = instructionTarget(state);
     if (state.slotInstruction !== undefined || rowInstruction !== undefined) {
         const linked = rowInstruction ?? '';
@@ -102,6 +104,10 @@ function polishInstruction(state, target) {
 export function changeInstructionTarget(state, key, value) {
     if (state[key] === value)
         return;
+    if (state.rewriteStrength) {
+        state[key] = value;
+        return;
+    }
     const field = state.slotInstruction === undefined ? 'instruction' : 'manualInstruction';
     const drafts = state.instructionDrafts ??= {};
     const previous = instructionTarget(state);

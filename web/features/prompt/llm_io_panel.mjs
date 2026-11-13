@@ -1,3 +1,4 @@
+import {rewriteOptions,rewriteTemplateId} from './rewrite_templates.js';
 import {modelSourceBadge,modelSourceKind} from '../models/source_badge.js';
 import {generationInputDigest} from '../generation/generation_session.js';
 import {ensureIdentity} from './prompt_optimization_model.mjs';
@@ -81,10 +82,21 @@ export function bindIOPanel({node,nativeDocument=null,checkLocalTextModels,root,
     const generationTask=createLLMTask();
     const taskRail=make('div','llm-io-task-rail');taskRail.setAttribute('role','tablist');taskRail.setAttribute('aria-label','优化任务');root.append(taskRail);
     let selectedId='',railStamp='';
-    let busy=false,disposed=false,message='',task=[],lastInput='',proposalTicket=null;
+    let busy=false,disposed=false,message='',task=[],lastInput='',proposalTicket=null,stagedProposal=null;
+    const review=make('section','llm-rewrite-review'),reviewOriginal=make('textarea','llm-rewrite-original'),reviewText=make('textarea',''),reviewDetails=make('div','llm-rewrite-details');reviewOriginal.readOnly=true;reviewOriginal.setAttribute('aria-label','审阅原文');reviewText.readOnly=true;reviewText.setAttribute('aria-label','待确认提示词');
+    const accept=createTableButton('同意更改',()=>{if(stagedProposal){publishResult(stagedProposal);stagedProposal=null;render();}});
+    const dismiss=createTableButton('放弃',()=>{stagedProposal=null;message='';render();});const reviewActions=make('div','llm-rewrite-actions');reviewActions.append(accept,dismiss);
+    review.append(make('span','llm-style-label','原文'),reviewOriginal,make('span','llm-style-label','优化结果'),reviewText,reviewDetails);status.before(review);review.after(reviewActions);
+    function presentProposal(proposal){if(saved().rewriteStrength){stagedProposal=snapshotJson(proposal);message='请审阅后同意更改';}else publishResult(proposal);}
     function signature(){try{return slotSignature(node);}catch{return '';}}
     function render(){
         if(disposed)return;
+        if(stagedProposal&&stagedProposal.signature!==signature()){stagedProposal=null;message='输入已变化，原建议未应用';}
+        setProperty(review,'hidden',!stagedProposal);setProperty(reviewActions,'hidden',!stagedProposal);setProperty(accept,'disabled',busy||!!node.mode);setProperty(dismiss,'disabled',busy||!!node.mode);
+        const body=root.querySelector('.llm-style-body');if(body)setProperty(body,'hidden',!!stagedProposal);
+        setProperty(reviewOriginal,'value',stagedProposal?.rows.map(row=>row.text||'参考图片').join('\n\n')||'');
+        setProperty(reviewText,'value',stagedProposal?.rows.map(row=>row.result).join('\n\n')||'');
+        setProperty(reviewDetails,'textContent',stagedProposal?.rows.flatMap((row,index)=>[...(row.review?.added_details||[]).map(text=>`${index+1} · 新增：${text}`),...(row.review?.warnings||[]).map(text=>`${index+1} · 注意：${text}`)]).join('\n')||'');
         let rows=[],error='',waiting=false;try{rows=slotRows(node);}catch(e){error=e.message;waiting=!!e.waiting;}
         setProperty(select,'value',logicalModel(saved().model));
         const tableInput=hasTableInput(node),pe=logicalModel(saved().model)==='qwen-image-2.1-pe',tableMode=pe?'reverse':'polish',inputKey=JSON.stringify([tableInput,rows,pe]),modes=availableModes(rows);
@@ -139,8 +151,17 @@ export function bindIOPanel({node,nativeDocument=null,checkLocalTextModels,root,
         for(const control of [source,instruction,select])setProperty(control,'disabled',disabled||control===source&&linked);
         setProperty(instruction,'readOnly',saved().slotInstruction!==undefined);
         const videoPurpose=saved().purpose!=='image';
-        for(const picker of root.querySelectorAll('[aria-label="提示词模板"]')){setProperty(picker,'hidden',videoPurpose||reverse);setProperty(picker,'disabled',disabled||saved().slotInstruction!==undefined);}
-        for(const target of root.querySelectorAll('[aria-label="目标视频模型"]')){setProperty(target,'hidden',!videoPurpose);setProperty(target,'value',saved().videoTarget||'seedance');setProperty(target,'disabled',disabled);}
+        for(const picker of root.querySelectorAll('[aria-label="提示词模板"]')){setProperty(picker,'hidden',false);setProperty(picker,'value',rewriteTemplateId(saved()));setProperty(picker,'disabled',disabled);}
+        for(const target of root.querySelectorAll('[aria-label="目标视频模型"]')){setProperty(target,'hidden',!videoPurpose||!!saved().rewriteStrength);setProperty(target,'value',saved().videoTarget||'seedance');setProperty(target,'disabled',disabled);}
+        for(const picker of root.querySelectorAll('[aria-label="生成任务"]')){
+            setProperty(picker,'hidden',!saved().rewriteStrength);setProperty(picker,'disabled',disabled);
+            for(const option of picker.options){const hidden=option.dataset.purpose!==(videoPurpose?'video':'image');setProperty(option,'hidden',hidden);setProperty(option,'disabled',hidden);}
+            setProperty(picker,'value',saved().rewriteTask||(videoPurpose?'text2video':'text2image'));
+        }
+        for(const field of root.querySelectorAll('[aria-label="目标视频时长（秒）"]')){
+            setProperty(field,'hidden',!saved().rewriteStrength||!videoPurpose||!['frames2video','lastImage2video'].includes(saved().rewriteTask));
+            setProperty(field,'disabled',disabled);setProperty(field,'value',saved().rewriteDuration??'');
+        }
         for(const b of root.querySelectorAll('[data-mode]')){setProperty(b,'disabled',disabled||tableInput&&(pe?b.dataset.mode==='polish':b.dataset.mode==='reverse'));setProperty(b,'title',tableInput?(pe?'PE 按行处理参考图片':'表格输入仅支持文字优化'):'');}
         const valid=modes[mode],modelReady=canSubmitModel(modelCatalog.get(logicalModel(saved().model)));
         setProperty(run,'disabled',disabled||!!error||!valid||!modelReady);setProperty(run,'title','生成并输出优化结果');setProperty(run.lastChild,'textContent',busy?'生成中…':saved().appliedIO?'重新生成':'生成');setAttribute(run,'aria-busy',String(busy));
@@ -166,6 +187,7 @@ export function bindIOPanel({node,nativeDocument=null,checkLocalTextModels,root,
             }
             if(!canSubmitModel(modelCatalog.get(provider)))throw new Error('所选模型不可用，请检查模型文件或选择其他模型');
             assertBusinessService('optimization');generationTask.start(rows.length,state.mode,provider);render();
+            const config=rewriteOptions(state);if(config&&['frames2video','lastImage2video'].includes(config.task)&&!(config.duration>0))throw new Error('请填写实际目标视频时长');
             const proposal={version:1,requestId:crypto.randomUUID(),rows:[],mode:state.mode,instruction:state.instruction||'',signature:stamp,provider,complete:false};if(proposalTicket)nativeDocument?.releaseRequest(proposalTicket);proposalTicket=nativeDocument?.beginRequest(proposal.requestId)||null;
             if(!nativeDocument)throw new Error('原生编辑会话尚未就绪，未提交');const identity=ensureIdentity(graph,node),inputDigest=await generationInputDigest(stamp);if(!current())throw new Error('输入或工作流已变化，未提交');
             const existing=await ledgerReports(identity);if(!current())throw new Error('输入或工作流已变化，未提交');
@@ -176,11 +198,11 @@ export function bindIOPanel({node,nativeDocument=null,checkLocalTextModels,root,
                 if(!current())throw new Error('输入或节点状态已改变，已停止后续提交');
                 message=`${modelLabel(provider)} 处理中 ${proposal.rows.length+1}/${rows.length} · 并发 1`;render();
                 const reference=requests[proposal.rows.length],ticket=rowTickets[proposal.rows.length];
-                const output=await optimizeRow(row,state.mode,processingInstruction(state,row.instruction),{purpose:optimizationPurpose(state),model:provider,requestId:reference.requestId,sourceScope:reference.sourceScope});if(!nativeDocument.canApply(ticket))throw new Error('输入或工作流已变化，结果保留在账本中');
+                const output=await optimizeRow(row,state.mode,processingInstruction(state,row.instruction),{rewrite:rewriteOptions(state),purpose:optimizationPurpose(state),model:provider,requestId:reference.requestId,sourceScope:reference.sourceScope});if(!nativeDocument.canApply(ticket))throw new Error('输入或工作流已变化，结果保留在账本中');
                 if(!current())throw new Error('输入或节点状态已改变，结果未应用');
                 proposal.rows.push(output);generationTask.completeRow();render();
             }
-            if(current()){proposal.complete=true;publishResult(proposal);generationTask.finish();}
+            if(current()){proposal.complete=true;presentProposal(proposal);generationTask.finish();}
         }catch(e){message='异常：'+e.message;generationTask.fail(e.message);}finally{for(const ticket of rowTickets)nativeDocument?.releaseRequest(ticket);busy=false;render();}
     });
     async function ledgerReports(identity){
@@ -201,10 +223,10 @@ export function bindIOPanel({node,nativeDocument=null,checkLocalTextModels,root,
                 const latest=matches.at(-1);if(!latest)throw new Error('当前输入没有可恢复的结果；未提交新任务');
                 const group=matches.filter(report=>report.source.groupId===latest.source.groupId).sort((a,b)=>a.source.rowIndex-b.source.rowIndex);
                 if(group.length!==rows.length||group.some((report,index)=>report.source.rowCount!==rows.length||report.source.rowIndex!==index||report.source.recordId!==String(rows[index].id)||report.state!=='succeeded'||report.receipt?.kind!=='text'||report.receipt.text!==report.result))throw new Error('原任务尚未全部完成；请继续查询原结果，未重新提交');
-                proposal={version:1,requestId:latest.source.groupId,signature:stamp,provider:logicalModel(saved().model),mode:saved().mode,instruction:saved().instruction||'',complete:true,rows:rows.map((row,index)=>({...row,result:group[index].result,requestId:group[index].requestId,status:'completed'}))};
+                proposal={version:1,requestId:latest.source.groupId,signature:stamp,provider:logicalModel(saved().model),mode:saved().mode,instruction:saved().instruction||'',complete:true,rows:rows.map((row,index)=>({...row,result:group[index].result,requestId:group[index].requestId,status:'completed',review:group[index].receipt?.metadata?.rewrite}))};
             }
             if(disposed||node.graph!==graph||node.mode||signature()!==stamp||!nativeDocument.canApply(proposalTicket))throw new Error('输入或工作流已变化，原结果只保留在账本');
-            publishResult(snapshotJson(proposal));message='原结果已恢复并输出；未提交新任务';
+            presentProposal(snapshotJson(proposal));message=saved().rewriteStrength?'原结果已恢复，请审阅后同意更改':'原结果已恢复并输出；未提交新任务';
         }catch(error){message=error.message;}finally{busy=false;render();}
     }
     const retryProbe=createTableButton('\u91cd\u65b0\u68c0\u6d4b',()=>{});if(select.parentElement)select.after(retryProbe);else root.append(retryProbe);

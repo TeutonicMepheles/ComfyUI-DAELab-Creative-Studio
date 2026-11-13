@@ -107,11 +107,13 @@
 .dae-ui.llm-style-B .llm-model-source[data-source=local]{color:var(--dae-success,#a2d5ba);background:color-mix(in srgb,var(--dae-success,#a2d5ba) 18%,transparent)}
 .dae-ui.llm-style-B .llm-model-source[data-source=api]{color:var(--dae-info,#b8c4ff);background:color-mix(in srgb,var(--dae-info,#b8c4ff) 18%,transparent)}
 
-/* Keep the editor surfaces fixed in the node; only their text scrolls. */
-.dae-ui.llm-style-B .llm-style-body{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);min-height:0;overflow:hidden!important}
-.dae-ui.llm-style-B .llm-style-column{min-width:0;min-height:0;overflow:hidden}
-.dae-ui.llm-style-B :is(.llm-style-source,.llm-style-instruction){flex:1 1 0;min-height:0;overflow:hidden}
-.dae-ui.llm-style-B :is(.llm-style-source,.llm-style-instruction) textarea{flex:1 1 0;height:0!important;min-height:0!important;resize:none;overflow:auto;overscroll-behavior:contain}
+/* Form contents keep readable editor heights; only the form and text scroll.
+   Image reverse and historical requirements share this layout. */
+.dae-ui.llm-style-B .llm-style-body{display:block;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable;scroll-padding-block:8px}
+.dae-ui.llm-style-B .llm-style-column{min-width:0;min-height:min-content;overflow:visible}
+.dae-ui.llm-style-B :is(.llm-style-source,.llm-style-instruction){flex:none;min-height:min-content;overflow:visible}
+.dae-ui.llm-style-B .llm-style-source textarea{flex:none;height:134px;min-height:134px;resize:vertical;overflow:auto}
+.dae-ui.llm-style-B .llm-style-instruction textarea{flex:none;height:138px;min-height:138px;resize:vertical;overflow:auto}
 .dae-ui.llm-style-B :is(.llm-style-source,.llm-style-instruction) textarea:focus-visible{outline-offset:-2px}
 .dae-ui.llm-style-B .llm-style-label{flex:none}
 .llm-style-instruction-head{display:flex;align-items:center;gap:8px;flex:none;min-height:32px;min-width:0}
@@ -122,3 +124,17 @@
 .dae-ui.llm-style-B .llm-style-footer button.llm-model-trigger{display:inline-flex;justify-content:flex-start;gap:7px;flex:0 1 auto;min-width:0;height:36px;min-height:36px;margin-left:0;padding:6px!important;border:0!important;border-radius:8px!important;background:transparent!important;color:var(--dae-text-muted)!important;font:400 14px/1.5 var(--dae-font-family)!important}
 .llm-model-trigger .generation-prompt-setting-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .llm-model-trigger .generation-model-icon{display:block;flex:none;width:18px;height:18px;background:currentColor;mask:var(--table-icon) center/contain no-repeat}
+
+.dae-ui.llm-style-B .llm-style-instruction-head{display:flex;gap:8px;flex-wrap:wrap;min-height:0}
+.dae-ui.llm-style-B .llm-style-instruction-head select{flex:1 1 130px;min-width:0;width:0}
+.dae-ui.llm-style-B .llm-style-instruction-head input{flex:1 1 100px;min-width:0;width:0}
+.dae-ui.llm-style-B .llm-rewrite-review{display:flex;flex-wrap:wrap;gap:8px;min-height:0;max-height:240px;overflow:auto}
+.dae-ui.llm-style-B .llm-rewrite-review[hidden]{display:none}
+.dae-ui.llm-style-B .llm-rewrite-review textarea{flex:1 0 100%;box-sizing:border-box;width:100%;height:96px;resize:vertical}
+.dae-ui.llm-style-B .llm-rewrite-details{flex:1 0 100%;white-space:pre-wrap;overflow-wrap:anywhere}
+
+.dae-ui.llm-style-B .llm-rewrite-review{flex:1 1 auto;max-height:none;align-content:flex-start}
+.dae-ui.llm-style-B .llm-rewrite-review>.llm-style-label{flex:1 0 100%}
+.dae-ui.llm-style-B .llm-rewrite-review .llm-rewrite-original{height:54px;min-height:54px;resize:none}
+
+.dae-ui.llm-style-B .llm-rewrite-actions{display:flex;gap:8px;flex:none}
