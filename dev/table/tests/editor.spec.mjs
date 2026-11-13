@@ -129,15 +129,18 @@ test('structured clipboard exchange is explicit and a late upload cannot change 
 });
 
 
-test('generation settings keep their click target when the prompt hint appears',async({page})=>{
+test('prompt designation keeps its hover target without reopening removed generation settings',async({page})=>{
  for(const name of ['A','B']){
   const panel=instance(page,name),settings=panel.locator('.table-prompt-toggle[aria-pressed="true"]').first();
+  const tables=await Promise.all(['A','B'].map(id=>snapshot(instance(page,id))));
   await settings.scrollIntoViewIfNeeded();await page.mouse.move(0,0);const before=await settings.boundingBox();expect(before).not.toBeNull();
   await page.mouse.move(before.x+before.width/2,before.y+before.height/2);
   const hovered=await settings.boundingBox();expect(Math.abs(hovered.x-before.x)).toBeLessThan(.5);expect(Math.abs(hovered.y-before.y)).toBeLessThan(.5);
   await page.mouse.click(before.x+before.width/2,before.y+before.height/2);
-  await expect(page.getByRole('button',{name:'应用全部',exact:true})).toBeVisible();
-  await page.keyboard.press('Escape');
+  await expect(settings).toHaveAttribute('aria-pressed','true');
+  await expect(page.locator('.generation-settings-popover')).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'应用全部',exact:true})).toHaveCount(0);
+  expect(await Promise.all(['A','B'].map(id=>snapshot(instance(page,id))))).toEqual(tables);
  }
 });
 
