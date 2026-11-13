@@ -119,7 +119,7 @@ export const promptSettingsStyle=`
 .dae-ui.generation-settings-popover :focus-visible{outline:2px solid var(--dae-focus,#b8c4ff);outline-offset:-2px}
 .dae-ui.generation-settings-popover [role=status]{margin:0;color:var(--dae-text-muted,#bbb)}
 .dae-ui.generation-settings-popover [role=status]:empty{display:none}
-.dae-ui.generation-settings-popover:is(.generation-mode-popover,.generation-model-popover,.generation-parameters-popover:not(.generation-column-settings)){border:none;border-radius:12px;background:var(--dae-surface,#262626);box-shadow:0 4px 14px #0004}
+.dae-ui.generation-settings-popover:is(.generation-mode-popover,.generation-model-popover,.generation-parameters-popover){border:none;border-radius:12px;background:var(--dae-surface,#262626);box-shadow:0 4px 14px #0004}
 .dae-ui.generation-settings-popover:is(.generation-mode-popover,.generation-model-popover){width:200px;padding:4px;gap:3px}
 .dae-ui.generation-settings-popover.generation-model-popover{width:max-content;min-width:min(200px,100%)}
 .dae-ui.generation-mode-popover>strong{display:none}
