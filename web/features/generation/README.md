@@ -90,3 +90,5 @@ The read-only task-records dialog includes submitted current and archived rows,
 with source row IDs, batch/request IDs, saved states and result previews.
 Deselected submitted rows remain in task progress but never enter the next
 submission scope. Reloaded unverified terminal states are labelled as saved records.
+
+独立生成节点的素材栏首位始终保留“＋”上传入口，上传后不移动原入口的位置，空态和已有素材使用同一个控件；首次上传后可继续追加，删除素材或保存重开不移除该入口。上传中和任务锁定时沿用原禁用规则。

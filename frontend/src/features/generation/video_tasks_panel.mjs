@@ -402,7 +402,7 @@ export function installVideoTasks(node,app,{documentFactory,taskIdentity,isDocum
   const promptField=state.table.fields.find(f=>f.id===cfg.promptFieldId);
   prompt.dataset.readonly=String(externalBatch||!!promptField.readonly);
   binding=promptUI.mountEditor({cell:prompt,row,field:{...promptField,readonly:externalBatch||promptField.readonly}});
-  clearMaterialPreviews();materials.replaceChildren();const assets=tableAssets(state.table,row).filter(a=>a.fieldId!==state.fieldId);if(!assets.length)materials.append(emptyMaterial);
+  clearMaterialPreviews();materials.replaceChildren();const assets=tableAssets(state.table,row).filter(a=>a.fieldId!==state.fieldId);materials.append(emptyMaterial);
   for(const [index,asset] of assets.entries()){
    const removeMaterial=()=>{if(node.mode||generation.submitting||active(current()))return;editor.change(t=>{removeMaterialItem(t,row.id,asset.fieldId,asset.id);});};
    const thumb=element('div',materials,'video-task-material');thumb.title=asset.name;thumb.setAttribute('aria-label',asset.name||'参考素材');
