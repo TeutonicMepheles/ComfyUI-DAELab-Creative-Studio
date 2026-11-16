@@ -88,7 +88,7 @@
       "source": "web/creative_canvas_view.mjs",
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
       "sourceSha256": "6fcbe66fa2842ba0302f32efd2537cd5bca443b8f662a78203cc1529d25c3aa8",
-      "destinationSha256": "c414a4abc27b594799889192f433fc45465f0f9c4aa2e4401a3235e9d213dffb",
+      "destinationSha256": "d0ec43949af253aeba327677a9c0abd6691892c27dfb8a25bea4e829dec627a4",
       "changes": [
         "2026-11-12: Hide unconnected upload ports until a media asset is present.",
         "2026-11-10: Prevent native text selection when a node drag begins, including the first drag on a generation card.",
@@ -125,7 +125,8 @@
         "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending.",
         "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately.",
         "2026-11-05: scope dock geometry and anchor its creation picker above the dock within the viewport; preserve other creation entry points.",
-        "2026-11-05: preserve source-table chapter boundaries and strengthen chapter controls; unify cell output and move editable media references only after successful canvas materialization."
+        "2026-11-05: preserve source-table chapter boundaries and strengthen chapter controls; unify cell output and move editable media references only after successful canvas materialization.",
+        "2026-11-16: project output availability without changing native sockets; clear canvas text selections on cross-control pointer input."
       ],
       "kind": "production-source"
     },
@@ -154,10 +155,11 @@
       "source": "web/creative_connections.mjs",
       "destination": "frontend/src/canvas/creative_connections.mjs",
       "sourceSha256": "6fdd4d42b650b787533ebdb7692bebcb8182e8309370dbde844fda81eb4a6bfe",
-      "destinationSha256": "46c59b3576fc428ec47d3452f41c4cf99e1b23bc588259e71fc6c213494e6b03",
+      "destinationSha256": "0de9864050bfd414824fd40e5147140e35fa4a87ae5a5087fd60567d1a63cd27",
       "changes": [
         "relocate into owner layer; rewrite relative module/style/resource paths",
-        "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained."
+        "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained.",
+        "2026-11-16: hide unavailable unlinked outlets while retaining saved wired slot indices."
       ],
       "kind": "production-source"
     },
@@ -198,11 +200,12 @@
       "source": "web/creative_navigation.mjs",
       "destination": "frontend/src/canvas/creative_navigation.mjs",
       "sourceSha256": "795f510d8fb6bde4b6bba99297818595bb4ae4070491607ab7d16d49b49e2a2f",
-      "destinationSha256": "e822c0f6692f6e65f82e54af6688a39714c6f0c4d5a94fddda6dae98813b2a3f",
+      "destinationSha256": "62d5ddd65b38cadbd58467946954d4340790e3112fb4b46a3d8fe72033756c22",
       "changes": [
         "2026-11-03: Initialize opted-in new card frames at 16:9, preserve saved dimensions and clipboard height, release parser height after import, and keep long generation prompts scrollable.",
         "relocate into owner layer; rewrite relative module/style/resource paths",
-        "2026-10-31: expose a pure helper for owned non-collapsed text selections."
+        "2026-10-31: expose a pure helper for owned non-collapsed text selections.",
+        "2026-11-16: clear only canvas-owned text ranges outside the current editor."
       ],
       "kind": "production-source"
     },
@@ -885,10 +888,11 @@
       "source": "tests/creative_connections.test.mjs",
       "destination": "tests/migrated_canvas/creative_connections.test.mjs",
       "sourceSha256": "690df3067bf71bd36c95bb507ef38e1cfd93c4c0d5c2da877f3b51eddd8c07c6",
-      "destinationSha256": "352e6bdfdd98b14d002c6aaca6518b327952f8f2ada2d3be0b8274c69fc96076",
+      "destinationSha256": "a4bc057779fe14d93be3ebec92235f02778ad174f735f2333c339a115e3c636d",
       "changes": [
         "point existing rule regression tests at migrated production modules",
-        "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained."
+        "PR #12: reviewed table-driven generation, frame/reference selection and batch LLM changes; follow-up preserves archived task state and legacy scalar table inputs. Original upstream hash retained.",
+        "2026-11-16: regression coverage for unavailable output projection and saved wired indices."
       ],
       "kind": "rule-regression"
     },
@@ -917,10 +921,11 @@
       "source": "tests/creative_navigation.test.mjs",
       "destination": "tests/migrated_canvas/creative_navigation.test.mjs",
       "sourceSha256": "b1a9fc23980bb527d3788cb0456c4b8eadbb70e11fa8b745084f292c8aa81f9d",
-      "destinationSha256": "39a8c57947d3dbd7885046837fb91b5e348a0f34c6ce469c869d9cc2e8c38cfb",
+      "destinationSha256": "9d8bcbe059a45487579ec9f52651fcf6c383c3154fad96e3bc75af158b2bb951",
       "changes": [
         "point existing rule regression tests at migrated production modules",
-        "2026-10-31: cover native text copy/paste ownership."
+        "2026-10-31: cover native text copy/paste ownership.",
+        "2026-11-16: regression coverage for cross-control selection cleanup and editor/outside boundaries."
       ],
       "kind": "rule-regression"
     },

@@ -1,8 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {MATERIAL_SLOT,resolveOutput,targetChoices,outputSelector,inputSlots} from '../../frontend/src/canvas/creative_connections.mjs';
+import {MATERIAL_SLOT,resolveOutput,targetChoices,outputSelector,inputSlots,outputSlots} from '../../frontend/src/canvas/creative_connections.mjs';
 import {registerAdapter} from '../../frontend/src/canvas/creative_contract.mjs';
 const upload=kind=>({type:'DAELAB.MediaUpload',widgets:[{name:'asset_data',value:JSON.stringify({filename:'asset',kind})}],outputs:['COMFYTV_IMAGE','COMFYTV_IMAGES','COMFYTV_VIDEO','IMAGE','VIDEO'].map(type=>({type}))});
+
+test('output availability hides empty controller outlets and preserves saved wired socket indices',()=>{
+ const release=registerAdapter('test.output-availability',{matches:n=>n.type==='test.Controller',canConnectOutput:n=>n.rows>0});
+ try{
+  const n={type:'test.Controller',rows:0,outputs:[{type:'STRING',links:null},{type:'STRING',links:[17]}]},before=JSON.stringify(n.outputs);
+  assert.deepEqual(outputSlots(n),[1]);assert.equal(JSON.stringify(n.outputs),before);
+  n.rows=1;assert.deepEqual(outputSlots(n),[0,1]);
+  n.rows=0;n.outputs[1].links=[];assert.deepEqual(outputSlots(n),[]);
+  assert.equal(resolveOutput(n,0,'STRING'),0,'serialized sockets remain readable');
+  assert.deepEqual(outputSlots(upload('image')),[0,1,3]);
+ }finally{release();}
+});
 
 test('text and material groups resolve the real text-generation inputs without altering indices',()=>{
  const target={type:'DAELAB.LLMStylePreviewB',inputs:[{name:'原文',type:'STRING'},{name:'参考图片',type:'IMAGE'},{name:'素材组',type:'DAELAB_ASSETS'},{name:'多维表格',type:'STRING'},{name:'其他输入',type:'*'}]};

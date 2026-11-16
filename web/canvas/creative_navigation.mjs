@@ -20,6 +20,13 @@ export function hasCanvasTextSelection(root,selection=globalThis.getSelection?.(
     const within=node=>Boolean(node&&(node===root||root.contains?.(node.nodeType===1?node:node.parentNode)));
     return within(selection.anchorNode)&&within(selection.focusNode);
 }
+export function clearCanvasTextSelection(root,target,selection=globalThis.getSelection?.()){
+    if(!root?.contains?.(target)||!hasCanvasTextSelection(root,selection))return false;
+    const editor=target.closest?.('input,textarea,[contenteditable="true"],[contenteditable="plaintext-only"]');
+    if(editor?.contains(selection.anchorNode)&&editor.contains(selection.focusNode))return false;
+    selection.removeAllRanges();
+    return true;
+}
 export function readSnapshot(text){
     try{const value=JSON.parse(text);return value?.kind===CLIPBOARD_KIND&&typeof value.node?.type==='string'?value:null;}catch{return null;}
 }

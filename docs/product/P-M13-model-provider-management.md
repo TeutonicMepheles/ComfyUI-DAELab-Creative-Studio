@@ -179,8 +179,7 @@ Tag，也不展示可用性检测的错误说明。模型名称和提供方来�
 ## 当前实现与差距
 
 当前本地模型通过 `daelab/creative-studio/local-generation.json` 显式装配，检查 ComfyUI
-节点、模型路径、哈希、Ollama 清单和 blob；文本提供方只用本地模型，不读取云密钥。现有控件可能显示不可用原因，但尚无统一的跨节点模型目录，也未按本标准
-将可用性检测原因从选择界面移到日志。
+节点、模型路径、哈希、Ollama 清单和 blob。2026-11-16 源码核对：共享逻辑模型目录及检测状态已存在，生成与文本控件复用目录；检测原因按目录 UI 合同写入日志。Comfy 积分文本入口保留，独立 DeepSeek 密钥通道已退役。四类模型统一配置、3D、环境策略及完整启动/重连发现尚未交付；当前实现以 [模型目录 README](../../frontend/src/features/models/README.md) 为准，不将历史差距表视为最新实现证明。
 
 权威实现边界见[本地模型装配](../architecture/LOCAL_GENERATION.md)、
 [模型配置](../MODELS.md)和[提供方合同](../../backend/providers/README.md)。

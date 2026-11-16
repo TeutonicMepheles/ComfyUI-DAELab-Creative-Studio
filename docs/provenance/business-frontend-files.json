@@ -1308,7 +1308,7 @@
       "source": "web/script_parser.js",
       "destination": "frontend/src/integrations/comfyui/business/script_parser.js",
       "sourceSha256": "7920d6861d96d764a89c4bee1ff714cab3558857e854111146f240bc06b04fb0",
-      "destinationSha256": "821e2499ee0c9fa89a476d23e34ad416233feef372da979fe3c93ab577214593",
+      "destinationSha256": "986b4d97e1db39d50ae6a2d120bfe49c49496f884749b182832041a73b9eb0b0",
       "kind": "production-source",
       "changes": [
         "2026-11-03: Use the existing outer-card selection ring for empty parser panels to avoid workbench overflow clipping; retain the table surface after import.",
@@ -1320,7 +1320,8 @@
         "Native DocumentController transactions, workflow/session tickets, native undo/redo and host save propagation; see docs/architecture/EDITING.md.",
         "1029 script parsing: fixed four columns, source-identified chapters, ten-row pages and native multi-table import history.",
         "2026-11-05: table and script parser Slot creation and existing-node connections allow only image/video generation targets; preserve saved links and separate material outputs.",
-        "2026-11-05: preserve source-table chapter boundaries and strengthen chapter controls; unify cell output and move editable media references only after successful canvas materialization."
+        "2026-11-05: preserve source-table chapter boundaries and strengthen chapter controls; unify cell output and move editable media references only after successful canvas materialization.",
+        "2026-11-16: empty and exported script controllers declare no new output capability; populated legacy tables retain output."
       ]
     },
     {

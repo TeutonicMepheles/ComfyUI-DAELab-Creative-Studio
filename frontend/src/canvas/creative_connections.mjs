@@ -8,6 +8,11 @@ export const MATERIAL_SLOT=-1;
 export const unifiedNode=node=>node.type?.startsWith('DAELAB.');
 export const inputSlots=node=>adapterFor(node)?.canConnectInput?.(node)===false?[]:(node.inputs||[]).flatMap((p,i)=>p.widget&&p.link==null?[]:[i]);
 export const acceptsTargetType=(source,type)=>adapterFor(source)?.outputTargetTypes?.(source)?.includes(type)??true;
+// Hide unavailable outlets without removing serialized sockets or existing wires.
+export function outputSlots(node){
+    const slots=sourceSlots(node,MATERIAL_SLOT);
+    return adapterFor(node)?.canConnectOutput?.(node)===false?slots.filter(i=>node.outputs[i].links?.length):slots;
+}
 export function uploadKind(node){return readAsset(node.widgets?.find(w=>w.name==='asset_data')?.value)?.kind;}
 export function sourceSlots(node,index){
     if(index!==MATERIAL_SLOT)return node.outputs?.[index]?[index]:[];
