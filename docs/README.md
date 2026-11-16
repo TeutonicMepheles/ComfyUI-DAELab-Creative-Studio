@@ -4,6 +4,7 @@
 | --- | --- |
 | [安装](INSTALLATION.md) / [首次使用](USAGE.md) | 开发版单包安装与合成 Showcase 流程 |
 | [模型配置](MODELS.md) / [排错](TROUBLESHOOTING.md) | 已实现配置字段、能力检查与错误定位 |
+| [18 项模型接入配置表](MODEL_ACCESS_CONFIGURATION_20261116.md) / [CSV](MODEL_ACCESS_CONFIGURATION_20261116.csv) | 输入、参数、输出、字段映射、待补字段与待开发能力；不代表全部实测 |
 | [阶段技术总结](TECHNICAL_SUMMARY_20261116.md) / [11 月 13 日任务状态](validation/WORKFLOW_BUGS_20261116.md) | 工作流修复、模型配置现状与证据边界 |
 | [DEVELOPMENT.md](DEVELOPMENT.md) | 新同事与 Agent 的编辑、构建、独立宿主和协作流程 |
 | [模块解耦与 README 实施计划](MODULARITY_PLAN.md) | 表格试点、实施顺序和完成条件；计划不代表实现 |

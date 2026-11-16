@@ -16,6 +16,8 @@ Studio 单包拥有画布、表格、提示词、生成与任务。画布通过�
 
 ## 模型配置现状
 
+2026-11-16 补充：[18 项模型接入配置表](MODEL_ACCESS_CONFIGURATION_20261116.md)和 [CSV](MODEL_ACCESS_CONFIGURATION_20261116.csv)已按 `47e597d` 源码整理，字段待补与能力待开发分别登记；文档交付不表示统一配置机制已开发完成。
+
 共享逻辑模型目录覆盖 image/video/text，提供身份、状态和能力快照。模型备注及来源胶囊消费元数据，不代表安装成功或质量通过。3D、统一参数 schema 和环境限制仍需补齐，不能把目录存在写成四类配置完成。实际装配和文件要求见 [MODELS](MODELS.md)、[模型合同](product/P-M13-model-provider-management.md)及[目录模块](../frontend/src/features/models/README.md)。
 
 | 类别 | 当前可核对入口 | 仍需补齐 |

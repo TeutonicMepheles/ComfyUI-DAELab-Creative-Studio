@@ -1,5 +1,7 @@
 # 本地模型配置
 
+跨本地与 ComfyUI 账户的 18 项现状盘点见 [模型接入配置表](MODEL_ACCESS_CONFIGURATION_20261116.md)及[可筛选 CSV](MODEL_ACCESS_CONFIGURATION_20261116.csv)。表中区分接线实现、宿主动态参数、待补字段和待开发能力；本页维护部署配置，两者不替代模型验收。
+
 表格编辑不需要模型。本仓库的真实模型验收限定为 `qwen3.5:9b-q4_K_M`、Qwen-Image-2.1 Turbo 和 MiniMax H3 FL / Ref；不自动下载替代模型，不以云端回退验证本次重构。界面列出其他配置项不代表本环境已经具备执行能力。
 
 宿主从其 **user 目录**下的 `daelab/creative-studio/local-generation.json` 读取显式配置。未配置的档位按 ComfyUI 的模型目录自动匹配，已有档位沿用显式绑定。`enabled=false` 关闭本地生成。配置字段的权威实现是 [local_generation.py](../backend/integrations/comfyui/local_generation.py)：
