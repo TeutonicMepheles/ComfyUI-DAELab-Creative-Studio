@@ -5,10 +5,10 @@ import {materialDropSnapshot,acceptsMaterialDrop,materialDropCount} from './crea
 import {createTaskCapsules} from '../features/tasks/creative_tasks.mjs';
 import {bindPanelContext} from '../ui/creative_panel_context.mjs?v=20260930-public-layout4';
 import {isPanelActive} from '../ui/creative_panel_state.mjs?v=20261013-active-state';
-import {wheelViewport,copySnapshot,readSnapshot,hasCanvasTextSelection} from './creative_navigation.mjs';
+import {wheelViewport,copySnapshot,readSnapshot,hasCanvasTextSelection,clearCanvasTextSelection} from './creative_navigation.mjs';
 import {createCaretReveal} from './creative_focus_reveal.js';
 import {UPLOAD_TYPE,mediaKind,readAsset} from '../features/assets/media_upload_model.mjs';
-import {MATERIAL_SLOT,uploadKind,sourceSlots,resolveOutput,targetChoices,outputSelector,inputSelector,unifiedNode,inputSlots,acceptsTargetType} from './creative_connections.mjs';
+import {MATERIAL_SLOT,uploadKind,sourceSlots,outputSlots,resolveOutput,targetChoices,outputSelector,inputSelector,unifiedNode,inputSlots,acceptsTargetType} from './creative_connections.mjs';
 import {menuItems,canConnectDefinition,matchingSlot} from './creative_canvas_catalog.mjs';
 import {bindCreativeField} from '../ui/creative_field.mjs';
 import {createAssetLibrary} from '../features/assets/asset_library.mjs?v=20261022-favorite1';
@@ -230,12 +230,13 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
         message(link?'已连接，可在当前画布继续操作':'连接未建立，请检查接口类型');dirty();sync();return link;
     }
     function ports(c){
-        const signature=JSON.stringify([uploadKind(c.node),c.layout.portsExpanded,c.node.inputs?.map(i=>[i.name,i.type,i.link]),c.node.outputs?.map(o=>[o.name,o.type,o.links])]);
+        const inputs=inputSlots(c.node),outputs=outputSlots(c.node);
+        const signature=JSON.stringify([uploadKind(c.node),c.layout.portsExpanded,inputs,outputs,c.node.inputs?.map(i=>[i.name,i.type,i.link]),c.node.outputs?.map(o=>[o.name,o.type,o.links])]);
         if(c.portSignature===signature)return;c.portSignature=signature;c.ports.replaceChildren();
         for(const side of ['input','output']){
             const group=el('div');group.dataset.side=side;c.ports.append(group);
             const material=c.node.type===UPLOAD_TYPE,unified=unifiedNode(c.node);
-            const indices=side==='input'?inputSlots(c.node):sourceSlots(c.node,MATERIAL_SLOT);
+            const indices=side==='input'?inputs:outputs;
             const entries=unified?(indices.length?[[MATERIAL_SLOT,{name:side==='input'?'输入':'输出',type:'*',link:indices.some(i=>c.node.inputs?.[i]?.link!=null)?1:null,links:c.node.outputs?.flatMap(o=>o.links||[])}]]:[]):indices.map(i=>[i,c.node[side==='input'?'inputs':'outputs'][i]]);
             for(const [i,p] of entries){
                 if(side==='input'&&p.widget&&p.link==null)continue;
@@ -949,6 +950,7 @@ export function createCreativeCanvas(host,{onExit=()=>{}}={}) {
     root.addEventListener('pointermove',e=>{const rect=root.getBoundingClientRect();pointerPoint={x:e.clientX-rect.left,y:e.clientY-rect.top};if(!drag){hoverPoint={x:e.clientX,y:e.clientY};animateWires();}},true);
     root.addEventListener('pointerleave',()=>{hoverPoint=null;if(!drag){setMagnet(null);setIncomingWire(null);}animateWires();});
     for(const event of ['focusin','focusout','transitionrun','transitionend'])root.addEventListener(event,animateWires);
+    root.addEventListener('pointerdown',e=>{if(e.button===0)clearCanvasTextSelection(root,e.target);},true);
     root.addEventListener('pointerdown',e=>{
         if(e.button!==0||drag||e.target.closest('path[data-link-id],.dae-library-overlay'))return;
         if(e.target.closest('.dae-column-divider,[role=separator]'))return;

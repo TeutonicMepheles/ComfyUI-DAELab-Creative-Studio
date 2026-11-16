@@ -1,6 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {wheelViewport,copySnapshot,readSnapshot,hasCanvasTextSelection} from '../../frontend/src/canvas/creative_navigation.mjs';
+import {wheelViewport,copySnapshot,readSnapshot,hasCanvasTextSelection,clearCanvasTextSelection} from '../../frontend/src/canvas/creative_navigation.mjs';
+
+test('cross-control clicks clear only canvas text ranges and preserve same-editor selection',()=>{
+ const text={nodeType:3,parentNode:{owner:'canvas'}},outside={nodeType:1},button={owner:'canvas',closest:()=>null};
+ const root={contains:n=>n?.owner==='canvas'},editor={contains:n=>n===text};
+ let clears=0;const selection={isCollapsed:false,anchorNode:text,focusNode:text,removeAllRanges:()=>clears++};
+ assert.equal(clearCanvasTextSelection(root,{owner:'canvas',closest:()=>editor},selection),false);
+ assert.equal(clearCanvasTextSelection(root,button,selection),true);assert.equal(clears,1);
+ assert.equal(clearCanvasTextSelection(root,button,{...selection,focusNode:outside}),false);
+ assert.equal(clearCanvasTextSelection(root,outside,selection),false);
+ assert.equal(clearCanvasTextSelection(root,button,{...selection,isCollapsed:true}),false);
+ assert.equal(clears,1);
+});
 test('wheel pan, shift pan and cursor-centered Ctrl zoom are independent',()=>{
  const v={x:100,y:200,zoom:.5},p={x:350,y:300},e={deltaX:0,deltaY:100,deltaMode:0};
  assert.deepEqual(wheelViewport(v,p,e),{x:100,y:100,zoom:.5});

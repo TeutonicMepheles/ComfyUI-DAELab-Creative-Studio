@@ -77,7 +77,7 @@
     },
     {
       "destination": "frontend/src/canvas/creative_canvas_view.mjs",
-      "destinationSha256": "c414a4abc27b594799889192f433fc45465f0f9c4aa2e4401a3235e9d213dffb",
+      "destinationSha256": "d0ec43949af253aeba327677a9c0abd6691892c27dfb8a25bea4e829dec627a4",
       "changes": [
         "2026-11-03: Preserve Comfy enqueue acknowledgements, show visual image settings and numeric credits, and materialize single cells and selected local files as independent nodes.",
         "2026-11-03: Unify selection rings and mixed-node drag ownership; preserve interactive controls, cancellation and native undo, and cover the complete selection hull.",
@@ -86,7 +86,8 @@
         "Input registration follow-up; original source provenance remains in canvas-files.json/canvas-backend-files.json where applicable.",
         "2026-11-04: split image/video creation entries with legacy compatibility, provider source capsules, editable text templates and linked draft locking; grouped creation menu. Source preview and automated checks only; final host acceptance pending.",
         "2026-11-04 task37: retire DeepSeek credential transport and implement explicit meeting interaction changes; retain current table schema, native identities, existing outputs and Comfy credit models. Final host validation is recorded separately.",
-        "2026-11-05: preserve source-table chapter boundaries and strengthen chapter controls; unify cell output and move editable media references only after successful canvas materialization."
+        "2026-11-05: preserve source-table chapter boundaries and strengthen chapter controls; unify cell output and move editable media references only after successful canvas materialization.",
+        "2026-11-16: project output availability without changing native sockets; clear canvas text selections on cross-control pointer input."
       ]
     },
     {

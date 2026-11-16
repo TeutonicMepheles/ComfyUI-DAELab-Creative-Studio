@@ -4,6 +4,8 @@
 
 负责卡片位置、视口、选择、导航、真实 Slot 连线和素材投放。节点业务内容由公开适配器声明。
 
+输出入口按适配器 `canConnectOutput` 投影；不可输出时隐藏无连线的入口，已保存槽位及连线保留。点击其他控件或开始拖动时清除画布内的旧文字选区；同一编辑器内选择和画布外选区保留。
+
 源码入口：creative_canvas_view.mjs：视图和布局同步；creative_canvas_model.mjs：daelabCreativeCanvasV1；creative_connections.mjs：原生槽位连接；creative_material_drop.mjs、creative_input_exchange.mjs：素材交换。
 
 协作边界：与 integrations/comfyui/canvas 通过宿主端口连接；与业务通过 adapter v1 交换能力和素材快照。平移缩放属于视图，不新增编辑历史。

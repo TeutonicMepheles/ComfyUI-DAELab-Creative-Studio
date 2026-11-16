@@ -85,6 +85,7 @@ function register(){const api=globalThis[Symbol.for('DAELAB.CreativeCanvas.API.v
  tasks:node=>node.__scriptPanel?.tasks?.()||[],
  outputTargetTypes:()=>[IMAGE_GENERATION_NODE,VIDEO_GENERATION_NODE],
  canConnectInput:()=>false,
+ canConnectOutput:node=>Boolean(node.__scriptTable?.records.length),
  materialItem:(node,key)=>materialItem(node.__scriptTable,key),
  takeMaterialItem(node,key,expected){const editor=node.__scriptPanel?.editor;if(!editor)throw new Error('解析表尚未就绪');editor.change(table=>takeMaterialItem(table,key,expected));},
  panel:node=>node.__scriptPanel?{root:node.__scriptPanel.root,close:()=>node.__scriptPanel.close()}:null,
