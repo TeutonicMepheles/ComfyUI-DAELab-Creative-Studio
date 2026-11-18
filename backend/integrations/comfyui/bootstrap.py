@@ -51,7 +51,7 @@ def register_coexistence_self_check(server, arbitration):
     """
     from .coexistence import (
         check_node_owners, check_prompt_optimization_routes, check_contested_routes,
-        CONTESTED_NODES,
+        CANVAS_NODES, CONTESTED_NODES, MATERIAL_OUTPUT_ROUTE, check_canvas_registrations,
     )
 
     def _collect_errors():
@@ -62,10 +62,15 @@ def register_coexistence_self_check(server, arbitration):
         except ImportError:
             global_mappings = {}
         node_modules = {node_id: global_mappings[node_id].__module__
-                        for node_id in CONTESTED_NODES if node_id in global_mappings}
+                        for node_id in (CONTESTED_NODES | CANVAS_NODES) if node_id in global_mappings}
         errors.extend(check_node_owners(node_modules, arbitration))
-        registered = [(route.method, route.path) for route in getattr(server, "routes", [])
-                      if hasattr(route, "method") and hasattr(route, "path")]
+        routes = [route for route in getattr(server, "routes", [])
+                  if hasattr(route, "method") and hasattr(route, "path")]
+        registered = [(route.method, route.path) for route in routes]
+        errors.extend(check_canvas_registrations(node_modules, [
+            route.handler.__module__ for route in routes
+            if (route.method, route.path) == MATERIAL_OUTPUT_ROUTE
+        ]))
         errors.extend(check_contested_routes(registered, arbitration))
         errors.extend(check_prompt_optimization_routes(registered, arbitration))
         return errors

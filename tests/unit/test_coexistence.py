@@ -83,6 +83,23 @@ class ValidationTests(unittest.TestCase):
     def test_complete_arbitration_has_no_errors(self):
         self.assertEqual(coexistence.validate_arbitration(valid_arbitration()), [])
 
+    def test_canvas_authorization_requires_studio_layer_owner(self):
+        data = valid_arbitration()
+        data["allowLegacyPackages"].append(coexistence.CANVAS_PACKAGE)
+        self.assertEqual(coexistence.validate_arbitration(data), [])
+        data["layerOwners"]["canvas"] = "canvas"
+        self.assertTrue(any("layerOwners.canvas" in error for error in coexistence.validate_arbitration(data)))
+
+    def test_canvas_nodes_and_material_route_have_a_single_studio_owner(self):
+        studio = "ComfyUI-DAELab-Creative-Studio.backend"
+        canvas = "ComfyUI-DAELab-Creative-Canvas.nodes"
+        nodes = dict.fromkeys(coexistence.CANVAS_NODES, studio)
+        self.assertEqual(coexistence.check_canvas_registrations(nodes, [studio]), [])
+        self.assertTrue(coexistence.check_canvas_registrations(nodes, [canvas, studio]))
+        self.assertTrue(coexistence.check_canvas_registrations(nodes, []))
+        nodes["DAELAB.MediaUpload"] = canvas
+        self.assertTrue(coexistence.check_canvas_registrations(nodes, [studio]))
+
     def test_missing_node_owner_is_an_error(self):
         data = valid_arbitration()
         del data["nodeOwners"]["DAELAB.Table"]
