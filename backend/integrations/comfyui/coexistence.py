@@ -25,6 +25,12 @@ LEGACY_PACKAGE_NAMES = frozenset({
     "ComfyUI-DAELab-Custom-Nodes-Library",
 })
 
+CANVAS_PACKAGE = "ComfyUI-DAELab-Creative-Canvas"
+CANVAS_NODES = frozenset({
+    "DAELAB.MediaUpload", "DAELAB.TextInput", "DAELAB.MaterialGroup", "DAELAB.VideoEdit",
+})
+MATERIAL_OUTPUT_ROUTE = ("POST", "/daelab/creative/material-output")
+
 CONTESTED_NODES = frozenset({
     "DAELAB.Table",
     "DAELAB.ScriptParser",
@@ -152,6 +158,11 @@ def validate_arbitration(arbitration: dict) -> list[str]:
         if unknown:
             errors.append(f"allowLegacyPackages contains unknown package names: {unknown}")
 
+    if isinstance(allowed, list) and CANVAS_PACKAGE in allowed:
+        layers = arbitration.get("layerOwners")
+        if not isinstance(layers, dict) or layers.get("canvas") != "studio":
+            errors.append("Canvas and Studio coexistence requires layerOwners.canvas = studio")
+
     errors.extend(_owner_errors(arbitration.get("nodeOwners"), CONTESTED_NODES, "nodeOwners"))
     errors.extend(_owner_errors(_normalize_route_owners(arbitration.get("routeOwners")), CONTESTED_ROUTES, "routeOwners"))
     errors.extend(_owner_errors(arbitration.get("extensionOwners"), CONTESTED_EXTENSIONS, "extensionOwners"))
@@ -269,4 +280,16 @@ def check_contested_routes(registered_routes, arbitration: dict) -> list[str]:
         matches = [p for (m, p) in registered if m == method and p == path]
         if len(matches) != 1:
             errors.append(f"{key}: expected exactly one handler (owner {expected!r}), found {len(matches)}")
+    return errors
+
+
+def check_canvas_registrations(node_modules, material_handlers) -> list[str]:
+    """Studio owns the Canvas layer whenever Studio participates in coexistence."""
+    errors = []
+    for node_id in sorted(CANVAS_NODES):
+        if classify_module(node_modules.get(node_id, "")) != "studio":
+            errors.append(f"{node_id}: expected Creative Studio ownership")
+    owners = [classify_module(module) for module in material_handlers]
+    if owners != ["studio"]:
+        errors.append(f"material-output: expected exactly one Creative Studio handler, found {owners}")
     return errors
